@@ -1,0 +1,26 @@
+buildType:
+  default: debug
+  description: compile mode
+  choices:
+    debug:
+      short: Debug
+      long: Build with debugging information
+      buildType: Debug
+    release:
+      short: Release
+      long: Optimize the resulting binaries
+      buildType: Release
+platform:
+  default: 'linux'
+  choices:
+    'linux':
+      short: Linux
+      long: build for linux
+      settings:
+        PLATFORM_LINUX: true
+    'switch':
+      short: Switch
+      long: build for switch
+      settings:
+        PLATFORM_SWITCH: true
+        

@@ -1,0 +1,77 @@
+{
+    "name": "App de Démo Borealis",
+    "tabs": {
+        "first": "Premier onglet",
+        "second": "Deuxième onglet",
+        "third": "Troisième onglet",
+        "fourth": "Quatrième onglet",
+        "custom_navigation_tab": "Disposition personnalisée"
+    },
+
+    "pozznx": {
+        "open": "Ouvrir une boîte de dialogue",
+        "warning": "Avertissement: PozzNX va effacer toutes les données de votre Switch et la rendre inutilisable, voulez-vous continuer ?",
+        "running": "Exécution de PozzNX...",
+        "continue": "Continuer"
+    },
+
+    "notify": "Afficher une notification aléatoire",
+
+    "tv": {
+        "resolution": "Résolution du téléviseur",
+        "automatic": "Automatique"
+    },
+
+    "i18n": {
+        "title": "Langue : {0} ({1})",
+        "lang": "Français"
+    },
+
+    "jank": {
+        "jank": "Bâclement de l'interface utilisateur",
+        "native": "Natif",
+        "minimal": "Minimal",
+        "regular": "Normal",
+        "maximum": "Maximum",
+        "saxophone": "SX OS",
+        "vista": "Windows Vista",
+        "ios": "iOS 14"
+    },
+
+    "divide": {
+        "title": "Diviser par 0",
+        "description": "Est-ce que la Switch peut le faire ?",
+        "crash": "Le logiciel a été arrêté à cause d'une erreur:\nSIGABRT (signal 6)"
+    },
+
+    "more": "Si vous désirez en savoir plus sur la console Nintendo Switch et ses fonctionnalités, visitez le site d'assistance Nintendo depuis un appareil connecté ou un ordinateur.",
+
+    "actions": {
+        "title": "Actions personnalisées",
+        "notify": "Afficher une notification",
+        "triggered": "Action personnalisée déclenchée"
+    },
+
+    "layers": {
+        "title": "Choisir une couche",
+        "layer1": "Couche 1",
+        "layer2": "Couche 2",
+
+        "item1": "Item 1",
+        "item2": "Item 2",
+        "item3": "Item 3"
+    },
+
+    "keyboard": {
+        "string": {
+            "title": "Ouvrir le clavier",
+            "default": "Texte par défaut",
+            "help": "Message d'aide"
+        },
+        "number": {
+            "title": "Ouvrir le clavier numérique",
+            "help": "Message d'aide"
+        }
+    }
+}
+
