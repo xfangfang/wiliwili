@@ -2,12 +2,42 @@
 
 a third party bilibili client for Nintendo Switch.
 
-# usage
+# Usage
 
-for Nentendo Switch: copy the bilibili.nro to sdmc://switch folder.
-for Linux: unzip the bilibili.zip and run bilibili
+for Nentendo Switch: copy the wiliwili.nro to sdmc://switch folder.
 
-# Dependency for development (using ubuntu20.0.4)
+for Linux: unzip the wiliwili.zip and run wiliwili
+
+# Development (under ubuntu20.0.4)
+
+recommand using vscode with cmake tools
+
+## linux
+
+### 1. install dependency
+
+```
+# for internet connection
+sudo aot install libssl-dev
+# for borealis
+sudo apt install libglfw3-dev libglm-dev
+#for mpv
+sudo apt install libmpv-dev
+# for building
+sudo apt install cmake zip git
+```
+
+### 2. build wiliwili
+
+```
+mkdir -p linux_build && cd linux_build
+rm -rf ./* && cmake -DPLATFORM_LINUX:BOOL=TRUE ..
+make wiliwili.data
+make -j4
+```
+
+
+## switch
 
 ### 1. install devkitpro
 
@@ -25,27 +55,7 @@ EOF
 source ~/.bashrc
 ```
 
-### 2. install apt dependency
-
-##### for borealis
-
-```
-sudo apt install libglfw3-dev libglm-dev
-```
-
-##### for mpv
-
-```
-sudo apt install libmpv-dev
-```
-
-##### for building
-
-```
-sudo apt install cmake zip git
-```
-
-##### building switch ffmpeg library
+### 2. building switch ffmpeg library
 
 ```
 sudo dkp-pacman -S devkitpro-pkgbuild-helpers
@@ -100,11 +110,8 @@ source /opt/devkitpro/switchvars.sh
 make install
 rm -r ${PORTLIBS_PREFIX}/share/
 ```
-# Build wiliwili
 
-recommand using vscode with cmake tools
-
-### switch build
+### 3. build wiliwili.nro
 
 ```
 mkdir -p switch_build && cd switch_build
@@ -113,25 +120,16 @@ make -j4 wiliwili.nro
 nxlink -s wiliwili.nro
 ```
 
-### linux build
-
-```
-mkdir -p linux_build && cd linux_build
-rm -rf ./* && cmake -DPLATFORM_LINUX:BOOL=TRUE ..
-make wiliwili.data
-make -j4
-```
-
-##### build release
-
-```
-make -j4 bilibili.zip
-```
-
 # Reference
 
 https://devkitpro.org/wiki/devkitPro_pacman
-https://github.com/devkitPro/pacman/releases/
+
+https://github.com/devkitPro/pacman/releases
+
+https://github.com/devkitPro/pacman-packages
+
 https://github.com/natinusala/borealis
+
 https://github.com/Cpasjuste/pplay
 
+https://github.com/whoshuu/cpr
