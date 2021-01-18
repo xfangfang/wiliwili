@@ -8,7 +8,7 @@ for Nentendo Switch: copy the wiliwili.nro to sdmc://switch folder.
 
 for Linux: unzip the wiliwili.zip and run wiliwili
 
-# Development (under ubuntu20.0.4)
+# Development (under ubuntu20.04)
 
 recommand using vscode with cmake tools
 
@@ -18,7 +18,7 @@ recommand using vscode with cmake tools
 
 ```
 # for internet connection
-sudo aot install libssl-dev
+sudo apt install libcurl4-openssl-dev
 # for borealis
 sudo apt install libglfw3-dev libglm-dev
 #for mpv
@@ -32,7 +32,6 @@ sudo apt install cmake zip git
 ```
 mkdir -p linux_build && cd linux_build
 rm -rf ./* && cmake -DPLATFORM_LINUX:BOOL=TRUE ..
-make wiliwili.data
 make -j4
 ```
 

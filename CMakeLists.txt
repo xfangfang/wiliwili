@@ -1,13 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.15)
 if(PLATFORM_SWITCH:BOOL)
   set(PLATFORM_SWITCH ON)
 elseif(PLATFORM_LINUX:BOOL)
   set(PLATFORM_LINUX ON)
-endif()
-
-file(TO_CMAKE_PATH "$ENV{DEVKITPRO}" DEVKITPRO)
-if(NOT IS_DIRECTORY ${DEVKITPRO})
-    message(FATAL_ERROR "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
 endif()
 
 # toolchain
@@ -17,6 +12,10 @@ if(PLATFORM_LINUX)
   set(TARGET_PLATFORM linux CACHE STRING "")
 elseif (PLATFORM_SWITCH)
   message("building for SWITCH")
+  file(TO_CMAKE_PATH "$ENV{DEVKITPRO}" DEVKITPRO)
+  if(NOT IS_DIRECTORY ${DEVKITPRO})
+      message(FATAL_ERROR "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
+  endif()
   set(DEVKITPRO $ENV{DEVKITPRO} CACHE BOOL "DEVKITPRO")
   set(CMAKE_SYSTEM_NAME "Generic")
   set(CMAKE_SYSTEM_VERSION 1 )
@@ -55,7 +54,28 @@ set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/bilibili.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
 
-# seting borealis src and include
+# import cpr library from github
+set(USE_SYSTEM_CURL ON)
+set(BUILD_CPR_TESTS OFF)
+set(CMAKE_USE_OPENSSL OFF)
+include(FetchContent)
+FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/whoshuu/cpr.git GIT_TAG c8d33915dbd88ad6c92b258869b03aba06587ff9) # the commit hash for 1.5.0
+FetchContent_MakeAvailable(cpr)
+
+# building bilibili-api library
+if (PLATFORM_LINUX)
+elseif(PLATFORM_SWITCH)
+        set(PLATFORM_LIBS_BILIBILI curl z nx)
+endif()
+aux_source_directory(${CMAKE_SOURCE_DIR}/library/bilibili-api-cpp/source BILIBILI_API_SRC)
+set(BILIBILI_API_INCLUDE ${CMAKE_SOURCE_DIR}/library/bilibili-api-cpp/include)
+add_library(bilibili_api STATIC ${BILIBILI_API_SRC})
+target_compile_options(bilibili_api PRIVATE -g -Wall -O2 -ffunction-sections -fno-rtti -fno-exceptions)
+target_include_directories(bilibili_api PRIVATE ${BILIBILI_API_INCLUDE})
+target_link_libraries(bilibili_api PRIVATE cpr::cpr ${PLATFORM_LIBS_BILIBILI})
+
+
+# setting borealis library src and include
 set(BOREALIS_PATH ${CMAKE_SOURCE_DIR}/library/borealis/library)
 set(BOREALIS_INCLUDE
         ${BOREALIS_PATH}/include
@@ -77,13 +97,12 @@ foreach(lib ${BOREALIS_SOURCE})
         list(APPEND BOREALIS_SRC ${TEMP_SRC})
 endforeach(lib)
 
-# seting bilibili src and include
+# seting wiliwili src and include
 set(PLATFORM_OPTION)
 if (PLATFORM_LINUX)
         add_definitions(-D__PLATFORM_LINUX__)
         set(PLATFORM_RESOURCES_PATH "\"./resources/\"")
-        #for mac
-        #list(APPEND PLATFORM_OPTION $<$<COMPILE_LANGUAGE:CXX>:-Wno-inconsistent-missing-override>)
+        set(PLATFORM_LIBS mpv glfw)
         list(REMOVE_ITEM BOREALIS_SRC
                 ${BOREALIS_PATH}/lib/switch_wrapper.c
                 ${BOREALIS_PATH}/lib/extern/nxfmtwrapper/format.cpp
@@ -92,27 +111,28 @@ if (PLATFORM_LINUX)
                 ${BOREALIS_PATH}/lib/extern/fmt/src/format.cc
                 ${BOREALIS_PATH}/lib/extern/fmt/src/os.cc
               )
-        set(PLATFORM_LIBS mpv glfw)
 elseif (PLATFORM_SWITCH)
-        set(PLATFORM_RESOURCES_PATH "\"romfs:\"")
         set(PLATFORM_LIBS
-          # needed for mpv
+          # needed by mpv
           mpv swscale swresample avformat avfilter avcodec avutil opus vpx ass freetype fribidi png bz2 z SDL2
-          # needed for borealis
+          # needed by borealis
           glfw3 EGL glapi drm_nouveau m
           # base lib
           nx
         )
         add_definitions(-DSWITCH -D__SWITCH__ -DHAVE_LIBNX)
-        list(APPEND PLATFORM_OPTION $<$<COMPILE_LANGUAGE:CXX>:-Wno-volatile>)
+        set(PLATFORM_RESOURCES_PATH "\"romfs:\"")
+        list(APPEND PLATFORM_OPTION 
+          $<$<COMPILE_LANGUAGE:CXX>:-Wno-volatile>
+        )
 endif()
-aux_source_directory(./bilibili BILIBILI_SRC)
+aux_source_directory(./bilibili WILIWILI_SRC)
 
 
 # building target
 add_executable(${PROJECT_NAME}
+        ${WILIWILI_SRC}
         ${BOREALIS_SRC}
-        ${BILIBILI_SRC}
       )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
@@ -125,11 +145,16 @@ target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
         $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>
         ${PLATFORM_OPTION}
       )
-
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PLATFORM_LIBS})
+target_compile_options(${PROJECT_NAME} PRIVATE -DBOREALIS_RESOURCES=${PLATFORM_RESOURCES_PATH})
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        bilibili_api
+        ${PLATFORM_LIBS}
+        pthread
+      )
 target_include_directories(${PROJECT_NAME} PRIVATE
         bilibili/
         ${BOREALIS_INCLUDE}
+        ${BILIBILI_API_INCLUDE}
       )
 
 # building release file
@@ -147,6 +172,7 @@ if(PLATFORM_LINUX)
     add_custom_target(${PROJECT_NAME}.data
         COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources ${CMAKE_CURRENT_BINARY_DIR}/resources
     )
+    add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
 elseif(PLATFORM_SWITCH)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE -s)
   add_custom_target(${PROJECT_NAME}.nro
