@@ -21,7 +21,7 @@ recommand using vscode with cmake tools
 sudo apt install libcurl4-openssl-dev
 # for borealis
 sudo apt install libglfw3-dev libglm-dev
-#for mpv
+# for mpv
 sudo apt install libmpv-dev
 # for building
 sudo apt install cmake zip git
@@ -132,3 +132,7 @@ https://github.com/natinusala/borealis
 https://github.com/Cpasjuste/pplay
 
 https://github.com/whoshuu/cpr
+
+https://github.com/nlohmann/json
+
+https://github.com/adobe-fonts/source-han-sans
