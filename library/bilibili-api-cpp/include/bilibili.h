@@ -18,7 +18,7 @@ namespace bilibili {
             void test(std::function<void(std::string)> callback);
             void get_top10(int rid, std::function<void(VideoList)> callback);
             void get_top100(int rid, std::function<void(VideoList)> callback);
-            void get_playurl(std::string avid, std::string cid, std::function<void(std::string)> callback);
+            void get_playurl(int cid, std::function<void(VideoPage)> callback);
             void download(std::string url, std::function<void(unsigned char *, size_t)> callback);
 
         private:
