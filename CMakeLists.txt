@@ -70,7 +70,7 @@ endif()
 aux_source_directory(${CMAKE_SOURCE_DIR}/library/bilibili-api-cpp/source BILIBILI_API_SRC)
 set(BILIBILI_API_INCLUDE ${CMAKE_SOURCE_DIR}/library/bilibili-api-cpp/include)
 add_library(bilibili_api STATIC ${BILIBILI_API_SRC})
-target_compile_options(bilibili_api PRIVATE -g -Wall -O2 -ffunction-sections -fno-rtti -fno-exceptions -Wno-reorder)
+target_compile_options(bilibili_api PRIVATE -g -Wall -O2 -ffunction-sections -fno-rtti -Wno-reorder)
 target_include_directories(bilibili_api PRIVATE ${BILIBILI_API_INCLUDE})
 target_link_libraries(bilibili_api PRIVATE cpr::cpr ${PLATFORM_LIBS_BILIBILI})
 

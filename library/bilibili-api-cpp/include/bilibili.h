@@ -4,25 +4,26 @@
 #include <vector>
 #include <future>
 #include <nlohmann/json.hpp>
+#include "ThreadPool.hpp"
 
 #include "bilibili_type.h"
 
 namespace bilibili {
     
-    using Request = std::future<void>;
-    using json = nlohmann::json;
+    // using Request = std::future<void>;
+    // using json = nlohmann::json;
 
     class BilibiliClient {
         public:
-            BilibiliClient();
-            void test(std::function<void(std::string)> callback);
-            void get_top10(int rid, std::function<void(VideoList)> callback);
-            void get_top100(int rid, std::function<void(VideoList)> callback);
-            void get_playurl(int cid, std::function<void(VideoPage)> callback);
-            void download(std::string url, std::function<void(unsigned char *, size_t)> callback);
-
-        private:
-            Request request_common;
-            void _common_get(std::string url, std::function<void(std::string)> callback);
+            static ThreadPool pool;
+            static ThreadPool imagePool;
+            static void get_top10(int rid, std::function<void(VideoList)> callback);
+            static void get_recommend(int rid, int num, std::function<void(VideoList)> callback);
+            static void get_playurl(int cid, std::function<void(VideoPage)> callback);
+            static void get_description(int aid, std::function<void(std::string)> callback);
+            static void download(std::string url, std::function<void(unsigned char *, size_t)> callback);
+            static void get(std::string url, std::function<void(std::string)> callback);
+            static void init();
+            static void clean();
     };
 }
