@@ -56,6 +56,11 @@ FlexFrame::FlexFrame()
     layout->addView(sidebar);
 
     this->setContentView(layout);
+
+    this->setTitle("main/name"_i18n);
+    this->setIcon(BOREALIS_ASSET("icon/bilibili_128x128.jpg"));
+    this->setSiderbarWidth(160);
+    this->setSiderbarMargins(40,30,40,30);
 }
 
 bool FlexFrame::onCancel()
