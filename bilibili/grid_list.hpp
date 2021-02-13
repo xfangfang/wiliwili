@@ -80,10 +80,6 @@ class VideoListItem : public brls::ListItem
             #endif
         }
 
-        int getPicImageID(){
-            return this->thumbnailView->getImageID();
-        }
-
         ~VideoListItem(){
             if (this->titleView)
                 delete this->titleView;
