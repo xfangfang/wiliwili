@@ -1,0 +1,66 @@
+diff '--exclude=*waf*' '--exclude=__pycache__' '--exclude=build' '--exclude=wscript_build.py.orig' -NBaur mpv-0.33.0/osdep/io.c mpv-0.33.0-switch/osdep/io.c
+--- mpv-0.33.0/osdep/io.c	2020-11-22 18:46:28.000000000 +0100
++++ mpv-0.33.0-switch/osdep/io.c	2021-01-21 11:14:31.172503720 +0100
+@@ -61,7 +61,7 @@
+     return true;
+ }
+ 
+-#ifdef __MINGW32__
++#if defined(__MINGW32__) || defined(__SWITCH__)
+ int mp_make_cloexec_pipe(int pipes[2])
+ {
+     pipes[0] = pipes[1] = -1;
+diff '--exclude=*waf*' '--exclude=__pycache__' '--exclude=build' '--exclude=wscript_build.py.orig' -NBaur mpv-0.33.0/osdep/switch/sys/mman.h mpv-0.33.0-switch/osdep/switch/sys/mman.h
+--- mpv-0.33.0/osdep/switch/sys/mman.h	1970-01-01 01:00:00.000000000 +0100
++++ mpv-0.33.0-switch/osdep/switch/sys/mman.h	2021-01-21 11:14:31.172503720 +0100
+@@ -0,0 +1,15 @@
++#ifndef _MEMMAP_H_
++#define _MEMMAP_H_
++
++#include <stdio.h>
++#include <stdint.h>
++
++#define PROT_READ       0x1
++#define PROT_WRITE      0x2
++#define MAP_SHARED      0x01
++#define MAP_FAILED      ((void *) -1)
++
++#define mmap(a, b, c, d, e, f) malloc(b)
++#define munmap(a, b) free(a)
++
++#endif
+diff '--exclude=*waf*' '--exclude=__pycache__' '--exclude=build' '--exclude=wscript_build.py.orig' -NBaur mpv-0.33.0/sub/filter_regex.c mpv-0.33.0-switch/sub/filter_regex.c
+--- mpv-0.33.0/sub/filter_regex.c	2020-11-22 18:46:28.000000000 +0100
++++ mpv-0.33.0-switch/sub/filter_regex.c	2021-01-21 11:14:31.172503720 +0100
+@@ -1,5 +1,5 @@
+-#include <regex.h>
+ #include <sys/types.h>
++#include <regex.h>
+ 
+ #include "common/common.h"
+ #include "common/msg.h"
+diff '--exclude=*waf*' '--exclude=__pycache__' '--exclude=build' '--exclude=wscript_build.py.orig' -NBaur mpv-0.33.0/wscript_build.py mpv-0.33.0-switch/wscript_build.py
+--- mpv-0.33.0/wscript_build.py	2020-11-22 18:46:28.000000000 +0100
++++ mpv-0.33.0-switch/wscript_build.py	2021-01-21 11:17:47.714178820 +0100
+@@ -191,7 +191,6 @@
+         ])
+ 
+     getch2_c = ctx.pick_first_matching_dep([
+-        ( "osdep/terminal-unix.c",               "posix" ),
+         ( "osdep/terminal-win.c",                "win32-desktop" ),
+         ( "osdep/terminal-dummy.c" ),
+     ])
+@@ -203,13 +202,11 @@
+     ])
+ 
+     ipc_c = ctx.pick_first_matching_dep([
+-        ( "input/ipc-unix.c",                    "posix" ),
+         ( "input/ipc-win.c",                     "win32-desktop" ),
+         ( "input/ipc-dummy.c" ),
+     ])
+ 
+     subprocess_c = ctx.pick_first_matching_dep([
+-        ( "osdep/subprocess-posix.c",            "posix" ),
+         ( "osdep/subprocess-win.c",              "win32-desktop" ),
+         ( "osdep/subprocess-dummy.c" ),
+     ])
