@@ -44,7 +44,7 @@ namespace bilibili {
                 {"Agent"  , "NintendoSwitch"},
                 {"Referer", "http://www.bilibili.com"}
             },
-            cpr::Timeout{10000}
+            cpr::Timeout{30000}
         );
     }
 
@@ -76,10 +76,12 @@ namespace bilibili {
         });
     }
 
-    void BilibiliClient::get_playurl(int cid, std::function<void(VideoPage)> callback){
+    void BilibiliClient::get_playurl(int cid, int quality, std::function<void(VideoPage)> callback){
         std::string _APP_KEY = "iVGUTjsxvpLeuDCf";
         std::string _BILIBILI_KEY = "aHRmhWMLkdeMuILqORnYZocwMBpMEOdt";
-        std::string payload = "appkey="+_APP_KEY+"&cid="+std::to_string(cid)+"&otype=json&qn=80&quality=80&type=";
+        std::string q = std::to_string(quality);
+        std::string payload = "appkey="+_APP_KEY+"&cid="+std::to_string(cid)+
+            "&otype=json&qn="+q+"&quality="+q+"&type=";
         std::string sign = websocketpp::md5::md5_hash_hex(payload+_BILIBILI_KEY);
         std::string url = "http://interface.bilibili.com/v2/playurl?"+payload+"&sign="+sign;
         BilibiliClient::pool.enqueue([callback, url, cid]{
@@ -103,7 +105,11 @@ namespace bilibili {
     void BilibiliClient::download(std::string url, std::function<void(unsigned char *, size_t)> callback){
         BilibiliClient::imagePool.enqueue([callback, url]{
             cpr::Response r = _cpr_get(url);
-            callback((unsigned char *)r.text.c_str(), (size_t)r.downloaded_bytes);
+            if(r.error){
+                callback(nullptr, 0);
+            }else{
+                callback((unsigned char *)r.text.c_str(), (size_t)r.downloaded_bytes);
+            }
         });
     }
 

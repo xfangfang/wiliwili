@@ -11,6 +11,13 @@ namespace bilibili {
         PAINT=162
     };
 
+    class User{
+        public:
+            int mid;
+            std::string name;
+            std::string face;
+    };
+
     class Video{
         public:
             int aid;
@@ -32,6 +39,7 @@ namespace bilibili {
             int coins;
             bool badgepay;
             int pts;
+            User owner;
 
     };
 
@@ -77,7 +85,8 @@ namespace bilibili {
             Data data;
     };
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Video, bvid, cid, title, pic);
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(User, mid, name, face);
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Video, bvid, cid, title, pic, owner);
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Page, num, size, count);
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Data, page, archives);
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoList, code, message, data);
