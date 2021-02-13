@@ -16,11 +16,16 @@ class NetImage : public brls::Image {
             if(path.compare(0,4,"http") == 0){
                 this->url = path;
                 bilibili::BilibiliClient::download(this->url, [this](unsigned char * buffer, size_t bufferSize){
+                    if (bufferSize == 0){
+                        brls::Logger::debug("undone pic:{}/{}",this->url,bufferSize);
+                        return;
+                    }
                     if (this->tempBuffer != nullptr)
                         delete[] this->tempBuffer;
                     this->tempBuffer = new unsigned char[(size_t)bufferSize];
                     std::memcpy(this->tempBuffer, buffer, bufferSize);
                     this->tempBufferSize = bufferSize;
+                    brls::Logger::debug("done pic:{}/{}",this->url,bufferSize);
                 });
                 this->setImage(BOREALIS_ASSET("icon/bilibili_128x128.jpg"));
                 this->setOpacity(1.0F);
@@ -42,7 +47,7 @@ class NetImage : public brls::Image {
 
     private:
         std::string url;
-        unsigned char* tempBuffer;
+        unsigned char* tempBuffer = nullptr;
         size_t tempBufferSize;
 
 };
