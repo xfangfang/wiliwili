@@ -32,7 +32,7 @@ sudo apt install libglfw3-dev libglm-dev
 # for mpv
 sudo apt install libmpv-dev
 # for building
-sudo apt install cmake zip git
+sudo apt install cmake zip git g++
 ```
 
 ### 2. build wiliwili
@@ -52,7 +52,7 @@ make -j4
 wget https://github.com/devkitPro/pacman/releases/download/v1.0.2/devkitpro-pacman.amd64.deb
 sudo apt-get install gdebi-core
 sudo gdebi devkitpro-pacman.amd64.deb
-sudo dkp-pacman -S switch-dev switch-glfw switch-mesa switch-glm switch-portlibs switch-glad
+sudo dkp-pacman -S switch-dev switch-glfw switch-mesa switch-glm switch-portlibs switch-glad switch-libvpx
 cat >> ~/.bashrc <<-EOF
 
 # devkitpro
