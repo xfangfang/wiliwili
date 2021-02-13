@@ -10,6 +10,8 @@ if(PLATFORM_LINUX)
   message("building for LINUX")
   set(CMAKE_SYSTEM_NAME "Linux")
   set(TARGET_PLATFORM linux CACHE STRING "")
+  set(CMAKE_C_COMPILER "gcc")
+  set(CMAKE_CXX_COMPILER "g++")
 elseif (PLATFORM_SWITCH)
   message("building for SWITCH")
   file(TO_CMAKE_PATH "$ENV{DEVKITPRO}" DEVKITPRO)
@@ -97,7 +99,7 @@ foreach(lib ${BOREALIS_SOURCE})
         list(APPEND BOREALIS_SRC ${TEMP_SRC})
 endforeach(lib)
 
-# seting wiliwili src and include
+# setting wiliwili src and include
 set(PLATFORM_OPTION)
 if (PLATFORM_LINUX)
         add_definitions(-D__PLATFORM_LINUX__)
@@ -178,6 +180,9 @@ elseif(PLATFORM_SWITCH)
   add_custom_target(${PROJECT_NAME}.nro
     DEPENDS ${PROJECT_NAME}
     COMMAND ${DEVKITPRO}/tools/bin/nacptool --create "${PROJECT_NAME}" "${PROJECT_AUTHOR}" "${VERSION_MAJOR}.${VERSION_MINOR}" ${PROJECT_NAME}.nacp
-    COMMAND ${DEVKITPRO}/tools/bin/elf2nro ${PROJECT_NAME} ${PROJECT_NAME}.nro --icon=${PROJECT_ICON} --nacp=${PROJECT_NAME}.nacp --romfsdir=${PROJECT_RESOURCES}
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/resources
+    COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/test.flv
+    COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/Illegal-Font.ttf
+    COMMAND ${DEVKITPRO}/tools/bin/elf2nro ${PROJECT_NAME} ${PROJECT_NAME}.nro --icon=${PROJECT_ICON} --nacp=${PROJECT_NAME}.nacp --romfsdir=${CMAKE_BINARY_DIR}/resources
   )
 endif()
