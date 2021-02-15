@@ -7,7 +7,7 @@
 class NetImage : public brls::Image {
 
     public:
-        NetImage(std::string path){
+        NetImage(std::string path, std::string placeHolder = BOREALIS_ASSET("icon/bilibili_128x128.jpg")):placeHolder(placeHolder){
             this->setImage(path);
             this->setOpacity(1.0F);
         }
@@ -27,7 +27,7 @@ class NetImage : public brls::Image {
                     this->tempBufferSize = bufferSize;
                     brls::Logger::debug("done pic:{}/{}",this->url,bufferSize);
                 });
-                this->setImage(BOREALIS_ASSET("icon/bilibili_128x128.jpg"));
+                this->setImage(this->placeHolder);
                 this->setOpacity(1.0F);
                 this->tempBuffer = nullptr;
             } else {
@@ -47,6 +47,7 @@ class NetImage : public brls::Image {
 
     private:
         std::string url;
+        std::string placeHolder;
         unsigned char* tempBuffer = nullptr;
         size_t tempBufferSize;
 
