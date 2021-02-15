@@ -135,6 +135,7 @@ aux_source_directory(./bilibili WILIWILI_SRC)
 add_executable(${PROJECT_NAME}
         ${WILIWILI_SRC}
         ${BOREALIS_SRC}
+        library/QR-Code-generator/cpp/QrCode.cpp
       )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
@@ -155,6 +156,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
       )
 target_include_directories(${PROJECT_NAME} PRIVATE
         bilibili/
+        library/QR-Code-generator/cpp
         ${BOREALIS_INCLUDE}
         ${BILIBILI_API_INCLUDE}
       )
@@ -183,6 +185,8 @@ elseif(PLATFORM_SWITCH)
     COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/resources
     COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/test.flv
     COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/Illegal-Font.ttf
+    COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/Wingdings.ttf
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/resources/inter
     COMMAND ${DEVKITPRO}/tools/bin/elf2nro ${PROJECT_NAME} ${PROJECT_NAME}.nro --icon=${PROJECT_ICON} --nacp=${PROJECT_NAME}.nacp --romfsdir=${CMAKE_BINARY_DIR}/resources
   )
 endif()

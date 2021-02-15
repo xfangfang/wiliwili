@@ -1,3 +1,6 @@
 [submodule "library/borealis"]
 	path = library/borealis
 	url = https://github.com/xfangfang/borealis.git
+[submodule "library/QR-Code-generator"]
+	path = library/QR-Code-generator
+	url = https://github.com/nayuki/QR-Code-generator.git
