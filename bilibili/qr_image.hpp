@@ -10,10 +10,24 @@ using qrcodegen::QrSegment;
 class QrImage : public brls::Image {
 
     public:
-        QrImage(std::string content)
+        QrImage(std::string content = "")
         {
-            this->setImage(content);
-            this->setOpacity(1.0F);
+            brls::Logger::error("string {}",content.compare(""));
+            if(content.compare("") == 0) {
+                brls::Logger::error("just draw border");
+                // only draw border
+                int size = 20;
+                for(int i = 0; i < size; i++){
+                    std::vector<int> tmp;
+                    for(int j = 0; j < size; j++){
+                        if(i == 0 || i == size-1 || j == 0 || j == size-1) tmp.push_back(1);
+                        else tmp.push_back(0);
+                    }
+                    this->qrcode.push_back(tmp);
+                }
+            } else {
+                this->setImage(content);
+            }
         }
 
         void setImage(std::string content)
