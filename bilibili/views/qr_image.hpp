@@ -12,9 +12,7 @@ class QrImage : public brls::Image {
     public:
         QrImage(std::string content = "")
         {
-            brls::Logger::error("string {}",content.compare(""));
-            if(content.compare("") == 0) {
-                brls::Logger::error("just draw border");
+            if(!this->valid) {
                 // only draw border
                 int size = 20;
                 for(int i = 0; i < size; i++){
@@ -57,13 +55,38 @@ class QrImage : public brls::Image {
                 for(size_t j = 0; j < line.size(); j++){
                     nvgBeginPath(vg);
                     nvgRect(vg, x + j * unit_length, y + i * unit_length, unit_length, unit_length);
-                    nvgFillColor(vg, line[j] ? NVGcolor{0,0,0,255} : NVGcolor{255,255,255,255});
+                    if(valid){
+                        nvgFillColor(vg, line[j] ? nvgRGB(0,0,0) : nvgRGB(255,255,255));
+                    } else {
+                        nvgFillColor(vg, line[j] ? nvgRGB(143,143,143) : nvgRGB(255,255,255));
+                    }
                     nvgFill(vg);
                 }
             }
+
+            if(!valid){
+                nvgFillColor(vg, nvgRGB(0,0,0));
+                nvgFontSize(vg, 32);
+                nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+                nvgFontFaceId(vg, ctx->fontStash->regular);
+                nvgText(vg, x + width / 2, y + height / 2 , "点击刷新", nullptr); 
+            }
+        }
+
+        void setValid(bool data){
+            this->valid = data;
+        }
+
+        bool isValid(){
+            return this->valid;
+        }
+
+        brls::View* getDefaultFocus() override {
+            return this;
         }
 
     private:
-        std::string content;
+        bool valid = false;
+        std::string content = "";
         std::vector<std::vector<int>> qrcode;
 };

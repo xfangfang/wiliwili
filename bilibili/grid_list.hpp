@@ -1,7 +1,7 @@
 #pragma once
 
 #include <borealis.hpp>
-#include "net_image.hpp"
+#include "views/net_image.hpp"
 
 class HorizontalListContentView : public brls::BoxLayout
 {
@@ -63,11 +63,52 @@ class HorizontalListContentView : public brls::BoxLayout
 
 size_t HorizontalListContentView::shareFocusedIndex = 0;
 
-class VideoListItem : public brls::ListItem
+class GridListItem : public brls::ListItem
+{
+    public:
+        GridListItem(std::string title):brls::ListItem(title){
+
+        }
+
+        void getHighlightInsets(unsigned* top, unsigned* right, unsigned* bottom, unsigned* left) override {
+            brls::View::getHighlightInsets(top, right, bottom, left);
+        }
+
+        bool onClick(){
+            return this->clickEvent.fire(this);
+        }
+
+        brls::Event<GridListItem *>* getClickEvent(){
+            return &this->clickEvent;
+        }
+
+        size_t getIndex(){
+            return this->index;
+        }
+        void setIndex(int i){
+            this->index = i;
+        }
+
+        void draw(NVGcontext* vg, int x, int y, unsigned width, unsigned height, brls::Style* style, brls::FrameContext* ctx) override {
+            // Label
+            nvgFillColor(vg, a(ctx->theme->textColor));
+            nvgFontSize(vg, this->textSize);
+            nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+            nvgFontFaceId(vg, ctx->fontStash->regular);
+            nvgBeginPath(vg);
+            nvgText(vg, x + width / 2 , y + height / 2, this->label.c_str(), nullptr);
+        }
+
+    protected:
+        brls::Event<GridListItem *> clickEvent;
+        size_t index = 0;
+};
+
+class VideoListItem : public GridListItem
 {
     public:
         VideoListItem(std::string name, std::string title, std::string thumbnail, std::string avatar)
-            :brls::ListItem(name){
+            :GridListItem(name){
             this->setTextSize(10);
             this->setThumbnail(thumbnail);
             this->setAvatar(avatar);
@@ -97,7 +138,7 @@ class VideoListItem : public brls::ListItem
             if (this->avatarView)
                 this->avatarView->setImage(imagePath);
             else
-                this->avatarView = new NetImage(imagePath);
+                this->avatarView = new NetImage(imagePath, BOREALIS_ASSET("icon/akari.jpg"));
 
             this->avatarView->setParent(this);
             this->avatarView->setScaleType(brls::ImageScaleType::SCALE);
@@ -148,9 +189,6 @@ class VideoListItem : public brls::ListItem
             }
         }
 
-        void getHighlightInsets(unsigned* top, unsigned* right, unsigned* bottom, unsigned* left) override {
-            brls::View::getHighlightInsets(top, right, bottom, left);
-        }
         void draw(NVGcontext* vg, int x, int y, unsigned width, unsigned height, brls::Style* style, brls::FrameContext* ctx) override {
             unsigned baseHeight = this->height;
             bool hasSubLabel    = this->subLabel != "";
@@ -217,45 +255,21 @@ class VideoListItem : public brls::ListItem
             // Avatar
             if (this->avatarView)
                 this->avatarView->frame(ctx);
-
-            // Separators
-            // Offset by one to be hidden by highlight
-            // nvgFillColor(vg, a(ctx->theme->listItemSeparatorColor));
-
-            // Top
-            // if (this->drawTopSeparator)
-            // {
-            //     nvgBeginPath(vg);
-            //     nvgRect(vg, x, y - 1, width, 1);
-            //     nvgFill(vg);
-            // }
-
-            // // Bottom
-            // nvgBeginPath(vg);
-            // nvgRect(vg, x, y + 1 + baseHeight, width, 1);
-            // nvgFill(vg);
-        }
-        int getIndex(){
-            return this->index;
-        }
-        void setIndex(int i){
-            this->index = i;
-        }
-        bool onClick(){
-            return this->clickEvent.fire(this);
         }
 
-        brls::Event<VideoListItem *>* getClickEvent(){
-            return &this->clickEvent;
-        }
     private:
         NetImage* avatarView      = nullptr;
         NetImage* thumbnailView   = nullptr;
         brls::Label* titleView    = nullptr;
-        int index = 0;
-        brls::Event<VideoListItem *> clickEvent;
 
+};
 
+class MoreListItem : public GridListItem
+{
+    public:
+        MoreListItem():GridListItem("..."){
+
+        }
 };
 
 template <class itemType>
@@ -263,7 +277,7 @@ class GridList : public brls::List
 {
   public:
 
-    GridList(int columns,int itemWidth, int itemHeight, int spacing, std::function<VideoListItem*(itemType)> createItem){
+    GridList(int columns,int itemWidth, int itemHeight, int spacing, std::function<GridListItem*(itemType)> createItem){
         this->columns = columns;
         this->itemWidth = itemWidth;
         this->itemHeight = itemHeight;
@@ -276,44 +290,74 @@ class GridList : public brls::List
     }
 
     void addListData(std::vector<itemType> list){
-        for(auto item: list){
-            this->itemsNeededAdd.push(item);
-        }
-        this->listData.insert(this->listData.end(), list.begin(), list.end());
-    }
-
-    void draw(NVGcontext* vg, int x, int y, unsigned width, unsigned height, brls::Style* style, brls::FrameContext* ctx) override {
-        if(!this->itemsNeededAdd.empty()){
-            while(!this->itemsNeededAdd.empty()){
-                this->addItem(this->createItem(this->itemsNeededAdd.front()));
-                this->itemsNeededAdd.pop();
+        RunOnUIThread([this, list](){
+            for(auto item: list){
+                GridListItem* tempView = this->createItem(item);
+                this->addItem(tempView);
+            }
+            if(this->moreAction){
+                this->addItem(this->moreListItem);
             }
             this->invalidate(true);
-        }
-        ScrollView::draw(vg, x, y, width, height, style, ctx);
+        });
+        this->listData.insert(this->listData.end(), list.begin(), list.end());
+        this->removeMoreAction(false);
     }
 
-    void addItem(VideoListItem * view){
+    void addItem(GridListItem * view){
         if(!view) return;
-        if (this->itemNums % this->columns == 0){
+        if (this->itemNums % this->columns == 0 ){
             HorizontalListContentView *h = new HorizontalListContentView(this, 0);
             h->setSpacing(this->spacing);
             h->setMargins(0,0,0,0);
             h->setHeight(this->itemHeight);
             listRows.push_back(h);
             this->addView(h);
-            // this->invalidate(true);
         }
         HorizontalListContentView *row = listRows[listRows.size()-1];
-        view->getClickEvent()->subscribe([this](VideoListItem* view){
-            this->clickEvent.fire(this->listData[view->getIndex()],view);
+        view->getClickEvent()->subscribe([this](GridListItem* view){
+            if (view->getIndex() < this->listData.size()) {
+                this->clickEvent.fire(this->listData[view->getIndex()],view);
+            }
         });
         view->setIndex(this->itemNums);
         row->addView(view);
+        if(!brls::Application::getCurrentFocus()) brls::Application::giveFocus(view);
         this->itemNums++;
     }
 
-    brls::Event<itemType, VideoListItem*>* getClickEvent(){
+    void addMoreAction(std::function<void()> callback){
+        this->moreAction = true;
+        this->moreListItem = new MoreListItem();
+        moreListItem->getClickEvent()->subscribe([callback](GridListItem* view){
+            callback();
+        });
+        this->moreListItem->setWidth(this->itemWidth);
+        this->moreListItem->setHeight(this->itemHeight);
+    }
+
+    void removeMoreAction(bool free = true){
+        brls::Logger::error("remove More Action:{} {}",this->moreAction, this->itemNums);
+        if (this->moreAction && this->itemNums > 0){
+            HorizontalListContentView *row = listRows[listRows.size()-1];
+            row->removeView(row->getViewsCount() - 1, false);
+            this->itemNums--;
+            brls::Logger::error("last line row count: {} {} {}",row->getViewsCount(),this->getViewsCount(), listRows.size());
+            if (row->getViewsCount() == 0){
+                this->removeView(this->getViewsCount()-1);
+                listRows.pop_back();
+            }
+        }
+        if (!free) return;
+
+        this->moreAction = false;
+        if (this->moreListItem){
+            delete this->moreListItem;
+            this->moreListItem = nullptr;
+        }
+    }
+
+    brls::Event<itemType, GridListItem*>* getClickEvent(){
         return &this->clickEvent;
     }
 
@@ -323,9 +367,11 @@ class GridList : public brls::List
         int itemWidth;
         int itemNums = 0;
         int spacing;
+        bool moreAction = false;
         std::vector<HorizontalListContentView*> listRows;
-        std::queue<itemType> itemsNeededAdd;
+        // std::queue<itemType> itemsNeededAdd;
         std::vector<itemType> listData;
-        std::function<VideoListItem*(itemType)> createItem;
-        brls::Event<itemType, VideoListItem*> clickEvent;
+        std::function<GridListItem*(itemType)> createItem;
+        brls::Event<itemType, GridListItem*> clickEvent;
+        MoreListItem* moreListItem = nullptr;
 };

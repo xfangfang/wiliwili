@@ -16,12 +16,11 @@ class ProgramConfig {
                 this->cookie[item] = "";
             }
         }
-        void setCookie(std::vector<std::string> cookies){
-            if (cookies.size() == COOKIE_LIST.size()){
-                for(size_t i =0 ; i < COOKIE_LIST.size(); i++){
-                    this->cookie[COOKIE_LIST[i]] = cookies[i];
-                }
-            }
+        ProgramConfig(ProgramConfig& config){
+            this->cookie = config.getCookie();
+        }
+        void setCookie(Cookie cookie){
+            this->cookie = cookie;
         }
         Cookie getCookie(){
             return this->cookie;
@@ -33,8 +32,8 @@ class ProgramConfig {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProgramConfig, cookie);
 
 class Utils {
-    static ProgramConfig programConfig;
     public:
+        static ProgramConfig programConfig;
         static ProgramConfig readProgramConf(){
             const std::string path = Utils::_getConfigPath()+"wiliwili_program.conf";
             ProgramConfig config;
@@ -71,5 +70,22 @@ class Utils {
             #else
                 return "./";
             #endif
+        }
+};
+
+
+class RunOnUIThread {
+    static std::queue<std::function<void()>> callbacks;
+    public:
+        RunOnUIThread(std::function<void()> callback){
+            callbacks.push(callback);
+        }
+
+        static void run(){
+            while(!callbacks.empty()){
+                callbacks.front()();
+                callbacks.pop();
+                break;
+            }
         }
 };

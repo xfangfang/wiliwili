@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 #include "video_player.hpp"
 #include "timer.hpp"
-#include "net_image.hpp"
+#include "views/net_image.hpp"
 
 #define BUTTON_WIDTH 100
 #define BUTTON_HEIGHT 100
@@ -93,8 +93,8 @@ class VideoOSD : public brls::AbsoluteLayout
 
     void hideOSD(){
         this->OSDisShown = false;
-        this->avatarImage->hide([](){}, true, brls::ViewAnimation::FADE);
-        this->hint->hide([](){}, true, brls::ViewAnimation::FADE);
+        this->avatarImage->hide([](){}, false, brls::ViewAnimation::FADE);
+        this->hint->hide([](){}, false, brls::ViewAnimation::FADE);
         brls::Application::giveFocus(this->parent);
     }
     void showOSD(){
@@ -168,13 +168,24 @@ class VideoOSD : public brls::AbsoluteLayout
 
         if(this->OSDisShown){
 
+            //background
+            nvgBeginPath(vg);
+            nvgRect(vg,x,y,this->getWidth(),style->AppletFrame.headerHeightRegular);
+            nvgFillColor(vg, a(ctx->theme->backgroundColorRGB));
+            nvgFill(vg);
+
+            nvgBeginPath(vg);
+            nvgRect(vg,x,y+this->getHeight()-style->AppletFrame.footerHeight,this->getWidth(),style->AppletFrame.footerHeight);
+            nvgFillColor(vg, a(ctx->theme->backgroundColorRGB));
+            nvgFill(vg);
+
             //title text
-            nvgFillColor(vg, nvgRGB(142, 142, 142));
-            nvgFontSize(vg, 24);
+            nvgFillColor(vg, a(ctx->theme->textColor));
+            nvgFontSize(vg, style->AppletFrame.titleSize);
             nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
             nvgFontFaceId(vg, ctx->fontStash->regular);
             nvgBeginPath(vg);
-            nvgText(vg, x + 125  , y + 75 , this->title.c_str(), nullptr);
+            nvgText(vg, x + 125  , y + 50 , this->title.c_str(), nullptr);
 
 
             // progress bar
@@ -209,46 +220,13 @@ class VideoOSD : public brls::AbsoluteLayout
         int x = this->getX();
         // int y = this->getY();
 
-        // // Fully custom layout
-        // this->firstButton->setBoundaries(
-        //     x + PADDING,
-        //     y + PADDING,
-        //     BUTTON_WIDTH,
-        //     BUTTON_HEIGHT);
-
-        // this->secondButton->setBoundaries(
-        //     x + PADDING * 2 + BUTTON_WIDTH,
-        //     y + PADDING,
-        //     BUTTON_WIDTH,
-        //     BUTTON_HEIGHT);
-
-        // this->thirdButton->setBoundaries(
-        //     x + PADDING * 2 + BUTTON_WIDTH,
-        //     y + PADDING * 2 + BUTTON_HEIGHT,
-        //     BUTTON_WIDTH,
-        //     BUTTON_HEIGHT);
-
         this->avatarImage->setBoundaries(
             x + 50,
-            y + 50,
+            y + 25,
             50,
             50
         );
         this->avatarImage->setCornerRadius(100);
-
-        // this->playButton->setBoundaries(
-        //     x + 10,
-        //     this->getHeight()-50,
-        //     80,
-        //     40
-        // );
-
-        // this->resolutionButton->setBoundaries(
-        //     x + 100,
-        //     this->getHeight()-50,
-        //     80,
-        //     40
-        // );
 
         this->progressSpinner->setWidth(100);
         this->progressSpinner->setHeight(100);

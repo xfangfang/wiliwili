@@ -33,6 +33,19 @@ class VideoFrame : public brls::AbsoluteLayout
                 this->osd->showOSD();
                 return true;
             },true);
+            this->registerAction("back",brls::Key::Y,[this]{
+                // brls::Application::blockInputs();
+                brls::Logger::debug("push Y ");
+                // if (videoFrame->osd->isWait()){
+                //     brls::Application::notify("Can't go back when buffering (this is a bug for switch)");
+                //     return true;
+                // }
+                this->videoPlayer->stop();
+                brls::Application::popView();
+                // layer->changeLayer(0,true);
+                // brls::Application::unblockInputs();
+                return true;
+            });
         }
         brls::View* getDefaultFocus() override{
             if(this->osd->isShown()){
