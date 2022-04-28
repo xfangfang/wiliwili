@@ -45,7 +45,7 @@ namespace bilibili {
             // get 
             static void get_description(int aid, std::function<void(std::string)> callback);
 
-            static void download(std::string url, std::function<void(unsigned char *, size_t)> callback);
+            static void download(std::string url, std::function<void(std::string, size_t)> callback);
             static void get(std::string url, std::function<void(std::string)> callback);
             static void init(Cookies &cookies, std::function<void(Cookies)> writeCookiesCallback);
             static void clean();

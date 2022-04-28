@@ -87,6 +87,8 @@ namespace bilibili {
         }); 
     }
 
+    // set bilibili cookie and cookies callback
+    // This callback is called when the BilibiliClient updates the cookie
     void BilibiliClient::init(Cookies &cookies, std::function<void(Cookies)> writeCookiesCallback){
         curl_global_init(CURL_GLOBAL_DEFAULT);
         BilibiliClient::writeCookiesCallback = writeCookiesCallback;
@@ -216,13 +218,13 @@ namespace bilibili {
         });
     }
 
-    void BilibiliClient::download(std::string url, std::function<void(unsigned char *, size_t)> callback){
+    void BilibiliClient::download(std::string url, std::function<void(std::string, size_t)> callback){
         BilibiliClient::imagePool.enqueue([callback, url]{
             cpr::Response r = _cpr_get(url);
             if(r.error){
-                callback(nullptr, 0);
+                callback("", 0);
             }else{
-                callback((unsigned char *)r.text.c_str(), (size_t)r.downloaded_bytes);
+                callback(r.text, (size_t)r.downloaded_bytes);
             }
         });
     }
