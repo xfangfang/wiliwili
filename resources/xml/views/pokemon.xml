@@ -1,0 +1,32 @@
+<brls:Box
+    width="auto"
+    height="auto"
+    axis="column"
+    alignItems="center"
+    paddingTop="50px"
+    paddingBottom="50px"
+    paddingLeft="75px"
+    paddingRight="75px" >
+
+    <brls:Image
+        id="image"
+        width="auto"
+        height="33%"
+        image="@res/img/borealis_256.png"
+        marginBottom="@style/about/description_margin"/>
+
+    <brls:Label
+        id="description"
+        width="40%"
+        height="auto"
+        grow="1.0"
+        horizontalAlign="center" />
+
+    <brls:Button
+        id="close_button"
+        width="auto"
+        height="auto"
+        text="Закрыть"
+        marginTop="24px"/>
+
+</brls:Box>

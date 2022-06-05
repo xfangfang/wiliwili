@@ -1,0 +1,88 @@
+<brls:Box
+        width="auto"
+        height="100%"
+        grow="1.0"
+        axis="column"
+        alignItems="stretch">
+
+    <brls:ScrollingFrame
+            id="home/video_scroll"
+            width="auto"
+            height="100%"
+            scrollingBehavior="centered"
+            grow="1.0" >
+
+    <VideoGrid
+            id="home/video_grid"
+            wireframe="false"
+            clipsToBounds="true"
+            grow="1.0"
+            justifyContent="center"
+            width="100%"
+            height="100%">
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+        <brls:Box
+                margin="10"
+                width="22%"
+                height="250"
+                backgroundColor="#2F3134"/>
+
+    </VideoGrid>
+
+    </brls:ScrollingFrame>
+
+</brls:Box>

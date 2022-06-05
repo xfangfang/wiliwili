@@ -1,0 +1,55 @@
+<brls:Box
+    width="auto"
+    height="auto">
+
+    <brls:ScrollingFrame
+        width="auto"
+        height="auto"
+        axis="column"
+        alignItems="stretch"
+        grow="1.0" >
+        
+        <brls:Box
+            width="10000"
+            height="auto"
+            axis="column"
+            alignItems="stretch"
+            paddingTop="@style/brls/sidebar/padding_top"
+            paddingRight="@style/brls/sidebar/padding_right"
+            paddingBottom="@style/brls/sidebar/padding_bottom"
+            paddingLeft="@style/brls/sidebar/padding_left">
+            
+            <brls:RadioCell
+                id="radio"/>
+                
+            <brls:BooleanCell
+                id="boolean"/>
+                
+            <brls:SelectorCell
+                id="selector"/>
+                
+            <brls:InputCell
+                id="input"/>
+                
+            <brls:InputNumericCell
+                id="inputNumeric"/>
+                
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            <brls:RadioCell/>
+            
+            
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:Box>

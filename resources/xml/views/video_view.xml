@@ -1,0 +1,46 @@
+<brls:Box
+        width="100%"
+        height="auto"
+        axis="column"
+        justifyContent="spaceBetween"
+        alignItems="center">
+
+    <brls:Box
+            id="video/osd/top/box"
+            width="100%"
+            height="10%"
+            backgroundColor="@theme/brls/background">
+        <brls:Label
+                id="video/osd/title"
+                width="100%"
+                height="100%"
+                marginLeft="30"
+                backgroundColor="@theme/brls/background"
+                text="video title"/>
+    </brls:Box>
+
+    <brls:ProgressSpinner
+            id="video/osd/loading"
+            width="50"
+            height="50"/>
+
+
+    <brls:Box
+            id="video/osd/bottom/box"
+            width="100%"
+            height="10%"
+            backgroundColor="@theme/brls/background">
+        <brls:Label
+                id="video/osd/bottom/status"
+                width="10%"
+                height="100%"
+                backgroundColor="@theme/brls/background"
+                text=""/>
+        <brls:Slider
+                id="video/osd/bottom/progress"
+                width="auto"
+                height="100%"
+                grow="1"/>
+    </brls:Box>
+
+</brls:Box>

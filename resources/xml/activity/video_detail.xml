@@ -1,0 +1,148 @@
+<brls:AppletFrame
+        id="video/detail/frame"
+        iconInterpolation="linear"
+        footerHidden="false">
+        <brls:Box
+                width="auto"
+                height="auto"
+                grow="1.0"
+                axis="row">
+
+                <brls:Box
+                        id="video_detail_left_box"
+                        margin="@style/brls/highlight/shadow_offset"
+                        width="800"
+                        height="auto"
+                        alignItems="center"
+                        wireframe="true"
+                        axis="column">
+
+                    <VideoView
+                            id="video/detail/video"
+                            width="800"
+                            focusable="true"
+                            height="480"/>
+
+                    <brls:Box
+                            id="video_detail_info_box"
+                            marginTop="@style/brls/highlight/shadow_offset"
+                            width="100%"
+                            height="auto"
+                            grow="1.0"
+                            axis="row">
+                        <brls:Box
+                                width="40%"
+                                height="100%"
+                                alignItems="center"
+                                axis="column">
+                            <brls:Box
+                                    id="video_author_box"
+                                    width="100%"
+                                    height="50%"
+                                    focusable="true"
+                                    alignItems="center"
+                                    axis="row">
+
+                                <UserInfoView
+                                        id="video_author"
+                                        margin="2"
+                                        width="80%"
+                                        height="60%"
+                                />
+<!--                            todo: 添加关注按钮-->
+                            </brls:Box>
+                            <brls:Box
+                                    width="100%"
+                                    height="50%"
+                                    alignItems="center"
+                                    axis="row">
+                            </brls:Box>
+<!--                            todo: 添加投币点赞一键等按钮-->
+                        </brls:Box>
+                        <brls:Box
+                                width="auto"
+                                height="100%"
+                                grow="1.0"
+                                marginLeft="@style/brls/highlight/shadow_offset"
+                                alignItems="center"
+                                axis="column">
+                            <brls:Label
+                                    id="video_title"
+                                    singleLine="true"
+                                    width="100%"
+                                    height="30%"
+                                    horizontalAlign="left"
+                                    marginBottom="@style/brls/highlight/shadow_offset"
+                                    focusable="true"
+                                    fontSize="18"
+                                    text="title"
+                                    textColor="@theme/captioned_image/caption" />
+                            <brls:Label
+                                    id="video_intro"
+                                    width="100%"
+                                    height="50%"
+                                    grow="1.0"
+                                    verticalAlign="top"
+                                    horizontalAlign="left"
+                                    focusable="true"
+                                    fontSize="10"
+                                    autoAnimate="false"
+                                    text="introduction"
+                                    textColor="@theme/captioned_image/caption" />
+                            <brls:Box
+                                    width="100%"
+                                    height="20%"
+                                    alignItems="center"
+                                    axis="column">
+                                <brls:Label
+                                        id="video_info"
+                                        singleLine="true"
+                                        width="auto"
+                                        height="auto"
+                                        horizontalAlign="center"
+                                        fontSize="10"
+                                        text="2022-01-01 20:00"
+                                        textColor="@theme/captioned_image/caption" />
+                            </brls:Box>
+                        </brls:Box>
+                    </brls:Box>
+
+
+                </brls:Box>
+
+
+                <brls:ScrollingFrame
+                        id="video_detail_right_box"
+                        width="auto"
+                        grow="1.0"
+                        height="auto">
+                        <brls:Box
+                                width="auto"
+                                height="auto"
+                                grow="1.0"
+                                axis="column"
+                                alignItems="stretch">
+
+                                        <brls:Button
+                                                id="video/detail/button/start"
+                                                width="33%"
+                                                height="auto"
+                                                style="highlight"
+                                                text="Start"
+                                                margin="30"
+                                                marginTop="100"/>
+
+                                        <brls:Button
+                                                id="video/detail/button/start2"
+                                                width="33%"
+                                                height="auto"
+                                                style="highlight"
+                                                text="Start2"
+                                                margin="30" />
+
+
+                        </brls:Box>
+                </brls:ScrollingFrame>
+
+        </brls:Box>
+</brls:AppletFrame>

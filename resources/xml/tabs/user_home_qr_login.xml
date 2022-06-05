@@ -1,0 +1,46 @@
+<brls:Box
+        wireframe="true"
+        width="auto"
+        height="60%"
+        grow="1.0"
+        axis="column"
+
+        alignItems="center">
+
+    <brls:Label
+            marginTop="30"
+            text="扫描二维码登录"/>
+
+    <SVGImage
+            margin="30"
+            width="200"
+            height="200"
+            focusable="true"
+            TextureMode="false"
+            svg="@res/svg/test.svg"/>
+
+    <QRImage
+            margin="30"
+            width="200"
+            height="200"
+            focusable="true"
+            qr_content="test"/>
+
+    <brls:Label
+            fontSize="16"
+            textColor="#9499A0"
+            text="请使用哔哩哔哩客户端扫码登录"/>
+
+    <brls:Image
+            positionType="absolute"
+            positionBottom="0"
+            positionLeft="0"
+            height="100"
+            image="@res/pictures/22_open.png"/>
+    <brls:Image
+            positionType="absolute"
+            positionBottom="0"
+            positionRight="0"
+            height="100"
+            image="@res/pictures/33_open.png"/>
+</brls:Box>

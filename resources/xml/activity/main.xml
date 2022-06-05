@@ -1,0 +1,136 @@
+<brls:AppletFrame
+    iconInterpolation="linear"
+    headerHidden="true"
+    footerHidden="false">
+    <AutoTabFrame
+        title="@i18n/demo/title"
+        icon="@res/img/borealis_96.png">
+
+        <Tab label="我的" >
+            <UserHomeTab />
+        </Tab>
+
+        <Tab label="首页" >
+            <VideoListTab />
+        </Tab>
+
+        <Tab label="动态" >
+            <brls:Box
+                    height="40%">
+                <TextBox
+                        focusable="true"
+                        width="320"
+                        height="80"
+                        wireframe="true"
+                        text="1尝试写一点点中文吧+测试\n2尝试写一点点中文吧+测试"
+                        fontSize="36"/>
+            </brls:Box>
+        </Tab>
+
+<!--        &lt;!&ndash; Dynamic tab - required to get references to the views in the code &ndash;&gt;-->
+<!--        <Tab label="@i18n/demo/tabs/components" >-->
+<!--            <ComponentsTab />-->
+<!--        </Tab>-->
+
+<!--        <brls:Tab label="@i18n/demo/tabs/scroll" >-->
+<!--            <brls:View xml="@res/xml/tabs/scroll_test.xml" />-->
+<!--        </brls:Tab>-->
+
+<!--        &lt;!&ndash; Static tab linking to another XML &ndash;&gt;-->
+<!--        <brls:Tab label="@i18n/demo/tabs/layout" >-->
+<!--            <brls:View xml="@res/xml/tabs/layout.xml" />-->
+<!--        </brls:Tab>-->
+
+<!--        <brls:Tab label="@i18n/demo/tabs/pokedex">-->
+<!--            <RecyclingListTab />-->
+<!--        </brls:Tab>-->
+<!--        -->
+<!--        <brls:Tab label="@i18n/demo/tabs/settings">-->
+<!--            <SettingsTab />-->
+<!--        </brls:Tab>-->
+
+<!--        <brls:Separator />-->
+
+<!--        <brls:Tab label="@i18n/demo/tabs/popups" />-->
+<!--        <brls:Tab label="@i18n/demo/tabs/hos_layout" />-->
+
+<!--        <brls:Separator />-->
+
+<!--        <brls:Tab label="@i18n/demo/tabs/misc_layouts" />-->
+<!--        <brls:Tab label="@i18n/demo/tabs/misc_components" />-->
+<!--        <brls:Tab label="@i18n/demo/tabs/misc_tools" />-->
+<!--        <brls:Tab label="test2" />-->
+
+<!--        <brls:Separator />-->
+
+<!--        &lt;!&ndash; Static tab with inline XML &ndash;&gt;-->
+<!--        <brls:Tab label="@i18n/demo/tabs/about" >-->
+
+<!--            <brls:Box-->
+<!--                width="auto"-->
+<!--                height="auto"-->
+<!--                axis="column"-->
+<!--                paddingTop="@style/about/padding_top_bottom"-->
+<!--                paddingBottom="@style/about/padding_top_bottom"-->
+<!--                paddingLeft="@style/about/padding_sides"-->
+<!--                paddingRight="@style/about/padding_sides" >-->
+
+<!--                <brls:Image-->
+<!--                    width="auto"-->
+<!--                    height="33%"-->
+<!--                    image="@res/img/borealis_256.png"-->
+<!--                    marginBottom="@style/about/description_margin"/>-->
+
+<!--                <brls:Box-->
+<!--                    width="auto"-->
+<!--                    height="auto"-->
+<!--                    axis="row"-->
+<!--                    marginBottom="@style/about/description_margin">-->
+
+<!--                    <brls:Label-->
+<!--                        width="40%"-->
+<!--                        height="auto"-->
+<!--                        text="@i18n/demo/about/title"-->
+<!--                        fontSize="36"-->
+<!--                        horizontalAlign="right"-->
+<!--                        verticalAlign="top" />-->
+
+<!--                    <brls:Label-->
+<!--                        width="auto"-->
+<!--                        height="auto"-->
+<!--                        text="@i18n/demo/about/description"-->
+<!--                        marginLeft="@style/about/description_margin" />-->
+
+<!--                </brls:Box>-->
+
+<!--                <brls:Box-->
+<!--                    width="auto"-->
+<!--                    height="auto"-->
+<!--                    axis="column"-->
+<!--                    alignItems="center"-->
+<!--                    justifyContent="spaceEvenly"-->
+<!--                    grow="1.0" >-->
+
+<!--                    <brls:Label-->
+<!--                        width="auto"-->
+<!--                        height="auto"-->
+<!--                        text="@i18n/demo/about/github" />-->
+
+<!--                    <brls:Label-->
+<!--                        width="auto"-->
+<!--                        height="auto"-->
+<!--                        text="@i18n/demo/about/licence" />-->
+
+<!--                    <brls:Label-->
+<!--                        width="auto"-->
+<!--                        height="auto"-->
+<!--                        text="@i18n/demo/about/logo_credit" />-->
+
+<!--                </brls:Box>-->
+
+<!--            </brls:Box>-->
+
+<!--        </brls:Tab>-->
+
+    </AutoTabFrame>
+</brls:AppletFrame>

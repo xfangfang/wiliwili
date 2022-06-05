@@ -1,0 +1,45 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        axis="row"
+        justifyContent="spaceBetween"
+        alignItems="center">
+
+    <NetImage
+            id="avatar"
+            width="auto"
+            height="80%"
+            scalingType="fit"
+            marginLeft="10"
+            marginRight="10"
+            image="@res/icon/akari.jpg"/>
+
+    <brls:Box
+            width="auto"
+            height="100%"
+            axis="column"
+            grow="1.0"
+            justifyContent="spaceAround"
+            alignItems="flexStart">
+
+        <brls:Label
+                id="username"
+                width="auto"
+                height="auto"
+                horizontalAlign="center"
+                fontSize="18"
+                text="username"
+                textColor="@theme/captioned_image/caption" />
+
+        <brls:Label
+                id="misc"
+                width="auto"
+                height="auto"
+                horizontalAlign="center"
+                fontSize="10"
+                text="10000000"
+                textColor="@theme/captioned_image/caption" />
+
+    </brls:Box>
+
+</brls:Box>

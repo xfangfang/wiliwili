@@ -1,7 +1,7 @@
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 #include "bilibili.h"
-#include "md5.hpp"
+#include "bilibili/util/md5.hpp"
 #include "curl/curl.h"
 
 namespace bilibili {
@@ -39,7 +39,7 @@ namespace bilibili {
         return data;
     }
 
-    cpr::Response _cpr_get(std::string url, const cpr::Parameters& parameters = {}){
+    cpr::Response _cpr_get(const std::string& url, const cpr::Parameters& parameters = {}){
         return cpr::Get(
             cpr::Url{url},
             cpr::Header{
@@ -109,28 +109,28 @@ namespace bilibili {
         });
     }
 
-    void BilibiliClient::get_recommend(int rid, int num, std::function<void(VideoList)> callback){
-        std::string url = "http://api.bilibili.com/x/web-interface/dynamic/region?ps="+std::to_string(num)+"&rid="+std::to_string(rid);
+    void BilibiliClient::get_recommend_old(int rid, int num, const std::function<void(VideoList)>& callback){
+        std::string url = "https://api.bilibili.com/x/web-interface/dynamic/region?ps="+std::to_string(num)+"&rid="+std::to_string(rid);
         BilibiliClient::pool.enqueue([callback, url]{
             cpr::Response r = _cpr_get(url);
             nlohmann::json res = nlohmann::json::parse(r.text);
-            VideoList videoList = res.get<VideoList>();
+            auto videoList = res.get<VideoList>();
             callback(videoList);
         });
     }
 
-    void BilibiliClient::get_playurl(int cid, int quality, std::function<void(VideoPage)> callback){
-        std::string _APP_KEY = "iVGUTjsxvpLeuDCf";
-        std::string _BILIBILI_KEY = "aHRmhWMLkdeMuILqORnYZocwMBpMEOdt";
+    void BilibiliClient::get_playurl(int cid, int quality, const std::function<void(VideoPage)>& callback){
+        std::string APP_KEY = "iVGUTjsxvpLeuDCf";
+        std::string BILIBILI_KEY = "aHRmhWMLkdeMuILqORnYZocwMBpMEOdt";
         std::string q = std::to_string(quality);
-        std::string payload = "appkey="+_APP_KEY+"&cid="+std::to_string(cid)+
+        std::string payload = "appkey="+APP_KEY+"&cid="+std::to_string(cid)+
             "&otype=json&qn="+q+"&quality="+q+"&type=";
-        std::string sign = websocketpp::md5::md5_hash_hex(payload+_BILIBILI_KEY);
+        std::string sign = websocketpp::md5::md5_hash_hex(payload+BILIBILI_KEY);
         std::string url = "http://interface.bilibili.com/v2/playurl?"+payload+"&sign="+sign;
         BilibiliClient::pool.enqueue([callback, url, cid]{
             cpr::Response r = _cpr_get(url);
             nlohmann::json res = nlohmann::json::parse(r.text);
-            VideoPage videoPage = res.get<VideoPage>();
+            auto videoPage = res.get<VideoPage>();
             videoPage.cid = cid;
             callback(videoPage);
         });
@@ -207,15 +207,6 @@ namespace bilibili {
                 {"ps" , std::to_string(ps)}
             }
         );
-    }
-
-    void BilibiliClient::get_description(int aid, std::function<void(std::string)> callback){
-        std::string url = "http://api.bilibili.com/x/web-interface/archive/desc?aid="+std::to_string(aid);
-        BilibiliClient::pool.enqueue([callback, url]{
-            cpr::Response r = _cpr_get(url);
-            nlohmann::json res = nlohmann::json::parse(r.text);
-            callback(res.at("data"));
-        });
     }
 
     void BilibiliClient::download(std::string url, std::function<void(std::string, size_t)> callback){
