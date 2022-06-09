@@ -7,7 +7,6 @@
 #include <borealis.hpp>
 #include "net_image.hpp"
 #include "utils/number_helper.hpp"
-#include "utils/svg_icon.hpp"
 
 using namespace brls;
 
@@ -21,13 +20,13 @@ public:
     void setCard(std::string pic, std::string title, std::string username, int pubdate,
                  int view_count=0, int danmaku=0, int duration=0
                  ){
-        this->labelUsername->setText(username + "·" +sec2date(pubdate));
+        this->labelUsername->setText(username + "·" +wiliwili::sec2date(pubdate));
         this->labelTitle->setIsWrapping(true);
         this->labelTitle->setText(title);
         this->picture->setImageFromNet(pic);
-        this->labelCount->setText("播放: "+num2w(view_count));
-        this->labelDanmaku->setText("弹幕: "+num2w(danmaku));
-        this->labelDuration->setText(sec2Time(duration));
+        this->labelCount->setText(""_i18n +wiliwili::num2w(view_count));
+        this->labelDanmaku->setText(wiliwili::num2w(danmaku));
+        this->labelDuration->setText(wiliwili::sec2Time(duration));
     }
 
     void draw(NVGcontext *vg, float x, float y, float width, float height, Style style, FrameContext *ctx) {
@@ -48,9 +47,4 @@ private:
     BRLS_BIND(Label, labelCount, "video/card/label/count");
     BRLS_BIND(Label, labelDanmaku, "video/card/label/danmaku");
     BRLS_BIND(Label, labelDuration, "video/card/label/duration");
-
-//    BRLS_BIND(brls::Image, imageUp, "video/card/image/up");
-//    BRLS_BIND(brls::Image, imageCount, "video/card/image/count");
-//    BRLS_BIND(brls::Image, imageDanmaku, "video/card/image/danmaku");
-//    BRLS_BIND(brls::Image, imageDuration, "video/card/image/duration");
 };

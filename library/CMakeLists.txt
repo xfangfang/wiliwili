@@ -1,12 +1,34 @@
 cmake_minimum_required(VERSION 3.15)
 
+# import cpr
+set(CPR_FORCE_USE_SYSTEM_CURL ON)
+if (PLATFORM_DESKTOP)
+    if (APPLE)
+        set(CPR_FORCE_DARWINSSL_BACKEND ON)
+    endif ()
+else()
+    set(CPR_FORCE_MBEDTLS_BACKEND ON)
+endif()
+FetchContent_Declare(cpr
+        GIT_REPOSITORY https://github.com/libcpr/cpr.git
+        GIT_TAG 2157a3126c2ef1b76f339dedd6d7585e39651512) # 2022/06/01
+FetchContent_MakeAvailable(cpr)
+
+#import lunasvg
+FetchContent_Declare(lunasvg
+        GIT_REPOSITORY https://github.com/sammycage/lunasvg.git
+        GIT_TAG ef111f983225d7598cb9044796ed3b1146927135)
+FetchContent_MakeAvailable(lunasvg)
+
 # add QR-Code-generator
 add_library(qrcode STATIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp/QrCode.cpp)
 target_include_directories(qrcode PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp)
 set_property(TARGET qrcode PROPERTY CXX_STANDARD 17)
 
-# add nanosvg
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/nanosvg)
+# add pystring
+add_library(pystring STATIC ${CMAKE_CURRENT_SOURCE_DIR}/pystring/pystring.cpp)
+target_include_directories(pystring PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/pystring/pystring.h)
+set_property(TARGET pystring PROPERTY CXX_STANDARD 17)
 
 # add borealis
 set(BOREALIS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/borealis/library)

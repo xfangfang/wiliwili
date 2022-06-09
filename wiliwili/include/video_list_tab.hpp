@@ -5,8 +5,8 @@
 #pragma once
 
 #include <borealis.hpp>
-#include "activity/video_detail_activity.hpp"
-#include "presender/home.hpp"
+#include "activity/player_activity.hpp"
+#include "presenter/home.hpp"
 #include "view/video_grid.hpp"
 #include "view/video_card.hpp"
 
@@ -21,13 +21,9 @@ public:
         //todo: 貌似switch上启动时立刻访问网络会有问题
         this->requestData();
 #endif
-        this->registerAction("refresh", ControllerButton::BUTTON_Y, [this](brls::View* view)-> bool {
+        this->registerAction("刷新", ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
             Logger::debug("==> requestRecommendVideoList");
             this->requestRecommendVideoList();
-            return true;
-        });
-        this->registerAction("search", ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
-
             return true;
         });
     }
@@ -40,7 +36,9 @@ public:
             Logger::debug("bvid: {}", i.bvid);
                 VideoCardView* v = new VideoCardView();
                 v->setFocusable(true);
-                v->setCard(i.pic, i.title, i.owner.name, i.pubdate,
+                //todo: 找到适合的图片尺寸
+                //todo: 支持webp
+                v->setCard(i.pic+"@672w_378h_1c.jpg", i.title, i.owner.name, i.pubdate,
                            i.stat.view, i.stat.danmaku, i.duration
                            );
                 v->registerClickAction([i](brls::View* view)-> bool {

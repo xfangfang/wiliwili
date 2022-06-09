@@ -1,0 +1,8 @@
+<brls:AppletFrame
+        iconInterpolation="linear"
+        headerHidden="true"
+        footerHidden="false">
+    <brls:Box>
+
+    </brls:Box>
+</brls:AppletFrame>

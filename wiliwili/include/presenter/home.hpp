@@ -21,8 +21,6 @@ public:
         bilibili::BilibiliClient::get_recommend(index, num,
                                                 [this](const bilibili::RecommendVideoListResult &result){
                                                     brls::Threading::sync([this, result]() {
-                                                        //todo: 当还没获取到推荐列表时，切换页面会销毁当前窗口，从而导致this不可用
-                                                        //解决方案：sidebar切换页面不销毁。
                                                         this->onRecommendVideoList(result);
                                                     });
         }, [](const std::string &error) {

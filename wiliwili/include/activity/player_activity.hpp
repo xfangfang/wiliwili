@@ -8,7 +8,7 @@
 #include <utility>
 #include "view/video_view.hpp"
 #include "view/user_info.hpp"
-#include "presender/video_detail.hpp"
+#include "presenter/video_detail.hpp"
 #include "bilibili.h"
 
 using namespace brls;

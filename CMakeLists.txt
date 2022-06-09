@@ -43,32 +43,10 @@ set(PROJECT_AUTHOR "xfangfang")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/bilibili.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-
-
-# build boreals and qrcode
-add_subdirectory(library)
-
-
-# import cpr
-set(CPR_FORCE_USE_SYSTEM_CURL ON)
-if (PLATFORM_DESKTOP)
-    if (APPLE)
-        set(CPR_FORCE_DARWINSSL_BACKEND ON)
-    endif ()
-else()
-    set(CPR_FORCE_MBEDTLS_BACKEND ON)
-endif()
 include(FetchContent)
-FetchContent_Declare(cpr
-        GIT_REPOSITORY https://github.com/libcpr/cpr.git
-        GIT_TAG 2157a3126c2ef1b76f339dedd6d7585e39651512) # 2022/06/01
-FetchContent_MakeAvailable(cpr)
 
-
-FetchContent_Declare(lunasvg
-        GIT_REPOSITORY https://github.com/sammycage/lunasvg.git
-        GIT_TAG ef111f983225d7598cb9044796ed3b1146927135)
-FetchContent_MakeAvailable(lunasvg)
+# build borealis qrcode and other third party libraries
+add_subdirectory(library)
 
 
 # setting src and include
@@ -84,7 +62,7 @@ if (PLATFORM_DESKTOP)
 else()
     set(PLATFORM_LIBS
             # debug
-            twili
+            # twili
             # needed by borealis
             glfw3 EGL glapi drm_nouveau
             # needed by mpv
@@ -99,7 +77,10 @@ endif()
 # building target
 add_executable(${PROJECT_NAME} ${MAIN_SRC})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
-target_include_directories(${PROJECT_NAME} PRIVATE wiliwili/include wiliwili/include/api library/nanosvg/src)
+target_include_directories(${PROJECT_NAME} PRIVATE
+        wiliwili/include
+        wiliwili/include/api
+        library/pystring)
 target_compile_options(${PROJECT_NAME} PRIVATE
         -D__VERSION_MAJOR__=${VERSION_MAJOR}
         -D__VERSION_MINOR__=${VERSION_MINOR}
@@ -112,9 +93,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         cpr::cpr
         qrcode
         borealis
-        nanosvg
         lunasvg
-#        pthread
+        pystring
         ${PLATFORM_LIBS}
         )
 

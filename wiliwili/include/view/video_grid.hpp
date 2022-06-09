@@ -10,7 +10,7 @@
 class VideoGrid : public Box {
 public:
 
-    VideoGrid(float itemPercentage=22, float itemHeight=250, float itemMargin=10):ItemWidthPercentage(itemPercentage),ItemHeight(itemHeight),ItemMargin(itemMargin){
+    VideoGrid(float itemPercentage=22, float itemHeight=220, float itemMargin=10):ItemWidthPercentage(itemPercentage),ItemHeight(itemHeight),ItemMargin(itemMargin){
         YGNodeStyleSetFlexDirection(this->ygNode, YGFlexDirection::YGFlexDirectionRow);
         YGNodeStyleSetFlexWrap(this->ygNode, YGWrap::YGWrapWrap);
         YGNodeStyleSetAlignContent(this->ygNode, YGAlign::YGAlignFlexStart);

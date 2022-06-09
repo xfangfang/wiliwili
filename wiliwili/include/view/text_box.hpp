@@ -24,7 +24,7 @@ public:
         nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
         nvgFontFaceId(vg, this->getFont());
         nvgTextLineHeight(vg, this->getLineHeight());
-//        nvgFillColor(vg, a(this->getTextColor()));
+        nvgFillColor(vg, a(this->getTextColor()));
         nvgTextBox(vg, x, y, width, this->getFullText().c_str(), nullptr);
 
         nvgRestore(vg);

@@ -1,0 +1,13 @@
+<brls:Box
+        wireframe="true"
+        axis="column"
+        width="auto"
+        height="auto">
+    <TextBox
+            focusable="true"
+            width="320"
+            height="80"
+            wireframe="true"
+            text="1尝试写一点点中文吧+测试\n2尝试写一点点中文吧+测试"
+            fontSize="36"/>
+</brls:Box>

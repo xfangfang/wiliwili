@@ -29,9 +29,10 @@ const std::string autoTabFrameContentXML = R"xml(
         height="auto"
         axis="row">
 
-        <AutoSidebar
-            id="brls/tab_frame/sidebar"
-            width="@style/brls/tab_frame/sidebar_width"
+        <brls:Box
+            wireframe="false"
+            id="auto_tab_frame/auto_sidebar"
+            width="100"
             height="auto" />
 
         <!-- Content will be injected here with grow="1.0" -->
@@ -43,41 +44,74 @@ View* AutoTabFrame::create() {
     return new AutoTabFrame();
 }
 
+
 AutoTabFrame::AutoTabFrame() {
-//    410.0f, 100.0f
-    Logger::info("create AutoTabFrame");
     this->inflateFromXMLString(autoTabFrameContentXML);
+
+    BRLS_REGISTER_ENUM_XML_ATTRIBUTE(
+            "sidebarPosition", AutoTabBarPosition, this->setSideBarPosition,
+            {
+                { "top", AutoTabBarPosition::TOP },
+                { "right", AutoTabBarPosition::RIGHT },
+                { "left", AutoTabBarPosition::LEFT },
+            });
+
+    this->registerFloatXMLAttribute("tabFontSize", [this](float value){
+       this->setFontSize(value);
+    });
+
+    // defaultTab: default is 0
+    this->registerFloatXMLAttribute("defaultTab", [this](float value){
+        this->setDefaultTabIndex(value);
+    });
+
+    this->sidebar->setBackground(ViewBackground::SIDEBAR);
+    this->sidebar->setAxis(Axis::COLUMN);
+    this->sidebar->setPadding(32,10,47,10);
 }
 
-void AutoTabFrame::addTab(std::string label, TabViewCreator creator)
+void AutoTabFrame::setSideBarPosition(AutoTabBarPosition position){
+    switch (position)
+    {
+        case AutoTabBarPosition::TOP:
+            this->setAxis(Axis::COLUMN);
+            this->setDirection(Direction::LEFT_TO_RIGHT);
+            this->setHorizontalMode(true);
+            this->sidebar->setWidthPercentage(100);
+            break;
+        case AutoTabBarPosition::RIGHT:
+            this->setAxis(Axis::ROW);
+            this->setDirection(Direction::RIGHT_TO_LEFT);
+            this->setHorizontalMode(false);
+            this->sidebar->setWidth(100);
+            break;
+        case AutoTabBarPosition::LEFT:
+            this->setAxis(Axis::ROW);
+            this->setDirection(Direction::LEFT_TO_RIGHT);
+            this->setHorizontalMode(false);
+            this->sidebar->setWidth(100);
+            break;
+    }
+    this->tabBarPosition = position;
+    this->invalidate();
+}
+
+void AutoTabFrame::addTab(std::string label, TabViewCreator creator, std::string icon, std::string iconActivate)
 {
-    this->sidebar->addItem(label, [this, creator](brls::View* view) {
+    this->addItem(label, icon, iconActivate, creator, [this](brls::View* view) {
         AutoSidebarItem* sidebarItem = (AutoSidebarItem*) view;
 
         // Only trigger when the sidebar item gains focus
         if (!view->isFocused())
             return;
 
-        // Remove the existing tab if it exists
-        if (this->activeTab)
-        {
-            this->removeView(this->activeTab, false); // will call willDisappear but not delete
-            this->activeTab = nullptr;
-        }
-
         // Add the new tab
         View* newContent = sidebarItem->getAttachedView();
-        if(!newContent){
-            newContent = creator();
-            sidebarItem->setAttachedView(newContent);
-        }
+
+        this->setTabAttachedView(newContent);
+
         if (!newContent)
             return;
-
-        newContent->setGrow(1.0f);
-        this->addView(newContent); // addView calls willAppear
-
-        this->activeTab = newContent;
 
         newContent->registerAction(
                 "hints/back"_i18n, BUTTON_B, [this](View* view) {
@@ -89,21 +123,21 @@ void AutoTabFrame::addTab(std::string label, TabViewCreator creator)
                 },
                 false, false, SOUND_BACK);
     });
+    if(this->sidebar->getChildren().size() - 1 == this->getDefaultTabIndex() ){
+        AutoSidebarItem* item = (AutoSidebarItem*)this->sidebar->getChildren()[this->getDefaultTabIndex()];
+        item->setActive(true);
+        this->setTabAttachedView(item->getAttachedView());
+    }
 }
 
 void AutoTabFrame::focusTab(int position)
 {
-    Application::giveFocus(this->sidebar->getItem(position));
+    Application::giveFocus(this->getItem(position));
 }
 
 void AutoTabFrame::clearTabs()
 {
-    this->sidebar->clearItems();
-}
-
-void AutoTabFrame::addSeparator()
-{
-    this->sidebar->addSeparator();
+    this->clearItems();
 }
 
 void AutoTabFrame::handleXMLElement(tinyxml2::XMLElement* element)
@@ -113,11 +147,21 @@ void AutoTabFrame::handleXMLElement(tinyxml2::XMLElement* element)
     if (name == "Tab")
     {
         const tinyxml2::XMLAttribute* labelAttribute = element->FindAttribute("label");
+        const tinyxml2::XMLAttribute* iconAttribute = element->FindAttribute("icon");
+        const tinyxml2::XMLAttribute* iconActivateAttribute = element->FindAttribute("iconActivate");
 
         if (!labelAttribute)
             fatal("\"label\" attribute missing from \"" + name + "\" tab");
 
         std::string label = View::getStringXMLAttributeValue(labelAttribute->Value());
+
+        std::string icon, iconActivate;
+
+        if(iconAttribute)
+            icon = View::getFilePathXMLAttributeValue(iconAttribute->Value());
+
+        if(iconActivateAttribute)
+            iconActivate = View::getFilePathXMLAttributeValue(iconActivateAttribute->Value());
 
         tinyxml2::XMLElement* viewElement = element->FirstChildElement();
 
@@ -125,108 +169,20 @@ void AutoTabFrame::handleXMLElement(tinyxml2::XMLElement* element)
         {
             this->addTab(label, [viewElement] {
                 return View::createFromXMLElement(viewElement);
-            });
+            }, icon, iconActivate);
 
             if (viewElement->NextSiblingElement())
                 fatal("\"Tab\" can only contain one child element");
         }
         else
         {
-            this->addTab(label, [] { return nullptr; });
+            this->addTab(label, [] { return nullptr; }, icon, iconActivate);
         }
-    }
-    else if (name == "Separator")
-    {
-        this->addSeparator();
     }
     else
     {
         fatal("Unknown child element \"" + name + "\" for \"brls:Tab\"");
     }
-}
-
-
-/**
- * auto sidebar
- */
-
-
-View * AutoSidebar::create() {
-    return new AutoSidebar();
-}
-
-AutoSidebar::AutoSidebar()
-{
-    Style style = Application::getStyle();
-
-    this->setScrollingBehavior(ScrollingBehavior::CENTERED);
-    this->setBackground(ViewBackground::SIDEBAR);
-
-    // Create content box
-    this->contentBox = new Box(Axis::COLUMN);
-
-    this->contentBox->setPadding(
-            style["brls/sidebar/padding_top"],
-            10,
-            style["brls/sidebar/padding_bottom"],
-            10);
-
-    this->setContentView(this->contentBox);
-    this->setScrollingIndicatorVisible(false);
-    Logger::info("create AutoSidebar");
-}
-
-void AutoSidebar::addItem(std::string label, GenericEvent::Callback focusCallback)
-{
-    AutoSidebarItem* item = new AutoSidebarItem();
-    item->setGroup(&this->group);
-    item->setLabel(label);
-    item->getActiveEvent()->subscribe(focusCallback);
-
-    this->contentBox->addView(item);
-}
-
-AutoSidebarItem* AutoSidebar::getItem(int position)
-{
-    return dynamic_cast<AutoSidebarItem*>(this->contentBox->getChildren()[position]);
-}
-
-void AutoSidebar::addSeparator()
-{
-    this->contentBox->addView(new SidebarSeparator());
-}
-
-void AutoSidebar::clearItems()
-{
-    this->contentBox->clearViews();
-    group.clear();
-}
-
-void AutoSidebar::onChildFocusLost(View *directChild, View *focusedView) {
-    ScrollingFrame::onChildFocusLost(directChild, focusedView);
-    Logger::error("AutoSidebar: onChildFocusLost");
-}
-
-void AutoSidebar::onFocusLost() {
-    Box::onFocusLost();
-    Logger::info("AutoSidebar: onFocusLost");
-}
-
-View *AutoSidebar::getNextFocus(FocusDirection direction, View *currentView) {
-
-    View * next = ScrollingFrame::getNextFocus(direction, currentView);
-    if(next && direction == FocusDirection::RIGHT){
-        Logger::info("AutoSidebar to right");
-        this->setWidth(100.0f);
-    }
-    return next;
-}
-
-void AutoSidebar::onChildFocusGained(View *directChild, View *focusedView) {
-    ScrollingFrame::onChildFocusGained(directChild, focusedView);
-    Logger::info("AutoSidebar onChildFocusGained");
-    //200
-    this->setWidth(100.0f);
 }
 
 
@@ -237,28 +193,48 @@ void AutoSidebar::onChildFocusGained(View *directChild, View *focusedView) {
 const std::string autoSidebarItemXML = R"xml(
     <brls:Box
         width="auto"
+        direction="rightToLeft"
         height="@style/brls/sidebar/item_height"
         focusable="true" >
 
+        <brls:Box
+            wireframe="false"
+            grow="1.0"
+            width="auto"
+            height="auto"
+            justifyContent="center"
+            alignItems="center"
+            axis="column"
+            marginTop="@style/brls/sidebar/item_accent_margin_top_bottom"
+            marginBottom="@style/brls/sidebar/item_accent_margin_top_bottom"
+            marginRight="@style/brls/sidebar/item_accent_margin_sides"
+            id="autoSidebar/item_label_box">
+
+            <SVGImage
+                wireframe="false"
+                visibility="gone"
+                id="autoSidebar/item_icon"
+                width="26"
+                height="26"/>
+
+            <brls:Label
+                wireframe="false"
+                id="autoSidebar/item_label"
+                width="auto"
+                height="auto"
+                fontSize="22"
+                horizontalAlign="center"/>
+        </brls:Box>
+
         <brls:Rectangle
-            id="brls/sidebar/item_accent"
+            id="autoSidebar/item_accent"
             width="@style/brls/sidebar/item_accent_rect_width"
             height="auto"
             visibility="invisible"
-            color="@theme/brls/sidebar/active_item"
+            color="#FF6699"
             marginTop="@style/brls/sidebar/item_accent_margin_top_bottom"
             marginBottom="@style/brls/sidebar/item_accent_margin_top_bottom"
             marginLeft="@style/brls/sidebar/item_accent_margin_sides"
-            marginRight="@style/brls/sidebar/item_accent_margin_sides" />
-
-        <brls:Label
-            id="brls/sidebar/item_label"
-            width="auto"
-            height="auto"
-            grow="1.0"
-            fontSize="@style/brls/sidebar/item_font_size"
-            marginTop="@style/brls/sidebar/item_accent_margin_top_bottom"
-            marginBottom="@style/brls/sidebar/item_accent_margin_top_bottom"
             marginRight="@style/brls/sidebar/item_accent_margin_sides" />
 
     </brls:Box>
@@ -317,12 +293,18 @@ void AutoSidebarItem::setActive(bool active)
         this->activeEvent.fire(this);
 
         this->accent->setVisibility(Visibility::VISIBLE);
-        this->label->setTextColor(theme["brls/sidebar/active_item"]);
+        this->label->setTextColor(nvgRGB(255, 102, 153));
+        if(this->icon->getVisibility() == brls::Visibility::VISIBLE){
+            this->icon->setImageFromSVGFile(this->iconActivate);
+        }
     }
     else
     {
         this->accent->setVisibility(Visibility::INVISIBLE);
         this->label->setTextColor(theme["brls/text"]);
+        if(this->icon->getVisibility() == brls::Visibility::VISIBLE){
+            this->icon->setImageFromSVGFile(this->iconDefault);
+        }
     }
 
     this->active = active;

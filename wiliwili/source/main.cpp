@@ -36,7 +36,6 @@
 #include "auto_tab_frame.hpp"
 #include "view/video_view.hpp"
 #include "video_list_tab.hpp"
-#include "user_home_tab.hpp"
 #include "view/net_image.hpp"
 #include "view/user_info.hpp"
 #include "view/video_grid.hpp"
@@ -44,8 +43,14 @@
 #include "view/text_box.hpp"
 #include "view/qr_image.hpp"
 #include "view/svg_image.hpp"
+#include "view/up_user_small.hpp"
 
-#include "activity/video_detail_activity.hpp"
+#include "fragment/home_tab.hpp"
+#include "fragment/dynamic_tab.hpp"
+#include "fragment/mine_tab.hpp"
+
+
+#include "activity/player_activity.hpp"
 
 
 using namespace brls::literals; // for _i18n
@@ -61,7 +66,9 @@ int main(int argc, char* argv[])
 
     cpr::async::startup(1, 2);
 #endif
-//    cpr::async::startup(1, 1);
+
+    // Set min_threads and max_threads of cpr thread pool
+    cpr::async::startup(1, 1);
 
     // Set log level
     // We recommend to use INFO for real apps
@@ -82,6 +89,8 @@ int main(int argc, char* argv[])
 
     brls::Logger::info("Application::createWindow() done");
 
+    //todo: Add splash
+
     // Have the application register an action on every activity that will quit when you press BUTTON_START
     brls::Application::setGlobalQuit(false);
 
@@ -92,7 +101,6 @@ int main(int argc, char* argv[])
     brls::Application::registerXMLView("PokemonView", PokemonView::create);
     brls::Application::registerXMLView("SettingsTab", SettingsTab::create);
     brls::Application::registerXMLView("AutoTabFrame", AutoTabFrame::create);
-    brls::Application::registerXMLView("AutoSidebar", AutoSidebar::create);
     brls::Application::registerXMLView("VideoView", VideoView::create);
     brls::Application::registerXMLView("VideoListTab", VideoListTab::create);
     brls::Application::registerXMLView("NetImage", NetImage::create);
@@ -102,8 +110,12 @@ int main(int argc, char* argv[])
     brls::Application::registerXMLView("VideoGrid", VideoGrid::create);
     brls::Application::registerXMLView("VideoCardView", VideoCardView::create);
     brls::Application::registerXMLView("TextBox", TextBox::create);
-    brls::Application::registerXMLView("UserHomeTab", UserHomeTab::create);
+    brls::Application::registerXMLView("UpUserSmall", UpUserSmall::create);
 
+    // Register fragments
+    brls::Application::registerXMLView("HomeTab", HomeTab::create);
+    brls::Application::registerXMLView("DynamicTab", DynamicTab::create);
+    brls::Application::registerXMLView("MineTab", MineTab::create);
 
     // Add custom values to the theme
     brls::getLightTheme().addColor("captioned_image/caption", nvgRGB(2, 176, 183));

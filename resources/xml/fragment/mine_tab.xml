@@ -12,26 +12,26 @@
             focusable="true"
             hideHighlightBackground="true"
             margin="40">
-            <NetImage
-                    image="@res/icon/akari.jpg"/>
-            <brls:Box
-                    marginLeft="40"
-                    wireframe="true"
-                    axis="column"
-                    width="25%">
-                    <brls:Label
-                            grow="1"
-                            text="点击登录"/>
-                    <brls:Label
-                            grow="1"
-                            text="B币：-    硬币：-"/>
-            </brls:Box>
-            <brls:Box
-                    wireframe="true"
-                    grow="1">
-                    <brls:Label
-                            text="动态：-   关注：- 粉丝：-"/>
-            </brls:Box>
+        <NetImage
+                image="@res/icon/akari.jpg"/>
+        <brls:Box
+                marginLeft="40"
+                wireframe="true"
+                axis="column"
+                width="25%">
+            <brls:Label
+                    grow="1"
+                    text="点击登录"/>
+            <brls:Label
+                    grow="1"
+                    text="B币：-    硬币：-"/>
+        </brls:Box>
+        <brls:Box
+                wireframe="true"
+                grow="1">
+            <brls:Label
+                    text="动态：-   关注：- 粉丝：-"/>
+        </brls:Box>
     </brls:Box>
 
     <brls:ScrollingFrame
