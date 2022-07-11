@@ -27,11 +27,11 @@ public:
     void requestVideoInfo(const bilibili::Video& video) {
         bilibili::BilibiliClient::get_video_detail(video.bvid,
                                                    [this](const bilibili::VideoDetailResult &result) {
-            Logger::debug("bilibili::BilibiliClient::get_video_detail");
+            brls::Logger::debug("bilibili::BilibiliClient::get_video_detail");
             this->videoDetailResult = result;
             this->onVideoInfo(result);
             }, [](const std::string &error) {
-            Logger::error(error);
+                    brls::Logger::error(error);
         });
     }
 
@@ -47,7 +47,7 @@ public:
                 break;
             }
             }, [](const std::string &error) {
-            Logger::error(error);
+                    brls::Logger::error(error);
         });
     }
 
@@ -55,11 +55,11 @@ public:
     void requestVideoUrl(const bilibili::Video& video, int cid){
         bilibili::BilibiliClient::get_video_url(video.bvid, cid, 64,
                                         [this](const bilibili::VideoUrlResult & result) {
-                                            Logger::debug("bilibili::BilibiliClient::get_video_url");
+                                            brls::Logger::debug("bilibili::BilibiliClient::get_video_url");
                                             this->videoUrlResult = result;
                                             this->onVideoPlayUrl(result);
                                         }, [](const std::string &error) {
-            Logger::error(error);
+                    brls::Logger::error(error);
         });
     }
 private:

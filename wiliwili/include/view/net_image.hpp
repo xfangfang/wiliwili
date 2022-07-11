@@ -18,7 +18,7 @@ public:
 
     ~NetImage()
     {
-        Logger::debug("~NetImage {}", (size_t)this);
+        brls::Logger::debug("~NetImage {}", (size_t)this);
     }
 
     void willDisappear(bool resetState = false)
@@ -28,20 +28,33 @@ public:
         this->abort();
     }
 
+    void willAppear(bool resetState = false)
+    {
+        isWillDisappear = false;
+    }
+
     void abort(){
 
+    }
+    // todo: 自动缓存
+
+    void onLayout(){
+        brls::Image::onLayout();
+        if (this->texture == 0)
+            return;
+        brls::Logger::error("net image on layout: {}/{}", this->getWidth(), this->getHeight());
     }
 
     void setImageFromNet(const std::string& url){
         // todo: allow cancel request
         this->ptrLock();
         cpr::GetCallback([this](cpr::Response r) {
-            if (isWillDisappear) return;
+//            if (isWillDisappear) return;
             if (r.downloaded_bytes == 0){
                 brls::Logger::debug("undone pic:{}", r.url.str());
             } else {
                 brls::Logger::debug("load pic:{} size:{}bytes to {}", r.url.str(), r.downloaded_bytes, (size_t)this);
-                Threading::sync([this, r](){
+                brls::Threading::sync([this, r](){
                     this->setImageFromMem((unsigned char *) r.text.c_str(),(int) r.downloaded_bytes);
                     this->ptrUnlock();
                 });

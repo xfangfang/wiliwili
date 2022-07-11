@@ -4,16 +4,18 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include "view/auto_tab_frame.hpp"
 
-class HomeTab : brls::Box {
+class HomeTab : AttachedView {
 public:
     HomeTab();
 
     ~HomeTab();
 
-    static View* create(){
-        return new HomeTab();
-    }
+    static View* create();
+
+    void onCreate();
+
 private:
+    BRLS_BIND(AutoTabFrame, tabFrame, "home/tab/frame");
 };

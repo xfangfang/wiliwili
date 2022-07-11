@@ -12,6 +12,10 @@
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/video_detail_result.h"
 #include "bilibili/result/home_result.h"
+#include "bilibili/result/home_hots_all_result.h"
+#include "bilibili/result/home_hots_weekly_result.h"
+#include "bilibili/result/home_hots_history_result.h"
+#include "bilibili/result/home_hots_rank.h"
 
 namespace bilibili {
     
@@ -80,9 +84,39 @@ namespace bilibili {
                                       const std::function<void(VideoUrlResult)>& callback= nullptr,
                                       const ErrorCallback& error= nullptr);
 
+            /// 主页 推荐
             static void get_recommend(const int index=1, const int num=24,
                                       const std::function<void(RecommendVideoListResult)>& callback= nullptr,
                                       const ErrorCallback& error= nullptr);
+
+            /// 主页 热门 热门综合
+            static void get_hots_all(const int index=1, const int num=40,
+                                      const std::function<void(HotsAllVideoListResult, bool)>& callback= nullptr,
+                                      const ErrorCallback& error= nullptr);
+
+            /// 主页 热门 每周推荐列表
+            static void get_hots_weekly_list(const std::function<void(HotsWeeklyListResult)>& callback= nullptr,
+                                     const ErrorCallback& error= nullptr);
+
+            /// 主页 热门 每周推荐
+            static void get_hots_weekly(const int number,
+                                     const std::function<void(HotsWeeklyVideoListResult, string, string)>& callback= nullptr,
+                                     const ErrorCallback& error= nullptr);
+
+            /// 主页 热门 入站必刷
+            static void get_hots_history(
+                                        const std::function<void(HotsHistoryVideoListResult, string)>& callback= nullptr,
+                                        const ErrorCallback& error= nullptr);
+
+            /// 主页 热门 排行榜 投稿视频
+            static void get_hots_rank(const int rid, const string type="all",
+                    const std::function<void(HotsRankVideoListResult , string)>& callback= nullptr,
+                    const ErrorCallback& error= nullptr);
+
+            /// 主页 热门 排行榜 官方
+            static void get_hots_rank_pgc(const int season_type, const int day=3,
+                    const std::function<void(HotsRankPGCVideoListResult , string)>& callback= nullptr,
+                    const ErrorCallback& error= nullptr);
 
             static void download(std::string url, std::function<void(std::string, size_t)> callback);
             static void get(std::string url, std::function<void(std::string)> callback);

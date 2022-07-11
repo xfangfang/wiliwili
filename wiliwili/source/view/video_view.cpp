@@ -7,6 +7,8 @@
 #include <switch.h>
 #endif
 
+using namespace brls;
+
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
                                  "layout (location = 1) in vec2 aTexCoord;\n"
@@ -77,8 +79,10 @@ void VideoView::initializeGL(){
     if (media_framebuffer != 0)
         return;
 
+    Logger::debug("initializeGL1");
     mpv_opengl_init_params gl_init_params{ get_proc_address, nullptr};
     // int mpv_advanced_control = 1;
+    Logger::debug("initializeGL2");
     mpv_render_param params[]{
             {MPV_RENDER_PARAM_API_TYPE,           const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
             {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
@@ -88,12 +92,13 @@ void VideoView::initializeGL(){
     if(mpv_render_context_create(&mpv_context, mpv, params)<0)
         fatal("failed to initialize mpv GL context");
     mpv_render_context_set_update_callback(mpv_context, on_update, this);
-
+    Logger::debug("initializeGL3");
     // create frame buffer
     glGenFramebuffers(1, &this->media_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, this->media_framebuffer);
     glGenTextures(1, &this->media_texture);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
+    Logger::debug("initializeGL4");
 
     //todo remove hardcode size
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
@@ -106,10 +111,13 @@ void VideoView::initializeGL(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->media_texture, 0);
 
+    Logger::debug("initializeGL5");
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         Logger::error("glCheckFramebufferStatus failed");
         this->deleteFrameBuffer();
     }
+
+    Logger::debug("initializeGL6");
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -353,4 +361,23 @@ void VideoView::invalidate() {
     this->mpv_fbo.h = drawHeight;
     this->mpv_fbo.w = drawWidth;
 
+}
+
+void VideoView::resume(){
+    //todo: 此处设置为 loading
+    this->videoState = VideoState::PLAYING;
+    check_error(mpv_command_string(mpv,"set pause no"));
+#ifdef __SWITCH__
+    appletSetMediaPlaybackState(true);
+#endif
+    brls::Logger::debug("resume");
+}
+
+void VideoView::pause(){
+    this->videoState = VideoState::PAUSED;
+    check_error(mpv_command_string(mpv,"set pause yes"));
+#ifdef __SWITCH__
+    appletSetMediaPlaybackState(false);
+#endif
+    brls::Logger::debug("pause");
 }

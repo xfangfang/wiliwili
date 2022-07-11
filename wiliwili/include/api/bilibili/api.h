@@ -9,7 +9,7 @@ using namespace std;
 namespace bilibili {
 
     namespace Api {
-//    public:
+
         static const string _apiBase = "https://api.bilibili.com";
         static const string _appBase = "https://app.bilibili.com";
         static const string _vcBase = "https://api.vc.bilibili.com";
@@ -63,8 +63,20 @@ namespace bilibili {
         /// 主页API
         /// ===
 
-        /// 推荐视频.
+        /// 主页 推荐
         static const string Recommend = _apiBase + "/x/web-interface/index/top/feed/rcmd";
+        /// 主页 热门 热门综合
+        static const string HotsAll = _apiBase + "/x/web-interface/popular";
+        /// 主页 热门 每周推荐列表
+        static const string HotsWeeklyList = _apiBase + "/x/web-interface/popular/series/list";
+        /// 主页 热门 每周推荐
+        static const string HotsWeekly = _apiBase + "/x/web-interface/popular/series/one";
+        /// 主页 热门 入站必刷
+        static const string HotsHistory = _apiBase + "/x/web-interface/popular/precious";
+        /// 主页 热门 用户投稿排行榜
+        static const string HotsRank= _apiBase + "/x/web-interface/ranking/v2";
+        /// 主页 热门 官方视频(番剧 电影...)排行榜
+        static const string HotsRankPGC= _apiBase + "/pgc/season/rank/web/list";
         /// 热门 - gRPC.
         static const string PopularGRPC = _grpcBase + "/bilibili.app.show.v1.Popular/Index";
         /// 排行榜 - Web.

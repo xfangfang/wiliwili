@@ -11,11 +11,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <nanovg_gl.h>
-#ifdef __SWITCH__
-#include <switch.h>
-#endif
-
-using namespace brls;
 
 class VideoView;
 
@@ -45,7 +40,7 @@ typedef enum VideoState{
     PAUSED,
 } VideoState;
 
-class VideoView : public Box {
+class VideoView : public brls::Box {
 public:
     VideoView();
 
@@ -58,14 +53,14 @@ public:
     void initializeGL();
 
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height, Style style, FrameContext* ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx) override;
 
 
     View* getDefaultFocus() override{
         return this;
     }
 
-    View* getNextFocus(FocusDirection direction, View* currentView) override{
+    View* getNextFocus(brls::FocusDirection direction, View* currentView) override{
         if(this->fullscreen)
             return this;
         return Box::getNextFocus(direction, currentView);
@@ -73,14 +68,14 @@ public:
 
     void setFullScreen(bool fs){
         if (fs){
-            this->setSize(Size(Application::contentWidth, Application::contentHeight));
+            this->setSize(brls::Size(brls::Application::contentWidth, brls::Application::contentHeight));
         }
         this->fullscreen = fs;
     }
 
     /// Video control
     void start(std::string url){
-        Logger::error("start mpv: {}", url);
+        brls::Logger::error("start mpv: {}", url);
         this->setUrl(url);
         this->resume();
     }
@@ -90,24 +85,9 @@ public:
         check_error(mpv_command(mpv, cmd));
     }
 
-    void resume(){
-        //todo: 此处设置为 loading
-        this->videoState = VideoState::PLAYING;
-        check_error(mpv_command_string(mpv,"set pause no"));
-#ifdef __SWITCH__
-        appletSetMediaPlaybackState(true);
-#endif
-        brls::Logger::debug("resume");
-    }
+    void resume();
 
-    void pause(){
-        this->videoState = VideoState::PAUSED;
-        check_error(mpv_command_string(mpv,"set pause yes"));
-#ifdef __SWITCH__
-        appletSetMediaPlaybackState(false);
-#endif
-        brls::Logger::debug("pause");
-    }
+    void pause();
 
     void togglePlay(){
         if (this->videoState != VideoState::PLAYING){
@@ -120,7 +100,7 @@ public:
     /// OSD
     void showOSD(){
         this->osdLastShowTime = unix_time() + VideoView::OSD_SHOW_TIME;
-        Logger::error("time: {}", osdLastShowTime);
+        brls::Logger::error("time: {}", osdLastShowTime);
     }
 
     void hideOSD(){
@@ -174,7 +154,7 @@ private:
     };
 
     ///OSD
-    BRLS_BIND(Label, videoTitleLabel, "video/osd/title");
+    BRLS_BIND(brls::Label, videoTitleLabel, "video/osd/title");
     time_t osdLastShowTime = 0;
     const time_t OSD_SHOW_TIME = 5; //默认显示五秒
 };

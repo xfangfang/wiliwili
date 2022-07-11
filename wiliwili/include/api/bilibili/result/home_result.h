@@ -14,10 +14,9 @@ namespace bilibili {
     class VideoSimpleStateResult {
     public:
         int view;
-        int like;
         int danmaku;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoSimpleStateResult, view, like, danmaku);
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoSimpleStateResult, view, danmaku);
 
 
     class RecommendReasonResult {

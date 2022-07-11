@@ -5,46 +5,74 @@
 #pragma once
 
 #include <borealis.hpp>
-#include "net_image.hpp"
-#include "utils/number_helper.hpp"
+#include "view/recycling_grid.hpp"
 
-using namespace brls;
+class NetImage;
+class SVGImage;
 
-class VideoCardView : public brls::Box {
-
+class RecyclingGridItemVideoCard: public RecyclingGridItem{
 public:
-    VideoCardView(){
-        this->inflateFromXMLRes("xml/views/video_card.xml");
-    }
+    RecyclingGridItemVideoCard();
 
-    void setCard(std::string pic, std::string title, std::string username, int pubdate,
-                 int view_count=0, int danmaku=0, int duration=0
-                 ){
-        this->labelUsername->setText(username + "·" +wiliwili::sec2date(pubdate));
-        this->labelTitle->setIsWrapping(true);
-        this->labelTitle->setText(title);
-        this->picture->setImageFromNet(pic);
-        this->labelCount->setText(""_i18n +wiliwili::num2w(view_count));
-        this->labelDanmaku->setText(wiliwili::num2w(danmaku));
-        this->labelDuration->setText(wiliwili::sec2Time(duration));
-    }
+    ~RecyclingGridItemVideoCard();
 
-    void draw(NVGcontext *vg, float x, float y, float width, float height, Style style, FrameContext *ctx) {
-        Box::draw(vg, x, y, width, height, style, ctx);
-//        RenderWidgetUp(vg);
+    void setCard(std::string pic, std::string title, std::string username, int pubdate=0,
+                 int view_count=0, int danmaku=0, int duration=0);
 
-    }
+    /** 设置视频下方的推荐原因
+      * 热门 每周必看 视频下方都包含推荐原因
+      */
+    void setRCMDReason(std::string reason);
 
-    static brls::View* create(){
-        return new VideoCardView();
-    }
+    /** 设置视频下方的推荐原因（黄色字体）
+      * 热门 入站必刷 视频下方都包含此种样式的推荐原因
+      */
+    void setAchievement(std::string explain);
+
+    void prepareForReuse();
+
+    void cacheForReuse();
+
+    static RecyclingGridItemVideoCard* create();
 
 private:
     BRLS_BIND(NetImage, picture, "video/card/picture");
-    BRLS_BIND(Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
+    BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
+    BRLS_BIND(brls::Label, labelDanmaku, "video/card/label/danmaku");
+    BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
+    BRLS_BIND(brls::Box, boxPic,"video/card/pic_box");
+    BRLS_BIND(brls::Box, boxRCMD,"video/card/rcmd_box");
+    BRLS_BIND(brls::Label, labelRCMD, "video/card/label/rcmd");
+    BRLS_BIND(brls::Box, boxAchievement,"video/card/achievement_box");
+    BRLS_BIND(brls::Label, labelAchievement, "video/card/label/achievement");
+};
 
-    BRLS_BIND(Label, labelUsername, "video/card/label/username");
-    BRLS_BIND(Label, labelCount, "video/card/label/count");
-    BRLS_BIND(Label, labelDanmaku, "video/card/label/danmaku");
-    BRLS_BIND(Label, labelDuration, "video/card/label/duration");
+
+class RecyclingGridItemRankVideoCard: public RecyclingGridItem{
+public:
+    RecyclingGridItemRankVideoCard(std::string res = "xml/views/video_card_rank.xml");
+
+    ~RecyclingGridItemRankVideoCard();
+
+    void setCard(std::string pic, std::string title, std::string username, int pubdate=0,
+                 int view_count=0, int danmaku=0, int duration=0, int index=0);
+
+    void prepareForReuse();
+
+    void cacheForReuse();
+
+    static RecyclingGridItemRankVideoCard* create(std::string res = "xml/views/video_card_rank.xml");
+
+private:
+    BRLS_BIND(NetImage, picture, "video/card/picture");
+    BRLS_BIND(SVGImage, svgIndex, "video/card/svg/index");
+    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
+    BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
+    BRLS_BIND(brls::Label, labelDanmaku, "video/card/label/danmaku");
+    BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
+    BRLS_BIND(brls::Label, labelIndex, "video/card/label/index");
+    BRLS_BIND(brls::Box, boxPic,"video/card/pic_box");
 };

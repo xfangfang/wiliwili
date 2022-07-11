@@ -1,0 +1,87 @@
+//
+// Created by fang on 2022/6/14.
+//
+
+#include "fragment/home_recommends.hpp"
+#include "activity/player_activity.hpp"
+#include "utils/number_helper.hpp"
+#include "view/net_image.hpp"
+#include "view/recycling_grid.hpp"
+#include "view/video_card.hpp"
+
+
+/// DataSourceRecommendVideoList
+
+
+class DataSourceRecommendVideoList
+        : public RecyclingGridDataSource
+{
+public:
+    DataSourceRecommendVideoList(bilibili::RecommendVideoListResult result):recommendList(result){
+
+    }
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index){
+        //从缓存列表中取出 或者 新生成一个表单项
+        RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
+
+        bilibili::RecommendVideoResult& r = this->recommendList[index];
+        item->setCard(r.pic+"@672w_378h_1c.jpg",r.title,r.owner.name,r.pubdate, r.stat.view, r.stat.danmaku, r.duration);
+        return item;
+    }
+
+    size_t getItemCount() {
+        return recommendList.size();
+    }
+
+    void onItemSelected(RecyclingGrid* recycler, size_t index) {
+        brls::Application::pushActivity(new VideoDetailActivity(recommendList[index].bvid));
+    }
+
+    void appendData(const bilibili::RecommendVideoListResult& data){
+        brls::Logger::error("DataSourceRecommendVideoList: append data");
+        this->recommendList.insert(this->recommendList.end(), data.begin(), data.end());
+    }
+
+private:
+    bilibili::RecommendVideoListResult recommendList;
+};
+
+/// HomeRecommends
+
+HomeRecommends::HomeRecommends() {
+    this->inflateFromXMLRes("xml/fragment/home_recommends.xml");
+    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemVideoCard::create(); });
+    recyclingGrid->onNextPage([this](){
+        this->requestData();
+    });
+
+    this->requestData();
+}
+
+void HomeRecommends::onCreate(){
+    this->registerTabAction("刷新", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        this->requestData(true);
+        return true;
+    });
+}
+
+void HomeRecommends::onRecommendVideoList(const bilibili::RecommendVideoListResult &result, int index) {
+    brls::Threading::sync([this, result, index]() {
+        DataSourceRecommendVideoList* datasource = (DataSourceRecommendVideoList *)recyclingGrid->getDataSource();
+        if(datasource && index != 1){
+            datasource->appendData(result);
+            recyclingGrid->notifyDataChanged();
+        } else{
+            AutoTabFrame::focus2Sidebar(this);
+            recyclingGrid->setDataSource(new DataSourceRecommendVideoList(result));
+        }
+    });
+}
+
+brls::View* HomeRecommends::create() {
+    return new HomeRecommends();
+}
+
+HomeRecommends::~HomeRecommends() {
+
+}

@@ -4,8 +4,9 @@ cmake_minimum_required(VERSION 3.15)
 set(PLATFORM_DESKTOP OFF CACHE BOOL  "build for desktop, ON for desktop; OFF for switch")
 
 IF (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
             "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
+    message("Build Type: ${CMAKE_BUILD_TYPE}")
 ENDIF()
 
 
@@ -62,7 +63,7 @@ if (PLATFORM_DESKTOP)
 else()
     set(PLATFORM_LIBS
             # debug
-            # twili
+            twili
             # needed by borealis
             glfw3 EGL glapi drm_nouveau
             # needed by mpv
@@ -79,8 +80,7 @@ add_executable(${PROJECT_NAME} ${MAIN_SRC})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PRIVATE
         wiliwili/include
-        wiliwili/include/api
-        library/pystring)
+        wiliwili/include/api)
 target_compile_options(${PROJECT_NAME} PRIVATE
         -D__VERSION_MAJOR__=${VERSION_MAJOR}
         -D__VERSION_MINOR__=${VERSION_MINOR}

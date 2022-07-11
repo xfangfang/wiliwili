@@ -7,6 +7,7 @@
 
 namespace bilibili {
 
+    /// 主页 推荐
     void BilibiliClient::get_recommend(const int index, const int num,
                                        const std::function<void(RecommendVideoListResult)>& callback,
                                        const ErrorCallback& error){
@@ -22,6 +23,76 @@ namespace bilibili {
                                                    callback(wrapper.item);
                 }, error);
 //        });
+    }
+
+    /// 主页 热门 热门综合
+    void BilibiliClient::get_hots_all(const int index, const int num,
+                                       const std::function<void(HotsAllVideoListResult, bool)>& callback,
+                                       const ErrorCallback& error){
+        HTTP::getResultAsync<HotsAllVideoListResultWrapper>(Api::HotsAll,
+                                                              {{"pn", std::to_string(index)},
+                                                               {"ps", std::to_string(num)}
+                                                              },
+                                                              [callback](const HotsAllVideoListResultWrapper& wrapper){
+                                                                  callback(wrapper.list, wrapper.no_more);
+                                                              }, error);
+    }
+
+    /// 主页 热门 每周推荐列表
+    void BilibiliClient::get_hots_weekly_list(const std::function<void(HotsWeeklyListResult)>& callback,
+                                     const ErrorCallback& error){
+        HTTP::getResultAsync<HotsWeeklyResultWrapper>(Api::HotsWeeklyList,
+                                                            {},
+                                                            [callback](const HotsWeeklyResultWrapper& wrapper){
+                                                                callback(wrapper.list);
+                                                            }, error);
+    }
+
+    /// 主页 热门 每周推荐
+    void BilibiliClient::get_hots_weekly(const int number,
+                                const std::function<void(HotsWeeklyVideoListResult, string, string)>& callback,
+                                const ErrorCallback& error){
+        HTTP::getResultAsync<HotsWeeklyVideoListResultWrapper>(Api::HotsWeekly,
+                                                            {{"number", std::to_string(number)}},
+                                                            [callback](const HotsWeeklyVideoListResultWrapper& wrapper){
+                                                                callback(wrapper.list, wrapper.config.label, wrapper.reminder);
+                                                            }, error);
+
+    }
+
+    /// 主页 热门 入站必刷
+    void BilibiliClient::get_hots_history(
+            const std::function<void(HotsHistoryVideoListResult, string)>& callback,
+            const ErrorCallback& error){
+        HTTP::getResultAsync<HotsHistoryVideoListResultWrapper>(Api::HotsHistory,
+                                                               {},
+                                                               [callback](const HotsHistoryVideoListResultWrapper& wrapper){
+                                                                   callback(wrapper.list, wrapper.explain);
+                                                               }, error);
+    }
+
+    /// 主页 热门 排行榜 投稿视频
+    void BilibiliClient::get_hots_rank(const int rid, const string type,
+                              const std::function<void(HotsRankVideoListResult , string)>& callback,
+                              const ErrorCallback& error){
+        HTTP::getResultAsync<HotsRankVideoListResultWrapper>(Api::HotsRank,
+                                                                {{"rid", std::to_string(rid)},
+                                                                 {"type", type}},
+                                                                [callback](auto wrapper){
+                                                                    callback(wrapper.list, wrapper.note);
+                                                                }, error);
+    }
+
+    /// 主页 热门 排行榜 官方
+    void BilibiliClient::get_hots_rank_pgc(const int season_type, const int day,
+                                  const std::function<void(HotsRankPGCVideoListResult , string)>& callback,
+                                  const ErrorCallback& error){
+        HTTP::getResultAsync<HotsRankPGCVideoListResultWrapper>(Api::HotsRankPGC,
+                                                                {{"season_type", std::to_string(season_type)},
+                                                                 {"day", std::to_string(day)}},
+                                                                [callback](auto wrapper){
+                                                                    callback(wrapper.list, wrapper.note);
+                                                                }, error);
     }
 
 }

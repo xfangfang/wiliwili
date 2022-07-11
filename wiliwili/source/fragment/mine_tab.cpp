@@ -8,7 +8,7 @@ MineTab::MineTab() {
     this->inflateFromXMLRes("xml/fragment/mine_tab.xml");
     brls::Logger::debug("Fragment MineTab: create");
     this->requestData();
-    this->registerAction("refresh", ControllerButton::BUTTON_Y, [this](brls::View* view)-> bool {
+    this->registerAction("refresh", brls::ControllerButton::BUTTON_Y, [this](brls::View* view)-> bool {
 
         return true;
     });

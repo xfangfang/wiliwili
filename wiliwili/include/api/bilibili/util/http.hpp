@@ -62,6 +62,7 @@ namespace bilibili {
                                      return;
                                  }
                                  try{
+//                                     printf("data: %s", r.text.c_str());
                                      nlohmann::json res = nlohmann::json::parse(r.text);
                                      int code = res.at("code");
                                      if(code == 0){
@@ -74,13 +75,15 @@ namespace bilibili {
                                  }
                                  catch(const std::exception& e){
                                      if(error) error("API error");
+                                     printf("data: %s", r.text.c_str());
                                      printf("ERROR: %s\n",e.what());
                                  }
                              },
                              cpr::Url{url},
                              cpr::Header{
                                      {"User-Agent"   , "NintendoSwitch"},
-                                     {"Referer"      , "https://www.bilibili.com"},
+                                     {"Referer"      , "https://www.bilibili.com/"},
+                                     {"Origin"      , "https://www.bilibili.com"},
                              },
                              parameters,
                              cpr::Cookies(HTTP::cookies, false),

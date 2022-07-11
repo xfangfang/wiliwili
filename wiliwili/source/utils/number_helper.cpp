@@ -22,11 +22,15 @@ std::string wiliwili::num2w(size_t t){
     if(t < 10000){
         return std::to_string(t);
     }
-    t = t / 1000;
-    if(t % 10 == 0){
-        return std::to_string(t / 10) + "万";
+    if(t < 100000000){
+        t = (t / 100 + 5) / 10;
+        if(t % 10 == 0){
+            return std::to_string(t / 10) + "万";
+        }
+        return std::to_string(t / 10) + "." + std::to_string(t % 10) + "万";
     }
-    return std::to_string(t / 10) + "." + std::to_string(t % 10) + "万";
+    t = (t / 1000000 + 5) / 10;
+    return std::to_string(t / 10) + "." + std::to_string(t % 10) + "亿";
 }
 
 
@@ -45,7 +49,7 @@ std::string wiliwili::sec2date(time_t sec){
     localtime_r(&sec, &tm);
 
     if(curTm.tm_year != tm.tm_year || sec > curTime){
-        return std::to_string(tm.tm_year)+"-"+std::to_string(tm.tm_mon + 1)+"-"+std::to_string(tm.tm_mday);
+        return std::to_string(tm.tm_year + 1900)+"-"+std::to_string(tm.tm_mon + 1)+"-"+std::to_string(tm.tm_mday);
     }
     size_t inter = curTime - sec;
     if(inter > 172800){ // larger then 48hour

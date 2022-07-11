@@ -27,7 +27,7 @@ set_property(TARGET qrcode PROPERTY CXX_STANDARD 17)
 
 # add pystring
 add_library(pystring STATIC ${CMAKE_CURRENT_SOURCE_DIR}/pystring/pystring.cpp)
-target_include_directories(pystring PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/pystring/pystring.h)
+target_include_directories(pystring PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/pystring)
 set_property(TARGET pystring PROPERTY CXX_STANDARD 17)
 
 # add borealis

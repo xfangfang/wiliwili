@@ -3,13 +3,13 @@
 #include "bilibili.h"
 #include "bilibili/util/md5.hpp"
 #include "curl/curl.h"
+#include "bilibili/util/http.hpp"
 
 namespace bilibili {
 
     ThreadPool BilibiliClient::pool(1);
     ThreadPool BilibiliClient::imagePool(4);
     std::function<void(Cookies)> BilibiliClient::writeCookiesCallback = nullptr;
-    Cookies BilibiliClient::cookies;
 
     size_t writeToString(void *ptr, size_t size, size_t count, void *stream){
         ((std::string*)stream)->append((char*)ptr, 0, size* count);
@@ -47,7 +47,7 @@ namespace bilibili {
                 {"Referer", "http://www.bilibili.com"},
             },
             parameters,
-            cpr::Cookies(BilibiliClient::cookies, false),
+            cpr::Cookies(HTTP::cookies, false),
             cpr::Timeout{30000}
         );
     }
@@ -60,7 +60,7 @@ namespace bilibili {
                 {"User-Agent"  , "NintendoSwitch"},
                 {"Referer", "http://www.bilibili.com"}
             },
-            cpr::Cookies(BilibiliClient::cookies, false),
+            cpr::Cookies(HTTP::cookies, false),
             cpr::Timeout{30000}
         );
     }
@@ -89,10 +89,9 @@ namespace bilibili {
 
     // set bilibili cookie and cookies callback
     // This callback is called when the BilibiliClient updates the cookie
-    void BilibiliClient::init(Cookies &cookies, std::function<void(Cookies)> writeCookiesCallback){
-        curl_global_init(CURL_GLOBAL_DEFAULT);
-        BilibiliClient::writeCookiesCallback = writeCookiesCallback;
-        BilibiliClient::cookies = cookies;
+    void BilibiliClient::init(Cookies &data, std::function<void(Cookies)> callback){
+        BilibiliClient::writeCookiesCallback = callback;
+        HTTP::cookies = data;
     }
 
     void BilibiliClient::clean(){
@@ -159,7 +158,7 @@ namespace bilibili {
                 for(std::map<std::string, std::string>::iterator it = r.cookies.begin(); it != r.cookies.end(); it++){
                     cookies[it->first] = it->second;
                 }
-                BilibiliClient::cookies = cookies;
+                HTTP::cookies = cookies;
                 if(BilibiliClient::writeCookiesCallback){
                     BilibiliClient::writeCookiesCallback(cookies);
                 }

@@ -12,7 +12,6 @@
 #include <borealis.hpp>
 #include "activity/player_activity.hpp"
 #include "presenter/user_home.hpp"
-#include "view/video_grid.hpp"
 
 class MineTab : public brls::Box, public UserHome{
 
@@ -26,7 +25,7 @@ public:
     }
 
 private:
-    BRLS_BIND(VideoGrid, videoGrid, "user_home/video_grid");
+//    BRLS_BIND(VideoGrid, videoGrid, "user_home/video_grid");
     BRLS_BIND(brls::ScrollingFrame, videoGridScrollingFrame, "user_home/video_scroll");
 
 };
