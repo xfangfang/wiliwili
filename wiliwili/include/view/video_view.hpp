@@ -11,8 +11,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <nanovg_gl.h>
+#include "utils/singleton.hpp"
 
 class VideoView;
+class MPVCore;
 
 struct GLShader {
     GLuint prog;
@@ -40,15 +42,11 @@ typedef enum VideoState{
     PAUSED,
 } VideoState;
 
-class VideoView : public brls::Box {
+class VideoView : public brls::Box{
 public:
     VideoView();
 
     ~VideoView() override;
-
-    static void on_update(void *view){
-//        Logger::debug("==> maybe updated");
-    }
 
     void initializeGL();
 
@@ -80,14 +78,13 @@ public:
         this->resume();
     }
 
-    void setUrl(std::string url){
-        const char *cmd[] = {"loadfile", url.c_str(), "replace", NULL};
-        check_error(mpv_command(mpv, cmd));
-    }
+    void setUrl(std::string url);
 
     void resume();
 
     void pause();
+
+    void stop();
 
     void togglePlay(){
         if (this->videoState != VideoState::PLAYING){
@@ -123,38 +120,16 @@ public:
         return new VideoView();
     }
 
-    void deleteFrameBuffer();
-
-    void deleteShader();
-
     void invalidate() override;
 
 private:
     bool fullscreen = false;
-    mpv_handle* mpv = nullptr;
-    mpv_render_context* mpv_context = nullptr;
     VideoState videoState = VideoState::STOPPED;
 
-    GLuint media_framebuffer = 0;
-    GLuint media_renderbuffer = 0;
-    GLuint media_texture = 0;
-
-    GLShader shader{0};
-    mpv_opengl_fbo mpv_fbo{
-            0,
-            1920,
-            1080,
-            GL_RGBA8
-    };
-    int flip_y{1};
-    mpv_render_param mpv_params[3] = {
-            {MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
-            {MPV_RENDER_PARAM_FLIP_Y,       &flip_y},
-            {MPV_RENDER_PARAM_INVALID,      0}
-    };
 
     ///OSD
     BRLS_BIND(brls::Label, videoTitleLabel, "video/osd/title");
     time_t osdLastShowTime = 0;
     const time_t OSD_SHOW_TIME = 5; //默认显示五秒
+    MPVCore* mpvCore;
 };

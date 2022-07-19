@@ -30,4 +30,8 @@ namespace wiliwili {
     // this year => M-D
     // else => YYYY-M-D
     std::string sec2date(time_t sec);
+
+
+    size_t getUnixTime();
+
 };

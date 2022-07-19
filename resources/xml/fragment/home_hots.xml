@@ -1,0 +1,46 @@
+<brls:Box
+        wireframe="false"
+        positionTop="-8"
+        axis="column"
+        width="auto"
+        height="auto">
+    <AutoTabFrame
+            id="homeHots/tabFrame"
+            grow="1"
+            defaultTab="0"
+            tabHeight="50"
+            sidebarPosition="top">
+        <Tab label="综合热门"
+             style="plain"
+             fontSize="14">
+            <HomeHotsAll />
+        </Tab>
+        <Tab label="每周必看"
+             style="plain"
+             fontSize="14">
+            <HomeHotsWeekly />
+        </Tab>
+        <Tab label="入站必刷"
+             style="plain"
+             fontSize="14">
+            <HomeHotsHistory />
+        </Tab>
+        <Tab label="排行榜"
+             style="plain"
+             fontSize="14">
+            <HomeHotsRank />
+        </Tab>
+    </AutoTabFrame>
+    <brls:Label
+            positionType="absolute"
+            positionLeft="0"
+            positionTop="12"
+            fontSize="12"
+            text=""/>
+    <brls:Label
+            positionType="absolute"
+            positionLeft="402"
+            positionTop="12"
+            fontSize="12"
+            text=""/>
+</brls:Box>

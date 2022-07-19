@@ -3,6 +3,7 @@
 //
 
 #include "utils/number_helper.hpp"
+#include <chrono>
 
 std::string wiliwili::sec2Time(size_t t){
     size_t hour = t / 3600;
@@ -66,4 +67,10 @@ std::string wiliwili::sec2date(time_t sec){
     }
 
     return "刚刚";
+}
+
+
+size_t wiliwili::getUnixTime(){
+    auto now = std::chrono::system_clock::now();
+    return std::chrono::system_clock::to_time_t(now);
 }

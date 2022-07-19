@@ -19,4 +19,14 @@ namespace bilibili {
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult, mid, name, face);
 
+
+    class UserSimpleResult2 {
+    public:
+        string mid;
+        string uname;
+        string avatar;
+    };
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult2, mid, uname, avatar);
+
 }

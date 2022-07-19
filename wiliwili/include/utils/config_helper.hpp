@@ -10,7 +10,13 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 #include <filesystem>
+#include <cpr/cpr.h>
 
+#ifdef __SWITCH__
+#define THREAD_POOL_MAX_THREAD_NUM 2
+#else
+#define THREAD_POOL_MAX_THREAD_NUM CPR_DEFAULT_THREAD_POOL_MAX_THREAD_NUM
+#endif
 
 typedef std::map<std::string, std::string> Cookie;
 
@@ -35,4 +41,13 @@ public:
     static void saveProgramConf(ProgramConfig conf);
 
     static std::string getConfigDir();
+
+    static void init();
+};
+
+class Register {
+public:
+    static void initCustomView();
+    static void initCustomTheme();
+    static void initCustomStyle();
 };

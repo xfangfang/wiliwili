@@ -14,4 +14,9 @@
     limitations under the License.
 */
 
+#include <borealis.hpp>
 #include "activity/main_activity.hpp"
+
+MainActivity::~MainActivity(){
+    brls::Logger::debug("del MainActivity");
+}

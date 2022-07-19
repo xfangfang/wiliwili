@@ -176,7 +176,7 @@ private:
 
     void itemsRecyclingLoop();
 
-    void addCellAt(int index, int downSide);
+    void addCellAt(size_t index, int downSide);
 
 };
 

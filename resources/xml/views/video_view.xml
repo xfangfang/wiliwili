@@ -36,11 +36,11 @@
                 height="100%"
                 backgroundColor="@theme/brls/background"
                 text=""/>
-        <brls:Slider
-                id="video/osd/bottom/progress"
-                width="auto"
-                height="100%"
-                grow="1"/>
+<!--        <brls:Slider-->
+<!--                id="video/osd/bottom/progress"-->
+<!--                width="auto"-->
+<!--                height="100%"-->
+<!--                grow="1"/>-->
     </brls:Box>
 
 </brls:Box>

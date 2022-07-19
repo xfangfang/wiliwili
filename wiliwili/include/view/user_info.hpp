@@ -5,7 +5,7 @@
 #pragma once
 
 #include <borealis.hpp>
-#include "net_image.hpp"
+#include "utils/image_helper.hpp"
 
 
 using namespace brls;
@@ -19,7 +19,7 @@ public:
     void setUserInfo(std::string avatar, std::string username, std::string misc){
         this->labelUsername->setText(username);
         this->labeMisc->setText(misc);
-        this->avattarView->setImageFromNet(avatar);
+        ImageHelper::with(this)->load(avatar)->into(this->avattarView);
     }
 
     static brls::View* create(){
@@ -27,7 +27,7 @@ public:
     }
 
 private:
-    BRLS_BIND(NetImage, avattarView, "avatar");
+    BRLS_BIND(brls::Image, avattarView, "avatar");
     BRLS_BIND(Label, labelUsername, "username");
     BRLS_BIND(Label, labeMisc, "misc");
 };

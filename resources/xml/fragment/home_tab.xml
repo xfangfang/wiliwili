@@ -1,140 +1,44 @@
-<brls:Box>
+<brls:Box
+    marginLeft="8">
     <AutoTabFrame
+            id="home/tab/frame"
             defaultTab="1"
+            tabHeight="65"
             tabFontSize="16"
             sidebarPosition="top">
 
-        <Tab label="直播">
-
+        <Tab label="直播"
+             fontSize="16">
+            <HomeLive/>
         </Tab>
 
-        <Tab label="推荐" >
-            <VideoListTab />
+        <Tab label="推荐"
+             fontSize="16">
+            <HomeRecommends/>
         </Tab>
 
-        <Tab label="热门" >
-            <AutoTabFrame
-                    defaultTab="0"
-                    tabFontSize="12"
-                    sidebarPosition="top">
-                <Tab label="综合热门">
-                    <brls:Box
-                            width="100%"
-                            wireframe="true">
-                        <brls:Box
-                                positionType="absolute"
-                                positionRight="0"
-                                positionTop="-50"
-                                width="100"
-                                height="50"
-                                wireframe="true">
-
-                        </brls:Box>
-                    </brls:Box>
-                </Tab>
-                <Tab label="每周必看">
-
-                </Tab>
-                <Tab label="入站必刷">
-
-                </Tab>
-                <Tab label="排行榜">
-                    <AutoTabFrame
-                            defaultTab="0"
-                            tabFontSize="10"
-                            sidebarPosition="top">
-                        <Tab label="全站">
-                            <brls:Box
-                                    width="100%"
-                                    wireframe="true"></brls:Box>
-                        </Tab>
-                        <Tab label="番剧">
-
-                        </Tab>
-                        <Tab label="国产动画">
-
-                        </Tab>
-                        <Tab label="国创相关">
-
-                        </Tab>
-                        <Tab label="纪录片">
-
-                        </Tab>
-                        <Tab label="动画">
-
-                        </Tab>
-                        <Tab label="音乐">
-
-                        </Tab>
-                        <Tab label="舞蹈">
-
-                        </Tab>
-                        <Tab label="游戏">
-
-                        </Tab>
-                        <Tab label="知识">
-
-                        </Tab>
-                        <Tab label="科技">
-
-                        </Tab>
-                        <Tab label="运动">
-
-                        </Tab>
-                        <Tab label="汽车">
-
-                        </Tab>
-                        <Tab label="生活">
-
-                        </Tab>
-                        <Tab label="美食">
-
-                        </Tab>
-                        <Tab label="动物圈">
-
-                        </Tab>
-                        <Tab label="鬼畜">
-
-                        </Tab>
-                        <Tab label="时尚">
-
-                        </Tab>
-                        <Tab label="娱乐">
-
-                        </Tab>
-                        <Tab label="影视">
-
-                        </Tab>
-                        <Tab label="电影">
-
-                        </Tab>
-                        <Tab label="电视剧">
-
-                        </Tab>
-                        <Tab label="原创">
-
-                        </Tab>
-                        <Tab label="新人">
-
-                        </Tab>
-                    </AutoTabFrame>
-                </Tab>
-            </AutoTabFrame>
+        <Tab label="热门"
+             fontSize="16">
+            <HomeHots/>
         </Tab>
 
-        <Tab label="追番" >
-
+        <Tab label="追番"
+             fontSize="16">
+            <HomeBangumi/>
         </Tab>
-        <Tab label="影视" >
 
+        <Tab label="影视"
+             fontSize="16">
+            <HomeCinema/>
         </Tab>
+
     </AutoTabFrame>
     <brls:Box
             positionType="absolute"
             positionRight="0"
             positionTop="0"
             width="340"
-            height="70"
+            height="65"
             alignItems="center"
             wireframe="false">
         <brls:Box
@@ -156,4 +60,16 @@
                     text=""/>
         </brls:Box>
     </brls:Box>
+    <brls:Label
+            positionType="absolute"
+            positionLeft="0"
+            positionTop="18"
+            fontSize="14"
+            text=""/>
+    <brls:Label
+            positionType="absolute"
+            positionLeft="320"
+            positionTop="18"
+            fontSize="14"
+            text=""/>
 </brls:Box>

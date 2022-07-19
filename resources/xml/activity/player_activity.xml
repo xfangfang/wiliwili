@@ -1,6 +1,7 @@
 <brls:AppletFrame
         id="video/detail/frame"
         iconInterpolation="linear"
+        headerHidden="true"
         footerHidden="false">
         <brls:Box
                 width="auto"
@@ -20,8 +21,9 @@
                     <VideoView
                             id="video/detail/video"
                             width="800"
-                            focusable="true"
                             height="480"/>
+
+<!--                    视频下方相关信息-->
 
                     <brls:Box
                             id="video_detail_info_box"
@@ -75,8 +77,7 @@
                                     marginBottom="@style/brls/highlight/shadow_offset"
                                     focusable="true"
                                     fontSize="18"
-                                    text="title"
-                                    textColor="@theme/captioned_image/caption" />
+                                    text="title" />
                             <brls:Label
                                     id="video_intro"
                                     width="100%"
@@ -87,8 +88,7 @@
                                     focusable="true"
                                     fontSize="10"
                                     autoAnimate="false"
-                                    text="introduction"
-                                    textColor="@theme/captioned_image/caption" />
+                                    text="introduction" />
                             <brls:Box
                                     width="100%"
                                     height="20%"
@@ -101,8 +101,7 @@
                                         height="auto"
                                         horizontalAlign="center"
                                         fontSize="10"
-                                        text="2022-01-01 20:00"
-                                        textColor="@theme/captioned_image/caption" />
+                                        text="2022-01-01 20:00" />
                             </brls:Box>
                         </brls:Box>
                     </brls:Box>
@@ -110,39 +109,63 @@
 
                 </brls:Box>
 
+<!--                视频右侧评论信息-->
 
-                <brls:ScrollingFrame
-                        id="video_detail_right_box"
-                        width="auto"
-                        grow="1.0"
-                        height="auto">
+            <brls:Box
+                    id="video_detail_right_box"
+                    width="auto"
+                    height="auto"
+                    grow="1.0"
+                    axis="column">
+                <AutoTabFrame
+                        grow="1"
+                        width="100%"
+                        height="100%"
+                        tabBackgroundColor="@theme/color/grey_1"
+                        defaultTab="0"
+                        sidebarPosition="top">
+
+                    <Tab label="评论"
+                         fontSize="18">
                         <brls:Box
-                                width="auto"
-                                height="auto"
-                                grow="1.0"
-                                axis="column"
-                                alignItems="stretch">
-
-                                        <brls:Button
-                                                id="video/detail/button/start"
-                                                width="33%"
-                                                height="auto"
-                                                style="highlight"
-                                                text="Start"
-                                                margin="30"
-                                                marginTop="100"/>
-
-                                        <brls:Button
-                                                id="video/detail/button/start2"
-                                                width="33%"
-                                                height="auto"
-                                                style="highlight"
-                                                text="Start2"
-                                                margin="30" />
-
-
+                                width="100%"
+                                grow="1">
+                            <RecyclingGrid
+                                    id="video/comment/recyclingGrid"
+                                    paddingLeft="20"
+                                    paddingRight="20"
+                                    grow="1"
+                                    spanCount="1"
+                                    itemHeight="250"
+                                    wireframe="true"/>
                         </brls:Box>
-                </brls:ScrollingFrame>
+                    </Tab>
+
+                    <Tab label="推荐"
+                         fontSize="18">
+                        <brls:Box
+                                grow="1">
+                                <brls:Button
+                                        id="video/detail/button/start"
+                                        width="33%"
+                                        height="auto"
+                                        style="highlight"
+                                        text="Start"
+                                        margin="30"
+                                        marginTop="100"/>
+
+                                <brls:Button
+                                        id="video/detail/button/start2"
+                                        width="33%"
+                                        height="auto"
+                                        style="highlight"
+                                        text="Start2"
+                                        margin="30" />
+                        </brls:Box>
+                    </Tab>
+                </AutoTabFrame>
+
+            </brls:Box>
 
         </brls:Box>
 </brls:AppletFrame>

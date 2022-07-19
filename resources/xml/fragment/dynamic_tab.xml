@@ -3,11 +3,17 @@
         axis="column"
         width="auto"
         height="auto">
-    <TextBox
-            focusable="true"
-            width="320"
-            height="80"
-            wireframe="true"
-            text="1尝试写一点点中文吧+测试\n2尝试写一点点中文吧+测试"
-            fontSize="36"/>
+    <brls:Box
+            axis="column"
+            grow="1"
+            justifyContent="center"
+            alignItems="center"
+            focusable="true">
+        <brls:Label
+                text="动态还没做"/>
+<!--        <NetImage-->
+<!--            height="auto"-->
+<!--            width="auto"-->
+<!--            net_image="http://i0.hdslb.com/bfs/archive/5f5268bbe11f71bd8bc78671e82563de3bccbc84.jpg@672w_378h_1c.jpg"/>-->
+    </brls:Box>
 </brls:Box>

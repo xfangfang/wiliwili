@@ -1,0 +1,9 @@
+<svg id="rate-crown-gold" fill="none" viewBox="0 0 43 24" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M2 0h41c-6.118 2.651-9.759 6.623-10.922 11.914C30 21.375 24 24 21 24H0V2a2 2 0 0 1 2-2Z" fill="url(#gold_linear)"/>
+    <defs>
+        <linearGradient id="gold_linear" x1="23" y1="0" x2="23" y2="24" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FE0"/>
+            <stop offset="1" stop-color="#FFC901"/>
+        </linearGradient>
+    </defs>
+</svg>

@@ -1,0 +1,40 @@
+<brls:Box
+        focusable="true"
+        wireframe="true"
+        axis="column"
+        width="auto"
+        margin="8"
+        height="auto">
+    <UserInfoView
+            id="comment/userinfo"
+            width="auto"
+            height="100"/>
+    <brls:Box
+            wireframe="true"
+            axis="column"
+            grow="1"
+            marginLeft="40"
+            width="auto"
+            height="auto">
+        <brls:Label
+                width="auto"
+                height="auto"
+                wireframe="true"
+                id="video/comment/label/content"
+                text="123"/>
+        <brls:Box
+                wireframe="true"
+                axis="row"
+                width="auto"
+                height="20">
+        </brls:Box>
+        <brls:Box
+                wireframe="true"
+                axis="row"
+                grow="1"
+                height="100"
+                width="auto">
+        </brls:Box>
+    </brls:Box>
+
+</brls:Box>

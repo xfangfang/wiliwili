@@ -13,10 +13,14 @@
 
         <VideoGrid
                 id="home/video_grid"
+                paddingRight="30"
+                paddingLeft="20"
+                itemHeight="220"
+                itemPercentage="23.5"
+                itemLineGap="10"
                 wireframe="false"
                 clipsToBounds="true"
                 grow="1.0"
-                justifyContent="center"
                 width="100%"
                 height="100%">
             <brls:Box

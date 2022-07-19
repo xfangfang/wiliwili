@@ -1,0 +1,28 @@
+<brls:Box
+        wireframe="false"
+        marginTop="12"
+        axis="column"
+        width="auto"
+        height="auto">
+    <brls:Label
+            id="home/hots/history/explain"
+            wireframe="false"
+            height="50"
+            positionType="absolute"
+            positionRight="0"
+            positionTop="-62"
+            culled="false"
+            marginRight="40"
+            fontSize="13"
+            singleLine="true"
+            textColor="#9499A0"
+            text=""/>
+    <RecyclingGrid
+            paddingLeft="20"
+            paddingRight="20"
+            grow="1"
+            spanCount="4"
+            itemHeight="250"
+            wireframe="false"
+            id="home/hots/history/recyclingGrid"/>
+</brls:Box>

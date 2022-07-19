@@ -1,0 +1,26 @@
+<brls:Box
+        width="auto"
+        height="@style/brls/sidebar/item_height"
+        focusable="true"
+        paddingTop="12.5"
+        paddingBottom="12.5"
+        lineColor="@theme/brls/sidebar/separator"
+        lineTop="1"
+        lineBottom="1"
+        alignItems="center">
+
+    <brls:Label
+            id="brls/rediocell/title"
+            width="auto"
+            height="auto"
+            grow="1"
+            fontSize="@style/brls/sidebar/item_font_size"
+            marginLeft="@style/brls/listitem/descriptionIndent"
+            marginRight="@style/brls/listitem/descriptionIndent" />
+
+    <brls:CheckBox
+            id="brls/rediocell/checkbox"
+            visibility="gone"
+            marginRight="@style/brls/listitem/descriptionIndent"/>
+
+</brls:Box>

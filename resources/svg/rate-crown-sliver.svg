@@ -1,0 +1,9 @@
+<svg id="rate-crown-sliver" fill="none" viewBox="0 0 43 24" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M2 0h41c-6.118 2.651-9.759 6.623-10.922 11.914C30 21.375 24 24 21 24H0V2a2 2 0 0 1 2-2Z" fill="url(#sliver_linear)"/>
+    <defs>
+        <linearGradient id="sliver_linear" x1="23" y1="24" x2="23" y2="0" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#ADC1D1"/>
+            <stop offset="1" stop-color="#D5DCE3"/>
+        </linearGradient>
+    </defs>
+</svg>

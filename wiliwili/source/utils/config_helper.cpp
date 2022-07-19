@@ -2,7 +2,12 @@
 // Created by fang on 2022/7/10.
 //
 
+#include "bilibili.h"
+#include <borealis/core/logger.hpp>
 #include "utils/config_helper.hpp"
+
+
+ProgramConfig ConfigHelper::programConfig = ConfigHelper::readProgramConf();
 
 ProgramConfig::ProgramConfig(){
     for(auto item: COOKIE_LIST){
@@ -53,4 +58,17 @@ std::string ConfigHelper::getConfigDir(){
 #else
     return "./config/wiliwili";
 #endif
+}
+
+void ConfigHelper::init(){
+    Cookie cookie = ConfigHelper::programConfig.getCookie();
+    for(auto c : cookie){
+        brls::Logger::error("cookie: {}:{}", c.first, c.second);
+    }
+    // set bilibili cookie and cookie update callback
+    bilibili::BilibiliClient::init(cookie,[](Cookie newCookie){
+        ProgramConfig config;
+        config.setCookie(newCookie);
+        ConfigHelper::saveProgramConf(config);
+    });
 }

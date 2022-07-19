@@ -76,7 +76,18 @@ namespace bilibili {
         /// 主页 热门 用户投稿排行榜
         static const string HotsRank= _apiBase + "/x/web-interface/ranking/v2";
         /// 主页 热门 官方视频(番剧 电影...)排行榜
-        static const string HotsRankPGC= _apiBase + "/pgc/season/rank/web/list";
+        static const string HotsRankPGC = _apiBase + "/pgc/season/rank/web/list";
+        /// 主页 直播推荐
+        static const string LiveFeed = _liveBase + "/xlive/app-interface/v2/index/feedV2";
+        /// 主页 追番
+        static const string Bangumi = _apiBase + "/pgc/page/pc/bangumi/tab";
+        /// 主页 影视
+        static const string Cinema = _apiBase + "/pgc/page/pc/cinema/tab";
+
+
+        /// 视频 评论
+        static const string Comment = _apiBase + "/x/v2/reply/main";
+
         /// 热门 - gRPC.
         static const string PopularGRPC = _grpcBase + "/bilibili.app.show.v1.Popular/Index";
         /// 排行榜 - Web.

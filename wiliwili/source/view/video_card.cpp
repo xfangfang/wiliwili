@@ -3,10 +3,12 @@
 //
 
 #include "view/video_card.hpp"
-#include "view/net_image.hpp"
 #include "view/svg_image.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/image_helper.hpp"
 
+
+/// 普通视频封面
 
 RecyclingGridItemVideoCard::RecyclingGridItemVideoCard(){
     this->inflateFromXMLRes("xml/views/video_card.xml");
@@ -34,7 +36,7 @@ void RecyclingGridItemVideoCard::prepareForReuse(){
 
 void RecyclingGridItemVideoCard::cacheForReuse(){
     //准备回收该项
-    this->picture->clear();
+    ImageHelper::clear(this->picture);
 }
 
 RecyclingGridItemVideoCard* RecyclingGridItemVideoCard::create(){
@@ -50,7 +52,7 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title, std
 
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    this->picture->setImageFromNet(pic);
+    ImageHelper::with(this)->load(pic)->into(this->picture);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDanmaku->setText(wiliwili::num2w(danmaku));
 
@@ -61,7 +63,7 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title, std
 }
 
 
-/// RecyclingGridItemRankVideoCard
+/// 排行榜视频封面
 /// 左上角有角标图案，从1开始自动添加序号
 
 
@@ -81,7 +83,7 @@ void RecyclingGridItemRankVideoCard::setCard(std::string pic, std::string title,
 
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    this->picture->setImageFromNet(pic);
+    ImageHelper::with(this)->load(pic)->into(this->picture);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDanmaku->setText(wiliwili::num2w(danmaku));
 
@@ -120,9 +122,101 @@ void RecyclingGridItemRankVideoCard::prepareForReuse(){
 
 void RecyclingGridItemRankVideoCard::cacheForReuse(){
     //准备回收该项
-    this->picture->clear();
+    ImageHelper::clear(this->picture);
 }
 
 RecyclingGridItemRankVideoCard* RecyclingGridItemRankVideoCard::create(std::string res){
     return new RecyclingGridItemRankVideoCard(res);
+}
+
+
+/// 直播视频封面
+
+
+RecyclingGridItemLiveVideoCard::RecyclingGridItemLiveVideoCard(){
+    this->inflateFromXMLRes("xml/views/video_card_live.xml");
+}
+
+RecyclingGridItemLiveVideoCard::~RecyclingGridItemLiveVideoCard(){
+}
+
+void RecyclingGridItemLiveVideoCard::setCard(std::string pic, std::string title, std::string username,
+                                             std::string area, int view_count){
+
+    this->labelUsername->setText(username);
+    this->labelTitle->setIsWrapping(false);
+    this->labelTitle->setText(title);
+    ImageHelper::with(this)->load(pic)->into(this->picture);
+    this->labelCount->setText(wiliwili::num2w(view_count));
+    this->labelDuration->setText(area);
+}
+
+
+void RecyclingGridItemLiveVideoCard::prepareForReuse(){
+    //准备显示该项
+}
+
+void RecyclingGridItemLiveVideoCard::cacheForReuse(){
+    //准备回收该项
+    ImageHelper::clear(this->picture);
+}
+
+RecyclingGridItemLiveVideoCard* RecyclingGridItemLiveVideoCard::create(){
+    return new RecyclingGridItemLiveVideoCard();
+}
+
+
+
+/// pgc video card
+/// 支持预览图横竖切换的视频封面
+
+
+RecyclingGridItemPGCVideoCard::RecyclingGridItemPGCVideoCard(bool vertical_cover): vertical_cover(vertical_cover){
+    this->inflateFromXMLRes("xml/views/video_card_pgc.xml");
+    if(!vertical_cover){
+        this->boxPic->setHeightPercentage(70);
+        this->boxBadgeBottom->setHeightPercentage(20);
+    }
+}
+
+RecyclingGridItemPGCVideoCard::~RecyclingGridItemPGCVideoCard(){}
+
+bool RecyclingGridItemPGCVideoCard::isVertical(){
+    return this->vertical_cover;
+}
+
+void RecyclingGridItemPGCVideoCard::setCard(std::string pic, std::string title, std::string username,
+                                            std::string badge_top, std::string badge_bottom_left,
+                                            std::string badge_bottom_right){
+
+    this->labelUsername->setText(username);
+    this->labelTitle->setIsWrapping(false);
+    this->labelTitle->setText(title);
+    ImageHelper::with(this)->load(pic)->into(this->picture);
+    this->labelDuration->setText(badge_bottom_right);
+
+    if(!badge_top.empty()){
+        ImageHelper::with(this)->load(badge_top)->into(this->badgeTop);
+    }
+
+    if(!badge_bottom_left.empty()){
+        ImageHelper::with(this)->load(badge_bottom_left)->into(this->badgeBottomLeft);
+    }
+
+}
+
+
+void RecyclingGridItemPGCVideoCard::prepareForReuse(){
+    //准备显示该项
+}
+
+void RecyclingGridItemPGCVideoCard::cacheForReuse(){
+    //准备回收该项
+    ImageHelper::clear(this->picture);
+    ImageHelper::clear(this->badgeTop);
+    ImageHelper::clear(this->badgeBottomLeft);
+}
+
+RecyclingGridItemPGCVideoCard* RecyclingGridItemPGCVideoCard::create(bool vertical_cover){
+    return new RecyclingGridItemPGCVideoCard(vertical_cover);
 }

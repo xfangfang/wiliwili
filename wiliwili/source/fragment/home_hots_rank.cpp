@@ -30,7 +30,7 @@ public:
     }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override{
-        brls::Application::pushActivity(new VideoDetailActivity(videoList[index].bvid));
+        brls::Application::pushActivity(new PlayerActivity(videoList[index].bvid));
     }
 
     void appendData(const bilibili::HotsRankVideoListResult& data){

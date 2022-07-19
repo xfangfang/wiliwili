@@ -1,0 +1,79 @@
+<brls:Box
+        width="1280"
+        height="auto"
+        axis="column">
+
+    <brls:AppletFrame
+            wireframe="false"
+            id="grid_dropdown/applet"
+            width="100%"
+            height="auto"
+            grow="1"
+            headerHidden="true"
+            footerHidden="true"
+            backgroundColor="@theme/brls/backdrop">
+
+        <brls:Box
+                wireframe="true"
+                width="100%"
+                height="auto"
+                grow="1"
+                axis="column"
+                justifyContent="flexEnd">
+
+            <brls:Box
+                    id="grid_dropdown/content"
+                    width="100%"
+                    height="330"
+                    axis="column"
+                    backgroundColor="@theme/brls/background">
+
+                <brls:Box
+                        wireframe="false"
+                        id="grid_dropdown/header"
+                        width="100%"
+                        height="@style/brls/dropdown/header_height"
+                        axis="row"
+                        paddingTop="@style/brls/applet_frame/header_padding_top_bottom"
+                        paddingBottom="@style/brls/applet_frame/header_padding_top_bottom"
+                        paddingLeft="@style/brls/applet_frame/header_padding_sides"
+                        paddingRight="@style/brls/applet_frame/header_padding_sides"
+                        marginLeft="@style/brls/applet_frame/padding_sides"
+                        marginRight="@style/brls/applet_frame/padding_sides"
+                        lineColor="@theme/brls/applet_frame/separator"
+                        lineBottom="1px">
+
+                    <brls:Label
+                            wireframe="false"
+                            id="grid_dropdown/title_label"
+                            width="auto"
+                            height="auto"
+                            marginTop="@style/brls/applet_frame/header_title_top_offset"
+                            fontSize="@style/brls/dropdown/header_title_font_size" />
+
+                </brls:Box>
+
+                <RecyclingGrid
+                        wireframe="false"
+                        id="grid_dropdown/recycler"
+                        width="100%"
+                        height="auto"
+                        grow="1"
+                        itemSpace="-1"
+                        preFetchLine="1"
+                        spanCount="1"
+                        itemHeight="60"
+                        paddingTop="@style/brls/dropdown/listPadding"
+                        paddingRight="@style/brls/dropdown/listPaddingSides"
+                        paddingBottom="@style/brls/dropdown/listPadding"
+                        paddingLeft="@style/brls/dropdown/listPaddingSides"/>
+
+            </brls:Box>
+
+            <brls:BottomBar
+                    width="100%"
+                    backgroundColor="@theme/brls/background"/>
+        </brls:Box>
+
+    </brls:AppletFrame>
+</brls:Box>

@@ -1,0 +1,75 @@
+<brls:Box
+        highlightCornerRadius="8"
+        axis="column"
+        width="auto"
+        height="auto">
+    <brls:Box
+            id="video/card/pic_box"
+            axis="column"
+            width="100%"
+            height="84%">
+        <brls:Image
+                id="video/card/picture"
+                scalingType="fill"
+                width="100%"
+                cornerRadius="4"/>
+
+        <brls:Image
+                id="video/card/badge/top"
+                positionType="absolute"
+                positionTop="8"
+                positionRight="0"
+                scalingType="fit"
+                height="24"/>
+
+        <brls:Box
+                id="video/card/badge/box/bottom"
+                positionBottom="0"
+                positionType="absolute"
+                backgroundColor="#303030A0"
+                paddingLeft="10"
+                paddingRight="10"
+                width="100%"
+                height="10%"
+                alignItems="center">
+            <brls:Image
+                    id="video/card/badge/bottom/left"
+                    scalingType="fit"
+                    height="16"/>
+            <brls:Label
+                    id="video/card/label/duration"
+                    positionType="absolute"
+                    positionRight="0"
+                    textColor="#FFFFFF"
+                    fontSize="13"
+                    text="更新至..."/>
+        </brls:Box>
+
+    </brls:Box>
+
+    <brls:Box
+            margin="10"
+            axis="column">
+        <TextBox
+                marginBottom="0"
+                wireframe="false"
+                id="video/card/label/title"
+                fontSize="15"
+                lineHeight="1.15"
+                width="100%"
+                height="25"/>
+        <brls:Box
+                grow="1"
+                width="100%"
+                alignItems="center">
+            <brls:Label
+                    wireframe="false"
+                    id="video/card/label/username"
+                    fontSize="13"
+                    singleLine="true"
+                    textColor="#9499A0"
+                    width="100%"
+                    height="100%"/>
+        </brls:Box>
+    </brls:Box>
+</brls:Box>

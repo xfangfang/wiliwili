@@ -30,6 +30,13 @@ enum class AutoTabBarPosition
     RIGHT
 };
 
+enum class AutoTabBarStyle
+{
+    ACCENT,
+    PLAIN,
+    NONE
+};
+
 
 class AutoSidebarItemGroup;
 class AttachedView;
@@ -52,8 +59,6 @@ public:
 
     bool isActive();
 
-    void setIcon(std::string icon_default, std::string icon_activate);
-
     void setFontSize(float size);
 
     void setHorizontalMode(bool value);
@@ -68,6 +73,10 @@ public:
 
     brls::GenericEvent* getActiveEvent();
 
+    static AutoTabBarStyle getTabStyle(std::string value);
+
+    void setTabStyle(AutoTabBarStyle style);
+
 private:
     BRLS_BIND(brls::Rectangle, accent, "autoSidebar/item_accent");
     BRLS_BIND(brls::Label, label, "autoSidebar/item_label");
@@ -77,6 +86,8 @@ private:
     brls::GenericEvent activeEvent;
 
     AutoSidebarItemGroup* group;
+
+    AutoTabBarStyle tabStyle = AutoTabBarStyle::NONE;
 
     bool active = false;
     View* attachedView = nullptr;
@@ -100,8 +111,12 @@ private:
 
 class AttachedView : public brls::Box{
 public:
+    AttachedView();
+
     void setTabBar(AutoSidebarItem* view);
     AutoSidebarItem* getTabBar();
+
+    ~AttachedView();
 
     virtual void onCreate();
 
@@ -115,9 +130,8 @@ private:
 class AutoTabFrame : public brls::Box{
 public:
     AutoTabFrame();
-    void setSideBarPosition(AutoTabBarPosition position);
     void handleXMLElement(tinyxml2::XMLElement* element) override;
-    void addTab(std::string label, TabViewCreator creator, std::string icon= "", std::string iconActivate= "");
+    void addTab(AutoSidebarItem* tab, TabViewCreator creator);
     void focusTab(int position);
     void clearTabs();
     static brls::View* create();
@@ -139,8 +153,7 @@ public:
 
     bool getHorizontalMode();
 
-    void addItem(std::string label, std::string icon, std::string iconActivate,
-                 TabViewCreator creator, brls::GenericEvent::Callback focusCallback);
+    void addItem(AutoSidebarItem* tab, TabViewCreator creator, brls::GenericEvent::Callback focusCallback);
 
     AutoSidebarItem* getItem(int position);
 
@@ -169,4 +182,10 @@ private:
     AutoSidebarItemGroup group;
     bool isHorizontal = false;
     float itemFontSize = 22;
+
+    /**
+     * Setting the position of sidebar.
+     * Only for internal use.
+     */
+    void setSideBarPosition(AutoTabBarPosition position);
 };

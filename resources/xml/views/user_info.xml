@@ -5,7 +5,7 @@
         justifyContent="spaceBetween"
         alignItems="center">
 
-    <NetImage
+    <brls:Image
             id="avatar"
             width="auto"
             height="80%"
@@ -28,8 +28,7 @@
                 height="auto"
                 horizontalAlign="center"
                 fontSize="18"
-                text="username"
-                textColor="@theme/captioned_image/caption" />
+                text="username" />
 
         <brls:Label
                 id="misc"
@@ -37,8 +36,7 @@
                 height="auto"
                 horizontalAlign="center"
                 fontSize="10"
-                text="10000000"
-                textColor="@theme/captioned_image/caption" />
+                text="10000000" />
 
     </brls:Box>
 

@@ -16,8 +16,14 @@
 #include "bilibili/result/home_hots_weekly_result.h"
 #include "bilibili/result/home_hots_history_result.h"
 #include "bilibili/result/home_hots_rank.h"
+#include "bilibili/result/home_live_result.h"
+
 
 namespace bilibili {
+
+    class PGCModuleResult;
+    typedef vector<bilibili::PGCModuleResult> PGCModuleListResult;
+
     
     // using Request = std::future<void>;
     // using json = nlohmann::json;
@@ -117,6 +123,29 @@ namespace bilibili {
             static void get_hots_rank_pgc(const int season_type, const int day=3,
                     const std::function<void(HotsRankPGCVideoListResult , string)>& callback= nullptr,
                     const ErrorCallback& error= nullptr);
+
+            /// 主页 直播推荐
+            static void get_live_recommend(int parent_area_id, int area_id, int page,
+                                          const std::function<void(LiveAreaListResult , LiveVideoListResult, int)>& callback= nullptr,
+                                          const ErrorCallback& error= nullptr);
+
+            /// 主页 追番列表
+            static void get_bangumi(int is_refresh, int cursor,
+                                           const std::function<void(PGCModuleListResult , int, std::string)>& callback= nullptr,
+                                           const ErrorCallback& error= nullptr);
+
+
+            /// 主页 影视列表
+            static void get_cinema(int is_refresh, int cursor,
+                                    const std::function<void(PGCModuleListResult , int, std::string)>& callback= nullptr,
+                                    const ErrorCallback& error= nullptr);
+
+
+            /// 视频页 获取评论
+            /// 3: 热门评论、2：最新评论 1：评论
+            static void get_comment(int aid, int next, int mode=3,
+                                   const std::function<void(VideoCommentResultWrapper)>& callback= nullptr,
+                                   const ErrorCallback& error= nullptr);
 
             static void download(std::string url, std::function<void(std::string, size_t)> callback);
             static void get(std::string url, std::function<void(std::string)> callback);

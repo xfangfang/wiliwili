@@ -86,7 +86,7 @@ void RecyclingGrid::registerCell(std::string identifier, std::function<Recycling
     allocationMap.insert(std::make_pair(identifier, allocation));
 }
 
-void RecyclingGrid::addCellAt(int index, int downSide)
+void RecyclingGrid::addCellAt(size_t index, int downSide)
 {
     RecyclingGridItem* cell;
     //获取到一个填充好数据的cell
@@ -159,7 +159,7 @@ void RecyclingGrid::reloadData()
     {
         contentBox->setHeight(estimatedRowHeight * this->getRowCount() + paddingTop + paddingBottom);
         brls::Rect frame  = getLocalFrame();
-        for (int row = 0; row < dataSource->getItemCount(); row++)
+        for (auto row = 0; row < dataSource->getItemCount(); row++)
         {
             this->addCellAt(row, true);
             if (renderedFrame.getMaxY() - preFetchLine * estimatedRowHeight > frame.getMaxY() && (row + 1) % spanCount == 0)
@@ -399,7 +399,12 @@ brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction, brls
 void RecyclingGrid::onLayout()
 {
     ScrollingFrame::onLayout();
-    this->contentBox->setWidth(this->getWidth());
+    float width = this->getWidth();
+    // check NAN
+    if(width != width)
+        return;
+
+    this->contentBox->setWidth(width);
     if (checkWidth())
     {
         layouted = true;
@@ -471,6 +476,7 @@ brls::View* RecyclingGrid::create() {
 
 RecyclingGridItem* RecyclingGrid::dequeueReusableCell(std::string identifier)
 {
+    brls::Logger::debug("RecyclingGrid::dequeueReusableCell: {}", identifier);
     RecyclingGridItem* cell = nullptr;
     auto it            = queueMap.find(identifier);
 

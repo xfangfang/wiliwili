@@ -1,0 +1,62 @@
+<brls:Box
+        height="auto"
+        marginTop="12"
+        width="auto"
+        clipsToBounds="false"
+        wireframe="false">
+    <brls:Box
+            wireframe="false"
+            positionType="absolute"
+            positionRight="0"
+            positionTop="-62"
+            justifyContent="flexEnd"
+            alignItems="center"
+            height="50">
+            <SVGImage
+                    culled="false"
+                    width="16"
+                    height="16"
+                    SVG="@res/svg/ico-sprite-tips.svg"/>
+            <brls:Label
+                    id="home/hots/weekly/reminder"
+                    culled="false"
+                    marginLeft="4"
+                    marginRight="10"
+                    fontSize="13"
+                    textColor="#9499A0"
+                    text="每周五晚18:00更新"/>
+
+            <brls:Box
+                    width="160"
+                    height="35"
+                    backgroundColor="@theme/color/grey_2"
+                    marginRight="40"
+                    paddingLeft="10"
+                    cornerRadius="6">
+                <brls:Label
+                        id="home/hots/weekly/label"
+                        culled="false"
+                        marginLeft="4"
+                        fontSize="13"
+                        singleLine="true"
+                        text="第 N 期(00/00更新)"/>
+                <brls:Label
+                        culled="false"
+                        height="35"
+                        positionType="absolute"
+                        positionRight="4"
+                        fontSize="14"
+                        text=""/>
+            </brls:Box>
+    </brls:Box>
+
+    <RecyclingGrid
+            paddingLeft="20"
+            paddingRight="20"
+            grow="1"
+            spanCount="4"
+            itemHeight="250"
+            wireframe="false"
+            id="home/hots/weekly/recyclingGrid"/>
+
+</brls:Box>

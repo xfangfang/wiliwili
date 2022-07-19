@@ -5,7 +5,6 @@
 #include "fragment/home_recommends.hpp"
 #include "activity/player_activity.hpp"
 #include "utils/number_helper.hpp"
-#include "view/net_image.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 
@@ -34,7 +33,7 @@ public:
     }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) {
-        brls::Application::pushActivity(new VideoDetailActivity(recommendList[index].bvid));
+        brls::Application::pushActivity(new PlayerActivity(recommendList[index].bvid));
     }
 
     void appendData(const bilibili::RecommendVideoListResult& data){
@@ -54,11 +53,11 @@ HomeRecommends::HomeRecommends() {
     recyclingGrid->onNextPage([this](){
         this->requestData();
     });
-
     this->requestData();
 }
 
 void HomeRecommends::onCreate(){
+
     this->registerTabAction("刷新", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
         this->requestData(true);
         return true;

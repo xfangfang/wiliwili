@@ -1,0 +1,17 @@
+<brls:Box
+        wireframe="false"
+        positionTop="-8"
+        axis="column"
+        width="auto"
+        height="auto">
+
+    <AutoTabFrame
+            id="homeBangumi/tabFrame"
+            grow="1"
+            defaultTab="0"
+            tabHeight="50"
+            sidebarPosition="top">
+
+    </AutoTabFrame>
+
+</brls:Box>

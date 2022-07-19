@@ -68,6 +68,9 @@ else()
             glfw3 EGL glapi drm_nouveau
             # needed by mpv
             mpv swscale swresample avformat avfilter avcodec avutil ass freetype fribidi png bz2 z SDL2
+            mbedx509 mbedtls mbedcrypto mbedx509 mbedtls
+            # needed by cpr
+            curl z
             # base lib
             nx m
             )
@@ -121,6 +124,7 @@ else()
             COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/Illegal-Font.ttf
             COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/Wingdings.ttf
             COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/resources/inter
+            COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/resources/font
             COMMAND ${NX_ELF2NRO_EXE} ${PROJECT_NAME}.elf ${PROJECT_NAME}.nro --icon=${PROJECT_ICON}
             --nacp=${PROJECT_NAME}.nacp --romfsdir=${CMAKE_BINARY_DIR}/resources
             )

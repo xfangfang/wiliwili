@@ -62,12 +62,19 @@ AutoTabFrame::AutoTabFrame() {
        this->setFontSize(value);
     });
 
+    this->registerFloatXMLAttribute("tabHeight", [this](float value){
+        this->sidebar->setHeight(value);
+    });
+
+    this->registerColorXMLAttribute("tabBackgroundColor", [this](NVGcolor value){
+        this->sidebar->setBackgroundColor(value);
+    });
+
     // defaultTab: default is 0
     this->registerFloatXMLAttribute("defaultTab", [this](float value){
         this->setDefaultTabIndex(value);
     });
 
-    this->sidebar->setBackground(brls::ViewBackground::SIDEBAR);
     this->sidebar->setAxis(brls::Axis::COLUMN);
     this->sidebar->setPadding(32,10,47,10);
 }
@@ -93,14 +100,13 @@ void AutoTabFrame::setSideBarPosition(AutoTabBarPosition position){
             this->setHorizontalMode(false);
             this->sidebar->setWidth(100);
             break;
+        default:;
     }
-    this->tabBarPosition = position;
     this->invalidate();
 }
 
-void AutoTabFrame::addTab(std::string label, TabViewCreator creator, std::string icon, std::string iconActivate)
-{
-    this->addItem(label, icon, iconActivate, creator, [this](brls::View* view) {
+void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator){
+    this->addItem(tab, creator, [this](brls::View* view) {
         AutoSidebarItem* sidebarItem = (AutoSidebarItem*) view;
 
         // Only trigger when the sidebar item gains focus
@@ -174,36 +180,34 @@ void AutoTabFrame::handleXMLElement(tinyxml2::XMLElement* element)
     if (name == "Tab")
     {
         const tinyxml2::XMLAttribute* labelAttribute = element->FindAttribute("label");
-        const tinyxml2::XMLAttribute* iconAttribute = element->FindAttribute("icon");
-        const tinyxml2::XMLAttribute* iconActivateAttribute = element->FindAttribute("iconActivate");
+        const tinyxml2::XMLAttribute* styleAttribute = element->FindAttribute("style");
 
         if (!labelAttribute)
             brls::fatal("\"label\" attribute missing from \"" + name + "\" tab");
 
-        std::string label = View::getStringXMLAttributeValue(labelAttribute->Value());
+        std::string tabStyle = "accent";
 
-        std::string icon, iconActivate;
+        if(styleAttribute)
+            tabStyle = View::getStringXMLAttributeValue(styleAttribute->Value());
 
-        if(iconAttribute)
-            icon = View::getFilePathXMLAttributeValue(iconAttribute->Value());
-
-        if(iconActivateAttribute)
-            iconActivate = View::getFilePathXMLAttributeValue(iconActivateAttribute->Value());
+        AutoSidebarItem* item = new AutoSidebarItem();
+        item->applyXMLAttribute("style", tabStyle);
+        item->applyXMLAttributes(element);
 
         tinyxml2::XMLElement* viewElement = element->FirstChildElement();
 
         if (viewElement)
         {
-            this->addTab(label, [viewElement] {
+            this->addTab(item, [viewElement] {
                 return View::createFromXMLElement(viewElement);
-            }, icon, iconActivate);
+            });
 
             if (viewElement->NextSiblingElement())
                 brls::fatal("\"Tab\" can only contain one child element");
         }
         else
         {
-            this->addTab(label, [] { return nullptr; }, icon, iconActivate);
+            this->addTab(item, [] { return nullptr; });
         }
     }
     else
@@ -297,7 +301,7 @@ void AutoTabFrame::setHorizontalMode(bool value){
         ((AutoSidebarItem *)item)->setHorizontalMode(value);
     }
     if(value){
-        this->sidebar->setPadding(10,20,10,20);
+        this->sidebar->setPadding(8,20,8,20);
         this->sidebar->setAxis(brls::Axis::ROW);
     } else {
         this->sidebar->setPadding(32,10,47,10);
@@ -311,23 +315,13 @@ bool AutoTabFrame::getHorizontalMode(){
     return this->isHorizontal;
 }
 
-void AutoTabFrame::addItem(std::string label, std::string icon, std::string iconActivate,
-             TabViewCreator creator, brls::GenericEvent::Callback focusCallback){
-    AutoSidebarItem* item = new AutoSidebarItem();
-    if(!icon.empty()){
-        if(!iconActivate.empty())
-            item->setIcon(icon, iconActivate);
-        else
-            item->setIcon(icon, icon);
-    }
-    item->setAttachedViewCreator(creator);
-    item->setFontSize(this->itemFontSize);
-    item->setHorizontalMode(this->isHorizontal);
-    item->setGroup(&this->group);
-    item->setLabel(label);
-    item->getActiveEvent()->subscribe(focusCallback);
+void AutoTabFrame::addItem(AutoSidebarItem* tab, TabViewCreator creator, brls::GenericEvent::Callback focusCallback){
+    tab->setAttachedViewCreator(creator);
+    tab->setHorizontalMode(this->isHorizontal);
+    tab->setGroup(&this->group);
+    tab->getActiveEvent()->subscribe(focusCallback);
 
-    this->sidebar->addView(item);
+    this->sidebar->addView(tab);
 }
 
 AutoSidebarItem* AutoTabFrame::getItem(int position)
@@ -339,6 +333,7 @@ void AutoTabFrame::clearItems()
 {
     this->sidebar->clearViews();
     this->group.clear();
+    this->setLastFocusedView(nullptr);
 }
 
 Box* AutoTabFrame::getSidebar(){
@@ -372,9 +367,10 @@ void AutoTabFrame::willDisappear(bool resetState){
 
 const std::string autoSidebarItemXML = R"xml(
     <brls:Box
+        wireframe="false"
         width="auto"
         direction="rightToLeft"
-        height="@style/brls/sidebar/item_height"
+        height="auto"
         focusable="true" >
 
         <brls:Box
@@ -394,8 +390,8 @@ const std::string autoSidebarItemXML = R"xml(
                 wireframe="false"
                 visibility="gone"
                 id="autoSidebar/item_icon"
-                width="26"
-                height="26"/>
+                width="34"
+                height="34"/>
 
             <brls:Label
                 wireframe="false"
@@ -420,18 +416,93 @@ const std::string autoSidebarItemXML = R"xml(
     </brls:Box>
 )xml";
 
+const std::string autoSidebarItemPlainXML = R"xml(
+    <brls:Box
+        backgroundColor="#29191F40"
+        highlightCornerRadius="8"
+        cornerRadius="4"
+        hideHighlightBackground="true"
+        wireframe="false"
+        width="auto"
+        direction="rightToLeft"
+        height="auto"
+        marginLeft="8"
+        marginRight="8"
+        focusable="true" >
+
+        <brls:Box
+            wireframe="false"
+            grow="1.0"
+            width="auto"
+            height="auto"
+            justifyContent="center"
+            alignItems="center"
+            axis="column"
+            id="autoSidebar/item_label_box">
+
+            <SVGImage
+                wireframe="false"
+                visibility="gone"
+                id="autoSidebar/item_icon"
+                width="26"
+                height="26"/>
+
+            <brls:Label
+                wireframe="false"
+                id="autoSidebar/item_label"
+                width="auto"
+                height="auto"
+                fontSize="22"
+                horizontalAlign="center"/>
+        </brls:Box>
+
+        <brls:Rectangle
+            id="autoSidebar/item_accent"
+            width="@style/brls/sidebar/item_accent_rect_width"
+            height="auto"
+            visibility="gone"
+            color="#FF6699"
+            marginTop="@style/brls/sidebar/item_accent_margin_top_bottom"
+            marginBottom="@style/brls/sidebar/item_accent_margin_top_bottom"
+            marginLeft="@style/brls/sidebar/item_accent_margin_sides"
+            marginRight="@style/brls/sidebar/item_accent_margin_sides" />
+
+    </brls:Box>
+)xml";
+
+
 AutoSidebarItem::AutoSidebarItem()
         : Box(brls::Axis::ROW)
 {
-    this->inflateFromXMLString(autoSidebarItemXML);
-
-    this->registerStringXMLAttribute("label", [this](std::string value) {
-        this->setLabel(value);
+    this->registerStringXMLAttribute("label", [this](std::string value){
+       this->label->setText(value);
+        return true;
     });
+
+    this->registerFloatXMLAttribute("fontSize", [this](float value){
+        this->label->setFontSize(value);
+        return true;
+    });
+
+    this->registerFilePathXMLAttribute("icon", [this](std::string value){
+        this->iconDefault = value;
+        this->icon->setVisibility(brls::Visibility::VISIBLE);
+        this->icon->setImageFromSVGFile(value);
+    });
+
+    this->registerFilePathXMLAttribute("iconActivate", [this](std::string value){
+        this->iconActivate = value;
+    });
+
+    BRLS_REGISTER_ENUM_XML_ATTRIBUTE(
+            "style", AutoTabBarStyle, this->setTabStyle,
+            {
+                { "accent", AutoTabBarStyle::ACCENT },
+                { "plain", AutoTabBarStyle::PLAIN },
+            });
 
     this->setFocusSound(brls::SOUND_FOCUS_SIDEBAR);
 
-    // todo: 点击时根据sidebar位置决定向哪个方向移动
     this->registerAction(
             "hints/ok"_i18n, brls::BUTTON_A, [this](View* view) {
                 if(this->attachedView)
@@ -465,6 +536,22 @@ AutoSidebarItem::AutoSidebarItem()
     }));
 }
 
+void AutoSidebarItem::setTabStyle(AutoTabBarStyle style) {
+    if(style == AutoTabBarStyle::NONE)
+        brls::fatal("SidebarItem style cannot be set to \"None\"");
+    if(this->tabStyle != AutoTabBarStyle::NONE)
+        return;
+
+    this->tabStyle = style;
+    switch (style) {
+        case AutoTabBarStyle::PLAIN:
+            this->inflateFromXMLString(autoSidebarItemPlainXML);
+            break;
+        default:
+            this->inflateFromXMLString(autoSidebarItemXML);
+    }
+}
+
 void AutoSidebarItem::setActive(bool active)
 {
     if (active == this->active)
@@ -475,20 +562,33 @@ void AutoSidebarItem::setActive(bool active)
     if (active)
     {
         this->activeEvent.fire(this);
+        if(this->tabStyle == AutoTabBarStyle::ACCENT)
+            this->accent->setVisibility(brls::Visibility::VISIBLE);
+        else if(this->tabStyle == AutoTabBarStyle::PLAIN){
+            this->setBackgroundColor(nvgRGBA(252, 237, 241, 255));
+        }
 
-        this->accent->setVisibility(brls::Visibility::VISIBLE);
         this->label->setTextColor(nvgRGB(255, 102, 153));
+
         if(this->icon->getVisibility() == brls::Visibility::VISIBLE){
-            this->icon->setImageFromSVGFile(this->iconActivate);
+            if(!this->iconActivate.empty())
+                this->icon->setImageFromSVGFile(this->iconActivate);
+            else if(!this->iconDefault.empty())
+                this->icon->setImageFromSVGFile(this->iconDefault);
         }
     }
     else
     {
-        this->accent->setVisibility(brls::Visibility::INVISIBLE);
-        this->label->setTextColor(theme["brls/text"]);
-        if(this->icon->getVisibility() == brls::Visibility::VISIBLE){
-            this->icon->setImageFromSVGFile(this->iconDefault);
+        if(this->tabStyle == AutoTabBarStyle::ACCENT)
+            this->accent->setVisibility(brls::Visibility::INVISIBLE);
+        else if(this->tabStyle == AutoTabBarStyle::PLAIN){
+            this->setBackgroundColor(nvgRGBA(41, 25, 31, 64));
         }
+        this->label->setTextColor(theme["brls/text"]);
+
+        if(this->icon->getVisibility() == brls::Visibility::VISIBLE && !this->iconDefault.empty())
+            this->icon->setImageFromSVGFile(this->iconDefault);
+
     }
 
     this->active = active;
@@ -545,14 +645,6 @@ brls::View* AutoSidebarItem::AutoSidebarItem::getAttachedView(){
     return this->attachedView;
 }
 
-void AutoSidebarItem::setIcon(std::string icon_default, std::string icon_activate){
-    this->iconDefault = icon_default;
-    this->iconActivate = icon_activate;
-
-    this->icon->setImageFromSVGFile(icon_default);
-    this->icon->setVisibility(brls::Visibility::VISIBLE);
-}
-
 void AutoSidebarItem::setFontSize(float size){
     if(this->icon->getVisibility() == brls::Visibility::VISIBLE){
         size -= 10;
@@ -565,20 +657,25 @@ void AutoSidebarItem::setFontSize(float size){
 void AutoSidebarItem::setHorizontalMode(bool value){
     if(value){
         this->setAxis(brls::Axis::COLUMN);
-        this->setPaddingLeft(10);
-        this->setPaddingRight(10);
-        this->icon_box->setMarginRight(0);
-        this->icon_box->setMarginBottom(0);
-        this->accent->setSize(brls::Size(View::AUTO, 4));
-        this->accent->setMarginTop(0);
+        this->setPadding(0, 10, 0, 10);
+        if(this->tabStyle == AutoTabBarStyle::ACCENT){
+            this->accent->setSize(brls::Size(View::AUTO, 4));
+            this->accent->setMarginTop(0);
+            this->icon_box->setMarginRight(0);
+            this->icon_box->setMarginBottom(0);
+        }
     } else {
         this->setAxis(brls::Axis::ROW);
-        this->setPaddingLeft(0);
-        this->setPaddingRight(0);
-        this->icon_box->setMarginBottom(9);
-        this->icon_box->setMarginRight(8);
-        this->accent->setSize(brls::Size(4, View::AUTO));
-        this->accent->setMarginTop(9);
+        if(this->tabStyle == AutoTabBarStyle::ACCENT) {
+            this->accent->setSize(brls::Size(4, View::AUTO));
+            this->accent->setMarginTop(9);
+            this->icon_box->setMarginBottom(9);
+            this->icon_box->setMarginRight(8);
+            this->setPadding(0, 0, 0, 0);
+        } else if(this->tabStyle == AutoTabBarStyle::PLAIN) {
+            this->setPadding(8, 0, 8, 0);
+            this->setMargins(8, 0, 8, 0);
+        }
     }
 }
 
@@ -591,8 +688,22 @@ void AutoSidebarItem::setAttachedViewCreator(TabViewCreator creator){
 }
 
 AutoSidebarItem::~AutoSidebarItem(){
-    if(this->attachedView)
+    brls::Logger::debug("del AutoSidebarItem");
+    if(this->attachedView){
         delete this->attachedView;
+        this->attachedView = nullptr;
+    }
+}
+
+AutoTabBarStyle AutoSidebarItem::getTabStyle(std::string value) {
+    std::unordered_map<std::string, AutoTabBarStyle> enumMap = {
+            {"accent", AutoTabBarStyle::ACCENT},
+            {"plain", AutoTabBarStyle::PLAIN},
+    };
+    if (enumMap.count(value) > 0)
+    return enumMap[value];
+    else
+        fatal("Illegal value \"" + value + "\" for AutoSidebarItem attribute \"style\"");
 }
 
 /**
@@ -649,3 +760,9 @@ void AttachedView::registerTabAction(std::string hintText, enum brls::Controller
     if(this->tab)
         this->tab->registerAction(hintText, button, action, hidden, allowRepeating, sound);
 }
+
+AttachedView::AttachedView(){
+    this->setGrow(1);
+}
+
+AttachedView::~AttachedView(){}
