@@ -27,9 +27,11 @@ const char *fragmentShaderSource = "#version 330 core\n"
                                    "in vec2 TexCoord;\n"
                                    "out vec4 FragColor;\n"
                                    "uniform sampler2D ourTexture;\n"
+                                   "uniform float Alpha = 1.0;\n"
                                    "void main()\n"
                                    "{\n"
                                    "   FragColor = texture(ourTexture, TexCoord);\n"
+                                   "   FragColor.a = Alpha;\n"
                                    "}\n\0";
 
 static void *get_proc_address(void *unused, const char *name) {
@@ -289,7 +291,7 @@ public:
         return mpv_context != nullptr;
     }
 
-    void openglDraw(Rect rect){
+    void openglDraw(Rect rect, float alpha=1.0){
         if(!mpv_context)
             return;
 
@@ -318,6 +320,15 @@ public:
         glUseProgram(shader.prog);
         glBindTexture(GL_TEXTURE_2D, this->media_texture);
         glBindVertexArray(shader.vao);
+        if(alpha < 1.0){
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            GLuint alphaLayout = glGetUniformLocation(shader.prog, "Alpha");
+            brls::Logger::error("========> {}", alphaLayout);
+            if(alphaLayout != -1){
+                glUniform1f(alphaLayout, alpha);
+            }
+        }
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }
 
@@ -445,7 +456,7 @@ void VideoView::draw(NVGcontext *vg, float x, float y, float width, float height
     nvgResetTransform(vg);
     nvgEndFrame(vg);
 
-    mpvCore->openglDraw(this->getFrame());
+    mpvCore->openglDraw(this->getFrame(), this->getAlpha());
 
     // restore nvg
     nvgBeginFrame(vg,
