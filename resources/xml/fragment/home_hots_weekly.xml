@@ -55,7 +55,7 @@
             paddingRight="20"
             grow="1"
             spanCount="4"
-            itemHeight="250"
+            itemHeight="260"
             wireframe="false"
             id="home/hots/weekly/recyclingGrid"/>
 

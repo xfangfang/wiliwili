@@ -15,19 +15,20 @@ RecyclingGridItemVideoCard::RecyclingGridItemVideoCard(){
 }
 
 RecyclingGridItemVideoCard::~RecyclingGridItemVideoCard() {
-
+    // 优先清空正在进行的图片请求
+    ImageHelper::clear(this->picture);
 }
 
 void RecyclingGridItemVideoCard::setRCMDReason(std::string reason){
     this->boxRCMD->setVisibility(brls::Visibility::VISIBLE);
     this->labelRCMD->setText(reason);
-    this->boxPic->setHeightPercentage(57);
+    this->boxPic->setHeightPercentage(54.8);
 }
 
 void RecyclingGridItemVideoCard::setAchievement(std::string explain){
     this->boxAchievement->setVisibility(brls::Visibility::VISIBLE);
     this->labelAchievement->setText(explain);
-    this->boxPic->setHeightPercentage(57);
+    this->boxPic->setHeightPercentage(54.8);
 }
 
 void RecyclingGridItemVideoCard::prepareForReuse(){
@@ -72,6 +73,8 @@ RecyclingGridItemRankVideoCard::RecyclingGridItemRankVideoCard(std::string res){
 }
 
 RecyclingGridItemRankVideoCard::~RecyclingGridItemRankVideoCard(){
+    // 优先清空正在进行的图片请求
+    ImageHelper::clear(this->picture);
 }
 
 void RecyclingGridItemRankVideoCard::setCard(std::string pic, std::string title, std::string username, int pubdate,
@@ -138,6 +141,8 @@ RecyclingGridItemLiveVideoCard::RecyclingGridItemLiveVideoCard(){
 }
 
 RecyclingGridItemLiveVideoCard::~RecyclingGridItemLiveVideoCard(){
+    // 优先清空正在进行的图片请求
+    ImageHelper::clear(this->picture);
 }
 
 void RecyclingGridItemLiveVideoCard::setCard(std::string pic, std::string title, std::string username,
@@ -179,7 +184,10 @@ RecyclingGridItemPGCVideoCard::RecyclingGridItemPGCVideoCard(bool vertical_cover
     }
 }
 
-RecyclingGridItemPGCVideoCard::~RecyclingGridItemPGCVideoCard(){}
+RecyclingGridItemPGCVideoCard::~RecyclingGridItemPGCVideoCard(){
+    // 优先清空正在进行的图片请求
+    ImageHelper::clear(this->picture);
+}
 
 bool RecyclingGridItemPGCVideoCard::isVertical(){
     return this->vertical_cover;

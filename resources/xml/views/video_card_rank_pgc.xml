@@ -79,10 +79,10 @@
                 marginBottom="0"
                 wireframe="false"
                 id="video/card/label/title"
-                fontSize="15"
-                lineHeight="1.15"
+                fontSize="20"
+                lineHeight="1.5"
                 width="100%"
-                height="25"/>
+                height="30"/>
         <brls:Box
                 grow="1"
                 width="100%"
@@ -95,7 +95,7 @@
                     wireframe="false"
                     id="video/card/label/username"
                     marginLeft="4"
-                    fontSize="13"
+                    fontSize="16"
                     singleLine="true"
                     textColor="#9499A0"
                     width="100%"

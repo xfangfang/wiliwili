@@ -8,27 +8,27 @@
             sidebarPosition="top">
 
         <Tab label="直播"
-             fontSize="16">
+             fontSize="18">
             <HomeLive/>
         </Tab>
 
         <Tab label="推荐"
-             fontSize="16">
+             fontSize="18">
             <HomeRecommends/>
         </Tab>
 
         <Tab label="热门"
-             fontSize="16">
+             fontSize="18">
             <HomeHots/>
         </Tab>
 
         <Tab label="追番"
-             fontSize="16">
+             fontSize="18">
             <HomeBangumi/>
         </Tab>
 
         <Tab label="影视"
-             fontSize="16">
+             fontSize="18">
             <HomeCinema/>
         </Tab>
 
@@ -68,7 +68,7 @@
             text=""/>
     <brls:Label
             positionType="absolute"
-            positionLeft="320"
+            positionLeft="340"
             positionTop="18"
             fontSize="14"
             text=""/>
