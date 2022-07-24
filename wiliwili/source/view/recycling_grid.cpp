@@ -12,6 +12,7 @@ RecyclingGridItem::RecyclingGridItem() {
             recycler->getDataSource()->onItemSelected(recycler, index);
         return true;
     });
+    this->addGestureRecognizer(new brls::TapGestureRecognizer(this));
 }
 
 size_t RecyclingGridItem::getIndex() const {

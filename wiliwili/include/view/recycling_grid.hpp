@@ -48,7 +48,6 @@ public:
 
 private:
     size_t index;
-    brls::Event<brls::InputType>::Subscription subscription;
 };
 
 class RecyclingGridDataSource

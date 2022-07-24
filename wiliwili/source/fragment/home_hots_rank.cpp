@@ -99,7 +99,7 @@ HomeHotsRank::HomeHotsRank() {
 void HomeHotsRank::onCreate() {
     this->registerTabAction("切换", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
         static int selected = 0;
-        brls::Application::pushActivity(new brls::Activity(new GridDropdown(
+        brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
                 "排行榜", this->getRankList(), [this](int _selected) {
                     selected = _selected;
                     this->rank_label->setText("榜单：" + this->getRankList()[_selected]);
