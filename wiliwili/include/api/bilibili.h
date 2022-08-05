@@ -33,14 +33,9 @@ namespace bilibili {
     using Cookies = std::map<std::string, std::string>;
 
     class BilibiliClient {
-        static std::function<void(Cookies)> writeCookiesCallback;
+        inline static std::function<void(Cookies)> writeCookiesCallback = nullptr;
         public:
             static Cookies cookies;
-            static ThreadPool pool;
-            static ThreadPool imagePool;
-            static void get_top10(int rid, std::function<void(VideoList)> callback);
-            static void get_recommend_old(int rid, int num, const std::function<void(VideoList)>& callback);
-            static void get_playurl(int cid, int quality, const std::function<void(VideoPage)>& callback);
 
             /// get qrcode for login
             static void get_login_url(const std::function<void(std::string, std::string)>& callback= nullptr,
@@ -175,14 +170,12 @@ namespace bilibili {
                                    const std::function<void(VideoCommentResultWrapper)>& callback= nullptr,
                                    const ErrorCallback& error= nullptr);
 
-            static void download(std::string url, std::function<void(std::string, size_t)> callback);
-            static void get(std::string url, std::function<void(std::string)> callback);
             /// 搜索页 获取搜索视频内容
             static void search_video(const std::string& key, const std::string& search_type, uint index = 1,
                                      const std::string& order = "",
                                      const std::function<void(SearchResult)>& callback= nullptr,
                                      const ErrorCallback& error= nullptr);
+
             static void init(Cookies &cookies, std::function<void(Cookies)> writeCookiesCallback);
-            static void clean();
     };
 }
