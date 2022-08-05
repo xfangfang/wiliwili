@@ -10,6 +10,9 @@ namespace wiliwili {
 
     inline std::string pre0(size_t num, size_t length){
         std::string str = std::to_string(num);
+        if(length <= str.length()){
+            return str;
+        }
         return std::string(length - str.length(), '0') + str;
     }
 
