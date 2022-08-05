@@ -19,6 +19,9 @@ public:
     void setCard(std::string pic, std::string title, std::string username, int pubdate=0,
                  int view_count=0, int danmaku=0, int duration=0);
 
+    void setCard(std::string pic, std::string title, std::string username, int pubdate=0,
+                 int view_count=0, int danmaku=0, std::string rightBottomBadge="");
+
     /** 设置视频下方的推荐原因
       * 热门 每周必看 视频下方都包含推荐原因
       */

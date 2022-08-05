@@ -27,6 +27,10 @@
 #include "fragment/home_live.hpp"
 #include "fragment/home_bangumi.hpp"
 #include "fragment/home_cinema.hpp"
+#include "fragment/search_tab.hpp"
+#include "fragment/search_video.hpp"
+#include "fragment/search_cinema.hpp"
+#include "fragment/search_bangumi.hpp"
 
 #include "utils/config_helper.hpp"
 
@@ -57,6 +61,10 @@ void Register::initCustomView(){
     brls::Application::registerXMLView("HomeLive", HomeLive::create);
     brls::Application::registerXMLView("HomeBangumi", HomeBangumi::create);
     brls::Application::registerXMLView("HomeCinema", HomeCinema::create);
+    brls::Application::registerXMLView("SearchTab", SearchTab::create);
+    brls::Application::registerXMLView("SearchVideo", SearchVideo::create);
+    brls::Application::registerXMLView("SearchCinema", SearchCinema::create);
+    brls::Application::registerXMLView("SearchBangumi", SearchBangumi::create);
 //    brls::Application::registerXMLView("RawVideoView", RawVideoView::create);
 }
 

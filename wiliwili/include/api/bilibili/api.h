@@ -97,5 +97,11 @@ namespace bilibili {
 
 
 
+
+        /// ===
+        /// 搜索页API
+        /// ===
+        static const string Search = _apiBase + "/x/web-interface/search/type";
+
     }
 }

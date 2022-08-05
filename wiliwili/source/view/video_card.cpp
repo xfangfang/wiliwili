@@ -63,6 +63,21 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title, std
         this->labelDuration->setText("");
 }
 
+void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title, std::string username, int pubdate,
+                                         int view_count, int danmaku, std::string rightBottomBadge){
+    if(pubdate)
+        this->labelUsername->setText(username + "·" +wiliwili::sec2date(pubdate));
+    else
+        this->labelUsername->setText(username);
+
+    this->labelTitle->setIsWrapping(true);
+    this->labelTitle->setText(title);
+    ImageHelper::with(this)->load(pic)->into(this->picture);
+    this->labelCount->setText(wiliwili::num2w(view_count));
+    this->labelDanmaku->setText(wiliwili::num2w(danmaku));
+    this->labelDuration->setText(rightBottomBadge);
+}
+
 
 /// 排行榜视频封面
 /// 左上角有角标图案，从1开始自动添加序号

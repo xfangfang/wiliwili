@@ -4,11 +4,38 @@
         footerHidden="false">
     <brls:Box
             axis="column"
-            grow="1"
-            justifyContent="center"
-            alignItems="center"
-            focusable="true">
-        <brls:Label
-                text="还没做"/>
+            grow="1">
+        <brls:Box
+                positionType="absolute"
+                positionRight="0"
+                positionTop="0"
+                width="340"
+                height="65"
+                alignItems="center"
+                wireframe="false">
+            <brls:Box
+                    width="300"
+                    height="35"
+                    backgroundColor="#E3E5E7"
+                    paddingLeft="15"
+                    cornerRadius="6">
+                <brls:Label
+                        id="search/label/key"
+                        fontSize="14"
+                        textColor="#18191c"
+                        text="搜索你感兴趣的视频"/>
+                <brls:Label
+                        height="35"
+                        positionType="absolute"
+                        positionRight="15"
+                        fontSize="14"
+                        textColor="#18191c"
+                        text=""/>
+            </brls:Box>
+        </brls:Box>
+
+        <SearchTab
+                id="search/tab"
+                grow="1"/>
     </brls:Box>
 </brls:AppletFrame>

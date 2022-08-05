@@ -1,0 +1,31 @@
+<brls:Box
+        wireframe="false"
+        axis="column"
+        width="auto"
+        height="auto">
+    <AutoTabFrame
+            id="mine/tab/frame"
+            grow="1"
+            defaultTab="0"
+            tabHeight="65"
+            tabFontSize="16"
+            sidebarPosition="top">
+
+        <Tab label="视频"
+             fontSize="18">
+            <SearchVideo id="search/tab/video"/>
+        </Tab>
+
+        <Tab label="番剧"
+             fontSize="18">
+            <SearchBangumi id="search/tab/bangumi"/>
+        </Tab>
+
+        <Tab label="影视"
+             fontSize="18">
+            <SearchCinema id="search/tab/cinema"/>
+        </Tab>
+
+    </AutoTabFrame>
+
+</brls:Box>

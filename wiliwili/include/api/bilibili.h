@@ -18,6 +18,7 @@
 #include "bilibili/result/home_hots_rank.h"
 #include "bilibili/result/home_live_result.h"
 
+#include "bilibili/result/search_result.h"
 
 namespace bilibili {
 
@@ -149,6 +150,11 @@ namespace bilibili {
 
             static void download(std::string url, std::function<void(std::string, size_t)> callback);
             static void get(std::string url, std::function<void(std::string)> callback);
+            /// 搜索页 获取搜索视频内容
+            static void search_video(const std::string& key, const std::string& search_type, uint index = 1,
+                                     const std::string& order = "",
+                                     const std::function<void(SearchResult)>& callback= nullptr,
+                                     const ErrorCallback& error= nullptr);
             static void init(Cookies &cookies, std::function<void(Cookies)> writeCookiesCallback);
             static void clean();
     };
