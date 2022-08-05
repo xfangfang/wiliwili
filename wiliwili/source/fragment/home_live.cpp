@@ -6,6 +6,8 @@
 #include "fragment/home_live.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
+#include "activity/live_player_activity.hpp"
+
 
 class DataSourceLiveVideoList
         : public RecyclingGridDataSource
@@ -28,7 +30,7 @@ public:
     }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override{
-
+        brls::Application::pushActivity(new LiveActivity(videoList[index]));
     }
 
     void appendData(const bilibili::LiveVideoListResult& data){
