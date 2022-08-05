@@ -12,13 +12,24 @@
 #include <borealis.hpp>
 #include "activity/player_activity.hpp"
 #include "presenter/user_home.hpp"
+#include "view/auto_tab_frame.hpp"
 
-class MineTab : public brls::Box, public UserHome{
+typedef brls::Event<bilibili::LoginInfo> loginStatusEvent;
+class MineHistory;
+class MineCollection;
+
+class MineTab : public AttachedView, public UserHome{
 
 public:
     MineTab();
 
     ~MineTab();
+
+    void onCreate() override;
+
+    void onUserInfo(const bilibili::UserResult& data) override;
+
+    void onUserNotLogin() override;
 
     static View *create() {
         return new MineTab();
@@ -27,5 +38,12 @@ public:
 private:
 //    BRLS_BIND(VideoGrid, videoGrid, "user_home/video_grid");
     BRLS_BIND(brls::ScrollingFrame, videoGridScrollingFrame, "user_home/video_scroll");
+    BRLS_BIND(brls::Box, boxGotoUserSpace, "user_home/goto_userspace");
+    BRLS_BIND(brls::Image, imageUserAvater, "mine/image/avatar");
+    BRLS_BIND(brls::Label, labelUserName, "mine/label/username");
+    BRLS_BIND(MineHistory, mineHistory, "mine/history");
+    BRLS_BIND(MineCollection, mineCollection, "mine/collection");
 
+    brls::ActionIdentifier boxGotoUserSpaceClickID = -1;
+    loginStatusEvent loginCb;
 };

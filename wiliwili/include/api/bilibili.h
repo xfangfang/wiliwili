@@ -17,7 +17,9 @@
 #include "bilibili/result/home_hots_history_result.h"
 #include "bilibili/result/home_hots_rank.h"
 #include "bilibili/result/home_live_result.h"
-
+#include "bilibili/result/mine_result.h"
+#include "bilibili/result/mine_history_result.h"
+#include "bilibili/result/mine_collection_result.h"
 #include "bilibili/result/search_result.h"
 
 namespace bilibili {
@@ -40,23 +42,48 @@ namespace bilibili {
             static void get_recommend_old(int rid, int num, const std::function<void(VideoList)>& callback);
             static void get_playurl(int cid, int quality, const std::function<void(VideoPage)>& callback);
 
-            // get qrcode for login
-            static void get_login_url(std::function<void(std::string, std::string)> callback);
+            /// get qrcode for login
+            static void get_login_url(const std::function<void(std::string, std::string)>& callback= nullptr,
+                                      const ErrorCallback& error= nullptr);
 
-            // check if qrcode has been scaned
-            static void get_login_info(std::string oauthKey, std::function<void(enum LoginInfo)> callback);
+            /// check if qrcode has been scanned
+            static void get_login_info(const std::string oauthKey,
+                                       const std::function<void(enum LoginInfo)> &callback = nullptr,
+                                               const ErrorCallback& error = nullptr);
 
-            // get person info (if login)
-            static void get_my_info(std::function<void(UserDetail)> callback);
+            /// get person info (if login)
+            static void get_my_info(const std::function<void(UserResult)>& callback = nullptr,
+                                    const ErrorCallback& error = nullptr);
 
-            // get user's upload videos
-            static void get_user_videos(int mid, int pn, int ps, std::function<void(space_user_videos::VideoList)> callback);
+            /// get person history videos
+            static void get_my_history(const HistoryVideoListCursor& cursor,
+                                       const std::function<void(HistoryVideoResultWrapper)>& callback = nullptr,
+                                       const ErrorCallback& error = nullptr);
 
-            //get user's collections
-            static void get_user_collections(int mid, int pn, int ps, std::function<void(space_user_collections::CollectionList)> callback);
 
-            //get videos by collection id
-            static void get_collection_videos(int id, int pn, int ps, std::function<void(space_user_collections::CollectionDetail)> callback);
+            /// get person collection list
+            static void get_my_collection_list(const int mid, const int index=1, const int num=20,
+                                               const std::function<void(CollectionListResultWrapper)>& callback = nullptr,
+                                               const ErrorCallback& error = nullptr);
+
+            static void get_my_collection_list(const std::string& mid, const int index=1, const int num=20,
+                                               const std::function<void(CollectionListResultWrapper)>& callback = nullptr,
+                                               const ErrorCallback& error = nullptr);
+
+            /// get collection video list
+            static void get_collection_video_list(int media_id, const int index=1, const int num=20,
+                                                  const std::function<void(CollectionVideoListResultWrapper)>& callback = nullptr,
+                                                  const ErrorCallback& error = nullptr);
+
+            /// get user's upload videos
+            static void get_user_videos(int mid, int pn, int ps,
+                                        const std::function<void(UserUploadedVideoResultWrapper)>& callback = nullptr,
+                                        const ErrorCallback& error = nullptr);
+
+            /// get season detail by seasonID
+            static void get_season_detail(const int seasonID,
+                                         const std::function<void(SeasonResultWrapper)>& callback= nullptr,
+                                         const ErrorCallback& error= nullptr);
 
             /// get video detail by aid
             static void get_video_detail(const int aid,

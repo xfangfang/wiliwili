@@ -96,6 +96,16 @@ namespace bilibili {
         static const string RankingGRPC = _grpcBase + "/bilibili.app.show.v1.Rank/RankRegion";
 
 
+        /// ===
+        /// 个人页API
+        /// ===
+        static const string QrLoginUrl = _passBase + "/qrcode/getLoginUrl";
+        static const string QrLoginInfo = _passBase + "/qrcode/getLoginInfo";
+        static const string MyInfo = _apiBase + "/x/space/myinfo";
+        static const string HistoryVideo = _apiBase + "/x/web-interface/history/cursor";
+        static const string CollectionList = _apiBase + "/x/v3/fav/folder/created/list";
+        static const string CollectionVideoList = _apiBase + "/x/v3/fav/resource/list";
+        static const string UserUploadedVideo = _apiBase + "/x/space/arc/search";
 
 
         /// ===

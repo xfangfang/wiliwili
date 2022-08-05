@@ -29,4 +29,29 @@ namespace bilibili {
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult2, mid, uname, avatar);
 
+    class UserResult{
+    public:
+        int mid = -1;
+        int level;
+        int following;
+        int follower;
+        std::string name;
+        std::string face;
+        std::string sex;
+        std::string sign;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserResult, mid, level, following, follower, name, face, sex, sign);
+
+
+    class SeasonUserResult {
+    public:
+        uint mid;
+        uint follower;
+        uint is_follow;
+        string uname;
+        string avatar;
+    };
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonUserResult, mid, uname, avatar, follower, is_follow);
+
 }
