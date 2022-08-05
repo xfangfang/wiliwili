@@ -54,31 +54,26 @@ public:
         this->imageView = image;
         this->available = false;
         this->isCancel = false;
-        this->currentView->ptrLock();
-        //todo: 注意box删除view不涉及 ptrLock的问题
-        // 可能会导致在二层Box下的image删除时直接被删除，异步回调后遭遇this指针失效。
-        cpr::GetCallback([this, image](cpr::Response r) {
-            brls::Logger::error("net image status code: {}", r.status_code);
-            if (r.status_code != 200 || r.downloaded_bytes == 0 || this->isCancel){
-                brls::Logger::debug("undone pic:{}", r.url.str());
-                this->available = true;
-                this->currentView->ptrUnlock();
-            } else {
-                brls::Logger::debug("load pic:{} size:{}bytes to {}", r.url.str(), r.downloaded_bytes, (size_t)this);
-                brls::Threading::sync([this, r, image](){
-                    brls::Logger::debug("load pic to image {}", (size_t)image);
-                    image->setImageFromMem((unsigned char *) r.text.c_str(),(int) r.downloaded_bytes);
+        image->setImageAsync([this, image](std::function<void(const std::string& , size_t length)> cb){
+            cpr::GetCallback([this, image, cb](cpr::Response r) {
+                brls::Logger::error("net image status code: {} / {}", r.status_code, r.downloaded_bytes);
+                if (r.status_code != 200 || r.downloaded_bytes == 0 || this->isCancel){
+                    brls::Logger::debug("undone pic:{}", r.url.str());
                     this->available = true;
-                    this->currentView->ptrUnlock();
-                });
-            }
-        }, cpr::Url{this->imageUrl},cpr::ProgressCallback([this](cpr::cpr_off_t downloadTotal, cpr::cpr_off_t downloadNow,
-                                                      cpr::cpr_off_t uploadTotal, cpr::cpr_off_t uploadNow, intptr_t userdata) -> bool {
-            if(this->isCancel){
-                return false;
-            }
-            return true;
-        }));
+                } else {
+                    brls::Logger::debug("load pic:{} size:{}bytes to {}", r.url.str(), r.downloaded_bytes, (size_t)this);
+                    brls::Logger::debug("load pic to image1 {}", (size_t)image);
+                    cb(r.text, (size_t)r.downloaded_bytes);
+                    this->available = true;
+                }
+            }, cpr::Url{this->imageUrl},cpr::ProgressCallback([this](cpr::cpr_off_t downloadTotal, cpr::cpr_off_t downloadNow,
+                                                                     cpr::cpr_off_t uploadTotal, cpr::cpr_off_t uploadNow, intptr_t userdata) -> bool {
+                if(this->isCancel){
+                    return false;
+                }
+                return true;
+            }));
+        });
         return this;
     }
 
