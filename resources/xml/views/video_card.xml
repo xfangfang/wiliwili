@@ -18,7 +18,7 @@
         <brls:Box
                 positionBottom="0"
                 positionType="absolute"
-                backgroundColor="#303030A0"
+                background="vertical_linear"
                 paddingLeft="10"
                 paddingRight="10"
                 width="100%"
