@@ -50,7 +50,7 @@ void HomeCinema::onCinemaList(const bilibili::PGCModuleListResult &result, int h
                     auto grid = new RecyclingGrid();
                     grid->setPadding(0, 10, 0, 20);
                     grid->setGrow(1);
-                    if(i.style.compare("double_feed") == 0){
+                    if(i.style.compare("double_feed") == 0 || i.style.compare("follow") == 0){
                         // 封面横图
                         grid->applyXMLAttribute("itemSpace", "20");
                         grid->applyXMLAttribute("spanCount", "4");
