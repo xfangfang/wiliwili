@@ -1,0 +1,16 @@
+<brls:AppletFrame
+        iconInterpolation="linear"
+        headerHidden="true"
+        footerHidden="true">
+    <brls:Box
+            width="100%"
+            height="100%"
+            grow="1"
+            wireframe="false"
+            axis="column">
+    <VideoView
+            id="live/video"
+            width="1280"
+            height="720"/>
+    </brls:Box>
+</brls:AppletFrame>
