@@ -19,15 +19,19 @@ public:
     void setUserInfo(std::string avatar, std::string username, std::string misc){
         this->labelUsername->setText(username);
         this->labeMisc->setText(misc);
-        ImageHelper::with(this)->load(avatar)->into(this->avattarView);
+        ImageHelper::with(this)->load(avatar)->into(this->avatarView);
     }
 
     static brls::View* create(){
         return new UserInfoView();
     }
 
+    brls::Image* getAvatar(){
+        return this->avatarView;
+    }
+
 private:
-    BRLS_BIND(brls::Image, avattarView, "avatar");
+    BRLS_BIND(brls::Image, avatarView, "avatar");
     BRLS_BIND(Label, labelUsername, "username");
     BRLS_BIND(Label, labeMisc, "misc");
 };

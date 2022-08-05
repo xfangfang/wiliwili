@@ -12,6 +12,7 @@
 #include <borealis.hpp>
 #include "bilibili.h"
 #include "view/recycling_grid.hpp"
+#include "view/user_info.hpp"
 
 class VideoComment : public RecyclingGridItem {
 
@@ -24,12 +25,13 @@ public:
 
     void setData(bilibili::VideoCommentResult data);
 
-    void prepareForReuse(){}
+    void prepareForReuse() override;
 
-    void cacheForReuse(){}
+    void cacheForReuse() override;
 
 private:
-     BRLS_BIND(brls::Label, label, "video/comment/label/content");
-     bilibili::VideoCommentResult comment_data;
+    BRLS_BIND(brls::Label, label, "video/comment/label/content");
+    BRLS_BIND(UserInfoView, userInfo, "comment/userinfo");
+    bilibili::VideoCommentResult comment_data;
 
 };

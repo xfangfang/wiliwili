@@ -8,10 +8,11 @@
     <brls:Image
             id="avatar"
             width="auto"
-            height="80%"
+            height="90%"
             scalingType="fit"
             marginLeft="10"
             marginRight="10"
+            cornerRadius="100"
             image="@res/icon/akari.jpg"/>
 
     <brls:Box

@@ -1,6 +1,6 @@
 <brls:Box
         focusable="true"
-        wireframe="true"
+        wireframe="false"
         axis="column"
         width="auto"
         margin="8"
@@ -8,33 +8,21 @@
     <UserInfoView
             id="comment/userinfo"
             width="auto"
-            height="100"/>
+            height="60"/>
     <brls:Box
-            wireframe="true"
+            wireframe="false"
             axis="column"
             grow="1"
             marginLeft="40"
             width="auto"
             height="auto">
-        <brls:Label
+        <TextBox
                 width="auto"
                 height="auto"
-                wireframe="true"
+                grow="1"
+                wireframe="false"
                 id="video/comment/label/content"
                 text="123"/>
-        <brls:Box
-                wireframe="true"
-                axis="row"
-                width="auto"
-                height="20">
-        </brls:Box>
-        <brls:Box
-                wireframe="true"
-                axis="row"
-                grow="1"
-                height="100"
-                width="auto">
-        </brls:Box>
     </brls:Box>
 
 </brls:Box>
