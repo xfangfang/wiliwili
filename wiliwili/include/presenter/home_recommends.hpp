@@ -13,5 +13,5 @@ public:
 
     void requestData(bool refresh = false);
 
-    void requestRecommendVideoList(int index = 1, int num = 24);
+    void requestRecommendVideoList(int index = 1, int num = 30);
 };
