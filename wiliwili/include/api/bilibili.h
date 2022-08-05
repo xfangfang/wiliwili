@@ -8,7 +8,6 @@
 #include "bilibili/api.h"
 #include "bilibili/util/md5.hpp"
 
-#include "bilibili_type.h"
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/video_detail_result.h"
 #include "bilibili/result/home_result.h"
@@ -20,6 +19,7 @@
 #include "bilibili/result/mine_result.h"
 #include "bilibili/result/mine_history_result.h"
 #include "bilibili/result/mine_collection_result.h"
+#include "bilibili/result/home_pgc_season_result.h"
 #include "bilibili/result/search_result.h"
 
 namespace bilibili {
@@ -112,6 +112,16 @@ namespace bilibili {
             static void get_video_url(const std::string& bvid, const int cid, const int qn=64,
                                       const std::function<void(VideoUrlResult)>& callback= nullptr,
                                       const ErrorCallback& error= nullptr);
+
+            /// get season video url by cid
+            static void get_season_url(const int cid, const int qn=64,
+                                       const std::function<void(VideoUrlResult)>& callback= nullptr,
+                                       const ErrorCallback& error= nullptr);
+
+            /// get live video url by roomid
+            static void get_live_url(const int roomid,
+                                       const std::function<void(LiveUrlResultWrapper)>& callback= nullptr,
+                                       const ErrorCallback& error= nullptr);
 
             /// 主页 推荐
             static void get_recommend(const int index=1, const int num=24,

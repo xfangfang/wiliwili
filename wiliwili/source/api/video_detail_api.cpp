@@ -77,4 +77,30 @@ namespace bilibili {
                                              callback, error);
     }
 
+    void BilibiliClient::get_season_detail(const int seasonID,
+                                          const std::function<void(SeasonResultWrapper)>& callback,
+                                          const ErrorCallback& error){
+        HTTP::getResultAsync<SeasonResultWrapper>(Api::SeasonDetail,
+                                                {{"season_id",std::to_string(seasonID)}},
+                                                callback, error);
+    }
+
+
+    void BilibiliClient::get_season_url(const int cid, const int qn,
+                        const std::function<void(VideoUrlResult)>& callback,
+                        const ErrorCallback& error){
+        HTTP::getResultAsync<VideoUrlResult>(Api::SeasonUrl, {
+                                                     {"cid",   std::to_string(cid)},
+                                                     {"qn",    std::to_string(qn)},
+                                                     {"fourk", "1"},
+                                                     {"fnver", "0"}},
+                                             callback, error);
+
+    }
+
+    void BilibiliClient::get_live_url(const int roomid,
+                             const std::function<void(LiveUrlResultWrapper)>& callback,
+                             const ErrorCallback& error){
+        HTTP::getResultAsync<LiveUrlResultWrapper>(Api::LiveUrl, {{"cid", std::to_string(roomid)}}, callback, error);
+    }
 }

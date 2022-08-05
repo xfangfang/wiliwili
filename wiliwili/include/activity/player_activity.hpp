@@ -9,16 +9,20 @@
 
 #include "view/video_comment.hpp"
 #include "view/recycling_grid.hpp"
+#include "view/auto_tab_frame.hpp"
+#include "utils/singleton.hpp"
 
 class VideoView;
 class UserInfoView;
+
+typedef brls::Event<int> ChangeIndexEvent;
 
 class PlayerActivity : public brls::Activity, public VideoDetail
 {
 public:
     CONTENT_FROM_XML_RES("activity/player_activity.xml");
 
-    PlayerActivity(bilibili::Video video);
+    PlayerActivity() = default;
 
     PlayerActivity(std::string bvid);
 
@@ -30,12 +34,13 @@ public:
 
     void onVideoInfo(const bilibili::VideoDetailResult &result) override;
     void onVideoPageListInfo(const bilibili::VideoDetailPageListResult &result) override;
+    void onUploadedVideos(const bilibili::UserUploadedVideoResultWrapper& result) override;
     void onVideoPlayUrl(const bilibili::VideoUrlResult & result) override;
     void onCommentInfo(const bilibili::VideoCommentResultWrapper &result) override;
 
     ~PlayerActivity() override;
 
-private:
+protected:
     BRLS_BIND(VideoView, video, "video/detail/video");
     BRLS_BIND(brls::AppletFrame, appletFrame, "video/detail/frame");
     BRLS_BIND(UserInfoView, videoUserInfo, "video_author");
@@ -43,11 +48,29 @@ private:
     BRLS_BIND(brls::Label, videoIntroLabel, "video_intro");
     BRLS_BIND(brls::Label, videoInfoLabel, "video_info");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "video/comment/recyclingGrid");
+    BRLS_BIND(AutoTabFrame, tabFrame, "player/tab_frame");
 
-
-
-    bilibili::Video video_data;
+    bilibili::VideoDetailResult video_data;
     bool fullscreen = false;
-
     brls::ActionIdentifier videoExitFullscreenID = -1;
+
+    ChangeIndexEvent changePEvent;
+    ChangeIndexEvent changeVideoEvent;
+};
+
+class PlayerSeasonActivity: public PlayerActivity {
+public:
+
+    PlayerSeasonActivity(const u_int seasonID):season(seasonID){
+        brls::Logger::debug("open season: {}", seasonID);
+    }
+
+    void onContentAvailable() override;
+
+    void onSeasonVideoInfo(const bilibili::SeasonResultWrapper& result) override;
+
+    void onSeasonEpisodeInfo(const bilibili::SeasonEpisodeResult& result) override;
+private:
+    u_int season;
+    ChangeIndexEvent changeEpisodeEvent;
 };

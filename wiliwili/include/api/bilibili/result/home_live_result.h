@@ -11,6 +11,25 @@ using namespace std;
 
 namespace bilibili {
 
+
+    class LiveUrlResult{
+    public:
+        std::string url;
+        uint order;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveUrlResult, url, order);
+
+
+    typedef vector<LiveUrlResult> LiveUrlListResult;
+
+    class LiveUrlResultWrapper {
+    public:
+        int current_qn;
+        LiveUrlListResult durl;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveUrlResultWrapper, current_qn);
+
+
     class LiveAreaResult {
     public:
         int id;

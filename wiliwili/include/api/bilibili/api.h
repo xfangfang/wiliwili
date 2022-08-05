@@ -26,12 +26,16 @@ namespace bilibili {
         static const string DetailGRPC = _grpcBase + "/bilibili.app.view.v1.View/View";
         /// 视频详情.
         static const string Detail = _apiBase + "/x/web-interface/view";
+        /// 番剧详情.
+        static const string SeasonDetail = _apiBase + "/pgc/view/pc/season";
         /// 在线观看人数.
         static const string OnlineViewerCount = _appBase + "/x/v2/view/video/online";
         /// 视频播放信息.
         static const string PlayInformation = _apiBase + "/x/player/playurl";
         /// 视频播放地址 TV.
         static const string PlayUrlTV = _apiBase + "/x/tv/card/view_v2";
+        /// 番剧播放地址
+        static const string SeasonUrl = _apiBase + "/pgc/player/web/playurl";
         /// 视频分P列表.
         static const string PlayPageList = _apiBase + "/x/player/pagelist";
         /// 视频播放信息.
@@ -58,6 +62,10 @@ namespace bilibili {
         static const string InteractionEdge = _apiBase + "/x/stein/edgeinfo_v2";
         /// 获取视频参数.
         static const string Stat = _apiBase + "/x/web-interface/archive/stat";
+
+
+        /// 直播API
+        static const string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
 
         /// ===
         /// 主页API

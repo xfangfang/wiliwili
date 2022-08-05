@@ -9,163 +9,144 @@
                 grow="1.0"
                 axis="row">
 
+<!--                页面左侧-->
                 <brls:Box
                         id="video_detail_left_box"
-                        margin="@style/brls/highlight/shadow_offset"
+                        margin="10"
                         width="800"
                         height="auto"
-                        alignItems="center"
-                        wireframe="true"
+                        wireframe="false"
                         axis="column">
 
-                    <VideoView
-                            id="video/detail/video"
-                            width="800"
-                            height="480"/>
+                        <VideoView
+                                id="video/detail/video"
+                                width="800"
+                                height="450"/>
 
-<!--                    视频下方相关信息-->
-
-                    <brls:Box
-                            id="video_detail_info_box"
-                            marginTop="@style/brls/highlight/shadow_offset"
-                            width="100%"
-                            height="auto"
-                            grow="1.0"
-                            axis="row">
+<!--                        视频下方相关信息-->
                         <brls:Box
-                                width="40%"
-                                height="100%"
-                                alignItems="center"
-                                axis="column">
-                            <brls:Box
-                                    id="video_author_box"
-                                    width="100%"
-                                    height="50%"
-                                    focusable="true"
-                                    alignItems="center"
-                                    axis="row">
-
-                                <UserInfoView
-                                        id="video_author"
-                                        margin="2"
-                                        width="80%"
-                                        height="60%"
-                                />
-<!--                            todo: 添加关注按钮-->
-                            </brls:Box>
-                            <brls:Box
-                                    width="100%"
-                                    height="50%"
-                                    alignItems="center"
-                                    axis="row">
-                            </brls:Box>
-<!--                            todo: 添加投币点赞一键等按钮-->
-                        </brls:Box>
-                        <brls:Box
+                                id="video_detail_info_box"
+                                wireframe="false"
                                 width="auto"
-                                height="100%"
+                                height="auto"
                                 grow="1.0"
-                                marginLeft="@style/brls/highlight/shadow_offset"
-                                alignItems="center"
                                 axis="column">
-                            <brls:Label
-                                    id="video_title"
-                                    singleLine="true"
-                                    width="100%"
-                                    height="30%"
-                                    horizontalAlign="left"
-                                    marginBottom="@style/brls/highlight/shadow_offset"
-                                    focusable="true"
-                                    fontSize="18"
-                                    text="title" />
-                            <brls:Label
-                                    id="video_intro"
-                                    width="100%"
-                                    height="50%"
-                                    grow="1.0"
-                                    verticalAlign="top"
-                                    horizontalAlign="left"
-                                    focusable="true"
-                                    fontSize="10"
-                                    autoAnimate="false"
-                                    text="introduction" />
-                            <brls:Box
-                                    width="100%"
-                                    height="20%"
-                                    alignItems="center"
-                                    axis="column">
-                                <brls:Label
-                                        id="video_info"
-                                        singleLine="true"
-                                        width="auto"
-                                        height="auto"
-                                        horizontalAlign="center"
-                                        fontSize="10"
-                                        text="2022-01-01 20:00" />
-                            </brls:Box>
-                        </brls:Box>
-                    </brls:Box>
 
+<!--                                视频标题-->
+                                <brls:Label
+                                        id="video_title"
+                                        wireframe="false"
+                                        width="auto"
+                                        margin="10"
+                                        focusable="true"
+                                        fontSize="24"
+                                        text="title"
+                                        lineColor="#D0D0D0"
+                                        lineBottom="1"
+                                        singleLine="true"/>
+
+                                <brls:Box
+                                        id="video_detail_info_box"
+                                        wireframe="false"
+                                        width="100%"
+                                        height="auto"
+                                        grow="1.0"
+                                        axis="row">
+                                        <brls:Box
+                                                width="50%"
+                                                grow="1.0"
+                                                alignItems="center"
+                                                axis="column">
+                                            <brls:Box
+                                                    id="video_author_box"
+                                                    width="100%"
+                                                    height="50%"
+                                                    focusable="true"
+                                                    alignItems="center"
+                                                    axis="row">
+
+                                                <UserInfoView
+                                                        wireframe="false"
+                                                        id="video_author"
+                                                        width="50%"
+                                                        height="100%"/>
+                                            </brls:Box>
+                    <!--                            todo: 添加投币点赞一键等按钮-->
+                                        </brls:Box>
+
+                                        <brls:Box
+                                                width="auto"
+                                                height="50%"
+                                                grow="1.0"
+                                                marginLeft="@style/brls/highlight/shadow_offset"
+                                                alignItems="center"
+                                                axis="column">
+                                            <TextBox
+                                                    id="video_intro"
+                                                    width="100%"
+                                                    height="50%"
+                                                    grow="1.0"
+                                                    verticalAlign="top"
+                                                    horizontalAlign="left"
+                                                    focusable="true"
+                                                    fontSize="10"
+                                                    autoAnimate="false"
+                                                    text="introduction" />
+                                            <brls:Box
+                                                    width="100%"
+                                                    height="20%"
+                                                    alignItems="center"
+                                                    axis="column">
+                                                <brls:Label
+                                                        id="video_info"
+                                                        singleLine="true"
+                                                        width="auto"
+                                                        height="auto"
+                                                        horizontalAlign="center"
+                                                        fontSize="10"
+                                                        text="2022-01-01 20:00" />
+                                            </brls:Box>
+                                        </brls:Box>
+                                </brls:Box>
+                        </brls:Box>
 
                 </brls:Box>
 
-<!--                视频右侧评论信息-->
+<!--                页面右侧-->
+                <brls:Box
+                        id="video_detail_right_box"
+                        width="auto"
+                        height="auto"
+                        grow="1.0"
+                        axis="column">
+                    <AutoTabFrame
+                            id="player/tab_frame"
+                            grow="1"
+                            width="100%"
+                            height="100%"
+                            tabBackgroundColor="@theme/color/grey_1"
+                            defaultTab="0"
+                            sidebarPosition="top">
 
-            <brls:Box
-                    id="video_detail_right_box"
-                    width="auto"
-                    height="auto"
-                    grow="1.0"
-                    axis="column">
-                <AutoTabFrame
-                        grow="1"
-                        width="100%"
-                        height="100%"
-                        tabBackgroundColor="@theme/color/grey_1"
-                        defaultTab="0"
-                        sidebarPosition="top">
+                        <Tab label="评论"
+                             fontSize="18">
+                            <brls:Box
+                                    width="100%"
+                                    grow="1">
+                                <RecyclingGrid
+                                        id="video/comment/recyclingGrid"
+                                        paddingLeft="20"
+                                        paddingRight="20"
+                                        grow="1"
+                                        spanCount="1"
+                                        itemHeight="250"
+                                        wireframe="false"/>
+                            </brls:Box>
+                        </Tab>
+                    </AutoTabFrame>
 
-                    <Tab label="评论"
-                         fontSize="18">
-                        <brls:Box
-                                width="100%"
-                                grow="1">
-                            <RecyclingGrid
-                                    id="video/comment/recyclingGrid"
-                                    paddingLeft="20"
-                                    paddingRight="20"
-                                    grow="1"
-                                    spanCount="1"
-                                    itemHeight="250"
-                                    wireframe="true"/>
-                        </brls:Box>
-                    </Tab>
-
-                    <Tab label="推荐"
-                         fontSize="18">
-                        <brls:Box
-                                grow="1">
-                                <brls:Button
-                                        id="video/detail/button/start"
-                                        width="33%"
-                                        height="auto"
-                                        style="highlight"
-                                        text="Start"
-                                        margin="30"
-                                        marginTop="100"/>
-
-                                <brls:Button
-                                        id="video/detail/button/start2"
-                                        width="33%"
-                                        height="auto"
-                                        style="highlight"
-                                        text="Start2"
-                                        margin="30" />
-                        </brls:Box>
-                    </Tab>
-                </AutoTabFrame>
-
-            </brls:Box>
+                </brls:Box>
 
         </brls:Box>
+
 </brls:AppletFrame>

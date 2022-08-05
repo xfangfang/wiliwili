@@ -11,6 +11,18 @@ using namespace std;
 
 namespace bilibili {
 
+    class VideoDetailPage {
+    public:
+        int cid;
+        int page; // 分p的序号
+        int duration; // 视频长度，单位秒
+        string part; //标题
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailPage, cid, page, duration, part);
+
+    typedef std::vector<VideoDetailPage> VideoDetailPageListResult;
+
+
     class VideoDetailResult {
     public:
         string bvid;
@@ -26,22 +38,9 @@ namespace bilibili {
         int ctime; //修改时间？
         int duration;//时长
         UserSimpleResult owner;
-
+        VideoDetailPageListResult pages;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailResult, bvid, aid, videos, owner, title, pic, desc, pubdate);
-
-
-    class VideoDetailPage {
-    public:
-        int cid;
-        int page; // 分p的序号
-        int duration; // 视频长度，单位秒
-        string part; //标题
-    };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailPage, cid, page, duration, part);
-
-
-    typedef std::vector<VideoDetailPage> VideoDetailPageListResult;
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailResult, bvid, aid, videos, owner, title, pic, desc, pubdate, pages);
 
 
     class VideoDUrl {

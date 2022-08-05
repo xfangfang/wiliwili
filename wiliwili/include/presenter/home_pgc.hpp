@@ -7,6 +7,7 @@
 #include "bilibili/result/home_pgc_result.h"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
+#include "activity/player_activity.hpp"
 
 class HomeBangumiRequest {
 public:
@@ -61,7 +62,7 @@ public:
     }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override{
-
+        brls::Application::pushActivity(new PlayerSeasonActivity(videoList[index].season_id));
     }
 
     void appendData(const bilibili::PGCItemListResult& data){
