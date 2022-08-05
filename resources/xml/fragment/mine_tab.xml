@@ -9,7 +9,7 @@
     <brls:Box
             id="user_home/goto_userspace"
             height="150"
-            backgroundColor="#2F3134"
+            backgroundColor="@theme/color/grey_1"
             focusable="true"
             hideHighlightBackground="true"
             margin="40">

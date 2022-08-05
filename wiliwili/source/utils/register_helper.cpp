@@ -70,6 +70,14 @@ void Register::initCustomTheme(){
     brls::getLightTheme().addColor("color/grey_2", nvgRGB(245, 245, 245));
     brls::getDarkTheme().addColor("color/grey_2", nvgRGB(51,53,55));
 
+    // 粉色文字，bilibili主题色
+    brls::getLightTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));
+    brls::getDarkTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));
+
+    // 粉色背景，用于扁平TabBar背景色
+    brls::getLightTheme().addColor("color/pink_1", nvgRGB(252, 237, 241));
+    brls::getDarkTheme().addColor("color/pink_1", nvgRGB(44,27,34));
+
     brls::getLightTheme().addColor("captioned_image/caption", nvgRGB(2, 176, 183));
     brls::getDarkTheme().addColor("captioned_image/caption", nvgRGB(51, 186, 227));
 }

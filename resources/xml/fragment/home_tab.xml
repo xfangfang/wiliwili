@@ -5,6 +5,7 @@
             defaultTab="1"
             tabHeight="65"
             tabFontSize="16"
+            tabItemActiveTextColor="@theme/color/bilibili"
             sidebarPosition="top">
 
         <Tab label="直播"

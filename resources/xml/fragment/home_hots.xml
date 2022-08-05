@@ -9,6 +9,9 @@
             grow="1"
             defaultTab="0"
             tabHeight="50"
+            tabItemDefaultBackgroundColor="@theme/color/grey_1"
+            tabItemActiveBackgroundColor="@theme/color/pink_1"
+            tabItemActiveTextColor="@theme/color/bilibili"
             sidebarPosition="top">
         <Tab label="综合热门"
              style="plain"
