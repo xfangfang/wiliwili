@@ -40,8 +40,8 @@ public:
     BRLS_BIND(brls::Label, title, "brls/rediocell/title");
     BRLS_BIND(brls::CheckBox, checkbox, "brls/rediocell/checkbox");
 
-    static View* create() {
-        return new brls::RadioCell();
+    static RecyclingGridItem* create() {
+        return new GridRadioCell();
     }
 
 private:
