@@ -7,16 +7,20 @@
 #include "utils/config_helper.hpp"
 
 
-ProgramConfig ConfigHelper::programConfig = ConfigHelper::readProgramConf();
-
 ProgramConfig::ProgramConfig(){
     for(auto item: COOKIE_LIST){
         this->cookie[item] = "";
     }
 }
-ProgramConfig::ProgramConfig(ProgramConfig& config){
-    this->cookie = config.getCookie();
+
+ProgramConfig::ProgramConfig(const ProgramConfig& conf){
+    this->cookie = conf.cookie;
 }
+
+void ProgramConfig::setProgramConfig(const ProgramConfig& conf){
+    this->cookie = conf.cookie;
+}
+
 void ProgramConfig::setCookie(Cookie data){
     this->cookie = data;
 }
@@ -41,11 +45,11 @@ ProgramConfig ConfigHelper::readProgramConf(){
     return config;
 }
 
-void ConfigHelper::saveProgramConf(ProgramConfig conf){
+void ConfigHelper::saveProgramConf(){
     const std::string path = ConfigHelper::getConfigDir()+"/wiliwili_config.json";
-    printf("config path: %s", path.c_str());
+    printf("config path: %s\n", path.c_str());
     std::filesystem::create_directories(ConfigHelper::getConfigDir());
-    nlohmann::json content(conf);
+    nlohmann::json content(ProgramConfig::instance());
     std::ofstream writeFile(path);
     if(!writeFile) return;
     writeFile << content.dump(2);
@@ -61,14 +65,15 @@ std::string ConfigHelper::getConfigDir(){
 }
 
 void ConfigHelper::init(){
-    Cookie cookie = ConfigHelper::programConfig.getCookie();
+    ProgramConfig::instance().setProgramConfig(ConfigHelper::readProgramConf());
+    Cookie cookie = ProgramConfig::instance().getCookie();
     for(auto c : cookie){
         brls::Logger::error("cookie: {}:{}", c.first, c.second);
     }
     // set bilibili cookie and cookie update callback
     bilibili::BilibiliClient::init(cookie,[](Cookie newCookie){
-        ProgramConfig config;
-        config.setCookie(newCookie);
-        ConfigHelper::saveProgramConf(config);
+        brls::Logger::error("======== write cookies to disk");
+        ProgramConfig::instance().setCookie(newCookie);
+        ConfigHelper::saveProgramConf();
     });
 }

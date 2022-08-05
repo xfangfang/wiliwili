@@ -11,6 +11,7 @@
 #include <nlohmann/json.hpp>
 #include <filesystem>
 #include <cpr/cpr.h>
+#include "utils/singleton.hpp"
 
 #ifdef __SWITCH__
 #define THREAD_POOL_MAX_THREAD_NUM 2
@@ -20,10 +21,11 @@
 
 typedef std::map<std::string, std::string> Cookie;
 
-class ProgramConfig {
+class ProgramConfig: public Singleton<ProgramConfig>{
 public:
     ProgramConfig();
-    ProgramConfig(ProgramConfig& config);
+    ProgramConfig(const ProgramConfig& config);
+    void setProgramConfig(const ProgramConfig& conf);
     void setCookie(Cookie data);
     Cookie getCookie();
     Cookie cookie;
@@ -35,10 +37,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProgramConfig, cookie);
 
 class ConfigHelper {
 public:
-    static ProgramConfig programConfig;
     static ProgramConfig readProgramConf();
 
-    static void saveProgramConf(ProgramConfig conf);
+    static void saveProgramConf();
 
     static std::string getConfigDir();
 
