@@ -55,6 +55,8 @@ public:
 
     void setLabel(std::string label);
 
+    std::string getLabel();
+
     void setActive(bool active);
 
     bool isActive();
@@ -67,6 +69,10 @@ public:
 
     View* getAttachedView();
 
+    View* createAttachedView();
+
+    View* getView(std::string id) override;
+
     void setAttachedViewCreator(TabViewCreator creator);
 
     ~AutoSidebarItem();
@@ -76,6 +82,26 @@ public:
     static AutoTabBarStyle getTabStyle(std::string value);
 
     void setTabStyle(AutoTabBarStyle style);
+
+    void setDefaultBackgroundColor(NVGcolor c){
+        tabItemBackgroundColor = c;
+        this->setBackgroundColor(this->tabItemBackgroundColor);
+    }
+
+    void setActiveBackgroundColor(NVGcolor c){
+        tabItemActiveBackgroundColor = c;
+        if(this->isActive()){
+            this->setBackgroundColor(this->tabItemActiveBackgroundColor);
+        }
+    }
+
+    void setActiveTextColor(NVGcolor c){
+        tabItemActiveTextColor = c;
+        this->accent->setColor(c);
+        if(this->isActive()){
+            this->label->setTextColor(c);
+        }
+    }
 
 private:
     BRLS_BIND(brls::Rectangle, accent, "autoSidebar/item_accent");
@@ -88,6 +114,10 @@ private:
     AutoSidebarItemGroup* group;
 
     AutoTabBarStyle tabStyle = AutoTabBarStyle::NONE;
+
+    NVGcolor tabItemBackgroundColor = nvgRGBA(0, 0, 0, 0);
+    NVGcolor tabItemActiveBackgroundColor = nvgRGBA(0, 0, 0, 0);
+    NVGcolor tabItemActiveTextColor = brls::Application::getTheme()["brls/text"];
 
     bool active = false;
     View* attachedView = nullptr;
@@ -102,6 +132,7 @@ public:
     void add(AutoSidebarItem* item);
     void setActive(AutoSidebarItem* item);
     void clear();
+    void removeView(AutoSidebarItem* view);
     int getActiveIndex();
 
 private:
@@ -134,6 +165,8 @@ public:
     void addTab(AutoSidebarItem* tab, TabViewCreator creator);
     void focusTab(int position);
     void clearTabs();
+    void clearTab(const std::string& name, bool onlyFirst=true);
+    bool isHaveTab(const std::string& name);
     static brls::View* create();
     ~AutoTabFrame();
 
@@ -144,6 +177,36 @@ public:
     size_t getDefaultTabIndex();
 
     brls::View* getNextFocus(brls::FocusDirection direction, brls::View* currentView) override;
+
+    void setDefaultBackgroundColor(NVGcolor c){
+        tabItemBackgroundColor = c;
+        for(auto i: sidebar->getChildren()){
+            AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
+            if(item){
+                item->setDefaultBackgroundColor(c);
+            }
+        }
+    }
+
+    void setActiveBackgroundColor(NVGcolor c){
+        tabItemActiveBackgroundColor = c;
+        for(auto i: sidebar->getChildren()){
+            AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
+            if(item){
+                item->setActiveBackgroundColor(c);
+            }
+        }
+    }
+
+    void setActiveTextColor(NVGcolor c){
+        tabItemActiveTextColor = c;
+        for(auto i: sidebar->getChildren()){
+            AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
+            if(item){
+                item->setActiveTextColor(c);
+            }
+        }
+    }
 
     void setFontSize(float size);
 
@@ -182,6 +245,10 @@ private:
     AutoSidebarItemGroup group;
     bool isHorizontal = false;
     float itemFontSize = 22;
+
+    NVGcolor tabItemBackgroundColor = nvgRGBA(0, 0, 0, 0);
+    NVGcolor tabItemActiveBackgroundColor = nvgRGBA(0, 0, 0, 0);
+    NVGcolor tabItemActiveTextColor = brls::Application::getTheme()["brls/text"];
 
     /**
      * Setting the position of sidebar.

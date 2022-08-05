@@ -70,6 +70,18 @@ AutoTabFrame::AutoTabFrame() {
         this->sidebar->setBackgroundColor(value);
     });
 
+    this->registerColorXMLAttribute("tabItemDefaultBackgroundColor", [this](NVGcolor value){
+        this->setDefaultBackgroundColor(value);
+    });
+
+    this->registerColorXMLAttribute("tabItemActiveBackgroundColor", [this](NVGcolor value){
+        this->setActiveBackgroundColor(value);
+    });
+
+    this->registerColorXMLAttribute("tabItemActiveTextColor", [this](NVGcolor value){
+        this->setActiveTextColor(value);
+    });
+
     // defaultTab: default is 0
     this->registerFloatXMLAttribute("defaultTab", [this](float value){
         this->setDefaultTabIndex(value);
@@ -115,6 +127,9 @@ void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator){
 
         // Add the new tab
         View* newContent = sidebarItem->getAttachedView();
+        if(!newContent){
+            newContent = sidebarItem->createAttachedView();
+        }
 
         this->setTabAttachedView(newContent);
 
@@ -134,7 +149,11 @@ void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator){
     if(this->sidebar->getChildren().size() - 1 == this->getDefaultTabIndex() ){
         AutoSidebarItem* item = (AutoSidebarItem*)this->sidebar->getChildren()[this->getDefaultTabIndex()];
         item->setActive(true);
-        this->setTabAttachedView(item->getAttachedView());
+        View* newContent = item->getAttachedView();
+        if(!newContent){
+            newContent = item->createAttachedView();
+        }
+        this->setTabAttachedView(newContent);
     }
 }
 
@@ -173,6 +192,35 @@ void AutoTabFrame::clearTabs()
     this->clearItems();
 }
 
+void AutoTabFrame::clearTab(const std::string& name, bool onlyFirst)
+{
+    for (auto i : this->sidebar->getChildren()) {
+        AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
+        if(item && (item->getLabel() == name)){
+
+            this->sidebar->removeView(item, true);
+            this->group.removeView(item);
+
+            // maybe something wrong will happen ?
+            if(item->isFocused())
+                this->setLastFocusedView(nullptr);
+
+            if(onlyFirst)
+                break;
+        }
+    }
+}
+
+bool AutoTabFrame::isHaveTab(const std::string& name)
+{
+    for (auto i : this->sidebar->getChildren()) {
+        AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
+        if(item && (item->getLabel() == name))
+            return true;
+    }
+    return false;
+}
+
 void AutoTabFrame::handleXMLElement(tinyxml2::XMLElement* element)
 {
     std::string name = element->Name();
@@ -193,6 +241,9 @@ void AutoTabFrame::handleXMLElement(tinyxml2::XMLElement* element)
         AutoSidebarItem* item = new AutoSidebarItem();
         item->applyXMLAttribute("style", tabStyle);
         item->applyXMLAttributes(element);
+        item->setDefaultBackgroundColor(this->tabItemBackgroundColor);
+        item->setActiveBackgroundColor(this->tabItemActiveBackgroundColor);
+        item->setActiveTextColor(this->tabItemActiveTextColor);
 
         tinyxml2::XMLElement* viewElement = element->FirstChildElement();
 
@@ -407,7 +458,6 @@ const std::string autoSidebarItemXML = R"xml(
             width="@style/brls/sidebar/item_accent_rect_width"
             height="auto"
             visibility="invisible"
-            color="#FF6699"
             marginTop="@style/brls/sidebar/item_accent_margin_top_bottom"
             marginBottom="@style/brls/sidebar/item_accent_margin_top_bottom"
             marginLeft="@style/brls/sidebar/item_accent_margin_sides"
@@ -418,7 +468,6 @@ const std::string autoSidebarItemXML = R"xml(
 
 const std::string autoSidebarItemPlainXML = R"xml(
     <brls:Box
-        backgroundColor="#29191F40"
         highlightCornerRadius="8"
         cornerRadius="4"
         hideHighlightBackground="true"
@@ -565,10 +614,10 @@ void AutoSidebarItem::setActive(bool active)
         if(this->tabStyle == AutoTabBarStyle::ACCENT)
             this->accent->setVisibility(brls::Visibility::VISIBLE);
         else if(this->tabStyle == AutoTabBarStyle::PLAIN){
-            this->setBackgroundColor(nvgRGBA(252, 237, 241, 255));
+            this->setBackgroundColor(this->tabItemActiveBackgroundColor);
         }
 
-        this->label->setTextColor(nvgRGB(255, 102, 153));
+        this->label->setTextColor(this->tabItemActiveTextColor);
 
         if(this->icon->getVisibility() == brls::Visibility::VISIBLE){
             if(!this->iconActivate.empty())
@@ -582,7 +631,7 @@ void AutoSidebarItem::setActive(bool active)
         if(this->tabStyle == AutoTabBarStyle::ACCENT)
             this->accent->setVisibility(brls::Visibility::INVISIBLE);
         else if(this->tabStyle == AutoTabBarStyle::PLAIN){
-            this->setBackgroundColor(nvgRGBA(41, 25, 31, 64));
+            this->setBackgroundColor(this->tabItemBackgroundColor);
         }
         this->label->setTextColor(theme["brls/text"]);
 
@@ -633,7 +682,16 @@ void AutoSidebarItem::setLabel(std::string label)
     this->label->setText(label);
 }
 
+std::string AutoSidebarItem::getLabel()
+{
+    return this->label->getFullText();
+}
+
 brls::View* AutoSidebarItem::AutoSidebarItem::getAttachedView(){
+    return this->attachedView;
+}
+
+brls::View* AutoSidebarItem::createAttachedView(){
     if(!this->attachedView && this->attachedViewCreator){
         this->attachedView = this->attachedViewCreator();
         AttachedView* v = dynamic_cast<AttachedView*>(this->attachedView);
@@ -642,7 +700,22 @@ brls::View* AutoSidebarItem::AutoSidebarItem::getAttachedView(){
             v->onCreate();
         }
     }
+    if(!this->attachedView){
+        brls::fatal("AutoSidebarItem create attached View error");
+    }
     return this->attachedView;
+}
+
+View* AutoSidebarItem::getView(std::string id){
+    View* v = Box::getView(id);
+    if(v)
+        return v;
+    if(this->attachedView){
+        View* result = this->attachedView->getView(id);
+        if(result)
+            return result;
+    }
+    return nullptr;
 }
 
 void AutoSidebarItem::setFontSize(float size){
@@ -729,6 +802,16 @@ void AutoSidebarItemGroup::setActive(AutoSidebarItem* active)
 void AutoSidebarItemGroup::clear()
 {
     this->items.clear();
+}
+
+void AutoSidebarItemGroup::removeView(AutoSidebarItem* view){
+    for(auto it=this->items.begin(); it!=this->items.end(); it++){
+        if(*it == view){
+            this->items.erase(it);
+            break;
+        }
+    }
+
 }
 
 int AutoSidebarItemGroup::getActiveIndex(){
