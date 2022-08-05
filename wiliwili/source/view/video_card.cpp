@@ -243,3 +243,81 @@ void RecyclingGridItemPGCVideoCard::cacheForReuse(){
 RecyclingGridItemPGCVideoCard* RecyclingGridItemPGCVideoCard::create(bool vertical_cover){
     return new RecyclingGridItemPGCVideoCard(vertical_cover);
 }
+
+
+/// 历史记录 视频卡片
+
+RecyclingGridItemHistoryVideoCard::RecyclingGridItemHistoryVideoCard(){
+    this->inflateFromXMLRes("xml/views/video_card_history.xml");
+}
+
+RecyclingGridItemHistoryVideoCard::~RecyclingGridItemHistoryVideoCard() {
+    // 优先清空正在进行的图片请求
+    ImageHelper::clear(this->picture);
+}
+
+void RecyclingGridItemHistoryVideoCard::prepareForReuse(){
+    //准备显示该项
+}
+
+void RecyclingGridItemHistoryVideoCard::cacheForReuse(){
+    //准备回收该项
+    ImageHelper::clear(this->picture);
+}
+
+RecyclingGridItemHistoryVideoCard* RecyclingGridItemHistoryVideoCard::create(){
+    return new RecyclingGridItemHistoryVideoCard();
+}
+
+void RecyclingGridItemHistoryVideoCard::setCard(std::string pic, std::string title, std::string username,
+                                                std::string leftBottomBadge, std::string rightBottomBadge,
+                                                std::string rightTopBadge){
+    this->labelUsername->setText(username);
+    this->labelTitle->setIsWrapping(true);
+    this->labelTitle->setText(title);
+    ImageHelper::with(this)->load(pic)->into(this->picture);
+    this->labelCount->setText(leftBottomBadge);
+    this->labelDuration->setText(rightBottomBadge);
+    this->labelRightTop->setText(rightTopBadge);
+}
+
+
+/// 收藏夹 卡片
+
+RecyclingGridItemCollectionVideoCard::RecyclingGridItemCollectionVideoCard(){
+    this->inflateFromXMLRes("xml/views/video_card_collection.xml");
+}
+
+RecyclingGridItemCollectionVideoCard::~RecyclingGridItemCollectionVideoCard() {
+    // 优先清空正在进行的图片请求
+    ImageHelper::clear(this->picture);
+}
+
+void RecyclingGridItemCollectionVideoCard::prepareForReuse(){
+    //准备显示该项
+}
+
+void RecyclingGridItemCollectionVideoCard::cacheForReuse(){
+    //准备回收该项
+    ImageHelper::clear(this->picture);
+}
+
+RecyclingGridItemCollectionVideoCard* RecyclingGridItemCollectionVideoCard::create(){
+    return new RecyclingGridItemCollectionVideoCard();
+}
+
+void RecyclingGridItemCollectionVideoCard::setCard(std::string pic, std::string title, std::string username,
+                                                std::string leftBottomBadge, std::string rightBottomBadge){
+    this->labelUsername->setText(username);
+    this->labelTitle->setIsWrapping(true);
+    this->labelTitle->setText(title);
+    if(pic.empty()){
+        brls::sync([this](){
+            this->picture->setImageFromRes("pictures/playlistbg.png");
+        });
+    } else{
+        ImageHelper::with(this)->load(pic)->into(this->picture);
+    }
+    this->labelCount->setText(leftBottomBadge);
+    this->labelDuration->setText(rightBottomBadge);
+}
