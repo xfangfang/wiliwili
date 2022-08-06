@@ -71,15 +71,15 @@ AutoTabFrame::AutoTabFrame() {
     });
 
     this->registerColorXMLAttribute("tabItemDefaultBackgroundColor", [this](NVGcolor value){
-        this->setDefaultBackgroundColor(value);
+        this->setItemDefaultBackgroundColor(value);
     });
 
     this->registerColorXMLAttribute("tabItemActiveBackgroundColor", [this](NVGcolor value){
-        this->setActiveBackgroundColor(value);
+        this->setItemActiveBackgroundColor(value);
     });
 
     this->registerColorXMLAttribute("tabItemActiveTextColor", [this](NVGcolor value){
-        this->setActiveTextColor(value);
+        this->setItemActiveTextColor(value);
     });
 
     // defaultTab: default is 0
@@ -118,6 +118,11 @@ void AutoTabFrame::setSideBarPosition(AutoTabBarPosition position){
 }
 
 void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator){
+
+    tab->setDefaultBackgroundColor(this->tabItemBackgroundColor);
+    tab->setActiveBackgroundColor(this->tabItemActiveBackgroundColor);
+    tab->setActiveTextColor(this->tabItemActiveTextColor);
+
     this->addItem(tab, creator, [this](brls::View* view) {
         AutoSidebarItem* sidebarItem = (AutoSidebarItem*) view;
 
@@ -241,9 +246,6 @@ void AutoTabFrame::handleXMLElement(tinyxml2::XMLElement* element)
         AutoSidebarItem* item = new AutoSidebarItem();
         item->applyXMLAttribute("style", tabStyle);
         item->applyXMLAttributes(element);
-        item->setDefaultBackgroundColor(this->tabItemBackgroundColor);
-        item->setActiveBackgroundColor(this->tabItemActiveBackgroundColor);
-        item->setActiveTextColor(this->tabItemActiveTextColor);
 
         tinyxml2::XMLElement* viewElement = element->FirstChildElement();
 
@@ -410,6 +412,36 @@ void AutoTabFrame::willAppear(bool resetState) {
 void AutoTabFrame::willDisappear(bool resetState){
     this->isOnTop = false;
     Box::willDisappear(resetState);
+}
+
+void AutoTabFrame::setItemDefaultBackgroundColor(NVGcolor c){
+    tabItemBackgroundColor = c;
+    for(auto i: sidebar->getChildren()){
+        AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
+        if(item){
+            item->setDefaultBackgroundColor(c);
+        }
+    }
+}
+
+void AutoTabFrame::setItemActiveBackgroundColor(NVGcolor c){
+    tabItemActiveBackgroundColor = c;
+    for(auto i: sidebar->getChildren()){
+        AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
+        if(item){
+            item->setActiveBackgroundColor(c);
+        }
+    }
+}
+
+void AutoTabFrame::setItemActiveTextColor(NVGcolor c){
+    tabItemActiveTextColor = c;
+    for(auto i: sidebar->getChildren()){
+        AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
+        if(item){
+            item->setActiveTextColor(c);
+        }
+    }
 }
 
 /**
@@ -777,6 +809,26 @@ AutoTabBarStyle AutoSidebarItem::getTabStyle(std::string value) {
     return enumMap[value];
     else
         fatal("Illegal value \"" + value + "\" for AutoSidebarItem attribute \"style\"");
+}
+
+void AutoSidebarItem::setDefaultBackgroundColor(NVGcolor c){
+    tabItemBackgroundColor = c;
+    this->setBackgroundColor(this->tabItemBackgroundColor);
+}
+
+void AutoSidebarItem::setActiveBackgroundColor(NVGcolor c){
+    tabItemActiveBackgroundColor = c;
+    if(this->isActive()){
+        this->setBackgroundColor(this->tabItemActiveBackgroundColor);
+    }
+}
+
+void AutoSidebarItem::setActiveTextColor(NVGcolor c){
+    tabItemActiveTextColor = c;
+    this->accent->setColor(c);
+    if(this->isActive()){
+        this->label->setTextColor(c);
+    }
 }
 
 /**

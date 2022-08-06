@@ -83,25 +83,11 @@ public:
 
     void setTabStyle(AutoTabBarStyle style);
 
-    void setDefaultBackgroundColor(NVGcolor c){
-        tabItemBackgroundColor = c;
-        this->setBackgroundColor(this->tabItemBackgroundColor);
-    }
+    void setDefaultBackgroundColor(NVGcolor c);
 
-    void setActiveBackgroundColor(NVGcolor c){
-        tabItemActiveBackgroundColor = c;
-        if(this->isActive()){
-            this->setBackgroundColor(this->tabItemActiveBackgroundColor);
-        }
-    }
+    void setActiveBackgroundColor(NVGcolor c);
 
-    void setActiveTextColor(NVGcolor c){
-        tabItemActiveTextColor = c;
-        this->accent->setColor(c);
-        if(this->isActive()){
-            this->label->setTextColor(c);
-        }
-    }
+    void setActiveTextColor(NVGcolor c);
 
 private:
     BRLS_BIND(brls::Rectangle, accent, "autoSidebar/item_accent");
@@ -178,35 +164,11 @@ public:
 
     brls::View* getNextFocus(brls::FocusDirection direction, brls::View* currentView) override;
 
-    void setDefaultBackgroundColor(NVGcolor c){
-        tabItemBackgroundColor = c;
-        for(auto i: sidebar->getChildren()){
-            AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
-            if(item){
-                item->setDefaultBackgroundColor(c);
-            }
-        }
-    }
+    void setItemDefaultBackgroundColor(NVGcolor c);
 
-    void setActiveBackgroundColor(NVGcolor c){
-        tabItemActiveBackgroundColor = c;
-        for(auto i: sidebar->getChildren()){
-            AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
-            if(item){
-                item->setActiveBackgroundColor(c);
-            }
-        }
-    }
+    void setItemActiveBackgroundColor(NVGcolor c);
 
-    void setActiveTextColor(NVGcolor c){
-        tabItemActiveTextColor = c;
-        for(auto i: sidebar->getChildren()){
-            AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
-            if(item){
-                item->setActiveTextColor(c);
-            }
-        }
-    }
+    void setItemActiveTextColor(NVGcolor c);
 
     void setFontSize(float size);
 
