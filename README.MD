@@ -1,147 +1,71 @@
+‼️：仅在最新 `大气层` + 最新 `固件` + `FAT32` 内存卡测试，其他组合出现的问题不进行处理。
+
+<br>
+
 # wiliwili
 
-a third party bilibili client for Linux & Nintendo Switch.
+一个第三方 Nintendo Switch [B站](https://www.bilibili.com)客户端
 
-# Usage
+<img src="resources/icon/bilibili.png" alt="icon" height="64" width="64" align="left">
 
-for Nentendo Switch: copy the wiliwili.nro to sdmc://switch folder.
-
-for Linux: unzip the wiliwili.zip and run wiliwili
-
-# Development (under ubuntu20.04)
-
-recommand using vscode with cmake tools
-
-```
-git clone --recursive https://github.com/xfangfang/wiliwili.git
-# or
-git clone https://github.com/xfangfang/wiliwili.git
-cd wiliwili
-git submodule update --init --recursive
-```
-
-## linux
-
-### 1. install dependency
-
-```
-# for internet connection
-sudo apt install libcurl4-openssl-dev
-# for borealis
-sudo apt install libglfw3-dev libglm-dev
-# for mpv
-sudo apt install libmpv-dev
-# for building
-sudo apt install cmake zip git g++
-```
-
-### 2. build wiliwili
-
-```
-mkdir -p linux_build && cd linux_build
-rm -rf ./* && cmake -DPLATFORM_LINUX:BOOL=TRUE ..
-make -j4
-```
+wiliwlili 拥有非常接近官方PC客户端的B站浏览体验，  
+同时支持触屏与手柄按键操控，  
+让你的switch瞬间变身机顶盒与掌上平板。
+<br>
+<br>
 
 
-## switch
+# 支持特性
 
-### 1. install devkitpro
+播放页：视频 番剧 影视 综艺  
+个人页：扫码登录 历史记录 个人收藏  
+搜索页：视频 番剧 影视  
+直播页：不是十分稳定的支持  
+首页推荐：完美复制原版pc端布局  
 
-```
-wget https://github.com/devkitPro/pacman/releases/download/v1.0.2/devkitpro-pacman.amd64.deb
-sudo apt-get install gdebi-core
-sudo gdebi devkitpro-pacman.amd64.deb
-sudo dkp-pacman -S switch-dev switch-glfw switch-mesa switch-glm switch-portlibs switch-glad switch-libvpx
-cat >> ~/.bashrc <<-EOF
+<br>
 
-# devkitpro
-export DEVKITPRO=/opt/devkitpro
-export PATH=\$PATH:\$DEVKITPRO/tools/bin:\$DEVKITPRO/devkitA64/bin
-EOF
-source ~/.bashrc
-```
+# 安装流程
 
-### 2. building switch ffmpeg library (optional)
+1. 将wiliwli.nro放置在内存卡路径： switch/wiliwili.nro 
+2. 在主页 `按住` R键打开任意游戏进入HBMenu，在列表中选择wiliwili点击打开即可。
+3. [可选] 提供了NSP Forwarder （桌面图标）使用说明见下载压缩包内
 
-```
-sudo dkp-pacman -S devkitpro-pkgbuild-helpers
-sudo apt install iat dist simh coreutils vit at bacula-console-qt atfs vim-addon-manager liballegro4-dev
-```
+⚠️：不要在相册内打开wiliwili，会导致内存不足系统重启。
 
-###### set ffmpeg config (thanks for pplay)
+<br>
 
-```
-cd wiliwili
-wget https://ffmpeg.org/releases/ffmpeg-4.3.1.tar.xz
-tar -xvJf ffmpeg-4.3.1.tar.xz
-cd ffmpeg-4.3.1
-source /opt/devkitpro/switchvars.sh
-./configure --prefix=/opt/devkitpro/portlibs/switch \
-    --extra-cflags='-D_GNU_SOURCE -O2 -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec' \
-    --extra-cxxflags='-D_GNU_SOURCE -O2 -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec' \
-    --extra-ldflags='-fPIE -L${PORTLIBS_PREFIX}/lib -L${DEVKITPRO}/libnx/lib' \
-    --enable-cross-compile --cross-prefix=aarch64-none-elf- --arch=aarch64 \
-    --pkg-config=/opt/devkitpro/portlibs/switch/bin/aarch64-none-elf-pkg-config \
-    --disable-shared --enable-static --target-os=linux --enable-pic \
-    --enable-asm --enable-neon --disable-runtime-cpudetect --disable-autodetect\
-    --enable-libass --enable-libfreetype --enable-libfribidi --enable-libtheora \
-    --disable-protocols --enable-protocol='file,http' \
-    --disable-filters --enable-filter='rotate,transpose' \
-    --disable-encoders --disable-muxers --disable-bsfs\
-    --disable-programs --disable-debug --disable-doc
-sed 's/#define HAVE_INET_ATON 0/#define HAVE_INET_ATON 1/g' -i config.h
-sed 's/#define HAVE_CLOSESOCKET 1/#define HAVE_CLOSESOCKET 0/g' -i config.h
-sed 's/#define HAVE_MMAP 1/#define HAVE_MMAP 0/g' -i config.h
-```
+# TODO list
 
-###### building ffmpeg
+- [x] 初步完成底层基础组件、首页各类推荐视频、用户视频播放页
+- [x] 微调页面、解决播放器启动速度慢、解决播放页面退出卡顿
+- [x] 临时解决异步加载导致的空指针问题（图片异步加载某些情况还会出现问题，待修复）
+- [x] 添加番剧/影视播放、添加扫码登录、播放历史、用户收藏夹（收藏夹相关部分工作不稳定）
+- [x] 初步添加搜索
+- [x] 播放页新增分集与UP主最新投稿
+- [ ] 完善视频播放页用户评论内容
+- [ ] 重构图片异步加载逻辑
+- [ ] 解决收藏夹、搜索页某些情况导致闪退的问题
+- [ ] 完善搜索页：番剧、影视 转为竖图
+- [ ] 完善播放页投稿列表：调整结构、自动加载下一页
+- [ ] 播放页展示合集与推荐
 
-```
-make -j4
-sudo su
-source /opt/devkitpro/switchvars.sh
-make install
-rm -r ${PORTLIBS_PREFIX}/share/
-```
+<br>
 
-### 3. build switch mpv library (optional)
+# 反馈问题前要做的事
 
-##### set libmpv config
+仅在最新 `大气层` + 最新 `固件` + `FAT32` 内存卡测试，其他组合出现的问题不进行处理。
 
-```
-cd wiliwili
-wget https://github.com/mpv-player/mpv/archive/v0.33.0.tar.gz
-tar -xvJf v0.33.0.tar.gz
-cd mpv-0.33.0
-patch -Np1 -i ../mpv.patch
-source /opt/devkitpro/switchvars.sh
-./bootstrap.py
-export CFLAGS="$CFLAGS -D_POSIX_VERSION=200809L -I`pwd`/osdep/switch"
-TARGET=aarch64-none-elf ./waf configure --prefix="${PORTLIBS_PREFIX}" \
-    --disable-libmpv-shared --enable-libmpv-static --disable-cplayer \
-    --enable-sdl2 --enable-sdl2-audio --enable-sdl2-gamepad --enable-sdl2-video \
-    --disable-iconv --disable-jpeg --disable-libavdevice --disable-debug-build
+1. 首先确保 `大气层`、`固件`、`内存卡` 三者符合要求
+2. 完整且详细地描述你的问题，最好附加演示视频、截图
+3. 尝试复现问题，尽力找到BUG出现的规律
 
-sed -i 's/#define HAVE_POSIX 1/#define HAVE_POSIX 0/' build/config.h
-sed -i 's/#define HAVE_POSIX_OR_MINGW 1/#define HAVE_POSIX 0/' build/config.h
-```
+<br>
 
-##### building libmpv
+# 应用截图
 
-```
-./waf build
-sudo ./waf install
-```
+<img src="docs/images/screenshot.png" alt="screenshot" height="200" align="center">
 
-### 4. build wiliwili.nro
-
-```
-mkdir -p switch_build && cd switch_build
-rm -rf ./* && cmake -DPLATFORM_SWITCH:BOOL=TRUE ..
-make -j4 wiliwili.nro
-nxlink -s wiliwili.nro
-```
 
 # Reference
 
