@@ -61,7 +61,6 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) {
         changeIndexEvent.fire(index);
-//        brls::Application::pushActivity(new PlayerActivity(list[index].bvid));
     }
 
     void appendData(const bilibili::UserUploadedVideoListResult& data){
@@ -148,12 +147,23 @@ void PlayerActivity::onContentAvailable() {
 
     // 切换到其他视频
     changeVideoEvent.subscribe([this](int index){
+        // 停止播放视频
         this->video->stop();
+
+        // 先重置一下tabFrame的焦点，避免空指针问题
+        // 第0个tab是评论页面，这个tab固定存在，所以不会产生空指针的问题
         this->tabFrame->focusTab(0);
+        // 焦点放在video上
+        brls::Application::giveFocus(this->video);
+
+        // 清空无用的tab
         this->tabFrame->clearTab("分集");
         this->tabFrame->clearTab("投稿");
+
         // 清空评论
         this->recyclingGrid->setDataSource(new DataSourceCommentList(vector<bilibili::VideoCommentResult>()));
+
+        // 请求新视频的数据
         this->requestVideoInfo(userUploadedVideo.list[index].bvid);
     });
 
@@ -278,6 +288,16 @@ void PlayerActivity::onCommentInfo(const bilibili::VideoCommentResultWrapper &re
     vector<bilibili::VideoCommentResult> comments(result.top_replies);
     comments.insert(comments.end(), result.replies.begin(), result.replies.end());
     this->recyclingGrid->setDataSource(new DataSourceCommentList(comments));
+}
+
+void PlayerActivity::onError(const std::string &error){
+    brls::sync([error](){
+        auto dialog = new brls::Dialog(error);
+        dialog->addButton("OK", [](){
+            brls::Application::popActivity();
+        });
+        dialog->open();
+    });
 }
 
 PlayerActivity::~PlayerActivity() {

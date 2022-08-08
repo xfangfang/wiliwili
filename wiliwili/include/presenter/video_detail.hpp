@@ -19,7 +19,7 @@ public:
     virtual void onDanmakuInfo(){}
     virtual void onCommentInfo(const bilibili::VideoCommentResultWrapper& result){}
     virtual void onVideoRecommend(){}
-    virtual void onError(){}
+    virtual void onError(const std::string &error){}
     // todo: 获取视频合集
 
     /// 请求视频数据
@@ -81,8 +81,10 @@ public:
                                                            this->onVideoInfo(result);
                                                        });
 
-            }, [](const std::string &error) {
-                    brls::Logger::error(error);
+            }, [this](const std::string &error) {
+                    brls::Logger::error("ERROR:请求视频信息 {}", error);
+                    this->onError(error);
+
         });
     }
 
