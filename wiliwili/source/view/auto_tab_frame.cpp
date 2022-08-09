@@ -87,8 +87,17 @@ AutoTabFrame::AutoTabFrame() {
         this->setDefaultTabIndex(value);
     });
 
+    // default is true, only load pages on demand
+    this->registerBoolXMLAttribute("demandMode", [this](bool value){
+        this->setDemandMode(value);
+    });
+
     this->sidebar->setAxis(brls::Axis::COLUMN);
     this->sidebar->setPadding(32,10,47,10);
+}
+
+void AutoTabFrame::setDemandMode(bool value){
+    this->isDemandMode = value;
 }
 
 void AutoTabFrame::setSideBarPosition(AutoTabBarPosition position){
@@ -136,6 +145,9 @@ void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator){
             newContent = sidebarItem->createAttachedView();
         }
 
+        if(newContent == this->getActiveTab())
+            return;
+
         this->setTabAttachedView(newContent);
 
         if (!newContent)
@@ -151,14 +163,17 @@ void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator){
                 },
                 false, false, brls::SOUND_BACK);
     });
-    if(this->sidebar->getChildren().size() - 1 == this->getDefaultTabIndex() ){
-        AutoSidebarItem* item = (AutoSidebarItem*)this->sidebar->getChildren()[this->getDefaultTabIndex()];
-        item->setActive(true);
+    auto isDefaultTab = this->sidebar->getChildren().size() - 1 == this->getDefaultTabIndex();
+
+    if(isDefaultTab || !isDemandMode){
+        AutoSidebarItem* item = (AutoSidebarItem*)this->sidebar->getChildren()[this->sidebar->getChildren().size() - 1];
         View* newContent = item->getAttachedView();
         if(!newContent){
             newContent = item->createAttachedView();
         }
-        this->setTabAttachedView(newContent);
+
+        if(isDefaultTab)
+            this->setTabAttachedView(newContent);
     }
 }
 
@@ -171,9 +186,14 @@ void AutoTabFrame::focus2NextTab(){
     int currentIndex = this->group.getActiveIndex();
     if(currentIndex < 0){
         // not found
+        if(this->sidebar->getChildren().size() > 0)
+            this->focusTab(0);
     }else if(currentIndex + 1 >= this->sidebar->getChildren().size()){
         // shake highlight
-        brls::Application::getCurrentFocus()->shakeHighlight(brls::FocusDirection::RIGHT);
+        if(this->isHorizontal)
+            brls::Application::getCurrentFocus()->shakeHighlight(brls::FocusDirection::RIGHT);
+        else
+            brls::Application::getCurrentFocus()->shakeHighlight(brls::FocusDirection::DOWN);
     } else {
         this->focusTab(currentIndex + 1);
     }
@@ -183,10 +203,14 @@ void AutoTabFrame::focus2LastTab(){
     int currentIndex = this->group.getActiveIndex();
     if(currentIndex < 0){
         // not found
+        if(this->sidebar->getChildren().size() > 0)
+            this->focusTab(0);
     }else if(currentIndex <= 0){
         // shake highlight
-        //todo: 更精确地确认抖动方向
-        brls::Application::getCurrentFocus()->shakeHighlight(brls::FocusDirection::LEFT);
+        if(this->isHorizontal)
+            brls::Application::getCurrentFocus()->shakeHighlight(brls::FocusDirection::LEFT);
+        else
+            brls::Application::getCurrentFocus()->shakeHighlight(brls::FocusDirection::UP);
     } else {
         this->focusTab(currentIndex - 1);
     }
@@ -199,7 +223,7 @@ void AutoTabFrame::clearTabs()
 
 void AutoTabFrame::clearTab(const std::string& name, bool onlyFirst)
 {
-    for (auto i : this->sidebar->getChildren()) {
+    for (auto& i : this->sidebar->getChildren()) {
         AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
         if(item && (item->getLabel() == name)){
 
@@ -218,12 +242,22 @@ void AutoTabFrame::clearTab(const std::string& name, bool onlyFirst)
 
 bool AutoTabFrame::isHaveTab(const std::string& name)
 {
-    for (auto i : this->sidebar->getChildren()) {
+    for (auto& i : this->sidebar->getChildren()) {
         AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
         if(item && (item->getLabel() == name))
             return true;
     }
     return false;
+}
+
+AutoSidebarItem* AutoTabFrame::getTab(const std::string& name)
+{
+    for (auto& i : this->sidebar->getChildren()) {
+        AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
+        if(item && (item->getLabel() == name))
+            return item;
+    }
+    return nullptr;
 }
 
 void AutoTabFrame::handleXMLElement(tinyxml2::XMLElement* element)
@@ -483,6 +517,17 @@ const std::string autoSidebarItemXML = R"xml(
                 height="auto"
                 fontSize="22"
                 horizontalAlign="center"/>
+
+            <brls:Label
+                wireframe="false"
+                id="autoSidebar/subtitle_label"
+                width="auto"
+                height="auto"
+                fontSize="12"
+                textColor="#80808080"
+                positionType="absolute"
+                positionTop="-12"
+                horizontalAlign="center"/>
         </brls:Box>
 
         <brls:Rectangle
@@ -535,6 +580,17 @@ const std::string autoSidebarItemPlainXML = R"xml(
                 height="auto"
                 fontSize="22"
                 horizontalAlign="center"/>
+
+            <brls:Label
+                wireframe="false"
+                id="autoSidebar/subtitle_label"
+                width="auto"
+                height="auto"
+                fontSize="12"
+                positionType="absolute"
+                positionTop="-12"
+                horizontalAlign="center"/>
+
         </brls:Box>
 
         <brls:Rectangle
@@ -709,9 +765,14 @@ brls::GenericEvent* AutoSidebarItem::getActiveEvent()
     return &this->activeEvent;
 }
 
-void AutoSidebarItem::setLabel(std::string label)
+void AutoSidebarItem::setLabel(std::string text)
 {
-    this->label->setText(label);
+    this->label->setText(text);
+}
+
+void AutoSidebarItem::setSubtitle(std::string text)
+{
+    this->subtitle->setText(text);
 }
 
 std::string AutoSidebarItem::getLabel()

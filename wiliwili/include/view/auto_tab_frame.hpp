@@ -55,6 +55,8 @@ public:
 
     void setLabel(std::string label);
 
+    void setSubtitle(std::string label);
+
     std::string getLabel();
 
     void setActive(bool active);
@@ -92,6 +94,7 @@ public:
 private:
     BRLS_BIND(brls::Rectangle, accent, "autoSidebar/item_accent");
     BRLS_BIND(brls::Label, label, "autoSidebar/item_label");
+    BRLS_BIND(brls::Label, subtitle, "autoSidebar/subtitle_label");
     BRLS_BIND(Box, icon_box, "autoSidebar/item_label_box");
     BRLS_BIND(SVGImage, icon, "autoSidebar/item_icon");
 
@@ -153,6 +156,8 @@ public:
     void clearTabs();
     void clearTab(const std::string& name, bool onlyFirst=true);
     bool isHaveTab(const std::string& name);
+    AutoSidebarItem* getTab(const std::string& name);
+
     static brls::View* create();
     ~AutoTabFrame();
 
@@ -177,6 +182,8 @@ public:
     void setHorizontalMode(bool value);
 
     bool getHorizontalMode();
+
+    void setDemandMode(bool value);
 
     void addItem(AutoSidebarItem* tab, TabViewCreator creator, brls::GenericEvent::Callback focusCallback);
 
@@ -206,6 +213,7 @@ private:
 
     AutoSidebarItemGroup group;
     bool isHorizontal = false;
+    bool isDemandMode = true; // load pages on demand
     float itemFontSize = 22;
 
     NVGcolor tabItemBackgroundColor = nvgRGBA(0, 0, 0, 0);
