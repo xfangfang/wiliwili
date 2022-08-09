@@ -8,39 +8,55 @@
     <brls:Box
             id="video/osd/top/box"
             width="100%"
-            height="10%"
-            backgroundColor="@theme/brls/background">
+            height="80"
+            backgroundColor="#30303060">
         <brls:Label
                 id="video/osd/title"
                 width="100%"
                 height="100%"
-                marginLeft="30"
-                backgroundColor="@theme/brls/background"
+                marginLeft="40"
+                textColor="#FFFFFF"
                 text="video title"/>
+        <brls:Box
+                wireframe="true"
+                positionBottom="0"
+                positionLeft="40"
+                positionType="absolute"
+                alignItems="center">
+            <SVGImage
+                    width="16"
+                    height="16"
+                    SVG="@res/svg/widget-people.svg"/>
+            <brls:Label
+                    marginLeft="8"
+                    textColor="#FFFFFF"
+                    id="video/view/label/people"
+                    fontSize="13"
+                    text="N人正在看"/>
+        </brls:Box>
     </brls:Box>
 
     <brls:ProgressSpinner
             id="video/osd/loading"
-            width="50"
-            height="50"/>
+            width="100"
+            height="100"/>
 
 
     <brls:Box
             id="video/osd/bottom/box"
             width="100%"
-            height="10%"
-            backgroundColor="@theme/brls/background">
+            height="80"
+            backgroundColor="#30303060">
         <brls:Label
                 id="video/osd/bottom/status"
                 width="10%"
                 height="100%"
-                backgroundColor="@theme/brls/background"
                 text=""/>
-<!--        <brls:Slider-->
-<!--                id="video/osd/bottom/progress"-->
-<!--                width="auto"-->
-<!--                height="100%"-->
-<!--                grow="1"/>-->
+        <!--        <brls:Slider-->
+        <!--                id="video/osd/bottom/progress"-->
+        <!--                width="auto"-->
+        <!--                height="100%"-->
+        <!--                grow="1"/>-->
     </brls:Box>
 
 </brls:Box>

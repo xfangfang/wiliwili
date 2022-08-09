@@ -21,7 +21,7 @@ MineTab::MineTab() {
             try {
                 this->mineHistory->requestData(true);
                 this->mineCollection->requestData(true);
-            } catch (ViewNotFoundException e) {}
+            } catch (ViewNotFoundException& e) {}
         }
     });
 

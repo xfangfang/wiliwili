@@ -6,6 +6,7 @@
 
 #include "nlohmann/json.hpp"
 #include "user_result.h"
+#include "mine_result.h"
 
 using namespace std;
 
@@ -102,10 +103,11 @@ namespace bilibili {
         int all_count;
         int mode; // 3: 热门评论
         int next;
+        int prev;
         bool is_end;
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentCursor& nlohmann_json_t) {
-        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, all_count, mode, next, is_end));
+        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, all_count, mode, next, is_end, prev));
     }
 
     typedef vector<VideoCommentResult> VideoCommentListResult;
@@ -122,6 +124,16 @@ namespace bilibili {
         }
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor, replies));
     }
+
+    class Video{
+    public:
+        int aid;
+        std::string bvid;
+
+        Video() = default;
+        Video(const VideoDetailResult& r):aid(r.aid), bvid(r.bvid) {}
+        Video(const UserUploadedVideoResult& r):aid(r.aid), bvid(r.bvid) {}
+    };
 
 
 }

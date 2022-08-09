@@ -124,6 +124,7 @@
                             grow="1"
                             width="100%"
                             height="100%"
+                            demandMode="false"
                             tabBackgroundColor="@theme/color/grey_1"
                             tabItemActiveTextColor="@theme/color/bilibili"
                             defaultTab="0"

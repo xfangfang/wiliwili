@@ -9,6 +9,7 @@
 #include "activity/player_activity.hpp"
 #include "view/grid_dropdown.hpp"
 #include "fmt/format.h"
+#include "utils/number_helper.hpp"
 
 class DataSourceList
         : public RecyclingGridDataSource
@@ -43,7 +44,7 @@ class DataSourceUserUploadedVideoList
         : public RecyclingGridDataSource
 {
 public:
-    DataSourceUserUploadedVideoList(bilibili::UserUploadedVideoListResult result, ChangeIndexEvent cb):list(result),changeIndexEvent(cb){
+    DataSourceUserUploadedVideoList(bilibili::UserUploadedVideoListResult result, ChangeVideoEvent cb):list(result),changeVideoEvent(cb){
 
     }
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index){
@@ -60,7 +61,7 @@ public:
     }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) {
-        changeIndexEvent.fire(index);
+        changeVideoEvent.fire(list[index]);
     }
 
     void appendData(const bilibili::UserUploadedVideoListResult& data){
@@ -69,7 +70,7 @@ public:
 
 private:
     bilibili::UserUploadedVideoListResult list;
-    ChangeIndexEvent changeIndexEvent;
+    ChangeVideoEvent changeVideoEvent;
 };
 
 class DataSourceCommentList
@@ -146,7 +147,7 @@ void PlayerActivity::onContentAvailable() {
     });
 
     // 切换到其他视频
-    changeVideoEvent.subscribe([this](int index){
+    changeVideoEvent.subscribe([this](bilibili::Video videoData){
         // 停止播放视频
         this->video->stop();
 
@@ -164,11 +165,15 @@ void PlayerActivity::onContentAvailable() {
         this->recyclingGrid->setDataSource(new DataSourceCommentList(vector<bilibili::VideoCommentResult>()));
 
         // 请求新视频的数据
-        this->requestVideoInfo(userUploadedVideo.list[index].bvid);
+        this->requestVideoInfo(videoData.bvid);
     });
 
 
     //todo: X键 刷新播放页
+
+    this->recyclingGrid->onNextPage([this](){
+        this->requestVideoComment(this->videoDetailResult.aid);
+    });
 
 
     this->requestData(this->video_data);
@@ -227,7 +232,7 @@ void PlayerActivity::onVideoPageListInfo(const bilibili::VideoDetailPageListResu
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
     item->setLabel("分集");
-    this->tabFrame->addTab(item, [this, result](){
+    this->tabFrame->addTab(item, [this, result, item](){
         auto container = new AttachedView();
         container->setMarginTop(12);
         auto grid = new RecyclingGrid();
@@ -245,6 +250,7 @@ void PlayerActivity::onVideoPageListInfo(const bilibili::VideoDetailPageListResu
         }
         container->addView(grid);
         grid->setDataSource(new DataSourceList(items, changePEvent));
+        item->setSubtitle(wiliwili::num2w(result.size()));
         return container;
     });
 }
@@ -253,25 +259,43 @@ void PlayerActivity::onUploadedVideos(const bilibili::UserUploadedVideoResultWra
     for(const auto& i : result.list){
         Logger::debug("up videos: bvid:{} title:{}", i.bvid, i.title);
     }
-    AutoSidebarItem* item = new AutoSidebarItem();
-    item->setTabStyle(AutoTabBarStyle::ACCENT);
-    item->setFontSize(18);
-    item->setLabel("投稿");
-    this->tabFrame->addTab(item, [this, result](){
-        auto container = new AttachedView();
-        container->setMarginTop(12);
-        auto grid = new RecyclingGrid();
-        grid->setPadding(0, 40, 0, 20);
-        grid->setGrow(1);
-        grid->applyXMLAttribute("spanCount", "1");
-        grid->applyXMLAttribute("itemSpace", "20");
-        grid->applyXMLAttribute("itemHeight", "250");
-        grid->registerCell("Cell", []() { return RecyclingGridItemVideoCard::create(); });
 
-        container->addView(grid);
-        grid->setDataSource(new DataSourceUserUploadedVideoList(result.list, changeVideoEvent));
-        return container;
-    });
+    if(result.page.pn == 1){
+        // 加载第一页，添加tab
+        AutoSidebarItem* item = new AutoSidebarItem();
+        item->setTabStyle(AutoTabBarStyle::ACCENT);
+        item->setFontSize(18);
+        item->setLabel("投稿");
+        this->tabFrame->addTab(item, [this, result, item](){
+            auto container = new AttachedView();
+            container->setMarginTop(12);
+            auto grid = new RecyclingGrid();
+            grid->setPadding(0, 40, 0, 20);
+            grid->setGrow(1);
+            grid->applyXMLAttribute("spanCount", "1");
+            grid->applyXMLAttribute("itemSpace", "20");
+            grid->applyXMLAttribute("itemHeight", "250");
+            grid->registerCell("Cell", []() { return RecyclingGridItemVideoCard::create(); });
+            grid->onNextPage([this](){
+                this->requestUploadedVideos(videoDetailResult.owner.mid);
+            });
+            item->setSubtitle(wiliwili::num2w(result.page.count));
+            container->addView(grid);
+            grid->setDataSource(new DataSourceUserUploadedVideoList(result.list, changeVideoEvent));
+            return container;
+        });
+    } else {
+        // 加载第N页
+        auto tab = this->tabFrame->getTab("投稿");
+        if(!tab) return;
+        auto view = (AttachedView*)tab->getAttachedView();
+        if(!view) return;
+        auto grid = (RecyclingGrid*)view->getChildren()[0];
+        DataSourceUserUploadedVideoList* datasource = (DataSourceUserUploadedVideoList *)grid->getDataSource();
+        datasource->appendData(result.list);
+        grid->notifyDataChanged();
+    }
+
 }
 
 void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult & result) {
@@ -285,9 +309,22 @@ void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult & result) {
 }
 
 void PlayerActivity::onCommentInfo(const bilibili::VideoCommentResultWrapper &result) {
-    vector<bilibili::VideoCommentResult> comments(result.top_replies);
-    comments.insert(comments.end(), result.replies.begin(), result.replies.end());
-    this->recyclingGrid->setDataSource(new DataSourceCommentList(comments));
+    DataSourceCommentList* datasource = (DataSourceCommentList *)recyclingGrid->getDataSource();
+    if(result.cursor.prev == 1){
+        // 第一页评论
+        //整合置顶评论
+        vector<bilibili::VideoCommentResult> comments(result.top_replies);
+        comments.insert(comments.end(), result.replies.begin(), result.replies.end());
+        this->recyclingGrid->setDataSource(new DataSourceCommentList(comments));
+        // 设置评论数量提示
+        auto item = this->tabFrame->getTab("评论");
+        if(item)
+            item->setSubtitle(wiliwili::num2w(result.cursor.all_count));
+    } else if(datasource){
+        // 第N页评论
+        datasource->appendData(result.replies);
+        recyclingGrid->notifyDataChanged();
+    }
 }
 
 void PlayerActivity::onError(const std::string &error){
@@ -331,8 +368,9 @@ void PlayerSeasonActivity::onContentAvailable(){
     });
 
     recyclingGrid->registerCell("Cell", []() { return VideoComment::create(); });
-    recyclingGrid->onNextPage([](){
-
+    recyclingGrid->onNextPage([this](){
+        if(this->episodeResult.aid != 0)
+            this->requestVideoComment(this->episodeResult.aid);
     });
     changeEpisodeEvent.subscribe([this](int index){
         this->changeEpisode(seasonInfo.episodes[index]);
@@ -357,7 +395,7 @@ void PlayerSeasonActivity::onSeasonVideoInfo(const bilibili::SeasonResultWrapper
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
     item->setLabel("分集");
-    this->tabFrame->addTab(item, [this, result](){
+    this->tabFrame->addTab(item, [this, result, item](){
         auto container = new AttachedView();
         container->setMarginTop(12);
         auto grid = new RecyclingGrid();
@@ -378,6 +416,7 @@ void PlayerSeasonActivity::onSeasonVideoInfo(const bilibili::SeasonResultWrapper
         }
         container->addView(grid);
         grid->setDataSource(new DataSourceList(items, changeEpisodeEvent));
+        item->setSubtitle(wiliwili::num2w(result.episodes.size()));
         return container;
     });
 }

@@ -16,6 +16,7 @@ class VideoView;
 class UserInfoView;
 
 typedef brls::Event<int> ChangeIndexEvent;
+typedef brls::Event<bilibili::Video> ChangeVideoEvent;
 
 class PlayerActivity : public brls::Activity, public VideoDetail
 {
@@ -55,8 +56,11 @@ protected:
     bool fullscreen = false;
     brls::ActionIdentifier videoExitFullscreenID = -1;
 
+    // 切换视频分P
     ChangeIndexEvent changePEvent;
-    ChangeIndexEvent changeVideoEvent;
+
+    // 切换视频
+    ChangeVideoEvent changeVideoEvent;
 };
 
 class PlayerSeasonActivity: public PlayerActivity {
