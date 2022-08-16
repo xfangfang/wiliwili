@@ -56,9 +56,10 @@ public:
         this->isCancel = false;
         image->setImageAsync([this, image](std::function<void(const std::string& , size_t length)> cb){
             cpr::GetCallback([this, image, cb](cpr::Response r) {
-                brls::Logger::error("net image status code: {} / {}", r.status_code, r.downloaded_bytes);
+                brls::Logger::debug("net image status code: {} / {}", r.status_code, r.downloaded_bytes);
                 if (r.status_code != 200 || r.downloaded_bytes == 0 || this->isCancel){
                     brls::Logger::debug("undone pic:{}", r.url.str());
+                    cb("", 0);
                     this->available = true;
                 } else {
                     brls::Logger::debug("load pic:{} size:{}bytes to {}", r.url.str(), r.downloaded_bytes, (size_t)this);
@@ -79,9 +80,7 @@ public:
 
     /// 清空图片内容
     static void clear(brls::Image* view){
-        brls::Threading::sync([view](){
-            view->clear();
-        });
+        view->clear();
         for(auto i: imagePool){
             if(i->getImageView() == view && !i->isAvailable()){
                 // 图片正在加载中

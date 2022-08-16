@@ -12,9 +12,9 @@ namespace bilibili {
 
     class HistoryVideoListCursor {
     public:
-        int max;
+        int max = 0;
         int view_at = 0;
-        std::string business;
+        std::string business = "";
         int ps = 20;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HistoryVideoListCursor, max, view_at, business, ps);

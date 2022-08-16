@@ -3,3 +3,7 @@ switch_build/
 data/
 .idea/
 cmake-*/
+.gdbinit
+resources/font/switch_icons.ttf
+tasks.json
+settings.json
