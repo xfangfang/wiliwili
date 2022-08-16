@@ -9,7 +9,9 @@
             id="video/osd/top/box"
             width="100%"
             height="80"
-            backgroundColor="#30303060">
+            backgroundStartColor="#000000CC"
+            backgroundEndColor="#00000000"
+            background="vertical_linear">
         <brls:Label
                 id="video/osd/title"
                 width="100%"
@@ -18,7 +20,7 @@
                 textColor="#FFFFFF"
                 text="video title"/>
         <brls:Box
-                wireframe="true"
+                wireframe="false"
                 positionBottom="0"
                 positionLeft="40"
                 positionType="absolute"
@@ -45,18 +47,63 @@
     <brls:Box
             id="video/osd/bottom/box"
             width="100%"
-            height="80"
-            backgroundColor="#30303060">
-        <brls:Label
-                id="video/osd/bottom/status"
-                width="10%"
-                height="100%"
-                text=""/>
-        <!--        <brls:Slider-->
-        <!--                id="video/osd/bottom/progress"-->
-        <!--                width="auto"-->
-        <!--                height="100%"-->
-        <!--                grow="1"/>-->
+            height="120"
+            alignItems="center"
+            axis="column"
+            background="vertical_linear">
+        <VideoProgressSlider
+                wireframe="true"
+                focusable="false"
+                id="video/osd/bottom/progress"
+                width="96%"
+                height="40"
+                grow="1"/>
+        <brls:Box
+                width="100%"
+                alignItems="center"
+                grow="1">
+                <brls:Image
+                        id="video/osd/toggle"
+                        wireframe="true"
+                        marginLeft="20"
+                        height="60"
+                        width="60"
+                        image="@res/pictures/icon-eye.png"/>
+                <brls:Label
+                        wireframe="true"
+                        horizontalAlign="right"
+                        id="video/left/status"
+                        height="100%"
+                        width="12%"
+                        textColor="#FFFFFF"
+                        text="00:00"/>
+                <brls:Label
+                        horizontalAlign="center"
+                        height="100%"
+                        textColor="#FFFFFF"
+                        text="/"/>
+                <brls:Label
+                        wireframe="true"
+                        horizontalAlign="left"
+                        id="video/right/status"
+                        height="100%"
+                        width="12%"
+                        textColor="#FFFFFF"
+                        text="00:00"/>
+                <brls:Box
+                        id="video/osd/fullscreen"
+                        positionType="absolute"
+                        positionRight="20"
+                        marginLeft="20"
+                        height="30"
+                        width="30">
+                        <brls:Image
+                                wireframe="true"
+                                height="30"
+                                width="30"
+                                image="@res/pictures/icon-eye.png"/>
+                </brls:Box>
+        </brls:Box>
     </brls:Box>
 
 </brls:Box>

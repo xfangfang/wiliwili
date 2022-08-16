@@ -13,7 +13,8 @@
 #include "view/grid_dropdown.hpp"
 //#include "view/raw_video_view.hpp"
 #include "view/video_comment.hpp"
-
+#include "view/mpv_core.hpp"
+#include "view/video_progress_slider.hpp"
 
 #include "fragment/home_tab.hpp"
 #include "fragment/dynamic_tab.hpp"
@@ -44,6 +45,7 @@ void Register::initCustomView(){
     brls::Application::registerXMLView("QRImage", QRImage::create);
     brls::Application::registerXMLView("SVGImage", SVGImage::create);
     brls::Application::registerXMLView("TextBox", TextBox::create);
+    brls::Application::registerXMLView("VideoProgressSlider", VideoProgressSlider::create);
 
 //     Register custom views
     brls::Application::registerXMLView("UserInfoView", UserInfoView::create);
@@ -71,6 +73,7 @@ void Register::initCustomView(){
     brls::Application::registerXMLView("SearchBangumi", SearchBangumi::create);
 
 //    brls::Application::registerXMLView("RawVideoView", RawVideoView::create);
+    MPVCore::instance();
 }
 
 void Register::initCustomTheme(){

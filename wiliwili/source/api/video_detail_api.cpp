@@ -49,6 +49,7 @@ namespace bilibili {
                                     {"cid",   std::to_string(cid)},
                                     {"qn",    std::to_string(qn)},
                                     {"fourk", "1"},
+                                    {"fnval", "128"},
                                     {"fnver", "0"}},
                             callback, error);
     }
@@ -61,6 +62,7 @@ namespace bilibili {
                                          {"cid",   std::to_string(cid)},
                                          {"qn",    std::to_string(qn)},
                                          {"fourk", "1"},
+                                         {"fnval", "128"},
                                          {"fnver", "0"}},
                                  callback, error);
     }

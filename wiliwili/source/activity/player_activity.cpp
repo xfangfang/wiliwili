@@ -114,20 +114,20 @@ PlayerActivity::PlayerActivity(std::string bvid){
 }
 
 void PlayerActivity::onContentAvailable() {
-    this->video->registerClickAction([this](brls::View* view) {
-        if(this->fullscreen){
-            //全屏状态下切换播放状态
-            this->video->togglePlay();
-            this->video->showOSD();
-        }else{
-            //非全屏状态点击视频组件进入全屏
-            this->setFullscreen();
-        }
-        return true;
-    });
+    // this->video->registerClickAction([this](brls::View* view) {
+    //     if(this->video->isFullscreen()){
+    //         //全屏状态下切换播放状态
+    //         this->video->togglePlay();
+    //         this->video->showOSD();
+    //     }else{
+    //         //非全屏状态点击视频组件进入全屏
+    //         // this->setFullscreen();
+    //         this->video->setFullScreen(true);
+    //     }
+    //     return true;
+    // });
 
-    BRLS_REGISTER_CLICK_BY_ID("video_intro", [this](brls::View* view){
-        //todo：注意线程安全
+    this->videoTitleLabel->registerClickAction([this](brls::View* view){
         auto dialog = new brls::Dialog(this->videoIntroLabel->getFullText());
         dialog->addButton("ok", [](){});
         dialog->open();
@@ -136,9 +136,6 @@ void PlayerActivity::onContentAvailable() {
 
     // 视频评论
     recyclingGrid->registerCell("Cell", []() { return VideoComment::create(); });
-    recyclingGrid->onNextPage([](){
-        //todo: 多页评论
-    });
 
     // 切换视频分P
     changePEvent.subscribe([this](int index){
@@ -188,10 +185,10 @@ void PlayerActivity::setFullscreen(){
     this->getView("video_detail_left_box")->setMargins(0,0,0,0);
     this->video->setFullScreen(true);
     //按B退出全屏
-    videoExitFullscreenID = this->video->registerAction("", BUTTON_B, [this](brls::View* view){
-        this->exitFullscreen();
-        return true;
-    },true, false, SOUND_BACK);
+    // videoExitFullscreenID = this->video->registerAction("", BUTTON_B, [this](brls::View* view){
+    //     this->exitFullscreen();
+    //     return true;
+    // },true, false, SOUND_BACK);
 }
 
 void PlayerActivity::exitFullscreen(){
@@ -202,7 +199,6 @@ void PlayerActivity::exitFullscreen(){
     this->getView("video_detail_left_box")->setWidth(800);
     this->getView("video_detail_left_box")->setMargins(10,10,10,10);
     this->video->setFullScreen(false);
-    this->video->setSize(Size(800, 450));
     //注销按B退出全屏的回调
     if(videoExitFullscreenID != -1){
         this->video->unregisterAction(videoExitFullscreenID);
@@ -306,6 +302,7 @@ void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult & result) {
         this->video->start(i.url);
         break;
     }
+    Logger::debug("PlayerActivity::onVideoPlayUrl done");
 }
 
 void PlayerActivity::onCommentInfo(const bilibili::VideoCommentResultWrapper &result) {
@@ -330,6 +327,7 @@ void PlayerActivity::onCommentInfo(const bilibili::VideoCommentResultWrapper &re
 void PlayerActivity::onError(const std::string &error){
     brls::sync([error](){
         auto dialog = new brls::Dialog(error);
+        dialog->setCancelable(false);
         dialog->addButton("OK", [](){
             brls::Application::popActivity();
         });
@@ -340,28 +338,42 @@ void PlayerActivity::onError(const std::string &error){
 PlayerActivity::~PlayerActivity() {
     Logger::error("del PlayerActivity");
     this->video->stop();
-    ImageHelper::clear(this->videoUserInfo->getAvatar());
 }
 
 
 /// season player
 
 void PlayerSeasonActivity::onContentAvailable(){
-    this->video->registerClickAction([this](brls::View* view) {
-        if(this->fullscreen){
-        //全屏状态下切换播放状态
-            this->video->togglePlay();
-            this->video->showOSD();
-        }else{
-        //非全屏状态点击视频组件进入全屏
-            this->setFullscreen();
-        }
-        return true;
-    });
+    // this->video->registerClickAction([this](brls::View* view) {
+    //     if(this->fullscreen){
+    //     //全屏状态下切换播放状态
+    //         this->video->togglePlay();
+    //         this->video->showOSD();
+    //     }else{
+    //     //非全屏状态点击视频组件进入全屏
+    //         this->setFullscreen();
+    //     }
+    //     return true;
+    // });
 
-    BRLS_REGISTER_CLICK_BY_ID("video_intro", [this](brls::View* view){
+    this->videoTitleLabel->registerClickAction([this](brls::View* view){
         //todo：注意线程安全
-        auto dialog = new brls::Dialog(this->videoIntroLabel->getFullText());
+        Style style = Application::getStyle();
+
+        Label* label = new Label();
+        label->setText(this->videoIntroLabel->getFullText());
+        label->setFontSize(style["brls/dialog/fontSize"]);
+        label->setHorizontalAlign(HorizontalAlign::CENTER);
+        label->setSingleLine(false);
+
+        Box* box = new Box();
+        box->addView(label);
+        box->setAlignItems(AlignItems::CENTER);
+        box->setJustifyContent(JustifyContent::CENTER);
+        box->setPadding(style["brls/dialog/paddingTopBottom"], style["brls/dialog/paddingLeftRight"], style["brls/dialog/paddingTopBottom"], style["brls/dialog/paddingLeftRight"]);
+
+
+        auto dialog = new brls::Dialog(box);
         dialog->addButton("ok", [](){});
         dialog->open();
         return true;

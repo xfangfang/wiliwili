@@ -10,6 +10,7 @@
             axis="column">
     <VideoView
             id="live/video"
+            allowFullscreen="false"
             width="1280"
             height="720"/>
     </brls:Box>

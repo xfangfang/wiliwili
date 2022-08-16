@@ -77,11 +77,11 @@ void VideoDetail::requestVideoInfo(const string bvid) {
 void VideoDetail::requestVideoUrl(std::string bvid, int cid){
     ASYNC_RETAIN
     brls::Logger::debug("请求视频播放地址: {}/{}", bvid, cid);
-    bilibili::BilibiliClient::get_video_url(bvid, cid, 112,
+    bilibili::BilibiliClient::get_video_url(bvid, cid, 116,
                                             [ASYNC_TOKEN](const bilibili::VideoUrlResult & result) {
                                                 brls::sync([ASYNC_TOKEN, result](){
                                                     ASYNC_RELEASE
-                                                    brls::Logger::debug("bilibili::BilibiliClient::get_video_url");
+                                                    brls::Logger::debug("bilibili::BilibiliClient::get_video_url : {}", result.quality);
                                                     this->videoUrlResult = result;
                                                     this->onVideoPlayUrl(result);
                                                 });
@@ -95,7 +95,7 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid){
 void VideoDetail::requestSeasonVideoUrl(int cid){
     ASYNC_RETAIN
     brls::Logger::debug("请求番剧视频播放地址: {}", cid);
-    bilibili::BilibiliClient::get_season_url(cid, 112,
+    bilibili::BilibiliClient::get_season_url(cid, 116,
                                              [ASYNC_TOKEN](const bilibili::VideoUrlResult & result) {
                                                  brls::sync([ASYNC_TOKEN, result](){
                                                      ASYNC_RELEASE
