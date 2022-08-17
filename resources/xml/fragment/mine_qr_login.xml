@@ -1,5 +1,5 @@
 <brls:Box
-        wireframe="true"
+        wireframe="false"
         width="auto"
         grow="1.0"
         axis="column"
