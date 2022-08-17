@@ -152,6 +152,19 @@ void PlayerActivity::onContentAvailable() {
         this->requestVideoInfo(videoData.bvid);
     });
 
+    // 切换右侧Tab
+    this->registerAction("上一项", brls::ControllerButton::BUTTON_LT,
+                            [this](brls::View* view)-> bool {
+                                tabFrame->focus2LastTab();
+                                return true;
+                            }, true);
+
+    this->registerAction("下一项", brls::ControllerButton::BUTTON_RT,
+                            [this](brls::View* view)-> bool {
+                                tabFrame->focus2NextTab();
+                                return true;
+                            }, true);
+
 
     //todo: X键 刷新播放页
 
@@ -336,7 +349,11 @@ void PlayerSeasonActivity::onContentAvailable(){
 }
 
 void PlayerSeasonActivity::onSeasonEpisodeInfo(const bilibili::SeasonEpisodeResult& result){
-    this->video->setTitle(result.long_title);
+    auto title = result.long_title;
+    if(title.empty()){
+        title = result.title;
+    }
+    this->video->setTitle(this->seasonInfo.season_title +" - "+ title);
     this->videoInfoLabel->setText("BVID: " + result.bvid);
 }
 

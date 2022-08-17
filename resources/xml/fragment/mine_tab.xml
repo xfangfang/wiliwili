@@ -20,7 +20,7 @@
                 image="@res/icon/akari.jpg"/>
         <brls:Box
                 marginLeft="40"
-                wireframe="true"
+                wireframe="false"
                 axis="column"
                 width="25%">
             <brls:Label
@@ -32,7 +32,7 @@
                     text="B币：-    硬币：-"/>
         </brls:Box>
         <brls:Box
-                wireframe="true"
+                wireframe="false"
                 grow="1">
             <brls:Label
                     text="动态：-   关注：- 粉丝：-"/>
@@ -60,5 +60,17 @@
 
     </AutoTabFrame>
 
+    <brls:Label
+            positionType="absolute"
+            positionLeft="0"
+            positionTop="210"
+            fontSize="14"
+            text=""/>
+    <brls:Label
+            positionType="absolute"
+            positionLeft="220"
+            positionTop="210"
+            fontSize="14"
+            text=""/>
 
 </brls:Box>

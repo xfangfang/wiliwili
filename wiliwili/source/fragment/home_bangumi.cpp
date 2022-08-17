@@ -20,6 +20,18 @@ void HomeBangumi::onCreate() {
         this->requestData();
         return true;
     });
+
+    this->registerTabAction("上一项", brls::ControllerButton::BUTTON_LT,
+                            [this](brls::View* view)-> bool {
+                                tabFrame->focus2LastTab();
+                                return true;
+                            }, true);
+
+    this->registerTabAction("下一项", brls::ControllerButton::BUTTON_RT,
+                            [this](brls::View* view)-> bool {
+                                tabFrame->focus2NextTab();
+                                return true;
+                            }, true);
 }
 
 void HomeBangumi::onBangumiList(const bilibili::PGCModuleListResult &result, int has_next){

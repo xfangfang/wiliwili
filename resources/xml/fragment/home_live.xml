@@ -36,6 +36,30 @@
 
         </brls:Box>
 
+        <brls:Box
+                wireframe="false"
+                positionType="absolute"
+                positionRight="0"
+                positionTop="0"
+                justifyContent="flexEnd"
+                alignItems="center"
+                height="50">
+                <SVGImage
+                        culled="false"
+                        width="16"
+                        height="16"
+                        SVG="@res/svg/ico-sprite-tips.svg"/>
+                <brls:Label
+                        id="home/hots/rank/note"
+                        culled="false"
+                        fontSize="13"
+                        marginLeft="4"
+                        marginRight="40"
+                        singleLine="true"
+                        textColor="#9499A0"
+                        text="直播页面大概率会报错，欢迎任何了解ffmpeg、mpv、gdb 之一的朋友联系我: github.com/xfangfang/wiliwili"/>
+        </brls:Box>
+
         <RecyclingGrid
                 marginTop="10"
                 paddingLeft="20"

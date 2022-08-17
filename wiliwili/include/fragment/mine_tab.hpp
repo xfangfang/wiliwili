@@ -31,13 +31,10 @@ public:
 
     void onUserNotLogin() override;
 
-    static View *create() {
-        return new MineTab();
-    }
+    static View *create();
 
 private:
-//    BRLS_BIND(VideoGrid, videoGrid, "user_home/video_grid");
-    BRLS_BIND(brls::ScrollingFrame, videoGridScrollingFrame, "user_home/video_scroll");
+    BRLS_BIND(AutoTabFrame, tabFrame, "mine/tab/frame");
     BRLS_BIND(brls::Box, boxGotoUserSpace, "user_home/goto_userspace");
     BRLS_BIND(brls::Image, imageUserAvater, "mine/image/avatar");
     BRLS_BIND(brls::Label, labelUserName, "mine/label/username");

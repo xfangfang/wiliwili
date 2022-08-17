@@ -35,6 +35,18 @@ void MineTab::onCreate() {
         return true;
     });
     this->boxGotoUserSpace->addGestureRecognizer(new TapGestureRecognizer(this->boxGotoUserSpace));
+
+    this->registerTabAction("上一项", brls::ControllerButton::BUTTON_LB,
+                            [this](brls::View* view)-> bool {
+                                tabFrame->focus2LastTab();
+                                return true;
+                            }, true);
+
+    this->registerTabAction("下一项", brls::ControllerButton::BUTTON_RB,
+                            [this](brls::View* view)-> bool {
+                                tabFrame->focus2NextTab();
+                                return true;
+                            }, true);
 }
 
 MineTab::~MineTab() {
@@ -71,4 +83,8 @@ void MineTab::onUserInfo(const bilibili::UserResult& data) {
         labelUserName->setText(data.name);
         ImageHelper::with(this)->load(data.face)->into(imageUserAvater);
     });
+}
+
+View* MineTab::create() {
+    return new MineTab();
 }
