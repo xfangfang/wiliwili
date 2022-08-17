@@ -9,10 +9,6 @@
 
 class VideoProgressSlider;
 
-static inline time_t unix_time(){
-    return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-}
-
 typedef enum VideoState{
     PLAYING,
     STOPPED,
@@ -20,61 +16,16 @@ typedef enum VideoState{
     PAUSED,
 } VideoState;
 
+class SVGImage;
+
 class VideoView : public brls::Box{
 public:
     VideoView();
 
     ~VideoView() override;
 
-    void initializeGL();
-
-    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx) override;
-
-    View* getDefaultFocus() override{
-        return this;
-    }
-
-    View* getNextFocus(brls::FocusDirection direction, View* currentView) override{
-        if(this->isFullscreen())
-            return this;
-        return Box::getNextFocus(direction, currentView);
-    }
-
-    void setFullScreen(bool fs){
-        if(!allowFullscreen){
-            brls::Logger::error("Not being allowed to set fullscreen");
-            return;
-        }
-
-        if(fs == isFullscreen()){
-            brls::Logger::error("Already set fullscreen state to: {}", fs);
-            return;
-        }
-
-        brls::Logger::info("VideoView set fullscreen state: {}", fs);
-        if (fs){
-            auto container = new brls::Box();
-            auto video = new VideoView();
-            video->setDimensions(1280, 720);
-            container->addView(video);
-            brls::Application::pushActivity(new brls::Activity(container));
-        } else {
-            brls::Application::popActivity();
-        }
-    }
-
     /// Video control
-    void start(std::string url){
-        brls::Logger::error("start mpv: {}", url);
-        this->setUrl(url);
-        brls::Logger::debug("set url to mpv done");
-    }
-
-    bool isFullscreen(){
-        auto rect = this->getFrame();
-        return rect.getHeight() == brls::Application::contentHeight && \
-            rect.getWidth() == brls::Application::contentWidth;
-    }
+    void start(std::string url);
 
     void setUrl(std::string url);
 
@@ -84,56 +35,60 @@ public:
 
     void stop();
 
-    void togglePlay(){
-        if (this->mpvCore->isPaused()){
-            this->resume();
-        } else {
-            this->pause();
-        }
-    }
+    void togglePlay();
 
     /// OSD
-    void showOSD(bool temp = true){
-        if(temp)
-            this->osdLastShowTime = unix_time() + VideoView::OSD_SHOW_TIME;
-        else
-            this->osdLastShowTime = 0xffffffff;
-    }
+    void showOSD(bool temp = true);
 
-    void hideOSD(){
-        this->osdLastShowTime = 0;
-    }
+    void hideOSD();
 
-    bool isOSDShown(){
-        return unix_time() < this->osdLastShowTime;
-    }
+    bool isOSDShown();
 
-    // Loading
-    void showLoading(){
-        osdSpinner->setVisibility(brls::Visibility::VISIBLE);
-    }
+    void showLoading();
 
-    void hideLoading(){
-        osdSpinner->setVisibility(brls::Visibility::GONE);
-    }
+    void hideLoading();
 
-    void setTitle(std::string title){
-        brls::Threading::sync([this, title](){
-            this->videoTitleLabel->setText(title);
-        });
-    }
+    void setTitle(std::string title);
 
-    std::string getTitle(){
-        return this->videoTitleLabel->getFullText();
-    }
+    std::string getTitle();
 
-    static View* create()
-    {
-        return new VideoView();
-    }
+    void setDuration(std::string value);
+
+    void setPlaybackTime(std::string value);
+
+    // 手动刷新osd右下角的图标
+    void refreshFullscreenIcon();
+
+    // 手动刷新osd左下角的播放图标
+    void refreshToggleIcon();
+
+    void setProgress(float value);
+
+    float getProgress();
+
+
+    /// Misc
+    static View* create();
 
     void invalidate() override;
+
     void onLayout() override;
+
+    bool isFullscreen();
+
+    void setFullScreen(bool fs);
+
+    void initializeGL();
+
+    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx) override;
+
+    View* getDefaultFocus() override;
+
+    View* getNextFocus(brls::FocusDirection direction, View* currentView) override;
+
+    void registerMpvEvent();
+
+    void unRegisterMpvEvent();
 
 private:
     bool allowFullscreen = true;
@@ -149,8 +104,10 @@ private:
     BRLS_BIND(VideoProgressSlider, osdSlider, "video/osd/bottom/progress");
     BRLS_BIND(brls::Label, leftStatusLabel, "video/left/status");
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
-    BRLS_BIND(brls::Image, btnToggle, "video/osd/toggle");
+    BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
+    BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
     BRLS_BIND(brls::Box, btnFullscreen, "video/osd/fullscreen");
+    BRLS_BIND(SVGImage, btnFullscreenIcon,"video/osd/fullscreen/icon");
 
 
     time_t osdLastShowTime = 0;

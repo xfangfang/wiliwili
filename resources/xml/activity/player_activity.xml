@@ -20,6 +20,8 @@
 
                         <VideoView
                                 id="video/detail/video"
+                                focusable="true"
+                                focusDown="video_detail_info_box"
                                 width="800"
                                 height="450"/>
 

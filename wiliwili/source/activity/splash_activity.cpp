@@ -3,9 +3,6 @@
 //
 
 #include "activity/splash_activity.hpp"
-#include "view/video_view.hpp"
-
-
 
 SplashActivity::SplashActivity() {
     brls::Logger::debug("SplashActivityActivity: create");
@@ -13,10 +10,6 @@ SplashActivity::SplashActivity() {
 
 void SplashActivity::onContentAvailable() {
     brls::Logger::debug("SplashActivityActivity: onContentAvailable");
-
-//    this->video->setUrl("http://vjs.zencdn.net/v/oceans.mp4");
-//    this->video->resume();
-
 }
 
 

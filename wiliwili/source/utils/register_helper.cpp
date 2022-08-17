@@ -73,7 +73,7 @@ void Register::initCustomView(){
     brls::Application::registerXMLView("SearchBangumi", SearchBangumi::create);
 
 //    brls::Application::registerXMLView("RawVideoView", RawVideoView::create);
-    MPVCore::instance();
+//    MPVCore::instance();
 }
 
 void Register::initCustomTheme(){

@@ -2,15 +2,17 @@
 // Created by fang on 2022/4/23.
 //
 
-#include "view/video_view.hpp"
-#include "view/mpv_core.hpp"
-#include "view/video_progress_slider.hpp"
-#include "utils/number_helper.hpp"
-#include <fmt/core.h>
-
 #ifdef __SWITCH__
 #include <switch.h>
 #endif
+
+#include "view/video_view.hpp"
+#include "view/mpv_core.hpp"
+#include "view/video_progress_slider.hpp"
+#include "view/svg_image.hpp"
+#include "utils/number_helper.hpp"
+#include <fmt/core.h>
+#include "activity/player_activity.hpp"
 
 using namespace brls;
 
@@ -19,6 +21,7 @@ VideoView::VideoView() {
     mpvCore = &MPVCore::instance();
     this->inflateFromXMLRes("xml/views/video_view.xml");
     this->setHideHighlightBackground(true);
+    this->setHideClickAnimation(true);
 
     this->registerBoolXMLAttribute("allowFullscreen", [this](bool value){
         this->allowFullscreen = value;
@@ -46,51 +49,13 @@ VideoView::VideoView() {
         return true;
     }, true);
 
-    eventSubscribeID = mpvCore->getEvent()->subscribe([this](MpvEventEnum event){
-        // brls::Logger::info("mpv event => : {}", event);
-        switch (event){
-            case MpvEventEnum::MPV_RESUME:
-                this->showOSD(true);
-                break;
-            case MpvEventEnum::MPV_PAUSE:
-                this->showOSD(false);
-                break;
-            case MpvEventEnum::START_FILE:
-                this->showOSD(false);
-                rightStatusLabel->setText("00:00");
-                leftStatusLabel->setText("00:00");
-                osdSlider->setProgress(0);
-                break;
-            case MpvEventEnum::LOADING_START:
-                this->showLoading();
-                break;
-            case MpvEventEnum::LOADING_END:
-                this->hideLoading();
-                break;
-            case MpvEventEnum::MPV_STOP:
-                // todo: 当前播放结束，尝试播放下一个视频
-                this->hideLoading();
-                this->showOSD(false);
-                break;
-            case MpvEventEnum::MPV_LOADED:
-                break;
-            case MpvEventEnum::UPDATE_DURATION:
-                rightStatusLabel->setText(wiliwili::sec2Time(mpvCore->duration));
-                break;
-            case MpvEventEnum::UPDATE_PROGRESS:
-                leftStatusLabel->setText(wiliwili::sec2Time(mpvCore->video_progress));
-                // osdSlider->setProgress(mpvCore->playback_time / mpvCore->duration);
-                break;
-            default:
-                break;
-        }
-    });
+    this->registerMpvEvent();
 
     osdSlider->getProgressEvent()->subscribe([this](float progress){
         brls::Logger::info("process: {}", progress);
         //todo: less call
         //todo: wakeup osd
-        mpvCore->command_str(fmt::format("seek {} absolute-percent", progress * 100).c_str());
+//        mpvCore->command_str(fmt::format("seek {} absolute-percent", progress * 100).c_str());
     });
 
     this->addGestureRecognizer(new brls::TapGestureRecognizer(this, [this](){
@@ -98,6 +63,14 @@ VideoView::VideoView() {
             this->hideOSD();
         } else {
             this->showOSD(true);
+        }
+    }));
+
+    this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnToggle, [this](){
+        if(mpvCore->isPaused()){
+            mpvCore->resume();
+        } else {
+            mpvCore->pause();
         }
     }));
 
@@ -135,39 +108,18 @@ VideoView::VideoView() {
 
 VideoView::~VideoView(){
     Logger::debug("trying delete VideoView...");
-    mpvCore->getEvent()->unsubscribe(eventSubscribeID);
-#ifdef __SWITCH__
-    appletSetMediaPlaybackState(false);
-#endif
+    this->unRegisterMpvEvent();
     brls::Logger::error("Delete VideoView done");
 }
 
 void VideoView::draw(NVGcontext *vg, float x, float y, float width, float height, Style style, FrameContext *ctx) {
-//    if(mpv_context== nullptr || !(mpv_render_context_update(mpv_context) & MPV_RENDER_UPDATE_FRAME))
-//        return;
-
     if(!mpvCore->isValid())
         return;
 
-    int realWindowWidth = (int)(Application::windowScale * Application::contentWidth);
-    int realWindowHeight = (int)(Application::windowScale * Application::contentHeight);
-
-    // nvg draw
-    nvgResetTransform(vg);
-    nvgEndFrame(vg);
-
     mpvCore->openglDraw(this->getFrame(), this->getAlpha());
 
-    // restore nvg
-    nvgBeginFrame(vg,
-                  (float)realWindowWidth,
-                  (float)realWindowHeight,
-                  Application::contentWidth / Application::contentHeight);
-    nvgScale(vg, Application::windowScale, Application::windowScale);
-
-
     // draw osd
-    if(unix_time() < this->osdLastShowTime){
+    if(wiliwili::unix_time() < this->osdLastShowTime){
         osdBottomBox->frame(ctx);
         osdTopBox->frame(ctx);
     }
@@ -178,35 +130,19 @@ void VideoView::draw(NVGcontext *vg, float x, float y, float width, float height
 
 void VideoView::invalidate() {
     View::invalidate();
-
-    // Rect rect = getFrame();
-    // Logger::error("VideoView::invalidate: {}", rect.describe());
-    // if(int(rect.getWidth()) == 0 || int(rect.getHeight()) == 0)
-    //     return;
-    // //todo: 检查是否和之前的长度宽度一致
-    // //    change texture size
-    // int drawWidth = (int) (Application::windowScale * rect.getWidth());
-    // int drawHeight = (int) (Application::windowScale * rect.getHeight());
-
-    // brls::Logger::debug("Video view size: {} / {}", drawWidth, drawHeight);
-    // this->mpvCore->setFrameSize(drawWidth, drawHeight);
-
 }
 
 void VideoView::onLayout(){
     brls::View::onLayout();
 
-    float width           = getWidth();
-    float height          = getHeight();
-    static float oldWidth = width;
-    static float oldHeight = height;
-    if (((int)oldWidth != (int)width && width != 0) || ((int)oldHeight != (int)height && height != 0))
-    {
-        brls::Logger::debug("Video view size: {} / {} scale: {}", width, height, Application::windowScale);
-        this->mpvCore->setFrameSize(Application::windowScale * width, Application::windowScale * height);
+    brls::Rect rect = getFrame();
+    static brls::Rect oldRect = rect;
+
+    if(!(rect == oldRect)){
+        brls::Logger::debug("Video view size: {} / {} scale: {}", rect.getWidth(), rect.getHeight(), Application::windowScale);
+        this->mpvCore->setFrameSize(getFrame());
     }
-    oldWidth = width;
-    oldHeight = height;
+    oldRect = rect;
 }
 
 void VideoView::setUrl(std::string url){
@@ -218,22 +154,216 @@ void VideoView::setUrl(std::string url){
 }
 
 void VideoView::resume(){
-    //todo: 此处设置为 loading
-    this->videoState = VideoState::PLAYING;
     mpvCore->command_str("set pause no");
-    brls::Logger::error("VideoView::resume");
 }
 
 void VideoView::pause(){
-    this->videoState = VideoState::PAUSED;
     mpvCore->command_str("set pause yes");
-    brls::Logger::error("VideoView::pause");
 }
 
 void VideoView::stop(){
-    brls::Logger::error("VideoView::stop 1");
-    // const char *cmd[] = {"stop",  NULL};
-    // mpvCore->command_async(cmd);
+//     const char *cmd[] = {"stop",  NULL};
+//     mpvCore->command_async(cmd);
     mpvCore->command_str("stop");
-    brls::Logger::error("VideoView::stop 2");
+}
+
+void VideoView::togglePlay(){
+    if (this->mpvCore->isPaused()){
+        this->resume();
+    } else {
+        this->pause();
+    }
+}
+
+void VideoView::start(std::string url){
+    brls::Logger::error("start mpv: {}", url);
+    this->setUrl(url);
+    brls::Logger::debug("set url to mpv done");
+}
+
+/// OSD
+void VideoView::showOSD(bool temp){
+    if(temp)
+        this->osdLastShowTime = wiliwili::unix_time() + VideoView::OSD_SHOW_TIME;
+    else
+        this->osdLastShowTime = 0xffffffff;
+}
+
+void VideoView::hideOSD(){
+    this->osdLastShowTime = 0;
+}
+
+bool VideoView::isOSDShown(){
+    return wiliwili::unix_time() < this->osdLastShowTime;
+}
+
+// Loading
+void VideoView::showLoading(){
+    osdSpinner->setVisibility(brls::Visibility::VISIBLE);
+}
+
+void VideoView::hideLoading(){
+    osdSpinner->setVisibility(brls::Visibility::GONE);
+}
+
+void VideoView::setTitle(std::string title){
+    brls::Threading::sync([this, title](){
+        this->videoTitleLabel->setText(title);
+    });
+}
+
+std::string VideoView::getTitle(){
+    return this->videoTitleLabel->getFullText();
+}
+
+void VideoView::setDuration(std::string value){
+    this->rightStatusLabel->setText(value);
+}
+
+void VideoView::setPlaybackTime(std::string value){
+    this->leftStatusLabel->setText(value);
+}
+
+void VideoView::refreshFullscreenIcon() {
+    if(isFullscreen()){
+        btnFullscreenIcon->setImageFromSVGRes("svg/bpx-svg-sprite-fullscreen-off.svg");
+    } else {
+        btnFullscreenIcon->setImageFromSVGRes("svg/bpx-svg-sprite-fullscreen.svg");
+    }
+}
+
+void VideoView::refreshToggleIcon() {
+    if(mpvCore->isPaused()){
+        btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-new-play-state.svg");
+    } else {
+        btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-new-pause-state.svg");
+    }
+}
+
+void VideoView::setProgress(float value){
+    this->osdSlider->setProgress(value);
+}
+
+float VideoView::getProgress(){
+    return this->osdSlider->getProgress();
+}
+
+View* VideoView::create(){
+    return new VideoView();
+}
+
+bool VideoView::isFullscreen(){
+    auto rect = this->getFrame();
+    return rect.getHeight() == brls::Application::contentHeight && \
+            rect.getWidth() == brls::Application::contentWidth;
+}
+
+void VideoView::setFullScreen(bool fs){
+    if(!allowFullscreen){
+        brls::Logger::error("Not being allowed to set fullscreen");
+        return;
+    }
+
+    if(fs == isFullscreen()){
+        brls::Logger::error("Already set fullscreen state to: {}", fs);
+        return;
+    }
+
+    brls::Logger::info("VideoView set fullscreen state: {}", fs);
+    if (fs){
+        this->unRegisterMpvEvent();
+        auto container = new brls::Box();
+        auto video = new VideoView();
+        video->setDimensions(1280, 720);
+        video->setTitle(this->getTitle());
+        video->setDuration(this->rightStatusLabel->getFullText());
+        video->setPlaybackTime(this->leftStatusLabel->getFullText());
+        video->setProgress(this->getProgress());
+        video->refreshFullscreenIcon();
+        video->refreshToggleIcon();
+        if(osdSpinner->getVisibility() == brls::Visibility::GONE){
+            video->hideLoading();
+        }
+        container->addView(video);
+        brls::Application::pushActivity(new brls::Activity(container), brls::TransitionAnimation::NONE);
+    } else {
+        brls::sync([this](){
+            //todo: a better way to get videoView pointer
+            PlayerActivity* last = dynamic_cast<PlayerActivity*>(Application::getActivitiesStack()[Application::getActivitiesStack().size() - 2]);
+            if(last){
+                VideoView* video = dynamic_cast<VideoView *>(last->getView("video/detail/video"));
+                if(video){
+                    video->setProgress(this->getProgress());
+                    video->showOSD(this->osdLastShowTime != 0xffffffff);
+                    video->setDuration(this->rightStatusLabel->getFullText());
+                    video->setPlaybackTime(this->leftStatusLabel->getFullText());
+                    video->registerMpvEvent();
+                    video->refreshToggleIcon();
+                    // 立刻准确地显示视频尺寸
+                    video->onLayout();
+                }
+            }
+            // Pop fullscreen videoView
+            brls::Application::popActivity(brls::TransitionAnimation::NONE);
+        });
+    }
+}
+
+View* VideoView::getDefaultFocus() {
+    return this;
+}
+
+View* VideoView::getNextFocus(brls::FocusDirection direction, View* currentView) {
+    if(this->isFullscreen())
+        return this;
+    return Box::getNextFocus(direction, currentView);
+}
+
+void VideoView::registerMpvEvent(){
+    eventSubscribeID = mpvCore->getEvent()->subscribe([this](MpvEventEnum event){
+        // brls::Logger::info("mpv event => : {}", event);
+        switch (event){
+            case MpvEventEnum::MPV_RESUME:
+                this->showOSD(true);
+                this->hideLoading();
+                this->btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-new-pause-state.svg");
+                break;
+            case MpvEventEnum::MPV_PAUSE:
+                this->showOSD(false);
+                this->btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-new-play-state.svg");
+                break;
+            case MpvEventEnum::START_FILE:
+                this->showOSD(false);
+                rightStatusLabel->setText("00:00");
+                leftStatusLabel->setText("00:00");
+                osdSlider->setProgress(0);
+                break;
+            case MpvEventEnum::LOADING_START:
+                this->showLoading();
+                break;
+            case MpvEventEnum::LOADING_END:
+                this->hideLoading();
+                break;
+            case MpvEventEnum::MPV_STOP:
+                // todo: 当前播放结束，尝试播放下一个视频
+                this->hideLoading();
+                this->showOSD(false);
+                break;
+            case MpvEventEnum::MPV_LOADED:
+                break;
+            case MpvEventEnum::UPDATE_DURATION:
+                rightStatusLabel->setText(wiliwili::sec2Time(mpvCore->duration));
+                break;
+            case MpvEventEnum::UPDATE_PROGRESS:
+                leftStatusLabel->setText(wiliwili::sec2Time(mpvCore->video_progress));
+                osdSlider->setProgress(mpvCore->playback_time / mpvCore->duration);
+                break;
+            default:
+                break;
+        }
+    });
+}
+
+void VideoView::unRegisterMpvEvent(){
+    mpvCore->getEvent()->unsubscribe(eventSubscribeID);
 }

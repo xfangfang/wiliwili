@@ -190,8 +190,8 @@ void MPVCore::initializeGL(){
     brls::Logger::debug("initializeGL4");
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
-                    brls::Application::contentWidth * brls::Application::windowScale,
-                    brls::Application::contentHeight * brls::Application::windowScale,
+                    brls::Application::windowWidth,
+                    brls::Application::windowHeight,
                     0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -259,12 +259,6 @@ void MPVCore::initializeGL(){
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    float vertices[] = {
-            1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
-    };
     unsigned int indices[] = {
             0, 1, 3,
             1, 2, 3
@@ -304,15 +298,31 @@ void MPVCore::command_async(const char **args){
     check_error(mpv_command_async(mpv, 0, args));
 }
 
-void MPVCore::setFrameSize(int drawWidth, int drawHeight){
+void MPVCore::setFrameSize(brls::Rect rect){
     if(this->media_texture == 0)
         return;
+    int drawWidth = rect.getWidth() * brls::Application::windowScale;
+    int drawHeight = rect.getHeight() * brls::Application::windowScale;
+
     if(drawWidth == 0 || drawHeight == 0)
         return;
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, drawWidth, drawHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     this->mpv_fbo.w = drawWidth;
     this->mpv_fbo.h = drawHeight;
+
+    float new_min_x = rect.getMinX() / brls::Application::contentWidth * 2 - 1;
+    float new_min_y = 1 - rect.getMinY() / brls::Application::contentHeight * 2;
+    float new_max_x = rect.getMaxX() / brls::Application::contentWidth * 2 - 1;
+    float new_max_y = 1 - rect.getMaxY() / brls::Application::contentHeight * 2;
+
+    vertices[0] = new_max_x; vertices[1] = new_min_y;
+    vertices[5] = new_max_x; vertices[6] = new_max_y;
+    vertices[10] = new_min_x; vertices[11] = new_max_y;
+    vertices[15] = new_min_x; vertices[16] = new_min_y;
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->shader.vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 }
 
 bool MPVCore::isValid(){
@@ -326,37 +336,20 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha){
     if(mpv_context == nullptr)
         return;
 
-    int realWindowWidth = (int)(brls::Application::windowScale * brls::Application::contentWidth);
-    int realWindowHeight = (int)(brls::Application::windowScale * brls::Application::contentHeight);
-
     mpv_render_context_render(this->mpv_context, mpv_params);
-    glViewport(0, 0, realWindowWidth, realWindowHeight); // restore viewport
-
-
-    float new_min_x = rect.getMinX() / brls::Application::contentWidth * 2 - 1;
-    float new_min_y = 1 - rect.getMinY() / brls::Application::contentHeight * 2;
-    float new_max_x = rect.getMaxX() / brls::Application::contentWidth * 2 - 1;
-    float new_max_y = 1 - rect.getMaxY() / brls::Application::contentHeight * 2;
-
-    float vertices[] = {
-            new_max_x, new_min_y, 0.0f, 1.0f, 1.0f, //右上
-            new_max_x, new_max_y, 0.0f, 1.0f, 0.0f, //右下
-            new_min_x, new_max_y, 0.0f, 0.0f, 0.0f, //左下
-            new_min_x, new_min_y, 0.0f, 0.0f, 1.0f //左上
-    };
-    glBindBuffer(GL_ARRAY_BUFFER, this->shader.vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glViewport(0, 0, brls::Application::windowWidth, brls::Application::windowHeight); // restore viewport
 
     // shader draw
     glUseProgram(shader.prog);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
     glBindVertexArray(shader.vao);
-    if(alpha < 1.0){
-        brls::Logger::debug("mpv core alpha: {}", alpha);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glUniform1f(glGetUniformLocation(shader.prog, "Alpha"), alpha);
-    }
+
+    // Set alpha
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glUniform1f(0, alpha);
+//        glUniform1f(glGetUniformLocation(shader.prog, "Alpha"), alpha);
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
@@ -481,7 +474,7 @@ void MPVCore::eventMainLoop() {
                             cache_speed = *(int64_t *)((mpv_event_property*)event->data)->data;
                         }
                             
-                        brls::Logger::debug("========> cache_speed: {}B/s ", cache_speed);
+                        brls::Logger::debug("========> cache_speed: {}KB/s ", cache_speed/1024);
                         break;
                     default:
                         break;

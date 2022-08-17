@@ -90,7 +90,7 @@ public:
         command_async(cmd);
     }
 
-    void setFrameSize(int drawWidth, int drawHeight);
+    void setFrameSize(brls::Rect rect);
     
     bool isValid();
     
@@ -130,6 +130,13 @@ private:
     };
 
     MPVEvent mpvCoreEvent;
+
+    float vertices[20] = {
+            1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
+    };
 
     /// Will be called in main thread to get events from mpv core
     void eventMainLoop();

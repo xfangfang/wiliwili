@@ -11,6 +11,7 @@
 
 #include <borealis.hpp>
 
+class SVGImage;
 
 class VideoProgressSlider : public brls::Box {
 
@@ -41,7 +42,7 @@ public:
     brls::InputManager* input;
     brls::Rectangle* line;
     brls::Rectangle* lineEmpty;
-    brls::Rectangle* pointer;
+    SVGImage* pointer;
 
     brls::Event<float> progressEvent;
 

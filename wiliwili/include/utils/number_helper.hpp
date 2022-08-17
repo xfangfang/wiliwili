@@ -5,6 +5,7 @@
 #pragma once
 #include <iostream>
 #include <ctime>
+#include <chrono>
 
 namespace wiliwili {
 
@@ -14,6 +15,10 @@ namespace wiliwili {
             return str;
         }
         return std::string(length - str.length(), '0') + str;
+    }
+
+    static inline time_t unix_time(){
+        return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     }
 
     //100 => 01:40

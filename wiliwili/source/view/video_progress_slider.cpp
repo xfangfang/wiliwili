@@ -3,6 +3,7 @@
 //
 
 #include "view/video_progress_slider.hpp"
+#include "view/svg_image.hpp"
 
 using namespace brls;
 
@@ -12,7 +13,7 @@ VideoProgressSlider::VideoProgressSlider(){
 
     line      = new Rectangle();
     lineEmpty = new Rectangle();
-    pointer   = new Rectangle();
+    pointer   = new SVGImage();
 
     line->detach();
     lineEmpty->detach();
@@ -30,18 +31,10 @@ VideoProgressSlider::VideoProgressSlider(){
     lineEmpty->setHeight(7);
     lineEmpty->setCornerRadius(3.5f);
 
-    pointer->setHeight(10);
-    pointer->setWidth(14);
-    pointer->setCornerRadius(4);
-    // pointer->setHighlightCornerRadius(10);
-    pointer->setBorderThickness(4);
-    // pointer->setShadowType(ShadowType::GENERIC);
-    // pointer->setShadowVisibility(true);
-    // pointer->setFocusable(true);
+    pointer->setDimensions(22, 22);
+    pointer->setImageFromSVGRes("svg/bpx-svg-sprite-thumb.svg");
 
     Theme theme = Application::getTheme();
-    pointer->setColor(theme["brls/slider/pointer_color"]);
-    pointer->setBorderColor(theme["brls/slider/pointer_border_color"]);
 
     line->setColor(theme["brls/slider/line_filled"]);
     lineEmpty->setColor(theme["brls/slider/line_empty"]);

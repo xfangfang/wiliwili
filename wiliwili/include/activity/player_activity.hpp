@@ -29,10 +29,6 @@ public:
 
     void onContentAvailable() override;
 
-    void setFullscreen();
-
-    void exitFullscreen();
-
     void onVideoInfo(const bilibili::VideoDetailResult &result) override;
     void onVideoPageListInfo(const bilibili::VideoDetailPageListResult &result) override;
     void onUploadedVideos(const bilibili::UserUploadedVideoResultWrapper& result) override;

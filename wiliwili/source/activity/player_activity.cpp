@@ -114,19 +114,6 @@ PlayerActivity::PlayerActivity(std::string bvid){
 }
 
 void PlayerActivity::onContentAvailable() {
-    // this->video->registerClickAction([this](brls::View* view) {
-    //     if(this->video->isFullscreen()){
-    //         //全屏状态下切换播放状态
-    //         this->video->togglePlay();
-    //         this->video->showOSD();
-    //     }else{
-    //         //非全屏状态点击视频组件进入全屏
-    //         // this->setFullscreen();
-    //         this->video->setFullScreen(true);
-    //     }
-    //     return true;
-    // });
-
     this->videoTitleLabel->registerClickAction([this](brls::View* view){
         auto dialog = new brls::Dialog(this->videoIntroLabel->getFullText());
         dialog->addButton("ok", [](){});
@@ -174,36 +161,6 @@ void PlayerActivity::onContentAvailable() {
 
 
     this->requestData(this->video_data);
-}
-
-void PlayerActivity::setFullscreen(){
-    this->fullscreen = true;
-    this->getView("video_detail_right_box")->setVisibility(Visibility::GONE);
-    this->getView("video_detail_info_box")->setVisibility(Visibility::GONE);
-    this->appletFrame->setFooterVisibility(Visibility::GONE);
-    this->getView("video_detail_left_box")->setWidth(Application::contentWidth);
-    this->getView("video_detail_left_box")->setMargins(0,0,0,0);
-    this->video->setFullScreen(true);
-    //按B退出全屏
-    // videoExitFullscreenID = this->video->registerAction("", BUTTON_B, [this](brls::View* view){
-    //     this->exitFullscreen();
-    //     return true;
-    // },true, false, SOUND_BACK);
-}
-
-void PlayerActivity::exitFullscreen(){
-    this->fullscreen = false;
-    this->getView("video_detail_right_box")->setVisibility(Visibility::VISIBLE);
-    this->getView("video_detail_info_box")->setVisibility(Visibility::VISIBLE);
-    this->appletFrame->setFooterVisibility(Visibility::VISIBLE);
-    this->getView("video_detail_left_box")->setWidth(800);
-    this->getView("video_detail_left_box")->setMargins(10,10,10,10);
-    this->video->setFullScreen(false);
-    //注销按B退出全屏的回调
-    if(videoExitFullscreenID != -1){
-        this->video->unregisterAction(videoExitFullscreenID);
-        videoExitFullscreenID = -1;
-    }
 }
 
 void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult &result) {
@@ -344,18 +301,6 @@ PlayerActivity::~PlayerActivity() {
 /// season player
 
 void PlayerSeasonActivity::onContentAvailable(){
-    // this->video->registerClickAction([this](brls::View* view) {
-    //     if(this->fullscreen){
-    //     //全屏状态下切换播放状态
-    //         this->video->togglePlay();
-    //         this->video->showOSD();
-    //     }else{
-    //     //非全屏状态点击视频组件进入全屏
-    //         this->setFullscreen();
-    //     }
-    //     return true;
-    // });
-
     this->videoTitleLabel->registerClickAction([this](brls::View* view){
         //todo：注意线程安全
         Style style = Application::getStyle();
