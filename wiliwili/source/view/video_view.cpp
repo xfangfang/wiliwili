@@ -27,6 +27,10 @@ VideoView::VideoView() {
         this->allowFullscreen = value;
         if(!value){
             this->btnFullscreen->setVisibility(brls::Visibility::GONE);
+            this->registerAction("cancel", brls::ControllerButton::BUTTON_B, [this](brls::View* view)-> bool {
+                this->dismiss();
+                return true;
+            }, true);
         }
     });
 
@@ -72,38 +76,37 @@ VideoView::VideoView() {
         } else {
             mpvCore->pause();
         }
-    }));
+    }, brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE, brls::SOUND_NONE)));
 
-    if(allowFullscreen){
-        this->btnFullscreen->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnFullscreen, [this](){
-            if(this->isFullscreen()){
-                this->setFullScreen(false);
-            } else {
-                this->setFullScreen(true);
-            }
-        }, brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE, brls::SOUND_NONE)));
+    /// 默认允许设置全屏按钮
+    this->btnFullscreen->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnFullscreen, [this](){
+        if(this->isFullscreen()){
+            this->setFullScreen(false);
+        } else {
+            this->setFullScreen(true);
+        }
+    }, brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE, brls::SOUND_NONE)));
 
-        this->registerAction("cancel", brls::ControllerButton::BUTTON_B, [this](brls::View* view)-> bool {
-            if(this->isFullscreen()){
-                this->setFullScreen(false);
-            } else {
-                this->dismiss();
-            }
-            return true;
-        }, true);
+    this->registerAction("cancel", brls::ControllerButton::BUTTON_B, [this](brls::View* view)-> bool {
+        if(this->isFullscreen()){
+            this->setFullScreen(false);
+        } else {
+            this->dismiss();
+        }
+        return true;
+    }, true);
 
-        this->registerAction("全屏", brls::ControllerButton::BUTTON_A, [this](brls::View* view) {
-            if(this->isFullscreen()){
-                //全屏状态下切换播放状态
-                this->togglePlay();
-                this->showOSD(true);
-            }else{
-                //非全屏状态点击视频组件进入全屏
-                this->setFullScreen(true);
-            }
-            return true;
-        });
-    }
+    this->registerAction("全屏", brls::ControllerButton::BUTTON_A, [this](brls::View* view) {
+        if(this->isFullscreen()){
+            //全屏状态下切换播放状态
+            this->togglePlay();
+            this->showOSD(true);
+        }else{
+            //非全屏状态点击视频组件进入全屏
+            this->setFullScreen(true);
+        }
+        return true;
+    });
 }
 
 VideoView::~VideoView(){
