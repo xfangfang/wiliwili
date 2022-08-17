@@ -37,7 +37,7 @@ endif()
 # project info
 project(wiliwili)
 set(VERSION_MAJOR "0")
-set(VERSION_MINOR "1")
+set(VERSION_MINOR "2")
 set(VERSION_REVISION "0")
 set(PROJECT_TITLEID "0x010FF000FFFF0001")
 set(PROJECT_AUTHOR "xfangfang")
@@ -62,8 +62,6 @@ if (PLATFORM_DESKTOP)
     set(PLATFORM_LIBS ${MPV_LIBRARIES})
 else()
     set(PLATFORM_LIBS
-            # debug
-            twili
             # needed by borealis
             glfw3 EGL glapi drm_nouveau
             # needed by mpv

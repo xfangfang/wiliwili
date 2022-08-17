@@ -3,7 +3,6 @@
 // Switch include only necessary for demo videos recording
 #ifdef __SWITCH__
 #include <switch.h>
-//#include <twili.h>
 #endif
 
 #include <stdio.h>
@@ -23,39 +22,31 @@
 #include <sys/errno.h>
 #include <unistd.h>
 
+#define DISK_LOG
+
 using namespace brls::literals; // for _i18n
 
 int main(int argc, char* argv[])
 {
-    // Enable recording for Twitter memes
-#ifdef __SWITCH__
 
-    appletInitializeGamePlayRecording();
-//    appletSetWirelessPriorityMode(AppletWirelessPriorityMode_OptimizedForWlan)
-//    twiliInitialize();
-//    twiliBindStdio();
+#ifdef __SWITCH__
+//    appletInitializeGamePlayRecording();
 #endif
     // Set min_threads and max_threads of http thread pool
     curl_global_init(CURL_GLOBAL_DEFAULT);
-
     cpr::async::startup(1, THREAD_POOL_MAX_THREAD_NUM);
-//    cpr::async::startup(1, 1);
 
     // Set log level
-    brls::Logger::setLogLevel(brls::LogLevel::DEBUG);
-
+    brls::Logger::setLogLevel(brls::LogLevel::ERROR);
     brls::Logger::debug("std::thread::hardware_concurrency(): {}", std::thread::hardware_concurrency());
 
-
-
-//    std::filesystem::create_directories(ConfigHelper::getConfigDir());
-//    std::ofstream logFile(ConfigHelper::getConfigDir() + "/log.txt");
-//    brls::Logger::getLogEvent()->subscribe([&logFile](std::string log) {
-//        logFile << log << std::endl;
-//    });
-
-
-    brls::Logger::info("Application::init()");
+#ifdef DISK_LOG
+    std::filesystem::create_directories(ConfigHelper::getConfigDir());
+    std::ofstream logFile(ConfigHelper::getConfigDir() + "/log.txt");
+    brls::Logger::getLogEvent()->subscribe([&logFile](std::string log) {
+        logFile << log << std::endl;
+    });
+#endif
 
     // Init the app and i18n
     if (!brls::Application::init())
@@ -63,17 +54,12 @@ int main(int argc, char* argv[])
         brls::Logger::error("Unable to init Borealis application");
         return EXIT_FAILURE;
     }
-
-    brls::Logger::info("Application::init() done");
-
     brls::Application::createWindow("wiliwili/title"_i18n);
-    //todo: Add splash
-
-    brls::Logger::info("Application::createWindow() done");
 
     // Have the application register an action on every activity that will quit when you press BUTTON_START
     brls::Application::setGlobalQuit(false);
 
+    brls::Logger::error("createWindow done");
     // Load Cookies for bilibili from disk
     ConfigHelper::init();
 
@@ -82,7 +68,6 @@ int main(int argc, char* argv[])
     Register::initCustomTheme();
     Register::initCustomStyle();
 
-
     // Create and push the main activity to the stack
     brls::Application::pushActivity(new MainActivity());
 //    brls::Application::pushActivity(new SplashActivity());
@@ -90,18 +75,16 @@ int main(int argc, char* argv[])
 
     // Run the app
     while (brls::Application::mainLoop()){
-//        std::this_thread::sleep_for(std::chrono::microseconds(33));
+
     }
 
     brls::Logger::debug("main loop done");
     cpr::async::cleanup();
     curl_global_cleanup();
-//    logFile.close();
 
-    #ifdef __SWITCH__
-//        twiliExit();
-    #endif
-
+#ifdef DISK_LOG
+    logFile.close();
+#endif
     // Exit
     return EXIT_SUCCESS;
 }

@@ -282,6 +282,7 @@ void VideoView::setFullScreen(bool fs){
         video->setDuration(this->rightStatusLabel->getFullText());
         video->setPlaybackTime(this->leftStatusLabel->getFullText());
         video->setProgress(this->getProgress());
+        video->showOSD(this->osdLastShowTime != 0xffffffff);
         video->refreshFullscreenIcon();
         video->refreshToggleIcon();
         if(osdSpinner->getVisibility() == brls::Visibility::GONE){
