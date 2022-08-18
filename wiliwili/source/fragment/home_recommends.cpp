@@ -98,3 +98,12 @@ brls::View* HomeRecommends::create() {
 HomeRecommends::~HomeRecommends() {
 
 }
+
+void HomeRecommends::onError(const std::string &error) {
+    brls::sync([error](){
+        auto dialog = new brls::Dialog(error);
+        dialog->setCancelable(false);
+        dialog->addButton("OK", [](){});
+        dialog->open();
+    });
+}

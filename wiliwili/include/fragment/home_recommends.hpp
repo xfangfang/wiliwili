@@ -27,6 +27,8 @@ public:
 
     void onCreate() override;
 
+    void onError(const std::string &error) override;
+
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/recommends/recyclingGrid");
 
