@@ -62,7 +62,7 @@
                     wireframe="false"
                     height="100"
                     width="100"
-                    SVG="@res/svg/bpx-svg-sprite-new-play-state.svg"/>
+                    SVG="@res/svg/bpx-svg-sprite-play.svg"/>
         </brls:Box>
         <brls:Box
                 width="auto"

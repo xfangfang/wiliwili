@@ -39,7 +39,7 @@ namespace bilibili {
             cpr::Parameters param(parameters);
             cpr::Response r = HTTP::get(url, param);
             if( r.status_code  != 200){
-                if(error) error("Network error");
+                if(error) error("Network error. [Status code: " + std::to_string(r.status_code) + " ]");
                 return;
             }
             try{
@@ -66,7 +66,7 @@ namespace bilibili {
                 const ErrorCallback& error=nullptr){
             cpr::PostCallback([callback, error](cpr::Response r) {
                 if( r.status_code  != 200){
-                    if(error) error("Network error");
+                    if(error) error("Network error. [Status code: " + std::to_string(r.status_code) + " ]");
                     return;
                 }
                 callback(r);
@@ -104,7 +104,7 @@ namespace bilibili {
             }
             cpr::GetCallback([callback, error](cpr::Response r) {
                                  if( r.status_code  != 200){
-                                     if(error) error("Network error");
+                                     if(error) error("Network error. [Status code: " + std::to_string(r.status_code) + " ]");
                                      return;
                                  }
                                  try{

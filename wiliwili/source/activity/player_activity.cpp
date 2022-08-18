@@ -114,12 +114,13 @@ PlayerActivity::PlayerActivity(std::string bvid){
 }
 
 void PlayerActivity::onContentAvailable() {
-    this->videoTitleLabel->registerClickAction([this](brls::View* view){
-        auto dialog = new brls::Dialog(this->videoIntroLabel->getFullText());
-        dialog->addButton("ok", [](){});
-        dialog->open();
-        return true;
-    });
+    this->videoTitleLabel->registerAction("查看简介", brls::ControllerButton::BUTTON_A,
+                         [this](brls::View* view)-> bool {
+                            auto dialog = new brls::Dialog(this->videoIntroLabel->getFullText());
+                            dialog->addButton("ok", [](){});
+                            dialog->open();
+                            return true;
+                        });
 
     // 视频评论
     recyclingGrid->registerCell("Cell", []() { return VideoComment::create(); });
@@ -306,7 +307,7 @@ void PlayerActivity::onError(const std::string &error){
 }
 
 PlayerActivity::~PlayerActivity() {
-    Logger::error("del PlayerActivity");
+    Logger::debug("del PlayerActivity");
     this->video->stop();
 }
 
@@ -336,6 +337,19 @@ void PlayerSeasonActivity::onContentAvailable(){
         dialog->open();
         return true;
     });
+
+    // 切换右侧Tab
+    this->registerAction("上一项", brls::ControllerButton::BUTTON_LT,
+                         [this](brls::View* view)-> bool {
+                             tabFrame->focus2LastTab();
+                             return true;
+                         }, true);
+
+    this->registerAction("下一项", brls::ControllerButton::BUTTON_RT,
+                         [this](brls::View* view)-> bool {
+                             tabFrame->focus2NextTab();
+                             return true;
+                         }, true);
 
     recyclingGrid->registerCell("Cell", []() { return VideoComment::create(); });
     recyclingGrid->onNextPage([this](){

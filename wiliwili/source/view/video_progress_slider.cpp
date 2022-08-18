@@ -31,7 +31,7 @@ VideoProgressSlider::VideoProgressSlider(){
     lineEmpty->setHeight(7);
     lineEmpty->setCornerRadius(3.5f);
 
-    pointer->setDimensions(22, 22);
+    pointer->setDimensions(44, 44);
     pointer->setImageFromSVGRes("svg/bpx-svg-sprite-thumb.svg");
 
     Theme theme = Application::getTheme();

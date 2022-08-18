@@ -306,6 +306,10 @@ void MPVCore::setFrameSize(brls::Rect rect){
 
     if(drawWidth == 0 || drawHeight == 0)
         return;
+    // 在没有用到更小的视频时减少对texture的申请
+    if( rect.getWidth() < 400 ||  rect.getHeight() < 400)
+        return;
+    brls::Logger::debug("MPVCore::setFrameSize: {}/{}", drawWidth, drawHeight);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, drawWidth, drawHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     this->mpv_fbo.w = drawWidth;

@@ -55,8 +55,8 @@ VideoView::VideoView() {
 
     this->registerMpvEvent();
 
-    osdSlider->getProgressEvent()->subscribe([this](float progress){
-        brls::Logger::info("process: {}", progress);
+    osdSlider->getProgressEvent()->subscribe([](float progress){
+        brls::Logger::debug("progress: {}", progress);
         //todo: less call
         //todo: wakeup osd
 //        mpvCore->command_str(fmt::format("seek {} absolute-percent", progress * 100).c_str());
@@ -112,7 +112,7 @@ VideoView::VideoView() {
 VideoView::~VideoView(){
     Logger::debug("trying delete VideoView...");
     this->unRegisterMpvEvent();
-    brls::Logger::error("Delete VideoView done");
+    brls::Logger::debug("Delete VideoView done");
 }
 
 void VideoView::draw(NVGcontext *vg, float x, float y, float width, float height, Style style, FrameContext *ctx) {
@@ -237,9 +237,9 @@ void VideoView::refreshFullscreenIcon() {
 
 void VideoView::refreshToggleIcon() {
     if(mpvCore->isPaused()){
-        btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-new-play-state.svg");
+        btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-play.svg");
     } else {
-        btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-new-pause-state.svg");
+        btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-pause.svg");
     }
 }
 
@@ -277,6 +277,7 @@ void VideoView::setFullScreen(bool fs){
         this->unRegisterMpvEvent();
         auto container = new brls::Box();
         auto video = new VideoView();
+        container->setDimensions(1280, 720);
         video->setDimensions(1280, 720);
         video->setTitle(this->getTitle());
         video->setDuration(this->rightStatusLabel->getFullText());
@@ -330,11 +331,11 @@ void VideoView::registerMpvEvent(){
             case MpvEventEnum::MPV_RESUME:
                 this->showOSD(true);
                 this->hideLoading();
-                this->btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-new-pause-state.svg");
+                this->btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-pause.svg");
                 break;
             case MpvEventEnum::MPV_PAUSE:
                 this->showOSD(false);
-                this->btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-new-play-state.svg");
+                this->btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-play.svg");
                 break;
             case MpvEventEnum::START_FILE:
                 this->showOSD(false);
