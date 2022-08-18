@@ -23,7 +23,6 @@ void VideoComment::setData(bilibili::VideoCommentResult data){
     this->comment_data = data;
 
     this->label->setText(data.content.message);
-    brls::Logger::error("{}", data.ctime);
     this->userInfo->setUserInfo(data.member.avatar, data.member.uname, wiliwili::sec2date(data.ctime));
 }
 

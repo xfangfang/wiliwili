@@ -110,7 +110,7 @@ private:
 
 PlayerActivity::PlayerActivity(std::string bvid){
     video_data.bvid = bvid;
-    Logger::error("create VideoDetailActivity2: {}", video_data.bvid);
+    Logger::debug("create VideoDetailActivity2: {}", video_data.bvid);
 }
 
 void PlayerActivity::onContentAvailable() {

@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
     // Have the application register an action on every activity that will quit when you press BUTTON_START
     brls::Application::setGlobalQuit(false);
 
-    brls::Logger::error("createWindow done");
+    brls::Logger::info("createWindow done");
     // Load Cookies for bilibili from disk
     ConfigHelper::init();
 

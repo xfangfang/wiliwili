@@ -116,10 +116,12 @@ MPVCore::MPVCore(){
 MPVCore::~MPVCore(){
     check_error(mpv_command_string(this->mpv,"quit"));
 
-    brls::Logger::info("trying delete fbo and shader");
-
+    brls::Logger::info("trying delete fbo");
     this->deleteFrameBuffer();
+
+    brls::Logger::info("trying delete shader");
     this->deleteShader();
+
 
     brls::Logger::info("trying free mpv context");
     if (this->mpv_context) {
@@ -220,6 +222,7 @@ void MPVCore::initializeGL(){
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
     // check for shader compile errors
+    brls::Logger::debug("initializeGL6.1 start");
     int success;
     char infoLog[512];
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -233,6 +236,7 @@ void MPVCore::initializeGL(){
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
     // check for shader compile errors
+    brls::Logger::debug("initializeGL6.2 start");
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success)
     {
@@ -245,6 +249,7 @@ void MPVCore::initializeGL(){
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
     // check for linking errors
+    brls::Logger::debug("initializeGL6.3 start");
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
@@ -458,7 +463,7 @@ void MPVCore::eventMainLoop() {
                         // 视频总时长更新
                         if(((mpv_event_property*)event->data)->data)
                             duration = *(int64_t *)((mpv_event_property*)event->data)->data;
-                        brls::Logger::info("========> duration: {}", duration);
+                        brls::Logger::debug("========> duration: {}", duration);
                         mpvCoreEvent.fire(MpvEventEnum::UPDATE_DURATION);
                         break;
                     case 4:

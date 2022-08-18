@@ -84,7 +84,7 @@ public:
         for(auto i: imagePool){
             if(i->getImageView() == view && !i->isAvailable()){
                 // 图片正在加载中
-                brls::Logger::error("clear image2: {}", (size_t)view);
+                brls::Logger::debug("clear image2: {}", (size_t)view);
                 i->cancel();
             }
         }

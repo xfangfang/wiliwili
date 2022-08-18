@@ -179,7 +179,7 @@ void VideoView::togglePlay(){
 }
 
 void VideoView::start(std::string url){
-    brls::Logger::error("start mpv: {}", url);
+    brls::Logger::debug("start mpv: {}", url);
     this->setUrl(url);
     brls::Logger::debug("set url to mpv done");
 }

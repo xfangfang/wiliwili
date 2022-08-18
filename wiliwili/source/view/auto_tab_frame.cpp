@@ -742,14 +742,14 @@ void AutoSidebarItem::onFocusGained()
     if (this->group)
         this->group->setActive(this);
 
-    brls::Logger::info("AutoSidebarItem: onFocusGained");
+//    brls::Logger::info("AutoSidebarItem: onFocusGained");
 }
 
 void AutoSidebarItem::onFocusLost()
 {
     Box::onFocusLost();
 
-    brls::Logger::info("AutoSidebarItem: onFocusLost");
+//    brls::Logger::info("AutoSidebarItem: onFocusLost");
 }
 
 void AutoSidebarItem::setGroup(AutoSidebarItemGroup* group)

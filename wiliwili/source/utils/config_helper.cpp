@@ -68,11 +68,11 @@ void ConfigHelper::init(){
     ProgramConfig::instance().setProgramConfig(ConfigHelper::readProgramConf());
     Cookie cookie = ProgramConfig::instance().getCookie();
     for(auto c : cookie){
-        brls::Logger::error("cookie: {}:{}", c.first, c.second);
+        brls::Logger::info("cookie: {}:{}", c.first, c.second);
     }
     // set bilibili cookie and cookie update callback
     bilibili::BilibiliClient::init(cookie,[](Cookie newCookie){
-        brls::Logger::error("======== write cookies to disk");
+        brls::Logger::info("======== write cookies to disk");
         ProgramConfig::instance().setCookie(newCookie);
         ConfigHelper::saveProgramConf();
     });

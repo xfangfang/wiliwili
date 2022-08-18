@@ -39,7 +39,7 @@ public:
     void appendData(const bilibili::RecommendVideoListResult& data){
         //todo: 研究一下多线程条件下的问题
         //todo: 性能更强地去重
-        brls::Logger::error("DataSourceRecommendVideoList: append data");
+        brls::Logger::debug("DataSourceRecommendVideoList: append data");
         bool skip = false;
         for(auto i: data){
             skip = false;

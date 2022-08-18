@@ -418,7 +418,6 @@ bool RecyclingGrid::checkWidth(){
     static float oldWidth = width;
     if ((int)oldWidth != (int)width && width != 0)
     {
-        brls::Logger::error("grid old: {} now: {}", oldWidth, width);
         oldWidth = width;
         return true;
     }
