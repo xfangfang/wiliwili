@@ -5,6 +5,7 @@
 #pragma once
 
 #include "nlohmann/json.hpp"
+#include "bilibili/result/dynamic_video.h"
 
 using namespace std;
 
@@ -82,5 +83,12 @@ namespace bilibili {
         nlohmann_json_j.at("list").at("vlist").get_to(nlohmann_json_t.list);
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, page));
     }
+
+    class UserDynamicVideoResultWrapper {
+    public:
+        UserUploadedVideoPageResult page;
+        DynamicVideoListResult archives;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDynamicVideoResultWrapper, page, archives);
 
 }

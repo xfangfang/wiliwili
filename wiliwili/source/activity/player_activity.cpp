@@ -179,7 +179,7 @@ void PlayerActivity::onContentAvailable() {
 
 void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult &result) {
     Logger::debug("[onVideoInfo] title:{} author:{}", result.title, result.owner.name);
-    this->videoUserInfo->setUserInfo(result.owner.face, result.owner.name,result.owner.name);
+    this->videoUserInfo->setUserInfo(result.owner.face+"@96w_96h_1c.jpg", result.owner.name,result.owner.name);
     this->videoTitleLabel->setText(result.title);
     this->video->setTitle(result.title);
     this->videoIntroLabel->setText(result.desc);

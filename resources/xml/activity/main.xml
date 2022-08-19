@@ -15,12 +15,12 @@
                 <HomeTab/>
             </Tab>
 
-<!--            <Tab label="动态"-->
-<!--                 fontSize="18"-->
-<!--                 icon="@res/svg/ico-dynamic.svg"-->
-<!--                 iconActivate="@res/svg/ico-dynamic-activate.svg">-->
-<!--                <DynamicTab/>-->
-<!--            </Tab>-->
+            <Tab label="动态"
+                 fontSize="18"
+                 icon="@res/svg/ico-dynamic.svg"
+                 iconActivate="@res/svg/ico-dynamic-activate.svg">
+                <DynamicTab/>
+            </Tab>
 
             <Tab label="我的"
                  fontSize="18"

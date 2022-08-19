@@ -1,0 +1,31 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        axis="row"
+        alignItems="center">
+
+    <brls:Box
+            width="40"
+            height="40"
+            margin="10"
+            cornerRadius="100"
+            alignItems="center"
+            justifyContent="center"
+            backgroundColor="@theme/color/bilibili">
+            <SVGImage
+                    id="avatar"
+                    width="24"
+                    height="24"
+                    scalingType="fit"
+                    SVG="@res/svg/ico-dynamic-hollow.svg"/>
+    </brls:Box>
+
+    <brls:Label
+            id="username"
+            width="auto"
+            height="auto"
+            singleLine="true"
+            fontSize="18"
+            text="全部动态" />
+
+</brls:Box>

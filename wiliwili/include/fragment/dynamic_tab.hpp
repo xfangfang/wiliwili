@@ -10,19 +10,29 @@
 #pragma once
 
 #include <borealis.hpp>
+#include "presenter/dynamic_tab.hpp"
 
-class DynamicTab : public brls::Box {
+class RecyclingGrid;
+class AutoTabFrame;
+class DynamicVideo;
+
+typedef brls::Event<uint> UserSelectedEvent;
+
+class DynamicTab : public brls::Box, public DynamicTabRequest{
 
 public:
     DynamicTab();
 
     ~DynamicTab();
 
-    static View *create() {
-        return new DynamicTab();
-    }
+    virtual void onUpList(const bilibili::DynamicUpListResultWrapper &result) override;
+
+    virtual void onError(const string& error) override;
+
+    static View* create();
 
 private:
-    // BRLS_BIND(brls::Label, label, "DynamicTab/label")
-
+    BRLS_BIND(RecyclingGrid, recyclingGrid, "dynamic/up/recyclingGrid");
+    BRLS_BIND(DynamicVideo, dynamicVideoTab, "dynamic/videoList");
+//    BRLS_BIND(AutoTabFrame, tabFrame, "dynamic/tabFrame");
 };

@@ -1,0 +1,25 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        axis="row"
+        alignItems="center">
+
+    <brls:Image
+            id="avatar"
+            width="auto"
+            height="80%"
+            scalingType="fit"
+            marginLeft="10"
+            marginRight="10"
+            cornerRadius="100"
+            image="@res/icon/akari.jpg"/>
+
+    <brls:Label
+            id="username"
+            width="auto"
+            height="auto"
+            singleLine="true"
+            fontSize="18"
+            text="username" />
+
+</brls:Box>

@@ -137,4 +137,17 @@ namespace bilibili {
                                                                    callback(data);
                                                                }, error);
     }
+
+     void BilibiliClient::get_user_videos2(int mid, int pn, int ps,
+                                 const std::function<void(UserDynamicVideoResultWrapper)>& callback,
+                                 const ErrorCallback& error){
+         HTTP::getResultAsync<UserDynamicVideoResultWrapper>(Api::UserDynamicVideo,
+                                                              {{"mid", std::to_string(mid)},
+                                                               {"ps", std::to_string(ps)},
+                                                               {"pn", std::to_string(pn)},
+                                                              },
+                                                              [callback](auto data){
+                                                                  callback(data);
+                                                              }, error);
+    }
 }

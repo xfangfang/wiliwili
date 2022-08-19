@@ -20,16 +20,17 @@
 #include "bilibili/result/mine_history_result.h"
 #include "bilibili/result/mine_collection_result.h"
 #include "bilibili/result/home_pgc_season_result.h"
-#include "bilibili/result/search_result.h"
 
 namespace bilibili {
 
     class PGCModuleResult;
     typedef vector<bilibili::PGCModuleResult> PGCModuleListResult;
 
-    
-    // using Request = std::future<void>;
-    // using json = nlohmann::json;
+    class SearchResult;
+    class DynamicVideoListResultWrapper; // 动态 全部关注的视频列表
+    class DynamicUpListResultWrapper;    // 动态 最近更新的UP主列表
+    class UserDynamicVideoResultWrapper; // 动态 单个up主视频列表
+
     using Cookies = std::map<std::string, std::string>;
 
     class BilibiliClient {
@@ -73,6 +74,11 @@ namespace bilibili {
             /// get user's upload videos
             static void get_user_videos(int mid, int pn, int ps,
                                         const std::function<void(UserUploadedVideoResultWrapper)>& callback = nullptr,
+                                        const ErrorCallback& error = nullptr);
+
+            /// get user's dynamic videos
+            static void get_user_videos2(int mid, int pn, int ps,
+                                        const std::function<void(UserDynamicVideoResultWrapper)>& callback = nullptr,
                                         const ErrorCallback& error = nullptr);
 
             /// get season detail by seasonID
@@ -186,6 +192,16 @@ namespace bilibili {
                                      const std::function<void(SearchResult)>& callback= nullptr,
                                      const ErrorCallback& error= nullptr);
 
+            /// 动态页 获取全部关注用户的最近动态
+            static void dynamic_video(const uint page, const std::string& offset = "",
+                                     const std::function<void(DynamicVideoListResultWrapper)>& callback= nullptr,
+                                     const ErrorCallback& error= nullptr);
+
+            /// 动态页 获取有最近动态的关注用户列表
+            static void dynamic_up_list(const std::function<void(DynamicUpListResultWrapper)>& callback= nullptr,
+                                      const ErrorCallback& error= nullptr);
+
+            /// 初始化设置Cookie
             static void init(Cookies &cookies, std::function<void(Cookies)> writeCookiesCallback);
     };
 }

@@ -95,7 +95,6 @@ namespace bilibili {
 
         /// 视频 评论
         static const string Comment = _apiBase + "/x/v2/reply/main";
-
         /// 热门 - gRPC.
         static const string PopularGRPC = _grpcBase + "/bilibili.app.show.v1.Popular/Index";
         /// 排行榜 - Web.
@@ -121,5 +120,12 @@ namespace bilibili {
         /// ===
         static const string Search = _apiBase + "/x/web-interface/search/type";
 
+
+        /// ===
+        /// 动态页API
+        /// ===
+        static const string DynamicVideo = _apiBase + "/x/polymer/web-dynamic/desktop/v1/feed/video";
+        static const string DynamicUpList = _vcBase + "/dynamic_svr/v1/dynamic_svr/w_dyn_uplist";
+        static const string UserDynamicVideo = _apiBase + "/x/space/arc/list";
     }
 }

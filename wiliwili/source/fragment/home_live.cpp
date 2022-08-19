@@ -60,7 +60,6 @@ void HomeLive::onLiveList(const bilibili::LiveVideoListResult &result,
                           bool no_more) {
 
     brls::Threading::sync([this, result, index](){
-        brls::Logger::error("======> {}", index);
         DataSourceLiveVideoList* datasource = (DataSourceLiveVideoList *)recyclingGrid->getDataSource();
         if(datasource && index != 1){
             datasource->appendData(result);

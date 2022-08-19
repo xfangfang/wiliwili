@@ -29,6 +29,15 @@ namespace bilibili {
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult2, mid, uname, avatar);
 
+    class UserSimpleResult3 {
+    public:
+        uint uid;
+        string uname;
+        string face;
+    };
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult3, uid, uname, face);
+
     class UserResult{
     public:
         int mid = -1;

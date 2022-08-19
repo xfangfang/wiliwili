@@ -1,19 +1,27 @@
 <brls:Box
-        wireframe="true"
-        axis="column"
+        axis="row"
         width="auto"
         height="auto">
+    <RecyclingGrid
+            width="270"
+            paddingLeft="10"
+            paddingRight="10"
+            marginTop="20"
+            marginBottom="10"
+            itemHeight="50"
+            preFetchLine="2"
+            spanCount="1"
+            wireframe="false"
+            lineColor="#D0D0D0"
+            lineRight="1"
+            id="dynamic/up/recyclingGrid"/>
+
     <brls:Box
-            axis="column"
-            grow="1"
-            justifyContent="center"
-            alignItems="center"
-            focusable="true">
-        <brls:Label
-                text="动态还没做"/>
-<!--        <NetImage-->
-<!--            height="auto"-->
-<!--            width="auto"-->
-<!--            net_image="http://i0.hdslb.com/bfs/archive/5f5268bbe11f71bd8bc78671e82563de3bccbc84.jpg@672w_378h_1c.jpg"/>-->
+            paddingTop="20"
+            paddingBottom="0"
+            wireframe="false"
+            grow="1">
+            <DynamicVideo
+                id="dynamic/videoList"/>
     </brls:Box>
 </brls:Box>

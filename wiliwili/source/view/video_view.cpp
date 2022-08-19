@@ -304,6 +304,11 @@ void VideoView::setFullScreen(bool fs){
                     video->setPlaybackTime(this->leftStatusLabel->getFullText());
                     video->registerMpvEvent();
                     video->refreshToggleIcon();
+                    if(osdSpinner->getVisibility() == brls::Visibility::GONE){
+                        video->hideLoading();
+                    } else {
+                        video->showLoading();
+                    }
                     // 立刻准确地显示视频尺寸
                     video->onLayout();
                 }

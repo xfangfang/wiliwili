@@ -13,6 +13,7 @@
 
 
 #include "bilibili.h"
+#include "bilibili/result/search_result.h"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "activity/player_activity.hpp"
