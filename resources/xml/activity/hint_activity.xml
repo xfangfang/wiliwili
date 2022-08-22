@@ -1,0 +1,22 @@
+<brls:AppletFrame
+        iconInterpolation="linear"
+        headerHidden="true"
+        footerHidden="true">
+    <brls:Box
+            width="100%"
+            height="100%">
+            <GalleryView
+                    wireframe="false"
+                    width="100%"
+                    height="95%"
+                    hideHighlight="true"
+                    id="hint/gallery"/>
+            <brls:Label
+                    positionType="absolute"
+                    positionBottom="10"
+                    positionRight="10"
+                    fontSize="12"
+                    textColor="@theme/font/grey"
+                    text="@i18n/wiliwili/hint_right"/>
+    </brls:Box>
+</brls:AppletFrame>

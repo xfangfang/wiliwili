@@ -15,6 +15,7 @@
 #include "activity/main_activity.hpp"
 #include "activity/search_activity.hpp"
 //#include "activity/splash_activity.hpp"
+#include "activity/hint_activity.hpp"
 #include "activity/player_activity.hpp"
 
 #include <sys/socket.h>
@@ -68,8 +69,11 @@ int main(int argc, char* argv[])
     Register::initCustomTheme();
     Register::initCustomStyle();
 
-    // Create and push the main activity to the stack
-    brls::Application::pushActivity(new MainActivity());
+    if(brls::Application::getPlatform()->isApplicationMode()){
+        brls::Application::pushActivity(new MainActivity());
+    } else {
+        brls::Application::pushActivity(new HintActivity());
+    }
 //    brls::Application::pushActivity(new SplashActivity());
 //    brls::Application::pushActivity(new PlayerActivity("BV1A44y1u7PF"));
 

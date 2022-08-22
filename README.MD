@@ -6,20 +6,23 @@
 
 一个第三方 Nintendo Switch [B站](https://www.bilibili.com)客户端
 
-<img src="resources/icon/bilibili.png" alt="icon" height="64" width="64" align="left">
+<img src="resources/icon/bilibili.png" alt="icon" height="128" width="128" align="left">
 
 wiliwlili 拥有非常接近官方PC客户端的B站浏览体验，  
 同时支持触屏与手柄按键操控，  
 让你的switch瞬间变身机顶盒与掌上平板。
 <br>
-<br>
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/xfangfang/wiliwili)](https://github.com/xfangfang/wiliwili/releases) ![GitHub All Releases](https://img.shields.io/github/downloads/xfangfang/wiliwili/total) ![GitHub stars](https://img.shields.io/github/stars/xfangfang/wiliwili?style=flat) ![GitHub forks](https://img.shields.io/github/forks/xfangfang/wiliwili)
+
+<br>
 
 # 支持特性
 
 播放页：视频 番剧 影视 综艺  
 个人页：扫码登录 历史记录 个人收藏  
 搜索页：视频 番剧 影视  
+动态页：关注的UP主更新的视频  
 直播页：不是十分稳定的支持 (也可以说是十分不稳定)  
 首页推荐：完美复制原版pc端布局  
 
@@ -49,6 +52,7 @@ wiliwlili 拥有非常接近官方PC客户端的B站浏览体验，
 - [ ] 完善搜索页：番剧、影视 转为竖图
 - [x] 完善播放页投稿列表：调整结构、自动加载下一页
 - [ ] 播放页展示合集与推荐
+- [x] 添加动态页
 
 <br>
 
@@ -63,27 +67,76 @@ wiliwlili 拥有非常接近官方PC客户端的B站浏览体验，
 
 <br>
 
+# 贡献
+
+本应用基于 nanovg 绘制界面，nanovg底层可移植切换到任意图形库，视频播放部分则使用MPV+FFMPEG 通过OpenGL绘制。
+所以按照我的理解 wiliwili 应该可以移植到任何一个内存大于500MB，支持OpenGL（ES）的设备。
+
+目前我正在处理mpv在switch上播放部分直播视频报错的问题，也欢迎了解 FFMPEG、MPV或命令行GDB调试的朋友与我联系共同研究。
+
+<br>
+
+# 开发
+
+```shell
+git clone --recursive https://github.com/xfangfang/wiliwili.git
+```
+
+### PC本地运行（在 Linux 与 macOS 测试通过, Windows 应该也可以编译运行）
+
+```shell
+# macOS: install dependencies
+brew install glfw3 glm mpv
+
+# Ubuntu: install dependencies
+sudo apt install libcurl4-openssl-dev libglfw3-dev libglm-dev libmpv-dev
+
+# build
+mkdir build && cd build && cmake -DPLATFORM_DESKTOP=ON ..
+make wiliwili -j
+```
+
+### 交叉编译 Switch 可执行文件
+
+稍后会制作一个docker镜像来更便捷的构建
+
+```shell
+# 安装devkitpro环境: https://github.com/devkitPro/pacman/releases
+
+# 安装预编译的依赖
+sudo dkp-pacman -S switch-glfw switch-mesa switch-glm \
+  switch-sdl2 switch-zlib switch-mbedtls switch-libass \
+  switch-cmake  switch-bzip2 devkita64-cmake
+
+# 手动构建 ffmpeg与mpv
+# 参考：https://github.com/proconsule/nxmp-portlibs
+
+# build
+mkdir build_switch && cd build_switch && cmake ..
+make wiliwili.nro -j
+```
+
+<br>
+
 # 应用截图
 
-<img src="docs/images/screenshot.png" alt="screenshot" height="200" align="center">
+<p align="center">
+<img src="docs/images/screenshot.png" alt="screenshot">
+</p>
 
+# Acknowledgement
 
-# Reference
-
-https://devkitpro.org/wiki/devkitPro_pacman
-
-https://github.com/devkitPro/pacman/releases
-
-https://github.com/devkitPro/pacman-packages
-
-https://github.com/natinusala/borealis
-
-https://github.com/Cpasjuste/pplay
-
-https://github.com/whoshuu/cpr
-
-https://github.com/nlohmann/json
-
-https://github.com/nayuki/QR-Code-generator
-
-https://github.com/progschj/ThreadPool
+- devkitpro and switchbrew
+  - https://github.com/devkitPro/pacman/releases
+  - https://github.com/devkitPro/pacman-packages
+  - https://github.com/switchbrew/libnx
+- natinusala and XITRIX
+  - https://github.com/natinusala/borealis
+  - https://github.com/XITRIX/borealis
+- Cpasjuste and proconsule
+  - https://github.com/Cpasjuste/pplay
+  - https://github.com/proconsule/nxmp
+- https://github.com/whoshuu/cpr
+- https://github.com/nlohmann/json
+- https://github.com/nayuki/QR-Code-generator
+- https://github.com/progschj/ThreadPool

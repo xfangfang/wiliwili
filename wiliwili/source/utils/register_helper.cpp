@@ -15,6 +15,7 @@
 #include "view/video_comment.hpp"
 #include "view/mpv_core.hpp"
 #include "view/video_progress_slider.hpp"
+#include "view/gallery_view.hpp"
 
 #include "fragment/home_tab.hpp"
 #include "fragment/dynamic_tab.hpp"
@@ -47,6 +48,7 @@ void Register::initCustomView(){
     brls::Application::registerXMLView("SVGImage", SVGImage::create);
     brls::Application::registerXMLView("TextBox", TextBox::create);
     brls::Application::registerXMLView("VideoProgressSlider", VideoProgressSlider::create);
+    brls::Application::registerXMLView("GalleryView", GalleryView::create);
 
 //     Register custom views
     brls::Application::registerXMLView("UserInfoView", UserInfoView::create);
@@ -87,6 +89,10 @@ void Register::initCustomTheme(){
     // 用于二级切换分栏的背景色（例：直播切换分区、每周必看切换周）
     brls::getLightTheme().addColor("color/grey_2", nvgRGB(245, 245, 245));
     brls::getDarkTheme().addColor("color/grey_2", nvgRGB(51,53,55));
+
+    // 深浅配色通用的灰色字体颜色
+    brls::getLightTheme().addColor("font/grey", nvgRGB(148, 153, 160));
+    brls::getDarkTheme().addColor("font/grey", nvgRGB(148, 153, 160));
 
     // 粉色文字，bilibili主题色
     brls::getLightTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));
