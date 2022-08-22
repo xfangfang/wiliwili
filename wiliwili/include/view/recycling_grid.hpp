@@ -85,7 +85,7 @@ class RecyclingGrid : public brls::ScrollingFrame {
 public:
     RecyclingGrid();
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx);
+    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx) override;
 
     void registerCell(std::string identifier, std::function<RecyclingGridItem*()> allocation);
 
@@ -96,6 +96,8 @@ public:
     void setDataSource(RecyclingGridDataSource* source);
 
     RecyclingGridDataSource* getDataSource() const;
+
+    void showSkeleton(uint num = 12);
 
     // 重新加载数据
     void reloadData();
@@ -108,7 +110,7 @@ public:
 
     View* getNextCellFocus(brls::FocusDirection direction, View* currentView);
 
-    void onLayout();
+    void onLayout() override;
 
     /// 当前数据总数量
     size_t getItemCount();
@@ -119,12 +121,12 @@ public:
     /// 导航到页面尾部时触发回调函数
     void onNextPage(const std::function<void()>& callback = nullptr);
 
-    void setPadding(float padding);
-    void setPadding(float top, float right, float bottom, float left);
-    void setPaddingTop(float top);
-    void setPaddingRight(float right);
-    void setPaddingBottom(float bottom);
-    void setPaddingLeft(float left);
+    void setPadding(float padding) override;
+    void setPadding(float top, float right, float bottom, float left) override;
+    void setPaddingTop(float top) override;
+    void setPaddingRight(float right) override;
+    void setPaddingBottom(float bottom) override;
+    void setPaddingLeft(float left) override;
 
 
     // 获取一个列表项组件
@@ -162,7 +164,8 @@ private:
 
     std::function<void()> nextPageCallback = nullptr;
 
-    Box* contentBox;
+    brls::Box* contentBox;
+    brls::Image* hintImage;
     brls::Rect renderedFrame;
     std::map<std::string, std::vector<RecyclingGridItem*>*> queueMap;
     std::map<std::string, std::function<RecyclingGridItem*(void)>> allocationMap;
@@ -187,4 +190,18 @@ public:
 
 private:
     RecyclingGrid* recycler;
+};
+
+
+class SkeletonCell: public RecyclingGridItem {
+public:
+    SkeletonCell();
+
+    static RecyclingGridItem* create();
+
+    void draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext *ctx) override;
+
+private:
+    NVGcolor background = brls::Application::getTheme()["color/grey_3"];
 };

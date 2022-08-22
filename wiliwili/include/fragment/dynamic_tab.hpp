@@ -11,6 +11,7 @@
 
 #include <borealis.hpp>
 #include "presenter/dynamic_tab.hpp"
+#include "view/auto_tab_frame.hpp"
 
 class RecyclingGrid;
 class AutoTabFrame;
@@ -18,7 +19,7 @@ class DynamicVideo;
 
 typedef brls::Event<uint> UserSelectedEvent;
 
-class DynamicTab : public brls::Box, public DynamicTabRequest{
+class DynamicTab : public AttachedView, public DynamicTabRequest{
 
 public:
     DynamicTab();
@@ -30,6 +31,8 @@ public:
     virtual void onError(const string& error) override;
 
     static View* create();
+
+    void onCreate() override;
 
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "dynamic/up/recyclingGrid");

@@ -99,13 +99,8 @@ DynamicTab::DynamicTab() {
 
     recyclingGrid->registerCell("Cell", []() { return DynamicUserInfoView::create(); });
     recyclingGrid->registerCell("CellAll", []() { return DynamicUserInfoView::create("xml/views/user_info_dynamic_all.xml"); });
+    recyclingGrid->setDataSource(new DataSourceUpList(bilibili::DynamicUpListResult()));
     this->requestData();
-
-    this->registerAction("刷新列表", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
-        this->requestData();
-        dynamicVideoTab->changeUser(0);
-        return true;
-    });
 }
 
 DynamicTab::~DynamicTab() {
@@ -127,6 +122,13 @@ void DynamicTab::onUpList(const bilibili::DynamicUpListResultWrapper &result){
 }
 
 void DynamicTab::onError(const string& error){
-
+    brls::Logger::error("DynamicTab::onError {}", error);
 }
 
+void DynamicTab::onCreate(){
+    this->registerTabAction("刷新列表", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        this->requestData();
+        dynamicVideoTab->changeUser(0);
+        return true;
+    });
+}

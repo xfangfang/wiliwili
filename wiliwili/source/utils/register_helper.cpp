@@ -90,6 +90,10 @@ void Register::initCustomTheme(){
     brls::getLightTheme().addColor("color/grey_2", nvgRGB(245, 245, 245));
     brls::getDarkTheme().addColor("color/grey_2", nvgRGB(51,53,55));
 
+    // 用于骨架屏背景色
+    brls::getLightTheme().addColor("color/grey_3", nvgRGBA(200, 200, 200, 16));
+    brls::getDarkTheme().addColor("color/grey_3", nvgRGBA(160, 160, 160, 160));
+
     // 深浅配色通用的灰色字体颜色
     brls::getLightTheme().addColor("font/grey", nvgRGB(148, 153, 160));
     brls::getDarkTheme().addColor("font/grey", nvgRGB(148, 153, 160));

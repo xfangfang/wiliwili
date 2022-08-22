@@ -3,6 +3,9 @@
 //
 
 #include "view/recycling_grid.hpp"
+#include <borealis/core/time.hpp>
+
+/// RecyclingGridItem
 
 RecyclingGridItem::RecyclingGridItem() {
     this->setFocusable(true);
@@ -27,6 +30,61 @@ RecyclingGridItem::~RecyclingGridItem() {
 }
 
 
+/// Skeleton cell
+
+SkeletonCell::SkeletonCell(){
+    this->setFocusable(false);
+}
+
+RecyclingGridItem* SkeletonCell::create(){
+    return new SkeletonCell();
+}
+
+void SkeletonCell::draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
+                        brls::FrameContext *ctx) {
+
+    brls::Time curTime = brls::getCPUTimeUsec() / 1000;
+    float p = (curTime % 1000) * 1.0 / 1000;
+    p = fabs(0.5 - p) + 0.25;
+
+    NVGcolor end = background;
+    end.a = p;
+
+    NVGpaint paint = nvgLinearGradient(vg, x , y , x+width, y+height, a(background), a(end));
+    nvgBeginPath(vg);
+    nvgFillPaint(vg, paint);
+    nvgRoundedRect(vg, x, y, width, height, 6);
+    nvgFill(vg);
+}
+
+/// Skeleton DataSource
+
+class DataSourceSkeleton
+        : public RecyclingGridDataSource
+{
+public:
+    DataSourceSkeleton(uint n):num(n){
+
+    }
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index){
+        SkeletonCell* item = (SkeletonCell*)recycler->dequeueReusableCell("Skeleton");
+        return item;
+    }
+
+    size_t getItemCount() {
+        return this->num;
+    }
+
+    void clearData() {
+        this->num = 0;
+    }
+
+private:
+    uint num;
+};
+
+/// RecyclingGrid
+
 RecyclingGrid::RecyclingGrid() {
     brls::Logger::debug("View RecyclingGrid: create");
 
@@ -36,6 +94,11 @@ RecyclingGrid::RecyclingGrid() {
     // Create content box
     this->contentBox = new RecyclingGridContentBox(this);
     this->setContentView(this->contentBox);
+
+    this->hintImage = new brls::Image();
+    this->hintImage->setWireframeEnabled(true);
+    this->hintImage->setImageFromRes("pictures/empty.png");
+    this->hintImage->setPositionType(brls::PositionType::ABSOLUTE);
 
     this->registerFloatXMLAttribute("itemHeight", [this](float value){
         this->estimatedRowHeight = value + this->estimatedRowSpace;
@@ -57,10 +120,14 @@ RecyclingGrid::RecyclingGrid() {
         this->reloadData();
     });
 
+    this->registerCell("Skeleton", []() { return SkeletonCell::create(); });
+    this->showSkeleton();
 }
 
 RecyclingGrid::~RecyclingGrid() {
     brls::Logger::debug("View RecyclingGridActivity: delete");
+    if(this->hintImage)
+        this->hintImage->freeView();
     if(this->dataSource)
         delete this->dataSource;
     for (auto it : queueMap)
@@ -79,6 +146,9 @@ void RecyclingGrid::draw(NVGcontext* vg, float x, float y, float width, float he
     itemsRecyclingLoop();
 
     ScrollingFrame::draw(vg, x, y, width, height, style, ctx);
+
+    if(!this->dataSource || this->dataSource->getItemCount() == 0)
+        this->hintImage->frame(ctx);
 }
 
 void RecyclingGrid::registerCell(std::string identifier, std::function<RecyclingGridItem*()> allocation)
@@ -290,6 +360,10 @@ RecyclingGridDataSource* RecyclingGrid::getDataSource() const
     return this->dataSource;
 }
 
+void RecyclingGrid::showSkeleton(uint num){
+    this->setDataSource(new DataSourceSkeleton(num));
+}
+
 void RecyclingGrid::selectRowAt(size_t index, bool animated)
 {
     this->setContentOffsetY(this->estimatedRowHeight * index, animated);
@@ -410,6 +484,12 @@ void RecyclingGrid::onLayout()
     {
         layouted = true;
         reloadData();
+
+        if(this->hintImage){
+            brls::Logger::error("{} =====> {}:{}/{}", this->describe(), this->getX(), width, this->hintImage->getWidth());
+            this->hintImage->setPositionTop(this->getY() + (this->getHeight() - this->hintImage->getHeight()) / 2);
+            this->hintImage->setPositionLeft(this->getX() + (width - this->hintImage->getWidth()) / 2);
+        }
     }
 }
 
@@ -501,6 +581,8 @@ RecyclingGridItem* RecyclingGrid::dequeueReusableCell(std::string identifier)
 
     return cell;
 }
+
+/// RecyclingGridContentBox
 
 RecyclingGridContentBox::RecyclingGridContentBox(RecyclingGrid* recycler): Box(brls::Axis::ROW), recycler(recycler){}
 
