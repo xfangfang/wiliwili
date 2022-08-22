@@ -100,14 +100,17 @@ namespace bilibili {
 
     class VideoCommentCursor{
     public:
-        int all_count;
+        int all_count = 0;
         int mode; // 3: 热门评论
         int next;
         int prev;
         bool is_end;
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentCursor& nlohmann_json_t) {
-        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, all_count, mode, next, is_end, prev));
+        if(nlohmann_json_j.contains("all_count")){
+            nlohmann_json_j.at("all_count").get_to(nlohmann_json_t.all_count);
+        }
+        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, mode, next, is_end, prev));
     }
 
     typedef vector<VideoCommentResult> VideoCommentListResult;
@@ -122,7 +125,10 @@ namespace bilibili {
         if(!nlohmann_json_j.at("top_replies").is_null()){
             nlohmann_json_j.at("top_replies").get_to(nlohmann_json_t.top_replies);
         }
-        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor, replies));
+        if(!nlohmann_json_j.at("replies").is_null()){
+            nlohmann_json_j.at("replies").get_to(nlohmann_json_t.top_replies);
+        }
+        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor));
     }
 
     class Video{
