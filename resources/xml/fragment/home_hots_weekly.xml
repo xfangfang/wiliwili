@@ -14,16 +14,16 @@
             height="50">
             <SVGImage
                     culled="false"
-                    width="16"
-                    height="16"
-                    SVG="@res/svg/ico-sprite-tips.svg"/>
+                    width="12"
+                    height="13"
+                    SVG="@res/svg/ico-sprite-info.svg"/>
             <brls:Label
                     id="home/hots/weekly/reminder"
                     culled="false"
                     marginLeft="4"
                     marginRight="10"
                     fontSize="13"
-                    textColor="#9499A0"
+                    textColor="@theme/font/grey"
                     text="每周五晚18:00更新"/>
 
             <brls:Box

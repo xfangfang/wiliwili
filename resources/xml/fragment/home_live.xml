@@ -46,9 +46,9 @@
                 height="50">
                 <SVGImage
                         culled="false"
-                        width="16"
-                        height="16"
-                        SVG="@res/svg/ico-sprite-tips.svg"/>
+                        width="12"
+                        height="13"
+                        SVG="@res/svg/ico-sprite-info.svg"/>
                 <brls:Label
                         id="home/hots/rank/note"
                         culled="false"
@@ -56,7 +56,7 @@
                         marginLeft="4"
                         marginRight="40"
                         singleLine="true"
-                        textColor="#9499A0"
+                        textColor="@theme/font/grey"
                         text="直播页面大概率会报错，欢迎任何了解ffmpeg、mpv、gdb 之一的朋友联系我: github.com/xfangfang/wiliwili"/>
         </brls:Box>
 

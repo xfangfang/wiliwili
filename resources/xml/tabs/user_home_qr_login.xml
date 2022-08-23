@@ -20,7 +20,7 @@
 
     <brls:Label
             fontSize="16"
-            textColor="#9499A0"
+            textColor="@theme/font/grey"
             text="请使用哔哩哔哩客户端扫码登录"/>
 
     <brls:Image

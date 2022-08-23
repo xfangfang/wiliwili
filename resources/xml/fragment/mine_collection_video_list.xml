@@ -39,7 +39,7 @@
                             id="collection/label/subtitle"
                             fontSize="16"
                             singleLine="true"
-                            textColor="#9499A0"
+                            textColor="@theme/font/grey"
                             width="100%"
                             text="subtitle"/>
                 </brls:Box>

@@ -100,6 +100,14 @@ void Register::initCustomTheme(){
     brls::getLightTheme().addColor("font/grey", nvgRGB(148, 153, 160));
     brls::getDarkTheme().addColor("font/grey", nvgRGB(148, 153, 160));
 
+    // 入站必刷推荐原因背景色
+    brls::getLightTheme().addColor("color/yellow_1", nvgRGB(255, 245, 224));
+    brls::getDarkTheme().addColor("color/yellow_1", nvgRGB(46, 33, 17));
+
+    // 入站必刷推荐原因字体颜色
+    brls::getLightTheme().addColor("font/yellow_1", nvgRGB(217, 118, 7));
+    brls::getDarkTheme().addColor("font/yellow_1", nvgRGB(217, 118, 7));
+
     // 粉色文字，bilibili主题色
     brls::getLightTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));
     brls::getDarkTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));

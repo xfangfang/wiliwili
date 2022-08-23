@@ -20,13 +20,13 @@
     <brls:Label
             id="mine/hint"
             fontSize="16"
-            textColor="#9499A0"
+            textColor="@theme/font/grey"
             marginBottom="10"
             text="加载二维码中..."/>
 
     <brls:Label
             fontSize="16"
-            textColor="#9499A0"
+            textColor="@theme/font/grey"
             marginBottom="20"
             text="请使用哔哩哔哩客户端扫码登录"/>
 

@@ -15,7 +15,7 @@
             marginRight="40"
             fontSize="13"
             singleLine="true"
-            textColor="#9499A0"
+            textColor="@theme/font/grey"
             text=""/>
     <RecyclingGrid
             paddingLeft="20"

@@ -13,9 +13,9 @@
             height="50">
         <SVGImage
                 culled="false"
-                width="16"
-                height="16"
-                SVG="@res/svg/ico-sprite-tips.svg"/>
+                width="12"
+                height="13"
+                SVG="@res/svg/ico-sprite-info.svg"/>
         <brls:Label
                 id="home/hots/rank/note"
                 culled="false"
@@ -23,7 +23,7 @@
                 marginLeft="4"
                 marginRight="10"
                 singleLine="true"
-                textColor="#9499A0"
+                textColor="@theme/font/grey"
                 text="排行榜根据稿件内容质量，近期的数据综合展示，动态更新"/>
 
         <brls:Box

@@ -81,7 +81,7 @@
                     marginLeft="4"
                     fontSize="16"
                     singleLine="true"
-                    textColor="#9499A0"
+                    textColor="@theme/font/grey"
                     width="100%"
                     height="100%"/>
         </brls:Box>
@@ -90,7 +90,7 @@
                 visibility="gone"
                 marginTop="10"
                 height="20"
-                backgroundColor="#33353733"
+                backgroundColor="@theme/color/grey_1"
                 cornerRadius="4"
                 alignItems="center">
             <brls:Image
@@ -106,14 +106,14 @@
                     fontSize="13"
                     singleLine="true"
                     text="RCMD reason"
-                    textColor="#9499A0"/>
+                    textColor="@theme/font/grey"/>
         </brls:Box>
         <brls:Box
                 id="video/card/achievement_box"
                 visibility="gone"
                 marginTop="10"
                 height="20"
-                backgroundColor="#FFF5E0E0"
+                backgroundColor="@theme/color/yellow_1"
                 cornerRadius="4"
                 alignItems="center">
             <brls:Image
@@ -129,7 +129,7 @@
                     fontSize="13"
                     singleLine="true"
                     text="explain"
-                    textColor="#d97607"/>
+                    textColor="@theme/font/yellow_1"/>
         </brls:Box>
     </brls:Box>
 </brls:Box>
