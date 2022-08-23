@@ -205,6 +205,10 @@ public:
     virtual void willDisappear(bool resetState = false) override;
 
     bool isOnTop = false;
+
+    void draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext *ctx) override;
+
 private:
     BRLS_BIND(Box, sidebar, "auto_tab_frame/auto_sidebar");
 
@@ -216,6 +220,7 @@ private:
     bool isDemandMode = true; // load pages on demand
     float itemFontSize = 22;
 
+    NVGcolor skeletonBackground = brls::Application::getTheme()["color/grey_3"];
     NVGcolor tabItemBackgroundColor = nvgRGBA(0, 0, 0, 0);
     NVGcolor tabItemActiveBackgroundColor = nvgRGBA(0, 0, 0, 0);
     NVGcolor tabItemActiveTextColor = brls::Application::getTheme()["brls/text"];

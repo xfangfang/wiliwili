@@ -334,6 +334,12 @@ size_t AutoTabFrame::getDefaultTabIndex(){
 }
 
 brls::View* AutoTabFrame::getNextFocus(brls::FocusDirection direction, brls::View* currentView) {
+
+    // Do not navigate down, except through sidebar area
+    if(direction == brls::FocusDirection::DOWN && currentView != this->sidebar){
+        return nullptr;
+    }
+
     void* parentUserData = currentView->getParentUserData();
 
     // Return nullptr immediately if focus direction mismatches the box axis (clang-format refuses to split it in multiple lines...)
@@ -418,6 +424,7 @@ AutoSidebarItem* AutoTabFrame::getItem(int position)
 
 void AutoTabFrame::clearItems()
 {
+    this->setTabAttachedView(nullptr);
     this->sidebar->clearViews();
     this->group.clear();
     this->setLastFocusedView(nullptr);
@@ -476,6 +483,60 @@ void AutoTabFrame::setItemActiveTextColor(NVGcolor c){
             item->setActiveTextColor(c);
         }
     }
+}
+
+void AutoTabFrame::draw(NVGcontext *vg, float x, float y, float width, float height, Style style, FrameContext *ctx) {
+    Box::draw(vg, x, y, width, height, style, ctx);
+
+    if(this->sidebar->getChildren().size() != 0)
+        return;
+
+    // Draw skeleton screen
+    // Only fit to home_bangumi and home_cinema page
+
+    brls::Time curTime = brls::getCPUTimeUsec() / 1000;
+    float p = (curTime % 1000) * 1.0 / 1000;
+    p = fabs(0.5 - p) + 0.25;
+
+    float padding = 20;
+    auto drawWidth = width - 3 * padding;
+    auto drawHeight = height - padding;
+    auto drawX = x + padding + getMarginLeft();
+    auto drawY = y + padding;
+    auto sidebarHeight = this->sidebar->getHeight() - 10;
+
+    if(this->isHorizontal){
+        drawHeight -= sidebarHeight;
+        drawY += sidebarHeight;
+    }
+
+    NVGcolor end = skeletonBackground;
+    end.a = p;
+    NVGpaint paint = nvgLinearGradient(vg, drawX , drawY , drawX+drawWidth, drawY+drawHeight, a(skeletonBackground), a(end));
+    nvgBeginPath(vg);
+    nvgFillPaint(vg, paint);
+    nvgRoundedRect(vg, drawX, drawY, drawWidth, drawHeight, 6);
+    nvgFill(vg);
+
+    if(!this->isHorizontal)
+        return;
+
+    // draw sidebar items
+    const uint num = 6;
+    const uint itemWidth = 80;
+    drawY = y + 10;
+    drawX = x + padding;
+    padding = 10;
+
+    for(size_t i = 0; i < 6; i++){
+        paint = nvgLinearGradient(vg, drawX , drawY , drawX+itemWidth, drawY+sidebarHeight, a(skeletonBackground), a(end));
+        nvgBeginPath(vg);
+        nvgFillPaint(vg, paint);
+        nvgRoundedRect(vg, drawX, drawY, itemWidth, sidebarHeight, 6);
+        nvgFill(vg);
+        drawX += padding + itemWidth;
+    }
+
 }
 
 /**
