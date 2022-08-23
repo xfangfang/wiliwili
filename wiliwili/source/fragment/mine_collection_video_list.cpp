@@ -64,6 +64,8 @@ MineCollectionVideoList::MineCollectionVideoList(const bilibili::CollectionResul
     this->requestCollectionList();
 
     this->registerAction("刷新", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        brls::Application::giveFocus(this->imageCover);
+        this->recyclingGrid->showSkeleton();
         this->requestIndex = 1;
         this->requestCollectionList();
         return true;
@@ -95,7 +97,6 @@ void MineCollectionVideoList::onCollectionList(const bilibili::CollectionVideoLi
             datasource->appendData(result.medias);
             recyclingGrid->notifyDataChanged();
         } else{
-            brls::Application::giveFocus(this->imageCover);
             recyclingGrid->setDataSource(new DataSourceCollectionVideoList(result.medias));
         }
     });

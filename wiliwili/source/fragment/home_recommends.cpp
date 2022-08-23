@@ -73,6 +73,8 @@ HomeRecommends::HomeRecommends() {
 void HomeRecommends::onCreate(){
 
     this->registerTabAction("刷新", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
         this->requestData(true);
         return true;
     });
@@ -85,7 +87,6 @@ void HomeRecommends::onRecommendVideoList(const bilibili::RecommendVideoListResu
             datasource->appendData(result);
             recyclingGrid->notifyDataChanged();
         } else{
-            AutoTabFrame::focus2Sidebar(this);
             recyclingGrid->setDataSource(new DataSourceRecommendVideoList(result));
         }
     });

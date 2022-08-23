@@ -58,6 +58,8 @@ HomeHotsHistory::HomeHotsHistory() {
 
 void HomeHotsHistory::onCreate() {
     this->registerTabAction("刷新", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
         this->requestData();
         return true;
     });
@@ -69,7 +71,6 @@ brls::View* HomeHotsHistory::create() {
 
 void HomeHotsHistory::onHotsHistoryList(const bilibili::HotsHistoryVideoListResult &result, const string& explain) {
     brls::Threading::sync([this, result, explain](){
-        AutoTabFrame::focus2Sidebar(this);
         recyclingGrid->setDataSource(new DataSourceHotsHistoryVideoList(result));
         this->labelExplain->setText(explain);
     });

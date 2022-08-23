@@ -65,7 +65,6 @@ void HomeLive::onLiveList(const bilibili::LiveVideoListResult &result,
             datasource->appendData(result);
             recyclingGrid->notifyDataChanged();
         } else{
-            AutoTabFrame::focus2Sidebar(this);
             recyclingGrid->setDataSource(new DataSourceLiveVideoList(result));
         }
     });
@@ -74,9 +73,11 @@ void HomeLive::onLiveList(const bilibili::LiveVideoListResult &result,
 void HomeLive::onCreate() {
     this->registerTabAction("切换", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
         static int selected = 0;
+        AutoTabFrame::focus2Sidebar(this);
         brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
                 "直播分区", this->getAreaList(),
                 [this](int _selected) {
+                    this->recyclingGrid->showSkeleton();
                     selected = _selected;
                     this->requestData(selected);
                     auto list = this->getAreaList();

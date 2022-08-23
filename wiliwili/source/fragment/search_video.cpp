@@ -29,6 +29,8 @@ brls::View *SearchVideo::create() {
 }
 
 void SearchVideo::requestSearch(const std::string& key){
+    AutoTabFrame::focus2Sidebar(this);
+    this->recyclingGrid->showSkeleton();
     this->requestIndex = 1;
     this->_requestSearch(key);
 }
@@ -54,7 +56,7 @@ void SearchVideo::_requestSearch(const std::string& key){
                 datasource->appendData(result.result);
                 recyclingGrid->notifyDataChanged();
             } else{
-                AutoTabFrame::focus2Sidebar(this);
+                // 搜索加载的第一页
                 recyclingGrid->setDataSource(new DataSourceSearchVideoList(result.result));
             }
             this->requestIndex = result.page + 1;

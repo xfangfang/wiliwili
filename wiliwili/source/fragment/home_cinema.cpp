@@ -25,6 +25,9 @@ brls::View *HomeCinema::create() {
 
 void HomeCinema::onCreate() {
     this->registerTabAction("刷新", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        AutoTabFrame::focus2Sidebar(this);
+        this->tabFrame->clearTabs();
+
         this->requestData();
         return true;
     });
@@ -45,11 +48,6 @@ void HomeCinema::onCreate() {
 void HomeCinema::onCinemaList(const bilibili::PGCModuleListResult &result, int has_next){
 
     brls::sync([this, result](){
-
-        //避免刷新时焦点在tabFrame的tab栏上因为销毁组件导致出错，所以刷新前将焦点向上移动一级
-        AutoTabFrame::focus2Sidebar(this);
-        this->tabFrame->clearTabs();
-
         for(auto i: result){
             if(i.items.size() > 0){
                 AutoSidebarItem* item = new AutoSidebarItem();

@@ -96,7 +96,6 @@ RecyclingGrid::RecyclingGrid() {
     this->setContentView(this->contentBox);
 
     this->hintImage = new brls::Image();
-    this->hintImage->setWireframeEnabled(true);
     this->hintImage->setImageFromRes("pictures/empty.png");
     this->hintImage->setPositionType(brls::PositionType::ABSOLUTE);
 

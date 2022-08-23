@@ -55,10 +55,12 @@ HomeHotsWeekly::HomeHotsWeekly() {
 
 void HomeHotsWeekly::onCreate() {
     this->registerTabAction("切换", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        AutoTabFrame::focus2Sidebar(this);
         static int selected = 1;
         brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
                 "每周必看", this->getWeeklyList(),
                 [this](int _selected) {
+                    this->recyclingGrid->showSkeleton();
                     if(_selected == 0){
                         selected = 1;
                         this->requestData();
@@ -87,7 +89,6 @@ void HomeHotsWeekly::onHotsWeeklyList(const bilibili::HotsWeeklyListResult &resu
 void HomeHotsWeekly::onHotsWeeklyVideoList(const bilibili::HotsWeeklyVideoListResult &result,
                            const string& label, const string& reminder) {
     brls::Threading::sync([this, result, label, reminder](){
-        AutoTabFrame::focus2Sidebar(this);
        this->weekly_reminder->setText(reminder);
        this->weekly_label->setText(label);
        recyclingGrid->setDataSource(new DataSourceHotsWeeklyVideoList(result));

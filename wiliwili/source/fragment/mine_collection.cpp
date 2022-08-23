@@ -74,6 +74,8 @@ brls::View *MineCollection::create() {
 
 void MineCollection::onCreate() {
     this->registerTabAction("刷新收藏夹", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
         this->requestData(true);
         return true;
     });
@@ -90,7 +92,6 @@ void MineCollection::onCollectionList(const bilibili::CollectionListResultWrappe
             datasource->appendData(result.list);
             recyclingGrid->notifyDataChanged();
         } else{
-            AutoTabFrame::focus2Sidebar(this);
             recyclingGrid->setDataSource(new DataSourceMineCollectionList(result.list));
         }
     });

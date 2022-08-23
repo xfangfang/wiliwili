@@ -31,6 +31,8 @@ brls::View *SearchBangumi::create() {
 }
 
 void SearchBangumi::requestSearch(const std::string& key){
+    AutoTabFrame::focus2Sidebar(this);
+    this->recyclingGrid->showSkeleton();
     this->requestIndex = 1;
     this->_requestSearch(key);
 }
@@ -42,7 +44,7 @@ void SearchBangumi::_requestSearch(const std::string& key){
         }
         brls::sync([this, result](){
             DataSourceSearchVideoList* datasource = (DataSourceSearchVideoList *)recyclingGrid->getDataSource();
-            brls::Logger::error("========search bangumi");
+            brls::Logger::debug("========search bangumi");
             if(result.page != this->requestIndex){
                 // 请求的顺序和当前需要的顺序不符
                 brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}", result.page, this->requestIndex);
@@ -57,7 +59,7 @@ void SearchBangumi::_requestSearch(const std::string& key){
                 datasource->appendData(result.result);
                 recyclingGrid->notifyDataChanged();
             } else{
-                AutoTabFrame::focus2Sidebar(this);
+                // 搜索加载的第一页
                 recyclingGrid->setDataSource(new DataSourceSearchVideoList(result.result));
             }
             this->requestIndex = result.page + 1;

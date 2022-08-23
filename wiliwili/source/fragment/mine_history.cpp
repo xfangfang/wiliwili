@@ -83,6 +83,8 @@ brls::View *MineHistory::create() {
 
 void MineHistory::onCreate() {
     this->registerTabAction("刷新历史记录", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
         this->requestData(true);
         return true;
     });
@@ -100,9 +102,15 @@ void MineHistory::onHistoryList(const bilibili::HistoryVideoResultWrapper &resul
             datasource->appendData(result.list);
             recyclingGrid->notifyDataChanged();
         } else{
-            AutoTabFrame::focus2Sidebar(this);
             recyclingGrid->setDataSource(new DataSourceMineHistoryVideoList(result.list));
         }
     });
 
+}
+
+void MineHistory::onError(const std::string error) {
+    brls::Logger::error("MineHistory::onError: {}", error);
+    brls::sync([this](){
+       this->recyclingGrid->clearData();
+    });
 }
