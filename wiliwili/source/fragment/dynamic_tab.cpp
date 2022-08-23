@@ -2,11 +2,12 @@
 // Created by fang on 2022/6/9.
 //
 
+#include "activity/player_activity.hpp"
 #include "fragment/dynamic_tab.hpp"
-#include "fragment/dynamic_video.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/svg_image.hpp"
+#include "view/video_card.hpp"
 #include "utils/image_helper.hpp"
 
 
@@ -43,6 +44,7 @@ private:
     BRLS_BIND(brls::Image, avatarView, "avatar");
     BRLS_BIND(brls::Label, labelUsername, "username");
 };
+
 
 class DataSourceUpList
         : public RecyclingGridDataSource
@@ -93,14 +95,69 @@ private:
     UserSelectedEvent userSelectedEvent;
 };
 
+
+class DataSourceDynamicVideoList
+        : public RecyclingGridDataSource
+{
+public:
+    DataSourceDynamicVideoList(bilibili::DynamicVideoListResult result):list(result){
+
+    }
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index){
+        //从缓存列表中取出 或者 新生成一个表单项
+        RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
+
+        auto& r = this->list[index];
+        item->setCard(r.pic+"@672w_378h_1c.jpg",r.title,r.owner.name,r.pubdate, r.stat.view, r.stat.danmaku, r.duration);
+        return item;
+    }
+
+    size_t getItemCount() {
+        return list.size();
+    }
+
+    void onItemSelected(RecyclingGrid* recycler, size_t index) {
+        brls::Application::pushActivity(new PlayerActivity(list[index].bvid));
+    }
+
+    void appendData(const bilibili::DynamicVideoListResult& data){
+        bool skip = false;
+        for(auto i: data){
+            skip = false;
+            for(auto j: this->list){
+                if(j.aid == i.aid){
+                    skip = true;
+                    break;
+                }
+            }
+            if(!skip){
+                this->list.push_back(i);
+            }
+        }
+    }
+
+private:
+    bilibili::DynamicVideoListResult list;
+};
+
+
 DynamicTab::DynamicTab() {
     this->inflateFromXMLRes("xml/fragment/dynamic_tab.xml");
     brls::Logger::debug("Fragment DynamicTab: create");
 
-    recyclingGrid->registerCell("Cell", []() { return DynamicUserInfoView::create(); });
-    recyclingGrid->registerCell("CellAll", []() { return DynamicUserInfoView::create("xml/views/user_info_dynamic_all.xml"); });
-    recyclingGrid->setDataSource(new DataSourceUpList(bilibili::DynamicUpListResult()));
-    this->requestData();
+    // 初始化左侧Up主列表
+    upRecyclingGrid->registerCell("Cell", []() { return DynamicUserInfoView::create(); });
+    upRecyclingGrid->registerCell("CellAll", []() { return DynamicUserInfoView::create("xml/views/user_info_dynamic_all.xml"); });
+    upRecyclingGrid->setDataSource(new DataSourceUpList(bilibili::DynamicUpListResult()));
+    this->DynamicTabRequest::requestData();
+
+    // 初始化右侧视频列表
+    videoRecyclingGrid->registerCell("Cell", []() { return RecyclingGridItemVideoCard::create(); });
+    videoRecyclingGrid->onNextPage([this](){
+        //自动加载下一页
+        this->DynamicVideoRequest::requestData();
+    });
+    this->DynamicVideoRequest::requestData();
 }
 
 DynamicTab::~DynamicTab() {
@@ -114,9 +171,9 @@ brls::View* DynamicTab::create() {
 void DynamicTab::onUpList(const bilibili::DynamicUpListResultWrapper &result){
     brls::Threading::sync([this, result]() {
         auto dataSource = new DataSourceUpList(result.items);
-        recyclingGrid->setDataSource(dataSource);
+        upRecyclingGrid->setDataSource(dataSource);
         dataSource->getSelectedEvent()->subscribe([this](uint mid){
-            dynamicVideoTab->changeUser(mid);
+            this->changeUser(mid);
         });
     });
 }
@@ -127,8 +184,39 @@ void DynamicTab::onError(const string& error){
 
 void DynamicTab::onCreate(){
     this->registerTabAction("刷新列表", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
-        this->requestData();
-        dynamicVideoTab->changeUser(0);
+        AutoTabFrame::focus2Sidebar(this);
+        this->upRecyclingGrid->showSkeleton();
+        this->DynamicTabRequest::requestData();
+        this->changeUser(0);
         return true;
+    });
+    this->videoRecyclingGrid->registerAction("刷新", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        //焦点转移到UP主列表
+        brls::Application::giveFocus(this->upRecyclingGrid);
+        //展示骨架屏
+        this->videoRecyclingGrid->showSkeleton();
+        //请求刷新数据
+        this->DynamicVideoRequest::requestData(true);
+        return true;
+    });
+}
+
+
+void DynamicTab::changeUser(uint mid){
+    this->setCurrentUser(mid);
+    this->videoRecyclingGrid->showSkeleton();
+    this->DynamicVideoRequest::requestData(true);
+}
+
+// 获取到动态视频
+void DynamicTab::onDynamicVideoList(const bilibili::DynamicVideoListResult &result, uint index){
+    brls::Threading::sync([this, result, index]() {
+        DataSourceDynamicVideoList* datasource = (DataSourceDynamicVideoList *)videoRecyclingGrid->getDataSource();
+        if(datasource && index != 1){
+            datasource->appendData(result);
+            videoRecyclingGrid->notifyDataChanged();
+        } else{
+            videoRecyclingGrid->setDataSource(new DataSourceDynamicVideoList(result));
+        }
     });
 }

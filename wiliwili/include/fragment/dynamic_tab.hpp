@@ -11,6 +11,7 @@
 
 #include <borealis.hpp>
 #include "presenter/dynamic_tab.hpp"
+#include "presenter/dynamic_video.hpp"
 #include "view/auto_tab_frame.hpp"
 
 class RecyclingGrid;
@@ -19,7 +20,7 @@ class DynamicVideo;
 
 typedef brls::Event<uint> UserSelectedEvent;
 
-class DynamicTab : public AttachedView, public DynamicTabRequest{
+class DynamicTab : public AttachedView, public DynamicTabRequest, DynamicVideoRequest{
 
 public:
     DynamicTab();
@@ -34,8 +35,11 @@ public:
 
     void onCreate() override;
 
+    void changeUser(uint mid);
+
+    void onDynamicVideoList(const bilibili::DynamicVideoListResult &result, uint index) override;
+
 private:
-    BRLS_BIND(RecyclingGrid, recyclingGrid, "dynamic/up/recyclingGrid");
-    BRLS_BIND(DynamicVideo, dynamicVideoTab, "dynamic/videoList");
-//    BRLS_BIND(AutoTabFrame, tabFrame, "dynamic/tabFrame");
+    BRLS_BIND(RecyclingGrid, upRecyclingGrid, "dynamic/up/recyclingGrid");
+    BRLS_BIND(RecyclingGrid, videoRecyclingGrid, "dynamic/videoList");
 };

@@ -21,7 +21,14 @@
             paddingBottom="0"
             wireframe="false"
             grow="1">
-            <DynamicVideo
-                id="dynamic/videoList"/>
+            <RecyclingGrid
+                    paddingLeft="20"
+                    paddingRight="20"
+                    itemHeight="250"
+                    grow="1"
+                    preFetchLine="2"
+                    spanCount="3"
+                    wireframe="false"
+                    id="dynamic/videoList"/>
     </brls:Box>
 </brls:Box>

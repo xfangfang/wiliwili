@@ -36,7 +36,6 @@
 #include "fragment/search_video.hpp"
 #include "fragment/search_cinema.hpp"
 #include "fragment/search_bangumi.hpp"
-#include "fragment/dynamic_video.hpp"
 
 #include "utils/config_helper.hpp"
 
@@ -76,7 +75,6 @@ void Register::initCustomView(){
     brls::Application::registerXMLView("SearchVideo", SearchVideo::create);
     brls::Application::registerXMLView("SearchCinema", SearchCinema::create);
     brls::Application::registerXMLView("SearchBangumi", SearchBangumi::create);
-    brls::Application::registerXMLView("DynamicVideo", DynamicVideo::create);
 
 //    brls::Application::registerXMLView("RawVideoView", RawVideoView::create);
 //    MPVCore::instance();
