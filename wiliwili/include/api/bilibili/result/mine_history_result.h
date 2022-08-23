@@ -43,7 +43,12 @@ namespace bilibili {
         int progress; // -1：表示看完了
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, HistoryVideoResult& nlohmann_json_t) {
-        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, show_title, author_name, cover,
+        if(nlohmann_json_j.at("covers").is_array() && nlohmann_json_j.at("covers").size() != 0){
+            nlohmann_json_j.at("covers")[0].get_to(nlohmann_json_t.cover);
+        } else {
+            nlohmann_json_j.at("cover").get_to(nlohmann_json_t.cover);
+        }
+        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, show_title, author_name,
                                                  badge, progress, duration, view_at, history));
     }
 
