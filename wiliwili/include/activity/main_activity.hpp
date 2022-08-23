@@ -18,15 +18,22 @@
 
 #include <borealis.hpp>
 
+class CustomButton;
+class AutoTabFrame;
+
 class MainActivity : public brls::Activity
 {
   public:
     // Declare that the content of this activity is the given XML file
     CONTENT_FROM_XML_RES("activity/main.xml");
 
-//    bool isTranslucent(){
-//        return false;
-//    }
+    void onContentAvailable() override;
 
     ~MainActivity();
+
+    static void openSetting();
+
+private:
+    BRLS_BIND(CustomButton, settingBtn, "main/setting");
+    BRLS_BIND(AutoTabFrame, tabFrame, "main/tabFrame");
 };

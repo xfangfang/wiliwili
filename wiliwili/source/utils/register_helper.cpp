@@ -16,6 +16,7 @@
 #include "view/mpv_core.hpp"
 #include "view/video_progress_slider.hpp"
 #include "view/gallery_view.hpp"
+#include "view/custom_button.hpp"
 
 #include "fragment/home_tab.hpp"
 #include "fragment/dynamic_tab.hpp"
@@ -49,6 +50,7 @@ void Register::initCustomView(){
     brls::Application::registerXMLView("TextBox", TextBox::create);
     brls::Application::registerXMLView("VideoProgressSlider", VideoProgressSlider::create);
     brls::Application::registerXMLView("GalleryView", GalleryView::create);
+    brls::Application::registerXMLView("CustomButton", CustomButton::create);
 
 //     Register custom views
     brls::Application::registerXMLView("UserInfoView", UserInfoView::create);
@@ -83,8 +85,8 @@ void Register::initCustomView(){
 void Register::initCustomTheme(){
     // Add custom values to the theme
     // 用于左侧边栏背景
-    brls::getLightTheme().addColor("color/grey_1", nvgRGBA(48, 48, 48, 16));
-    brls::getDarkTheme().addColor("color/grey_1", nvgRGBA(48, 48, 48, 160));
+    brls::getLightTheme().addColor("color/grey_1", nvgRGB(245, 246, 246));
+    brls::getDarkTheme().addColor("color/grey_1", nvgRGBA(245, 246, 246, 8));
 
     // 用于二级切换分栏的背景色（例：直播切换分区、每周必看切换周）
     brls::getLightTheme().addColor("color/grey_2", nvgRGB(245, 245, 245));

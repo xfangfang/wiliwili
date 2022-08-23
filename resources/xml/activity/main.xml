@@ -2,7 +2,13 @@
     iconInterpolation="linear"
     headerHidden="true"
     footerHidden="false">
+    <brls:Box
+        axis="column"
+        width="100%"
+        height="100%">
         <AutoTabFrame
+                id="main/tabFrame"
+                grow="1"
                 tabBackgroundColor="@theme/color/grey_1"
                 tabItemActiveTextColor="@theme/color/bilibili"
                 defaultTab="0"
@@ -24,9 +30,39 @@
 
             <Tab label="我的"
                  fontSize="18"
+                 focusDown="main/setting"
                  icon="@res/svg/ico-mine.svg"
                  iconActivate="@res/svg/ico-mine-activate.svg">
                 <MineTab />
             </Tab>
         </AutoTabFrame>
+        <brls:Box
+                wireframe="false"
+                width="100"
+                axis="column"
+                justifyContent="center"
+                alignItems="center"
+                positionType="absolute"
+                positionBottom="20">
+                <CustomButton
+                        id="main/setting"
+                        focusable="true"
+                        highlightCornerRadius="50"
+                        wireframe="false">
+                        <SVGImage
+                                focusable="true"
+                                width="48"
+                                height="48"
+                                SVG="@res/svg/ico-setting.svg"/>
+                </CustomButton>
+                <brls:Label
+                        wireframe="false"
+                        marginTop="4"
+                        marginLeft="2"
+                        textColor="#61666D"
+                        horizontalAlign="center"
+                        fontSize="12"
+                        text=" /  "/>
+        </brls:Box>
+    </brls:Box>
 </brls:AppletFrame>

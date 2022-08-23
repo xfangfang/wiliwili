@@ -1,0 +1,10 @@
+<brls:AppletFrame
+        iconInterpolation="linear"
+        headerHidden="true"
+        footerHidden="false">
+    <brls:Box>
+        <brls:Label
+                focusable="true"
+                text="123123123"/>
+    </brls:Box>
+</brls:AppletFrame>
