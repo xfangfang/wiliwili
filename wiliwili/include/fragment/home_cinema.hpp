@@ -19,11 +19,13 @@ public:
 
     void onCreate() override;
 
-    void onCinemaList(const bilibili::PGCModuleListResult &result, int has_next) override;
+    void onCinemaList(const bilibili::PGCResultWrapper &result) override;
 
     ~HomeCinema();
 
     static View *create();
+
+    void onError(const string& error) override;
 
 private:
     BRLS_BIND(AutoTabFrame, tabFrame, "homeCinema/tabFrame");

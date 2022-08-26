@@ -45,44 +45,65 @@ void HomeCinema::onCreate() {
                             }, true);
 }
 
-void HomeCinema::onCinemaList(const bilibili::PGCModuleListResult &result, int has_next){
+void HomeCinema::onCinemaList(const bilibili::PGCResultWrapper &result){
+
+    if(this->refresh_flag == 1 && this->tabFrame->getActiveTab() != nullptr && result.modules.size() > 0){
+        // 加载的是 猜你喜欢的第N页
+        auto tab = (AttachedView*)this->tabFrame->getActiveTab(); // 猜你喜欢页面
+        auto grid = (RecyclingGrid*)tab->getChildren()[0];
+
+        DataSourcePGCVideoList* datasource = (DataSourcePGCVideoList *)grid->getDataSource();
+        datasource->appendData(result.modules[0].items);
+        grid->notifyDataChanged();
+
+        return;
+    }
 
     brls::sync([this, result](){
-        for(auto i: result){
-            if(i.items.size() > 0){
-                AutoSidebarItem* item = new AutoSidebarItem();
-                item->setTabStyle(AutoTabBarStyle::PLAIN);
-                item->setLabel(i.title);
-                item->setFontSize(18);
-                this->tabFrame->addTab(item, [i](){
-                    auto container = new AttachedView();
-                    container->setMarginTop(12);
-                    auto grid = new RecyclingGrid();
-                    grid->setPadding(0, 10, 0, 20);
-                    grid->setGrow(1);
-                    if(i.style.compare("double_feed") == 0 || i.style.compare("follow") == 0){
-                        // 封面横图
-                        grid->applyXMLAttribute("itemSpace", "20");
-                        grid->applyXMLAttribute("spanCount", "4");
-                        grid->applyXMLAttribute("itemHeight", "200");
-                        grid->registerCell("Cell", []() { return RecyclingGridItemPGCVideoCard::create(false); });
-                        grid->registerCell("CellMore", []() {return RecyclingGridItemViewMoreCard::create(false);});
+        for(auto i: result.modules){
+            if(i.items.size() == 0)
+                continue;
+            AutoSidebarItem* item = new AutoSidebarItem();
+            item->setTabStyle(AutoTabBarStyle::PLAIN);
+            item->setLabel(i.title);
+            item->setFontSize(18);
+            this->tabFrame->addTab(item, [this, i](){
+                auto container = new AttachedView();
+                container->setMarginTop(12);
+                auto grid = new RecyclingGrid();
+                grid->setPadding(0, 10, 0, 20);
+                grid->setGrow(1);
+                if(i.style == "double_feed" || i.style == "follow"){
+                    // 封面横图
+                    grid->applyXMLAttribute("itemSpace", "20");
+                    grid->applyXMLAttribute("spanCount", "4");
+                    grid->applyXMLAttribute("itemHeight", "200");
+                    grid->registerCell("Cell", []() { return RecyclingGridItemPGCVideoCard::create(false); });
+                    grid->registerCell("CellMore", []() {return RecyclingGridItemViewMoreCard::create(false);});
 
-                        // todo: 猜你喜欢页面加载下一页
-                    } else {
-                        // 封面竖图
-                        grid->applyXMLAttribute("itemSpace", "31.4");
-                        grid->applyXMLAttribute("spanCount", "5");
-                        grid->applyXMLAttribute("itemHeight", "320");
-                        grid->registerCell("Cell", []() { return RecyclingGridItemPGCVideoCard::create(true); });
-                        grid->registerCell("CellMore", []() {return RecyclingGridItemViewMoreCard::create(true);});
+                    // 猜你喜欢tab 监控下一页请求
+                    if(i.style == "double_feed"){
+                        grid->onNextPage([this](){
+                            this->requestData(false);
+                        });
                     }
+                } else {
+                    // 封面竖图
+                    grid->applyXMLAttribute("itemSpace", "31.4");
+                    grid->applyXMLAttribute("spanCount", "5");
+                    grid->applyXMLAttribute("itemHeight", "320");
+                    grid->registerCell("Cell", []() { return RecyclingGridItemPGCVideoCard::create(true); });
+                    grid->registerCell("CellMore", []() {return RecyclingGridItemViewMoreCard::create(true);});
+                }
 
-                    container->addView(grid);
-                    grid->setDataSource(new DataSourcePGCVideoList(i));
-                    return container;
-                });
-            }
+                container->addView(grid);
+                grid->setDataSource(new DataSourcePGCVideoList(i));
+                return container;
+            });
         }
     });
+}
+
+void HomeCinema::onError(const string& error) {
+
 }

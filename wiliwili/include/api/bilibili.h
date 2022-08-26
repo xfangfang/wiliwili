@@ -32,6 +32,7 @@ namespace bilibili {
     class UserDynamicVideoResultWrapper; // 动态 单个up主视频列表
     class PGCIndexResultWrapper;
     class PGCIndexFilterWrapper;
+    class PGCResultWrapper;
     typedef std::map<std::string, PGCIndexFilterWrapper> PGCIndexFilters;
 
     using Cookies = std::map<std::string, std::string>;
@@ -172,14 +173,14 @@ namespace bilibili {
                                           const ErrorCallback& error= nullptr);
 
             /// 主页 追番列表
-            static void get_bangumi(int is_refresh, int cursor,
-                                           const std::function<void(PGCModuleListResult , int, std::string)>& callback= nullptr,
+            static void get_bangumi(int is_refresh, const std::string& cursor,
+                                           const std::function<void(PGCResultWrapper)>& callback= nullptr,
                                            const ErrorCallback& error= nullptr);
 
 
             /// 主页 影视列表
-            static void get_cinema(int is_refresh, int cursor,
-                                    const std::function<void(PGCModuleListResult , int, std::string)>& callback= nullptr,
+            static void get_cinema(int is_refresh, const std::string& cursor,
+                                    const std::function<void(PGCResultWrapper)>& callback= nullptr,
                                     const ErrorCallback& error= nullptr);
 
             /// 主页 追番/影视 分类检索

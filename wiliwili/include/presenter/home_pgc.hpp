@@ -12,26 +12,32 @@
 
 class HomeBangumiRequest {
 public:
-    virtual void onBangumiList(const bilibili::PGCModuleListResult &result, int has_next);
+    virtual void onBangumiList(const bilibili::PGCResultWrapper &result);
 
-    virtual void onError();
+    virtual void onError(const string& error);
 
-    void requestData();
+    void requestData(bool refresh = true);
 
-    void requestBangumiList(int is_refresh, int cursor);
+    void requestBangumiList(int is_refresh=0, std::string cursor="0");
 
+protected:
+    std::string next_cursor = "";
+    int refresh_flag = 0;
 };
 
 class HomeCinemaRequest {
 public:
-    virtual void onCinemaList(const bilibili::PGCModuleListResult &result, int has_next);
+    virtual void onCinemaList(const bilibili::PGCResultWrapper &result);
 
-    virtual void onError();
+    virtual void onError(const string& error);
 
-    void requestData();
+    void requestData(bool refresh = true);
 
-    void requestCinemaList(int is_refresh, int cursor);
+    void requestCinemaList(int is_refresh=0, std::string cursor="0");
 
+protected:
+    std::string next_cursor = "";
+    int refresh_flag = 0;
 };
 
 
@@ -40,62 +46,17 @@ class DataSourcePGCVideoList
         : public RecyclingGridDataSource
 {
 public:
-    DataSourcePGCVideoList(bilibili::PGCModuleResult result): videoList(result){
-        if(!result.url.empty()){
-            showMore = true;
-        }
-    }
+    DataSourcePGCVideoList(bilibili::PGCModuleResult result);
 
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override{
-        if(index == videoList.items.size()){
-            // show more button
-            RecyclingGridItemViewMoreCard* item = (RecyclingGridItemViewMoreCard*)recycler->dequeueReusableCell("CellMore");
-            return item;
-        }
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override;
 
+    size_t getItemCount() override;
 
-        RecyclingGridItemPGCVideoCard* item = (RecyclingGridItemPGCVideoCard*)recycler->dequeueReusableCell("Cell");
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override;
 
-        bilibili::PGCItemResult& r = this->videoList.items[index];
-        if(item->isVertical()){
-            item->setCard(r.cover+"@312w_420h_1c.jpg",r.title, r.desc,
-                          r.badge_info, r.bottom_left_badge, r.bottom_right_badge);
-        }else{
-            item->setCard(r.cover+"@672w_378h_1c.jpg",r.title, r.desc,
-                          r.badge_info, r.bottom_left_badge, r.bottom_right_badge);
-        }
-        return item;
-    }
+    void appendData(const bilibili::PGCItemListResult& data);
 
-    size_t getItemCount() override{
-        if(this->showMore){
-            return videoList.items.size() + 1;
-        }
-        return videoList.items.size();
-    }
-
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override{
-        if(index == videoList.items.size()){
-            if(this->videoList.module_id == 1741){
-                // 我的追番
-            } else if(this->videoList.module_id == 1745){
-                // 我的追剧
-            } else {
-                brls::Application::pushActivity(new PGCIndexActivity(this->videoList.url));
-            }
-        } else {
-            brls::Application::pushActivity(new PlayerSeasonActivity(videoList.items[index].season_id));
-        }
-
-    }
-
-    void appendData(const bilibili::PGCItemListResult& data){
-        this->videoList.items.insert(this->videoList.items.end(), data.begin(), data.end());
-    }
-
-    void clearData() override{
-        this->videoList.items.clear();
-    }
+    void clearData() override;
 
 private:
     bilibili::PGCModuleResult videoList;

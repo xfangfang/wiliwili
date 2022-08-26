@@ -20,11 +20,13 @@ public:
 
     void onCreate() override;
 
-    void onBangumiList(const bilibili::PGCModuleListResult &result, int has_next) override;
+    void onBangumiList(const bilibili::PGCResultWrapper &result) override;
 
     ~HomeBangumi();
 
     static View *create();
+
+    void onError(const string& error) override;
 
 private:
     BRLS_BIND(AutoTabFrame, tabFrame, "homeBangumi/tabFrame");

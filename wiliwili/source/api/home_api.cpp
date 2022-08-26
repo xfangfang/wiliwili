@@ -98,8 +98,8 @@ namespace bilibili {
     }
 
     /// 主页 直播推荐
-     void BilibiliClient::get_live_recommend(int parent_area_id, int area_id, int page,
-                                   const std::function<void(LiveAreaListResult , LiveVideoListResult, int)>& callback,
+     void BilibiliClient::get_live_recommend(int parent_area_id, int area_id, int page, const std::string& source,
+                                   const std::function<void(LiveResultWrapper)>& callback,
                                    const ErrorCallback& error){
         HTTP::getResultAsync<LiveResultWrapper>(Api::LiveFeed,
                                                                 {{"parent_area_id", std::to_string(parent_area_id)},
@@ -117,29 +117,29 @@ namespace bilibili {
     }
 
     /// 主页 追番列表
-    void BilibiliClient::get_bangumi(int is_refresh, int cursor,
-                            const std::function<void(PGCModuleListResult , int, std::string)>& callback,
+    void BilibiliClient::get_bangumi(int is_refresh, const std::string& cursor,
+                            const std::function<void(PGCResultWrapper)>& callback,
                             const ErrorCallback& error){
         HTTP::getResultAsync<PGCResultWrapper>(Api::Bangumi,
                                                {{"is_refresh", std::to_string(is_refresh)},
-                                                 {"cursor", std::to_string(cursor)},
+                                                 {"cursor", cursor},
                                                 },
                                                [callback](auto wrapper){
-                                                    callback(wrapper.modules, wrapper.has_next, wrapper.next_cursor);
+                                                    callback(wrapper);
                                                 }, error);
     }
 
 
     /// 主页 影视列表
-    void BilibiliClient::get_cinema(int is_refresh, int cursor,
-                                     const std::function<void(PGCModuleListResult , int, std::string)>& callback,
+    void BilibiliClient::get_cinema(int is_refresh, const std::string& cursor,
+                                     const std::function<void(PGCResultWrapper)>& callback,
                                      const ErrorCallback& error){
         HTTP::getResultAsync<PGCResultWrapper>(Api::Cinema,
                                                {{"is_refresh", std::to_string(is_refresh)},
-                                                    {"cursor", std::to_string(cursor)},
+                                                    {"cursor", cursor},
                                                    },
                                                [callback](auto wrapper){
-                                                       callback(wrapper.modules, wrapper.has_next, wrapper.next_cursor);
+                                                       callback(wrapper);
                                                    }, error);
     }
 
