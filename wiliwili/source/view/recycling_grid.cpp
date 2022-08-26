@@ -146,8 +146,10 @@ void RecyclingGrid::draw(NVGcontext* vg, float x, float y, float width, float he
 
     ScrollingFrame::draw(vg, x, y, width, height, style, ctx);
 
-    if(!this->dataSource || this->dataSource->getItemCount() == 0)
+    if(!this->dataSource || this->dataSource->getItemCount() == 0){
+        this->hintImage->setAlpha(this->getAlpha());
         this->hintImage->frame(ctx);
+    }
 }
 
 void RecyclingGrid::registerCell(std::string identifier, std::function<RecyclingGridItem*()> allocation)
