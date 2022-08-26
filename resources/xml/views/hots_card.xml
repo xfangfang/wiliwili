@@ -1,0 +1,30 @@
+<brls:Box
+        axis="row"
+        width="auto"
+        height="auto"
+        alignItems="center"
+        wireframe="false">
+    <brls:Label
+            id="hots/order"
+            width="50"
+            lineColor="#D0D0D0"
+            lineRight="0"
+            wireframe="false"
+            height="50"
+            horizontalAlign="center"
+    />
+    <!--            width="100%"-->
+    <!--            height="100%"-->
+    <brls:Label
+            id="hots/content"
+            wireframe="false"
+            width="auto"
+            height="50"
+    />
+    <brls:Image
+            id="hots/icon"
+            wireframe="false"
+            width="30"
+            height="30"
+    />
+</brls:Box>

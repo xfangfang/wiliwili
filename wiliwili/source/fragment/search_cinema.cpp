@@ -17,9 +17,9 @@ SearchCinema::SearchCinema() {
     recyclingGrid->onNextPage([this](){
         this->_requestSearch(SearchActivity::currentKey);
     });
-    if(!SearchActivity::currentKey.empty()){
-        this->_requestSearch(SearchActivity::currentKey);
-    }
+//    if(!SearchActivity::currentKey.empty()){
+//        this->_requestSearch(SearchActivity::currentKey);
+//    }
 }
 
 SearchCinema::~SearchCinema() {
@@ -31,7 +31,6 @@ brls::View *SearchCinema::create() {
 }
 
 void SearchCinema::requestSearch(const std::string& key){
-    AutoTabFrame::focus2Sidebar(this);
     this->recyclingGrid->showSkeleton();
     this->requestIndex = 1;
     this->_requestSearch(key);

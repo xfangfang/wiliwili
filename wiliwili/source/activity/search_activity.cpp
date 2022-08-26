@@ -24,6 +24,11 @@ void SearchActivity::onContentAvailable() {
                                 }, "搜索你感兴趣的视频", "", 32, SearchActivity::currentKey, 0);
                                 return true;
                             });
+
+    this->getUpdateSearchEvent()->subscribe([this](const std::string& s) {
+        this->search(s);
+    });
+    this->searchTab->passEventToSearchHots(&updateSearchEvent);
 }
 
 void SearchActivity::search(const std::string& key){
@@ -37,4 +42,8 @@ void SearchActivity::search(const std::string& key){
 
 SearchActivity::~SearchActivity() {
     brls::Logger::debug("SearchActivity: delete");
+}
+
+UpdateSearchEvent *SearchActivity::getUpdateSearchEvent() {
+    return &this->updateSearchEvent;
 }

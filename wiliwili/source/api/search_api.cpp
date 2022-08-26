@@ -37,4 +37,13 @@ namespace bilibili {
                                            }, error);
     }
 
+    void BilibiliClient::get_search_hots(int limit, const std::function<void(SearchHotsResultWrapper)>& callback,
+                                         const ErrorCallback& error){
+        HTTP::getResultAsync<SearchHotsResultWrapper>(Api::SearchHots,
+                                           {{"limit", std::to_string(limit)}},
+                                           [callback](auto data){
+                                               callback(data);
+                                           }, error);
+    }
+
 }

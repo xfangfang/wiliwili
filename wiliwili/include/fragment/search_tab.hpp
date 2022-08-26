@@ -21,6 +21,8 @@
 class SearchVideo;
 class SearchBangumi;
 class SearchCinema;
+class SearchHots;
+typedef brls::Event<std::string> UpdateSearchEvent;
 
 class DataSourceSearchVideoList
         : public RecyclingGridDataSource
@@ -73,9 +75,15 @@ public:
 
     inline static std::string keyWord = "";
 
+    void passEventToSearchHots(UpdateSearchEvent *updateSearchEvent);
+
+    void focusNthTab(int i);
+
 private:
     BRLS_BIND(SearchVideo, searchVideoTab, "search/tab/video");
     BRLS_BIND(SearchBangumi, searchBangumiTab, "search/tab/bangumi");
     BRLS_BIND(SearchCinema, searchCinemaTab, "search/tab/cinema");
+    BRLS_BIND(SearchHots, searchHotsTab, "search/tab/hots");
+    BRLS_BIND(AutoTabFrame, tabFrame, "search/tab/frame");
 
 };
