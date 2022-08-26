@@ -13,8 +13,6 @@
             height="50"
             horizontalAlign="center"
     />
-    <!--            width="100%"-->
-    <!--            height="100%"-->
     <brls:Label
             id="hots/content"
             wireframe="false"
@@ -24,7 +22,8 @@
     <brls:Image
             id="hots/icon"
             wireframe="false"
-            width="30"
-            height="30"
+            height="20"
+            maxWidth="63"
+            scalingType="fit"
     />
 </brls:Box>
