@@ -22,6 +22,7 @@ namespace bilibili {
         std::string border_color_night;
         int bg_style;
     };
+
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoSearchBadgeResult, text);
 
     typedef vector<VideoSearchBadgeResult> VideoSearchBadgeListResult;
@@ -50,8 +51,9 @@ namespace bilibili {
 
         VideoSearchBadgeListResult badges;
     };
-    inline void from_json(const nlohmann::json& nlohmann_json_j, VideoItemSearchResult& nlohmann_json_t) {
-        if(nlohmann_json_j.at("type") == "video"){
+
+    inline void from_json(const nlohmann::json &nlohmann_json_j, VideoItemSearchResult &nlohmann_json_t) {
+        if (nlohmann_json_j.at("type") == "video") {
             nlohmann_json_j.at("aid").get_to(nlohmann_json_t.aid);
             nlohmann_json_j.at("bvid").get_to(nlohmann_json_t.bvid);
             nlohmann_json_j.at("author").get_to(nlohmann_json_t.subtitle);
@@ -61,7 +63,7 @@ namespace bilibili {
             nlohmann_json_j.at("danmaku").get_to(nlohmann_json_t.danmaku);
             nlohmann_json_j.at("like").get_to(nlohmann_json_t.like);
             nlohmann_json_j.at("pubdate").get_to(nlohmann_json_t.pubdate);
-            if(pystring::startswith(nlohmann_json_t.cover, "//")){
+            if (pystring::startswith(nlohmann_json_t.cover, "//")) {
                 nlohmann_json_t.cover = "http:" + nlohmann_json_t.cover;
             }
         } else {
@@ -75,7 +77,7 @@ namespace bilibili {
                     nlohmann_json_j.at("styles").get<std::string>();
         }
 
-        if(nlohmann_json_j.contains("badges") && !nlohmann_json_j.at("badges").is_null()){
+        if (nlohmann_json_j.contains("badges") && !nlohmann_json_j.at("badges").is_null()) {
             nlohmann_json_j.at("badges").get_to(nlohmann_json_t.badges);
         }
 
@@ -98,11 +100,32 @@ namespace bilibili {
         VideoItemSearchListResult result;
     };
 
-    inline void from_json(const nlohmann::json& nlohmann_json_j, SearchResult& nlohmann_json_t) {
-        if(nlohmann_json_j.contains("result")){
+    inline void from_json(const nlohmann::json &nlohmann_json_j, SearchResult &nlohmann_json_t) {
+        if (nlohmann_json_j.contains("result")) {
             nlohmann_json_j.at("result").get_to(nlohmann_json_t.result);
         }
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, page, pagesize, numResults, numPages));
     }
 
+    class SearchHotsResult {
+    public:
+        string keyword;
+        string show_name;
+        string icon;
+    };
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SearchHotsResult, keyword, show_name, icon);
+
+    typedef vector<SearchHotsResult> SearchHotsListResult;
+
+    class SearchHotsResultWrapper {
+    public:
+        SearchHotsListResult list;
+    };
+
+    inline void from_json(const nlohmann::json &nlohmann_json_j, SearchHotsResultWrapper &nlohmann_json_t) {
+        if (nlohmann_json_j.contains("trending")) {
+            nlohmann_json_j.at("trending").at("list").get_to(nlohmann_json_t.list);
+        }
+    }
 }

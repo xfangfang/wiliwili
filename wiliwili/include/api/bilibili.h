@@ -32,6 +32,7 @@ namespace bilibili {
     class PGCIndexFilterWrapper;
     class PGCResultWrapper;
     typedef std::map<std::string, PGCIndexFilterWrapper> PGCIndexFilters;
+    class SearchHotsResultWrapper; // 搜索页 获取热搜榜
 
     using Cookies = std::map<std::string, std::string>;
 
@@ -206,6 +207,10 @@ namespace bilibili {
                                      const std::string& order = "",
                                      const std::function<void(SearchResult)>& callback= nullptr,
                                      const ErrorCallback& error= nullptr);
+            /// 搜索页 获取热搜榜
+            static void get_search_hots(int limit = 20,
+                                        const std::function<void(SearchHotsResultWrapper)>& callback= nullptr,
+                                        const ErrorCallback& error= nullptr);
 
             /// 动态页 获取全部关注用户的最近动态
             static void dynamic_video(const uint page, const std::string& offset = "",

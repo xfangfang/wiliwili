@@ -4,13 +4,19 @@
         width="auto"
         height="auto">
     <AutoTabFrame
-            id="mine/tab/frame"
+            demandMode="false"
+            id="search/tab/frame"
             grow="1"
-            defaultTab="0"
+            defaultTab="1"
             tabHeight="65"
             tabFontSize="16"
             tabItemActiveTextColor="@theme/color/bilibili"
             sidebarPosition="top">
+
+        <Tab label="热搜"
+             fontSize="18">
+            <SearchHots id="search/tab/hots"/>
+        </Tab>
 
         <Tab label="视频"
              fontSize="18">
