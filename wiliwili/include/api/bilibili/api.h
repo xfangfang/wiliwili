@@ -91,7 +91,10 @@ namespace bilibili {
         static const string Bangumi = _apiBase + "/pgc/page/pc/bangumi/tab";
         /// 主页 影视
         static const string Cinema = _apiBase + "/pgc/page/pc/cinema/tab";
-
+        /// 主页 追番/影视 分类检索
+        static const string PGCIndex = _apiBase + "/pgc/page/index/result";
+        /// 主页 追番/影视 分类检索过滤器列表
+        static const string PGCIndexFilter = _apiBase + "/pgc/page/index/condition";
 
         /// 视频 评论
         static const string Comment = _apiBase + "/x/v2/reply/main";

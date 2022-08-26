@@ -142,4 +142,60 @@ namespace bilibili {
                                                        callback(wrapper.modules, wrapper.has_next, wrapper.next_cursor);
                                                    }, error);
     }
+
+    /// 主页 追番/影视 分类检索
+    void BilibiliClient::get_pgc_index(const string& param, int page,
+                              const std::function<void(PGCIndexResultWrapper)>& callback,
+                              const ErrorCallback& error){
+        HTTP::getResultAsync<PGCIndexResultWrapper>(Api::PGCIndex + "?" + param + "&page=" + std::to_string(page),
+                                               {},
+                                               [callback](auto wrapper){
+                                                   callback(wrapper);
+                                               }, error);
+    }
+
+    /// 主页 追番/影视 获取分类
+    void BilibiliClient::get_pgc_filter(const string& index_type,
+                               const std::function<void(PGCIndexFilterWrapper)>& callback,
+                               const ErrorCallback& error){
+        HTTP::getResultAsync<PGCIndexFilterWrapper>(Api::PGCIndexFilter,
+                                               {{"type", "2"},
+                                                {"index_type", index_type},
+                                               },
+                                               [callback](auto wrapper){
+                                                   callback(wrapper);
+                                               }, error);
+    }
+
+    /// 主页 追番/影视 获取全部分类
+    void BilibiliClient::get_pgc_all_filter(const std::function<void(PGCIndexFilters)>& callback,
+                                   const ErrorCallback& error){
+
+        PGCIndexFilters res;
+        BilibiliClient::get_pgc_filter("1", [callback, error, res](auto wrapper)mutable{
+            wrapper.index_name = "追番";
+            res["1"] = wrapper;
+        BilibiliClient::get_pgc_filter("2", [callback, error, res](auto wrapper)mutable{
+            wrapper.index_name = "电影";
+            res["2"] = wrapper;
+        BilibiliClient::get_pgc_filter("5", [callback, error, res](auto wrapper)mutable{
+            wrapper.index_name = "电视剧";
+            res["5"] = wrapper;
+        BilibiliClient::get_pgc_filter("3", [callback, error, res](auto wrapper)mutable{
+            wrapper.index_name = "纪录片";
+            res["3"] = wrapper;
+        BilibiliClient::get_pgc_filter("7", [callback, error, res](auto wrapper)mutable{
+            wrapper.index_name = "综艺";
+            res["7"] = wrapper;
+        BilibiliClient::get_pgc_filter("102", [callback, res](auto wrapper)mutable{
+            wrapper.index_name = "影视综合";
+            res["102"] = wrapper;
+            callback(res);
+        }, error);
+        }, error);
+        }, error);
+        }, error);
+        }, error);
+        }, error);
+    }
 }

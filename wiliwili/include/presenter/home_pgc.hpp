@@ -8,6 +8,7 @@
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "activity/player_activity.hpp"
+#include "activity/pgc_index_activity.hpp"
 
 class HomeBangumiRequest {
 public:
@@ -39,14 +40,23 @@ class DataSourcePGCVideoList
         : public RecyclingGridDataSource
 {
 public:
-    DataSourcePGCVideoList(bilibili::PGCItemListResult result): videoList(result){
-
+    DataSourcePGCVideoList(bilibili::PGCModuleResult result): videoList(result){
+        if(!result.url.empty()){
+            showMore = true;
+        }
     }
+
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override{
-        //从缓存列表中取出 或者 新生成一个表单项
+        if(index == videoList.items.size()){
+            // show more button
+            RecyclingGridItemViewMoreCard* item = (RecyclingGridItemViewMoreCard*)recycler->dequeueReusableCell("CellMore");
+            return item;
+        }
+
+
         RecyclingGridItemPGCVideoCard* item = (RecyclingGridItemPGCVideoCard*)recycler->dequeueReusableCell("Cell");
 
-        bilibili::PGCItemResult& r = this->videoList[index];
+        bilibili::PGCItemResult& r = this->videoList.items[index];
         if(item->isVertical()){
             item->setCard(r.cover+"@312w_420h_1c.jpg",r.title, r.desc,
                           r.badge_info, r.bottom_left_badge, r.bottom_right_badge);
@@ -58,21 +68,36 @@ public:
     }
 
     size_t getItemCount() override{
-        return videoList.size();
+        if(this->showMore){
+            return videoList.items.size() + 1;
+        }
+        return videoList.items.size();
     }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override{
-        brls::Application::pushActivity(new PlayerSeasonActivity(videoList[index].season_id));
+        if(index == videoList.items.size()){
+            if(this->videoList.module_id == 1741){
+                // 我的追番
+            } else if(this->videoList.module_id == 1745){
+                // 我的追剧
+            } else {
+                brls::Application::pushActivity(new PGCIndexActivity(this->videoList.url));
+            }
+        } else {
+            brls::Application::pushActivity(new PlayerSeasonActivity(videoList.items[index].season_id));
+        }
+
     }
 
     void appendData(const bilibili::PGCItemListResult& data){
-        this->videoList.insert(this->videoList.end(), data.begin(), data.end());
+        this->videoList.items.insert(this->videoList.items.end(), data.begin(), data.end());
     }
 
     void clearData() override{
-        this->videoList.clear();
+        this->videoList.items.clear();
     }
 
 private:
-    bilibili::PGCItemListResult videoList;
+    bilibili::PGCModuleResult videoList;
+    bool showMore = false;
 };

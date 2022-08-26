@@ -1,0 +1,53 @@
+<brls:Box
+        highlightCornerRadius="8"
+        backgroundColor="@theme/color/grey_1"
+        cornerRadius="4"
+        axis="row"
+        justifyContent="center"
+        alignItems="center"
+        width="auto"
+        height="auto">
+    <brls:Box
+            axis="column"
+            wireframe="false"
+            height="80%"
+            width="60%">
+        <brls:Box
+                width="100%"
+                wireframe="false"
+                height="40%"
+                alignItems="center">
+            <brls:Label
+                    wireframe="false"
+                    fontSize="48"
+                    horizontalAlign="center"
+                    width="50%"
+                    text="查"/>
+            <brls:Label
+                    wireframe="false"
+                    fontSize="48"
+                    horizontalAlign="center"
+                    width="50%"
+                    text="看"/>
+        </brls:Box>
+
+        <brls:Box
+                width="100%"
+                height="40%"
+                alignItems="center">
+            <brls:Label
+                    wireframe="false"
+                    fontSize="48"
+                    horizontalAlign="center"
+                    width="50%"
+                    text="全"/>
+            <brls:Label
+                    wireframe="false"
+                    fontSize="48"
+                    horizontalAlign="center"
+                    width="50%"
+                    text="部"/>
+        </brls:Box>
+
+    </brls:Box>
+</brls:Box>

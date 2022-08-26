@@ -1,0 +1,39 @@
+<brls:AppletFrame
+        iconInterpolation="linear"
+        headerHidden="true"
+        footerHidden="false">
+    <brls:Box
+            axis="column">
+            <brls:Box
+                    wireframe="false"
+                    paddingBottom="4"
+                    paddingTop="4"
+                    marginTop="20"
+                    marginLeft="30"
+                    marginRight="30"
+                    focusable="true"
+                    hideHighlightBackground="true"
+                    highlightCornerRadius="6"
+                    id="pgc/title"/>
+
+            <brls:Rectangle
+                    width="auto"
+                    height="1"
+                    marginLeft="30"
+                    marginRight="30"
+                    marginBottom="20"
+                    color="@theme/color/line" />
+
+            <RecyclingGrid
+                    paddingLeft="30"
+                    paddingRight="0"
+                    itemHeight="369"
+                    itemSpace="30"
+                    grow="1"
+                    preFetchLine="2"
+                    spanCount="5"
+                    wireframe="false"
+                    id="pgc/recyclingGrid"/>
+
+    </brls:Box>
+</brls:AppletFrame>

@@ -30,6 +30,9 @@ namespace bilibili {
     class DynamicVideoListResultWrapper; // 动态 全部关注的视频列表
     class DynamicUpListResultWrapper;    // 动态 最近更新的UP主列表
     class UserDynamicVideoResultWrapper; // 动态 单个up主视频列表
+    class PGCIndexResultWrapper;
+    class PGCIndexFilterWrapper;
+    typedef std::map<std::string, PGCIndexFilterWrapper> PGCIndexFilters;
 
     using Cookies = std::map<std::string, std::string>;
 
@@ -179,6 +182,19 @@ namespace bilibili {
                                     const std::function<void(PGCModuleListResult , int, std::string)>& callback= nullptr,
                                     const ErrorCallback& error= nullptr);
 
+            /// 主页 追番/影视 分类检索
+            static void get_pgc_index(const string& param, int page=1,
+                                   const std::function<void(PGCIndexResultWrapper)>& callback= nullptr,
+                                   const ErrorCallback& error= nullptr);
+
+            /// 主页 追番/影视 获取分类
+            static void get_pgc_filter(const string& index_type,
+                                      const std::function<void(PGCIndexFilterWrapper)>& callback= nullptr,
+                                      const ErrorCallback& error= nullptr);
+
+            /// 主页 追番/影视 获取全部分类
+            static void get_pgc_all_filter(const std::function<void(PGCIndexFilters)>& callback= nullptr,
+                                           const ErrorCallback& error= nullptr);
 
             /// 视频页 获取评论
             /// 3: 热门评论、2：最新评论 1：评论

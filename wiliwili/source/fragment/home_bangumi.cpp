@@ -57,6 +57,7 @@ void HomeBangumi::onBangumiList(const bilibili::PGCModuleListResult &result, int
                         grid->applyXMLAttribute("spanCount", "4");
                         grid->applyXMLAttribute("itemHeight", "200");
                         grid->registerCell("Cell", []() { return RecyclingGridItemPGCVideoCard::create(false); });
+                        grid->registerCell("CellMore", []() {return RecyclingGridItemViewMoreCard::create(false);});
 
                         // todo: 猜你喜欢页面加载下一页
                     } else {
@@ -65,12 +66,11 @@ void HomeBangumi::onBangumiList(const bilibili::PGCModuleListResult &result, int
                         grid->applyXMLAttribute("spanCount", "5");
                         grid->applyXMLAttribute("itemHeight", "320");
                         grid->registerCell("Cell", []() { return RecyclingGridItemPGCVideoCard::create(true); });
-
-                        // todo: 最后一项替换为"查看全部"，点击后进入番剧筛选页面
+                        grid->registerCell("CellMore", []() {return RecyclingGridItemViewMoreCard::create(true);});
                     }
 
                     container->addView(grid);
-                    grid->setDataSource(new DataSourcePGCVideoList(i.items));
+                    grid->setDataSource(new DataSourcePGCVideoList(i));
                     return container;
                 });
             }

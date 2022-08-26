@@ -245,6 +245,33 @@ RecyclingGridItemPGCVideoCard* RecyclingGridItemPGCVideoCard::create(bool vertic
 }
 
 
+/// PGC 查看更多卡片
+
+RecyclingGridItemViewMoreCard::RecyclingGridItemViewMoreCard(bool vertical_cover):vertical_cover(vertical_cover){
+    this->inflateFromXMLRes("xml/views/video_card_pgc_more.xml");
+}
+
+RecyclingGridItemViewMoreCard::~RecyclingGridItemViewMoreCard(){
+
+}
+
+void RecyclingGridItemViewMoreCard::prepareForReuse(){
+
+}
+
+void RecyclingGridItemViewMoreCard::cacheForReuse(){
+
+}
+
+bool RecyclingGridItemViewMoreCard::isVertical(){
+    return this->vertical_cover;
+}
+
+RecyclingGridItem* RecyclingGridItemViewMoreCard::create(bool vertical_cover){
+    return new RecyclingGridItemViewMoreCard(vertical_cover);
+}
+
+
 /// 历史记录 视频卡片
 
 RecyclingGridItemHistoryVideoCard::RecyclingGridItemHistoryVideoCard(){

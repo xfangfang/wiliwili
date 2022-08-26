@@ -136,6 +136,33 @@ private:
     bool vertical_cover = true;
 };
 
+class RecyclingGridItemViewMoreCard: public RecyclingGridItem{
+public:
+    RecyclingGridItemViewMoreCard(bool vertical_cover=true);
+
+    ~RecyclingGridItemViewMoreCard();
+
+    bool isVertical();
+
+    void prepareForReuse();
+
+    void cacheForReuse();
+
+    static RecyclingGridItem* create(bool vertical_cover=true);
+
+private:
+    BRLS_BIND(brls::Image, picture, "video/card/picture");
+    BRLS_BIND(brls::Image, badgeTop, "video/card/badge/top");
+    BRLS_BIND(brls::Image, badgeBottomLeft, "video/card/badge/bottom/left");
+    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
+    BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
+    BRLS_BIND(brls::Box, boxPic,"video/card/pic_box");
+    BRLS_BIND(brls::Box, boxBadgeBottom,"video/card/badge/box/bottom");
+
+    bool vertical_cover = true;
+};
+
 class RecyclingGridItemHistoryVideoCard: public RecyclingGridItem{
 public:
     RecyclingGridItemHistoryVideoCard();
