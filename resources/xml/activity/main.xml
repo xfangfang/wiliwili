@@ -14,21 +14,21 @@
                 defaultTab="0"
                 sidebarPosition="left">
 
-            <Tab label="首页"
+            <Tab label=""
                  fontSize="18"
                  icon="@res/svg/ico-home.svg"
                  iconActivate="@res/svg/ico-home-activate.svg">
                 <HomeTab/>
             </Tab>
 
-            <Tab label="动态"
+            <Tab label=""
                  fontSize="18"
                  icon="@res/svg/ico-dynamic.svg"
                  iconActivate="@res/svg/ico-dynamic-activate.svg">
                 <DynamicTab/>
             </Tab>
 
-            <Tab label="我的"
+            <Tab label=""
                  fontSize="18"
                  focusDown="main/setting"
                  icon="@res/svg/ico-mine.svg"
