@@ -43,7 +43,7 @@
                                         focusable="true"
                                         fontSize="24"
                                         text="title"
-                                        lineColor="#D0D0D0"
+                                        lineColor="@theme/color/line"
                                         lineBottom="1"
                                         singleLine="true"/>
 

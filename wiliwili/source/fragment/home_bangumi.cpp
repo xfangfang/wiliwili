@@ -44,7 +44,7 @@ void HomeBangumi::onBangumiList(const bilibili::PGCModuleListResult &result, int
                 AutoSidebarItem* item = new AutoSidebarItem();
                 item->setTabStyle(AutoTabBarStyle::PLAIN);
                 item->setLabel(i.title);
-                item->setFontSize(14);
+                item->setFontSize(18);
                 this->tabFrame->addTab(item, [i](){
                     auto container = new AttachedView();
                     container->setMarginTop(12);

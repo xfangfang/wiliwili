@@ -12,7 +12,7 @@
             preFetchLine="2"
             spanCount="1"
             wireframe="false"
-            lineColor="#D0D0D0"
+            lineColor="@theme/color/line"
             lineRight="1"
             id="dynamic/up/recyclingGrid"/>
 

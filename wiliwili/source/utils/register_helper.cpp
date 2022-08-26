@@ -83,8 +83,8 @@ void Register::initCustomView(){
 void Register::initCustomTheme(){
     // Add custom values to the theme
     // 用于左侧边栏背景
-    brls::getLightTheme().addColor("color/grey_1", nvgRGB(245, 246, 246));
-    brls::getDarkTheme().addColor("color/grey_1", nvgRGBA(245, 246, 246, 8));
+    brls::getLightTheme().addColor("color/grey_1", nvgRGB(245, 246, 247));
+    brls::getDarkTheme().addColor("color/grey_1", nvgRGB(51, 52, 53));
 
     // 用于二级切换分栏的背景色（例：直播切换分区、每周必看切换周）
     brls::getLightTheme().addColor("color/grey_2", nvgRGB(245, 245, 245));
@@ -110,9 +110,16 @@ void Register::initCustomTheme(){
     brls::getLightTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));
     brls::getDarkTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));
 
+    // 分割线颜色
+    brls::getLightTheme().addColor("color/line", nvgRGB(208, 208, 208));
+    brls::getDarkTheme().addColor("color/line", nvgRGB(208, 208, 208));
+
     // 粉色背景，用于扁平TabBar背景色
     brls::getLightTheme().addColor("color/pink_1", nvgRGB(252, 237, 241));
     brls::getDarkTheme().addColor("color/pink_1", nvgRGB(44,27,34));
+
+    brls::getLightTheme().addColor("color/white", nvgRGB(255, 255, 255));
+    brls::getDarkTheme().addColor("color/white", nvgRGBA(255, 255, 255, 180));
 
     brls::getLightTheme().addColor("captioned_image/caption", nvgRGB(2, 176, 183));
     brls::getDarkTheme().addColor("captioned_image/caption", nvgRGB(51, 186, 227));

@@ -3,32 +3,32 @@
     <AutoTabFrame
             id="home/tab/frame"
             defaultTab="1"
-            tabHeight="65"
+            tabHeight="70"
             tabItemActiveTextColor="@theme/color/bilibili"
             sidebarPosition="top">
 
         <Tab label="直播"
-             fontSize="18">
+             fontSize="22">
             <HomeLive/>
         </Tab>
 
         <Tab label="推荐"
-             fontSize="18">
+             fontSize="22">
             <HomeRecommends/>
         </Tab>
 
         <Tab label="热门"
-             fontSize="18">
+             fontSize="22">
             <HomeHots/>
         </Tab>
 
         <Tab label="追番"
-             fontSize="18">
+             fontSize="22">
             <HomeBangumi/>
         </Tab>
 
         <Tab label="影视"
-             fontSize="18">
+             fontSize="22">
             <HomeCinema/>
         </Tab>
 
@@ -38,7 +38,7 @@
             positionRight="0"
             positionTop="0"
             width="340"
-            height="65"
+            height="70"
             alignItems="center"
             wireframe="false">
         <brls:Box
@@ -68,7 +68,7 @@
             text=""/>
     <brls:Label
             positionType="absolute"
-            positionLeft="340"
+            positionLeft="400"
             positionTop="18"
             fontSize="14"
             text=""/>
