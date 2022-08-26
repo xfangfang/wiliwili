@@ -96,8 +96,11 @@ RecyclingGrid::RecyclingGrid() {
     this->setContentView(this->contentBox);
 
     this->hintImage = new brls::Image();
-    this->hintImage->setImageFromRes("pictures/empty.png");
     this->hintImage->setPositionType(brls::PositionType::ABSOLUTE);
+    this->hintImage->setImageFromRes("pictures/empty.png");
+    this->hintLabel = new brls::Label();
+    this->hintLabel->setPositionType(brls::PositionType::ABSOLUTE);
+    this->hintLabel->setFontSize(14);
 
     this->registerFloatXMLAttribute("itemHeight", [this](float value){
         this->estimatedRowHeight = value + this->estimatedRowSpace;
@@ -127,6 +130,8 @@ RecyclingGrid::~RecyclingGrid() {
     brls::Logger::debug("View RecyclingGridActivity: delete");
     if(this->hintImage)
         this->hintImage->freeView();
+    if(this->hintLabel)
+        this->hintLabel->freeView();
     if(this->dataSource)
         delete this->dataSource;
     for (auto it : queueMap)
@@ -149,6 +154,8 @@ void RecyclingGrid::draw(NVGcontext* vg, float x, float y, float width, float he
     if(!this->dataSource || this->dataSource->getItemCount() == 0){
         this->hintImage->setAlpha(this->getAlpha());
         this->hintImage->frame(ctx);
+        this->hintLabel->setAlpha(this->getAlpha());
+        this->hintLabel->frame(ctx);
     }
 }
 
@@ -261,6 +268,31 @@ void RecyclingGrid::clearData() {
         dataSource->clearData();
         this->reloadData();
     }
+}
+
+void RecyclingGrid::setEmpty(std::string msg){
+    this->hintImage->setImageFromRes("pictures/empty.png");
+    this->hintLabel->setText(msg);
+    this->clearData();
+
+    auto width = this->getWidth();
+    this->hintImage->setPositionTop(this->getY() + (this->getHeight() - this->hintImage->getHeight()) / 2);
+    this->hintImage->setPositionLeft(this->getX() + (width - this->hintImage->getWidth()) / 2);
+    this->hintLabel->setPositionTop(this->getY() + (this->getHeight() + this->hintImage->getHeight()) / 2);
+    this->hintLabel->setPositionLeft(this->getX() + (width - this->hintLabel->getWidth()) / 2);
+}
+
+void RecyclingGrid::setError(std::string error){
+    this->hintImage->setImageFromRes("pictures/net_error.png");
+    this->hintLabel->setText(error);
+    this->invalidate();
+    this->clearData();
+
+    auto width = this->getWidth();
+    this->hintImage->setPositionTop(this->getY() + (this->getHeight() - this->hintImage->getHeight()) / 2);
+    this->hintImage->setPositionLeft(this->getX() + (width - this->hintImage->getWidth()) / 2);
+    this->hintLabel->setPositionTop(this->getY() + (this->getHeight() + this->hintImage->getHeight()) / 2);
+    this->hintLabel->setPositionLeft(this->getX() + (width - this->hintLabel->getWidth()) / 2);
 }
 
 void RecyclingGrid::setDefaultCellFocus(size_t index){
@@ -485,12 +517,6 @@ void RecyclingGrid::onLayout()
     {
         layouted = true;
         reloadData();
-
-        if(this->hintImage){
-            brls::Logger::error("{} =====> {}:{}/{}", this->describe(), this->getX(), width, this->hintImage->getWidth());
-            this->hintImage->setPositionTop(this->getY() + (this->getHeight() - this->hintImage->getHeight()) / 2);
-            this->hintImage->setPositionLeft(this->getX() + (width - this->hintImage->getWidth()) / 2);
-        }
     }
 }
 

@@ -108,9 +108,9 @@ void MineHistory::onHistoryList(const bilibili::HistoryVideoResultWrapper &resul
 
 }
 
-void MineHistory::onError(const std::string error) {
+void MineHistory::onError(const std::string& error) {
     brls::Logger::error("MineHistory::onError: {}", error);
-    brls::sync([this](){
-       this->recyclingGrid->clearData();
+    brls::sync([this, error](){
+       this->recyclingGrid->setError(error);
     });
 }

@@ -12,7 +12,7 @@ MineCollectionRequest::MineCollectionRequest(){
 
 void MineCollectionRequest::onCollectionList(const bilibili::CollectionListResultWrapper &result) {}
 
-void MineCollectionRequest::onError() {}
+void MineCollectionRequest::onError(const std::string& error) {}
 
 void MineCollectionRequest::requestData(bool refresh) {
     static int index = 1;
@@ -26,6 +26,7 @@ void MineCollectionRequest::requestCollectionList(std::string& mid, int index, i
     bilibili::BilibiliClient::get_my_collection_list(mid, index, num,
             [this](const bilibili::CollectionListResultWrapper &result) {
                 this->onCollectionList(result);
-            }, [](const std::string &error) {
+            }, [this](const std::string &error) {
+                this->onError(error);
             });
 }

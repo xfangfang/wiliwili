@@ -96,3 +96,9 @@ void MineCollection::onCollectionList(const bilibili::CollectionListResultWrappe
         }
     });
 }
+
+void MineCollection::onError(const std::string& error){
+    brls::sync([this, error](){
+        this->recyclingGrid->setError(error);
+    });
+}

@@ -106,6 +106,10 @@ public:
 
     void clearData();
 
+    void setEmpty(std::string msg="");
+
+    void setError(std::string error="");
+
     void selectRowAt(size_t index, bool animated);
 
     View* getNextCellFocus(brls::FocusDirection direction, View* currentView);
@@ -166,6 +170,7 @@ private:
 
     brls::Box* contentBox;
     brls::Image* hintImage;
+    brls::Label* hintLabel;
     brls::Rect renderedFrame;
     std::map<std::string, std::vector<RecyclingGridItem*>*> queueMap;
     std::map<std::string, std::function<RecyclingGridItem*(void)>> allocationMap;

@@ -27,6 +27,8 @@ public:
 
     void onCollectionList(const bilibili::CollectionListResultWrapper &result) override;
 
+    void onError(const std::string& error) override;
+
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "mine/collection/recyclingGrid");
 

@@ -12,7 +12,7 @@ public:
 
     virtual void onCollectionList(const bilibili::CollectionListResultWrapper &result);
 
-    virtual void onError();
+    virtual void onError(const std::string& error);
 
     void requestData(bool refresh=false);
 

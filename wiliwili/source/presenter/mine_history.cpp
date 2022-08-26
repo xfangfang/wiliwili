@@ -8,7 +8,7 @@
 
 void MineHistoryRequest::onHistoryList(const bilibili::HistoryVideoResultWrapper &result) {}
 
-void MineHistoryRequest::onError(const std::string error) {}
+void MineHistoryRequest::onError(const std::string& error) {}
 
 void MineHistoryRequest::requestData(bool refresh) {
     if(refresh)
