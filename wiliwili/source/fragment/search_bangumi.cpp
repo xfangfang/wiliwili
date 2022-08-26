@@ -17,9 +17,6 @@ SearchBangumi::SearchBangumi() {
     recyclingGrid->onNextPage([this](){
         this->_requestSearch(SearchActivity::currentKey);
     });
-    if(!SearchActivity::currentKey.empty()){
-        this->_requestSearch(SearchActivity::currentKey);
-    }
 }
 
 SearchBangumi::~SearchBangumi() {
@@ -31,7 +28,6 @@ brls::View *SearchBangumi::create() {
 }
 
 void SearchBangumi::requestSearch(const std::string& key){
-    AutoTabFrame::focus2Sidebar(this);
     this->recyclingGrid->showSkeleton();
     this->requestIndex = 1;
     this->_requestSearch(key);

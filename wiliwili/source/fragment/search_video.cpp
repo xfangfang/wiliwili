@@ -29,7 +29,6 @@ brls::View *SearchVideo::create() {
 }
 
 void SearchVideo::requestSearch(const std::string& key){
-    AutoTabFrame::focus2Sidebar(this);
     this->recyclingGrid->showSkeleton();
     this->requestIndex = 1;
     this->_requestSearch(key);
@@ -62,6 +61,6 @@ void SearchVideo::_requestSearch(const std::string& key){
             this->requestIndex = result.page + 1;
         });
     }, [](const std::string error){
-
+        brls::Logger::info(error);
     });
 }
