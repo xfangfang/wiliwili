@@ -176,8 +176,10 @@ void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator){
             newContent = item->createAttachedView();
         }
 
-        if(isDefaultTab)
+        if(isDefaultTab){
+            this->group.setActive(item);
             this->setTabAttachedView(newContent);
+        }
     }
 }
 
