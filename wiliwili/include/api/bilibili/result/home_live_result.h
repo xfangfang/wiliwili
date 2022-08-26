@@ -32,6 +32,8 @@ namespace bilibili {
 
     class LiveAreaResult {
     public:
+        LiveAreaResult() = default;
+        LiveAreaResult(int id, string title, int area_v2_id, int area_v2_parent_id):id(id), title(title), area_v2_id(area_v2_id),area_v2_parent_id(area_v2_parent_id){}
         int id;
         string title;
         int area_v2_id;
@@ -68,6 +70,7 @@ namespace bilibili {
     class LiveResultWrapper {
     public:
         LiveVideoListResult card_list;
+        LiveVideoListResult my_list; // 我关注的主播
         LiveAreaListResult live_list;
         int has_more;
     };
@@ -75,13 +78,16 @@ namespace bilibili {
     inline void from_json(const nlohmann::json& nlohmann_json_j, LiveResultWrapper& nlohmann_json_t) {
         for(auto i : nlohmann_json_j.at("card_list")){
             string card_type = i.at("card_type");
+            auto& card_data = i.at("card_data");
+
             if(card_type.compare("area_entrance_v1") == 0){
-                i.at("card_data").at("area_entrance_v1").at("list").get_to(nlohmann_json_t.live_list);
+                card_data.at("area_entrance_v1").at("list").get_to(nlohmann_json_t.live_list);
             }else if(card_type.compare("second_card_v1") == 0){
-                nlohmann_json_t.card_list.push_back(i.at("card_data").at("second_card_v1").get<LiveVideoResult>());
-            }
-            else if(card_type.compare("small_card_v1") == 0){
-                nlohmann_json_t.card_list.push_back(i.at("card_data").at("small_card_v1").get<LiveVideoResult>());
+                nlohmann_json_t.card_list.push_back(card_data.at("second_card_v1").get<LiveVideoResult>());
+            }else if(card_type.compare("small_card_v1") == 0){
+                nlohmann_json_t.card_list.push_back(card_data.at("small_card_v1").get<LiveVideoResult>());
+            }else if(card_type.compare("my_idol_v1") == 0){
+                card_data.at("my_idol_v1").at("list").get_to(nlohmann_json_t.my_list);
             }
         }
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more));

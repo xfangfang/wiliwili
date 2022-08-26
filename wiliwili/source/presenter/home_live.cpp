@@ -4,6 +4,7 @@
 
 #include "bilibili.h"
 #include "presenter/home_live.hpp"
+#include "bilibili/result/home_live_result.h"
 
 
 void HomeLiveRequest::onLiveList(const bilibili::LiveVideoListResult &result,
@@ -46,11 +47,11 @@ void HomeLiveRequest::requestData(int area_index) {
 }
 
 void HomeLiveRequest::requestLiveList(int parent_area, int area, int page) {
-    bilibili::BilibiliClient::get_live_recommend(parent_area, area, page,
-            [this, page](const bilibili::LiveAreaListResult &result1, const bilibili::LiveVideoListResult &result2, int no_more) {
-                if(result1.size() > 0)
-                    this->areaList = result1;
-                this->onLiveList(result2, page, no_more);
+    bilibili::BilibiliClient::get_live_recommend(parent_area, area, page, "pc",
+            [this, page](const bilibili::LiveResultWrapper &result) {
+                if(result.live_list.size() > 0)
+                    this->areaList = result.live_list;
+                this->onLiveList(result.card_list, page, result.has_more);
             }, [](const std::string &error) {
             });
 }

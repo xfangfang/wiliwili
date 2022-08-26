@@ -15,7 +15,6 @@
 #include "bilibili/result/home_hots_weekly_result.h"
 #include "bilibili/result/home_hots_history_result.h"
 #include "bilibili/result/home_hots_rank.h"
-#include "bilibili/result/home_live_result.h"
 #include "bilibili/result/mine_result.h"
 #include "bilibili/result/mine_history_result.h"
 #include "bilibili/result/mine_collection_result.h"
@@ -23,9 +22,8 @@
 
 namespace bilibili {
 
-    class PGCModuleResult;
-    typedef vector<bilibili::PGCModuleResult> PGCModuleListResult;
-
+    class LiveResultWrapper;
+    class LiveUrlResultWrapper;
     class SearchResult;
     class DynamicVideoListResultWrapper; // 动态 全部关注的视频列表
     class DynamicUpListResultWrapper;    // 动态 最近更新的UP主列表
@@ -168,8 +166,8 @@ namespace bilibili {
                     const ErrorCallback& error= nullptr);
 
             /// 主页 直播推荐
-            static void get_live_recommend(int parent_area_id, int area_id, int page,
-                                          const std::function<void(LiveAreaListResult , LiveVideoListResult, int)>& callback= nullptr,
+            static void get_live_recommend(int parent_area_id, int area_id, int page, const std::string& source="pc",
+                                          const std::function<void(LiveResultWrapper)>& callback= nullptr,
                                           const ErrorCallback& error= nullptr);
 
             /// 主页 追番列表

@@ -4,8 +4,8 @@
 #include "bilibili/util/md5.hpp"
 #include "curl/curl.h"
 #include "bilibili/util/http.hpp"
-
 #include "bilibili/result/home_pgc_result.h"
+#include "bilibili/result/home_live_result.h"
 
 namespace bilibili {
 
@@ -108,11 +108,11 @@ namespace bilibili {
                                                                  {"page", std::to_string(page)},
                                                                  {"platform", "web"},
                                                                  {"scale", "xxhdpi"},
-                                                                 {"source_name", "pc"},
+                                                                 {"source_name", source},
                                                                  {"mobi_app", "pc_electron"},
                                                                  },
                                                                 [callback](auto wrapper){
-                                                                    callback(wrapper.live_list, wrapper.card_list, wrapper.has_more);
+                                                                    callback(wrapper);
                                                                 }, error, true);
     }
 

@@ -6,6 +6,7 @@
 
 #include <borealis.hpp>
 #include "bilibili.h"
+#include "bilibili/result/home_live_result.h"
 
 class VideoView;
 
