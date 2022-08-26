@@ -139,6 +139,10 @@ public:
     ~AttachedView();
 
     virtual void onCreate();
+    
+    View * getDefaultFocus() override{
+        return brls::Box::getDefaultFocus();
+    }
 
     void registerTabAction(std::string hintText, enum brls::ControllerButton button, brls::ActionListener action,
             bool hidden = false, bool allowRepeating = false, enum brls::Sound sound = brls::SOUND_NONE);
@@ -209,6 +213,14 @@ public:
     void draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
               brls::FrameContext *ctx) override;
 
+    /**
+     * Setting the position of sidebar.
+     * Only set once.
+     */
+    void setSideBarPosition(AutoTabBarPosition position);
+
+    int getActiveIndex();
+
 private:
     BRLS_BIND(Box, sidebar, "auto_tab_frame/auto_sidebar");
 
@@ -224,10 +236,4 @@ private:
     NVGcolor tabItemBackgroundColor = nvgRGBA(0, 0, 0, 0);
     NVGcolor tabItemActiveBackgroundColor = nvgRGBA(0, 0, 0, 0);
     NVGcolor tabItemActiveTextColor = brls::Application::getTheme()["brls/text"];
-
-    /**
-     * Setting the position of sidebar.
-     * Only for internal use.
-     */
-    void setSideBarPosition(AutoTabBarPosition position);
 };

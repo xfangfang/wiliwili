@@ -126,6 +126,10 @@ void AutoTabFrame::setSideBarPosition(AutoTabBarPosition position){
     this->invalidate();
 }
 
+int AutoTabFrame::getActiveIndex(){
+    return this->group.getActiveIndex();
+}
+
 void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator){
 
     tab->setDefaultBackgroundColor(this->tabItemBackgroundColor);
