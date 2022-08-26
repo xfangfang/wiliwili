@@ -285,6 +285,7 @@ void VideoView::setFullScreen(bool fs){
         video->setProgress(this->getProgress());
         video->showOSD(this->osdLastShowTime != 0xffffffff);
         video->refreshFullscreenIcon();
+        video->setHideHighlight(true);
         video->refreshToggleIcon();
         if(osdSpinner->getVisibility() == brls::Visibility::GONE){
             video->hideLoading();
