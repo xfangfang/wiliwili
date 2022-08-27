@@ -515,6 +515,7 @@ void RecyclingGrid::onLayout()
     this->contentBox->setWidth(width);
     if (checkWidth())
     {
+        brls::Logger::debug("RecyclingGrid::onLayout reloadData()");
         layouted = true;
         reloadData();
     }
@@ -522,9 +523,12 @@ void RecyclingGrid::onLayout()
 
 bool RecyclingGrid::checkWidth(){
     float width           = getWidth();
-    static float oldWidth = width;
+    if(oldWidth == -1){
+        oldWidth = width;
+    }
     if ((int)oldWidth != (int)width && width != 0)
     {
+        brls::Logger::debug("RecyclingGrid::checkWidth from {} to {}", oldWidth, width);
         oldWidth = width;
         return true;
     }
