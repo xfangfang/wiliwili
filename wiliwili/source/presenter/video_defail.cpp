@@ -136,7 +136,7 @@ void VideoDetail::requestVideoComment(int aid, int next, int mode){
                                               });
                                           }, [ASYNC_TOKEN](const std::string &error) {
                 ASYNC_RELEASE
-                brls::Logger::error(error);
+                this->onRequestCommentError(error);
             });
 }
 

@@ -28,7 +28,8 @@ void HomeHotsRankRequest::requestHotsRankVideoList(int rid, string type) {
     bilibili::BilibiliClient::get_hots_rank(rid, type,
                                             [this](auto result, auto note){
                                                 this->onHotsRankList(result, note);
-                                            }, [](const std::string &error) {
+                                            }, [this](const std::string &error) {
+                this->onError(error);
             });
 }
 
@@ -36,6 +37,7 @@ void HomeHotsRankRequest::requestHotsRankPGCVideoList(int season_type, int day) 
     bilibili::BilibiliClient::get_hots_rank_pgc(season_type, day,
                                                 [this](auto result, auto explain){
                                                     this->onHotsRankPGCList(result, explain);
-                                                }, [](const std::string &error) {
+                                                }, [this](const std::string &error) {
+                this->onError(error);
             });
 }

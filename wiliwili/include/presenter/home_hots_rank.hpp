@@ -22,7 +22,7 @@ class HomeHotsRankRequest {
 public:
     virtual void onHotsRankList(const bilibili::HotsRankVideoListResult &result, const string& note){}
     virtual void onHotsRankPGCList(const bilibili::HotsRankPGCVideoListResult &result, const string& note){}
-    virtual void onError(){}
+    virtual void onError(const std::string& error){}
 
     vector<RankType> rankList = {
         {"全站",      0,      0},

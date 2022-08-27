@@ -80,6 +80,12 @@ void HomeHotsAll::onCreate() {
     });
 }
 
+void HomeHotsAll::onError(const std::string &error) {
+    brls::sync([this, error](){
+        this->recyclingGrid->setError(error);
+    });
+}
+
 brls::View* HomeHotsAll::create() {
     return new HomeHotsAll();
 }
