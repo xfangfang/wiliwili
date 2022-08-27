@@ -14,27 +14,15 @@ void PGCIndexRequest::onPGCFilter(const bilibili::PGCIndexFilters &result){}
 void PGCIndexRequest::onError(const std::string& error){}
 
 void PGCIndexRequest::requestData(UserRequestData data, bool refresh){
-
-    std::string req = "";
-    size_t i = 0;
+    auto parameters = cpr::Parameters();
     for(auto& d: data){
-        if(i!=0){
-            req += "&";
-        }
         auto value = d.second;
-        value = pystring::replace(value, "-01-01 00:00:00", "");
-        value = pystring::replace(value, "[", "%5B");
-        value = pystring::replace(value, ",", "%2C");
-        value = pystring::replace(value, ")", "%29");
-        req += d.first + "=" + value;
-        i++;
+        parameters.Add(cpr::Parameter(d.first, d.second));
     }
-    printf("requestPGCIndex: %s\n", req.c_str());
-
     if(refresh){
         this->requestIndex = 1;
     }
-    this->requestPGCIndex(req, this->requestIndex);
+    this->requestPGCIndex(parameters.GetContent(cpr::CurlHolder()), this->requestIndex);
 }
 
 void PGCIndexRequest::requestPGCIndex(const string& param, int page){
