@@ -30,6 +30,8 @@ public:
 
     void onCreate() override;
 
+    void onError(const std::string& error) override;
+
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/hots/history/recyclingGrid");
     BRLS_BIND(brls::Label, labelExplain, "home/hots/history/explain");

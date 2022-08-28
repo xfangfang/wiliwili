@@ -26,6 +26,7 @@ void HomeHotsAllRequest::requestHotsAllVideoList(int index, int num) {
 
                                                    this->onHotsAllVideoList(result, index);
                                                }
-                                           }, [](const std::string &error) {
+                                           }, [this](const std::string &error) {
+        this->onError(error);
             });
 }

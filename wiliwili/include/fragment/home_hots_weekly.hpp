@@ -33,6 +33,7 @@ public:
     void onHotsWeeklyList(const bilibili::HotsWeeklyListResult &result) override;
     void onHotsWeeklyVideoList(const bilibili::HotsWeeklyVideoListResult &result,
                                        const string& label, const string& reminder) override;
+    void onError(const std::string& error) override;
 
 private:
      BRLS_BIND(brls::Label, weekly_reminder, "home/hots/weekly/reminder");

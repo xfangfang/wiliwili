@@ -25,6 +25,7 @@ public:
     void onCreate() override;
     void onHotsRankList(const bilibili::HotsRankVideoListResult &result, const string& note) override;
     void onHotsRankPGCList(const bilibili::HotsRankPGCVideoListResult &result, const string& note) override;
+    void onError(const std::string& error) override;
 
     ~HomeHotsRank();
 

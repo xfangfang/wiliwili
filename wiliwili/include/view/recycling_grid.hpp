@@ -157,6 +157,7 @@ public:
 private:
     RecyclingGridDataSource* dataSource = nullptr;
     bool layouted                  = false;
+    float oldWidth = -1;
 
     uint32_t visibleMin, visibleMax;
     size_t defaultCellFocus = 0;

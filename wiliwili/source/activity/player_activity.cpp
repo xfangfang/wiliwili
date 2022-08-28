@@ -147,7 +147,7 @@ void PlayerActivity::onContentAvailable() {
         this->tabFrame->clearTab("投稿");
 
         // 清空评论
-        this->recyclingGrid->setDataSource(new DataSourceCommentList(vector<bilibili::VideoCommentResult>()));
+        this->recyclingGrid->showSkeleton(4);
 
         // 请求新视频的数据
         this->requestVideoInfo(videoData.bvid);
@@ -293,6 +293,12 @@ void PlayerActivity::onCommentInfo(const bilibili::VideoCommentResultWrapper &re
         datasource->appendData(result.replies);
         recyclingGrid->notifyDataChanged();
     }
+}
+
+void PlayerActivity::onRequestCommentError(const std::string &error){
+    brls::sync([this, error](){
+        this->recyclingGrid->setError(error);
+    });
 }
 
 void PlayerActivity::onError(const std::string &error){

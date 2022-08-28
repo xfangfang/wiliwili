@@ -35,6 +35,7 @@ public:
     void onVideoPlayUrl(const bilibili::VideoUrlResult & result) override;
     void onCommentInfo(const bilibili::VideoCommentResultWrapper &result) override;
     void onError(const std::string &error) override;
+    void onRequestCommentError(const std::string &error) override;
 
     ~PlayerActivity() override;
 

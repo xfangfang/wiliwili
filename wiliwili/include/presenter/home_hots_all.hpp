@@ -10,7 +10,7 @@
 class HomeHotsAllRequest {
 public:
     virtual void onHotsAllVideoList(const bilibili::HotsAllVideoListResult &result, int index){}
-    virtual void onError(){}
+    virtual void onError(const std::string& error){}
 
     void requestData(bool refresh = false);
 

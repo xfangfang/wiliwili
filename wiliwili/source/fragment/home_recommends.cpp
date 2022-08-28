@@ -102,10 +102,6 @@ HomeRecommends::~HomeRecommends() {
 
 void HomeRecommends::onError(const std::string &error) {
     brls::sync([this, error](){
-        auto dialog = new brls::Dialog(error);
-        dialog->setCancelable(false);
-        dialog->addButton("OK", [](){});
-        dialog->open();
-        this->recyclingGrid->clearData();
+        this->recyclingGrid->setError(error);
     });
 }

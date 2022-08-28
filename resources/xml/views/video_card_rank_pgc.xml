@@ -13,6 +13,7 @@
                 id="video/card/picture"
                 scalingType="fill"
                 width="100%"
+                backgroundColor="@theme/color/grey_1"
                 cornerRadius="4"/>
 
         <brls:Label

@@ -18,6 +18,7 @@ public:
     virtual void onUploadedVideos(const bilibili::UserUploadedVideoResultWrapper& result){}
     virtual void onDanmakuInfo(){}
     virtual void onCommentInfo(const bilibili::VideoCommentResultWrapper& result){}
+    virtual void onRequestCommentError(const std::string &error){}
     virtual void onVideoRecommend(){}
     virtual void onError(const std::string &error){}
     // todo: 获取视频合集

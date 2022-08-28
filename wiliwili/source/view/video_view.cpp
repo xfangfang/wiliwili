@@ -311,7 +311,7 @@ void VideoView::setFullScreen(bool fs){
                         video->showLoading();
                     }
                     // 立刻准确地显示视频尺寸
-                    video->onLayout();
+                    video->invalidate();
                 }
             }
             // Pop fullscreen videoView

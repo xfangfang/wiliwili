@@ -11,7 +11,7 @@ public:
     virtual void onHotsWeeklyList(const bilibili::HotsWeeklyListResult &result){}
     virtual void onHotsWeeklyVideoList(const bilibili::HotsWeeklyVideoListResult &result,
                                        const string& label, const string& reminder){}
-    virtual void onError(){}
+    virtual void onError(const std::string& error){}
 
     void requestData();
 

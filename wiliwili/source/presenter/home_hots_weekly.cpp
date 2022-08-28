@@ -20,7 +20,8 @@ void HomeHotsWeeklyRequest::requestHotsWeeklyList() {
                 if(result.size() > 0){
                     this->requestHotsWeeklyVideoList(result[0].number);
                 }
-            }, [](const std::string &error) {
+            }, [this](const std::string &error) {
+                this->onError(error);
             });
 }
 
@@ -28,7 +29,8 @@ void HomeHotsWeeklyRequest::requestHotsWeeklyVideoList(int number) {
     bilibili::BilibiliClient::get_hots_weekly(number,
                                               [this](const bilibili::HotsWeeklyVideoListResult& result, const string& label, const string& reminder){
                                                   this->onHotsWeeklyVideoList(result, label, reminder);
-                                              }, [](const std::string &error) {
+                                              }, [this](const std::string &error) {
+                this->onError(error);
             });
 }
 

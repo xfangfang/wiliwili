@@ -79,3 +79,9 @@ void HomeHotsHistory::onHotsHistoryList(const bilibili::HotsHistoryVideoListResu
 HomeHotsHistory::~HomeHotsHistory() {
     brls::Logger::debug("Fragment HomeHotsHistoryActivity: delete");
 }
+
+void HomeHotsHistory::onError(const std::string& error){
+    brls::sync([this, error](){
+        this->recyclingGrid->setError(error);
+    });
+}

@@ -132,3 +132,9 @@ void HomeHotsRank::onHotsRankPGCList(const bilibili::HotsRankPGCVideoListResult 
 HomeHotsRank::~HomeHotsRank() {
     brls::Logger::debug("Fragment HomeHotsRankActivity: delete");
 }
+
+void HomeHotsRank::onError(const std::string &error) {
+    brls::sync([this, error](){
+       this->recyclingGrid->setError(error);
+    });
+}

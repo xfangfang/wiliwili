@@ -95,3 +95,9 @@ void HomeHotsWeekly::onHotsWeeklyVideoList(const bilibili::HotsWeeklyVideoListRe
     });
 
 }
+
+void HomeHotsWeekly::onError(const std::string &error) {
+    brls::sync([this, error](){
+        this->recyclingGrid->setError(error);
+    });
+}

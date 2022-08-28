@@ -41,6 +41,5 @@ private:
     BRLS_BIND(MineHistory, mineHistory, "mine/history");
     BRLS_BIND(MineCollection, mineCollection, "mine/collection");
 
-    brls::ActionIdentifier boxGotoUserSpaceClickID = -1;
     loginStatusEvent loginCb;
 };

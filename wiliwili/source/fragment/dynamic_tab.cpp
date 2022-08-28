@@ -180,6 +180,10 @@ void DynamicTab::onUpList(const bilibili::DynamicUpListResultWrapper &result){
 
 void DynamicTab::onError(const string& error){
     brls::Logger::error("DynamicTab::onError {}", error);
+    brls::sync([this, error](){
+        videoRecyclingGrid->setError(error);
+        upRecyclingGrid->setDataSource(new DataSourceUpList(bilibili::DynamicUpListResult()));
+    });
 }
 
 void DynamicTab::onCreate(){
