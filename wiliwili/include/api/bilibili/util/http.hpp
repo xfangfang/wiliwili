@@ -24,6 +24,7 @@ namespace bilibili {
     class HTTP {
     public:
         static cpr::Cookies COOKIES;
+        static int TIMEOUT;
 
         static cpr::Response get(const std::string &url,
                                       const cpr::Parameters &parameters = {},
@@ -79,8 +80,8 @@ namespace bilibili {
               },
               parameters,
               payload,
-              cpr::Timeout{10000});
               HTTP::COOKIES,
+              cpr::Timeout{HTTP::TIMEOUT});
         }
 
 
@@ -147,8 +148,8 @@ namespace bilibili {
                                      {"Origin"      , "https://www.bilibili.com"},
                              },
                              parameters,
-                             cpr::Timeout{10000});
                              HTTP::COOKIES,
+                             cpr::Timeout{HTTP::TIMEOUT});
         }
 
         template<typename ReturnType>

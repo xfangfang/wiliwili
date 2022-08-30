@@ -90,5 +90,5 @@ void ConfigHelper::init(){
         }
         ProgramConfig::instance().setCookie(newCookie);
         ConfigHelper::saveProgramConf();
-    });
+    }, 5000);
 }
