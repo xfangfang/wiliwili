@@ -3,13 +3,9 @@
 #include <string>
 #include <vector>
 #include <future>
-#include <nlohmann/json.hpp>
-#include "ThreadPool.hpp"
 #include "bilibili/api.h"
 #include "bilibili/util/md5.hpp"
-
 #include "bilibili/util/http.hpp"
-#include "bilibili/result/video_detail_result.h"
 #include "bilibili/result/home_hots_all_result.h"
 #include "bilibili/result/home_hots_weekly_result.h"
 #include "bilibili/result/home_hots_history_result.h"
@@ -32,6 +28,14 @@ namespace bilibili {
     class PGCResultWrapper;
     typedef std::map<std::string, PGCIndexFilterWrapper> PGCIndexFilters;
     class SearchHotsResultWrapper; // 搜索页 获取热搜榜
+    class VideoOnlineTotal; // 某个视频在线人数，30s刷新一次
+    class VideoRelation; // 某个视频点赞收藏情况
+    class VideoUrlResult; // 视频播放地址
+    class VideoDetailPage;
+    typedef std::vector<VideoDetailPage> VideoDetailPageListResult; // 视频分P列表 （视频详情API可以直接过去分P列表）
+    class VideoCommentResultWrapper; // 视频评论
+    class VideoDetailResult; // 视频详情
+    class VideoDetailAllResult; // 更详细的视频详情，包括 分P、合集、推荐、评论
     class UserRelationStat; // 用户关注/粉丝/黑名单 数量
     class UserDynamicCount; // 用户动态的数量
 
@@ -110,6 +114,9 @@ namespace bilibili {
                                          const std::function<void(VideoDetailResult)>& callback= nullptr,
                                          const ErrorCallback& error= nullptr);
 
+            static void get_video_detail_all(const std::string& bvid,
+                                         const std::function<void(VideoDetailAllResult)>& callback= nullptr,
+                                         const ErrorCallback& error= nullptr);
 
             /// get video pagelist by aid
             static void get_video_pagelist(const int aid,
@@ -213,6 +220,21 @@ namespace bilibili {
                                    const std::function<void(VideoCommentResultWrapper)>& callback= nullptr,
                                    const ErrorCallback& error= nullptr);
 
+            /// 视频页 获取单个视频播放人数
+            static void get_video_online(int aid, int cid,
+                                    const std::function<void(VideoOnlineTotal)>& callback= nullptr,
+                                    const ErrorCallback& error= nullptr);
+
+            static void get_video_online(const std::string& bvid, int cid,
+                                         const std::function<void(VideoOnlineTotal)>& callback= nullptr,
+                                         const ErrorCallback& error= nullptr);
+
+            /// 视频页 获取点赞/收藏/投屏情况
+            static void get_video_relation(const std::string& bvid,
+                                         const std::function<void(VideoRelation)>& callback= nullptr,
+                                         const ErrorCallback& error= nullptr);
+
+
             /// 搜索页 获取搜索视频内容
             static void search_video(const std::string& key, const std::string& search_type, uint index = 1,
                                      const std::string& order = "",
@@ -233,6 +255,6 @@ namespace bilibili {
                                       const ErrorCallback& error= nullptr);
 
             /// 初始化设置Cookie
-            static void init(Cookies &cookies, std::function<void(Cookies)> writeCookiesCallback);
+            static void init(Cookies &cookies, std::function<void(Cookies)> writeCookiesCallback, int timeout=10000);
     };
 }

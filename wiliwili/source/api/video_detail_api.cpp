@@ -12,9 +12,7 @@ namespace bilibili {
     void BilibiliClient::get_video_detail(const std::string& bvid,
                                           const std::function<void(VideoDetailResult)>& callback,
                                           const ErrorCallback& error){
-            HTTP::getResultAsync<VideoDetailResult>(Api::Detail,
-                                 {{"bvid", std::string(bvid)}},
-                                 callback, error);
+            HTTP::getResultAsync<VideoDetailResult>(Api::Detail, {{"bvid", bvid}}, callback, error);
     }
 
     void BilibiliClient::get_video_detail(const int aid,
@@ -23,6 +21,12 @@ namespace bilibili {
             HTTP::getResultAsync<VideoDetailResult>(Api::Detail,
                             {{"aid",std::to_string(aid)}},
                             callback, error);
+    }
+
+    void BilibiliClient::get_video_detail_all(const std::string& bvid,
+                                     const std::function<void(VideoDetailAllResult)>& callback,
+                                     const ErrorCallback& error){
+        HTTP::getResultAsync<VideoDetailAllResult>(Api::DetailAll, {{"bvid", bvid}}, callback, error);
     }
 
     void BilibiliClient::get_video_pagelist(const std::string& bvid,
@@ -105,5 +109,33 @@ namespace bilibili {
                              const std::function<void(LiveUrlResultWrapper)>& callback,
                              const ErrorCallback& error){
         HTTP::getResultAsync<LiveUrlResultWrapper>(Api::LiveUrl, {{"cid", std::to_string(roomid)}}, callback, error);
+    }
+
+    /// 视频页 获取单个视频播放人数
+    void BilibiliClient::get_video_online(int aid, int cid,
+                                 const std::function<void(VideoOnlineTotal)>& callback,
+                                 const ErrorCallback& error){
+        HTTP::getResultAsync<VideoOnlineTotal>(Api::OnlineViewerCount,
+                                               {
+                                                    {"cid", std::to_string(cid)},
+                                                    {"aid", std::to_string(aid)},
+                                                }, callback, error);
+    }
+
+    void BilibiliClient::get_video_online(const std::string& bvid, int cid,
+                                 const std::function<void(VideoOnlineTotal)>& callback,
+                                 const ErrorCallback& error){
+        HTTP::getResultAsync<VideoOnlineTotal>(Api::OnlineViewerCount,
+                                               {
+                                                       {"cid", std::to_string(cid)},
+                                                       {"bvid", bvid},
+                                               }, callback, error);
+    }
+
+    /// 视频页 获取点赞/收藏/投屏情况
+    void BilibiliClient::get_video_relation(const std::string& bvid,
+                                   const std::function<void(VideoRelation)>& callback,
+                                   const ErrorCallback& error){
+        HTTP::getResultAsync<VideoRelation>(Api::VideoRelation, {{"bvid", bvid}}, callback, error);
     }
 }

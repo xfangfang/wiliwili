@@ -29,87 +29,274 @@
                         <brls:Box
                                 id="video_detail_info_box"
                                 wireframe="false"
-                                width="auto"
-                                height="auto"
+                                width="100%"
                                 grow="1.0"
                                 axis="column">
 
-<!--                                视频标题-->
-                                <brls:Label
-                                        id="video_title"
+                                <brls:Box
+                                        id="video/title/box"
                                         wireframe="false"
-                                        width="auto"
-                                        margin="10"
+                                        marginTop="10"
+                                        alignItems="center"
                                         focusable="true"
-                                        fontSize="24"
-                                        text="title"
-                                        lineColor="@theme/color/line"
-                                        lineBottom="1"
-                                        singleLine="true"/>
+                                        height="40"
+                                        width="100%">
+                                    <brls:Label
+                                            id="video/title"
+                                            wireframe="false"
+                                            fontSize="24"
+                                            marginLeft="10"
+                                            singleLine="true"
+                                            text=""/>
+                                </brls:Box>
+
+                                <brls:Rectangle
+                                        width="auto"
+                                        height="1"
+                                        margin="4"
+                                        color="@theme/color/line" />
 
                                 <brls:Box
                                         id="video_detail_info_box"
                                         wireframe="false"
                                         width="100%"
-                                        height="auto"
-                                        grow="1.0"
-                                        axis="row">
+                                        height="auto">
                                         <brls:Box
-                                                width="50%"
-                                                grow="1.0"
-                                                alignItems="center"
-                                                axis="column">
-                                            <brls:Box
-                                                    id="video_author_box"
-                                                    width="100%"
-                                                    height="50%"
+                                                wireframe="false"
+                                                width="60%"
+                                                height="100%"
+                                                alignItems="flexStart"
+                                                axis="column"
+                                                justifyContent="center">
+                                            <UserInfoView
                                                     focusable="true"
-                                                    alignItems="center"
-                                                    axis="row">
-
-                                                <UserInfoView
-                                                        wireframe="false"
-                                                        id="video_author"
-                                                        width="50%"
-                                                        height="100%"/>
-                                            </brls:Box>
-                    <!--                            todo: 添加投币点赞一键等按钮-->
+                                                    wireframe="false"
+                                                    marginLeft="10"
+                                                    id="video_author"
+                                                    width="100%"
+                                                    height="80%"/>
                                         </brls:Box>
 
                                         <brls:Box
-                                                width="auto"
-                                                height="50%"
-                                                grow="1.0"
+                                                wireframe="false"
+                                                width="40%"
                                                 marginLeft="@style/brls/highlight/shadow_offset"
-                                                alignItems="center"
-                                                axis="column">
-                                            <TextBox
-                                                    id="video_intro"
-                                                    width="100%"
-                                                    height="50%"
-                                                    grow="1.0"
-                                                    verticalAlign="top"
-                                                    horizontalAlign="left"
-                                                    focusable="true"
-                                                    fontSize="10"
-                                                    autoAnimate="false"
-                                                    text="introduction" />
+                                                justifyContent="spaceEvenly"
+                                                marginBottom="20"
+                                                alignItems="center">
                                             <brls:Box
-                                                    width="100%"
-                                                    height="20%"
+                                                    highlightCornerRadius="50"
+                                                    cornerRadius="50"
+                                                    backgroundColor="@theme/color/grey_1"
+                                                    padding="4"
+                                                    axis="column"
                                                     alignItems="center"
-                                                    axis="column">
-                                                <brls:Label
-                                                        id="video_info"
-                                                        singleLine="true"
-                                                        width="auto"
-                                                        height="auto"
-                                                        horizontalAlign="center"
-                                                        fontSize="10"
-                                                        text="2022-01-01 20:00" />
+                                                    wireframe="false"
+                                                    focusable="true">
+                                                    <SVGImage
+                                                            id="video/btn/agree"
+                                                            width="48"
+                                                            height="48"
+                                                            backgroundColor="@theme/color/white"
+                                                            cornerRadius="50"
+                                                            SVG="@res/svg/widget-agree-dark.svg"/>
+                                                    <brls:Label
+                                                            id="video/label/agree"
+                                                            positionType="absolute"
+                                                            positionBottom="-30"
+                                                            culled="false"
+                                                            width="120"
+                                                            horizontalAlign="center"
+                                                            textColor="@theme/font/grey"
+                                                            fontSize="16"
+                                                            wireframe="false"
+                                                            text="0" />
+                                            </brls:Box>
+
+                                            <brls:Box
+                                                    highlightCornerRadius="50"
+                                                    cornerRadius="50"
+                                                    backgroundColor="@theme/color/grey_1"
+                                                    padding="4"
+                                                    axis="column"
+                                                    alignItems="center"
+                                                    focusable="true">
+                                                    <SVGImage
+                                                            id="video/btn/coin"
+                                                            width="48"
+                                                            height="48"
+                                                            backgroundColor="@theme/color/white"
+                                                            cornerRadius="50"
+                                                            SVG="@res/svg/widget-coin-dark.svg"/>
+                                                    <brls:Label
+                                                            id="video/label/coin"
+                                                            positionType="absolute"
+                                                            positionBottom="-30"
+                                                            culled="false"
+                                                            width="120"
+                                                            horizontalAlign="center"
+                                                            textColor="@theme/font/grey"
+                                                            fontSize="16"
+                                                            wireframe="false"
+                                                            text="0" />
+                                            </brls:Box>
+
+                                            <brls:Box
+                                                    highlightCornerRadius="50"
+                                                    cornerRadius="50"
+                                                    backgroundColor="@theme/color/grey_1"
+                                                    padding="4"
+                                                    axis="column"
+                                                    alignItems="center"
+                                                    focusable="true">
+                                                    <SVGImage
+                                                            id="video/btn/favorite"
+                                                            width="48"
+                                                            height="48"
+                                                            backgroundColor="@theme/color/white"
+                                                            cornerRadius="50"
+                                                            SVG="@res/svg/widget-favorite-dark.svg"/>
+                                                    <brls:Label
+                                                            id="video/label/favorite"
+                                                            positionType="absolute"
+                                                            positionBottom="-30"
+                                                            culled="false"
+                                                            width="120"
+                                                            horizontalAlign="center"
+                                                            textColor="@theme/font/grey"
+                                                            fontSize="16"
+                                                            wireframe="false"
+                                                            text="0" />
+                                            </brls:Box>
+
+                                            <brls:Box
+                                                    highlightCornerRadius="50"
+                                                    cornerRadius="50"
+                                                    backgroundColor="@theme/color/grey_1"
+                                                    padding="4"
+                                                    axis="column"
+                                                    alignItems="center"
+                                                    focusable="true">
+                                                    <SVGImage
+                                                            id="video/btn/qr"
+                                                            width="48"
+                                                            height="48"
+                                                            backgroundColor="@theme/color/white"
+                                                            cornerRadius="22"
+                                                            SVG="@res/svg/widget-qrcode-dark.svg"/>
+                                                    <brls:Label
+                                                            id="video/label/qr"
+                                                            positionType="absolute"
+                                                            positionBottom="-30"
+                                                            culled="false"
+                                                            width="120"
+                                                            horizontalAlign="center"
+                                                            textColor="@theme/font/grey"
+                                                            fontSize="16"
+                                                            wireframe="false"
+                                                            text="0" />
                                             </brls:Box>
                                         </brls:Box>
                                 </brls:Box>
+
+                                <brls:Box
+                                        wireframe="false"
+                                        marginTop="10"
+                                        width="100%"
+                                        justifyContent="flexStart"
+                                        marginLeft="20"
+                                        height="16">
+                                        <SVGImage
+                                                width="16"
+                                                height="16"
+                                                SVG="@res/svg/widget-video-play-count-grey.svg"/>
+                                        <brls:Label
+                                                marginLeft="4"
+                                                marginRight="4"
+                                                marginTop="1"
+                                                textColor="@theme/font/grey"
+                                                id="video/count"
+                                                fontSize="13"
+                                                text=""/>
+                                        <SVGImage
+                                                width="16"
+                                                height="16"
+                                                SVG="@res/svg/widget-video-danmaku-grey.svg"/>
+                                        <brls:Label
+                                                marginLeft="4"
+                                                marginRight="4"
+                                                marginTop="1"
+                                                id="video/danmaku"
+                                                textColor="@theme/font/grey"
+                                                fontSize="13"
+                                                text=""/>
+                                        <brls:Box
+                                                visibility="gone"
+                                                id="video/favorites/box">
+                                            <SVGImage
+                                                    width="15"
+                                                    height="15"
+                                                    SVG="@res/svg/widget-bookmark.svg"/>
+                                            <brls:Label
+                                                    id="video/favorites"
+                                                    marginLeft="4"
+                                                    marginRight="4"
+                                                    textColor="@theme/font/grey"
+                                                    fontSize="13"
+                                                    text="" />
+                                        </brls:Box>
+                                        <SVGImage
+                                                width="16"
+                                                height="16"
+                                                SVG="@res/svg/widget-people-grey.svg"/>
+                                        <brls:Label
+                                                marginLeft="4"
+                                                marginRight="4"
+                                                marginTop="1"
+                                                id="video/people"
+                                                textColor="@theme/font/grey"
+                                                fontSize="13"
+                                                text="N人正在看" />
+                                        <SVGImage
+                                                width="16"
+                                                height="16"
+                                                SVG="@res/svg/widget-time-grey.svg"/>
+                                        <brls:Label
+                                                marginLeft="4"
+                                                marginRight="4"
+                                                marginTop="1"
+                                                id="video/time"
+                                                textColor="@theme/font/grey"
+                                                fontSize="13"
+                                                text="2022-01-01 20:00:00" />
+
+                                        <brls:Label
+                                                id="video/bvid"
+                                                marginLeft="4"
+                                                marginRight="4"
+                                                textColor="@theme/font/grey"
+                                                fontSize="13"
+                                                text="WILIWILI" />
+
+                                        <brls:Box
+                                                visibility="gone"
+                                                id="video/right/box">
+                                                <SVGImage
+                                                        width="12"
+                                                        height="12"
+                                                        marginTop="2"
+                                                        SVG="@res/svg/widget-forbidden.svg"/>
+                                                <brls:Label
+                                                        id="video/right"
+                                                        marginLeft="4"
+                                                        marginRight="4"
+                                                        marginTop="1"
+                                                        textColor="@theme/font/grey"
+                                                        fontSize="13"
+                                                        text="未经作者授权，禁止转载" />
+                                        </brls:Box>
+                                </brls:Box>
+
                         </brls:Box>
 
                 </brls:Box>
@@ -143,7 +330,8 @@
                                         paddingRight="20"
                                         grow="1"
                                         spanCount="1"
-                                        itemHeight="250"
+                                        flowMode="true"
+                                        itemHeight="416"
                                         wireframe="false"/>
                             </brls:Box>
                         </Tab>

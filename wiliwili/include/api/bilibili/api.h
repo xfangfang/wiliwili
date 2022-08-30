@@ -26,10 +26,11 @@ namespace bilibili {
         static const string DetailGRPC = _grpcBase + "/bilibili.app.view.v1.View/View";
         /// 视频详情.
         static const string Detail = _apiBase + "/x/web-interface/view";
+        static const string DetailAll = _apiBase + "/x/web-interface/view/detail";
         /// 番剧详情.
         static const string SeasonDetail = _apiBase + "/pgc/view/pc/season";
         /// 在线观看人数.
-        static const string OnlineViewerCount = _appBase + "/x/v2/view/video/online";
+        static const string OnlineViewerCount = _apiBase + "/x/player/online/total";
         /// 视频播放信息.
         static const string PlayInformation = _apiBase + "/x/player/playurl";
         /// 视频播放地址 TV.
@@ -62,6 +63,8 @@ namespace bilibili {
         static const string InteractionEdge = _apiBase + "/x/stein/edgeinfo_v2";
         /// 获取视频参数.
         static const string Stat = _apiBase + "/x/web-interface/archive/stat";
+        /// 获取视频点赞收藏情况
+        static const string VideoRelation = _apiBase + "/x/web-interface/archive/relation";
 
 
         /// 直播API
@@ -116,6 +119,8 @@ namespace bilibili {
         static const string CollectionList = _apiBase + "/x/v3/fav/folder/created/list";
         static const string CollectionVideoList = _apiBase + "/x/v3/fav/resource/list";
         static const string UserUploadedVideo = _apiBase + "/x/space/arc/search";
+        static const string UserRelationStat = _apiBase + "/x/relation/stat";
+        static const string UserDynamicStat = _vcBase + "/dynamic_svr/v1/dynamic_svr/space_num_ex";
 
 
         /// ===

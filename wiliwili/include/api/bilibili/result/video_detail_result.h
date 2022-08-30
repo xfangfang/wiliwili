@@ -23,6 +23,18 @@ namespace bilibili {
 
     typedef std::vector<VideoDetailPage> VideoDetailPageListResult;
 
+    class VideoDetailStat {
+    public:
+        uint aid;
+        uint view;
+        uint danmaku;
+        uint favorite;
+        uint coin;
+        uint share;
+        uint like;
+        uint reply;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailStat, aid, view, danmaku, favorite, coin, share, like, reply);
 
     class VideoDetailResult {
     public:
@@ -40,8 +52,47 @@ namespace bilibili {
         int duration;//时长
         UserSimpleResult owner;
         VideoDetailPageListResult pages;
+        VideoDetailStat stat;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailResult, bvid, aid, videos, owner, title, pic, desc, pubdate, pages);
+    inline void from_json(const nlohmann::json& nlohmann_json_j, VideoDetailResult& nlohmann_json_t) {
+        if(nlohmann_json_j.contains("videos")){
+            nlohmann_json_j.at("videos").get_to(nlohmann_json_t.videos);
+        }
+        if(nlohmann_json_j.contains("pages")){
+            nlohmann_json_j.at("pages").get_to(nlohmann_json_t.pages);
+        }
+        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, bvid, aid, owner, title,
+                                                 pic, desc, pubdate, stat, copyright));
+    }
+    inline void to_json(nlohmann::json& nlohmann_json_j, const VideoDetailResult& nlohmann_json_t) {
+        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, bvid, aid, owner, title,
+                                                 pic, desc, pubdate, stat, copyright, videos, pages))
+    }
+
+    typedef std::vector<VideoDetailResult> VideoDetailListResult;
+
+
+    class UserDetailResult{
+    public:
+        string mid, name, sex, rank, face, sign;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDetailResult, mid, name, sex, rank, face, sign);
+
+    class UserDetailResultWrapper {
+    public:
+        uint like_num, follower, article_count, archive_count;
+        bool following;
+        UserDetailResult card;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDetailResultWrapper, like_num, follower, article_count, archive_count, following, card);
+
+    class VideoDetailAllResult {
+    public:
+        VideoDetailResult View;
+        UserDetailResultWrapper Card;
+        VideoDetailListResult Related;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailAllResult, View, Card, Related);
 
 
     class VideoDUrl {
@@ -126,10 +177,26 @@ namespace bilibili {
             nlohmann_json_j.at("top_replies").get_to(nlohmann_json_t.top_replies);
         }
         if(!nlohmann_json_j.at("replies").is_null()){
-            nlohmann_json_j.at("replies").get_to(nlohmann_json_t.top_replies);
+            nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
         }
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor));
     }
+
+
+    class VideoRelation{
+    public:
+        bool attention, favorite, season_fav, like, dislike;
+        int coin;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoRelation, attention, favorite, season_fav, like, dislike, coin);
+
+
+    class VideoOnlineTotal{
+    public:
+        std::string total;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoOnlineTotal, total);
+
 
     class Video{
     public:

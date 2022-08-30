@@ -38,31 +38,37 @@ void VideoDetail::requestSeasonInfo(const int seasonID){
 
 /// 获取视频信息：标题、作者、简介、分P等
 void VideoDetail::requestVideoInfo(const string bvid) {
+
+    // 请求视频点赞情况
+    this->requestVideoRelationInfo(bvid);
+
     ASYNC_RETAIN
     brls::Logger::debug("请求视频信息: {}", bvid);
-    bilibili::BilibiliClient::get_video_detail(bvid,
-                                               [ASYNC_TOKEN](const bilibili::VideoDetailResult &result) {
+    bilibili::BilibiliClient::get_video_detail_all(bvid,
+                                               [ASYNC_TOKEN](const bilibili::VideoDetailAllResult &result) {
                                                    brls::sync([ASYNC_TOKEN, result](){
                                                        ASYNC_RELEASE
                                                        brls::Logger::debug("bilibili::BilibiliClient::get_video_detail");
-                                                       this->videoDetailResult = result;
+                                                       this->videoDetailResult = result.View;
+                                                       this->userDetailResult = result.Card;
 
                                                        // 请求视频评论
-                                                       this->requestVideoComment(result.aid, 1);
+                                                       this->requestVideoComment(this->videoDetailResult.aid, 1);
 
-                                                       // 请求用户投稿列表 todo: 加载多页
-                                                       this->requestUploadedVideos(result.owner.mid, 1);
+                                                       // 请求用户投稿列表
+                                                       this->requestUploadedVideos(this->videoDetailResult.owner.mid, 1);
 
                                                        //  请求视频播放地址
-                                                       this->onVideoPageListInfo(result.pages);
-                                                       for(const auto& i: result.pages){
+                                                       this->onVideoPageListInfo(this->videoDetailResult.pages);
+                                                       for(const auto& i: this->videoDetailResult.pages){
                                                            brls::Logger::debug("获取视频分P列表: PV1 {}", i.cid);
                                                            // 播放PV1
-                                                           this->requestVideoUrl(result.bvid, i.cid);
+                                                           this->requestVideoUrl(this->videoDetailResult.bvid, i.cid);
                                                            break;
                                                        }
 
-                                                       this->onVideoInfo(result);
+                                                       this->onVideoInfo(this->videoDetailResult);
+                                                       this->onRelatedVideoList(result.Related);
                                                    });
 
                                                }, [ASYNC_TOKEN](const std::string &error) {
@@ -75,6 +81,10 @@ void VideoDetail::requestVideoInfo(const string bvid) {
 
 /// 获取视频地址
 void VideoDetail::requestVideoUrl(std::string bvid, int cid){
+
+    // 请求当前视频在线人数
+    this->requestVideoOnline(bvid, cid);
+
     ASYNC_RETAIN
     brls::Logger::debug("请求视频播放地址: {}/{}", bvid, cid);
     bilibili::BilibiliClient::get_video_url(bvid, cid, 116,
@@ -92,7 +102,11 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid){
 }
 
 /// 获取番剧地址
-void VideoDetail::requestSeasonVideoUrl(int cid){
+void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid){
+
+    // 请求当前视频在线人数
+    this->requestVideoOnline(bvid, cid);
+
     ASYNC_RETAIN
     brls::Logger::debug("请求番剧视频播放地址: {}", cid);
     bilibili::BilibiliClient::get_season_url(cid, 116,
@@ -114,7 +128,7 @@ void VideoDetail::changeEpisode(const bilibili::SeasonEpisodeResult& i){
     episodeResult = i;
     this->onSeasonEpisodeInfo(i);
     this->requestVideoComment(i.aid, 1);
-    this->requestSeasonVideoUrl(i.cid);
+    this->requestSeasonVideoUrl(i.bvid, i.cid);
 }
 
 /// 获取视频评论
@@ -159,6 +173,36 @@ void VideoDetail::requestUploadedVideos(int mid, int pn, int ps){
             this->onUploadedVideos(result);
         });
     }, [ASYNC_TOKEN](const std::string &error) {
+        ASYNC_RELEASE
+        brls::Logger::error(error);
+    });
+}
+
+/// 获取单个视频播放人数
+void VideoDetail::requestVideoOnline(const std::string& bvid, int cid){
+    ASYNC_RETAIN
+    bilibili::BilibiliClient::get_video_online(bvid, cid,
+        [ASYNC_TOKEN](const bilibili::VideoOnlineTotal& result){
+            brls::sync([ASYNC_TOKEN, result](){
+                ASYNC_RELEASE
+                this->onVideoOnlineCount(result);
+            });
+        }, [ASYNC_TOKEN](const std::string &error) {
+            ASYNC_RELEASE
+            brls::Logger::error(error);
+        });
+}
+
+/// 获取视频的 点赞、投币、收藏情况
+void VideoDetail::requestVideoRelationInfo(const std::string& bvid){
+    ASYNC_RETAIN
+    bilibili::BilibiliClient::get_video_relation(bvid,
+       [ASYNC_TOKEN](const bilibili::VideoRelation& result){
+           brls::sync([ASYNC_TOKEN, result](){
+               ASYNC_RELEASE
+               this->onVideoRelationInfo(result);
+           });
+       }, [ASYNC_TOKEN](const std::string &error) {
         ASYNC_RELEASE
         brls::Logger::error(error);
     });

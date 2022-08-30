@@ -44,19 +44,20 @@ namespace bilibili {
         int level;
         int following;
         int follower;
+        float coins;
         std::string name;
         std::string face;
         std::string sex;
         std::string sign;
     };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserResult, mid, level, following, follower, name, face, sex, sign);
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserResult, mid, level, following, follower, name, face, sex, sign, coins);
 
 
     class SeasonUserResult {
     public:
-        uint mid;
-        uint follower;
-        uint is_follow;
+        uint mid = 0;
+        uint follower = 0;
+        uint is_follow = 0;
         string uname;
         string avatar;
     };

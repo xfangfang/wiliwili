@@ -8,8 +8,12 @@
 #include "view/user_info.hpp"
 #include "activity/player_activity.hpp"
 #include "view/grid_dropdown.hpp"
+#include "view/svg_image.hpp"
+#include "view/qr_image.hpp"
 #include "fmt/format.h"
 #include "utils/number_helper.hpp"
+#include "utils/config_helper.hpp"
+
 
 class DataSourceList
         : public RecyclingGridDataSource
@@ -73,6 +77,38 @@ private:
     ChangeVideoEvent changeVideoEvent;
 };
 
+
+class DataSourceRelatedVideoList
+        : public RecyclingGridDataSource
+{
+public:
+    DataSourceRelatedVideoList(bilibili::VideoDetailListResult result, ChangeVideoEvent cb):list(result),changeVideoEvent(cb){
+
+    }
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index){
+        RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
+        auto& r = this->list[index];
+        item->setCard(r.pic+"@672w_378h_1c.jpg",r.title,r.owner.name, r.pubdate, 0, 0, r.duration);
+        return item;
+    }
+
+    size_t getItemCount() {
+        return list.size();
+    }
+
+    void onItemSelected(RecyclingGrid* recycler, size_t index) {
+        changeVideoEvent.fire(list[index]);
+    }
+
+    void appendData(const bilibili::VideoDetailListResult& data){
+        this->list.insert(this->list.end(), data.begin(), data.end());
+    }
+
+private:
+    bilibili::VideoDetailListResult list;
+    ChangeVideoEvent changeVideoEvent;
+};
+
 class DataSourceCommentList
         : public RecyclingGridDataSource
 {
@@ -109,21 +145,22 @@ private:
 };
 
 PlayerActivity::PlayerActivity(std::string bvid){
-    video_data.bvid = bvid;
-    Logger::debug("create VideoDetailActivity2: {}", video_data.bvid);
+    videoDetailResult.bvid = bvid;
+    Logger::debug("create VideoDetailActivity2: {}", videoDetailResult.bvid);
 }
 
 void PlayerActivity::onContentAvailable() {
-    this->videoTitleLabel->registerAction("查看简介", brls::ControllerButton::BUTTON_A,
+
+    this->PlayerActivity::setCommonData();
+
+    // 点击标题查看简介
+    this->videoTitleBox->registerAction("查看简介", brls::ControllerButton::BUTTON_A,
                          [this](brls::View* view)-> bool {
-                            auto dialog = new brls::Dialog(this->videoIntroLabel->getFullText());
-                            dialog->addButton("ok", [](){});
+                            auto dialog = new brls::Dialog(this->videoDetailResult.desc);
+                            dialog->addButton("hints/ok"_i18n, [](){});
                             dialog->open();
                             return true;
                         });
-
-    // 视频评论
-    recyclingGrid->registerCell("Cell", []() { return VideoComment::create(); });
 
     // 切换视频分P
     changePEvent.subscribe([this](int index){
@@ -145,6 +182,7 @@ void PlayerActivity::onContentAvailable() {
         // 清空无用的tab
         this->tabFrame->clearTab("分集");
         this->tabFrame->clearTab("投稿");
+        this->tabFrame->clearTab("推荐");
 
         // 清空评论
         this->recyclingGrid->showSkeleton(4);
@@ -153,37 +191,99 @@ void PlayerActivity::onContentAvailable() {
         this->requestVideoInfo(videoData.bvid);
     });
 
-    // 切换右侧Tab
-    this->registerAction("上一项", brls::ControllerButton::BUTTON_LT,
-                            [this](brls::View* view)-> bool {
-                                tabFrame->focus2LastTab();
-                                return true;
-                            }, true);
-
-    this->registerAction("下一项", brls::ControllerButton::BUTTON_RT,
-                            [this](brls::View* view)-> bool {
-                                tabFrame->focus2NextTab();
-                                return true;
-                            }, true);
-
-
     //todo: X键 刷新播放页
 
     this->recyclingGrid->onNextPage([this](){
         this->requestVideoComment(this->videoDetailResult.aid);
     });
 
+    // 二维码按钮
+    this->btnQR->getParent()->registerClickAction([this](...){
+        this->showShareDialog("https://www.bilibili.com/video/" + this->videoDetailResult.bvid);
+        return true;
+    });
 
-    this->requestData(this->video_data);
+
+    this->requestData(this->videoDetailResult);
+}
+
+void PlayerActivity::setCommonData() {
+    // 视频评论
+    recyclingGrid->registerCell("Cell", []() { return VideoComment::create(); });
+
+    // 切换右侧Tab
+    this->registerAction("上一项", brls::ControllerButton::BUTTON_LT,
+                         [this](brls::View* view)-> bool {
+                             tabFrame->focus2LastTab();
+                             return true;
+                         }, true);
+
+    this->registerAction("下一项", brls::ControllerButton::BUTTON_RT,
+                         [this](brls::View* view)-> bool {
+                             tabFrame->focus2NextTab();
+                             return true;
+                         }, true);
+
+    this->btnQR->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnQR->getParent()));
+}
+
+void PlayerActivity::showShareDialog(const std::string link){
+    auto container = new brls::Box(brls::Axis::COLUMN);
+    container->setJustifyContent(brls::JustifyContent::CENTER);
+    container->setAlignItems(brls::AlignItems::CENTER);
+    auto qr = new QRImage();
+    qr->setSize(brls::Size(256, 256));
+    qr->setImageFromQRContent(link);
+    qr->setMargins(20,10,10,10);
+    container->addView(qr);
+    auto hint = new brls::Label();
+    hint->setText("手机扫码观看/分享");
+    hint->setMargins(0, 10, 10, 10);
+    container->addView(hint);
+    auto dialog = new brls::Dialog(container);
+    dialog->addButton("hints/ok"_i18n, [](){});
+    dialog->open();
 }
 
 void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult &result) {
     Logger::debug("[onVideoInfo] title:{} author:{}", result.title, result.owner.name);
-    this->videoUserInfo->setUserInfo(result.owner.face+"@96w_96h_1c.jpg", result.owner.name,result.owner.name);
-    this->videoTitleLabel->setText(result.title);
+
+    // user info
+    auto& user = this->userDetailResult;
+    this->videoUserInfo->setUserInfo(user.card.face+"@96w_96h_1c.jpg",
+                                     user.card.name,
+                                     wiliwili::num2w(user.follower) + "粉丝 · " + wiliwili::num2w(user.like_num) + "点赞");
+    if(user.card.mid == ProgramConfig::instance().getUserID()){
+        this->videoUserInfo->setHintType(InfoHintType::NONE);
+    }else if(user.following){
+        this->videoUserInfo->setHintType(InfoHintType::UP_FOLLOWING);
+    } else {
+        this->videoUserInfo->setHintType(InfoHintType::UP_NOT_FOLLOWED);
+    }
+
+    // videoView osd
     this->video->setTitle(result.title);
-    this->videoIntroLabel->setText(result.desc);
-    this->videoInfoLabel->setText("BVID: " + result.bvid);
+
+    // video title
+    this->videoTitleLabel->setText(result.title);
+
+    // bottom area
+    this->videoBVIDLabel->setText(result.bvid);
+    this->videoCountLabel->setText(wiliwili::num2w(result.stat.view));
+    this->videoDanmakuLabel->setText(wiliwili::num2w(result.stat.danmaku));
+    this->videoTimeLabel->setText(wiliwili::sec2FullDate(result.pubdate));
+    if(result.copyright == 1){
+        this->videoCopyRightBox->setVisibility(brls::Visibility::VISIBLE);
+    } else {
+        this->videoCopyRightBox->setVisibility(brls::Visibility::GONE);
+    }
+
+    // like/coins/favorite/share
+    this->labelAgree->setText(wiliwili::num2w(result.stat.like));
+    this->labelCoin->setText(wiliwili::num2w(result.stat.coin));
+    this->labelFavorite->setText(wiliwili::num2w(result.stat.favorite));
+    this->labelQR->setText(wiliwili::num2w(result.stat.share));
+
 }
 
 void PlayerActivity::onVideoPageListInfo(const bilibili::VideoDetailPageListResult &result) {
@@ -301,6 +401,59 @@ void PlayerActivity::onRequestCommentError(const std::string &error){
     });
 }
 
+void PlayerActivity::onVideoOnlineCount(const bilibili::VideoOnlineTotal& result){
+    this->videoPeopleLabel->setText(result.total + "人正在看");
+    this->video->setOnlineCount(result.total + "人正在看");
+}
+
+void PlayerActivity::onVideoRelationInfo(const bilibili::VideoRelation& result){
+    brls::Logger::debug("onVideoRelationInfo: {} {} {}", result.like, result.coin, result.favorite);
+    auto theme = brls::Application::getTheme();
+    if(result.like){
+        btnAgree->setBackgroundColor(theme.getColor("color/bilibili"));
+        btnAgree->setImageFromSVGRes("svg/widget-agree.svg");
+    } else {
+        btnAgree->setBackgroundColor(theme.getColor("color/white"));
+        btnAgree->setImageFromSVGRes("svg/widget-agree-dark.svg");
+    }
+    if(result.coin){
+        btnCoin->setBackgroundColor(theme.getColor("color/bilibili"));
+        btnCoin->setImageFromSVGRes("svg/widget-coin.svg");
+    } else {
+        btnCoin->setImageFromSVGRes("svg/widget-coin-dark.svg");
+        btnCoin->setBackgroundColor(theme.getColor("color/white"));
+    }
+    if(result.favorite){
+        btnFavorite->setBackgroundColor(theme.getColor("color/bilibili"));
+        btnFavorite->setImageFromSVGRes("svg/widget-favorite.svg");
+    } else {
+        btnFavorite->setImageFromSVGRes("svg/widget-favorite-dark.svg");
+        btnFavorite->setBackgroundColor(theme.getColor("color/white"));
+    }
+}
+
+void PlayerActivity::onRelatedVideoList(const bilibili::VideoDetailListResult& result){
+    AutoSidebarItem* item = new AutoSidebarItem();
+    item->setTabStyle(AutoTabBarStyle::ACCENT);
+    item->setFontSize(18);
+    item->setLabel("推荐");
+    this->tabFrame->addTab(item, [this, result, item](){
+        auto container = new AttachedView();
+        container->setMarginTop(12);
+        auto grid = new RecyclingGrid();
+        grid->setPadding(0, 40, 0, 20);
+        grid->setGrow(1);
+        grid->applyXMLAttribute("spanCount", "1");
+        grid->applyXMLAttribute("itemSpace", "20");
+        grid->applyXMLAttribute("itemHeight", "250");
+        grid->registerCell("Cell", []() { return RecyclingGridItemVideoCard::create(); });
+        item->setSubtitle(wiliwili::num2w(result.size()));
+        container->addView(grid);
+        grid->setDataSource(new DataSourceRelatedVideoList(result, changeVideoEvent));
+        return container;
+    });
+}
+
 void PlayerActivity::onError(const std::string &error){
     brls::sync([error](){
         auto dialog = new brls::Dialog(error);
@@ -321,43 +474,17 @@ PlayerActivity::~PlayerActivity() {
 /// season player
 
 void PlayerSeasonActivity::onContentAvailable(){
-    this->videoTitleLabel->registerClickAction([this](brls::View* view){
-        //todo：注意线程安全
-        Style style = Application::getStyle();
 
-        Label* label = new Label();
-        label->setText(this->videoIntroLabel->getFullText());
-        label->setFontSize(style["brls/dialog/fontSize"]);
-        label->setHorizontalAlign(HorizontalAlign::CENTER);
-        label->setSingleLine(false);
+    this->PlayerActivity::setCommonData();
 
-        Box* box = new Box();
-        box->addView(label);
-        box->setAlignItems(AlignItems::CENTER);
-        box->setJustifyContent(JustifyContent::CENTER);
-        box->setPadding(style["brls/dialog/paddingTopBottom"], style["brls/dialog/paddingLeftRight"], style["brls/dialog/paddingTopBottom"], style["brls/dialog/paddingLeftRight"]);
+    this->videoTitleBox->registerAction("查看简介", brls::ControllerButton::BUTTON_A,
+                                        [this](brls::View* view)-> bool {
+                                            auto dialog = new brls::Dialog(this->seasonInfo.evaluate);
+                                            dialog->addButton("hints/ok"_i18n, [](){});
+                                            dialog->open();
+                                            return true;
+                                        });
 
-
-        auto dialog = new brls::Dialog(box);
-        dialog->addButton("ok", [](){});
-        dialog->open();
-        return true;
-    });
-
-    // 切换右侧Tab
-    this->registerAction("上一项", brls::ControllerButton::BUTTON_LT,
-                         [this](brls::View* view)-> bool {
-                             tabFrame->focus2LastTab();
-                             return true;
-                         }, true);
-
-    this->registerAction("下一项", brls::ControllerButton::BUTTON_RT,
-                         [this](brls::View* view)-> bool {
-                             tabFrame->focus2NextTab();
-                             return true;
-                         }, true);
-
-    recyclingGrid->registerCell("Cell", []() { return VideoComment::create(); });
     recyclingGrid->onNextPage([this](){
         if(this->episodeResult.aid != 0)
             this->requestVideoComment(this->episodeResult.aid);
@@ -365,6 +492,13 @@ void PlayerSeasonActivity::onContentAvailable(){
     changeEpisodeEvent.subscribe([this](int index){
         this->changeEpisode(seasonInfo.episodes[index]);
     });
+
+    // 二维码按钮
+    this->btnQR->getParent()->registerClickAction([this](...){
+        this->showShareDialog(this->episodeResult.link);
+        return true;
+    });
+
     this->requestSeasonInfo(this->season);
 }
 
@@ -374,16 +508,43 @@ void PlayerSeasonActivity::onSeasonEpisodeInfo(const bilibili::SeasonEpisodeResu
         title = result.title;
     }
     this->video->setTitle(this->seasonInfo.season_title +" - "+ title);
-    this->videoInfoLabel->setText("BVID: " + result.bvid);
+    this->videoBVIDLabel->setText(result.bvid);
 }
 
 void PlayerSeasonActivity::onSeasonVideoInfo(const bilibili::SeasonResultWrapper& result){
-    Logger::debug("[onSeasonVideoInfo] title:{} author:{}", result.season_title, result.up_info.uname);
-    //todo 修改细节内容
-    this->videoUserInfo->setUserInfo(result.up_info.avatar, result.up_info.uname,result.up_info.uname);
-    this->videoTitleLabel->setText(result.season_title);
-    this->videoIntroLabel->setText(result.evaluate);
+    Logger::debug("[onSeasonVideoInfo] title:{} author:{} seasonID: {}",
+                  result.season_title, result.up_info.uname, result.season_id);
 
+    auto avatar = result.up_info.avatar;
+    if(!avatar.empty())
+        avatar += "@96w_96h_1c.jpg";
+    auto desc = result.season_desc;
+    if(result.rating.score >= 0)
+        desc += fmt::format(" - {}分", result.rating.score);
+    else
+        desc += " - 暂无评分";
+    this->videoUserInfo->setUserInfo(avatar,
+                                     result.up_info.uname,
+                                     desc);
+    this->boxFavorites->setVisibility(brls::Visibility::VISIBLE);
+
+    // videoView osd
+    this->video->setTitle(result.season_title);
+
+    // video title
+    this->videoTitleLabel->setText(result.season_title);
+
+    // bottom area
+    this->videoCountLabel->setText(wiliwili::num2w(result.stat.views));
+    this->videoDanmakuLabel->setText(wiliwili::num2w(result.stat.danmakus));
+    this->videoFavoritesLabel->setText(wiliwili::num2w(result.stat.favorites));
+    this->videoTimeLabel->setText(result.publish.pub_time_show);
+
+    // like/coins/favorite/share
+    this->labelAgree->setText(wiliwili::num2w(result.stat.likes));
+    this->labelCoin->setText(wiliwili::num2w(result.stat.coins));
+    this->labelFavorite->setText(wiliwili::num2w(result.stat.favorite));
+    this->labelQR->setText("分享");
 
     AutoSidebarItem* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);

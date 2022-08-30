@@ -14,14 +14,14 @@
             background="vertical_linear">
         <brls:Label
                 id="video/osd/title"
-                width="100%"
                 height="100%"
-                marginLeft="40"
+                marginLeft="20"
+                marginRight="20"
                 textColor="#FFFFFF"/>
         <brls:Box
                 wireframe="false"
                 positionBottom="0"
-                positionLeft="40"
+                positionLeft="20"
                 positionType="absolute"
                 alignItems="center">
             <SVGImage
