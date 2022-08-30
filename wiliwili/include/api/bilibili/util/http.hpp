@@ -15,11 +15,13 @@
 namespace bilibili {
 
     using Cookies = std::map<std::string, std::string>;
-    using ErrorCallback = std::function<void(const std::string&)>;
 
     const std::string BILIBILI_APP_KEY = "aa1e74ee4874176e";
     const std::string BILIBILI_APP_SECRET = "54e6a9a31b911cd5fc0daa66ebf94bc4";
-    const std::string BILIBILI_BUILD = "1001002002";
+    const std::string BILIBILI_BUILD = "1001005000";
+
+    using ErrorCallback = std::function<void(const std::string&)>;
+#define ERROR(msg, ...) if(error) error(msg)
 
     class HTTP {
     public:
@@ -40,7 +42,7 @@ namespace bilibili {
             cpr::Parameters param(parameters);
             cpr::Response r = HTTP::get(url, param);
             if( r.status_code  != 200){
-                if(error) error("Network error. [Status code: " + std::to_string(r.status_code) + " ]");
+                ERROR("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
                 return;
             }
             try{
@@ -50,11 +52,11 @@ namespace bilibili {
                     if(callback) callback(res.at("data").get<ReturnType>());
                     return;
                 } else {
-                    if(error) error("Param error");
+                    ERROR("Param error", code);
                 }
             }
             catch(const std::exception& e){
-                if(error) error("API error");
+                if(error) ERROR("API error");
                 printf("ERROR: %s\n",e.what());
             }
         }
@@ -67,7 +69,7 @@ namespace bilibili {
                 const ErrorCallback& error=nullptr){
             cpr::PostCallback([callback, error](cpr::Response r) {
                 if( r.status_code  != 200){
-                    if(error) error("Network error. [Status code: " + std::to_string(r.status_code) + " ]");
+                    ERROR("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
                     return;
                 }
                 callback(r);
@@ -104,39 +106,32 @@ namespace bilibili {
                 });
             }
             cpr::GetCallback([callback, error](cpr::Response r) {
-                                 if( r.status_code  != 200){
-                                     if(error) error("Network error. [Status code: " + std::to_string(r.status_code) + " ]");
-                                     return;
-                                 }
                                  try{
-//                                     printf("data: %s", r.text.c_str());
                                      nlohmann::json res = nlohmann::json::parse(r.text);
                                      int code = res.at("code");
                                      if(code == 0){
-//                                         std::this_thread::sleep_for(std::chrono::seconds(3));
                                         if(res.contains("data")){
                                             if(callback) callback(res.at("data").get<ReturnType>());
                                         } else if(res.contains("result")){
                                             if(callback) callback(res.at("result").get<ReturnType>());
                                         } else{
                                             printf("data: %s\n", r.text.c_str());
-                                            error("Cannot find data");
+                                            ERROR("Cannot find data");
                                         }
                                          return;
                                      } else {
-                                         // todo: 这里貌似code不为0时且设置了error 并没有报错
-
                                          if(error){
                                              if(res.at("message").is_string()){
-                                                 error(res.at("message").get<std::string>());
+                                                 ERROR("error msg: " + res.at("message").get<std::string>() + \
+                                                         "; error code: " + std::to_string(code));
                                              }else {
-                                                 error("Param error");
+                                                 ERROR("Param error");
                                              }
                                          }
                                      }
                                  }
                                  catch(const std::exception& e){
-                                     if(error) error("API error");
+                                     ERROR("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
                                      printf("data: %s\n", r.text.c_str());
                                      printf("ERROR: %s\n",e.what());
                                  }
@@ -181,11 +176,11 @@ namespace bilibili {
                         return;
                     } else {
                         // todo: 这里貌似code不为0时且设置了error 并没有报错
-                        if(error) error("Param error");
+                        ERROR("Param error");
                     }
                 }
                 catch(const std::exception& e){
-                    if(error) error("API error");
+                    ERROR("API error");
                     printf("data: %s\n", r.text.c_str());
                     printf("ERROR: %s\n",e.what());
                 }
