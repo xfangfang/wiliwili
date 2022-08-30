@@ -52,6 +52,8 @@ public:
 
     std::string getTitle();
 
+    void setOnlineCount(std::string count);
+
     void setDuration(std::string value);
 
     void setPlaybackTime(std::string value);
@@ -98,6 +100,7 @@ private:
 
     ///OSD
     BRLS_BIND(brls::Label, videoTitleLabel, "video/osd/title");
+    BRLS_BIND(brls::Label, videoOnlineCountLabel, "video/view/label/people");
     BRLS_BIND(brls::Box, osdTopBox, "video/osd/top/box");
     BRLS_BIND(brls::Box, osdBottomBox, "video/osd/bottom/box");
     BRLS_BIND(brls::ProgressSpinner, osdSpinner, "video/osd/loading");

@@ -215,6 +215,12 @@ void VideoView::setTitle(std::string title){
     });
 }
 
+void VideoView::setOnlineCount(std::string count){
+    brls::Threading::sync([this, count](){
+        this->videoOnlineCountLabel->setText(count);
+    });
+}
+
 std::string VideoView::getTitle(){
     return this->videoTitleLabel->getFullText();
 }
@@ -287,6 +293,7 @@ void VideoView::setFullScreen(bool fs){
         video->refreshFullscreenIcon();
         video->setHideHighlight(true);
         video->refreshToggleIcon();
+        video->setOnlineCount(this->videoOnlineCountLabel->getFullText());
         if(osdSpinner->getVisibility() == brls::Visibility::GONE){
             video->hideLoading();
         }
