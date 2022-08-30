@@ -11,7 +11,7 @@ else()
 endif()
 FetchContent_Declare(cpr
         GIT_REPOSITORY https://github.com/libcpr/cpr.git
-        GIT_TAG 2157a3126c2ef1b76f339dedd6d7585e39651512) # 2022/06/01
+        GIT_TAG 7a02d679308a19220e3b75616c18ff9e8deb5f9a) # cpr 1.9.1
 FetchContent_MakeAvailable(cpr)
 
 #import lunasvg

@@ -32,9 +32,9 @@ namespace bilibili {
                 if(data.status){
                     std::map<std::string, std::string> cookies;
                     for(auto it = r.cookies.begin(); it != r.cookies.end(); it++){
-                        cookies[it->first] = it->second;
+                        cookies[it->GetName()] = it->GetValue();
+                        HTTP::COOKIES.emplace_back({it->GetName(), it->GetValue()});
                     }
-                    HTTP::cookies = cookies;
                     if(BilibiliClient::writeCookiesCallback){
                         BilibiliClient::writeCookiesCallback(cookies);
                     }

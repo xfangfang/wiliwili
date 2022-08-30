@@ -5,7 +5,7 @@
 #include "bilibili/util/http.hpp"
 
 namespace bilibili {
-    Cookies HTTP::cookies;
+    cpr::Cookies HTTP::COOKIES = cpr::Cookies(false);
 
      cpr::Response HTTP::get(const std::string& url,
                                   const cpr::Parameters& parameters,
@@ -17,7 +17,7 @@ namespace bilibili {
                         {"Referer"      , "https://www.bilibili.com"},
                 },
                 parameters,
-                cpr::Cookies(HTTP::cookies, false),
+                HTTP::COOKIES,
                 cpr::Timeout{timeout}
         );
     }

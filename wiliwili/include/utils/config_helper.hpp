@@ -29,7 +29,8 @@ public:
     void setCookie(Cookie data);
     Cookie getCookie();
     Cookie cookie;
-    const std::vector<std::string> COOKIE_LIST  = {"DedeUserID", "DedeUserID_ckMd5", "SESSDATA", "bili_jct"};
+    std::string getCSRF();
+    std::string getUserID();
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProgramConfig, cookie);

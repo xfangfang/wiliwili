@@ -8,9 +8,6 @@
 
 
 ProgramConfig::ProgramConfig(){
-    for(auto item: COOKIE_LIST){
-        this->cookie[item] = "";
-    }
 }
 
 ProgramConfig::ProgramConfig(const ProgramConfig& conf){
@@ -27,6 +24,21 @@ void ProgramConfig::setCookie(Cookie data){
 Cookie ProgramConfig::getCookie(){
     return this->cookie;
 }
+
+std::string ProgramConfig::getCSRF(){
+    if(this->cookie.count("bili_jct") == 0){
+        return "";
+    }
+    return this->cookie["bili_jct"];
+}
+
+std::string ProgramConfig::getUserID(){
+    if(this->cookie.count("DedeUserID") == 0){
+        return "";
+    }
+    return this->cookie["DedeUserID"];
+}
+
 
 ProgramConfig ConfigHelper::readProgramConf(){
     const std::string path = ConfigHelper::getConfigDir()+"/wiliwili_config.json";
@@ -73,6 +85,9 @@ void ConfigHelper::init(){
     // set bilibili cookie and cookie update callback
     bilibili::BilibiliClient::init(cookie,[](Cookie newCookie){
         brls::Logger::info("======== write cookies to disk");
+        for(auto c : newCookie){
+            brls::Logger::info("cookie: {}:{}", c.first, c.second);
+        }
         ProgramConfig::instance().setCookie(newCookie);
         ConfigHelper::saveProgramConf();
     });
