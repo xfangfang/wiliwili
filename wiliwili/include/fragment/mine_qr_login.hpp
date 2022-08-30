@@ -24,11 +24,20 @@ public:
 
     static brls::Box* create(loginStatusEvent cb);
 
-    void onError(){}
+    void onError(){
+        ASYNC_RETAIN
+        brls::sync([ASYNC_TOKEN](){
+            ASYNC_RELEASE
+            this->qrImage->setQRMainColor(brls::Application::getTheme().getColor("font/grey"));
+            qrImage->setImageFromQRContent("");
+            this->hint->setText("网络错误，请重试");
+        });
+    }
     void onLoginUrlChange(std::string url){
         ASYNC_RETAIN
         brls::sync([ASYNC_TOKEN, url](){
             ASYNC_RELEASE
+            qrImage->setQRMainColor(RGB(0, 0, 0));
             qrImage->setImageFromQRContent(url);
         });
     }
@@ -49,7 +58,8 @@ public:
         ASYNC_RETAIN
         brls::sync([ASYNC_TOKEN](){
             ASYNC_RELEASE
-            this->qrImage->setQRMainColor(nvgRGB(128, 128, 128));
+            this->qrImage->setImageFromQRContent("");
+            this->qrImage->setQRMainColor(brls::Application::getTheme().getColor("font/grey"));
         });
     }
 
@@ -61,6 +71,8 @@ public:
             this->login_url = url;
             this->onLoginUrlChange(url);
             this->checkLogin();
+        }, [this](const std::string& error){
+            this->onError();
         });
     }
 
