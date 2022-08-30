@@ -59,13 +59,19 @@ private:
 };
 
 void SearchHots::requestSearch() {
-    bilibili::BilibiliClient::get_search_hots(50, [this](const bilibili::SearchHotsResultWrapper &result) {
-        brls::Threading::sync([this, result]() {
+    ASYNC_RETAIN
+    bilibili::BilibiliClient::get_search_hots(50, [ASYNC_TOKEN](const bilibili::SearchHotsResultWrapper &result) {
+        brls::Threading::sync([ASYNC_TOKEN, result]() {
+            ASYNC_RELEASE
             auto ds = new HotsDataSource(result.list, this->updateSearchEvent);
             recyclingGrid->setDataSource(ds);
         });
-    }, [](const std::string &error) {
-        brls::Logger::error(error);
+    }, [ASYNC_TOKEN](const std::string &error) {
+        brls::Logger::error("SearchHots: {}", error);
+        brls::sync([ASYNC_TOKEN, error](){
+            ASYNC_RELEASE
+            this->recyclingGrid->setError(error);
+        });
     });
 }
 
