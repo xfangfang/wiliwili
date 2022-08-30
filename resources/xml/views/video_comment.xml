@@ -7,13 +7,18 @@
         height="auto">
     <UserInfoView
             id="comment/userinfo"
+            wireframe="false"
             width="auto"
+            marginTop="10"
+            marginBottom="10"
             height="60"/>
     <brls:Box
             wireframe="false"
             axis="column"
             grow="1"
             marginLeft="40"
+            marginRight="4"
+            marginBottom="8"
             width="auto"
             height="auto">
         <TextBox

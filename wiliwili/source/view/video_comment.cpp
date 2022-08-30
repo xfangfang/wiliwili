@@ -2,6 +2,7 @@
 // Created by fang on 2022/7/18.
 //
 
+#include "bilibili.h"
 #include "view/video_comment.hpp"
 #include "utils/number_helper.hpp"
 
