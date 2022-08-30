@@ -70,6 +70,17 @@ std::string wiliwili::sec2date(time_t sec){
 }
 
 
+std::string wiliwili::sec2FullDate(time_t sec){
+    time_t curTime = time(NULL);
+    struct tm curTm;
+    localtime_r(&curTime, &curTm);
+    struct tm tm;
+    localtime_r(&sec, &tm);
+    return std::to_string(tm.tm_year + 1900)+"-"+pre0(tm.tm_mon + 1, 2)+"-"+pre0(tm.tm_mday, 2) + \
+        " " + pre0(tm.tm_hour, 2) + ":" + pre0(tm.tm_min, 2) + ":" + pre0(tm.tm_sec, 2);
+}
+
+
 size_t wiliwili::getUnixTime(){
     auto now = std::chrono::system_clock::now();
     return std::chrono::system_clock::to_time_t(now);
