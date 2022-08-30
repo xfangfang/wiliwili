@@ -10,7 +10,6 @@
 
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/video_detail_result.h"
-#include "bilibili/result/home_result.h"
 #include "bilibili/result/home_hots_all_result.h"
 #include "bilibili/result/home_hots_weekly_result.h"
 #include "bilibili/result/home_hots_history_result.h"
@@ -33,6 +32,8 @@ namespace bilibili {
     class PGCResultWrapper;
     typedef std::map<std::string, PGCIndexFilterWrapper> PGCIndexFilters;
     class SearchHotsResultWrapper; // 搜索页 获取热搜榜
+    class UserRelationStat; // 用户关注/粉丝/黑名单 数量
+    class UserDynamicCount; // 用户动态的数量
 
     using Cookies = std::map<std::string, std::string>;
 
@@ -53,6 +54,16 @@ namespace bilibili {
             /// get person info (if login)
             static void get_my_info(const std::function<void(UserResult)>& callback = nullptr,
                                     const ErrorCallback& error = nullptr);
+
+            /// 获取用户 关注/粉丝/黑名单数量
+            static void get_user_relation(const std::string& mid,
+                                          const std::function<void(UserRelationStat)>& callback = nullptr,
+                                          const ErrorCallback& error = nullptr);
+
+            /// 获取用户动态的数量
+            static void get_user_dynamic_count(const std::string& mid,
+                                               const std::function<void(UserDynamicCount)>& callback = nullptr,
+                                               const ErrorCallback& error = nullptr);
 
             /// get person history videos
             static void get_my_history(const HistoryVideoListCursor& cursor,

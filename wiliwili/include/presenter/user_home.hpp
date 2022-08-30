@@ -6,15 +6,22 @@
 
 #include "bilibili.h"
 #include "bilibili/result/home_result.h"
+#include <borealis/core/logger.hpp>
+#include "utils/config_helper.hpp"
 
 class UserHome {
 public:
     virtual void onError(){}
     virtual void onUserInfo(const bilibili::UserResult& data){}
+    virtual void onUserDynamicStat(const bilibili::UserDynamicCount& data){}
+    virtual void onUserRelationStat(const bilibili::UserRelationStat& data){}
     virtual void onUserNotLogin(){}
 
     void requestData() {
         this->getUserInfo();
+        auto mid = ProgramConfig::instance().getUserID();
+        this->getUserDynamicStat(mid);
+        this->getUserRelationStat(mid);
     }
 
     void getUserInfo(){
@@ -22,7 +29,24 @@ public:
             this->userInfo = data;
             this->onUserInfo(this->userInfo);
         }, [this](const std::string& error){
+            brls::Logger::error("getUserInfo: {}", error);
             this->onUserNotLogin();
+        });
+    }
+
+    void getUserDynamicStat(const std::string& mid) {
+        bilibili::BilibiliClient::get_user_dynamic_count(mid, [this](const bilibili::UserDynamicCount& data){
+            this->onUserDynamicStat(data);
+        }, [](const std::string& error){
+            brls::Logger::error("getUserDynamicStat: {}", error);
+        });
+    }
+
+    void getUserRelationStat(const std::string& mid) {
+        bilibili::BilibiliClient::get_user_relation(mid, [this](const bilibili::UserRelationStat& data){
+            this->onUserRelationStat(data);
+        }, [](const std::string& error){
+            brls::Logger::error("getUserRelationStat: {}", error);
         });
     }
 

@@ -7,6 +7,7 @@
 #include "bilibili/util/md5.hpp"
 #include "curl/curl.h"
 #include "bilibili/util/http.hpp"
+#include "bilibili/result/home_result.h"
 
 namespace bilibili {
 
@@ -58,6 +59,20 @@ namespace bilibili {
                                                  [callback](auto user){
                                                      callback(user);
                                                  }, error);
+    }
+
+    /// 获取用户 关注/粉丝/黑名单数量
+    void BilibiliClient::get_user_relation(const std::string& mid,
+                                  const std::function<void(UserRelationStat)>& callback,
+                                  const ErrorCallback& error){
+        HTTP::getResultAsync<UserRelationStat>(Api::UserRelationStat, {{"vmid", mid}}, callback, error);
+    }
+
+    /// 获取用户动态的数量
+    void BilibiliClient::get_user_dynamic_count(const std::string& mid,
+                                       const std::function<void(UserDynamicCount)>& callback,
+                                       const ErrorCallback& error){
+        HTTP::getResultAsync<UserDynamicCount>(Api::UserDynamicStat, {{"uids", mid}}, callback, error);
     }
 
     /// get person history videos

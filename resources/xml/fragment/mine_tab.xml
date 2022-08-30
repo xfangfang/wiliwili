@@ -8,34 +8,128 @@
 
     <brls:Box
             id="user_home/goto_userspace"
-            height="150"
+            height="100"
             backgroundColor="@theme/color/grey_1"
             focusable="true"
             hideHighlightBackground="true"
+            cornerRadius="6"
             marginTop="40"
-            marginRight="20"
+            marginRight="40"
             marginLeft="20">
         <brls:Image
                 id="mine/image/avatar"
-                image="@res/icon/akari.jpg"/>
+                cornerRadius="60"
+                margin="10"
+                image="@res/pictures/default_avatar.png"/>
         <brls:Box
                 marginLeft="40"
                 wireframe="false"
                 axis="column"
                 width="25%">
             <brls:Label
+                    marginTop="20"
                     id="mine/label/username"
                     grow="1"
-                    text="点击登录"/>
+                    text="检查登录信息..."/>
             <brls:Label
+                    id="mine/label/sign"
+                    marginBottom="10"
                     grow="1"
-                    text="B币：-    硬币：-"/>
+                    fontSize="16"
+                    textColor="@theme/font/grey"
+                    text=""/>
         </brls:Box>
         <brls:Box
                 wireframe="false"
+                marginLeft="100"
+                marginRight="100"
+                alignItems="center"
                 grow="1">
-            <brls:Label
-                    text="动态：-   关注：- 粉丝：-"/>
+            <brls:Box
+                    wireframe="false"
+                    grow="1"
+                    alignItems="center"
+                    justifyContent="center"
+                    axis="column">
+                <brls:Label
+                        id="mine/label/dynamic"
+                        fontSize="24"
+                        marginTop="20"
+                        text="0"/>
+                <brls:Label
+                        fontSize="16"
+                        textColor="@theme/font/grey"
+                        text="动态"/>
+            </brls:Box>
+            <brls:Rectangle
+                    marginTop="10"
+                    marginLeft="20"
+                    marginRight="20"
+                    height="20"
+                    width="1"
+                    color="@theme/color/line" />
+            <brls:Box
+                    wireframe="false"
+                    grow="1"
+                    alignItems="center"
+                    justifyContent="center"
+                    axis="column">
+                <brls:Label
+                        id="mine/label/following"
+                        fontSize="24"
+                        marginTop="20"
+                        text="0"/>
+                <brls:Label
+                        fontSize="16"
+                        textColor="@theme/font/grey"
+                        text="关注"/>
+            </brls:Box>
+            <brls:Rectangle
+                    marginTop="10"
+                    marginLeft="20"
+                    marginRight="20"
+                    height="20"
+                    width="1"
+                    color="@theme/color/line" />
+            <brls:Box
+                    wireframe="false"
+                    grow="1"
+                    alignItems="center"
+                    justifyContent="center"
+                    axis="column">
+                <brls:Label
+                        id="mine/label/follower"
+                        fontSize="24"
+                        marginTop="20"
+                        text="0"/>
+                <brls:Label
+                        fontSize="16"
+                        textColor="@theme/font/grey"
+                        text="粉丝"/>
+            </brls:Box>
+            <brls:Rectangle
+                    marginTop="10"
+                    marginLeft="20"
+                    marginRight="20"
+                    height="20"
+                    width="1"
+                    color="@theme/color/line" />
+            <brls:Box
+                    wireframe="false"
+                    alignItems="center"
+                    justifyContent="center"
+                    grow="1"
+                    axis="column">
+                <brls:Label
+                        id="mine/label/coins"
+                        fontSize="24"
+                        marginTop="20"
+                        text="0"/>
+                <brls:Label
+                        fontSize="16"
+                        textColor="@theme/font/grey"
+                        text="硬币"/>
+            </brls:Box>
         </brls:Box>
     </brls:Box>
 
@@ -63,13 +157,13 @@
     <brls:Label
             positionType="absolute"
             positionLeft="0"
-            positionTop="210"
+            positionTop="160"
             fontSize="14"
             text=""/>
     <brls:Label
             positionType="absolute"
             positionLeft="220"
-            positionTop="210"
+            positionTop="160"
             fontSize="14"
             text=""/>
 

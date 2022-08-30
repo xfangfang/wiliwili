@@ -31,6 +31,10 @@ public:
 
     void onUserNotLogin() override;
 
+    void onUserDynamicStat(const bilibili::UserDynamicCount& data) override;
+
+    void onUserRelationStat(const bilibili::UserRelationStat& data) override;
+
     static View *create();
 
 private:
@@ -40,6 +44,11 @@ private:
     BRLS_BIND(brls::Label, labelUserName, "mine/label/username");
     BRLS_BIND(MineHistory, mineHistory, "mine/history");
     BRLS_BIND(MineCollection, mineCollection, "mine/collection");
+    BRLS_BIND(brls::Label, labelSign, "mine/label/sign");
+    BRLS_BIND(brls::Label, labelCoins, "mine/label/coins");
+    BRLS_BIND(brls::Label, labelFollowing, "mine/label/following");
+    BRLS_BIND(brls::Label, labelFollower, "mine/label/follower");
+    BRLS_BIND(brls::Label, labelDynamic, "mine/label/dynamic");
 
     loginStatusEvent loginCb;
 };
