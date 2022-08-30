@@ -11,34 +11,58 @@
             height="90%"
             scalingType="fit"
             marginLeft="10"
-            marginRight="10"
+            borderThickness="4"
+            borderColor="@theme/color/grey_1"
             cornerRadius="100"
-            image="@res/icon/akari.jpg"/>
+            image="@res/pictures/default_avatar.png"/>
 
     <brls:Box
             width="auto"
             height="100%"
             axis="column"
             grow="1.0"
-            justifyContent="spaceAround"
+            marginLeft="10"
+            justifyContent="spaceEvenly"
             alignItems="flexStart">
 
         <brls:Label
                 id="username"
                 width="auto"
                 height="auto"
-                horizontalAlign="center"
-                fontSize="18"
-                text="username" />
+                fontSize="20"
+                text="" />
 
         <brls:Label
                 id="misc"
                 width="auto"
                 height="auto"
-                horizontalAlign="center"
-                fontSize="10"
-                text="10000000" />
+                fontSize="16"
+                textColor="@theme/font/grey"
+                text="" />
 
+    </brls:Box>
+
+    <brls:Box
+            id="box/hint"
+            visibility="gone"
+            width="100"
+            height="34"
+            marginRight="10"
+            cornerRadius="6"
+            justifyContent="center"
+            alignItems="center">
+            <SVGImage
+                    id="svg/hint"
+                    width="16"
+                    height="16"
+                    marginLeft="6"
+                    marginRight="6"/>
+            <brls:Label
+                    id="label/hint"
+                    textColor="@theme/font/grey"
+                    fontSize="16"
+                    marginTop="1"
+                    text=""/>
     </brls:Box>
 
 </brls:Box>
