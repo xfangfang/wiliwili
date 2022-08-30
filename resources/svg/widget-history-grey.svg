@@ -1,0 +1,4 @@
+<svg id="header-history" fill="none" viewBox="0 0 20 21" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.743a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 1.636c4.061 0 7.364 3.304 7.364 7.364 0 4.06-3.303 7.363-7.363 7.363-4.061 0-7.364-3.303-7.364-7.363 0-4.06 3.303-7.364 7.364-7.364Z" fill="#9499A0"/>
+    <path d="M10 6.652v4.091M12.454 10.743H10" stroke="#9499A0" stroke-width="1.7" stroke-linecap="round"/>
+</svg>
