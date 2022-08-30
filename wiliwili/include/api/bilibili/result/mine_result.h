@@ -91,4 +91,24 @@ namespace bilibili {
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDynamicVideoResultWrapper, page, archives);
 
+    class UserDynamicCount{
+    public:
+        std::map<std::string, uint> data;
+    };
+    inline void from_json(const nlohmann::json& nlohmann_json_j, UserDynamicCount& nlohmann_json_t) {
+        if(!nlohmann_json_j.contains("items") || !nlohmann_json_j.at("items").is_array())
+            return;
+
+        for(auto i: nlohmann_json_j.at("items")){
+            if(i.contains("uid") && i.contains("num"))
+                nlohmann_json_t.data[std::to_string(i.at("uid").get<uint>())] = i.at("num").get<uint>();
+        }
+    }
+
+    class UserRelationStat{
+    public:
+        uint mid, following, black, follower;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserRelationStat, mid, following, black, follower);
+
 }
