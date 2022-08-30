@@ -1,7 +1,9 @@
 {
   "ok": "OK",
   "back": "Back",
+  "cancel": "Cancel",
   "exit": "Exit",
   "on": "On",
-  "off": "Off"
+  "off": "Off",
+  "exit_hint": "Are you going to exit the application?"
 }

@@ -1,7 +1,9 @@
 {
   "ok": "确定",
   "back": "返回",
+  "cancel": "取消",
   "exit": "Exit",
   "on": "On",
-  "off": "Off"
+  "off": "Off",
+  "exit_hint": "退出wiliwili？"
 }
