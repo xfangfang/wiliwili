@@ -58,6 +58,12 @@ AutoTabFrame::AutoTabFrame() {
                 { "left", AutoTabBarPosition::LEFT },
             });
 
+    // this only works with "sidebarPosition == left"
+    // and It must be set before you set the sidebarPosition
+    this->registerFloatXMLAttribute("sidebarWidth", [this](float value){
+        this->sidebarWidth = value;
+    });
+
     this->registerFloatXMLAttribute("tabFontSize", [this](float value){
        this->setFontSize(value);
     });
@@ -113,13 +119,13 @@ void AutoTabFrame::setSideBarPosition(AutoTabBarPosition position){
             this->setAxis(brls::Axis::ROW);
             this->setDirection(brls::Direction::RIGHT_TO_LEFT);
             this->setHorizontalMode(false);
-            this->sidebar->setWidth(100);
+            this->sidebar->setWidth(sidebarWidth);
             break;
         case AutoTabBarPosition::LEFT:
             this->setAxis(brls::Axis::ROW);
             this->setDirection(brls::Direction::LEFT_TO_RIGHT);
             this->setHorizontalMode(false);
-            this->sidebar->setWidth(100);
+            this->sidebar->setWidth(sidebarWidth);
             break;
         default:;
     }
@@ -534,7 +540,7 @@ void AutoTabFrame::draw(NVGcontext *vg, float x, float y, float width, float hei
     drawX = x + padding;
     padding = 10;
 
-    for(size_t i = 0; i < 6; i++){
+    for(size_t i = 0; i < num; i++){
         paint = nvgLinearGradient(vg, drawX , drawY , drawX+itemWidth, drawY+sidebarHeight, a(skeletonBackground), a(end));
         nvgBeginPath(vg);
         nvgFillPaint(vg, paint);

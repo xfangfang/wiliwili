@@ -231,6 +231,7 @@ private:
     bool isHorizontal = false;
     bool isDemandMode = true; // load pages on demand
     float itemFontSize = 22;
+    float sidebarWidth = 100;
 
     NVGcolor skeletonBackground = brls::Application::getTheme()["color/grey_3"];
     NVGcolor tabItemBackgroundColor = nvgRGBA(0, 0, 0, 0);
