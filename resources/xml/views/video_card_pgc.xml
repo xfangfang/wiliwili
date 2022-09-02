@@ -42,7 +42,7 @@
                     positionType="absolute"
                     positionRight="0"
                     textColor="#FFFFFF"
-                    fontSize="13"
+                    fontSize="16"
                     text="更新至..."/>
         </brls:Box>
 

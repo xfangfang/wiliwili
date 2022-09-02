@@ -57,6 +57,7 @@
                         marginTop="20"
                         text="0"/>
                 <brls:Label
+                        marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
                         text="动态"/>
@@ -80,6 +81,7 @@
                         marginTop="20"
                         text="0"/>
                 <brls:Label
+                        marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
                         text="关注"/>
@@ -103,6 +105,7 @@
                         marginTop="20"
                         text="0"/>
                 <brls:Label
+                        marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
                         text="粉丝"/>
@@ -126,6 +129,7 @@
                         marginTop="20"
                         text="0"/>
                 <brls:Label
+                        marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
                         text="硬币"/>
@@ -162,7 +166,7 @@
             text=""/>
     <brls:Label
             positionType="absolute"
-            positionLeft="220"
+            positionLeft="224"
             positionTop="160"
             fontSize="14"
             text=""/>
