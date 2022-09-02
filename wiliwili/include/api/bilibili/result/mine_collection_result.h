@@ -53,6 +53,7 @@ namespace bilibili {
         int type;
         string title;
         string cover;
+        string intro;
         UserSimpleResult upper;
         VideoCollectionStateResult cnt_info;
         int duration;
@@ -60,7 +61,7 @@ namespace bilibili {
         string bvid;
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, CollectionVideoResult& nlohmann_json_t) {
-        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, type, title, cover, upper, cnt_info, duration, pubtime, bvid));
+        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, type, title, intro, cover, upper, cnt_info, duration, pubtime, bvid));
     }
 
     typedef std::vector<CollectionVideoResult>  CollectionVideoListResult;
@@ -74,6 +75,9 @@ namespace bilibili {
         u_int index;
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, CollectionVideoListResultWrapper& nlohmann_json_t) {
-        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more, medias, info));
+        if(nlohmann_json_j.at("medias").is_array()){
+            nlohmann_json_j.at("medias").get_to(nlohmann_json_t.medias);
+        }
+        NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more, info));
     }
 };

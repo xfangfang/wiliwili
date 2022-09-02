@@ -11,6 +11,7 @@
 #include "view/recycling_grid.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "utils/singleton.hpp"
+#include "view/mpv_core.hpp"
 
 class VideoView;
 class UserInfoView;
@@ -28,6 +29,8 @@ public:
 
     PlayerActivity(std::string bvid);
 
+    PlayerActivity(std::string bvid, uint cid, int progress = -1);
+
     void onContentAvailable() override;
 
     void onVideoInfo(const bilibili::VideoDetailResult &result) override;
@@ -40,9 +43,13 @@ public:
     void onVideoOnlineCount(const bilibili::VideoOnlineTotal& count) override;
     void onVideoRelationInfo(const bilibili::VideoRelation& result) override;
     void onRelatedVideoList(const bilibili::VideoDetailListResult& result) override;
+    void onDanmaku(const std::string& filePath) override;
 
     // 初始化设置 播放界面通用内容
     void setCommonData();
+
+    // 设置 点赞、收藏、投币 三个按钮的样式
+    void setRelationButton(bool liked, bool coin, bool favorite);
 
     // 展示二维码共享对话框
     void showShareDialog(const std::string link);
@@ -82,14 +89,17 @@ protected:
 
     // 切换UP视频
     ChangeVideoEvent changeVideoEvent;
+
+    // 监控mpv事件
+    MPVEvent::Subscription eventSubscribeID;
 };
 
 class PlayerSeasonActivity: public PlayerActivity {
 public:
 
-    PlayerSeasonActivity(const u_int seasonID):season(seasonID){
-        brls::Logger::debug("open season: {}", seasonID);
-    }
+    PlayerSeasonActivity(const u_int id, PGC_ID_TYPE type=PGC_ID_TYPE::SEASON_ID, int progress = -1);
+
+    ~PlayerSeasonActivity() override;
 
     void onContentAvailable() override;
 
@@ -97,7 +107,8 @@ public:
 
     void onSeasonEpisodeInfo(const bilibili::SeasonEpisodeResult& result) override;
 private:
-    u_int season;
+    u_int pgc_id;
+    PGC_ID_TYPE pgcIdType;
     ChangeIndexEvent changeEpisodeEvent;
     BRLS_BIND(brls::Box, boxFavorites, "video/favorites/box");
     BRLS_BIND(brls::Label, videoFavoritesLabel, "video/favorites");

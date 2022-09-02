@@ -65,6 +65,8 @@ namespace bilibili {
         static const string Stat = _apiBase + "/x/web-interface/archive/stat";
         /// 获取视频点赞收藏情况
         static const string VideoRelation = _apiBase + "/x/web-interface/archive/relation";
+        /// 获取视频弹幕
+        static const string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
 
 
         /// 直播API

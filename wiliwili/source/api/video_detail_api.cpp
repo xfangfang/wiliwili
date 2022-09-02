@@ -84,12 +84,17 @@ namespace bilibili {
                                              callback, error);
     }
 
-    void BilibiliClient::get_season_detail(const int seasonID,
+    void BilibiliClient::get_season_detail(const int seasonID, const int epID,
                                           const std::function<void(SeasonResultWrapper)>& callback,
                                           const ErrorCallback& error){
-        HTTP::getResultAsync<SeasonResultWrapper>(Api::SeasonDetail,
-                                                {{"season_id",std::to_string(seasonID)}},
-                                                callback, error);
+        cpr::Parameters params;
+        if(epID == 0){
+            params = {{"season_id",std::to_string(seasonID)}};
+        }else{
+            params = {{"ep_id",std::to_string(epID)}};
+        }
+
+        HTTP::getResultAsync<SeasonResultWrapper>(Api::SeasonDetail, params, callback, error);
     }
 
 
@@ -137,5 +142,57 @@ namespace bilibili {
                                    const std::function<void(VideoRelation)>& callback,
                                    const ErrorCallback& error){
         HTTP::getResultAsync<VideoRelation>(Api::VideoRelation, {{"bvid", bvid}}, callback, error);
+    }
+
+    void BilibiliClient::get_danmaku(const uint cid,
+                            const std::function<void(std::string)>& callback,
+                            const ErrorCallback& error){
+        cpr::GetCallback<>([callback, error](cpr::Response r) {
+                             try{
+                                callback(r.text);
+                             }
+                             catch(const std::exception& e){
+                                 ERROR("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
+                                 printf("data: %s\n", r.text.c_str());
+                                 printf("ERROR: %s\n",e.what());
+                             }
+                         },
+                         cpr::Url{Api::VideoDanmaku},
+                         HTTP::HEADERS,
+                         cpr::Parameters({{"oid", std::to_string(cid)}}),
+                         HTTP::COOKIES,
+                         cpr::Timeout{HTTP::TIMEOUT});
+
+    }
+
+    /// 视频页 上报历史记录
+    void BilibiliClient::report_history(const std::string& mid, const std::string& access_key,
+                                   uint aid, uint cid, int type, uint progress, uint sid, uint epid,
+                                   const std::function<void()>& callback,
+                                   const ErrorCallback& error){
+
+        cpr::Payload payload = {
+                {"mid", mid},
+                {"access_key", access_key},
+                {"aid", std::to_string(aid)},
+                {"cid", std::to_string(cid)},
+                {"progress", std::to_string(progress)},
+                {"type", std::to_string(type)},
+                {"dt", "3"},
+        };
+        if(type == 4){
+            if(sid != 0)
+                payload.Add({"sid", std::to_string(sid)});
+            if(epid != 0)
+                payload.Add({"epid", std::to_string(epid)});
+        }
+
+        HTTP::__cpr_post(Api::ProgressReport,{}, payload, [callback, error](const cpr::Response& r){
+                if(r.status_code != 200){
+                    ERROR("ERROOR: report_history: status_code: " + std::to_string(r.status_code), r.status_code);
+                }else{
+                    callback();
+                }
+        });
     }
 }

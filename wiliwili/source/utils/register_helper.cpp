@@ -96,6 +96,10 @@ void Register::initCustomTheme(){
     brls::getLightTheme().addColor("color/grey_3", nvgRGBA(200, 200, 200, 16));
     brls::getDarkTheme().addColor("color/grey_3", nvgRGBA(160, 160, 160, 160));
 
+    // 用于历史记录右上角Badge的半透明背景
+    brls::getLightTheme().addColor("color/grey_4", nvgRGBA(48, 48, 48, 160));
+    brls::getDarkTheme().addColor("color/grey_4", nvgRGBA(48, 48, 48, 160));
+
     // 深浅配色通用的灰色字体颜色
     brls::getLightTheme().addColor("font/grey", nvgRGB(148, 153, 160));
     brls::getDarkTheme().addColor("font/grey", nvgRGB(148, 153, 160));

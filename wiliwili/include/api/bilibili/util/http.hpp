@@ -26,6 +26,7 @@ namespace bilibili {
     class HTTP {
     public:
         static cpr::Cookies COOKIES;
+        static cpr::Header HEADERS;
         static int TIMEOUT;
 
         static cpr::Response get(const std::string &url,

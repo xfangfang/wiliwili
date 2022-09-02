@@ -8,6 +8,12 @@
 #include "bilibili.h"
 #include "bilibili/result/video_detail_result.h"
 
+// 指明一个id的类型
+enum class PGC_ID_TYPE{
+    SEASON_ID, // 剧ID
+    EP_ID // 集ID
+};
+
 class VideoDetail: public Presenter{
 public:
     virtual void onVideoInfo(const bilibili::VideoDetailResult &result){}
@@ -33,10 +39,10 @@ public:
     void requestData(const bilibili::VideoDetailResult& video);
 
     /// 请求番剧数据
-    void requestData(int seasonID);
+    void requestData(int id, PGC_ID_TYPE type=PGC_ID_TYPE::SEASON_ID);
 
     /// 获取番剧信息
-    void requestSeasonInfo(const int seasonID);
+    void requestSeasonInfo(const int seasonID, const int epID=0);
 
     /// 获取视频信息：标题、作者、简介、分P等
     void requestVideoInfo(const string bvid);
@@ -65,8 +71,12 @@ public:
     /// 获取视频弹幕
     void requestVideoDanmaku(const uint cid);
 
+    /// 上报播放进度
+    void reportHistory(uint aid, uint cid, uint progress=0, int type=3);
+
 protected:
     bilibili::VideoDetailResult videoDetailResult; //  视频数据
+    bilibili::VideoDetailPage videoDetailPage; // 视频分P数据
     bilibili::UserDetailResultWrapper userDetailResult; // 作者数据
     bilibili::VideoUrlResult videoUrlResult;
     bilibili::SeasonResultWrapper seasonInfo; // 番剧/综艺/影视 数据

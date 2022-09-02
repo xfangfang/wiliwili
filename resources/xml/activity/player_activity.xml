@@ -87,7 +87,6 @@
                                             <brls:Box
                                                     highlightCornerRadius="50"
                                                     cornerRadius="50"
-                                                    backgroundColor="@theme/color/grey_1"
                                                     padding="4"
                                                     axis="column"
                                                     alignItems="center"
@@ -96,10 +95,7 @@
                                                     <SVGImage
                                                             id="video/btn/agree"
                                                             width="48"
-                                                            height="48"
-                                                            backgroundColor="@theme/color/white"
-                                                            cornerRadius="50"
-                                                            SVG="@res/svg/widget-agree-dark.svg"/>
+                                                            height="48"/>
                                                     <brls:Label
                                                             id="video/label/agree"
                                                             positionType="absolute"
@@ -116,7 +112,6 @@
                                             <brls:Box
                                                     highlightCornerRadius="50"
                                                     cornerRadius="50"
-                                                    backgroundColor="@theme/color/grey_1"
                                                     padding="4"
                                                     axis="column"
                                                     alignItems="center"
@@ -124,10 +119,7 @@
                                                     <SVGImage
                                                             id="video/btn/coin"
                                                             width="48"
-                                                            height="48"
-                                                            backgroundColor="@theme/color/white"
-                                                            cornerRadius="50"
-                                                            SVG="@res/svg/widget-coin-dark.svg"/>
+                                                            height="48"/>
                                                     <brls:Label
                                                             id="video/label/coin"
                                                             positionType="absolute"
@@ -144,7 +136,6 @@
                                             <brls:Box
                                                     highlightCornerRadius="50"
                                                     cornerRadius="50"
-                                                    backgroundColor="@theme/color/grey_1"
                                                     padding="4"
                                                     axis="column"
                                                     alignItems="center"
@@ -152,10 +143,7 @@
                                                     <SVGImage
                                                             id="video/btn/favorite"
                                                             width="48"
-                                                            height="48"
-                                                            backgroundColor="@theme/color/white"
-                                                            cornerRadius="50"
-                                                            SVG="@res/svg/widget-favorite-dark.svg"/>
+                                                            height="48"/>
                                                     <brls:Label
                                                             id="video/label/favorite"
                                                             positionType="absolute"
@@ -172,7 +160,6 @@
                                             <brls:Box
                                                     highlightCornerRadius="50"
                                                     cornerRadius="50"
-                                                    backgroundColor="@theme/color/grey_1"
                                                     padding="4"
                                                     axis="column"
                                                     alignItems="center"
@@ -180,10 +167,7 @@
                                                     <SVGImage
                                                             id="video/btn/qr"
                                                             width="48"
-                                                            height="48"
-                                                            backgroundColor="@theme/color/white"
-                                                            cornerRadius="22"
-                                                            SVG="@res/svg/widget-qrcode-dark.svg"/>
+                                                            height="48"/>
                                                     <brls:Label
                                                             id="video/label/qr"
                                                             positionType="absolute"

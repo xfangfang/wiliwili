@@ -171,7 +171,7 @@ public:
 
     void setCard(std::string pic, std::string title, std::string username,
                  std::string leftBottomBadge="", std::string rightBottomBadge="",
-                 std::string rightTopBadge="");
+                 std::string rightTopBadge="", int deviceType=0, float progress=-1, bool showName=true);
 
     void prepareForReuse();
 
@@ -187,6 +187,10 @@ private:
     BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
     BRLS_BIND(brls::Label, labelRightTop, "video/card/label/badge/right/top");
     BRLS_BIND(brls::Box, boxPic,"video/card/pic_box");
+    BRLS_BIND(SVGImage, svgDT, "video/card/deviceType");
+    BRLS_BIND(SVGImage, svgUp, "video/card/up");
+    BRLS_BIND(brls::Box, boxBadge,"video/card/badgeBox");
+    BRLS_BIND(brls::Rectangle, rectProgress, "video/card/progress");
 };
 
 

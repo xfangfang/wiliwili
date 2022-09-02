@@ -15,6 +15,7 @@ namespace bilibili {
     public:
         uint aid;
         uint cid;
+        uint id; //ep id
         std::string bvid;
         uint duration;
         std::string title;
@@ -22,10 +23,12 @@ namespace bilibili {
         std::string subtitle;
         std::string link;
         uint pub_time;
+
+        int progress = -1; //用于从历史记录加载进播放页
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, SeasonEpisodeResult& nlohmann_json_t) {
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, aid, cid, bvid, duration, title,
-                                                 long_title, subtitle, pub_time, link));
+                                                 long_title, subtitle, pub_time, link, id));
     }
 
     class SeasonRatingResult {

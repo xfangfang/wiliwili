@@ -146,7 +146,14 @@ private:
 
 PlayerActivity::PlayerActivity(std::string bvid){
     videoDetailResult.bvid = bvid;
-    Logger::debug("create VideoDetailActivity2: {}", videoDetailResult.bvid);
+    Logger::debug("create PlayerActivity: {}", videoDetailResult.bvid);
+}
+
+PlayerActivity::PlayerActivity(std::string bvid, uint cid, int progress){
+    videoDetailResult.bvid = bvid;
+    videoDetailPage.cid = cid;
+    videoDetailPage.progress = progress;
+    Logger::debug("create PlayerActivity: bvid: {} cid: {} progress: {}", bvid, cid, progress);
 }
 
 void PlayerActivity::onContentAvailable() {
@@ -165,11 +172,17 @@ void PlayerActivity::onContentAvailable() {
     // 切换视频分P
     changePEvent.subscribe([this](int index){
         brls::Logger::debug("切换分区: {}", index);
-        this->requestVideoUrl(videoDetailResult.bvid, videoDetailResult.pages[index].cid);
+        videoDetailPage = videoDetailResult.pages[index];
+        this->requestVideoUrl(videoDetailResult.bvid, videoDetailPage.cid);
+        //上报历史记录
+        this->reportHistory(videoDetailResult.aid, videoDetailPage.cid, 0);
     });
 
     // 切换到其他视频
     changeVideoEvent.subscribe([this](bilibili::Video videoData){
+        //上报历史记录
+        this->reportHistory(videoDetailResult.aid, videoDetailPage.cid, MPVCore::instance().video_progress);
+
         // 停止播放视频
         this->video->stop();
 
@@ -188,6 +201,7 @@ void PlayerActivity::onContentAvailable() {
         this->recyclingGrid->showSkeleton(4);
 
         // 请求新视频的数据
+        videoDetailPage.cid = 0; // cid 设置为0，新视频默认打开PV1
         this->requestVideoInfo(videoData.bvid);
     });
 
@@ -225,6 +239,35 @@ void PlayerActivity::setCommonData() {
                          }, true);
 
     this->btnQR->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnQR->getParent()));
+
+    if(brls::Application::getThemeVariant() == brls::ThemeVariant::LIGHT)
+        btnQR->setImageFromSVGRes("svg/widget-qrcode-dark.svg");
+    else
+        btnQR->setImageFromSVGRes("svg/widget-qrcode.svg");
+
+    this->setRelationButton(false, false, false);
+
+    eventSubscribeID = MPVCore::instance().getEvent()->subscribe([this](MpvEventEnum event){
+        static int64_t lastProgress = MPVCore::instance().video_progress;
+        switch (event){
+            case MpvEventEnum::UPDATE_PROGRESS:
+                // 每15秒同步一次进度
+                if(lastProgress + 15 < MPVCore::instance().video_progress){
+                    lastProgress = MPVCore::instance().video_progress;
+                    auto self = dynamic_cast<PlayerSeasonActivity*>(this);
+                    if(self){
+                        this->reportHistory(episodeResult.aid, episodeResult.cid, lastProgress, 4);
+                    }else{
+                        this->reportHistory(videoDetailResult.aid, videoDetailPage.cid, lastProgress, 3);
+                    }
+                } else if(MPVCore::instance().video_progress < lastProgress){
+                    lastProgress = MPVCore::instance().video_progress;
+                }
+                break;
+            default:
+                break;
+        }
+    });
 }
 
 void PlayerActivity::showShareDialog(const std::string link){
@@ -369,10 +412,25 @@ void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult & result) {
     Logger::debug("quality: {}", result.quality);
     // todo: 将多个文件加入播放列表
     //todo: 播放失败时可以尝试备用播放链接
-    for(const auto& i: result.durl){
-        this->video->start(i.url);
-        break;
+
+    int progress = videoDetailPage.progress;
+    auto self = dynamic_cast<PlayerSeasonActivity*>(this);
+    if(self){
+        progress = episodeResult.progress;
     }
+
+    if(progress > 0){
+        for(const auto& i: result.durl){
+            this->video->setUrl(i.url, progress);
+            break;
+        }
+    }else{
+        for(const auto& i: result.durl){
+            this->video->start(i.url);
+            break;
+        }
+    }
+
     Logger::debug("PlayerActivity::onVideoPlayUrl done");
 }
 
@@ -408,27 +466,35 @@ void PlayerActivity::onVideoOnlineCount(const bilibili::VideoOnlineTotal& result
 
 void PlayerActivity::onVideoRelationInfo(const bilibili::VideoRelation& result){
     brls::Logger::debug("onVideoRelationInfo: {} {} {}", result.like, result.coin, result.favorite);
-    auto theme = brls::Application::getTheme();
-    if(result.like){
-        btnAgree->setBackgroundColor(theme.getColor("color/bilibili"));
-        btnAgree->setImageFromSVGRes("svg/widget-agree.svg");
+    this->setRelationButton(result.like, result.coin, result.favorite);
+}
+
+void PlayerActivity::setRelationButton(bool liked, bool coin, bool favorite){
+    bool lightTheme = brls::Application::getThemeVariant() == brls::ThemeVariant::LIGHT;
+
+    if(liked){
+        btnAgree->setImageFromSVGRes("svg/bpx-svg-sprite-liked-active.svg");
     } else {
-        btnAgree->setBackgroundColor(theme.getColor("color/white"));
-        btnAgree->setImageFromSVGRes("svg/widget-agree-dark.svg");
+        if(lightTheme)
+            btnAgree->setImageFromSVGRes("svg/widget-agree-dark.svg");
+        else
+            btnAgree->setImageFromSVGRes("svg/widget-agree.svg");
     }
-    if(result.coin){
-        btnCoin->setBackgroundColor(theme.getColor("color/bilibili"));
-        btnCoin->setImageFromSVGRes("svg/widget-coin.svg");
+    if(coin){
+        btnCoin->setImageFromSVGRes("svg/bpx-svg-sprite-coin-active.svg");
     } else {
-        btnCoin->setImageFromSVGRes("svg/widget-coin-dark.svg");
-        btnCoin->setBackgroundColor(theme.getColor("color/white"));
+        if(lightTheme)
+            btnCoin->setImageFromSVGRes("svg/widget-coin-dark.svg");
+        else
+            btnCoin->setImageFromSVGRes("svg/widget-coin.svg");
     }
-    if(result.favorite){
-        btnFavorite->setBackgroundColor(theme.getColor("color/bilibili"));
-        btnFavorite->setImageFromSVGRes("svg/widget-favorite.svg");
+    if(favorite){
+        btnFavorite->setImageFromSVGRes("svg/bpx-svg-sprite-collection-active.svg");
     } else {
-        btnFavorite->setImageFromSVGRes("svg/widget-favorite-dark.svg");
-        btnFavorite->setBackgroundColor(theme.getColor("color/white"));
+        if(lightTheme)
+            btnFavorite->setImageFromSVGRes("svg/widget-favorite-dark.svg");
+        else
+            btnFavorite->setImageFromSVGRes("svg/widget-favorite.svg");
     }
 }
 
@@ -454,6 +520,11 @@ void PlayerActivity::onRelatedVideoList(const bilibili::VideoDetailListResult& r
     });
 }
 
+void PlayerActivity::onDanmaku(const std::string& filePath){
+    const char *cmd[] = {"sub-add", filePath.c_str(), "select", "danmaku", NULL};
+    MPVCore::instance().command_async(cmd);
+}
+
 void PlayerActivity::onError(const std::string &error){
     brls::sync([error](){
         auto dialog = new brls::Dialog(error);
@@ -467,11 +538,31 @@ void PlayerActivity::onError(const std::string &error){
 
 PlayerActivity::~PlayerActivity() {
     Logger::debug("del PlayerActivity");
+    //上报历史记录
+    this->reportHistory(videoDetailResult.aid, videoDetailPage.cid, MPVCore::instance().video_progress);
     this->video->stop();
+    // 取消监控mpv
+    MPVCore::instance().getEvent()->unsubscribe(eventSubscribeID);
 }
 
 
 /// season player
+
+PlayerSeasonActivity::PlayerSeasonActivity(const u_int id, PGC_ID_TYPE type, int progress):pgc_id(id), pgcIdType(type){
+    if(type == PGC_ID_TYPE::SEASON_ID){
+        brls::Logger::debug("open season: {}", id);
+    } else if(type == PGC_ID_TYPE::EP_ID){
+        brls::Logger::debug("open ep: {}", id);
+    }
+
+    episodeResult.progress = progress;
+}
+
+PlayerSeasonActivity::~PlayerSeasonActivity(){
+    Logger::debug("del PlayerSeasonActivity");
+    //上报历史记录
+    this->reportHistory(episodeResult.aid, episodeResult.cid, MPVCore::instance().video_progress, 4);
+}
 
 void PlayerSeasonActivity::onContentAvailable(){
 
@@ -485,11 +576,15 @@ void PlayerSeasonActivity::onContentAvailable(){
                                             return true;
                                         });
 
+    //评论加载下一页
     recyclingGrid->onNextPage([this](){
         if(this->episodeResult.aid != 0)
             this->requestVideoComment(this->episodeResult.aid);
     });
+
+    //切换分集
     changeEpisodeEvent.subscribe([this](int index){
+        this->reportHistory(episodeResult.aid, episodeResult.cid, MPVCore::instance().video_progress, 4);
         this->changeEpisode(seasonInfo.episodes[index]);
     });
 
@@ -499,7 +594,7 @@ void PlayerSeasonActivity::onContentAvailable(){
         return true;
     });
 
-    this->requestSeasonInfo(this->season);
+    this->requestData(this->pgc_id, this->pgcIdType);
 }
 
 void PlayerSeasonActivity::onSeasonEpisodeInfo(const bilibili::SeasonEpisodeResult& result){
