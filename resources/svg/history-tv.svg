@@ -1,0 +1,5 @@
+<svg id="history-tv" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M13 2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10Zm0 1H3a1 1 0 0 0-.993.883L2 4v6a1 1 0 0 0 .883.993L3 11h10a1 1 0 0 0 .993-.883L14 10V4a1 1 0 0 0-1-1Z" fill="#FFFFFF"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.188 6.09V9.3h-.96V6.089h-1.09v-.788h3.14v.788h-1.09Zm5.408-.789L10.336 9.3H9.13L7.855 5.301h1.12l.764 2.982h.044l.753-2.982h1.06Z" fill="#FFFFFF"/>
+    <path d="M3.5 11.5 3 13M4.182 11.5 3 13M12.5 11.5 13 13M11.864 11.5 13 13" stroke="#FFFFFF" stroke-linecap="round"/>
+</svg>

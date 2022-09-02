@@ -4,5 +4,6 @@
   "hint2": "点击 \uE0E0 打开, 在应用开启期间保持按住 \uE0E5 键，直到进入 hbmenu",
   "hint3": "在 hbmenu 菜单中选择 wiliwili",
   "hint4": "可选：安装 wiliwili NSP 通过桌面图标直接打开 wiliwili",
-  "hint_right": "掌机图片来源于网络，版权归任天堂 Nintendo Co., Ltd 所有"
+  "hint_right": "掌机图片来源于网络，版权归任天堂 Nintendo Co., Ltd 所有",
+  "brief": "wiliwili 是专为手柄控制设计的第三方跨平台B站客户端\n目前可以运行在PC全平台和Nintendo Switch上\n完美复刻官方B站PC客户端，满足日常使用\n仅在最新 大气层 + 最新 固件 + FAT32 内存卡测试，其他组合出现的问题不进行处理。"
 }

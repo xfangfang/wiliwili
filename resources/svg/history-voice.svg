@@ -1,0 +1,13 @@
+<svg id="history-vioce" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <path d="M4 13.5A1.5 1.5 0 0 1 2.5 12V4A1.5 1.5 0 0 1 4 2.5h8A1.5 1.5 0 0 1 13.5 4v8a1.5 1.5 0 0 1-1.5 1.5H4Z" stroke="#FFFFFF"/>
+    <path d="M5 8.5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H5Z" stroke="#FFFFFF"/>
+    <circle cx="4.397" cy="10.444" r=".45" fill="#FFFFFF"/>
+    <circle cx="6.199" cy="10.444" r=".45" fill="#FFFFFF"/>
+    <circle cx="5.204" cy="11.714" r=".45" fill="#FFFFFF"/>
+    <circle cx="8" cy="10.444" r=".45" fill="#FFFFFF"/>
+    <circle cx="7.006" cy="11.714" r=".45" fill="#FFFFFF"/>
+    <circle cx="9.801" cy="10.444" r=".45" fill="#FFFFFF"/>
+    <circle cx="11.603" cy="10.444" r=".45" fill="#FFFFFF"/>
+    <circle cx="8.807" cy="11.714" r=".45" fill="#FFFFFF"/>
+    <circle cx="10.609" cy="11.714" r=".45" fill="#FFFFFF"/>
+</svg>
