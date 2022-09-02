@@ -132,6 +132,7 @@ namespace bilibili {
                                                           {{"media_id", std::to_string(media_id)},
                                                            {"ps", std::to_string(num)},
                                                            {"pn", std::to_string(index)},
+                                                           {"platform", "web"},
                                                           },
                                                           [callback, index](auto data){
                                                                 data.index = index;

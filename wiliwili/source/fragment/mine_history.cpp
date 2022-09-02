@@ -25,15 +25,26 @@ public:
             badge = "已看完";
         }
         auto author = r.author_name;
+        bool showUpName = true;
         if(author.empty()){
+            showUpName = false;
             author = r.show_title;
+        }else if(!r.show_title.empty()){
+            author += " - " + r.show_title;
         }
         auto time = wiliwili::sec2date(r.view_at);
-        auto duration = wiliwili::sec2Time(r.duration);
-        if(r.progress > 0){
-            duration = wiliwili::sec2Time(r.progress) + " / " + duration;
+
+        std::string duration = "";
+        float progress = -1;
+        if(r.duration >= 0 && r.progress >= 0 && (r.history.business == "pgc" || r.history.business == "archive")){
+            duration = wiliwili::sec2Time(r.progress) + " / " + wiliwili::sec2Time(r.duration);
+            progress = r.progress * 1.0 / r.duration;
+        }else if(r.progress < 0){
+            progress = 1.0;
         }
-        item->setCard(r.cover+"@672w_378h_1c.jpg", r.title, author, time, duration, badge);
+
+        item->setCard(r.cover+"@672w_378h_1c.jpg", r.title, author, time,
+                      duration, badge, r.history.dt, progress, showUpName);
 
         return item;
     }
@@ -43,12 +54,44 @@ public:
     }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) {
-        std::string& bvid = list[index].history.bvid;
-        if(!bvid.empty()){
-            brls::Application::pushActivity(new PlayerActivity(bvid));
-        } else if(list[index].history.epid != 0) {
-            // todo 通过epid获取番剧信息
-//            brls::Application::pushActivity(new PlayerSeasonActivity(list[index].history.oid));
+        auto& data = list[index].history;
+
+        std::string& bvid = data.bvid;
+        std::string& business = data.business;
+        if(business == "archive"){
+            int progress = -1;
+            if(list[index].progress > 0)
+                progress = list[index].progress;
+            brls::Application::pushActivity(new PlayerActivity(bvid, data.cid, progress));
+        } else if(business == "pgc") {
+            int progress = -1;
+            if(list[index].progress > 0)
+                progress = list[index].progress;
+            brls::Application::pushActivity(new PlayerSeasonActivity(data.epid, PGC_ID_TYPE::EP_ID, progress));
+        } else if(business == "article" || business == "article-list"){
+            auto cvid = data.oid;
+            if(data.cid != 0)
+                cvid = data.cid;
+            auto url = fmt::format("https://www.bilibili.com/read/cv{}", cvid);
+
+            auto container = new brls::Box(brls::Axis::COLUMN);
+            container->setJustifyContent(brls::JustifyContent::CENTER);
+            container->setAlignItems(brls::AlignItems::CENTER);
+            auto l1 = new brls::Label();
+            l1->setFontSize(24);
+            l1->setText("使用浏览器打开专栏内容:");
+            auto l2 = new brls::Label();
+            l2->setMarginTop(10);
+            l2->setTextColor(nvgRGB(102, 147, 182));
+            l2->setText(url);
+            container->setHeight(200);
+            container->addView(l1);
+            container->addView(l2);
+            auto dialog = new brls::Dialog(container);
+            dialog->addButton("hints/ok"_i18n, [url](){
+                brls::Application::getPlatform()->openBrowser(url);
+            });
+            dialog->open();
         }
     }
 

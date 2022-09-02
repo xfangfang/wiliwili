@@ -20,7 +20,12 @@ public:
         RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::CollectionVideoResult& r = this->list[index];
-        item->setCard(r.cover+"@672w_378h_1c.jpg",r.title,r.upper.name,r.pubtime, r.cnt_info.play, r.cnt_info.danmaku, r.duration);
+
+        std::string author = r.upper.name;
+        if(r.type == 24)
+            author = r.intro;
+
+        item->setCard(r.cover+"@672w_378h_1c.jpg",r.title, author, r.pubtime, r.cnt_info.play, r.cnt_info.danmaku, r.duration);
         return item;
     }
 
@@ -29,7 +34,20 @@ public:
     }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) {
-        brls::Application::pushActivity(new PlayerActivity(list[index].bvid));
+        auto& data = list[index];
+        switch (data.type) {
+            case 2: // 普通视频
+                brls::Application::pushActivity(new PlayerActivity(data.bvid));
+                break;
+            case 12: // 音频
+                break;
+            case 21: // 视频合集
+                break;
+            case 24: // 番剧
+                brls::Application::pushActivity(new PlayerSeasonActivity(data.id, PGC_ID_TYPE::EP_ID));
+                break;
+
+        }
     }
 
     void appendData(const bilibili::CollectionVideoListResult& data){

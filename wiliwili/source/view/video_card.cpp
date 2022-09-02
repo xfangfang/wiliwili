@@ -298,7 +298,8 @@ RecyclingGridItemHistoryVideoCard* RecyclingGridItemHistoryVideoCard::create(){
 
 void RecyclingGridItemHistoryVideoCard::setCard(std::string pic, std::string title, std::string username,
                                                 std::string leftBottomBadge, std::string rightBottomBadge,
-                                                std::string rightTopBadge){
+                                                std::string rightTopBadge, int deviceType, float progress,
+                                                bool showName){
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
@@ -306,6 +307,58 @@ void RecyclingGridItemHistoryVideoCard::setCard(std::string pic, std::string tit
     this->labelCount->setText(leftBottomBadge);
     this->labelDuration->setText(rightBottomBadge);
     this->labelRightTop->setText(rightTopBadge);
+
+    if(showName){
+        svgUp->setVisibility(brls::Visibility::VISIBLE);
+    } else {
+        svgUp->setVisibility(brls::Visibility::GONE);
+    }
+
+    if(rightTopBadge.empty()){
+        boxBadge->setVisibility(brls::Visibility::INVISIBLE);
+    } else{
+        boxBadge->setVisibility(brls::Visibility::VISIBLE);
+        auto theme = brls::Application::getTheme();
+        if(rightTopBadge == "已看完"){
+            boxBadge->setBackgroundColor(theme.getColor("color/grey_4"));
+        }else{
+            boxBadge->setBackgroundColor(theme.getColor("color/bilibili"));
+        }
+    }
+
+    if(progress < 0){
+        rectProgress->getParent()->setVisibility(brls::Visibility::INVISIBLE);
+    } else {
+        rectProgress->getParent()->setVisibility(brls::Visibility::VISIBLE);
+        if(progress > 1.0)
+            progress = 1.0;
+        rectProgress->setWidthPercentage(progress*100);
+    }
+
+    switch (deviceType) {
+        case 1: // phone
+        case 5:
+            svgDT->setImageFromSVGRes("svg/history-phone.svg");
+            break;
+        case 3: // voice
+            svgDT->setImageFromSVGRes("svg/history-voice.svg");
+            break;
+        case 2: // pc
+            svgDT->setImageFromSVGRes("svg/history-pc.svg");
+            break;
+        case 4: // pad
+        case 6:
+            svgDT->setImageFromSVGRes("svg/history-ipad.svg");
+            break;
+        case 8: // car
+            svgDT->setImageFromSVGRes("svg/history-carplay.svg");
+            break;
+        case 33: // tv
+            svgDT->setImageFromSVGRes("svg/history-tv.svg");
+            break;
+        default:
+            svgDT->setImageFromSVGRes("svg/widget-video-play-count.svg");
+    }
 }
 
 
