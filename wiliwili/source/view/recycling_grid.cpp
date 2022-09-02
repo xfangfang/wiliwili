@@ -68,6 +68,7 @@ public:
     }
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index){
         SkeletonCell* item = (SkeletonCell*)recycler->dequeueReusableCell("Skeleton");
+        item->setHeight(recycler->estimatedRowHeight);
         return item;
     }
 
@@ -104,11 +105,14 @@ RecyclingGrid::RecyclingGrid() {
     this->setContentView(this->contentBox);
 
     this->registerFloatXMLAttribute("itemHeight", [this](float value){
-        this->estimatedRowHeight = value + this->estimatedRowSpace;
+        this->estimatedRowHeight = value;
         this->reloadData();
     });
 
     this->registerFloatXMLAttribute("spanCount", [this](float value){
+        if(value != 1){
+            isFlowMode = false;
+        }
         this->spanCount = value;
         this->reloadData();
     });
@@ -120,6 +124,12 @@ RecyclingGrid::RecyclingGrid() {
 
     this->registerFloatXMLAttribute("preFetchLine", [this](float value){
         this->preFetchLine = value;
+        this->reloadData();
+    });
+
+    this->registerBoolXMLAttribute("flowMode", [this](bool value){
+        this->spanCount = 1;
+        this->isFlowMode = value;
         this->reloadData();
     });
 
@@ -173,11 +183,34 @@ void RecyclingGrid::addCellAt(size_t index, int downSide)
     RecyclingGridItem* cell;
     //获取到一个填充好数据的cell
     cell = dataSource->cellForRow(this, index);
-    cell->setHeight(estimatedRowHeight - estimatedRowSpace);
     cell->setWidth((renderedFrame.getWidth() - paddingLeft - paddingRight) / spanCount - estimatedRowSpace);
     cell->setDetachedPositionX(renderedFrame.getMinX() + paddingLeft
                                + (renderedFrame.getWidth() - paddingLeft - paddingRight) / spanCount * (index % spanCount));
-    cell->setDetachedPositionY(estimatedRowHeight * (int)(index / spanCount) + paddingTop);
+
+    float cellHeight = estimatedRowHeight;
+
+    if(isFlowMode){
+        if(cellHeightCache[index] == -1){
+            // 没有预定义cell的高度，使用cell默认的高度
+            cellHeight = cell->getHeight();
+            if(cellHeight > estimatedRowHeight){
+                cellHeight = estimatedRowHeight;
+            }
+            cellHeightCache[index] = cellHeight;
+        }else{
+            // dataSource 中指定了cell的高度，使用预定义的值
+            cellHeight = cellHeightCache[index];
+        }
+        cell->setHeight(cellHeight);
+
+        // getHeightByCellIndex：获取当前cell的相对Y坐标 （相对于renderedFrame的顶部）
+        cell->setDetachedPositionY(getHeightByCellIndex(index) + paddingTop);
+
+        brls::Logger::error("Add cell at: y {} height {}", getHeightByCellIndex(index) + paddingTop, cellHeight);
+    }
+
+    cell->setHeight(cellHeight);
+    cell->setDetachedPositionY(getHeightByCellIndex(index) + paddingTop);
     cell->setIndex(index);
 
     this->contentBox->getChildren().insert(this->contentBox->getChildren().end(), cell);
@@ -198,10 +231,17 @@ void RecyclingGrid::addCellAt(size_t index, int downSide)
     if (index > visibleMax)
         visibleMax = index;
 
-    if (!downSide)
-        renderedFrame.origin.y -= index % spanCount == 0 ? estimatedRowHeight: 0;
+    // 只有元素出现在首列时才需要考虑修改 renderedFrame
+    if(index % spanCount == 0){
+        if (!downSide)
+            renderedFrame.origin.y -= cellHeight + estimatedRowSpace;
 
-    renderedFrame.size.height += index % spanCount == 0 ? estimatedRowHeight: 0;
+        renderedFrame.size.height += cellHeight + estimatedRowSpace;
+    }
+
+    // 瀑布流模式需要不断修正高度
+    if(isFlowMode)
+        contentBox->setHeight(getHeightByCellIndex(this->dataSource->getItemCount()) + paddingTop + paddingBottom);
 
     brls::Logger::debug("Cell #" + std::to_string(index) + " - added");
 }
@@ -239,13 +279,33 @@ void RecyclingGrid::reloadData()
 
     if (dataSource)
     {
-        contentBox->setHeight(estimatedRowHeight * this->getRowCount() + paddingTop + paddingBottom);
+        // 设置列表的高度（真实高度，非显示的高度）
+        if(!isFlowMode || spanCount != 1){
+            // 设置了固定的高度
+            contentBox->setHeight((estimatedRowHeight + estimatedRowSpace) * this->getRowCount() + paddingTop + paddingBottom);
+        }else{
+            // 获取每个cell的高度并缓存起来
+            cellHeightCache.clear();
+            brls::Rect frame = getFrame();
+            for (int section = 0; section < dataSource->getItemCount(); section++){
+                float height = dataSource->heightForRow(this, section);
+                cellHeightCache.push_back(height);
+            }
+            contentBox->setHeight(getHeightByCellIndex(dataSource->getItemCount()) + paddingTop + paddingBottom);
+        }
+
+        // 填充足够多的cell到屏幕上
         brls::Rect frame  = getLocalFrame();
         for (auto row = 0; row < dataSource->getItemCount(); row++)
         {
             this->addCellAt(row, true);
-            if (renderedFrame.getMaxY() - preFetchLine * estimatedRowHeight > frame.getMaxY() && (row + 1) % spanCount == 0)
-                break;
+            // 只关注最后一列，因为只有当前行最后一列元素添加完毕时才需要考虑要不要继续添加下一行元素
+            if ((row + 1) % spanCount == 0){
+                // 计算从当前元素开始（包括）向前共 preFetchLine 行元素的高度
+                if(renderedFrame.getMaxY() - getHeightByCellIndex(row+1-preFetchLine*spanCount, row+1) > frame.getMaxY()){
+                    break;
+                }
+            }
         }
         selectRowAt(this->defaultCellFocus, false);
     }
@@ -258,14 +318,20 @@ void RecyclingGrid::notifyDataChanged() {
 
     if (dataSource)
     {
-        contentBox->setHeight(estimatedRowHeight * this->getRowCount() + paddingTop + paddingBottom);
+        if(isFlowMode){
+            for (int i = cellHeightCache.size(); i < dataSource->getItemCount(); i++){
+                float height = dataSource->heightForRow(this, i);
+                cellHeightCache.push_back(height);
+            }
+            contentBox->setHeight(getHeightByCellIndex(this->dataSource->getItemCount()) + paddingTop + paddingBottom);
+        }
+        else {
+            contentBox->setHeight((estimatedRowHeight + estimatedRowSpace) * this->getRowCount() + paddingTop + paddingBottom);
+        }
     }
 }
 
 void RecyclingGrid::clearData() {
-    if (!layouted)
-        return;
-
     if (dataSource)
     {
         dataSource->clearData();
@@ -320,11 +386,16 @@ void RecyclingGrid::itemsRecyclingLoop()
             if (*((size_t*)it->getParentUserData()) == visibleMin)
                 minCell = (RecyclingGridItem*)it;
 
-        if (!minCell || (minCell->getDetachedPosition().y + (1 + preFetchLine) * estimatedRowHeight >= visibleFrame.getMinY()))
+        // 当第一个cell的顶部 与 组件顶部的距离大于 preFetchLine 个元素的距离时结束
+        if (!minCell || (minCell->getDetachedPosition().y + getHeightByCellIndex(visibleMin + (preFetchLine + 1)*spanCount, visibleMin) >= visibleFrame.getMinY()))
             break;
 
-        renderedFrame.origin.y += minCell->getIndex() % spanCount == 0 ? estimatedRowHeight: 0;
-        renderedFrame.size.height -= minCell->getIndex() % spanCount == 0 ? estimatedRowHeight: 0;
+        float cellHeight = estimatedRowHeight;
+        if(isFlowMode)
+            cellHeight = cellHeightCache[visibleMin];
+
+        renderedFrame.origin.y += minCell->getIndex() % spanCount == 0 ? cellHeight + estimatedRowSpace: 0;
+        renderedFrame.size.height -= minCell->getIndex() % spanCount == 0 ? cellHeight + estimatedRowSpace: 0;
 
         queueReusableCell(minCell);
         this->contentBox->removeView(minCell, false);
@@ -342,10 +413,15 @@ void RecyclingGrid::itemsRecyclingLoop()
             if (*((size_t*)it->getParentUserData()) == visibleMax)
                 maxCell = (RecyclingGridItem*)it;
 
-        if (!maxCell || (maxCell->getDetachedPosition().y - (1 + preFetchLine) * estimatedRowHeight <= visibleFrame.getMaxY()))
+        // 当最后一个cell的顶部 与 组件底部间的距离 小于 preFetchLine 个元素的距离时结束
+        if (!maxCell || (maxCell->getDetachedPosition().y - getHeightByCellIndex(visibleMax, visibleMax-preFetchLine*spanCount) <= visibleFrame.getMaxY()))
             break;
 
-        renderedFrame.size.height -= maxCell->getIndex() % spanCount == 0 ? estimatedRowHeight: 0;
+        float cellHeight = estimatedRowHeight;
+        if(isFlowMode)
+            cellHeight = cellHeightCache[visibleMax];
+
+        renderedFrame.size.height -= maxCell->getIndex() % spanCount == 0 ? cellHeight + estimatedRowSpace: 0;
 
         queueReusableCell(maxCell);
         this->contentBox->removeView(maxCell, false);
@@ -358,23 +434,24 @@ void RecyclingGrid::itemsRecyclingLoop()
     // 上方元素自动添加
     while (visibleMin - 1 < dataSource->getItemCount() )
     {
-        if(renderedFrame.getMinY() + preFetchLine * estimatedRowHeight < visibleFrame.getMinY() - paddingTop){
-            if( (visibleMin) % spanCount == 0)
+        if( (visibleMin) % spanCount == 0)
+            // 当 renderedFrame 顶部 与 组件顶部的距离小于 preFetchLine 个cell的距离时结束
+            if(renderedFrame.getMinY() + getHeightByCellIndex(visibleMin + preFetchLine*spanCount, visibleMin) < visibleFrame.getMinY() - paddingTop){
                 break;
-        }
-        int i = visibleMin - 1;
-        addCellAt(i, false);
+            }
+        addCellAt(visibleMin - 1, false);
     }
 
     // 下方元素自动添加
     while (visibleMax + 1 < dataSource->getItemCount())
     {
-        if(renderedFrame.getMaxY() - preFetchLine * estimatedRowHeight > visibleFrame.getMaxY() - paddingBottom){
-            if( (visibleMax + 1) % spanCount == 0)
+        // 当即将被添加的元素为新一行的开始时结束，否则填充满一整行
+        if((visibleMax + 1) % spanCount == 0)
+            // 如果 renderedFrame 底部 与 组件底部 距离超过了preFetchLine 个cell的距离时结束
+            if(renderedFrame.getMaxY() - getHeightByCellIndex(visibleMax+1, visibleMax+1-preFetchLine*spanCount) > visibleFrame.getMaxY() - paddingBottom){
                 break;
-        }
-        int i = visibleMax + 1;
-        addCellAt(i, true);
+            }
+        addCellAt(visibleMax + 1, true);
     }
 }
 
@@ -389,7 +466,7 @@ void RecyclingGrid::showSkeleton(uint num){
 
 void RecyclingGrid::selectRowAt(size_t index, bool animated)
 {
-    this->setContentOffsetY(this->estimatedRowHeight * index, animated);
+    this->setContentOffsetY(getHeightByCellIndex(index), animated);
     this->itemsRecyclingLoop();
 
     for (View* view : contentBox->getChildren())
@@ -400,6 +477,30 @@ void RecyclingGrid::selectRowAt(size_t index, bool animated)
             break;
         }
     }
+}
+
+float RecyclingGrid::getHeightByCellIndex(int index, int start){
+    if(index < start)
+        return 0;
+    if(!isFlowMode)
+        return (estimatedRowHeight + estimatedRowSpace) * (int)((index - start) / spanCount);
+
+    if(cellHeightCache.size() == 0)
+        brls::fatal("cellHeightCache.size() cannot be zero in flow mode");
+
+    if(start < 0)
+        start = 0;
+    if(index > this->cellHeightCache.size())
+        index = this->cellHeightCache.size();
+
+    float res = 0;
+    for(size_t i = start; i < index && i < cellHeightCache.size(); i++){
+        if(cellHeightCache[i] != -1)
+            res += cellHeightCache[i] + estimatedRowSpace;
+        else
+            res += estimatedRowHeight + estimatedRowSpace;
+    }
+    return res;
 }
 
 brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction, brls::View* currentView)
@@ -597,6 +698,7 @@ RecyclingGridItem* RecyclingGrid::dequeueReusableCell(std::string identifier)
         }
     }
 
+    cell->setHeight(brls::View::AUTO);
     if (cell)
         cell->prepareForReuse();
 

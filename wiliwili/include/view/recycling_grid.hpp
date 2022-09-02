@@ -112,6 +112,9 @@ public:
 
     void selectRowAt(size_t index, bool animated);
 
+    //    计算从start元素的顶点到index（不包含index）元素顶点的距离
+    float getHeightByCellIndex(int index, int start=0);
+
     View* getNextCellFocus(brls::FocusDirection direction, View* currentView);
 
     void onLayout() override;
@@ -154,6 +157,9 @@ public:
     /// 预取的行数
     int preFetchLine = 1;
 
+    /// 瀑布流模式，每一项高度不固定（仅在spanCount为1时可用）
+    bool isFlowMode = false;
+
 private:
     RecyclingGridDataSource* dataSource = nullptr;
     bool layouted                  = false;
@@ -173,6 +179,7 @@ private:
     brls::Image* hintImage;
     brls::Label* hintLabel;
     brls::Rect renderedFrame;
+    std::vector<float> cellHeightCache;
     std::map<std::string, std::vector<RecyclingGridItem*>*> queueMap;
     std::map<std::string, std::function<RecyclingGridItem*(void)>> allocationMap;
 
