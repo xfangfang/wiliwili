@@ -12,6 +12,5 @@ namespace bilibili {
         }
         HTTP::TIMEOUT = timeout;
     }
-    }
 
 }
