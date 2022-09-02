@@ -29,9 +29,39 @@ typedef enum MpvEventEnum {
     UPDATE_DURATION,
     UPDATE_PROGRESS,
     START_FILE,
+    END_OF_FILE,
+    DANMAKU_LOADED,
 } MpvEventEnum;
 
 typedef brls::Event<MpvEventEnum> MPVEvent;
+
+class DanmakuItem {
+public:
+    DanmakuItem(const std::string& content, const char *attributes);
+
+    std::string msg; // 弹幕内容
+    float time; // 弹幕出现的时间
+    int type; // 弹幕类型 1/2/3: 普通; 4: 底部; 5: 顶部;
+    int fontSize; // 弹幕字号 18/25/36
+    int fontColor; // 弹幕颜色
+
+    bool isShown = false;
+    bool showing = false;
+    bool canShow = true;
+    float length = 0;
+    int line = 0;
+    float speed = 0;
+    int64_t startTime = 0;
+    NVGcolor color = nvgRGBA(255, 255, 255, 160);
+    NVGcolor borderColor = nvgRGBA(0, 0, 0, 160);
+//    int pubDate; // 弹幕发送时间
+//    int pool; // 弹幕池类型
+//    char hash[9] = {0};
+//    uint64_t dmid; // 弹幕ID
+//    int level; // 弹幕等级 0-10
+
+    inline static std::vector<std::pair<float, float>> lines = std::vector<std::pair<float, float>>(20, std::make_pair<float, float>(0, 0));
+};
 
 class MPVCore: public Singleton<MPVCore>{
 public:
@@ -102,12 +132,19 @@ public:
 
     MPVEvent* getEvent();
 
+    void loadDanmakuData(const std::vector<DanmakuItem>& data);
+
+    void reset();
+
     // core states
     int core_idle = 0;
     int64_t duration = 0; // second
     int64_t cache_speed = 0; // Bps
     double playback_time = 0;
     int64_t video_progress = 0;
+    std::vector<DanmakuItem> danmakuData;
+    bool showDanmaku = false;
+    bool danmakuLoaded = false;
 
 private:
     mpv_handle* mpv = nullptr;

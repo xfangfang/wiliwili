@@ -24,6 +24,7 @@ public:
     virtual void onVideoOnlineCount(const bilibili::VideoOnlineTotal& result){}
     virtual void onVideoRelationInfo(const bilibili::VideoRelation& result){}
     virtual void onRelatedVideoList(const bilibili::VideoDetailListResult& result){}
+    virtual void onDanmaku(const std::string& filePath){}
 
 
     // todo: 获取视频合集
@@ -60,6 +61,9 @@ public:
 
     /// 获取视频的 点赞、投币、收藏情况
     void requestVideoRelationInfo(const std::string& bvid);
+
+    /// 获取视频弹幕
+    void requestVideoDanmaku(const uint cid);
 
 protected:
     bilibili::VideoDetailResult videoDetailResult; //  视频数据

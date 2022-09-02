@@ -29,6 +29,8 @@ public:
 
     void setUrl(std::string url);
 
+    void setUrl(std::string url, int progress);
+
     void resume();
 
     void pause();
@@ -109,8 +111,8 @@ private:
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
     BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
     BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
-    BRLS_BIND(brls::Box, btnFullscreen, "video/osd/fullscreen");
     BRLS_BIND(SVGImage, btnFullscreenIcon,"video/osd/fullscreen/icon");
+    BRLS_BIND(SVGImage, btnDanmakuIcon,"video/osd/danmaku/icon");
 
 
     time_t osdLastShowTime = 0;

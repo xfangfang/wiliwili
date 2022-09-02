@@ -100,7 +100,7 @@ namespace bilibili {
                                         const ErrorCallback& error = nullptr);
 
             /// get season detail by seasonID
-            static void get_season_detail(const int seasonID,
+            static void get_season_detail(const int seasonID, const int epID=0,
                                          const std::function<void(SeasonResultWrapper)>& callback= nullptr,
                                          const ErrorCallback& error= nullptr);
 
@@ -234,6 +234,17 @@ namespace bilibili {
                                          const std::function<void(VideoRelation)>& callback= nullptr,
                                          const ErrorCallback& error= nullptr);
 
+            /// 视频页 获取弹幕的xml文件
+            static void get_danmaku(const uint cid,
+                                    const std::function<void(std::string)>& callback= nullptr,
+                                    const ErrorCallback& error= nullptr);
+
+            /// 视频页 上报历史记录
+            static void report_history(const std::string& mid, const std::string& access_key,
+                                           uint aid, uint cid, int type=3, uint progress = 0,
+                                           uint sid = 0, uint epid = 0,
+                                           const std::function<void()>& callback= nullptr,
+                                           const ErrorCallback& error= nullptr);
 
             /// 搜索页 获取搜索视频内容
             static void search_video(const std::string& key, const std::string& search_type, uint index = 1,

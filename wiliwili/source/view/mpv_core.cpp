@@ -2,7 +2,10 @@
 // Created by fang on 2022/8/12.
 //
 
+#include <stdlib.h>
+#include <clocale>
 #include "view/mpv_core.hpp"
+#include "pystring.h"
 
 #ifdef __SWITCH__
 #include <switch.h>
@@ -53,6 +56,7 @@ void MPVCore::on_wakeup(void *self){
 }
 
 MPVCore::MPVCore(){
+    setlocale(LC_NUMERIC, "C");
     this->mpv = mpv_create();
     if (!mpv){
         brls::fatal("Error Create mpv Handle");
@@ -71,7 +75,7 @@ MPVCore::MPVCore(){
     mpv_set_option_string(mpv, "reset-on-next-file", "all");
     mpv_set_option_string(mpv, "loop-file","no");
     mpv_set_option_string(mpv, "osd-level", "3");
-    mpv_set_option_string(mpv, "video-timing-offset", "0");
+    mpv_set_option_string(mpv, "video-timing-offset", "0"); // 60fps
     mpv_set_option_string(mpv, "keep-open", "yes");
 
     // Less cpu cost
@@ -83,6 +87,11 @@ MPVCore::MPVCore(){
     mpv_set_option_string(mpv, "demuxer-max-back-bytes", "50MiB");
     mpv_set_option_string(mpv, "cache-on-disk", "no");
     mpv_set_option_string(mpv, "cache-secs", "120");
+
+    // hardware decoding
+#ifndef __SWITCH__
+    mpv_set_option_string(mpv, "hwdec", "auto-safe");
+#endif
 
     // rebase-start-time no
     // demuxer-lavf-hacks no
@@ -442,10 +451,17 @@ void MPVCore::eventMainLoop() {
                             #endif
                         } else {
                             if(core_idle){
-                                // video is loading
-                                brls::Logger::info("========> LOADING");
-                                mpvCoreEvent.fire(MpvEventEnum::LOADING_START);
-                                // or video is stopped
+                                if(fabs(playback_time - duration) < 1 && duration > 0){
+                                    brls::Logger::info("========> END OF FILE");
+                                    this->pause();
+                                    mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
+                                } else {
+                                    brls::Logger::info("========> LOADING");
+                                    mpvCoreEvent.fire(MpvEventEnum::LOADING_START);
+                                }
+                                #ifdef __SWITCH__
+                                    appletSetMediaPlaybackState(false);
+                                #endif
                             } else {
                                 // video is playing
                                 brls::Logger::info("========> RESUME");
@@ -492,5 +508,40 @@ void MPVCore::eventMainLoop() {
             default:
                 break;
         }
+    }
+}
+
+void MPVCore::loadDanmakuData(const std::vector<DanmakuItem>& data){
+    this->danmakuData.clear();
+    danmakuLoaded = true;
+    //todo: 可能出现异步问题
+    this->danmakuData = std::move(data);
+    mpvCoreEvent.fire(MpvEventEnum::DANMAKU_LOADED);
+}
+
+void MPVCore::reset(){
+    DanmakuItem::lines = std::vector<std::pair<float, float>>(20, std::make_pair<float, float>(0, 0));
+    this->danmakuData.clear();
+    this->core_idle = 0;
+    this->duration = 0; // second
+    this->cache_speed = 0; // Bps
+    this->playback_time = 0;
+    this->video_progress = 0;
+//    this->showDanmaku = true; // todo: 根据配置文件修改
+    this->danmakuLoaded = false;
+}
+
+/// Danmaku
+
+DanmakuItem::DanmakuItem(const std::string& content, const char *attributes): msg(std::move(content)){
+    auto attrs = pystring::split(attributes, ",", 3);
+    time = atof(attrs[0].c_str());
+    type = atoi(attrs[1].c_str());
+    fontSize = atoi(attrs[2].c_str());
+    fontColor = atoi(attrs[3].c_str());
+    int r = (fontColor >> 16) & 0xff, g = (fontColor >> 8) & 0xff, b = fontColor & 0xff;
+    color = nvgRGBA(r, g, b, 220);
+    if ((r * 299 + g * 587 + b * 114) < 60000){
+        borderColor = nvgRGBA(255, 255, 255, 160);
     }
 }

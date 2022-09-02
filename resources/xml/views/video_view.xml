@@ -105,6 +105,22 @@
                             text="00:00"/>
                     <brls:Box
                             wireframe="false"
+                            id="video/osd/danmaku"
+                            positionType="absolute"
+                            positionRight="100"
+                            alignItems="center"
+                            justifyContent="center"
+                            height="60"
+                            width="60">
+                        <SVGImage
+                                id="video/osd/danmaku/icon"
+                                wireframe="false"
+                                height="30"
+                                width="30"
+                                SVG="@res/svg/bpx-svg-sprite-danmu-switch-on.svg"/>
+                    </brls:Box>
+                    <brls:Box
+                            wireframe="false"
                             id="video/osd/fullscreen"
                             positionType="absolute"
                             positionRight="20"

@@ -26,7 +26,7 @@ VideoView::VideoView() {
     this->registerBoolXMLAttribute("allowFullscreen", [this](bool value){
         this->allowFullscreen = value;
         if(!value){
-            this->btnFullscreen->setVisibility(brls::Visibility::GONE);
+            this->btnFullscreenIcon->getParent()->setVisibility(brls::Visibility::GONE);
             this->registerAction("cancel", brls::ControllerButton::BUTTON_B, [this](brls::View* view)-> bool {
                 this->dismiss();
                 return true;
@@ -49,6 +49,17 @@ VideoView::VideoView() {
             this->hideOSD();
         } else {
             this->showOSD(true);
+        }
+        return true;
+    }, true);
+
+    this->registerAction("toggleDanmaku", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
+        if(mpvCore->showDanmaku){
+            mpvCore->showDanmaku = false;
+            this->btnDanmakuIcon->setImageFromSVGRes("svg/bpx-svg-sprite-danmu-switch-off.svg");
+        } else {
+            mpvCore->showDanmaku = true;
+            this->btnDanmakuIcon->setImageFromSVGRes("svg/bpx-svg-sprite-danmu-switch-on.svg");
         }
         return true;
     }, true);
@@ -79,13 +90,30 @@ VideoView::VideoView() {
     }, brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE, brls::SOUND_NONE)));
 
     /// 默认允许设置全屏按钮
-    this->btnFullscreen->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnFullscreen, [this](){
+    this->btnFullscreenIcon->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnFullscreenIcon->getParent(),
+                                                                                              [this](){
         if(this->isFullscreen()){
             this->setFullScreen(false);
         } else {
             this->setFullScreen(true);
         }
     }, brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE, brls::SOUND_NONE)));
+
+    this->btnDanmakuIcon->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnDanmakuIcon->getParent(), [this](){
+        if(mpvCore->showDanmaku){
+            mpvCore->showDanmaku = false;
+            this->btnDanmakuIcon->setImageFromSVGRes("svg/bpx-svg-sprite-danmu-switch-off.svg");
+        } else {
+            mpvCore->showDanmaku = true;
+            this->btnDanmakuIcon->setImageFromSVGRes("svg/bpx-svg-sprite-danmu-switch-on.svg");
+        }
+    }, brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE, brls::SOUND_NONE)));
+
+    if(mpvCore->showDanmaku){
+        this->btnDanmakuIcon->setImageFromSVGRes("svg/bpx-svg-sprite-danmu-switch-on.svg");
+    } else {
+        this->btnDanmakuIcon->setImageFromSVGRes("svg/bpx-svg-sprite-danmu-switch-off.svg");
+    }
 
     this->registerAction("cancel", brls::ControllerButton::BUTTON_B, [this](brls::View* view)-> bool {
         if(this->isFullscreen()){
@@ -121,6 +149,65 @@ void VideoView::draw(NVGcontext *vg, float x, float y, float width, float height
 
     mpvCore->openglDraw(this->getFrame(), this->getAlpha());
 
+    // draw danmaku
+    if(mpvCore->danmakuLoaded && mpvCore->showDanmaku){
+        static float SECOND = 8.0;
+        static float FONT_SIZE = 30;
+        static float LINE_HEIGHT = FONT_SIZE + 10;
+
+        // Enable scissoring
+        nvgSave(vg);
+        nvgIntersectScissor(vg, x, y, width, height);
+
+        nvgFontSize(vg, FONT_SIZE);
+        nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+        nvgTextLineHeight(vg, 1);
+
+        int LINES = height / LINE_HEIGHT;
+
+        //取出需要的弹幕
+        uint64_t currentTime = getCPUTimeUsec();
+        float bounds[4];
+        for(auto&i: mpvCore->danmakuData){
+            if(i.isShown) continue;
+            if(!i.canShow) continue;
+            if(i.showing){
+                float position = i.speed * (currentTime - i.startTime) / 1000000;
+                if(position > width + i.length){
+                    i.isShown = true;
+                    continue;
+                }
+
+                nvgFillColor(vg, a(i.borderColor));
+                nvgText(vg, x + width - position + 1, y + i.line * LINE_HEIGHT + 1, i.msg.c_str(), nullptr);
+
+                nvgFontBlur(vg, 0);
+                nvgFillColor(vg, a(i.color));
+                nvgText(vg, x + width - position, y + i.line * LINE_HEIGHT, i.msg.c_str(), nullptr);
+                continue;
+            }
+            if(mpvCore->playback_time > i.time){
+                i.showing = true;
+                nvgTextBounds(vg, 0, 0, i.msg.c_str(), nullptr, bounds);
+                i.length = bounds[2] - bounds[0];
+                i.speed = (width + i.length) / SECOND;
+                i.canShow = false;
+                for(int k=0;k<LINES;k++){
+                    if(i.time > DanmakuItem::lines[k].first && i.time + width/i.speed > DanmakuItem::lines[k].second){
+                        i.line = k;
+                        DanmakuItem::lines[k].first = i.time + i.length / i.speed;
+                        DanmakuItem::lines[k].second = i.time + SECOND;
+                        i.canShow = true;
+                        i.startTime = getCPUTimeUsec();
+                        break;
+                    }
+                }
+            }
+        }
+
+        nvgRestore(vg);
+    }
+
     // draw osd
     if(wiliwili::unix_time() < this->osdLastShowTime){
         osdBottomBox->frame(ctx);
@@ -153,6 +240,12 @@ void VideoView::setUrl(std::string url){
     // mpvCore->command_async(cmd);
 
     const char *cmd[] = {"loadfile", url.c_str(), NULL};
+    mpvCore->command(cmd);
+}
+
+void VideoView::setUrl(std::string url, int progress){
+    std::string start = fmt::format("start={}", progress);
+    const char *cmd[] = {"loadfile", url.c_str(), "replace", start.c_str(), NULL};
     mpvCore->command(cmd);
 }
 
@@ -375,6 +468,14 @@ void VideoView::registerMpvEvent(){
             case MpvEventEnum::UPDATE_PROGRESS:
                 leftStatusLabel->setText(wiliwili::sec2Time(mpvCore->video_progress));
                 osdSlider->setProgress(mpvCore->playback_time / mpvCore->duration);
+                break;
+            case MpvEventEnum::DANMAKU_LOADED:
+                break;
+            case MpvEventEnum::END_OF_FILE:
+                // 播放结束自动取消全屏
+                if(this->isFullscreen()){
+                    this->setFullScreen(false);
+                }
                 break;
             default:
                 break;

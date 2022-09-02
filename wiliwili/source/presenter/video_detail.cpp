@@ -4,6 +4,10 @@
 
 #include "presenter/video_detail.hpp"
 #include "borealis.hpp"
+#include <tinyxml2.h>
+#include "utils/config_helper.hpp"
+#include "pystring.h"
+#include "view/mpv_core.hpp"
 
 /// 请求视频数据
 void VideoDetail::requestData(const bilibili::VideoDetailResult& video) {
@@ -11,21 +15,47 @@ void VideoDetail::requestData(const bilibili::VideoDetailResult& video) {
 }
 
 /// 请求番剧数据
-void VideoDetail::requestData(int seasonID) {
-    this->requestSeasonInfo(seasonID);
+void VideoDetail::requestData(int id, PGC_ID_TYPE type) {
+    if(type == PGC_ID_TYPE::SEASON_ID)
+        this->requestSeasonInfo(id, 0);
+    else if(type == PGC_ID_TYPE::EP_ID)
+        this->requestSeasonInfo(0, id);
 }
 
 /// 获取番剧信息
-void VideoDetail::requestSeasonInfo(const int seasonID){
+void VideoDetail::requestSeasonInfo(const int seasonID, const int epID){
+
+    // 重置MPV
+    MPVCore::instance().reset();
+
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_season_detail(seasonID, [ASYNC_TOKEN](const bilibili::SeasonResultWrapper& result){
-        brls::sync([ASYNC_TOKEN, result](){
+    bilibili::BilibiliClient::get_season_detail(seasonID, epID, [ASYNC_TOKEN, epID](const bilibili::SeasonResultWrapper& result){
+        brls::sync([ASYNC_TOKEN, result, epID](){
             ASYNC_RELEASE
             brls::Logger::debug("bilibili::BilibiliClient::get_season_detail");
             seasonInfo = result;
             this->onSeasonVideoInfo(result);
+
+            // Try load episode: epID
+            // todo: 番剧中除了正片之外的视频也可能被调用
+            if(epID != 0){
+                for (auto i: result.episodes) {
+                    if(i.id == (uint)epID){
+                        brls::Logger::debug("P{} {} epid: {}", i.title, i.long_title, i.id);
+                        int progress = episodeResult.progress;
+                        episodeResult = i;
+                        // 用于从历史记录加载数据
+                        episodeResult.progress = progress;
+                        this->changeEpisode(episodeResult);
+                        return;
+                    }
+                }
+            }
+
+            // Default: load first episode
+            // todo: load from history
             for (auto i: result.episodes) {
-                brls::Logger::debug("P{} {} cid: {}", i.title, i.long_title, i.cid);
+                brls::Logger::debug("P{} {} epid: {}", i.title, i.long_title, i.id);
                 this->changeEpisode(i);
                 break;
             }
@@ -39,6 +69,8 @@ void VideoDetail::requestSeasonInfo(const int seasonID){
 /// 获取视频信息：标题、作者、简介、分P等
 void VideoDetail::requestVideoInfo(const string bvid) {
 
+    // 重置MPV
+    MPVCore::instance().reset();
     // 请求视频点赞情况
     this->requestVideoRelationInfo(bvid);
 
@@ -60,12 +92,36 @@ void VideoDetail::requestVideoInfo(const string bvid) {
 
                                                        //  请求视频播放地址
                                                        this->onVideoPageListInfo(this->videoDetailResult.pages);
-                                                       for(const auto& i: this->videoDetailResult.pages){
-                                                           brls::Logger::debug("获取视频分P列表: PV1 {}", i.cid);
-                                                           // 播放PV1
-                                                           this->requestVideoUrl(this->videoDetailResult.bvid, i.cid);
-                                                           break;
-                                                       }
+
+                                                       // 尝试打开指定的分P
+                                                       if(videoDetailPage.cid != 0)
+                                                           for(const auto& i: this->videoDetailResult.pages){
+                                                               if(i.cid == videoDetailPage.cid){
+                                                                   brls::Logger::debug("获取视频分P列表: PV {}", i.cid);
+                                                                   int progress = videoDetailPage.progress;
+                                                                   videoDetailPage = i;
+                                                                   //用于从历史记录加载进播放页面，视频开始播放时自动跳转
+                                                                   videoDetailPage.progress = progress;
+
+                                                                   //上报历史记录
+                                                                   if(progress < 0) progress = 0;
+                                                                   this->reportHistory(this->videoDetailResult.aid, videoDetailPage.cid, progress);
+                                                                   break;
+                                                               }
+                                                           }
+
+                                                       // 默认打开PV1，没有找到指定cid的PV也打开PV1
+                                                       if(videoDetailPage.cid == 0)
+                                                           for(const auto& i: this->videoDetailResult.pages){
+                                                               brls::Logger::debug("获取视频分P列表: PV1 {}", i.cid);
+                                                               videoDetailPage = i;
+                                                               //上报历史记录
+                                                               this->reportHistory(this->videoDetailResult.aid, videoDetailPage.cid, 0);
+                                                               break;
+                                                           }
+
+                                                       // 播放PV
+                                                       this->requestVideoUrl(this->videoDetailResult.bvid, videoDetailPage.cid);
 
                                                        this->onVideoInfo(this->videoDetailResult);
                                                        this->onRelatedVideoList(result.Related);
@@ -82,8 +138,12 @@ void VideoDetail::requestVideoInfo(const string bvid) {
 /// 获取视频地址
 void VideoDetail::requestVideoUrl(std::string bvid, int cid){
 
+    // 重置MPV
+    MPVCore::instance().reset();
     // 请求当前视频在线人数
     this->requestVideoOnline(bvid, cid);
+    // 请求弹幕
+    this->requestVideoDanmaku(cid);
 
     ASYNC_RETAIN
     brls::Logger::debug("请求视频播放地址: {}/{}", bvid, cid);
@@ -104,8 +164,12 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid){
 /// 获取番剧地址
 void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid){
 
+    // 重置MPV
+    MPVCore::instance().reset();
     // 请求当前视频在线人数
     this->requestVideoOnline(bvid, cid);
+    // 请求弹幕
+    this->requestVideoDanmaku(cid);
 
     ASYNC_RETAIN
     brls::Logger::debug("请求番剧视频播放地址: {}", cid);
@@ -126,6 +190,17 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid){
 /// 切换番剧分集
 void VideoDetail::changeEpisode(const bilibili::SeasonEpisodeResult& i){
     episodeResult = i;
+
+    //上报历史记录
+    int progress = 0;
+    if(episodeResult.progress > 0)
+        progress = episodeResult.progress;
+
+    this->reportHistory(i.aid, i.cid, progress, 4);
+
+    // 重置MPV
+    MPVCore::instance().reset();
+
     this->onSeasonEpisodeInfo(i);
     this->requestVideoComment(i.aid, 1);
     this->requestSeasonVideoUrl(i.bvid, i.cid);
@@ -206,4 +281,64 @@ void VideoDetail::requestVideoRelationInfo(const std::string& bvid){
         ASYNC_RELEASE
         brls::Logger::error(error);
     });
+}
+
+/// 获取视频弹幕
+void VideoDetail::requestVideoDanmaku(const uint cid){
+    ASYNC_RETAIN
+    bilibili::BilibiliClient::get_danmaku(cid,
+        [ASYNC_TOKEN](const std::string& result){
+
+            brls::Logger::debug("DANMAKU: start decode");
+
+            // Load XML
+            tinyxml2::XMLDocument document = tinyxml2::XMLDocument();
+            tinyxml2::XMLError error        = document.Parse(result.c_str());
+
+            if (error != tinyxml2::XMLError::XML_SUCCESS){
+                brls::Logger::error("Error decode danmaku xml[1]: {}", std::to_string(error));
+                return;
+            }
+            tinyxml2::XMLElement* element = document.RootElement();
+            if (!element) {
+                brls::Logger::error("Error decode danmaku xml[2]: no root element");
+                return;
+            }
+
+            std::vector<DanmakuItem> items;
+            for (auto child = element->FirstChildElement(); child != nullptr; child = child->NextSiblingElement()){
+                if(child->Name()[0] != 'd') continue; // 简易判断是不是弹幕
+                try {
+                    items.emplace_back(DanmakuItem(child->GetText(), child->Attribute("p")));
+                } catch (...) {
+                    brls::Logger::error("DANMAKU: error decode: {}", child->GetText());
+                }
+            }
+            MPVCore::instance().loadDanmakuData(items);
+            brls::Logger::debug("DANMAKU: decode done: {}", items.size());
+
+            brls::sync([ASYNC_TOKEN](){
+                ASYNC_RELEASE
+//                this->onDanmaku(assFile);
+            });
+        }, [ASYNC_TOKEN](const std::string &error) {
+            ASYNC_RELEASE
+            brls::Logger::error(error);
+    });
+}
+
+/// 上报历史记录
+void VideoDetail::reportHistory(uint aid, uint cid, uint progress, int type){
+    brls::Logger::debug("reportHistory: aid{} cid{} progress{}", aid, cid, progress);
+    std::string mid = ProgramConfig::instance().getUserID();
+    std::string token = ProgramConfig::instance().getCSRF();
+    if(mid == "" || token == "")
+        return;
+    uint sid = 0, epid = 0;
+    if(type == 4){
+        sid = seasonInfo.season_id;
+        epid = episodeResult.id;
+    }
+
+    bilibili::BilibiliClient::report_history(mid, token, aid, cid, type, progress, sid, epid);
 }
