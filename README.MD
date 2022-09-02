@@ -8,7 +8,7 @@
 
 <img src="resources/icon/bilibili.png" alt="icon" height="128" width="128" align="left">
 
-wiliwlili 拥有非常接近官方PC客户端的B站浏览体验，  
+wiliwili 拥有非常接近官方PC客户端的B站浏览体验，  
 同时支持触屏与手柄按键操控，  
 让你的switch瞬间变身机顶盒与掌上平板。
 <br>
@@ -19,22 +19,23 @@ wiliwlili 拥有非常接近官方PC客户端的B站浏览体验，
 
 # 支持特性
 
-播放页：视频 番剧 影视 综艺  
+主题色：支持根据switch主题自动切换深浅  
+播放页：视频 番剧 影视 综艺，同时支持弹幕  
 个人页：扫码登录 历史记录 个人收藏  
 搜索页：视频 番剧 影视  
 动态页：关注的UP主更新的视频  
 直播页：不是十分稳定的支持 (也可以说是十分不稳定)  
+分类检索：快速找到想看的电影和番剧  
 首页推荐：完美复制原版pc端布局  
 
 <br>
 
 # 安装流程
 
+0. 下载安装包：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 1. 将wiliwli.nro放置在内存卡路径： switch/wiliwili.nro 
 2. 在主页 `按住` R键打开任意游戏进入HBMenu，在列表中选择wiliwili点击打开即可。
 3. [可选] 提供了NSP Forwarder （桌面图标）使用说明见下载压缩包内
-
-⚠️：不要在相册内打开wiliwili，会导致内存不足系统重启。
 
 <br>
 
@@ -53,6 +54,8 @@ wiliwlili 拥有非常接近官方PC客户端的B站浏览体验，
 - [x] 完善播放页投稿列表：调整结构、自动加载下一页
 - [ ] 播放页展示合集与推荐
 - [x] 添加动态页
+- [x] 添加视频检索页
+- [ ] 完善设置页
 
 <br>
 
@@ -121,7 +124,9 @@ make wiliwili.nro -j
 # 应用截图
 
 <p align="center">
-<img src="docs/images/screenshot.png" alt="screenshot">
+<img src="docs/images/screenshot-2.png" alt="screenshot-2">
+<img src="docs/images/screenshot-1.png" alt="screenshot-1">
+
 </p>
 
 # Acknowledgement
