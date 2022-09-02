@@ -6,6 +6,8 @@
 
 #include <borealis.hpp>
 
+class TextBox;
+
 class SettingActivity : public brls::Activity {
 public:
     // Declare that the content of this activity is the given XML file
@@ -16,4 +18,8 @@ public:
     void onContentAvailable() override;
 
     ~SettingActivity();
+
+private:
+    BRLS_BIND(brls::RadioCell, btnTutorialOpenApp, "tools/tutorial_open");
+    BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
 };

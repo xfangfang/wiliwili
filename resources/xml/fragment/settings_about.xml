@@ -1,0 +1,86 @@
+<brls:Box
+    width="auto"
+    height="auto">
+        
+    <brls:Box
+            grow="1.0"
+            width="auto"
+            height="auto"
+            axis="column"
+            wireframe="false"
+            paddingLeft="30"
+            paddingRight="30"
+            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+
+        <brls:Box
+                height="180"
+                wireframe="false">
+                <brls:Image
+                        height="50"
+                        width="50"
+                        margin="10"
+                        cornerRadius="50"
+                        image="@res/pictures/default_avatar.png"/>
+                <brls:Image
+                        height="16"
+                        width="16"
+                        marginTop="10"
+                        marginRight="8"
+                        image="@res/pictures/icon-quotation.png"/>
+                <brls:Label
+                        width="660"
+                        fontSize="18"
+                        marginTop="20"
+                        textColor="@theme/font/grey"
+                        text="@i18n/wiliwili/speech"/>
+        </brls:Box>
+
+        <brls:Image
+                height="150"
+                cornerRadius="6"
+                image="@res/icon/bilibili.png"/>
+
+        <brls:Box
+                height="100"
+                marginBottom="10px" >
+                <brls:Label
+                        fontSize="40"
+                        marginRight="10"
+                        text="wiliwili"/>
+                <brls:Label
+                        positionTop="9"
+                        marginRight="20"
+                        textColor="@theme/font/grey"
+                        text="v0.3.0"/>
+                <brls:Label
+                        positionTop="9"
+                        textColor="#6693B6"
+                        text="https://github.com/xfangfang/wiliwili" />
+        </brls:Box>
+
+        <brls:Label
+                height="200"
+                text="@i18n/wiliwili/brief"/>
+
+
+    </brls:Box>
+
+    <QRImage
+            positionType="absolute"
+            positionBottom="30"
+            positionRight="30"
+            width="200"
+            height="200"
+            cornerRadius="6"
+            QRContent="https://github.com/xfangfang/wiliwili"/>
+
+    <brls:Label
+            positionType="absolute"
+            positionBottom="0"
+            positionRight="80"
+            textColor="@theme/font/grey"
+            fontSize="18"
+            text="项目首页"/>
+
+</brls:Box>
