@@ -74,7 +74,7 @@ MPVCore::MPVCore(){
     mpv_set_option_string(mpv, "fbo-format", "rgba8");
     mpv_set_option_string(mpv, "reset-on-next-file", "all");
     mpv_set_option_string(mpv, "loop-file","no");
-    mpv_set_option_string(mpv, "osd-level", "3");
+//    mpv_set_option_string(mpv, "osd-level", "3");
     mpv_set_option_string(mpv, "video-timing-offset", "0"); // 60fps
     mpv_set_option_string(mpv, "keep-open", "yes");
 
@@ -315,14 +315,16 @@ void MPVCore::command_async(const char **args){
 void MPVCore::setFrameSize(brls::Rect rect){
     if(this->media_texture == 0)
         return;
-    int drawWidth = rect.getWidth() * brls::Application::windowScale;
-    int drawHeight = rect.getHeight() * brls::Application::windowScale;
+    int drawWidth = rect.getWidth();
+    int drawHeight = rect.getHeight();
 
     if(drawWidth == 0 || drawHeight == 0)
         return;
     // 在没有用到更小的视频时减少对texture的申请
+#ifdef __SWITCH__
     if( rect.getWidth() < 400 ||  rect.getHeight() < 400)
         return;
+#endif
     brls::Logger::debug("MPVCore::setFrameSize: {}/{}", drawWidth, drawHeight);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, drawWidth, drawHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -355,7 +357,15 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha){
         return;
 
     mpv_render_context_render(this->mpv_context, mpv_params);
+
+#ifdef __SWITCH__
     glViewport(0, 0, brls::Application::windowWidth, brls::Application::windowHeight); // restore viewport
+#else
+    // PC运行可能因为拖拽窗口导致画面比例不是默认的，所以需要重新计算一下宽高
+    int realWindowWidth = (int)(brls::Application::windowScale * brls::Application::contentWidth);
+    int realWindowHeight = (int)(brls::Application::windowScale * brls::Application::contentHeight);
+    glViewport(0, 0, realWindowWidth, realWindowHeight);
+#endif
 
     // shader draw
     glUseProgram(shader.prog);
@@ -428,10 +438,6 @@ void MPVCore::eventMainLoop() {
                 mpvCoreEvent.fire(MpvEventEnum::MPV_STOP);
                 break;
             case MPV_EVENT_PROPERTY_CHANGE:
-//                    check_error(mpv_observe_property(mpv, 1, "core-idle", MPV_FORMAT_FLAG));
-//                    check_error(mpv_observe_property(mpv, 2, "pause", MPV_FORMAT_FLAG));
-//                    check_error(mpv_observe_property(mpv, 3, "duration", MPV_FORMAT_DOUBLE));
-//                    check_error(mpv_observe_property(mpv, 4, "playback-time", MPV_FORMAT_DOUBLE));
                 switch(event->reply_userdata){
                     case 1:
                         // 播放器放空了自己，啥也不干的状态
@@ -444,8 +450,13 @@ void MPVCore::eventMainLoop() {
                         core_idle = *(int *)((mpv_event_property*)event->data)->data;
                         brls::Logger::info("========> core-idle: {}", core_idle);
                         if(isPaused()){
-                            brls::Logger::info("========> PAUSE");
-                            mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);               
+                            if(fabs(playback_time - duration) < 1 && duration > 0){
+                                brls::Logger::info("========> END OF FILE (paused)");
+                                mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
+                            } else {
+                                brls::Logger::info("========> PAUSE");
+                                mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
+                            }
                             #ifdef __SWITCH__
                                 appletSetMediaPlaybackState(false);
                             #endif

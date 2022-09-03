@@ -206,7 +206,7 @@ void RecyclingGrid::addCellAt(size_t index, int downSide)
         // getHeightByCellIndex：获取当前cell的相对Y坐标 （相对于renderedFrame的顶部）
         cell->setDetachedPositionY(getHeightByCellIndex(index) + paddingTop);
 
-        brls::Logger::error("Add cell at: y {} height {}", getHeightByCellIndex(index) + paddingTop, cellHeight);
+        brls::Logger::debug("Add cell at: y {} height {}", getHeightByCellIndex(index) + paddingTop, cellHeight);
     }
 
     cell->setHeight(cellHeight);

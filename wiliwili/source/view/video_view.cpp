@@ -226,11 +226,15 @@ void VideoView::onLayout(){
     brls::View::onLayout();
 
     brls::Rect rect = getFrame();
-    static brls::Rect oldRect = rect;
+
+    if(oldRect.getWidth() == -1){
+        //初始化
+        this->oldRect = rect;
+    }
 
     if(!(rect == oldRect)){
         brls::Logger::debug("Video view size: {} / {} scale: {}", rect.getWidth(), rect.getHeight(), Application::windowScale);
-        this->mpvCore->setFrameSize(getFrame());
+        this->mpvCore->setFrameSize(rect);
     }
     oldRect = rect;
 }
@@ -376,8 +380,14 @@ void VideoView::setFullScreen(bool fs){
         this->unRegisterMpvEvent();
         auto container = new brls::Box();
         auto video = new VideoView();
-        container->setDimensions(1280, 720);
-        video->setDimensions(1280, 720);
+        float width =  brls::Application::contentWidth;
+        float height = brls::Application::contentHeight;
+
+        container->setDimensions(width, height);
+        video->setDimensions(width, height);
+        video->setWidthPercentage(100);
+        video->setHeightPercentage(100);
+
         video->setTitle(this->getTitle());
         video->setDuration(this->rightStatusLabel->getFullText());
         video->setPlaybackTime(this->leftStatusLabel->getFullText());
@@ -392,6 +402,12 @@ void VideoView::setFullScreen(bool fs){
         }
         container->addView(video);
         brls::Application::pushActivity(new brls::Activity(container), brls::TransitionAnimation::NONE);
+
+        // 将焦点 赋给新的video
+        // 已修复：触摸点击全屏，按键返回，会导致焦点丢失
+        brls::sync([video](){
+            brls::Application::giveFocus(video);
+        });
     } else {
         brls::sync([this](){
             //todo: a better way to get videoView pointer
@@ -411,7 +427,7 @@ void VideoView::setFullScreen(bool fs){
                         video->showLoading();
                     }
                     // 立刻准确地显示视频尺寸
-                    video->invalidate();
+                    this->mpvCore->setFrameSize(video->getFrame());
                 }
             }
             // Pop fullscreen videoView

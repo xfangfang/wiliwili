@@ -118,6 +118,7 @@ private:
     time_t osdLastShowTime = 0;
     const time_t OSD_SHOW_TIME = 5; //默认显示五秒
     MPVCore* mpvCore;
+    brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
 
     //DEBUG
     BRLS_BIND(brls::Box, videoLayerDebug, "video/layer/debug");

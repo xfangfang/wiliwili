@@ -52,7 +52,7 @@
                         positionTop="9"
                         marginRight="20"
                         textColor="@theme/font/grey"
-                        text="v0.3.0"/>
+                        text="v0.3.1"/>
                 <brls:Label
                         positionTop="9"
                         textColor="#6693B6"

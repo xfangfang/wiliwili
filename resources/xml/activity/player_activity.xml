@@ -22,15 +22,16 @@
                                 id="video/detail/video"
                                 focusable="true"
                                 focusDown="video_detail_info_box"
+                                grow="1"
                                 width="800"
-                                height="450"/>
+                                height="auto"/>
 
 <!--                        视频下方相关信息-->
                         <brls:Box
                                 id="video_detail_info_box"
                                 wireframe="false"
                                 width="100%"
-                                grow="1.0"
+                                height="177"
                                 axis="column">
 
                                 <brls:Box
@@ -65,6 +66,7 @@
                                                 wireframe="false"
                                                 width="60%"
                                                 height="100%"
+                                                maxHeight="100"
                                                 alignItems="flexStart"
                                                 axis="column"
                                                 justifyContent="center">

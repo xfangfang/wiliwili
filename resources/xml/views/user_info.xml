@@ -5,16 +5,22 @@
         justifyContent="spaceBetween"
         alignItems="center">
 
-    <brls:Image
-            id="avatar"
-            width="auto"
-            height="90%"
-            scalingType="fit"
-            marginLeft="10"
-            borderThickness="4"
-            borderColor="@theme/color/grey_1"
-            cornerRadius="100"
-            image="@res/pictures/default_avatar.png"/>
+    <brls:Box
+            width="18%"
+            wireframe="false"
+            axis="column">
+            <brls:Image
+                    id="avatar"
+                    width="auto"
+                    maxHeight="90%"
+                    aspectRatio="1"
+                    scalingType="fit"
+                    marginLeft="10"
+                    borderThickness="4"
+                    borderColor="@theme/color/grey_1"
+                    cornerRadius="100"
+                    image="@res/pictures/default_avatar.png"/>
+    </brls:Box>
 
     <brls:Box
             width="auto"
@@ -22,14 +28,17 @@
             axis="column"
             grow="1.0"
             marginLeft="10"
-            justifyContent="spaceEvenly"
             alignItems="flexStart">
 
         <brls:Label
                 id="username"
                 width="auto"
                 height="auto"
+                wireframe="false"
+                grow="1"
                 fontSize="20"
+                marginBottom="8"
+                verticalAlign="bottom"
                 text="" />
 
         <brls:Label
@@ -37,6 +46,10 @@
                 width="auto"
                 height="auto"
                 fontSize="16"
+                grow="1"
+                marginTop="8"
+                verticalAlign="top"
+                wireframe="false"
                 textColor="@theme/font/grey"
                 text="" />
 
