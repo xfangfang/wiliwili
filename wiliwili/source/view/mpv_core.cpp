@@ -315,8 +315,8 @@ void MPVCore::command_async(const char **args){
 void MPVCore::setFrameSize(brls::Rect rect){
     if(this->media_texture == 0)
         return;
-    int drawWidth = rect.getWidth();
-    int drawHeight = rect.getHeight();
+    int drawWidth = rect.getWidth() * brls::Application::windowScale;
+    int drawHeight = rect.getHeight() * brls::Application::windowScale;
 
     if(drawWidth == 0 || drawHeight == 0)
         return;
