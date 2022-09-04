@@ -135,6 +135,14 @@ VideoView::VideoView() {
         }
         return true;
     });
+
+#ifdef __SWITCH__
+    // switch平台指明弹幕字体为中文简体
+    danmakuFont = brls::Application::getFont(brls::FONT_CHINESE_SIMPLIFIED);
+#else
+    // 其他平台使用通用字体
+    danmakuFont = brls::Application::getFont(brls::FONT_REGULAR);
+#endif
 }
 
 VideoView::~VideoView(){
@@ -161,6 +169,7 @@ void VideoView::draw(NVGcontext *vg, float x, float y, float width, float height
 
         nvgFontSize(vg, FONT_SIZE);
         nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+        nvgFontFaceId(vg, this->danmakuFont);
         nvgTextLineHeight(vg, 1);
 
         int LINES = height / LINE_HEIGHT;
@@ -181,7 +190,6 @@ void VideoView::draw(NVGcontext *vg, float x, float y, float width, float height
                 nvgFillColor(vg, a(i.borderColor));
                 nvgText(vg, x + width - position + 1, y + i.line * LINE_HEIGHT + 1, i.msg.c_str(), nullptr);
 
-                nvgFontBlur(vg, 0);
                 nvgFillColor(vg, a(i.color));
                 nvgText(vg, x + width - position, y + i.line * LINE_HEIGHT, i.msg.c_str(), nullptr);
                 continue;
@@ -489,6 +497,7 @@ void VideoView::registerMpvEvent(){
                 break;
             case MpvEventEnum::END_OF_FILE:
                 // 播放结束自动取消全屏
+                this->showOSD(false);
                 if(this->isFullscreen()){
                     this->setFullScreen(false);
                 }
