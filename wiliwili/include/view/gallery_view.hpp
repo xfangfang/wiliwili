@@ -28,20 +28,24 @@ public:
 
     virtual ~GalleryItem() = default;
 
-    static GalleryItem* create();
-
-    virtual void setData(GalleryItemData value);
-
     void animate(GalleryAnimation animation);
 
-
     void startScrolling(float newScroll);
+
+private:
+    brls::Animatable contentOffsetX = 0.0f;
+};
+
+class ImageGalleryItem: public GalleryItem {
+public:
+    ImageGalleryItem();
+
+    virtual void setData(GalleryItemData value);
 
 private:
     BRLS_BIND(brls::Image, image, "gallery/image");
     BRLS_BIND(brls::Label, label, "gallery/label");
     GalleryItemData data;
-    brls::Animatable contentOffsetX = 0.0f;
 };
 
 class GalleryView : public brls::Box {
@@ -54,6 +58,8 @@ public:
     static View *create();
 
     void setData(GalleryData value);
+
+    void addCustomView(GalleryItem* view);
 
     void prev();
 

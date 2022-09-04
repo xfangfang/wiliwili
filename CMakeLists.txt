@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 # build options
 set(PLATFORM_DESKTOP OFF CACHE BOOL  "build for desktop, ON for desktop; OFF for switch")
+set(BUILTIN_NSP OFF CACHE BOOL  "Built in NSP forwarder")
 
 IF (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
@@ -72,6 +73,10 @@ else()
             # base lib
             nx m
             )
+    if(BUILTIN_NSP)
+        list(APPEND PLATFORM_LIBS nsp)
+        set(PLATFORM_OPTION -DBUILTIN_NSP)
+    endif()
     list(APPEND MAIN_SRC ${CMAKE_SOURCE_DIR}/library/borealis/library/lib/platforms/switch/switch_wrapper.c)
 endif()
 
@@ -85,6 +90,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_compile_options(${PROJECT_NAME} PRIVATE
         -D__VERSION_MAJOR__=${VERSION_MAJOR}
         -D__VERSION_MINOR__=${VERSION_MINOR}
+        -D__VERSION_REVISION__=${VERSION_REVISION}
         -g -Wall -O2
         -ffunction-sections
         -fdata-sections

@@ -55,8 +55,7 @@ void GalleryView::setData(GalleryData value){
         return;
 
     for(auto v : value){
-        GalleryItem* item = new GalleryItem();
-        item->detach();
+        ImageGalleryItem* item = new ImageGalleryItem();
         item->setData(v);
         item->setSize(brls::Size(getWidth(), getHeight()));
         this->addView(item, this->getChildren().size());
@@ -69,9 +68,16 @@ void GalleryView::setData(GalleryData value){
     this->index = 0;
 }
 
+void GalleryView::addCustomView(GalleryItem* view){
+    view->setSize(brls::Size(getWidth(), getHeight()));
+    this->addView(view, this->getChildren().size());
+}
+
 void GalleryView::prev(){
-    if(this->index <= 0)
+    if(this->index <= 0){
+        brls::Application::getCurrentFocus()->shakeHighlight(brls::FocusDirection::LEFT);
         return;
+    }
     ((GalleryItem*)this->getChildren()[this->index])->animate(GalleryAnimation::EXIT_RIGHT);
 
     this->index--;
@@ -79,8 +85,10 @@ void GalleryView::prev(){
 }
 
 void GalleryView::next(){
-    if(this->index + 1 >= this->data.size())
+    if(this->index + 1 >= this->getChildren().size()){
+        brls::Application::getCurrentFocus()->shakeHighlight(brls::FocusDirection::RIGHT);
         return;
+    }
     ((GalleryItem*)this->getChildren()[this->index])->animate(GalleryAnimation::EXIT_LEFT);
 
     this->index++;
@@ -97,7 +105,7 @@ void GalleryView::draw(NVGcontext *vg, float x, float y, float width, float heig
     nvgRestore(vg);
 
     // Draw bottom points
-    uint n = this->data.size();
+    uint n = this->getChildren().size();
     if(n <= 1)
         return;
 
@@ -145,44 +153,68 @@ const std::string galleryItemXML = R"xml(
     </brls:Box>
 )xml";
 
-GalleryItem::GalleryItem(){
+/// ImageGalleryItem
+
+ImageGalleryItem::ImageGalleryItem(){
     this->inflateFromXMLString(galleryItemXML);
-    this->setVisibility(brls::Visibility::INVISIBLE);
-    this->hide([](){}, false, 0);
+
 }
 
-GalleryItem* GalleryItem::create(){
-    return new GalleryItem();
-}
-
-void GalleryItem::setData(GalleryItemData value){
+void ImageGalleryItem::setData(GalleryItemData value){
     this->data = value;
     this->image->setImageFromRes(value.first);
     this->label->setText(value.second);
+}
+
+/// GalleryItem
+
+GalleryItem::GalleryItem() {
+    this->setVisibility(brls::Visibility::INVISIBLE);
+    this->hide([](){}, false, 0);
+    this->detach();
 }
 
 void GalleryItem::animate(GalleryAnimation animation){
     this->setVisibility(brls::Visibility::VISIBLE);
     switch (animation) {
         case GalleryAnimation::ENTER_LEFT:
-            brls::View::show([](){}, true, 500);
-            this->contentOffsetX = -getWidth();
-            startScrolling(0);
-            break;
         case GalleryAnimation::ENTER_RIGHT:
+            if(animation == GalleryAnimation::ENTER_LEFT)
+                //从左侧进入
+                this->contentOffsetX = -getWidth();
+            else
+                //从右侧进入
+                this->contentOffsetX = getWidth();
             brls::View::show([](){}, true, 500);
-            this->contentOffsetX = getWidth();
             startScrolling(0);
+            {
+                // 滑入屏幕时按需获取焦点
+                View* view = this->getDefaultFocus();
+                if(view){
+                    brls::Logger::debug("GalleryItem defaultFocus: {}", view->describe());
+                    brls::Application::giveFocus(view);
+                }
+            }
             break;
         case GalleryAnimation::EXIT_LEFT:
-            brls::View::hide([](){}, true, 100);
-            this->contentOffsetX = 0;
-            startScrolling(-getWidth());
-            break;
         case GalleryAnimation::EXIT_RIGHT:
             brls::View::hide([](){}, true, 100);
             this->contentOffsetX = 0;
-            startScrolling(getWidth());
+            {
+                // 滑出屏幕时将焦点归还给 GalleryView
+                View* view = this->getDefaultFocus();
+                if(view){
+                    brls::Application::giveFocus(this->getParent());
+                }
+            }
+            brls::View::hide([](){}, true, 100);
+            this->contentOffsetX = 0;
+            if(animation == GalleryAnimation::EXIT_LEFT)
+                //向左滑出
+                startScrolling(-getWidth());
+            else
+                //向右滑出
+                startScrolling(getWidth());
             break;
     }
 }

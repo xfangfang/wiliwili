@@ -91,7 +91,7 @@ git clone --recursive https://github.com/xfangfang/wiliwili.git
 # macOS: install dependencies
 brew install glfw3 glm mpv
 
-# Ubuntu: install dependencies
+# Ubuntu: install dependencies (glfw3.3 or later)
 sudo apt install libcurl4-openssl-dev libglfw3-dev libglm-dev libmpv-dev
 
 # build
@@ -113,6 +113,12 @@ sudo dkp-pacman -S switch-glfw switch-mesa switch-glm \
 
 # 手动构建 ffmpeg与mpv
 # 参考：https://github.com/proconsule/nxmp-portlibs
+# 参考：https://github.com/xfangfang/wiliwili/issues/6#issuecomment-1236321540
+
+# 可选：安装依赖库 mininsp：https://github.com/StarDustCFW/nspmini
+# 1. 在resources 目录下放置：nsp_forwarder.nsp
+# 2. cmake 构建参数添加 -DBUILTIN_NSP=ON
+# 按上述配置后，从相册打开wiliwili时会增加一个安装NSP Forwarder的按钮
 
 # build
 mkdir build_switch && cd build_switch && cmake ..
