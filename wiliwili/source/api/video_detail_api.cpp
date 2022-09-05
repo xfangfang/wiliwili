@@ -195,4 +195,46 @@ namespace bilibili {
                 }
         });
     }
+    void BilibiliClient::be_agree(const std::string& access_key, int aid,
+                                  bool is_like,
+                                  const std::function<void()>& callback,
+                                  const ErrorCallback& error) {
+      cpr::Payload payload = {
+          {"aid", std::to_string(aid)},
+          {"like", std::to_string(is_like)},
+          {"csrf", access_key},
+      };
+      HTTP::__cpr_post("http://api.bilibili.com/x/web-interface/archive/like",
+                       {}, payload, [callback, error](const cpr::Response& r) {
+                         if (r.status_code != 200) {
+                           ERROR("ERROOR: report_history: status_code: " +
+                                     std::to_string(r.status_code),
+                                 r.status_code);
+                         } else {
+                           callback();
+                         }
+                       });
+    }
+
+    void BilibiliClient::add_coin(const std::string& access_key, int aid,
+                                  uint coin_number, bool is_like,
+                                  const std::function<void()>& callback,
+                                  const ErrorCallback& error) {
+      cpr::Payload payload = {
+          {"aid", std::to_string(aid)},
+          {"select_like", std::to_string(is_like)},
+          {"multiply", std::to_string(coin_number)},
+          {"csrf", access_key},
+      };
+      HTTP::__cpr_post("http://api.bilibili.com/x/web-interface/coin/add", {},
+                       payload, [callback, error](const cpr::Response& r) {
+                         if (r.status_code != 200) {
+                           ERROR("ERROOR: report_history: status_code: " +
+                                     std::to_string(r.status_code),
+                                 r.status_code);
+                         } else {
+                           callback();
+                         }
+                       });
+    }
 }

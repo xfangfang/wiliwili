@@ -63,6 +63,8 @@ if (PLATFORM_DESKTOP)
     set(PLATFORM_LIBS ${MPV_LIBRARIES})
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
     set(PLATFORM_OPTION -pthread)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
 else()
     set(PLATFORM_LIBS
             # needed by borealis

@@ -49,8 +49,10 @@ namespace bilibili {
         static const string ProgressReport = _apiBase + "/x/v2/history/report";
         /// 点赞视频.
         static const string Like = _appBase + "/x/v2/view/like";
+        static const string LikeWeb = _appBase + "/x/web-interface/archive/like";
         /// 给视频投币.
         static const string Coin = _appBase + "/x/v2/view/coin/add";
+        static const string CoinWeb = _appBase + "/x/web-interface/coin/add";
         /// 添加或删除视频收藏.
         static const string ModifyFavorite = _apiBase + "/x/v3/fav/resource/deal";
         /// 一键三连.

@@ -245,6 +245,17 @@ namespace bilibili {
                                            uint sid = 0, uint epid = 0,
                                            const std::function<void()>& callback= nullptr,
                                            const ErrorCallback& error= nullptr);
+            /// 点赞
+            static void be_agree(
+                const std::string& access_key, int aid, bool is_like,
+                const std::function<void()>& callback = nullptr,
+                const ErrorCallback& error = nullptr);
+
+            /// 投币
+            static void add_coin(
+                const std::string& access_key, int aid, uint coin_number,
+                bool is_like, const std::function<void()>& callback = nullptr,
+                const ErrorCallback& error = nullptr);
 
             /// 搜索页 获取搜索视频内容
             static void search_video(const std::string& key, const std::string& search_type, uint index = 1,

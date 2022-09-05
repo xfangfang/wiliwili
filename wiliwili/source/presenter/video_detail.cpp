@@ -342,3 +342,17 @@ void VideoDetail::reportHistory(uint aid, uint cid, uint progress, int type){
 
     bilibili::BilibiliClient::report_history(mid, token, aid, cid, type, progress, sid, epid);
 }
+
+/// 点赞
+void VideoDetail::beAgree(int aid) {
+  std::string token = ProgramConfig::instance().getCSRF();
+  if (token == "") return;
+  bilibili::BilibiliClient::be_agree(token, aid, true);
+}
+
+/// 投币
+void VideoDetail::addCoin(int aid) {
+  std::string token = ProgramConfig::instance().getCSRF();
+  if (token == "") return;
+  bilibili::BilibiliClient::add_coin(token, aid, 1, true);
+}
