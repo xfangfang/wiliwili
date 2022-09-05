@@ -61,6 +61,8 @@ if (PLATFORM_DESKTOP)
         message(STATUS "Found libmpv: ${MPV_VERSION} ${MPV_INCLUDE_DIRS} ${MPV_LIBRARIES}")
     endif ()
     set(PLATFORM_LIBS ${MPV_LIBRARIES})
+    set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+    set(PLATFORM_OPTION -pthread)
 else()
     set(PLATFORM_LIBS
             # needed by borealis
