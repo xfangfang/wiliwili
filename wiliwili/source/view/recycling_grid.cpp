@@ -27,6 +27,7 @@ void RecyclingGridItem::setIndex(size_t value){
 }
 
 RecyclingGridItem::~RecyclingGridItem() {
+    brls::Logger::debug("delete RecyclingGridItem {}", this->describe());
 }
 
 
@@ -148,7 +149,7 @@ RecyclingGrid::~RecyclingGrid() {
     for (auto it : queueMap)
     {
         for (auto item : *it.second)
-            delete item;
+            item->freeView();
         delete it.second;
     }
 }
@@ -286,7 +287,6 @@ void RecyclingGrid::reloadData()
         }else{
             // 获取每个cell的高度并缓存起来
             cellHeightCache.clear();
-            brls::Rect frame = getFrame();
             for (int section = 0; section < dataSource->getItemCount(); section++){
                 float height = dataSource->heightForRow(this, section);
                 cellHeightCache.push_back(height);
@@ -449,9 +449,19 @@ void RecyclingGrid::itemsRecyclingLoop()
         if((visibleMax + 1) % spanCount == 0)
             // 如果 renderedFrame 底部 与 组件底部 距离超过了preFetchLine 个cell的距离时结束
             if(renderedFrame.getMaxY() - getHeightByCellIndex(visibleMax+1, visibleMax+1-preFetchLine*spanCount) > visibleFrame.getMaxY() - paddingBottom){
+                requestNextPage = false; // 允许加载下一页
                 break;
             }
         addCellAt(visibleMax + 1, true);
+    }
+
+    if (visibleMax + 1 >= this->getItemCount()){
+        // 只有当 requestNextPage 为false时，才可以请求下一页，避免多次重复请求
+        if(!requestNextPage && this->nextPageCallback){
+            brls::Logger::error("RecyclingGrid request next page");
+            this->nextPageCallback();
+        }
+        requestNextPage = true;
     }
 }
 
@@ -462,6 +472,7 @@ RecyclingGridDataSource* RecyclingGrid::getDataSource() const
 
 void RecyclingGrid::showSkeleton(unsigned int num){
     this->setDataSource(new DataSourceSkeleton(num));
+    requestNextPage = true; // 默认不请求下一页
 }
 
 void RecyclingGrid::selectRowAt(size_t index, bool animated)
@@ -485,8 +496,10 @@ float RecyclingGrid::getHeightByCellIndex(int index, int start){
     if(!isFlowMode)
         return (estimatedRowHeight + estimatedRowSpace) * (int)((index - start) / spanCount);
 
-    if(cellHeightCache.size() == 0)
-        brls::fatal("cellHeightCache.size() cannot be zero in flow mode");
+    if(cellHeightCache.size() == 0){
+        brls::Logger::error("cellHeightCache.size() cannot be zero in flow mode {} {}", start, index);
+        return 0;
+    }
 
     if(start < 0)
         start = 0;
@@ -535,12 +548,6 @@ brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction, brls
             // 按键(上或下)可以导航过去的情况
             itemsRecyclingLoop();
 
-            // 到达页面尾部
-            if ( direction == brls::FocusDirection::DOWN && visibleMax + 1 >= this->getItemCount()){
-                if(this->nextPageCallback){
-                    this->nextPageCallback();
-                }
-            }
             return row_currentFocus;
         }
     }
