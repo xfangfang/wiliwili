@@ -42,6 +42,7 @@
             alignItems="center"
             wireframe="false">
         <brls:Box
+                id="home/search"
                 width="300"
                 height="35"
                 backgroundColor="#E3E5E7"

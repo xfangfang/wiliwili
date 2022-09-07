@@ -18,4 +18,5 @@ public:
 
 private:
     BRLS_BIND(AutoTabFrame, tabFrame, "home/tab/frame");
+    BRLS_BIND(brls::Box, search, "home/search");
 };

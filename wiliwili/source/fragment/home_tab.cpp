@@ -16,7 +16,7 @@ HomeTab::HomeTab() {
 void HomeTab::onCreate() {
     this->registerTabAction("搜索", brls::ControllerButton::BUTTON_Y,
         [](brls::View* view)-> bool {
-            brls::Swkbd::openForText([&](std::string text) {
+            brls::Swkbd::openForText([](std::string text) {
                                    brls::Application::pushActivity(new SearchActivity(text));
                                }, "搜索你感兴趣的视频", "", 32, "", 0);
 
@@ -34,6 +34,12 @@ void HomeTab::onCreate() {
                                 tabFrame->focus2NextTab();
                                 return true;
                             }, true);
+
+    this->search->addGestureRecognizer(new brls::TapGestureRecognizer(this->search, [](){
+        brls::Swkbd::openForText([](std::string text) {
+            brls::Application::pushActivity(new SearchActivity(text));
+        }, "搜索你感兴趣的视频", "", 32, "", 0);
+    }));
 }
 
 brls::View* HomeTab::create(){
