@@ -33,7 +33,7 @@ public:
         }else if(!r.show_title.empty()){
             author += " - " + r.show_title;
         }
-        auto time = wiliwili::sec2date(r.view_at);
+        auto time = wiliwili::sec2TimeDate(r.view_at);
 
         std::string duration = "";
         float progress = -1;

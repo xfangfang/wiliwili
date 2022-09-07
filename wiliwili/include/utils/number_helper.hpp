@@ -41,6 +41,7 @@ namespace wiliwili {
 
     std::string sec2FullDate(time_t sec);
 
+    std::string sec2TimeDate(time_t sec);
 
     size_t getUnixTime();
 
