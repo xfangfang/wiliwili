@@ -32,9 +32,9 @@ public:
         this->labeMisc->setText(misc);
 
         if(avatar.empty()){
-            this->avatarView->setVisibility(brls::Visibility::GONE);
+            this->avatarView->getParent()->setVisibility(brls::Visibility::GONE);
         } else {
-            this->avatarView->setVisibility(brls::Visibility::VISIBLE);
+            this->avatarView->getParent()->setVisibility(brls::Visibility::VISIBLE);
             ImageHelper::with(this)->load(avatar)->into(this->avatarView);
         }
     }

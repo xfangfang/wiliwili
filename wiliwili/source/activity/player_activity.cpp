@@ -568,9 +568,10 @@ PlayerActivity::~PlayerActivity() {
     brls::Logger::debug("del PlayerActivity");
     //上报历史记录
     this->reportHistory(videoDetailResult.aid, videoDetailPage.cid, MPVCore::instance().video_progress);
-    this->video->stop();
     // 取消监控mpv
     MPVCore::instance().getEvent()->unsubscribe(eventSubscribeID);
+    // 停止视频播放
+    this->video->stop();
 }
 
 

@@ -62,7 +62,7 @@ void MainActivity::onContentAvailable(){
         }
         return (brls::View *)nullptr;
     });
-    this->settingBtn->addGestureRecognizer(new brls::TapGestureRecognizer(this->settingBtn));
+    this->settingBtn->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->settingBtn));
 
 }
 
