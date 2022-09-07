@@ -31,7 +31,7 @@
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="播放设置（不可用）"
+                            title="播放设置"
                             marginBottom="0px" />
                     <brls:Box
                             width="100%"
@@ -41,33 +41,25 @@
 
                         <brls:BooleanCell
                                 id="boolean"
-                                title="详情页自动播放"/>
+                                title="详情页自动播放（不可用）"/>
 
                         <brls:BooleanCell
                                 id="boolean"
-                                title="详情页自动全屏播放"/>
+                                title="播放器下方固定显示进度条（不可用）"/>
 
                         <brls:BooleanCell
                                 id="boolean"
-                                title="记忆弹幕开关状态"/>
+                                title="详情页自动全屏播放（不可用）"/>
 
-                        <brls:SelectorCell
-                                id="selector"
-                                title="测试 SelectorCell"/>
-
-                        <brls:InputCell
-                                id="input"
-                                title="测试 InputCell"/>
-
-                        <brls:InputNumericCell
-                                id="inputNumeric"
-                                title="测试 InputNumericCell"/>
+                        <brls:BooleanCell
+                                id="boolean"
+                                title="记忆弹幕开关状态（不可用）"/>
 
                     </brls:Box>
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="缓存设置（不可用）"
+                            title="缓存设置"
                             marginBottom="0px" />
                     <brls:Box
                             width="100%"
@@ -77,13 +69,13 @@
 
                         <brls:RadioCell
                                 id="radio"
-                                title="清空本地图片缓存"/>
+                                title="清空本地图片缓存（不可用）"/>
 
                     </brls:Box>
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="其他设置（不可用）"
+                            title="其他设置"
                             marginBottom="0px" />
                     <brls:Box
                             width="100%"
@@ -92,16 +84,24 @@
                             marginBottom="30px">
 
                         <brls:BooleanCell
-                                id="boolean"
-                                title="配色跟随系统"/>
+                                id="cell/hideBottomBar"
+                                title="隐藏下方提示栏"/>
 
                         <brls:BooleanCell
                                 id="boolean"
-                                title="关闭时直接返回到桌面"/>
+                                title="配色跟随系统（不可用）"/>
+
+                        <brls:BooleanCell
+                                id="boolean"
+                                title="不记录到历史播放记录（不可用）"/>
+
+                        <brls:BooleanCell
+                                id="boolean"
+                                title="关闭时直接返回到桌面（不可用）"/>
 
                         <brls:SelectorCell
                                 id="selector"
-                                title="默认图片质量"/>
+                                title="默认图片质量（不可用）"/>
 
                     </brls:Box>
                 </brls:Box>

@@ -21,6 +21,10 @@
 
 typedef std::map<std::string, std::string> Cookie;
 
+enum class SettingItem{
+    HIDE_BOTTOM_BAR,
+};
+
 class ProgramConfig: public Singleton<ProgramConfig>{
 public:
     ProgramConfig();
@@ -28,24 +32,48 @@ public:
     void setProgramConfig(const ProgramConfig& conf);
     void setCookie(Cookie data);
     Cookie getCookie();
-    Cookie cookie;
     std::string getCSRF();
     std::string getUserID();
+
+    template<typename T>
+    T getSettingItem(SettingItem item, T defaultValue){
+        auto& key = SETTING_MAP[item];
+        if(!setting.contains(key))
+            return defaultValue;
+        return this->setting.at(key).get<T>();
+    }
+
+    template<typename T>
+    void setSettingItem(SettingItem item, T data){
+        setting[SETTING_MAP[item]] = data;
+        this->save();
+    }
+
+    void load();
+
+    void save();
+
+    void init();
+
+    std::string getConfigDir();
+
+
+    Cookie cookie;
+    nlohmann::json setting;
+
+    static std::unordered_map<SettingItem, std::string> SETTING_MAP;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProgramConfig, cookie);
+inline void to_json(nlohmann::json& nlohmann_json_j, const ProgramConfig& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, cookie, setting));
+}
 
-
-class ConfigHelper {
-public:
-    static ProgramConfig readProgramConf();
-
-    static void saveProgramConf();
-
-    static std::string getConfigDir();
-
-    static void init();
-};
+inline void from_json(const nlohmann::json& nlohmann_json_j, ProgramConfig& nlohmann_json_t) {
+    if(nlohmann_json_j.contains("cookie"))
+        nlohmann_json_j.at("cookie").get_to(nlohmann_json_t.cookie);
+    if(nlohmann_json_j.contains("setting"))
+        nlohmann_json_j.at("setting").get_to(nlohmann_json_t.setting);
+}
 
 class Register {
 public:

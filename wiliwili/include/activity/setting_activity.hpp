@@ -22,4 +22,5 @@ public:
 private:
     BRLS_BIND(brls::RadioCell, btnTutorialOpenApp, "tools/tutorial_open");
     BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
+    BRLS_BIND(brls::BooleanCell, cellHideBar, "cell/hideBottomBar");
 };

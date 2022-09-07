@@ -5,22 +5,30 @@
 #include "bilibili.h"
 #include <borealis/core/logger.hpp>
 #include "utils/config_helper.hpp"
+#include "borealis/views/applet_frame.hpp"
 
+std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
+        {SettingItem::HIDE_BOTTOM_BAR, "hide_bottom_bar"},
+};
 
 ProgramConfig::ProgramConfig(){
 }
 
 ProgramConfig::ProgramConfig(const ProgramConfig& conf){
     this->cookie = conf.cookie;
+    this->setting = conf.setting;
 }
 
 void ProgramConfig::setProgramConfig(const ProgramConfig& conf){
     this->cookie = conf.cookie;
+    this->setting = conf.setting;
 }
 
 void ProgramConfig::setCookie(Cookie data){
     this->cookie = data;
+    this->save();
 }
+
 Cookie ProgramConfig::getCookie(){
     return this->cookie;
 }
@@ -39,56 +47,56 @@ std::string ProgramConfig::getUserID(){
     return this->cookie["DedeUserID"];
 }
 
+void ProgramConfig::load(){
+    const std::string path = this->getConfigDir() + "/wiliwili_config.json";
 
-ProgramConfig ConfigHelper::readProgramConf(){
-    const std::string path = ConfigHelper::getConfigDir()+"/wiliwili_config.json";
-    ProgramConfig config;
-    nlohmann::json content;
     std::ifstream readFile(path);
-    if(!readFile) return config;
+    if(!readFile) return;
+
     try{
+        nlohmann::json content;
         readFile >> content;
         readFile.close();
-        return content.get<ProgramConfig>();
+        this->setProgramConfig(content.get<ProgramConfig>());
     }
     catch(const std::exception& e){
-        return config;
+        brls::Logger::error("ProgramConfig::load: {}", e.what());
     }
-    return config;
+
+    // 初始化设置
+    brls::AppletFrame::HIDE_BOTTOM_BAR = getSettingItem(SettingItem::HIDE_BOTTOM_BAR, false);
 }
 
-void ConfigHelper::saveProgramConf(){
-    const std::string path = ConfigHelper::getConfigDir()+"/wiliwili_config.json";
-    printf("config path: %s\n", path.c_str());
-    std::filesystem::create_directories(ConfigHelper::getConfigDir());
-    nlohmann::json content(ProgramConfig::instance());
+void ProgramConfig::save(){
+    const std::string path = this->getConfigDir() + "/wiliwili_config.json";
+    std::filesystem::create_directories(this->getConfigDir());
+    nlohmann::json content(*this);
     std::ofstream writeFile(path);
     if(!writeFile) return;
     writeFile << content.dump(2);
     writeFile.close();
 }
 
-std::string ConfigHelper::getConfigDir(){
-#ifdef __SWITCH__
-    return "/config/wiliwili";
-#else
-    return "./config/wiliwili";
-#endif
-}
-
-void ConfigHelper::init(){
-    ProgramConfig::instance().setProgramConfig(ConfigHelper::readProgramConf());
-    Cookie cookie = ProgramConfig::instance().getCookie();
-    for(auto c : cookie){
+void ProgramConfig::init(){
+    this->load();
+    Cookie diskCookie = this->getCookie();
+    for(auto c : diskCookie){
         brls::Logger::info("cookie: {}:{}", c.first, c.second);
     }
     // set bilibili cookie and cookie update callback
-    bilibili::BilibiliClient::init(cookie,[](Cookie newCookie){
+    bilibili::BilibiliClient::init(diskCookie, [](Cookie newCookie){
         brls::Logger::info("======== write cookies to disk");
         for(auto c : newCookie){
             brls::Logger::info("cookie: {}:{}", c.first, c.second);
         }
         ProgramConfig::instance().setCookie(newCookie);
-        ConfigHelper::saveProgramConf();
     }, 5000);
+}
+
+std::string ProgramConfig::getConfigDir(){
+#ifdef __SWITCH__
+    return "/config/wiliwili";
+#else
+    return "./config/wiliwili";
+#endif
 }

@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
     brls::Logger::info("createWindow done");
     // Load Cookies for bilibili from disk
-    ConfigHelper::init();
+    ProgramConfig::instance().init();
 
     // Register custom view\theme\style
     Register::initCustomView();
@@ -68,10 +68,12 @@ int main(int argc, char* argv[])
 //        brls::Application::pushActivity(new PlayerActivity("BV1A44y1u7PF"));
 //        brls::Application::pushActivity(new PlayerActivity("BV1434y1D7hB"), brls::TransitionAnimation::NONE);
 //        brls::Application::pushActivity(new PlayerActivity("BV1U3411c7Qx"), brls::TransitionAnimation::NONE);
+//        brls::Application::pushActivity(new PlayerActivity("BV1fG411W7Px"), brls::TransitionAnimation::NONE); // 测试弹幕
 //        brls::Application::pushActivity(new SearchActivity("qq"));
 //        brls::Application::pushActivity(new SplashActivity());
 //        brls::Application::pushActivity(new HintActivity());
 //        brls::Application::pushActivity(new PGCIndexActivity("/page/home/pgc/more?type=2&index_type=2&area=2&order=2&season_status=-1&season_status=3,6"));
+//        brls::Application::pushActivity(new SettingActivity());
     } else {
         brls::Application::pushActivity(new HintActivity());
     }

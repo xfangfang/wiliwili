@@ -34,7 +34,6 @@ const std::string galleryItemInstallNSPXML = R"xml(
                 text="点击  安装桌面图标"
                 fontSize="24"/>
         <brls:Label
-                focusable="true"
                 positionType="absolute"
                 positionBottom="4%"
                 id="gallery/label"

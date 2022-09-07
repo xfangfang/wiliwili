@@ -88,7 +88,6 @@ void MineTab::onUserInfo(const bilibili::UserResult& data) {
         dialog->addButton("hints/back"_i18n, [](){});
         dialog->addButton("hints/ok"_i18n, [](){
             ProgramConfig::instance().setCookie({});
-            ConfigHelper::saveProgramConf();
             brls::Application::getPlatform()->exitToHomeMode(false);
             Application::quit();
         });
