@@ -74,6 +74,12 @@ public:
     /// 上报播放进度
     void reportHistory(uint aid, uint cid, uint progress=0, int type=3);
 
+    /// 投币
+    void addCoin(int aid);
+
+    /// 点赞
+    void beAgree(int aid);
+
 protected:
     bilibili::VideoDetailResult videoDetailResult; //  视频数据
     bilibili::VideoDetailPage videoDetailPage; // 视频分P数据

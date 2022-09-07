@@ -211,6 +211,32 @@ void PlayerActivity::onContentAvailable() {
         this->requestVideoComment(this->videoDetailResult.aid);
     });
 
+    // 点赞按钮
+    this->btnAgree->getParent()->registerClickAction([this](...) {
+      this->beAgree(this->videoDetailResult.aid);
+      /// 点赞投币后，需要等待反馈后，再更新UI
+      std::thread updateUI([this]() {
+        sleep(1);
+        this->requestVideoRelationInfo(this->videoDetailResult.bvid);
+      });
+      updateUI.detach();
+
+      return true;
+    });
+
+    // 投币按钮
+    this->btnCoin->getParent()->registerClickAction([this](...) {
+      this->addCoin((uint)this->videoDetailResult.aid);
+      /// 点赞投币后，需要等待反馈后，再更新UI
+      std::thread updateUI([this]() {
+        sleep(1);
+        this->requestVideoRelationInfo(this->videoDetailResult.bvid);
+      });
+      updateUI.detach();
+
+      return true;
+    });
+
     // 二维码按钮
     this->btnQR->getParent()->registerClickAction([this](...){
         this->showShareDialog("https://www.bilibili.com/video/" + this->videoDetailResult.bvid);
