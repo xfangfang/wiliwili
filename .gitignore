@@ -1,5 +1,4 @@
-build/
-switch_build/
+*build/
 data/
 .idea/
 cmake-*/

@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 # build options
 set(PLATFORM_DESKTOP OFF CACHE BOOL  "build for desktop, ON for desktop; OFF for switch")
 set(BUILTIN_NSP OFF CACHE BOOL  "Built in NSP forwarder")
+set(WIN32_TERMINAL ON CACHE BOOL  "Show terminal when run on Windows")
 
 IF (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
@@ -16,8 +17,8 @@ if(PLATFORM_DESKTOP)
     message("building for Desktop")
     set(TARGET_PLATFORM desktop CACHE STRING "")
     message("Build Type: ${CMAKE_BUILD_TYPE}")
-    SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -g2 -ggdb")
-    SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3")
+    SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -g2 -ggdb -Wall")
+    SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 else()
     message("building for SWITCH")
     message("Build Type: ${CMAKE_BUILD_TYPE}")
@@ -91,7 +92,11 @@ endif()
 
 # building target
 if(WIN32)
-    add_executable(${PROJECT_NAME} WIN32 ${MAIN_SRC} app_win32.rc)
+    if(WIN32_TERMINAL)
+        add_executable(${PROJECT_NAME} ${MAIN_SRC} app_win32.rc)
+    else()
+        add_executable(${PROJECT_NAME} WIN32 ${MAIN_SRC} app_win32.rc)
+    endif()
 else()
     add_executable(${PROJECT_NAME} ${MAIN_SRC})
 endif()
@@ -104,7 +109,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         -D__VERSION_MAJOR__=${VERSION_MAJOR}
         -D__VERSION_MINOR__=${VERSION_MINOR}
         -D__VERSION_REVISION__=${VERSION_REVISION}
-        -g -Wall -O2
         -ffunction-sections
         -fdata-sections
         ${PLATFORM_OPTION}

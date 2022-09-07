@@ -2,10 +2,11 @@
 // Created by fang on 2022/7/10.
 //
 
-#include "bilibili.h"
 #include <borealis/core/logger.hpp>
+#include <borealis/views/applet_frame.hpp>
+
+#include "bilibili.h"
 #include "utils/config_helper.hpp"
-#include "borealis/views/applet_frame.hpp"
 
 std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
     {SettingItem::HIDE_BOTTOM_BAR, "hide_bottom_bar"},

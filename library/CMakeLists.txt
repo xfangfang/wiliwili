@@ -115,7 +115,6 @@ target_link_libraries(borealis ${BRLS_PLATFORM_LIBS})
 target_compile_options(borealis PUBLIC
         -DBRLS_RESOURCES=${BRLS_PLATFORM_RESOURCES_PATH}
         -DYG_ENABLE_EVENTS
-        -g -Wall -O2
         -ffunction-sections
         -fdata-sections
         ${BRLS_PLATFORM_OPTION}
