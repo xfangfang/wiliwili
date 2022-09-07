@@ -5,6 +5,20 @@
 #include "utils/number_helper.hpp"
 #include <chrono>
 
+#ifdef _WIN32
+    #define GET_TIME time_t curTime = time(NULL); \
+    struct tm curTm; \
+    localtime_s(&curTm, &curTime); \
+    struct tm tm; \
+    localtime_s(&tm, &sec);
+#else
+    #define GET_TIME time_t curTime = time(NULL); \
+    struct tm curTm; \
+    localtime_r(&curTime, &curTm); \
+    struct tm tm; \
+    localtime_r(&sec, &tm);
+#endif
+
 std::string wiliwili::sec2Time(size_t t){
     size_t hour = t / 3600;
     size_t minute = t / 60 % 60;
@@ -43,11 +57,7 @@ std::string wiliwili::num2w(size_t t){
 // else => YYYY-M-D
 std::string wiliwili::sec2date(time_t sec){
     //todo: 从B站接口校准当前时间
-    time_t curTime = time(NULL);
-    struct tm curTm;
-    localtime_r(&curTime, &curTm);
-    struct tm tm;
-    localtime_r(&sec, &tm);
+    GET_TIME
 
     if(curTm.tm_year != tm.tm_year || sec > curTime){
         return std::to_string(tm.tm_year + 1900)+"-"+std::to_string(tm.tm_mon + 1)+"-"+std::to_string(tm.tm_mday);
@@ -71,11 +81,8 @@ std::string wiliwili::sec2date(time_t sec){
 
 
 std::string wiliwili::sec2FullDate(time_t sec){
-    time_t curTime = time(NULL);
-    struct tm curTm;
-    localtime_r(&curTime, &curTm);
-    struct tm tm;
-    localtime_r(&sec, &tm);
+    GET_TIME
+    
     return std::to_string(tm.tm_year + 1900)+"-"+pre0(tm.tm_mon + 1, 2)+"-"+pre0(tm.tm_mday, 2) + \
         " " + pre0(tm.tm_hour, 2) + ":" + pre0(tm.tm_min, 2) + ":" + pre0(tm.tm_sec, 2);
 }

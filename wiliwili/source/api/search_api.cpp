@@ -11,7 +11,7 @@ namespace bilibili {
 
 
     void BilibiliClient::search_video(const std::string &key, const std::string &search_type,
-                             uint index, const std::string &order,
+                             unsigned int index, const std::string &order,
                              const std::function<void(SearchResult)> &callback,
                              const ErrorCallback &error){
         HTTP::getResultAsync<SearchResult>(Api::Search,

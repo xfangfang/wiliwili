@@ -7,7 +7,7 @@
 
 namespace bilibili {
 
-    void BilibiliClient::dynamic_video(const uint page, const std::string &offset,
+    void BilibiliClient::dynamic_video(const unsigned int page, const std::string &offset,
                        const std::function<void(DynamicVideoListResultWrapper)> &callback,
                        const ErrorCallback &error){
         HTTP::getResultAsync<DynamicVideoListResultWrapper>(Api::DynamicVideo,

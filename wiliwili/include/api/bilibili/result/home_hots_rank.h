@@ -8,13 +8,12 @@
 #include "user_result.h"
 #include "home_result.h"
 
-using namespace std;
 
 namespace bilibili {
 
     class HotsRankPGCConfig {
     public:
-        string index_show;
+        std::string index_show;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankPGCConfig, index_show);
 
@@ -22,20 +21,20 @@ namespace bilibili {
     public:
         int rank;
         int season_id;
-        string ss_horizontal_cover; //横版封面
-        string cover; //竖版封面
-        string title;
-        string rating;
+        std::string ss_horizontal_cover; //横版封面
+        std::string cover; //竖版封面
+        std::string title;
+        std::string rating;
         HotsRankPGCConfig new_ep;
         VideoSimpleStateResult stat;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankPGCVideoResult, title, rank, season_id, ss_horizontal_cover, new_ep, stat);
 
-    typedef vector<HotsRankPGCVideoResult> HotsRankPGCVideoListResult;
+    typedef std::vector<HotsRankPGCVideoResult> HotsRankPGCVideoListResult;
 
     class HotsRankPGCVideoListResultWrapper {
     public:
-        string note;
+        std::string note;
         HotsRankPGCVideoListResult list;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankPGCVideoListResultWrapper, note, list);
@@ -44,10 +43,10 @@ namespace bilibili {
     class HotsRankVideoResult {
     public:
         int aid;
-        string bvid;
+        std::string bvid;
         int cid;
-        string pic;
-        string title;
+        std::string pic;
+        std::string title;
         int duration;
         int pubdate;
         UserSimpleResult owner;
@@ -55,11 +54,11 @@ namespace bilibili {
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankVideoResult, aid, bvid, cid, pic, title, duration, pubdate, owner, stat);
 
-    typedef vector<HotsRankVideoResult> HotsRankVideoListResult;
+    typedef std::vector<HotsRankVideoResult> HotsRankVideoListResult;
 
     class HotsRankVideoListResultWrapper {
     public:
-        string note;
+        std::string note;
         HotsRankVideoListResult list;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankVideoListResultWrapper, note, list);

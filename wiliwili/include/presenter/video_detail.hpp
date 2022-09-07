@@ -45,7 +45,7 @@ public:
     void requestSeasonInfo(const int seasonID, const int epID=0);
 
     /// 获取视频信息：标题、作者、简介、分P等
-    void requestVideoInfo(const string bvid);
+    void requestVideoInfo(const std::string bvid);
 
     /// 获取视频地址
     void requestVideoUrl(std::string bvid, int cid);
@@ -69,10 +69,10 @@ public:
     void requestVideoRelationInfo(const std::string& bvid);
 
     /// 获取视频弹幕
-    void requestVideoDanmaku(const uint cid);
+    void requestVideoDanmaku(const unsigned int cid);
 
     /// 上报播放进度
-    void reportHistory(uint aid, uint cid, uint progress=0, int type=3);
+    void reportHistory(unsigned int aid, unsigned int cid, unsigned int progress=0, int type=3);
 
     /// 投币
     void addCoin(int aid);
@@ -88,6 +88,6 @@ protected:
     bilibili::SeasonResultWrapper seasonInfo; // 番剧/综艺/影视 数据
     bilibili::SeasonEpisodeResult episodeResult; // 番剧/综艺/影视 单集数据
 
-    uint commentRequestIndex = 1;
-    uint userUploadedVideoRequestIndex = 1;
+    unsigned int commentRequestIndex = 1;
+    unsigned int userUploadedVideoRequestIndex = 1;
 };

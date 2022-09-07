@@ -7,18 +7,17 @@
 #include "nlohmann/json.hpp"
 #include "bilibili/result/user_result.h"
 
-using namespace std;
 
 namespace bilibili {
 
     class CollectionResult {
     public:
-        u_int id;
+        unsigned int id;
         std::string cover;
         std::string title;
-        u_int ctime;
-        u_int media_count;
-        u_int attr;
+        unsigned int ctime;
+        unsigned int media_count;
+        unsigned int attr;
         UserSimpleResult upper;
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, CollectionResult& nlohmann_json_t) {
@@ -33,7 +32,7 @@ namespace bilibili {
         bool has_more;
         int count;
         UserSimpleResult upper;
-        u_int index;
+        unsigned int index;
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, CollectionListResultWrapper& nlohmann_json_t) {
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more, list, count));
@@ -41,9 +40,9 @@ namespace bilibili {
 
     class VideoCollectionStateResult {
     public:
-        u_int collect;
-        u_int danmaku;
-        u_int play;
+        unsigned int collect;
+        unsigned int danmaku;
+        unsigned int play;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoCollectionStateResult, collect, danmaku, play);
 
@@ -51,14 +50,14 @@ namespace bilibili {
     public:
         int id;
         int type;
-        string title;
-        string cover;
-        string intro;
+        std::string title;
+        std::string cover;
+        std::string intro;
         UserSimpleResult upper;
         VideoCollectionStateResult cnt_info;
         int duration;
-        u_int pubtime;
-        string bvid;
+        unsigned int pubtime;
+        std::string bvid;
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, CollectionVideoResult& nlohmann_json_t) {
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, type, title, intro, cover, upper, cnt_info, duration, pubtime, bvid));
@@ -72,7 +71,7 @@ namespace bilibili {
         CollectionVideoListResult medias;
         bool has_more;
         CollectionResult info;
-        u_int index;
+        unsigned int index;
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, CollectionVideoListResultWrapper& nlohmann_json_t) {
         if(nlohmann_json_j.at("medias").is_array()){

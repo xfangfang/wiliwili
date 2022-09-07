@@ -11,6 +11,9 @@
 #include "fragment/mine_collection.hpp"
 #include "fragment/mine_history.hpp"
 
+using namespace brls;
+using namespace brls::literals;
+
 MineTab::MineTab() {
     this->inflateFromXMLRes("xml/fragment/mine_tab.xml");
     brls::Logger::debug("Fragment MineTab: create");

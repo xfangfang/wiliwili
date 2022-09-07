@@ -34,6 +34,6 @@ private:
     BRLS_BIND(brls::Image, imageCover, "collection/cover");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "collection/recyclingGrid");
 
-    uint requestIndex = 1;
+    unsigned int requestIndex = 1;
 
 };

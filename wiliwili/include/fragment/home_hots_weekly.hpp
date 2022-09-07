@@ -32,7 +32,7 @@ public:
 
     void onHotsWeeklyList(const bilibili::HotsWeeklyListResult &result) override;
     void onHotsWeeklyVideoList(const bilibili::HotsWeeklyVideoListResult &result,
-                                       const string& label, const string& reminder) override;
+                                       const std::string& label, const std::string& reminder) override;
     void onError(const std::string& error) override;
 
 private:

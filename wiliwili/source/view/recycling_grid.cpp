@@ -63,7 +63,7 @@ class DataSourceSkeleton
         : public RecyclingGridDataSource
 {
 public:
-    DataSourceSkeleton(uint n):num(n){
+    DataSourceSkeleton(unsigned int n):num(n){
 
     }
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index){
@@ -81,7 +81,7 @@ public:
     }
 
 private:
-    uint num;
+    unsigned int num;
 };
 
 /// RecyclingGrid
@@ -460,7 +460,7 @@ RecyclingGridDataSource* RecyclingGrid::getDataSource() const
     return this->dataSource;
 }
 
-void RecyclingGrid::showSkeleton(uint num){
+void RecyclingGrid::showSkeleton(unsigned int num){
     this->setDataSource(new DataSourceSkeleton(num));
 }
 

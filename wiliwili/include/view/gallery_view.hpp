@@ -70,5 +70,5 @@ public:
 
 private:
     GalleryData data;
-    uint index = 0;
+    unsigned int index = 0;
 };

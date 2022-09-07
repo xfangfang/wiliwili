@@ -97,7 +97,7 @@ public:
 
     RecyclingGridDataSource* getDataSource() const;
 
-    void showSkeleton(uint num = 12);
+    void showSkeleton(unsigned int num = 12);
 
     // 重新加载数据
     void reloadData();

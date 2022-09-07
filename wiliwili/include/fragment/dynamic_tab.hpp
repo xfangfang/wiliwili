@@ -18,7 +18,7 @@ class RecyclingGrid;
 class AutoTabFrame;
 class DynamicVideo;
 
-typedef brls::Event<uint> UserSelectedEvent;
+typedef brls::Event<unsigned int> UserSelectedEvent;
 
 class DynamicTab : public AttachedView, public DynamicTabRequest, DynamicVideoRequest{
 
@@ -29,15 +29,15 @@ public:
 
     virtual void onUpList(const bilibili::DynamicUpListResultWrapper &result) override;
 
-    virtual void onError(const string& error) override;
+    virtual void onError(const std::string& error) override;
 
     static View* create();
 
     void onCreate() override;
 
-    void changeUser(uint mid);
+    void changeUser(unsigned int mid);
 
-    void onDynamicVideoList(const bilibili::DynamicVideoListResult &result, uint index) override;
+    void onDynamicVideoList(const bilibili::DynamicVideoListResult &result, unsigned int index) override;
 
 private:
     BRLS_BIND(RecyclingGrid, upRecyclingGrid, "dynamic/up/recyclingGrid");

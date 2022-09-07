@@ -2,13 +2,13 @@
 // Created by fang on 2022/7/14.
 //
 
-#include "bilibili.h"
 #include "presenter/home_pgc.hpp"
+#include "bilibili.h"
 
 
 void HomeBangumiRequest::onBangumiList(const bilibili::PGCResultWrapper &result) {}
 
-void HomeBangumiRequest::onError(const string& error) {}
+void HomeBangumiRequest::onError(const std::string& error) {}
 
 void HomeBangumiRequest::requestData(bool refresh) {
     if(refresh){
@@ -34,7 +34,7 @@ void HomeBangumiRequest::requestBangumiList(int is_refresh, std::string cursor) 
 
 void HomeCinemaRequest::onCinemaList(const bilibili::PGCResultWrapper &result) {}
 
-void HomeCinemaRequest::onError(const string& error) {}
+void HomeCinemaRequest::onError(const std::string& error) {}
 
 void HomeCinemaRequest::requestData(bool refresh) {
     if(refresh){

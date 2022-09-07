@@ -187,7 +187,7 @@ public:
         }
 
         tabFrame->setHideClickAnimation(true);
-        tabFrame->registerAction("back"_i18n, BUTTON_B, [this](View* view) {
+        tabFrame->registerAction("back"_i18n, brls::BUTTON_B, [this](View* view) {
             this->close([this](){
                this->dismiss();
             });

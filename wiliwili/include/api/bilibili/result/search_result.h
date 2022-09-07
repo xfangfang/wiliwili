@@ -7,8 +7,6 @@
 #include "nlohmann/json.hpp"
 #include "pystring.h"
 
-using namespace std;
-
 namespace bilibili {
 
     class VideoSearchBadgeResult {
@@ -25,27 +23,27 @@ namespace bilibili {
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoSearchBadgeResult, text);
 
-    typedef vector<VideoSearchBadgeResult> VideoSearchBadgeListResult;
+    typedef std::vector<VideoSearchBadgeResult> VideoSearchBadgeListResult;
 
 
     class VideoItemSearchResult {
     public:
         std::string type; // 搜索的类型：video/media_bangumi/media_ft 视频/影视/番剧
 
-        uint aid;
+        unsigned int aid;
         std::string bvid;
-        uint season_id;
+        unsigned int season_id;
 
         std::string title; // 部分带xml标识关键词
         std::string subtitle;
 
         std::string cover; // 封面
 
-        uint play; // 播放量
-        uint danmaku; // 弹幕数量
-        uint like; //点赞量
+        unsigned int play; // 播放量
+        unsigned int danmaku; // 弹幕数量
+        unsigned int like; //点赞量
 
-        uint pubdate; // 发布日期
+        unsigned int pubdate; // 发布日期
 
         std::string rightBottomBadge;
 
@@ -88,15 +86,15 @@ namespace bilibili {
         nlohmann_json_t.title = pystring::replace(nlohmann_json_t.title, "</em>", "");
     }
 
-    typedef vector<VideoItemSearchResult> VideoItemSearchListResult;
+    typedef std::vector<VideoItemSearchResult> VideoItemSearchListResult;
 
 
     class SearchResult {
     public:
-        uint page;
-        uint pagesize;
-        uint numResults;
-        uint numPages;
+        unsigned int page;
+        unsigned int pagesize;
+        unsigned int numResults;
+        unsigned int numPages;
         VideoItemSearchListResult result;
     };
 
@@ -109,14 +107,14 @@ namespace bilibili {
 
     class SearchHotsResult {
     public:
-        string keyword;
-        string show_name;
-        string icon;
+        std::string keyword;
+        std::string show_name;
+        std::string icon;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SearchHotsResult, keyword, show_name, icon);
 
-    typedef vector<SearchHotsResult> SearchHotsListResult;
+    typedef std::vector<SearchHotsResult> SearchHotsListResult;
 
     class SearchHotsResultWrapper {
     public:

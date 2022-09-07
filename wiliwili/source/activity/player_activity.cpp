@@ -15,6 +15,8 @@
 #include "utils/config_helper.hpp"
 
 
+using namespace brls::literals;
+
 class DataSourceList
         : public RecyclingGridDataSource
 {
@@ -146,14 +148,14 @@ private:
 
 PlayerActivity::PlayerActivity(std::string bvid){
     videoDetailResult.bvid = bvid;
-    Logger::debug("create PlayerActivity: {}", videoDetailResult.bvid);
+    brls::Logger::debug("create PlayerActivity: {}", videoDetailResult.bvid);
 }
 
-PlayerActivity::PlayerActivity(std::string bvid, uint cid, int progress){
+PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid, int progress){
     videoDetailResult.bvid = bvid;
     videoDetailPage.cid = cid;
     videoDetailPage.progress = progress;
-    Logger::debug("create PlayerActivity: bvid: {} cid: {} progress: {}", bvid, cid, progress);
+    brls::Logger::debug("create PlayerActivity: bvid: {} cid: {} progress: {}", bvid, cid, progress);
 }
 
 void PlayerActivity::onContentAvailable() {
@@ -226,7 +228,7 @@ void PlayerActivity::onContentAvailable() {
 
     // 投币按钮
     this->btnCoin->getParent()->registerClickAction([this](...) {
-      this->addCoin((uint)this->videoDetailResult.aid);
+      this->addCoin((unsigned int)this->videoDetailResult.aid);
       /// 点赞投币后，需要等待反馈后，再更新UI
       std::thread updateUI([this]() {
         sleep(1);
@@ -315,7 +317,7 @@ void PlayerActivity::showShareDialog(const std::string link){
 }
 
 void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult &result) {
-    Logger::debug("[onVideoInfo] title:{} author:{}", result.title, result.owner.name);
+    brls::Logger::debug("[onVideoInfo] title:{} author:{}", result.title, result.owner.name);
 
     // user info
     auto& user = this->userDetailResult;
@@ -357,7 +359,7 @@ void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult &result) {
 
 void PlayerActivity::onVideoPageListInfo(const bilibili::VideoDetailPageListResult &result) {
     for(const auto& i : result){
-        Logger::debug("cid:{} title:{}", i.cid, i.part);
+        brls::Logger::debug("cid:{} title:{}", i.cid, i.part);
     }
 
     if(result.size() <= 1){
@@ -379,8 +381,8 @@ void PlayerActivity::onVideoPageListInfo(const bilibili::VideoDetailPageListResu
         grid->applyXMLAttribute("itemHeight", "50");
         grid->registerCell("Cell", []() { return GridRadioCell::create(); });
 
-        vector<string> items;
-        for (uint i = 0; i < result.size(); ++i) {
+        std::vector<std::string> items;
+        for (unsigned int i = 0; i < result.size(); ++i) {
             auto title = result[i].part;
             items.push_back(fmt::format("PV{} {}", i+1, title));
         }
@@ -393,7 +395,7 @@ void PlayerActivity::onVideoPageListInfo(const bilibili::VideoDetailPageListResu
 
 void PlayerActivity::onUploadedVideos(const bilibili::UserUploadedVideoResultWrapper& result) {
     for(const auto& i : result.list){
-        Logger::debug("up videos: bvid:{} title:{}", i.bvid, i.title);
+        brls::Logger::debug("up videos: bvid:{} title:{}", i.bvid, i.title);
     }
 
     if(result.page.pn == 1){
@@ -435,7 +437,7 @@ void PlayerActivity::onUploadedVideos(const bilibili::UserUploadedVideoResultWra
 }
 
 void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult & result) {
-    Logger::debug("quality: {}", result.quality);
+    brls::Logger::debug("quality: {}", result.quality);
     // todo: 将多个文件加入播放列表
     //todo: 播放失败时可以尝试备用播放链接
 
@@ -457,7 +459,7 @@ void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult & result) {
         }
     }
 
-    Logger::debug("PlayerActivity::onVideoPlayUrl done");
+    brls::Logger::debug("PlayerActivity::onVideoPlayUrl done");
 }
 
 void PlayerActivity::onCommentInfo(const bilibili::VideoCommentResultWrapper &result) {
@@ -465,7 +467,7 @@ void PlayerActivity::onCommentInfo(const bilibili::VideoCommentResultWrapper &re
     if(result.cursor.prev == 1){
         // 第一页评论
         //整合置顶评论
-        vector<bilibili::VideoCommentResult> comments(result.top_replies);
+        std::vector<bilibili::VideoCommentResult> comments(result.top_replies);
         comments.insert(comments.end(), result.replies.begin(), result.replies.end());
         this->recyclingGrid->setDataSource(new DataSourceCommentList(comments));
         // 设置评论数量提示
@@ -563,7 +565,7 @@ void PlayerActivity::onError(const std::string &error){
 }
 
 PlayerActivity::~PlayerActivity() {
-    Logger::debug("del PlayerActivity");
+    brls::Logger::debug("del PlayerActivity");
     //上报历史记录
     this->reportHistory(videoDetailResult.aid, videoDetailPage.cid, MPVCore::instance().video_progress);
     this->video->stop();
@@ -574,7 +576,7 @@ PlayerActivity::~PlayerActivity() {
 
 /// season player
 
-PlayerSeasonActivity::PlayerSeasonActivity(const u_int id, PGC_ID_TYPE type, int progress):pgc_id(id), pgcIdType(type){
+PlayerSeasonActivity::PlayerSeasonActivity(const unsigned int id, PGC_ID_TYPE type, int progress):pgc_id(id), pgcIdType(type){
     if(type == PGC_ID_TYPE::SEASON_ID){
         brls::Logger::debug("open season: {}", id);
     } else if(type == PGC_ID_TYPE::EP_ID){
@@ -585,7 +587,7 @@ PlayerSeasonActivity::PlayerSeasonActivity(const u_int id, PGC_ID_TYPE type, int
 }
 
 PlayerSeasonActivity::~PlayerSeasonActivity(){
-    Logger::debug("del PlayerSeasonActivity");
+    brls::Logger::debug("del PlayerSeasonActivity");
     //上报历史记录
     this->reportHistory(episodeResult.aid, episodeResult.cid, MPVCore::instance().video_progress, 4);
 }
@@ -633,7 +635,7 @@ void PlayerSeasonActivity::onSeasonEpisodeInfo(const bilibili::SeasonEpisodeResu
 }
 
 void PlayerSeasonActivity::onSeasonVideoInfo(const bilibili::SeasonResultWrapper& result){
-    Logger::debug("[onSeasonVideoInfo] title:{} author:{} seasonID: {}",
+    brls::Logger::debug("[onSeasonVideoInfo] title:{} author:{} seasonID: {}",
                   result.season_title, result.up_info.uname, result.season_id);
 
     auto avatar = result.up_info.avatar;
@@ -682,8 +684,8 @@ void PlayerSeasonActivity::onSeasonVideoInfo(const bilibili::SeasonResultWrapper
         grid->applyXMLAttribute("itemHeight", "50");
         grid->registerCell("Cell", []() { return GridRadioCell::create(); });
 
-        vector<string> items;
-        for (uint i = 0; i < result.episodes.size(); ++i) {
+        std::vector<std::string> items;
+        for (unsigned int i = 0; i < result.episodes.size(); ++i) {
             auto title = result.episodes[i].long_title;
             if(title.empty()){
                 title = result.episodes[i].title;

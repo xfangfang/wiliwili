@@ -30,6 +30,6 @@ public:
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "search/bangumi/recyclingGrid");
 
-    uint requestIndex = 1;
+    unsigned int requestIndex = 1;
 
 };

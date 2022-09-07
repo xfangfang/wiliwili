@@ -144,7 +144,7 @@ namespace bilibili {
         HTTP::getResultAsync<VideoRelation>(Api::VideoRelation, {{"bvid", bvid}}, callback, error);
     }
 
-    void BilibiliClient::get_danmaku(const uint cid,
+    void BilibiliClient::get_danmaku(const unsigned int cid,
                             const std::function<void(std::string)>& callback,
                             const ErrorCallback& error){
         cpr::GetCallback<>([callback, error](cpr::Response r) {
@@ -152,7 +152,7 @@ namespace bilibili {
                                 callback(r.text);
                              }
                              catch(const std::exception& e){
-                                 ERROR("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
+                                 ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
                                  printf("data: %s\n", r.text.c_str());
                                  printf("ERROR: %s\n",e.what());
                              }
@@ -167,7 +167,7 @@ namespace bilibili {
 
     /// 视频页 上报历史记录
     void BilibiliClient::report_history(const std::string& mid, const std::string& access_key,
-                                   uint aid, uint cid, int type, uint progress, uint sid, uint epid,
+                                   unsigned int aid, unsigned int cid, int type, unsigned int progress, unsigned int sid, unsigned int epid,
                                    const std::function<void()>& callback,
                                    const ErrorCallback& error){
 
@@ -189,7 +189,7 @@ namespace bilibili {
 
         HTTP::__cpr_post(Api::ProgressReport,{}, payload, [callback, error](const cpr::Response& r){
                 if(r.status_code != 200){
-                    ERROR("ERROOR: report_history: status_code: " + std::to_string(r.status_code), r.status_code);
+                    ERROR_MSG("ERROOR: report_history: status_code: " + std::to_string(r.status_code), r.status_code);
                 }else{
                     callback();
                 }
@@ -207,7 +207,7 @@ namespace bilibili {
       HTTP::__cpr_post("http://api.bilibili.com/x/web-interface/archive/like",
                        {}, payload, [callback, error](const cpr::Response& r) {
                          if (r.status_code != 200) {
-                           ERROR("ERROOR: report_history: status_code: " +
+                           ERROR_MSG("ERROOR: report_history: status_code: " +
                                      std::to_string(r.status_code),
                                  r.status_code);
                          } else {
@@ -217,7 +217,7 @@ namespace bilibili {
     }
 
     void BilibiliClient::add_coin(const std::string& access_key, int aid,
-                                  uint coin_number, bool is_like,
+                                  unsigned int coin_number, bool is_like,
                                   const std::function<void()>& callback,
                                   const ErrorCallback& error) {
       cpr::Payload payload = {
@@ -229,7 +229,7 @@ namespace bilibili {
       HTTP::__cpr_post("http://api.bilibili.com/x/web-interface/coin/add", {},
                        payload, [callback, error](const cpr::Response& r) {
                          if (r.status_code != 200) {
-                           ERROR("ERROOR: report_history: status_code: " +
+                           ERROR_MSG("ERROOR: report_history: status_code: " +
                                      std::to_string(r.status_code),
                                  r.status_code);
                          } else {

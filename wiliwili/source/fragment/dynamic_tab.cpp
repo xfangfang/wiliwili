@@ -172,13 +172,13 @@ void DynamicTab::onUpList(const bilibili::DynamicUpListResultWrapper &result){
     brls::Threading::sync([this, result]() {
         auto dataSource = new DataSourceUpList(result.items);
         upRecyclingGrid->setDataSource(dataSource);
-        dataSource->getSelectedEvent()->subscribe([this](uint mid){
+        dataSource->getSelectedEvent()->subscribe([this](unsigned int mid){
             this->changeUser(mid);
         });
     });
 }
 
-void DynamicTab::onError(const string& error){
+void DynamicTab::onError(const std::string& error){
     brls::Logger::error("DynamicTab::onError {}", error);
     brls::sync([this, error](){
         videoRecyclingGrid->setError(error);
@@ -206,14 +206,14 @@ void DynamicTab::onCreate(){
 }
 
 
-void DynamicTab::changeUser(uint mid){
+void DynamicTab::changeUser(unsigned int mid){
     this->setCurrentUser(mid);
     this->videoRecyclingGrid->showSkeleton();
     this->DynamicVideoRequest::requestData(true);
 }
 
 // 获取到动态视频
-void DynamicTab::onDynamicVideoList(const bilibili::DynamicVideoListResult &result, uint index){
+void DynamicTab::onDynamicVideoList(const bilibili::DynamicVideoListResult &result, unsigned int index){
     brls::Threading::sync([this, result, index]() {
         DataSourceDynamicVideoList* datasource = (DataSourceDynamicVideoList *)videoRecyclingGrid->getDataSource();
         if(datasource && index != 1){

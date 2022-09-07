@@ -7,7 +7,6 @@
 #include "nlohmann/json.hpp"
 #include "user_result.h"
 
-using namespace std;
 
 namespace bilibili {
 
@@ -15,12 +14,12 @@ namespace bilibili {
     class LiveUrlResult{
     public:
         std::string url;
-        uint order;
+        unsigned int order;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveUrlResult, url, order);
 
 
-    typedef vector<LiveUrlResult> LiveUrlListResult;
+    typedef std::vector<LiveUrlResult> LiveUrlListResult;
 
     class LiveUrlResultWrapper {
     public:
@@ -33,9 +32,9 @@ namespace bilibili {
     class LiveAreaResult {
     public:
         LiveAreaResult() = default;
-        LiveAreaResult(int id, string title, int area_v2_id, int area_v2_parent_id):id(id), title(title), area_v2_id(area_v2_id),area_v2_parent_id(area_v2_parent_id){}
+        LiveAreaResult(int id, std::string title, int area_v2_id, int area_v2_parent_id):id(id), title(title), area_v2_id(area_v2_id),area_v2_parent_id(area_v2_parent_id){}
         int id;
-        string title;
+        std::string title;
         int area_v2_id;
         int area_v2_parent_id;
     };
@@ -45,12 +44,12 @@ namespace bilibili {
     public:
         int roomid; // small_card_v1 roomid 标记为id
         int uid;
-        string title;
-        string uname;
+        std::string title;
+        std::string uname;
         int online;
-        string play_url;
-        string cover;
-        string area_name;
+        std::string play_url;
+        std::string cover;
+        std::string area_name;
     };
 
     inline void from_json(const nlohmann::json& nlohmann_json_j, LiveVideoResult& nlohmann_json_t) {
@@ -64,8 +63,8 @@ namespace bilibili {
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, uid, title, uname, online, play_url, cover, area_name));
     }
 
-    typedef vector<LiveVideoResult> LiveVideoListResult;
-    typedef vector<LiveAreaResult> LiveAreaListResult;
+    typedef std::vector<LiveVideoResult> LiveVideoListResult;
+    typedef std::vector<LiveAreaResult> LiveAreaListResult;
 
     class LiveResultWrapper {
     public:
@@ -77,7 +76,7 @@ namespace bilibili {
 
     inline void from_json(const nlohmann::json& nlohmann_json_j, LiveResultWrapper& nlohmann_json_t) {
         for(auto i : nlohmann_json_j.at("card_list")){
-            string card_type = i.at("card_type");
+            std::string card_type = i.at("card_type");
             auto& card_data = i.at("card_data");
 
             if(card_type.compare("area_entrance_v1") == 0){

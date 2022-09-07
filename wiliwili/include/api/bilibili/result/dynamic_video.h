@@ -13,9 +13,9 @@ namespace bilibili {
     class DynamicVideoResult {
     public:
         int aid;
-        string bvid;
-        string pic;
-        string title;
+        std::string bvid;
+        std::string pic;
+        std::string title;
         int duration;
         int pubdate;
         UserSimpleResult owner;
@@ -34,7 +34,7 @@ namespace bilibili {
     }
 
 
-    typedef vector<DynamicVideoResult> DynamicVideoListResult;
+    typedef std::vector<DynamicVideoResult> DynamicVideoListResult;
 
     class DynamicVideoListResultWrapper {
     public:
@@ -42,8 +42,8 @@ namespace bilibili {
         bool has_more;
         std::string offset;
         std::string update_baseline;
-        uint update_num;
-        uint page;
+        unsigned int update_num;
+        unsigned int page;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicVideoListResultWrapper, items, has_more, offset,update_baseline, update_num);
 
@@ -56,13 +56,13 @@ namespace bilibili {
 
     class DynamicUpResult {
     public:
-        uint has_update;
+        unsigned int has_update;
         bool is_reserve_recall;
         DynamicUp user_profile;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicUpResult, is_reserve_recall, has_update, user_profile);
 
-    typedef vector<DynamicUpResult> DynamicUpListResult;
+    typedef std::vector<DynamicUpResult> DynamicUpListResult;
 
     class DynamicUpListResultWrapper {
     public:

@@ -37,7 +37,7 @@ public:
         ASYNC_RETAIN
         brls::sync([ASYNC_TOKEN, url](){
             ASYNC_RELEASE
-            qrImage->setQRMainColor(RGB(0, 0, 0));
+            qrImage->setQRMainColor(RGBA(0, 0, 0, 255));
             qrImage->setImageFromQRContent(url);
         });
     }

@@ -146,7 +146,7 @@ VideoView::VideoView() {
 }
 
 VideoView::~VideoView(){
-    Logger::debug("trying delete VideoView...");
+    brls::Logger::debug("trying delete VideoView...");
     this->unRegisterMpvEvent();
     brls::Logger::debug("Delete VideoView done");
 }

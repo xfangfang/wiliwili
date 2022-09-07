@@ -8,8 +8,6 @@
 #include "user_result.h"
 #include "mine_result.h"
 
-using namespace std;
-
 namespace bilibili {
 
     class VideoDetailPage {
@@ -18,7 +16,7 @@ namespace bilibili {
         int page; // 分p的序号
         int duration; // 视频长度，单位秒
         int progress = -1; // 视频初始化的播放时间，用于加载历史记录
-        string part; //标题
+        std::string part; //标题
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailPage, cid, page, duration, part);
 
@@ -26,28 +24,28 @@ namespace bilibili {
 
     class VideoDetailStat {
     public:
-        uint aid;
-        uint view;
-        uint danmaku;
-        uint favorite;
-        uint coin;
-        uint share;
-        uint like;
-        uint reply;
+        unsigned int aid;
+        unsigned int view;
+        unsigned int danmaku;
+        unsigned int favorite;
+        unsigned int coin;
+        unsigned int share;
+        unsigned int like;
+        unsigned int reply;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailStat, aid, view, danmaku, favorite, coin, share, like, reply);
 
     class VideoDetailResult {
     public:
-        string bvid;
+        std::string bvid;
         int aid;
         int videos; // 视频数量
         int tid; //分类ID
         int tname; //分类名称
         int copyright; //版权声明
-        string pic; //封面图
-        string title; //标题
-        string desc; //简介
+        std::string pic; //封面图
+        std::string title; //标题
+        std::string desc; //简介
         int pubdate; //发布时间
         int ctime; //修改时间？
         int duration = 0;//时长
@@ -78,13 +76,13 @@ namespace bilibili {
 
     class UserDetailResult{
     public:
-        string mid, name, sex, rank, face, sign;
+        std::string mid, name, sex, rank, face, sign;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDetailResult, mid, name, sex, rank, face, sign);
 
     class UserDetailResultWrapper {
     public:
-        uint like_num, follower, article_count, archive_count;
+        unsigned int like_num, follower, article_count, archive_count;
         bool following;
         UserDetailResult card;
     };
@@ -168,13 +166,13 @@ namespace bilibili {
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, mode, next, is_end, prev));
     }
 
-    typedef vector<VideoCommentResult> VideoCommentListResult;
+    typedef std::vector<VideoCommentResult> VideoCommentListResult;
 
     class VideoCommentResultWrapper {
     public:
         VideoCommentCursor cursor;
-        vector<VideoCommentResult> replies;
-        vector<VideoCommentResult> top_replies;
+        std::vector<VideoCommentResult> replies;
+        std::vector<VideoCommentResult> top_replies;
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentResultWrapper& nlohmann_json_t) {
         if(!nlohmann_json_j.at("top_replies").is_null()){

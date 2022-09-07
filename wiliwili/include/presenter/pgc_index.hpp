@@ -22,7 +22,7 @@ public:
 
     void requestData(UserRequestData data, bool refresh=false);
 
-    void requestPGCIndex(const string& param, int page=1);
+    void requestPGCIndex(const std::string& param, int page=1);
 
     void requestPGCFilter();
 

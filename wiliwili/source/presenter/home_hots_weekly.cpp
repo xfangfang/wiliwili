@@ -6,9 +6,9 @@
 #include "bilibili.h"
 #include "presenter/home_hots_weekly.hpp"
 
-    void HomeHotsWeeklyRequest::requestData() {
-        this->requestHotsWeeklyList();
-    }
+void HomeHotsWeeklyRequest::requestData() {
+    this->requestHotsWeeklyList();
+}
 
 void HomeHotsWeeklyRequest::requestHotsWeeklyList() {
     bilibili::BilibiliClient::get_hots_weekly_list(
@@ -27,7 +27,7 @@ void HomeHotsWeeklyRequest::requestHotsWeeklyList() {
 
 void HomeHotsWeeklyRequest::requestHotsWeeklyVideoList(int number) {
     bilibili::BilibiliClient::get_hots_weekly(number,
-                                              [this](const bilibili::HotsWeeklyVideoListResult& result, const string& label, const string& reminder){
+                                              [this](const bilibili::HotsWeeklyVideoListResult& result, const std::string& label, const std::string& reminder){
                                                   this->onHotsWeeklyVideoList(result, label, reminder);
                                               }, [this](const std::string &error) {
                 this->onError(error);
@@ -39,8 +39,8 @@ void HomeHotsWeeklyRequest::requestHotsWeeklyVideoListByIndex(size_t index) {
     this->requestHotsWeeklyVideoList(weeklyList[index].number);
 }
 
-vector<string> HomeHotsWeeklyRequest::getWeeklyList(){
-    vector<string> res = {"刷新"};
+std::vector<std::string> HomeHotsWeeklyRequest::getWeeklyList(){
+    std::vector<std::string> res = {"刷新"};
     for(auto w: weeklyList){
         res.push_back(w.name + "    " + w.subject);
     }

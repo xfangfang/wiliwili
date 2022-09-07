@@ -534,8 +534,8 @@ void AutoTabFrame::draw(NVGcontext *vg, float x, float y, float width, float hei
         return;
 
     // draw sidebar items
-    const uint num = 6;
-    const uint itemWidth = 80;
+    const unsigned int num = 6;
+    const unsigned int itemWidth = 80;
     drawY = y + 10;
     drawX = x + padding;
     padding = 10;

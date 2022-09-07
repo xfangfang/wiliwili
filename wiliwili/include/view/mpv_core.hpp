@@ -4,13 +4,13 @@
 
 #pragma once
 
+#include "borealis.hpp"
 #include "utils/singleton.hpp"
 #include <mpv/client.h>
 #include <mpv/render_gl.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <nanovg_gl.h>
-#include "borealis.hpp"
 
 struct GLShader {
     GLuint prog;

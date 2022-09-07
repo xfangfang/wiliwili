@@ -6,15 +6,13 @@
 
 #include "nlohmann/json.hpp"
 
-using namespace std;
-
 namespace bilibili {
 
     class UserSimpleResult {
     public:
         int mid;
-        string name;
-        string face;
+        std::string name;
+        std::string face;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult, mid, name, face);
@@ -22,18 +20,18 @@ namespace bilibili {
 
     class UserSimpleResult2 {
     public:
-        string mid;
-        string uname;
-        string avatar;
+        std::string mid;
+        std::string uname;
+        std::string avatar;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult2, mid, uname, avatar);
 
     class UserSimpleResult3 {
     public:
-        uint uid;
-        string uname;
-        string face;
+        unsigned int uid;
+        std::string uname;
+        std::string face;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult3, uid, uname, face);
@@ -55,11 +53,11 @@ namespace bilibili {
 
     class SeasonUserResult {
     public:
-        uint mid = 0;
-        uint follower = 0;
-        uint is_follow = 0;
-        string uname;
-        string avatar;
+        unsigned int mid = 0;
+        unsigned int follower = 0;
+        unsigned int is_follow = 0;
+        std::string uname;
+        std::string avatar;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonUserResult, mid, uname, avatar, follower, is_follow);

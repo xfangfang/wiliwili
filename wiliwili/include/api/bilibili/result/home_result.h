@@ -7,7 +7,6 @@
 #include "nlohmann/json.hpp"
 #include "user_result.h"
 
-using namespace std;
 
 namespace bilibili {
 
@@ -21,7 +20,7 @@ namespace bilibili {
 
     class RecommendReasonResult {
     public:
-        string content;
+        std::string content;
         int reason_type;
         // 3: 点赞多
         // 1: 关注
@@ -32,10 +31,10 @@ namespace bilibili {
     class RecommendVideoResult {
     public:
         int id;
-        string bvid;
+        std::string bvid;
         int cid;
-        string pic;
-        string title;
+        std::string pic;
+        std::string title;
         int duration;
         int pubdate;
         UserSimpleResult owner;
@@ -45,7 +44,7 @@ namespace bilibili {
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RecommendVideoResult, id, bvid, cid, pic, title, duration, pubdate, owner, stat, is_followed);
 
-    typedef vector<RecommendVideoResult> RecommendVideoListResult;
+    typedef std::vector<RecommendVideoResult> RecommendVideoListResult;
 
     class RecommendVideoListResultWrapper {
     public:

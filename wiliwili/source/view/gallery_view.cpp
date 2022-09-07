@@ -105,7 +105,7 @@ void GalleryView::draw(NVGcontext *vg, float x, float y, float width, float heig
     nvgRestore(vg);
 
     // Draw bottom points
-    uint n = this->getChildren().size();
+    unsigned int n = this->getChildren().size();
     if(n <= 1)
         return;
 
@@ -117,7 +117,7 @@ void GalleryView::draw(NVGcontext *vg, float x, float y, float width, float heig
     auto drawY = height * 0.98;
 
     float offsetX = 0;
-    for(uint i=0; i<n; i++){
+    for(unsigned int i=0; i<n; i++){
         nvgBeginPath(vg);
         if(i == this->index){
             nvgFillColor(vg, RGBA(160, 160, 160, 160));

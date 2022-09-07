@@ -102,6 +102,6 @@ brls::View *HomeBangumi::create() {
     return new HomeBangumi();
 }
 
-void HomeBangumi::onError(const string& error) {
+void HomeBangumi::onError(const std::string& error) {
 
 }

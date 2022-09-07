@@ -2,12 +2,13 @@
 // Created by fang on 2022/8/18.
 //
 
-#include "bilibili.h"
-#include "presenter/dynamic_video.hpp"
 #include <borealis.hpp>
 
+#include "bilibili.h"
+#include "presenter/dynamic_video.hpp"
 
-void DynamicVideoRequest::onDynamicVideoList(const bilibili::DynamicVideoListResult &result, uint index){
+
+void DynamicVideoRequest::onDynamicVideoList(const bilibili::DynamicVideoListResult &result, unsigned int index){
 
 }
 
@@ -15,7 +16,7 @@ void DynamicVideoRequest::onError(const std::string& error){
 
 }
 
-void DynamicVideoRequest::setCurrentUser(uint mid){
+void DynamicVideoRequest::setCurrentUser(unsigned int mid){
     this->currentUser = mid;
 }
 
@@ -31,7 +32,7 @@ void DynamicVideoRequest::requestData(bool refresh){
     }
 }
 
-void DynamicVideoRequest::requestDynamicVideoList(uint page, const std::string& offset){
+void DynamicVideoRequest::requestDynamicVideoList(unsigned int page, const std::string& offset){
     bilibili::BilibiliClient::dynamic_video(page, offset,
             [this](const bilibili::DynamicVideoListResultWrapper &result) {
                 if(currentPage != result.page){

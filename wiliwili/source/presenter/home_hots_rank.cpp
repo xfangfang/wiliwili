@@ -5,8 +5,8 @@
 #include "bilibili.h"
 #include "presenter/home_hots_rank.hpp"
 
-vector<string> HomeHotsRankRequest::getRankList(){
-    vector<string> res;
+std::vector<std::string> HomeHotsRankRequest::getRankList(){
+    std::vector<std::string> res;
     for(auto it: rankList){
         res.push_back(it.key);
     }
@@ -24,7 +24,7 @@ void HomeHotsRankRequest::requestData(size_t index) {
 
 }
 
-void HomeHotsRankRequest::requestHotsRankVideoList(int rid, string type) {
+void HomeHotsRankRequest::requestHotsRankVideoList(int rid, std::string type) {
     bilibili::BilibiliClient::get_hots_rank(rid, type,
                                             [this](auto result, auto note){
                                                 this->onHotsRankList(result, note);

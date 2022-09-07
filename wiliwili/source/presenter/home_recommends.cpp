@@ -2,9 +2,8 @@
 // Created by fang on 2022/7/10.
 //
 
-
-#include "bilibili.h"
 #include "presenter/home_recommends.hpp"
+#include "bilibili.h"
 
 void Home::onRecommendVideoList(const bilibili::RecommendVideoListResult &result, int index){}
 void Home::onError(const std::string &error){}

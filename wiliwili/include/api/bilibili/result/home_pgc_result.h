@@ -8,7 +8,6 @@
 #include "user_result.h"
 #include "home_result.h"
 
-using namespace std;
 
 namespace bilibili {
 
@@ -40,7 +39,7 @@ namespace bilibili {
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, desc, cover, season_id));
     }
 
-    typedef vector<PGCItemResult> PGCItemListResult;
+    typedef std::vector<PGCItemResult> PGCItemListResult;
 
     class PGCModuleResult{
     public:
@@ -60,7 +59,7 @@ namespace bilibili {
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, size, style, items, module_id));
     }
 
-    typedef vector<PGCModuleResult> PGCModuleListResult;
+    typedef std::vector<PGCModuleResult> PGCModuleListResult;
 
     class PGCResultWrapper {
     public:
@@ -93,7 +92,7 @@ namespace bilibili {
                                                  is_finish, media_id, cover, order));
     }
 
-    typedef vector<PGCIndexResult> PGCIndexListResult;
+    typedef std::vector<PGCIndexResult> PGCIndexListResult;
 
     class PGCIndexResultWrapper {
     public:
@@ -118,7 +117,7 @@ namespace bilibili {
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PGCIndexFilterValue, keyword, name);
 
-    typedef vector<PGCIndexFilterValue> PGCIndexFilterValueList;
+    typedef std::vector<PGCIndexFilterValue> PGCIndexFilterValueList;
 
     class PGCIndexFilter{
     public:
@@ -128,7 +127,7 @@ namespace bilibili {
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PGCIndexFilter, field, values);
 
-    typedef vector<PGCIndexFilter> PGCIndexFilterList;
+    typedef std::vector<PGCIndexFilter> PGCIndexFilterList;
 
     class PGCIndexFilterWrapper{
     public:

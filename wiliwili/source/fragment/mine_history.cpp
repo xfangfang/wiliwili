@@ -7,6 +7,7 @@
 #include "activity/player_activity.hpp"
 #include "utils/number_helper.hpp"
 
+using namespace brls::literals;
 
 class DataSourceMineHistoryVideoList
         : public RecyclingGridDataSource

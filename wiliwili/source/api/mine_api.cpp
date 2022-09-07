@@ -45,7 +45,7 @@ namespace bilibili {
                 return;
             }
             catch(const std::exception& e){
-                ERROR("API error");
+                ERROR_MSG("API error");
                 printf("data: %s\n", r.text.c_str());
                 printf("ERROR: %s\n",e.what());
             }

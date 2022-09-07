@@ -166,22 +166,22 @@ namespace bilibili {
 
             /// 主页 热门 每周推荐
             static void get_hots_weekly(const int number,
-                                     const std::function<void(HotsWeeklyVideoListResult, string, string)>& callback= nullptr,
+                                     const std::function<void(HotsWeeklyVideoListResult, std::string, std::string)>& callback= nullptr,
                                      const ErrorCallback& error= nullptr);
 
             /// 主页 热门 入站必刷
             static void get_hots_history(
-                                        const std::function<void(HotsHistoryVideoListResult, string)>& callback= nullptr,
+                                        const std::function<void(HotsHistoryVideoListResult, std::string)>& callback= nullptr,
                                         const ErrorCallback& error= nullptr);
 
             /// 主页 热门 排行榜 投稿视频
-            static void get_hots_rank(const int rid, const string type="all",
-                    const std::function<void(HotsRankVideoListResult , string)>& callback= nullptr,
+            static void get_hots_rank(const int rid, const std::string type="all",
+                    const std::function<void(HotsRankVideoListResult , std::string)>& callback= nullptr,
                     const ErrorCallback& error= nullptr);
 
             /// 主页 热门 排行榜 官方
             static void get_hots_rank_pgc(const int season_type, const int day=3,
-                    const std::function<void(HotsRankPGCVideoListResult , string)>& callback= nullptr,
+                    const std::function<void(HotsRankPGCVideoListResult , std::string)>& callback= nullptr,
                     const ErrorCallback& error= nullptr);
 
             /// 主页 直播推荐
@@ -201,12 +201,12 @@ namespace bilibili {
                                     const ErrorCallback& error= nullptr);
 
             /// 主页 追番/影视 分类检索
-            static void get_pgc_index(const string& param, int page=1,
+            static void get_pgc_index(const std::string& param, int page=1,
                                    const std::function<void(PGCIndexResultWrapper)>& callback= nullptr,
                                    const ErrorCallback& error= nullptr);
 
             /// 主页 追番/影视 获取分类
-            static void get_pgc_filter(const string& index_type,
+            static void get_pgc_filter(const std::string& index_type,
                                       const std::function<void(PGCIndexFilterWrapper)>& callback= nullptr,
                                       const ErrorCallback& error= nullptr);
 
@@ -235,14 +235,14 @@ namespace bilibili {
                                          const ErrorCallback& error= nullptr);
 
             /// 视频页 获取弹幕的xml文件
-            static void get_danmaku(const uint cid,
+            static void get_danmaku(const unsigned int cid,
                                     const std::function<void(std::string)>& callback= nullptr,
                                     const ErrorCallback& error= nullptr);
 
             /// 视频页 上报历史记录
             static void report_history(const std::string& mid, const std::string& access_key,
-                                           uint aid, uint cid, int type=3, uint progress = 0,
-                                           uint sid = 0, uint epid = 0,
+                                           unsigned int aid, unsigned int cid, int type=3, unsigned int progress = 0,
+                                           unsigned int sid = 0, unsigned int epid = 0,
                                            const std::function<void()>& callback= nullptr,
                                            const ErrorCallback& error= nullptr);
             /// 点赞
@@ -253,12 +253,12 @@ namespace bilibili {
 
             /// 投币
             static void add_coin(
-                const std::string& access_key, int aid, uint coin_number,
+                const std::string& access_key, int aid, unsigned int coin_number,
                 bool is_like, const std::function<void()>& callback = nullptr,
                 const ErrorCallback& error = nullptr);
 
             /// 搜索页 获取搜索视频内容
-            static void search_video(const std::string& key, const std::string& search_type, uint index = 1,
+            static void search_video(const std::string& key, const std::string& search_type, unsigned int index = 1,
                                      const std::string& order = "",
                                      const std::function<void(SearchResult)>& callback= nullptr,
                                      const ErrorCallback& error= nullptr);
@@ -268,7 +268,7 @@ namespace bilibili {
                                         const ErrorCallback& error= nullptr);
 
             /// 动态页 获取全部关注用户的最近动态
-            static void dynamic_video(const uint page, const std::string& offset = "",
+            static void dynamic_video(const unsigned int page, const std::string& offset = "",
                                      const std::function<void(DynamicVideoListResultWrapper)>& callback= nullptr,
                                      const ErrorCallback& error= nullptr);
 

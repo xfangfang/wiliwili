@@ -8,7 +8,7 @@
 
 void DynamicTabRequest::onUpList(const bilibili::DynamicUpListResultWrapper &result){}
 
-void DynamicTabRequest::onError(const string& error){}
+void DynamicTabRequest::onError(const std::string& error){}
 
 void DynamicTabRequest::requestData(){
     this->requestUpList();

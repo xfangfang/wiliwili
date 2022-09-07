@@ -26,7 +26,7 @@ public:
 
     static View *create();
 
-    void onError(const string& error) override;
+    void onError(const std::string& error) override;
 
 private:
     BRLS_BIND(AutoTabFrame, tabFrame, "homeBangumi/tabFrame");

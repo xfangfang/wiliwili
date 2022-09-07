@@ -10,21 +10,21 @@
 class RankType {
 public:
 
-    RankType(string key, int type, int id,  string extra="all"): type(type), id(id), key(key), extra(extra){}
+    RankType(std::string key, int type, int id,  std::string extra="all"): type(type), id(id), key(key), extra(extra){}
 
     int type; // 0: 用户投稿， 1: 官方番剧
     int id;
-    string key;
-    string extra;
+    std::string key;
+    std::string extra;
 };
 
 class HomeHotsRankRequest {
 public:
-    virtual void onHotsRankList(const bilibili::HotsRankVideoListResult &result, const string& note){}
-    virtual void onHotsRankPGCList(const bilibili::HotsRankPGCVideoListResult &result, const string& note){}
+    virtual void onHotsRankList(const bilibili::HotsRankVideoListResult &result, const std::string& note){}
+    virtual void onHotsRankPGCList(const bilibili::HotsRankPGCVideoListResult &result, const std::string& note){}
     virtual void onError(const std::string& error){}
 
-    vector<RankType> rankList = {
+   std::vector<RankType> rankList = {
         {"全站",      0,      0},
         {"番剧",      1,      1},
         {"国产动画",   1,      4},
@@ -52,12 +52,12 @@ public:
         {"新人",      0,      0,      "rookie"},
     };
 
-    vector<string> getRankList();
+   std::vector<std::string> getRankList();
 
     void requestData(size_t index=0);
 
     /// 主页 热门 排行榜 投稿视频
-    void requestHotsRankVideoList(int rid, string type);
+    void requestHotsRankVideoList(int rid, std::string type);
 
     /// 主页 热门 排行榜 官方
     void requestHotsRankPGCVideoList(int season_type, int day=3);

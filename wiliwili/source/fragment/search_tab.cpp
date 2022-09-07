@@ -30,7 +30,7 @@ void SearchTab::requestData(const std::string& key){
             this->focusNthTab(1);
         });
     } catch (brls::ViewNotFoundException const& e) {
-        Logger::error("ViewNotFoundException: {}", e.what());
+        brls::Logger::error("ViewNotFoundException: {}", e.what());
     }
 
 }

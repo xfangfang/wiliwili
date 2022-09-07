@@ -104,6 +104,6 @@ void HomeCinema::onCinemaList(const bilibili::PGCResultWrapper &result){
     });
 }
 
-void HomeCinema::onError(const string& error) {
+void HomeCinema::onError(const std::string& error) {
 
 }

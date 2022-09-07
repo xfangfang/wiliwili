@@ -8,17 +8,16 @@
 #include "user_result.h"
 #include "home_result.h"
 
-using namespace std;
 
 namespace bilibili {
 
     class HotsAllVideoResult {
     public:
         int aid;
-        string bvid;
+        std::string bvid;
         int cid;
-        string pic;
-        string title;
+        std::string pic;
+        std::string title;
         int duration;
         int pubdate;
         UserSimpleResult owner;
@@ -27,7 +26,7 @@ namespace bilibili {
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsAllVideoResult, aid, bvid, cid, pic, title, duration, pubdate, owner, stat);
 
-    typedef vector<HotsAllVideoResult> HotsAllVideoListResult;
+    typedef std::vector<HotsAllVideoResult> HotsAllVideoListResult;
 
     class HotsAllVideoListResultWrapper {
     public:

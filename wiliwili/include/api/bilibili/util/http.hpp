@@ -21,7 +21,7 @@ namespace bilibili {
     const std::string BILIBILI_BUILD = "1001005000";
 
     using ErrorCallback = std::function<void(const std::string&)>;
-#define ERROR(msg, ...) if(error) error(msg)
+#define ERROR_MSG(msg, ...) if(error) error(msg)
 
     class HTTP {
     public:
@@ -43,7 +43,7 @@ namespace bilibili {
             cpr::Parameters param(parameters);
             cpr::Response r = HTTP::get(url, param);
             if( r.status_code  != 200){
-                ERROR("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
+                ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
                 return;
             }
             try{
@@ -53,11 +53,11 @@ namespace bilibili {
                     if(callback) callback(res.at("data").get<ReturnType>());
                     return;
                 } else {
-                    ERROR("Param error", code);
+                    ERROR_MSG("Param error", code);
                 }
             }
             catch(const std::exception& e){
-                if(error) ERROR("API error");
+                ERROR_MSG("API error");
                 printf("ERROR: %s\n",e.what());
             }
         }
@@ -70,7 +70,7 @@ namespace bilibili {
                 const ErrorCallback& error=nullptr){
             cpr::PostCallback([callback, error](cpr::Response r) {
                 if( r.status_code  != 200){
-                    ERROR("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
+                    ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
                     return;
                 }
                 callback(r);
@@ -117,22 +117,22 @@ namespace bilibili {
                                             if(callback) callback(res.at("result").get<ReturnType>());
                                         } else{
                                             printf("data: %s\n", r.text.c_str());
-                                            ERROR("Cannot find data");
+                                            ERROR_MSG("Cannot find data");
                                         }
                                          return;
                                      } else {
                                          if(error){
                                              if(res.at("message").is_string()){
-                                                 ERROR("error msg: " + res.at("message").get<std::string>() + \
+                                                 ERROR_MSG("error msg: " + res.at("message").get<std::string>() + \
                                                          "; error code: " + std::to_string(code));
                                              }else {
-                                                 ERROR("Param error");
+                                                 ERROR_MSG("Param error");
                                              }
                                          }
                                      }
                                  }
                                  catch(const std::exception& e){
-                                     ERROR("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
+                                     ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", -404);
                                      printf("data: %s\n", r.text.c_str());
                                      printf("ERROR: %s\n",e.what());
                                  }
@@ -177,11 +177,11 @@ namespace bilibili {
                         return;
                     } else {
                         // todo: 这里貌似code不为0时且设置了error 并没有报错
-                        ERROR("Param error");
+                        ERROR_MSG("Param error");
                     }
                 }
                 catch(const std::exception& e){
-                    ERROR("API error");
+                    ERROR_MSG("API error");
                     printf("data: %s\n", r.text.c_str());
                     printf("ERROR: %s\n",e.what());
                 }

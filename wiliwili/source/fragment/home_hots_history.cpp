@@ -69,7 +69,7 @@ brls::View* HomeHotsHistory::create() {
     return new HomeHotsHistory();
 }
 
-void HomeHotsHistory::onHotsHistoryList(const bilibili::HotsHistoryVideoListResult &result, const string& explain) {
+void HomeHotsHistory::onHotsHistoryList(const bilibili::HotsHistoryVideoListResult &result, const std::string& explain) {
     brls::Threading::sync([this, result, explain](){
         recyclingGrid->setDataSource(new DataSourceHotsHistoryVideoList(result));
         this->labelExplain->setText(explain);

@@ -87,7 +87,7 @@ void HomeHotsWeekly::onHotsWeeklyList(const bilibili::HotsWeeklyListResult &resu
 }
 
 void HomeHotsWeekly::onHotsWeeklyVideoList(const bilibili::HotsWeeklyVideoListResult &result,
-                           const string& label, const string& reminder) {
+                           const std::string& label, const std::string& reminder) {
     brls::Threading::sync([this, result, label, reminder](){
        this->weekly_reminder->setText(reminder);
        this->weekly_label->setText(label);

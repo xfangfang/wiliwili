@@ -29,7 +29,7 @@ public:
 
     PlayerActivity(std::string bvid);
 
-    PlayerActivity(std::string bvid, uint cid, int progress = -1);
+    PlayerActivity(std::string bvid, unsigned int cid, int progress = -1);
 
     void onContentAvailable() override;
 
@@ -97,7 +97,7 @@ protected:
 class PlayerSeasonActivity: public PlayerActivity {
 public:
 
-    PlayerSeasonActivity(const u_int id, PGC_ID_TYPE type=PGC_ID_TYPE::SEASON_ID, int progress = -1);
+    PlayerSeasonActivity(const unsigned int id, PGC_ID_TYPE type=PGC_ID_TYPE::SEASON_ID, int progress = -1);
 
     ~PlayerSeasonActivity() override;
 
@@ -107,7 +107,7 @@ public:
 
     void onSeasonEpisodeInfo(const bilibili::SeasonEpisodeResult& result) override;
 private:
-    u_int pgc_id;
+    unsigned int pgc_id;
     PGC_ID_TYPE pgcIdType;
     ChangeIndexEvent changeEpisodeEvent;
     BRLS_BIND(brls::Box, boxFavorites, "video/favorites/box");

@@ -25,7 +25,7 @@ void PGCIndexRequest::requestData(UserRequestData data, bool refresh){
     this->requestPGCIndex(parameters.GetContent(cpr::CurlHolder()), this->requestIndex);
 }
 
-void PGCIndexRequest::requestPGCIndex(const string& param, int page){
+void PGCIndexRequest::requestPGCIndex(const std::string& param, int page){
     ASYNC_RETAIN
     bilibili::BilibiliClient::get_pgc_index(param, page,
             [ASYNC_TOKEN](const bilibili::PGCIndexResultWrapper& result) {

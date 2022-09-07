@@ -113,7 +113,7 @@ void HomeHotsRank::onCreate() {
     });
 }
 
-void HomeHotsRank::onHotsRankList(const bilibili::HotsRankVideoListResult &result, const string& note){
+void HomeHotsRank::onHotsRankList(const bilibili::HotsRankVideoListResult &result, const std::string& note){
     brls::Threading::sync([this, result, note](){
         this->rank_note->setText(note);
         recyclingGrid->estimatedRowHeight = 257.5;
@@ -121,7 +121,7 @@ void HomeHotsRank::onHotsRankList(const bilibili::HotsRankVideoListResult &resul
     });
 }
 
-void HomeHotsRank::onHotsRankPGCList(const bilibili::HotsRankPGCVideoListResult &result, const string& note){
+void HomeHotsRank::onHotsRankPGCList(const bilibili::HotsRankPGCVideoListResult &result, const std::string& note){
     brls::Threading::sync([this, result, note](){
         this->rank_note->setText(note);
         recyclingGrid->estimatedRowHeight = 220;

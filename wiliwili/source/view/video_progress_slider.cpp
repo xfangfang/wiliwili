@@ -11,8 +11,8 @@ using namespace brls;
 VideoProgressSlider::VideoProgressSlider(){
     input = Application::getPlatform()->getInputManager();
 
-    line      = new Rectangle();
-    lineEmpty = new Rectangle();
+    line      = new brls::Rectangle();
+    lineEmpty = new brls::Rectangle();
     pointer   = new SVGImage();
 
     line->detach();

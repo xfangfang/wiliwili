@@ -85,18 +85,46 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 git clone --recursive https://github.com/xfangfang/wiliwili.git
 ```
 
-### PC本地运行（在 Linux 与 macOS 测试通过, Windows 应该也可以编译运行）
+### PC本地运行
+
+##### macOS
 
 ```shell
 # macOS: install dependencies
 brew install glfw3 glm mpv
 
+mkdir -p build && cd build
+cmake -DPLATFORM_DESKTOP=ON ..
+make wiliwili -j
+```
+
+##### Linux
+
+```shell
 # Ubuntu: install dependencies (glfw3.3 or later)
 sudo apt install libcurl4-openssl-dev libglfw3-dev libglm-dev libmpv-dev
 
-# build
-mkdir build && cd build && cmake -DPLATFORM_DESKTOP=ON ..
+mkdir -p build && cd build
+cmake -DPLATFORM_DESKTOP=ON ..
 make wiliwili -j
+```
+
+##### Windows
+
+```shell
+# Windows: install dependencies (MSYS2 MinGW64)
+pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-make \
+  git mingw-w64-x86_64-glfw mingw-w64-x86_64-glm mingw-w64-x86_64-mpv
+
+# using Ninja
+mkdir -p build && cd build
+cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release -DPLATFORM_DESKTOP=ON
+cmake --build ..
+
+# using make
+mkdir -p build && cd build
+cmake -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON ..
+mingw32-make wiliwili -j
 ```
 
 ### 交叉编译 Switch 可执行文件

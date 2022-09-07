@@ -15,8 +15,12 @@ ENDIF()
 if(PLATFORM_DESKTOP)
     message("building for Desktop")
     set(TARGET_PLATFORM desktop CACHE STRING "")
+    message("Build Type: ${CMAKE_BUILD_TYPE}")
+    SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -g2 -ggdb")
+    SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3")
 else()
     message("building for SWITCH")
+    message("Build Type: ${CMAKE_BUILD_TYPE}")
     set(CMAKE_USE_SYSTEM_ENVIRONMENT_PATH OFF)
     file(TO_CMAKE_PATH "$ENV{DEVKITPRO}" DEVKITPRO)
     if(NOT IS_DIRECTORY ${DEVKITPRO})
@@ -86,7 +90,12 @@ endif()
 
 
 # building target
-add_executable(${PROJECT_NAME} ${MAIN_SRC})
+if(WIN32)
+    add_executable(${PROJECT_NAME} WIN32 ${MAIN_SRC} app_win32.rc)
+else()
+    add_executable(${PROJECT_NAME} ${MAIN_SRC})
+endif()
+
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PRIVATE
         wiliwili/include
@@ -128,6 +137,7 @@ else()
             "${PROJECT_AUTHOR}" "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}"
             ${PROJECT_NAME}.nacp --titleid=${PROJECT_TITLEID}
             COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/resources
+            COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/icon/wiliwili.ico
             COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/test.flv
             COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/Illegal-Font.ttf
             COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/Wingdings.ttf

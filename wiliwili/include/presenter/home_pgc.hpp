@@ -14,7 +14,7 @@ class HomeBangumiRequest {
 public:
     virtual void onBangumiList(const bilibili::PGCResultWrapper &result);
 
-    virtual void onError(const string& error);
+    virtual void onError(const std::string& error);
 
     void requestData(bool refresh = true);
 
@@ -29,7 +29,7 @@ class HomeCinemaRequest {
 public:
     virtual void onCinemaList(const bilibili::PGCResultWrapper &result);
 
-    virtual void onError(const string& error);
+    virtual void onError(const std::string& error);
 
     void requestData(bool refresh = true);
 

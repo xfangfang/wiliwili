@@ -50,8 +50,4 @@ public:
 
     void buttonsProcessing();
     void updateUI();
-
-private:
-
-
 };

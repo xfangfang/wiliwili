@@ -15,10 +15,6 @@
 //#include "activity/pgc_index_activity.hpp"
 //#include "activity/player_activity.hpp"
 
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <sys/errno.h>
-#include <unistd.h>
 
 #define DISK_LOG
 
@@ -31,7 +27,7 @@ int main(int argc, char* argv[])
     cpr::async::startup(1, THREAD_POOL_MAX_THREAD_NUM);
 
     // Set log level
-    brls::Logger::setLogLevel(brls::LogLevel::ERROR);
+    brls::Logger::setLogLevel(brls::LogLevel::LOG_ERROR);
     brls::Logger::debug("std::thread::hardware_concurrency(): {}", std::thread::hardware_concurrency());
 
 #ifdef DISK_LOG

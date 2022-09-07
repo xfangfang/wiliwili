@@ -7,22 +7,21 @@
 #include "nlohmann/json.hpp"
 #include "bilibili/result/user_result.h"
 
-using namespace std;
 
 namespace bilibili {
 
     class SeasonEpisodeResult {
     public:
-        uint aid;
-        uint cid;
-        uint id; //ep id
+        unsigned int aid;
+        unsigned int cid;
+        unsigned int id; //ep id
         std::string bvid;
-        uint duration;
+        unsigned int duration;
         std::string title;
         std::string long_title;
         std::string subtitle;
         std::string link;
-        uint pub_time;
+        unsigned int pub_time;
 
         int progress = -1; //用于从历史记录加载进播放页
     };
@@ -34,25 +33,25 @@ namespace bilibili {
     class SeasonRatingResult {
     public:
         float score = -1;
-        uint count = 0;
+        unsigned int count = 0;
     };
     inline void from_json(const nlohmann::json& nlohmann_json_j, SeasonRatingResult& nlohmann_json_t) {
         NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, score, count));
     }
 
 
-    typedef vector<SeasonEpisodeResult> SeasonEpisodeListResult;
+    typedef std::vector<SeasonEpisodeResult> SeasonEpisodeListResult;
 
     class SeasonDetailStat {
     public:
-        uint views = 0;
-        uint danmakus = 0;
-        uint favorite = 0;
-        uint favorites = 0;
-        uint coins = 0;
-        uint share = 0;
-        uint likes = 0;
-        uint reply = 0;
+        unsigned int views = 0;
+        unsigned int danmakus = 0;
+        unsigned int favorite = 0;
+        unsigned int favorites = 0;
+        unsigned int coins = 0;
+        unsigned int share = 0;
+        unsigned int likes = 0;
+        unsigned int reply = 0;
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonDetailStat, views, danmakus, favorite, favorites, coins, share, likes, reply);
 
@@ -65,7 +64,7 @@ namespace bilibili {
 
     class SeasonResultWrapper {
     public:
-        uint season_id;
+        unsigned int season_id;
         std::string season_title;
         std::string season_desc;
         SeasonEpisodeListResult episodes;

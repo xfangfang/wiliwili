@@ -9,8 +9,6 @@
 #include "utils/image_helper.hpp"
 
 
-using namespace brls;
-
 enum class InfoHintType
 {
     UP_FOLLOWING,           // 已关注

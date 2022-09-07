@@ -1,12 +1,11 @@
 //
 // Created by fang on 2022/8/9.
 //
-
-#include "presenter/video_detail.hpp"
-#include "borealis.hpp"
 #include <tinyxml2.h>
-#include "utils/config_helper.hpp"
 #include "pystring.h"
+#include "borealis.hpp"
+#include "presenter/video_detail.hpp"
+#include "utils/config_helper.hpp"
 #include "view/mpv_core.hpp"
 
 /// 请求视频数据
@@ -40,7 +39,7 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID){
             // todo: 番剧中除了正片之外的视频也可能被调用
             if(epID != 0){
                 for (auto i: result.episodes) {
-                    if(i.id == (uint)epID){
+                    if(i.id == (unsigned int)epID){
                         brls::Logger::debug("P{} {} epid: {}", i.title, i.long_title, i.id);
                         int progress = episodeResult.progress;
                         episodeResult = i;
@@ -67,7 +66,7 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID){
 }
 
 /// 获取视频信息：标题、作者、简介、分P等
-void VideoDetail::requestVideoInfo(const string bvid) {
+void VideoDetail::requestVideoInfo(const std::string bvid) {
 
     // 重置MPV
     MPVCore::instance().reset();
@@ -284,7 +283,7 @@ void VideoDetail::requestVideoRelationInfo(const std::string& bvid){
 }
 
 /// 获取视频弹幕
-void VideoDetail::requestVideoDanmaku(const uint cid){
+void VideoDetail::requestVideoDanmaku(const unsigned int cid){
     ASYNC_RETAIN
     bilibili::BilibiliClient::get_danmaku(cid,
         [ASYNC_TOKEN](const std::string& result){
@@ -328,13 +327,13 @@ void VideoDetail::requestVideoDanmaku(const uint cid){
 }
 
 /// 上报历史记录
-void VideoDetail::reportHistory(uint aid, uint cid, uint progress, int type){
+void VideoDetail::reportHistory(unsigned int aid, unsigned int cid, unsigned int progress, int type){
     brls::Logger::debug("reportHistory: aid{} cid{} progress{}", aid, cid, progress);
     std::string mid = ProgramConfig::instance().getUserID();
     std::string token = ProgramConfig::instance().getCSRF();
     if(mid == "" || token == "")
         return;
-    uint sid = 0, epid = 0;
+    unsigned int sid = 0, epid = 0;
     if(type == 4){
         sid = seasonInfo.season_id;
         epid = episodeResult.id;

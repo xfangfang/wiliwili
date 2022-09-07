@@ -6,15 +6,22 @@ if (PLATFORM_DESKTOP)
     if (APPLE)
         set(CPR_FORCE_DARWINSSL_BACKEND ON)
     endif ()
+    if(WIN32)
+        set(CPR_FORCE_USE_SYSTEM_CURL OFF)
+        set(CPR_FORCE_WINSSL_BACKEND ON)
+    endif()
 else()
     set(CPR_FORCE_MBEDTLS_BACKEND ON)
 endif()
+
+set(BUILD_SHARED_LIBS OFF)
 FetchContent_Declare(cpr
         GIT_REPOSITORY https://github.com/libcpr/cpr.git
         GIT_TAG 7a02d679308a19220e3b75616c18ff9e8deb5f9a) # cpr 1.9.1
 FetchContent_MakeAvailable(cpr)
 
 #import lunasvg
+set(BUILD_SHARED_LIBS OFF)
 FetchContent_Declare(lunasvg
         GIT_REPOSITORY https://github.com/sammycage/lunasvg.git
         GIT_TAG ef111f983225d7598cb9044796ed3b1146927135)
