@@ -12,43 +12,40 @@
 
 class HomeBangumiRequest {
 public:
-    virtual void onBangumiList(const bilibili::PGCResultWrapper &result);
+    virtual void onBangumiList(const bilibili::PGCResultWrapper& result);
 
     virtual void onError(const std::string& error);
 
     void requestData(bool refresh = true);
 
-    void requestBangumiList(int is_refresh=0, std::string cursor="0");
+    void requestBangumiList(int is_refresh = 0, std::string cursor = "0");
 
 protected:
     std::string next_cursor = "";
-    int refresh_flag = 0;
+    int refresh_flag        = 0;
 };
 
 class HomeCinemaRequest {
 public:
-    virtual void onCinemaList(const bilibili::PGCResultWrapper &result);
+    virtual void onCinemaList(const bilibili::PGCResultWrapper& result);
 
     virtual void onError(const std::string& error);
 
     void requestData(bool refresh = true);
 
-    void requestCinemaList(int is_refresh=0, std::string cursor="0");
+    void requestCinemaList(int is_refresh = 0, std::string cursor = "0");
 
 protected:
     std::string next_cursor = "";
-    int refresh_flag = 0;
+    int refresh_flag        = 0;
 };
 
-
-
-class DataSourcePGCVideoList
-        : public RecyclingGridDataSource
-{
+class DataSourcePGCVideoList : public RecyclingGridDataSource {
 public:
     DataSourcePGCVideoList(bilibili::PGCModuleResult result);
 
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override;
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override;
 
     size_t getItemCount() override;
 

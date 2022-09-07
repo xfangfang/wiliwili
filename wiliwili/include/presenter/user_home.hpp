@@ -11,11 +11,11 @@
 
 class UserHome {
 public:
-    virtual void onError(){}
-    virtual void onUserInfo(const bilibili::UserResult& data){}
-    virtual void onUserDynamicStat(const bilibili::UserDynamicCount& data){}
-    virtual void onUserRelationStat(const bilibili::UserRelationStat& data){}
-    virtual void onUserNotLogin(){}
+    virtual void onError() {}
+    virtual void onUserInfo(const bilibili::UserResult& data) {}
+    virtual void onUserDynamicStat(const bilibili::UserDynamicCount& data) {}
+    virtual void onUserRelationStat(const bilibili::UserRelationStat& data) {}
+    virtual void onUserNotLogin() {}
 
     void requestData() {
         this->getUserInfo();
@@ -24,33 +24,40 @@ public:
         this->getUserRelationStat(mid);
     }
 
-    void getUserInfo(){
-        bilibili::BilibiliClient::get_my_info([this](const bilibili::UserResult& data){
-            this->userInfo = data;
-            this->onUserInfo(this->userInfo);
-        }, [this](const std::string& error){
-            brls::Logger::error("getUserInfo: {}", error);
-            this->onUserNotLogin();
-        });
+    void getUserInfo() {
+        bilibili::BilibiliClient::get_my_info(
+            [this](const bilibili::UserResult& data) {
+                this->userInfo = data;
+                this->onUserInfo(this->userInfo);
+            },
+            [this](const std::string& error) {
+                brls::Logger::error("getUserInfo: {}", error);
+                this->onUserNotLogin();
+            });
     }
 
     void getUserDynamicStat(const std::string& mid) {
-        bilibili::BilibiliClient::get_user_dynamic_count(mid, [this](const bilibili::UserDynamicCount& data){
-            this->onUserDynamicStat(data);
-        }, [](const std::string& error){
-            brls::Logger::error("getUserDynamicStat: {}", error);
-        });
+        bilibili::BilibiliClient::get_user_dynamic_count(
+            mid,
+            [this](const bilibili::UserDynamicCount& data) {
+                this->onUserDynamicStat(data);
+            },
+            [](const std::string& error) {
+                brls::Logger::error("getUserDynamicStat: {}", error);
+            });
     }
 
     void getUserRelationStat(const std::string& mid) {
-        bilibili::BilibiliClient::get_user_relation(mid, [this](const bilibili::UserRelationStat& data){
-            this->onUserRelationStat(data);
-        }, [](const std::string& error){
-            brls::Logger::error("getUserRelationStat: {}", error);
-        });
+        bilibili::BilibiliClient::get_user_relation(
+            mid,
+            [this](const bilibili::UserRelationStat& data) {
+                this->onUserRelationStat(data);
+            },
+            [](const std::string& error) {
+                brls::Logger::error("getUserRelationStat: {}", error);
+            });
     }
 
 private:
     bilibili::UserResult userInfo;
 };
-

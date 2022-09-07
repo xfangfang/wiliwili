@@ -8,7 +8,8 @@
 
 class Home {
 public:
-    virtual void onRecommendVideoList(const bilibili::RecommendVideoListResult &result, int index);
+    virtual void onRecommendVideoList(
+        const bilibili::RecommendVideoListResult &result, int index);
     virtual void onError(const std::string &error);
 
     void requestData(bool refresh = false);

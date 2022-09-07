@@ -10,17 +10,13 @@
 #include <borealis.hpp>
 
 class UpUserSmall : public brls::Box {
-
 public:
     UpUserSmall();
 
     ~UpUserSmall();
 
-    static View *create() {
-        return new UpUserSmall();
-    }
+    static View *create() { return new UpUserSmall(); }
 
 private:
     // BRLS_BIND(brls::Label, label, "UpUserSmall/label")
-
 };

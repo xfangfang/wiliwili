@@ -23,28 +23,15 @@
 
 typedef std::function<brls::View*(void)> TabViewCreator;
 
-enum class AutoTabBarPosition
-{
-    TOP,
-    LEFT,
-    RIGHT
-};
+enum class AutoTabBarPosition { TOP, LEFT, RIGHT };
 
-enum class AutoTabBarStyle
-{
-    ACCENT,
-    PLAIN,
-    NONE
-};
-
+enum class AutoTabBarStyle { ACCENT, PLAIN, NONE };
 
 class AutoSidebarItemGroup;
 class AttachedView;
 class SVGImage;
 
-
-class AutoSidebarItem : public brls::Box
-{
+class AutoSidebarItem : public brls::Box {
 public:
     AutoSidebarItem();
 
@@ -104,19 +91,18 @@ private:
 
     AutoTabBarStyle tabStyle = AutoTabBarStyle::NONE;
 
-    NVGcolor tabItemBackgroundColor = nvgRGBA(0, 0, 0, 0);
+    NVGcolor tabItemBackgroundColor       = nvgRGBA(0, 0, 0, 0);
     NVGcolor tabItemActiveBackgroundColor = nvgRGBA(0, 0, 0, 0);
-    NVGcolor tabItemActiveTextColor = brls::Application::getTheme()["brls/text"];
+    NVGcolor tabItemActiveTextColor =
+        brls::Application::getTheme()["brls/text"];
 
-    bool active = false;
-    View* attachedView = nullptr;
+    bool active                        = false;
+    View* attachedView                 = nullptr;
     TabViewCreator attachedViewCreator = nullptr;
     std::string iconDefault, iconActivate;
 };
 
-
-class AutoSidebarItemGroup
-{
+class AutoSidebarItemGroup {
 public:
     void add(AutoSidebarItem* item);
     void setActive(AutoSidebarItem* item);
@@ -128,8 +114,7 @@ private:
     std::vector<AutoSidebarItem*> items;
 };
 
-
-class AttachedView : public brls::Box{
+class AttachedView : public brls::Box {
 public:
     AttachedView();
 
@@ -139,39 +124,41 @@ public:
     ~AttachedView();
 
     virtual void onCreate();
-    
-    View * getDefaultFocus() override{
-        return brls::Box::getDefaultFocus();
-    }
 
-    void registerTabAction(std::string hintText, enum brls::ControllerButton button, brls::ActionListener action,
-            bool hidden = false, bool allowRepeating = false, enum brls::Sound sound = brls::SOUND_NONE);
+    View* getDefaultFocus() override { return brls::Box::getDefaultFocus(); }
+
+    void registerTabAction(std::string hintText,
+                           enum brls::ControllerButton button,
+                           brls::ActionListener action, bool hidden = false,
+                           bool allowRepeating    = false,
+                           enum brls::Sound sound = brls::SOUND_NONE);
+
 private:
     AutoSidebarItem* tab = nullptr;
 };
 
-
-class AutoTabFrame : public brls::Box{
+class AutoTabFrame : public brls::Box {
 public:
     AutoTabFrame();
     void handleXMLElement(tinyxml2::XMLElement* element) override;
     void addTab(AutoSidebarItem* tab, TabViewCreator creator);
     void focusTab(int position);
     void clearTabs();
-    void clearTab(const std::string& name, bool onlyFirst=true);
+    void clearTab(const std::string& name, bool onlyFirst = true);
     bool isHaveTab(const std::string& name);
     AutoSidebarItem* getTab(const std::string& name);
 
     static brls::View* create();
     ~AutoTabFrame();
 
-    void setTabAttachedView(brls::View * newContent);
+    void setTabAttachedView(brls::View* newContent);
 
     void setDefaultTabIndex(size_t index);
 
     size_t getDefaultTabIndex();
 
-    brls::View* getNextFocus(brls::FocusDirection direction, brls::View* currentView) override;
+    brls::View* getNextFocus(brls::FocusDirection direction,
+                             brls::View* currentView) override;
 
     void setItemDefaultBackgroundColor(NVGcolor c);
 
@@ -189,7 +176,8 @@ public:
 
     void setDemandMode(bool value);
 
-    void addItem(AutoSidebarItem* tab, TabViewCreator creator, brls::GenericEvent::Callback focusCallback);
+    void addItem(AutoSidebarItem* tab, TabViewCreator creator,
+                 brls::GenericEvent::Callback focusCallback);
 
     AutoSidebarItem* getItem(int position);
 
@@ -210,8 +198,8 @@ public:
 
     bool isOnTop = false;
 
-    void draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
-              brls::FrameContext *ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height,
+              brls::Style style, brls::FrameContext* ctx) override;
 
     /**
      * Setting the position of sidebar.
@@ -224,17 +212,18 @@ public:
 private:
     BRLS_BIND(Box, sidebar, "auto_tab_frame/auto_sidebar");
 
-    View* activeTab = nullptr;
+    View* activeTab                   = nullptr;
     AutoTabBarPosition tabBarPosition = AutoTabBarPosition::LEFT;
 
     AutoSidebarItemGroup group;
-    bool isHorizontal = false;
-    bool isDemandMode = true; // load pages on demand
+    bool isHorizontal  = false;
+    bool isDemandMode  = true;  // load pages on demand
     float itemFontSize = 22;
     float sidebarWidth = 100;
 
     NVGcolor skeletonBackground = brls::Application::getTheme()["color/grey_3"];
-    NVGcolor tabItemBackgroundColor = nvgRGBA(0, 0, 0, 0);
+    NVGcolor tabItemBackgroundColor       = nvgRGBA(0, 0, 0, 0);
     NVGcolor tabItemActiveBackgroundColor = nvgRGBA(0, 0, 0, 0);
-    NVGcolor tabItemActiveTextColor = brls::Application::getTheme()["brls/text"];
+    NVGcolor tabItemActiveTextColor =
+        brls::Application::getTheme()["brls/text"];
 };

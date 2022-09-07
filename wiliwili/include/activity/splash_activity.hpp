@@ -6,7 +6,6 @@
 
 #include <borealis.hpp>
 
-
 class VideoView;
 
 class SplashActivity : public brls::Activity {
@@ -21,5 +20,5 @@ public:
     ~SplashActivity();
 
 private:
-//    BRLS_BIND(VideoView, video, "video/detail/video");
+    //    BRLS_BIND(VideoView, video, "video/detail/video");
 };

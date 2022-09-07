@@ -9,18 +9,17 @@
 #include <ctime>
 #include <random>
 
-class ImageCache{
+class ImageCache {
 public:
-    ImageCache(std::string d, size_t l): data(d),length(l){}
+    ImageCache(std::string d, size_t l) : data(d), length(l) {}
 
     std::string data;
     size_t length = 0;
 
     int requestCache(const std::string& url);
-
 };
 
-class ImageHelper{
+class ImageHelper {
 public:
     static std::vector<std::shared_ptr<ImageHelper>> imagePool;
     static std::default_random_engine random_engine;
@@ -50,9 +49,8 @@ public:
 
     brls::Image* getImageView();
 
-
 private:
-    bool isCancel = false;
+    bool isCancel  = false;
     bool available = true;
     brls::View* currentView;
     brls::Image* imageView;

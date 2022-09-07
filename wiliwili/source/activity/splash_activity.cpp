@@ -12,8 +12,6 @@ void SplashActivity::onContentAvailable() {
     brls::Logger::debug("SplashActivityActivity: onContentAvailable");
 }
 
-
 SplashActivity::~SplashActivity() {
     brls::Logger::debug("SplashActivityActivity: delete");
 }
-

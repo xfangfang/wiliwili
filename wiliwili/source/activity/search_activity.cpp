@@ -13,27 +13,26 @@ SearchActivity::SearchActivity(const std::string& key) {
 
 void SearchActivity::onContentAvailable() {
     brls::Logger::debug("SearchActivity: onContentAvailable");
-    if(!currentKey.empty()){
+    if (!currentKey.empty()) {
         this->search(currentKey);
     }
 
     this->registerAction("搜索", brls::ControllerButton::BUTTON_Y,
-                            [this](brls::View* view)-> bool {
-                                brls::Swkbd::openForText([&](std::string text) {
-                                    this->search(text);
-                                }, "搜索你感兴趣的视频", "", 32, SearchActivity::currentKey, 0);
-                                return true;
-                            });
+                         [this](brls::View* view) -> bool {
+                             brls::Swkbd::openForText(
+                                 [&](std::string text) { this->search(text); },
+                                 "搜索你感兴趣的视频", "", 32,
+                                 SearchActivity::currentKey, 0);
+                             return true;
+                         });
 
-    this->getUpdateSearchEvent()->subscribe([this](const std::string& s) {
-        this->search(s);
-    });
+    this->getUpdateSearchEvent()->subscribe(
+        [this](const std::string& s) { this->search(s); });
     this->searchTab->passEventToSearchHots(&updateSearchEvent);
 }
 
-void SearchActivity::search(const std::string& key){
-    if(key.empty())
-        return;
+void SearchActivity::search(const std::string& key) {
+    if (key.empty()) return;
     SearchActivity::currentKey = key;
     this->labelSearchKey->setText(key);
 
@@ -44,6 +43,6 @@ SearchActivity::~SearchActivity() {
     brls::Logger::debug("SearchActivity: delete");
 }
 
-UpdateSearchEvent *SearchActivity::getUpdateSearchEvent() {
+UpdateSearchEvent* SearchActivity::getUpdateSearchEvent() {
     return &this->updateSearchEvent;
 }

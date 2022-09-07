@@ -13,31 +13,30 @@
 #include "view/auto_tab_frame.hpp"
 
 namespace brls {
-    class Label;
+class Label;
 };
 class RecyclingGrid;
 class RecyclingGridItemVideoCard;
 
-
-class HomeHotsWeekly : public AttachedView, public HomeHotsWeeklyRequest{
-
+class HomeHotsWeekly : public AttachedView, public HomeHotsWeeklyRequest {
 public:
     HomeHotsWeekly();
 
     ~HomeHotsWeekly();
 
-    static View *create();
+    static View* create();
 
     void onCreate() override;
 
-    void onHotsWeeklyList(const bilibili::HotsWeeklyListResult &result) override;
-    void onHotsWeeklyVideoList(const bilibili::HotsWeeklyVideoListResult &result,
-                                       const std::string& label, const std::string& reminder) override;
+    void onHotsWeeklyList(
+        const bilibili::HotsWeeklyListResult& result) override;
+    void onHotsWeeklyVideoList(
+        const bilibili::HotsWeeklyVideoListResult& result,
+        const std::string& label, const std::string& reminder) override;
     void onError(const std::string& error) override;
 
 private:
-     BRLS_BIND(brls::Label, weekly_reminder, "home/hots/weekly/reminder");
-     BRLS_BIND(brls::Label, weekly_label, "home/hots/weekly/label");
-     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/hots/weekly/recyclingGrid");
-
+    BRLS_BIND(brls::Label, weekly_reminder, "home/hots/weekly/reminder");
+    BRLS_BIND(brls::Label, weekly_label, "home/hots/weekly/label");
+    BRLS_BIND(RecyclingGrid, recyclingGrid, "home/hots/weekly/recyclingGrid");
 };

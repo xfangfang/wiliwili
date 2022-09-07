@@ -14,17 +14,17 @@
 #include "view/recycling_grid.hpp"
 
 class MineCollectionVideoList : public brls::Box {
-
 public:
     MineCollectionVideoList(const bilibili::CollectionResult& data);
 
     ~MineCollectionVideoList();
 
-    static View *create(const bilibili::CollectionResult& data);
+    static View* create(const bilibili::CollectionResult& data);
 
     void requestCollectionList();
 
-    void onCollectionList(const bilibili::CollectionVideoListResultWrapper &result);
+    void onCollectionList(
+        const bilibili::CollectionVideoListResultWrapper& result);
 
 private:
     bilibili::CollectionResult collectionData;
@@ -35,5 +35,4 @@ private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "collection/recyclingGrid");
 
     unsigned int requestIndex = 1;
-
 };

@@ -5,39 +5,37 @@
 #include "bilibili.h"
 #include "presenter/home_hots_rank.hpp"
 
-std::vector<std::string> HomeHotsRankRequest::getRankList(){
+std::vector<std::string> HomeHotsRankRequest::getRankList() {
     std::vector<std::string> res;
-    for(auto it: rankList){
+    for (auto it : rankList) {
         res.push_back(it.key);
     }
     return res;
 }
 
 void HomeHotsRankRequest::requestData(size_t index) {
-    if(index >= rankList.size()) return;
+    if (index >= rankList.size()) return;
     auto item = rankList[index];
-    if(item.type){
+    if (item.type) {
         this->requestHotsRankPGCVideoList(item.id);
     } else {
         this->requestHotsRankVideoList(item.id, item.extra);
     }
-
 }
 
 void HomeHotsRankRequest::requestHotsRankVideoList(int rid, std::string type) {
-    bilibili::BilibiliClient::get_hots_rank(rid, type,
-                                            [this](auto result, auto note){
-                                                this->onHotsRankList(result, note);
-                                            }, [this](const std::string &error) {
-                this->onError(error);
-            });
+    bilibili::BilibiliClient::get_hots_rank(
+        rid, type,
+        [this](auto result, auto note) { this->onHotsRankList(result, note); },
+        [this](const std::string &error) { this->onError(error); });
 }
 
-void HomeHotsRankRequest::requestHotsRankPGCVideoList(int season_type, int day) {
-    bilibili::BilibiliClient::get_hots_rank_pgc(season_type, day,
-                                                [this](auto result, auto explain){
-                                                    this->onHotsRankPGCList(result, explain);
-                                                }, [this](const std::string &error) {
-                this->onError(error);
-            });
+void HomeHotsRankRequest::requestHotsRankPGCVideoList(int season_type,
+                                                      int day) {
+    bilibili::BilibiliClient::get_hots_rank_pgc(
+        season_type, day,
+        [this](auto result, auto explain) {
+            this->onHotsRankPGCList(result, explain);
+        },
+        [this](const std::string &error) { this->onError(error); });
 }

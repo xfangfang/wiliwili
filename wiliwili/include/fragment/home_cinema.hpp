@@ -13,7 +13,6 @@
 #include "view/auto_tab_frame.hpp"
 
 class HomeCinema : public AttachedView, public HomeCinemaRequest {
-
 public:
     HomeCinema();
 
@@ -25,9 +24,8 @@ public:
 
     static View *create();
 
-    void onError(const std::string& error) override;
+    void onError(const std::string &error) override;
 
 private:
     BRLS_BIND(AutoTabFrame, tabFrame, "homeCinema/tabFrame");
-
 };

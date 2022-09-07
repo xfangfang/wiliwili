@@ -42,21 +42,22 @@ const std::string galleryItemInstallNSPXML = R"xml(
     </brls:Box>
 )xml";
 
-class GalleryItemInstallNSP: public GalleryItem{
+class GalleryItemInstallNSP : public GalleryItem {
 public:
-    GalleryItemInstallNSP(){
+    GalleryItemInstallNSP() {
         this->inflateFromXMLString(galleryItemInstallNSPXML);
 
-        button->registerClickAction([](...) -> bool{
-            auto dialog = new brls::Dialog("在 真实系统 安装桌面图标可能导致ban机\n请再次确认");
-            dialog->addButton("hints/cancel"_i18n, [](){});
-            dialog->addButton("hints/ok"_i18n, [](){
+        button->registerClickAction([](...) -> bool {
+            auto dialog = new brls::Dialog(
+                "在 真实系统 安装桌面图标可能导致ban机\n请再次确认");
+            dialog->addButton("hints/cancel"_i18n, []() {});
+            dialog->addButton("hints/ok"_i18n, []() {
 #ifdef BUILTIN_NSP
                 brls::Application::blockInputs();
 
                 mini::InstallSD("romfs:/nsp_forwarder.nsp");
-                unsigned long long AppTitleID =  mini::GetTitleID();
-                appletRequestLaunchApplication (AppTitleID , NULL);
+                unsigned long long AppTitleID = mini::GetTitleID();
+                appletRequestLaunchApplication(AppTitleID, NULL);
 #endif
             });
             dialog->open();
@@ -75,20 +76,19 @@ HintActivity::HintActivity() {
 void HintActivity::onContentAvailable() {
     brls::Logger::debug("HintActivityActivity: onContentAvailable");
 
-
 #ifdef BUILTIN_NSP
     gallery->setData({
-        {"pictures/hint_game_1.png",    "wiliwili/hint1"_i18n},
-        {"pictures/hint_game_2.png",    "wiliwili/hint2"_i18n},
-        {"pictures/hint_hbmenu.png",    "wiliwili/hint3"_i18n},
+        {"pictures/hint_game_1.png", "wiliwili/hint1"_i18n},
+        {"pictures/hint_game_2.png", "wiliwili/hint2"_i18n},
+        {"pictures/hint_hbmenu.png", "wiliwili/hint3"_i18n},
     });
     gallery->addCustomView(new GalleryItemInstallNSP());
 #else
     gallery->setData({
-        {"pictures/hint_game_1.png",    "wiliwili/hint1"_i18n},
-        {"pictures/hint_game_2.png",    "wiliwili/hint2"_i18n},
-        {"pictures/hint_hbmenu.png",    "wiliwili/hint3"_i18n},
-        {"pictures/hint_wiliwili.png",  "wiliwili/hint4"_i18n},
+        {"pictures/hint_game_1.png", "wiliwili/hint1"_i18n},
+        {"pictures/hint_game_2.png", "wiliwili/hint2"_i18n},
+        {"pictures/hint_hbmenu.png", "wiliwili/hint3"_i18n},
+        {"pictures/hint_wiliwili.png", "wiliwili/hint4"_i18n},
     });
 #endif
 }

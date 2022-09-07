@@ -11,7 +11,6 @@
 
 #include <borealis.hpp>
 
-
 #include "bilibili.h"
 #include "bilibili/result/search_result.h"
 #include "view/recycling_grid.hpp"
@@ -24,37 +23,36 @@ class SearchCinema;
 class SearchHots;
 typedef brls::Event<std::string> UpdateSearchEvent;
 
-class DataSourceSearchVideoList
-        : public RecyclingGridDataSource
-{
+class DataSourceSearchVideoList : public RecyclingGridDataSource {
 public:
-    DataSourceSearchVideoList(bilibili::VideoItemSearchListResult result):list(result){
+    DataSourceSearchVideoList(bilibili::VideoItemSearchListResult result)
+        : list(result) {}
 
-    }
-
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index){
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
         //从缓存列表中取出 或者 新生成一个表单项
-        RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
+        RecyclingGridItemVideoCard* item =
+            (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::VideoItemSearchResult& r = this->list[index];
-        item->setCard(r.cover+"@672w_378h_1c.jpg",r.title,r.subtitle,r.pubdate, r.play, r.danmaku, "");
+        item->setCard(r.cover + "@672w_378h_1c.jpg", r.title, r.subtitle,
+                      r.pubdate, r.play, r.danmaku, "");
         return item;
     }
 
-    size_t getItemCount() {
-        return list.size();
-    }
+    size_t getItemCount() { return list.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) {
         auto video = list[index];
-        if(!video.bvid.empty()){
-            brls::Application::pushActivity(new PlayerActivity(list[index].bvid));
-        } else if(video.season_id != 0){
-            brls::Application::pushActivity(new PlayerSeasonActivity(list[index].season_id));
+        if (!video.bvid.empty()) {
+            brls::Application::pushActivity(
+                new PlayerActivity(list[index].bvid));
+        } else if (video.season_id != 0) {
+            brls::Application::pushActivity(
+                new PlayerSeasonActivity(list[index].season_id));
         }
     }
 
-    void appendData(const bilibili::VideoItemSearchListResult& data){
+    void appendData(const bilibili::VideoItemSearchListResult& data) {
         this->list.insert(this->list.end(), data.begin(), data.end());
     }
 
@@ -63,19 +61,18 @@ private:
 };
 
 class SearchTab : public brls::Box {
-
 public:
     SearchTab();
 
     ~SearchTab();
 
-    static View *create();
+    static View* create();
 
     void requestData(const std::string& key);
 
     inline static std::string keyWord = "";
 
-    void passEventToSearchHots(UpdateSearchEvent *updateSearchEvent);
+    void passEventToSearchHots(UpdateSearchEvent* updateSearchEvent);
 
     void focusNthTab(int i);
 
@@ -85,5 +82,4 @@ private:
     BRLS_BIND(SearchCinema, searchCinemaTab, "search/tab/cinema");
     BRLS_BIND(SearchHots, searchHotsTab, "search/tab/hots");
     BRLS_BIND(AutoTabFrame, tabFrame, "search/tab/frame");
-
 };

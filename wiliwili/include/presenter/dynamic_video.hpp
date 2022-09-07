@@ -8,7 +8,8 @@
 
 class DynamicVideoRequest {
 public:
-    virtual void onDynamicVideoList(const bilibili::DynamicVideoListResult &result, unsigned int index);
+    virtual void onDynamicVideoList(
+        const bilibili::DynamicVideoListResult& result, unsigned int index);
 
     virtual void onError(const std::string& error);
 
@@ -16,13 +17,13 @@ public:
 
     void requestData(bool refresh = false);
 
-    void requestDynamicVideoList(unsigned int page=1, const std::string& offset="");
+    void requestDynamicVideoList(unsigned int page         = 1,
+                                 const std::string& offset = "");
 
     void requestUserDynamicVideoList(int mid, int pn = 0, int ps = 30);
 
 protected:
-    unsigned int currentUser = 0;
-    unsigned int currentPage = 1;
+    unsigned int currentUser  = 0;
+    unsigned int currentPage  = 1;
     std::string currentOffset = "";
-
 };

@@ -11,9 +11,8 @@
 SearchHots::SearchHots() {
     this->inflateFromXMLRes("xml/fragment/search_hots.xml");
     brls::Logger::debug("Fragment SearchHots: create");
-    recyclingGrid->registerCell("Cell", []() {
-        return RecyclingGridItemHotsCard::create();
-    });
+    recyclingGrid->registerCell(
+        "Cell", []() { return RecyclingGridItemHotsCard::create(); });
 
     try {
         this->requestSearch();
@@ -22,23 +21,20 @@ SearchHots::SearchHots() {
     }
 }
 
-brls::View *SearchHots::create() {
-    return new SearchHots();
-}
+brls::View *SearchHots::create() { return new SearchHots(); }
 
-SearchHots::~SearchHots() {
-    brls::Logger::debug("Fragment Hots: delete");
-}
+SearchHots::~SearchHots() { brls::Logger::debug("Fragment Hots: delete"); }
 
 class HotsDataSource : public RecyclingGridDataSource {
 public:
-    HotsDataSource(bilibili::SearchHotsListResult result, UpdateSearchEvent *u) : list(result), updateSearchEvent(u) {
-    }
+    HotsDataSource(bilibili::SearchHotsListResult result, UpdateSearchEvent *u)
+        : list(result), updateSearchEvent(u) {}
 
     RecyclingGridItem *cellForRow(RecyclingGrid *recycler, size_t index) {
-        RecyclingGridItemHotsCard *item = (RecyclingGridItemHotsCard *) recycler->dequeueReusableCell("Cell");
+        RecyclingGridItemHotsCard *item =
+            (RecyclingGridItemHotsCard *)recycler->dequeueReusableCell("Cell");
         bilibili::SearchHotsResult &r = this->list[index];
-        item->setCard((int) index + 1, r.show_name, r.icon);
+        item->setCard((int)index + 1, r.show_name, r.icon);
         return item;
     }
 
@@ -48,10 +44,7 @@ public:
         }
     }
 
-    size_t getItemCount() {
-        return list.size();
-    }
-
+    size_t getItemCount() { return list.size(); }
 
 private:
     bilibili::SearchHotsListResult list;
@@ -60,18 +53,21 @@ private:
 
 void SearchHots::requestSearch() {
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_search_hots(50, [ASYNC_TOKEN](const bilibili::SearchHotsResultWrapper &result) {
-        brls::Threading::sync([ASYNC_TOKEN, result]() {
-            ASYNC_RELEASE
-            auto ds = new HotsDataSource(result.list, this->updateSearchEvent);
-            recyclingGrid->setDataSource(ds);
+    bilibili::BilibiliClient::get_search_hots(
+        50,
+        [ASYNC_TOKEN](const bilibili::SearchHotsResultWrapper &result) {
+            brls::Threading::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                auto ds =
+                    new HotsDataSource(result.list, this->updateSearchEvent);
+                recyclingGrid->setDataSource(ds);
+            });
+        },
+        [ASYNC_TOKEN](const std::string &error) {
+            brls::Logger::error("SearchHots: {}", error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->recyclingGrid->setError(error);
+            });
         });
-    }, [ASYNC_TOKEN](const std::string &error) {
-        brls::Logger::error("SearchHots: {}", error);
-        brls::sync([ASYNC_TOKEN, error](){
-            ASYNC_RELEASE
-            this->recyclingGrid->setError(error);
-        });
-    });
 }
-

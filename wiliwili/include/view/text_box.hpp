@@ -6,16 +6,13 @@
 
 #include <borealis.hpp>
 
-class TextBox: public brls::Label {
+class TextBox : public brls::Label {
 public:
-    TextBox(){
-        this->brls::Label::setAnimated(false);
-    }
+    TextBox() { this->brls::Label::setAnimated(false); }
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx)
-    {
-        if (width == 0)
-            return;
+    void draw(NVGcontext* vg, float x, float y, float width, float height,
+              brls::Style style, brls::FrameContext* ctx) {
+        if (width == 0) return;
 
         nvgSave(vg);
         nvgIntersectScissor(vg, x, y, width, height);
@@ -35,9 +32,5 @@ public:
         nvgRestore(vg);
     }
 
-
-    static brls::View* create(){
-        return new TextBox();
-    }
-
+    static brls::View* create() { return new TextBox(); }
 };

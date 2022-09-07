@@ -8,10 +8,12 @@
 
 class HomeHotsWeeklyRequest {
 public:
-    virtual void onHotsWeeklyList(const bilibili::HotsWeeklyListResult &result){}
-    virtual void onHotsWeeklyVideoList(const bilibili::HotsWeeklyVideoListResult &result,
-                                       const std::string& label, const std::string& reminder){}
-    virtual void onError(const std::string& error){}
+    virtual void onHotsWeeklyList(
+        const bilibili::HotsWeeklyListResult& result) {}
+    virtual void onHotsWeeklyVideoList(
+        const bilibili::HotsWeeklyVideoListResult& result,
+        const std::string& label, const std::string& reminder) {}
+    virtual void onError(const std::string& error) {}
 
     void requestData();
 
@@ -24,10 +26,8 @@ public:
     /// 通过 weeklyList 列表项的序号请求周视频 index: [0, ]
     void requestHotsWeeklyVideoListByIndex(size_t index);
 
-   std::vector<std::string> getWeeklyList();
-
+    std::vector<std::string> getWeeklyList();
 
 protected:
     bilibili::HotsWeeklyListResult weeklyList;
-
 };

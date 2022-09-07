@@ -17,20 +17,19 @@
 class RecyclingGrid;
 
 class SearchVideo : public AttachedView {
-
 public:
     SearchVideo();
 
     ~SearchVideo();
 
-    static View *create();
+    static View* create();
 
     void requestSearch(const std::string& key);
 
     void _requestSearch(const std::string& key);
 
 private:
-     BRLS_BIND(RecyclingGrid, recyclingGrid, "search/video/recyclingGrid");
+    BRLS_BIND(RecyclingGrid, recyclingGrid, "search/video/recyclingGrid");
 
     unsigned int requestIndex = 1;
 };

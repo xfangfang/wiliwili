@@ -9,7 +9,7 @@
 
 class VideoProgressSlider;
 
-typedef enum VideoState{
+typedef enum VideoState {
     PLAYING,
     STOPPED,
     LOADING,
@@ -18,7 +18,7 @@ typedef enum VideoState{
 
 class SVGImage;
 
-class VideoView : public brls::Box{
+class VideoView : public brls::Box {
 public:
     VideoView();
 
@@ -70,7 +70,6 @@ public:
 
     float getProgress();
 
-
     /// Misc
     static View* create();
 
@@ -84,18 +83,20 @@ public:
 
     void initializeGL();
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height,
+              brls::Style style, brls::FrameContext* ctx) override;
 
     View* getDefaultFocus() override;
 
-    View* getNextFocus(brls::FocusDirection direction, View* currentView) override;
+    View* getNextFocus(brls::FocusDirection direction,
+                       View* currentView) override;
 
     void registerMpvEvent();
 
     void unRegisterMpvEvent();
 
 private:
-    bool allowFullscreen = true;
+    bool allowFullscreen  = true;
     VideoState videoState = VideoState::STOPPED;
 
     MPVEvent::Subscription eventSubscribeID;
@@ -111,15 +112,14 @@ private:
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
     BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
     BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
-    BRLS_BIND(SVGImage, btnFullscreenIcon,"video/osd/fullscreen/icon");
-    BRLS_BIND(SVGImage, btnDanmakuIcon,"video/osd/danmaku/icon");
+    BRLS_BIND(SVGImage, btnFullscreenIcon, "video/osd/fullscreen/icon");
+    BRLS_BIND(SVGImage, btnDanmakuIcon, "video/osd/danmaku/icon");
 
-
-    time_t osdLastShowTime = 0;
-    const time_t OSD_SHOW_TIME = 5; //默认显示五秒
+    time_t osdLastShowTime     = 0;
+    const time_t OSD_SHOW_TIME = 5;  //默认显示五秒
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
-    int danmakuFont = 0;
+    int danmakuFont    = 0;
 
     //DEBUG
     BRLS_BIND(brls::Box, videoLayerDebug, "video/layer/debug");

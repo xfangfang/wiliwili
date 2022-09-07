@@ -14,22 +14,21 @@
 
 class RecyclingGrid;
 
-class HomeHotsAll : public AttachedView, public HomeHotsAllRequest{
-
+class HomeHotsAll : public AttachedView, public HomeHotsAllRequest {
 public:
     HomeHotsAll();
 
     ~HomeHotsAll();
 
-    void onHotsAllVideoList(const bilibili::HotsAllVideoListResult &result, int index) override;
+    void onHotsAllVideoList(const bilibili::HotsAllVideoListResult &result,
+                            int index) override;
 
     static View *create();
 
     void onCreate() override;
 
-    void onError(const std::string& error) override;
+    void onError(const std::string &error) override;
 
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/hots/all/recyclingGrid");
-
 };

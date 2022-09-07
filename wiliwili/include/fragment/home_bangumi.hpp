@@ -12,9 +12,7 @@
 #include "presenter/home_pgc.hpp"
 #include "view/auto_tab_frame.hpp"
 
-
-class HomeBangumi : public AttachedView, public HomeBangumiRequest{
-
+class HomeBangumi : public AttachedView, public HomeBangumiRequest {
 public:
     HomeBangumi();
 
@@ -26,9 +24,8 @@ public:
 
     static View *create();
 
-    void onError(const std::string& error) override;
+    void onError(const std::string &error) override;
 
 private:
     BRLS_BIND(AutoTabFrame, tabFrame, "homeBangumi/tabFrame");
-
 };

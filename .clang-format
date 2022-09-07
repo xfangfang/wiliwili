@@ -1,0 +1,13 @@
+﻿---
+AlignConsecutiveAssignments: true
+BasedOnStyle: Google
+AccessModifierOffset: -4
+IndentWidth: 4
+BreakBeforeBraces: Attach
+CommentPragmas: '^[^ ]'
+IncludeBlocks: Regroup
+IndentCaseLabels: true
+PointerAlignment: Left
+SortIncludes: Never
+Standard: Cpp11
+...

@@ -6,7 +6,6 @@
 //#include "view/video_progress_slider.hpp"
 //    brls::Application::registerXMLView("VideoProgressSlider", VideoProgressSlider::create);
 
-
 #pragma once
 
 #include <borealis.hpp>
@@ -14,7 +13,6 @@
 class SVGImage;
 
 class VideoProgressSlider : public brls::Box {
-
 public:
     VideoProgressSlider();
 
@@ -24,21 +22,16 @@ public:
 
     void onLayout() override;
     brls::View* getDefaultFocus() override;
-    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height,
+              brls::Style style, brls::FrameContext* ctx) override;
 
     void setProgress(float progress);
 
-    float getProgress()
-    {
-        return progress;
-    }
+    float getProgress() { return progress; }
 
-    brls::Event<float>* getProgressEvent()
-    {
-        return &progressEvent;
-    }
+    brls::Event<float>* getProgressEvent() { return &progressEvent; }
 
-  private:
+private:
     brls::InputManager* input;
     brls::Rectangle* line;
     brls::Rectangle* lineEmpty;

@@ -13,20 +13,20 @@
 #include "view/auto_tab_frame.hpp"
 
 namespace brls {
-    class Label;
+class Label;
 }
 class RecyclingGrid;
 
 class HomeHotsHistory : public AttachedView, public HomeHotsHistoryRequest {
-
 public:
     HomeHotsHistory();
 
-    void onHotsHistoryList(const bilibili::HotsHistoryVideoListResult &result, const std::string& explain) override;
+    void onHotsHistoryList(const bilibili::HotsHistoryVideoListResult& result,
+                           const std::string& explain) override;
 
     ~HomeHotsHistory();
 
-    static View *create();
+    static View* create();
 
     void onCreate() override;
 
@@ -35,5 +35,4 @@ public:
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/hots/history/recyclingGrid");
     BRLS_BIND(brls::Label, labelExplain, "home/hots/history/explain");
-
 };

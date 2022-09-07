@@ -13,16 +13,9 @@
 typedef std::pair<std::string, std::string> GalleryItemData;
 typedef std::vector<GalleryItemData> GalleryData;
 
-enum class GalleryAnimation
-{
-    ENTER_LEFT,
-    ENTER_RIGHT,
-    EXIT_LEFT,
-    EXIT_RIGHT
-};
+enum class GalleryAnimation { ENTER_LEFT, ENTER_RIGHT, EXIT_LEFT, EXIT_RIGHT };
 
-
-class GalleryItem: public brls::Box {
+class GalleryItem : public brls::Box {
 public:
     GalleryItem();
 
@@ -36,7 +29,7 @@ private:
     brls::Animatable contentOffsetX = 0.0f;
 };
 
-class ImageGalleryItem: public GalleryItem {
+class ImageGalleryItem : public GalleryItem {
 public:
     ImageGalleryItem();
 
@@ -49,7 +42,6 @@ private:
 };
 
 class GalleryView : public brls::Box {
-
 public:
     GalleryView();
 
@@ -59,14 +51,14 @@ public:
 
     void setData(GalleryData value);
 
-    void addCustomView(GalleryItem* view);
+    void addCustomView(GalleryItem *view);
 
     void prev();
 
     void next();
 
-    void draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
-              brls::FrameContext *ctx) override;
+    void draw(NVGcontext *vg, float x, float y, float width, float height,
+              brls::Style style, brls::FrameContext *ctx) override;
 
 private:
     GalleryData data;

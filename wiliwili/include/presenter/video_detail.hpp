@@ -9,29 +9,34 @@
 #include "bilibili/result/video_detail_result.h"
 
 // 指明一个id的类型
-enum class PGC_ID_TYPE{
-    SEASON_ID, // 剧ID
-    EP_ID // 集ID
+enum class PGC_ID_TYPE {
+    SEASON_ID,  // 剧ID
+    EP_ID       // 集ID
 };
 
-class VideoDetail: public Presenter{
+class VideoDetail : public Presenter {
 public:
-    virtual void onVideoInfo(const bilibili::VideoDetailResult &result){}
-    virtual void onSeasonVideoInfo(const bilibili::SeasonResultWrapper& result){}
-    virtual void onSeasonEpisodeInfo(const bilibili::SeasonEpisodeResult& result){}
-    virtual void onVideoPageListInfo(const bilibili::VideoDetailPageListResult& result){}
-    virtual void onVideoPlayUrl(const bilibili::VideoUrlResult& result){}
-    virtual void onUploadedVideos(const bilibili::UserUploadedVideoResultWrapper& result){}
-    virtual void onDanmakuInfo(){}
-    virtual void onCommentInfo(const bilibili::VideoCommentResultWrapper& result){}
-    virtual void onRequestCommentError(const std::string &error){}
-    virtual void onVideoRecommend(){}
-    virtual void onError(const std::string &error){}
-    virtual void onVideoOnlineCount(const bilibili::VideoOnlineTotal& result){}
-    virtual void onVideoRelationInfo(const bilibili::VideoRelation& result){}
-    virtual void onRelatedVideoList(const bilibili::VideoDetailListResult& result){}
-    virtual void onDanmaku(const std::string& filePath){}
-
+    virtual void onVideoInfo(const bilibili::VideoDetailResult& result) {}
+    virtual void onSeasonVideoInfo(
+        const bilibili::SeasonResultWrapper& result) {}
+    virtual void onSeasonEpisodeInfo(
+        const bilibili::SeasonEpisodeResult& result) {}
+    virtual void onVideoPageListInfo(
+        const bilibili::VideoDetailPageListResult& result) {}
+    virtual void onVideoPlayUrl(const bilibili::VideoUrlResult& result) {}
+    virtual void onUploadedVideos(
+        const bilibili::UserUploadedVideoResultWrapper& result) {}
+    virtual void onDanmakuInfo() {}
+    virtual void onCommentInfo(
+        const bilibili::VideoCommentResultWrapper& result) {}
+    virtual void onRequestCommentError(const std::string& error) {}
+    virtual void onVideoRecommend() {}
+    virtual void onError(const std::string& error) {}
+    virtual void onVideoOnlineCount(const bilibili::VideoOnlineTotal& result) {}
+    virtual void onVideoRelationInfo(const bilibili::VideoRelation& result) {}
+    virtual void onRelatedVideoList(
+        const bilibili::VideoDetailListResult& result) {}
+    virtual void onDanmaku(const std::string& filePath) {}
 
     // todo: 获取视频合集
 
@@ -39,10 +44,10 @@ public:
     void requestData(const bilibili::VideoDetailResult& video);
 
     /// 请求番剧数据
-    void requestData(int id, PGC_ID_TYPE type=PGC_ID_TYPE::SEASON_ID);
+    void requestData(int id, PGC_ID_TYPE type = PGC_ID_TYPE::SEASON_ID);
 
     /// 获取番剧信息
-    void requestSeasonInfo(const int seasonID, const int epID=0);
+    void requestSeasonInfo(const int seasonID, const int epID = 0);
 
     /// 获取视频信息：标题、作者、简介、分P等
     void requestVideoInfo(const std::string bvid);
@@ -72,7 +77,8 @@ public:
     void requestVideoDanmaku(const unsigned int cid);
 
     /// 上报播放进度
-    void reportHistory(unsigned int aid, unsigned int cid, unsigned int progress=0, int type=3);
+    void reportHistory(unsigned int aid, unsigned int cid,
+                       unsigned int progress = 0, int type = 3);
 
     /// 投币
     void addCoin(int aid);
@@ -81,13 +87,13 @@ public:
     void beAgree(int aid);
 
 protected:
-    bilibili::VideoDetailResult videoDetailResult; //  视频数据
-    bilibili::VideoDetailPage videoDetailPage; // 视频分P数据
-    bilibili::UserDetailResultWrapper userDetailResult; // 作者数据
+    bilibili::VideoDetailResult videoDetailResult;       //  视频数据
+    bilibili::VideoDetailPage videoDetailPage;           // 视频分P数据
+    bilibili::UserDetailResultWrapper userDetailResult;  // 作者数据
     bilibili::VideoUrlResult videoUrlResult;
-    bilibili::SeasonResultWrapper seasonInfo; // 番剧/综艺/影视 数据
-    bilibili::SeasonEpisodeResult episodeResult; // 番剧/综艺/影视 单集数据
+    bilibili::SeasonResultWrapper seasonInfo;  // 番剧/综艺/影视 数据
+    bilibili::SeasonEpisodeResult episodeResult;  // 番剧/综艺/影视 单集数据
 
-    unsigned int commentRequestIndex = 1;
+    unsigned int commentRequestIndex           = 1;
     unsigned int userUploadedVideoRequestIndex = 1;
 };

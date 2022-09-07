@@ -17,29 +17,21 @@ SearchTab::~SearchTab() {
     brls::Logger::debug("Fragment SearchTabActivity: delete");
 }
 
-brls::View *SearchTab::create() {
-    return new SearchTab();
-}
+brls::View* SearchTab::create() { return new SearchTab(); }
 
-void SearchTab::requestData(const std::string& key){
+void SearchTab::requestData(const std::string& key) {
     try {
         this->searchVideoTab->requestSearch(key);
         this->searchBangumiTab->requestSearch(key);
         this->searchCinemaTab->requestSearch(key);
-        brls::sync([this](){
-            this->focusNthTab(1);
-        });
+        brls::sync([this]() { this->focusNthTab(1); });
     } catch (brls::ViewNotFoundException const& e) {
         brls::Logger::error("ViewNotFoundException: {}", e.what());
     }
-
 }
 
-void SearchTab::passEventToSearchHots(UpdateSearchEvent *updateSearchEvent) {
+void SearchTab::passEventToSearchHots(UpdateSearchEvent* updateSearchEvent) {
     this->searchHotsTab->updateSearchEvent = updateSearchEvent;
 }
 
-
-void SearchTab::focusNthTab(int i) {
-    this->tabFrame->focusTab(i);
-}
+void SearchTab::focusNthTab(int i) { this->tabFrame->focusTab(i); }

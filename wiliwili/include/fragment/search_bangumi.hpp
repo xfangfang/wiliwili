@@ -15,13 +15,12 @@
 #include "view/recycling_grid.hpp"
 
 class SearchBangumi : public brls::Box {
-
 public:
     SearchBangumi();
 
     ~SearchBangumi();
 
-    static View *create();
+    static View* create();
 
     void requestSearch(const std::string& key);
 
@@ -31,5 +30,4 @@ private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "search/bangumi/recyclingGrid");
 
     unsigned int requestIndex = 1;
-
 };

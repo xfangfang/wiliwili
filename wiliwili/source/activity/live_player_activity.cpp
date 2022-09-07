@@ -6,24 +6,25 @@
 #include "view/video_view.hpp"
 #include "bilibili.h"
 
-LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live):liveData(live) {
+LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
+    : liveData(live) {
     brls::Logger::debug("LiveActivity: create");
 }
 
 void LiveActivity::onContentAvailable() {
     brls::Logger::debug("LiveActivity: onContentAvailable");
 
-    if(!liveData.play_url.empty()){
+    if (!liveData.play_url.empty()) {
         this->video->start(liveData.play_url);
     }
 
-    bilibili::BilibiliClient::get_live_url(liveData.roomid, [this](const bilibili::LiveUrlResultWrapper& result){
-        for(auto i : result.durl){
-            this->video->start(i.url);
-            break;
-        }
-
-    });
+    bilibili::BilibiliClient::get_live_url(
+        liveData.roomid, [this](const bilibili::LiveUrlResultWrapper& result) {
+            for (auto i : result.durl) {
+                this->video->start(i.url);
+                break;
+            }
+        });
 }
 
 LiveActivity::~LiveActivity() {

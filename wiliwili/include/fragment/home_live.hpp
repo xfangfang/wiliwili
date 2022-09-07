@@ -12,18 +12,16 @@
 #include "view/auto_tab_frame.hpp"
 #include "presenter/home_live.hpp"
 
-namespace brls{
-    class Label;
+namespace brls {
+class Label;
 };
 class RecyclingGrid;
 
 class HomeLive : public AttachedView, public HomeLiveRequest {
-
 public:
     HomeLive();
 
-    void onLiveList(const bilibili::LiveVideoListResult &result,
-                    int index,
+    void onLiveList(const bilibili::LiveVideoListResult &result, int index,
                     bool no_more) override;
 
     ~HomeLive();
@@ -35,6 +33,6 @@ public:
 private:
     BRLS_BIND(brls::Label, live_note, "home/live/note");
     BRLS_BIND(brls::Label, live_label, "home/live/label");
-    BRLS_BIND(RecyclingGrid, recyclingGrid, "home/live/recyclingGrid");;
-
+    BRLS_BIND(RecyclingGrid, recyclingGrid, "home/live/recyclingGrid");
+    ;
 };

@@ -19,13 +19,14 @@ public:
 
     ~SearchHots();
 
-    static View* create();
+    static View *create();
 
     void requestSearch();
 
     SearchActivity *searchActivity;
 
     UpdateSearchEvent *updateSearchEvent;
+
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "search/hots/recyclingGrid");
 };

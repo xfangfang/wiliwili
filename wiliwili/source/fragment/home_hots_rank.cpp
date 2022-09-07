@@ -9,123 +9,133 @@
 #include "view/video_card.hpp"
 #include "view/grid_dropdown.hpp"
 
-class DataSourceHotsRankVideoList
-        : public RecyclingGridDataSource
-{
+class DataSourceHotsRankVideoList : public RecyclingGridDataSource {
 public:
-    DataSourceHotsRankVideoList(bilibili::HotsRankVideoListResult result):videoList(result){
-    }
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override{
+    DataSourceHotsRankVideoList(bilibili::HotsRankVideoListResult result)
+        : videoList(result) {}
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
-        RecyclingGridItemRankVideoCard* item = (RecyclingGridItemRankVideoCard*)recycler->dequeueReusableCell("Cell");
+        RecyclingGridItemRankVideoCard* item =
+            (RecyclingGridItemRankVideoCard*)recycler->dequeueReusableCell(
+                "Cell");
 
         auto r = this->videoList[index];
         brls::Logger::debug("title: {}", r.title);
-        item->setCard(r.pic+"@672w_378h_1c.jpg",r.title,r.owner.name,r.pubdate, r.stat.view, r.stat.danmaku, r.duration, index + 1);
+        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title, r.owner.name,
+                      r.pubdate, r.stat.view, r.stat.danmaku, r.duration,
+                      index + 1);
         return item;
     }
 
-    size_t getItemCount() override{
-        return videoList.size();
+    size_t getItemCount() override { return videoList.size(); }
+
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
+        brls::Application::pushActivity(
+            new PlayerActivity(videoList[index].bvid));
     }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override{
-        brls::Application::pushActivity(new PlayerActivity(videoList[index].bvid));
-    }
-
-    void appendData(const bilibili::HotsRankVideoListResult& data){
-        brls::Logger::error("DataSourceRecommendVideoList: append data: {}", data.size());
+    void appendData(const bilibili::HotsRankVideoListResult& data) {
+        brls::Logger::error("DataSourceRecommendVideoList: append data: {}",
+                            data.size());
         this->videoList.insert(this->videoList.end(), data.begin(), data.end());
     }
 
-    void clearData() override{
-        this->videoList.clear();
-    }
+    void clearData() override { this->videoList.clear(); }
 
 private:
     bilibili::HotsRankVideoListResult videoList;
 };
 
-
-class DataSourceHotsRankPGCVideoList
-        : public RecyclingGridDataSource
-{
+class DataSourceHotsRankPGCVideoList : public RecyclingGridDataSource {
 public:
-    DataSourceHotsRankPGCVideoList(bilibili::HotsRankPGCVideoListResult result):videoList(result){
-
-    }
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override{
+    DataSourceHotsRankPGCVideoList(bilibili::HotsRankPGCVideoListResult result)
+        : videoList(result) {}
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
-        RecyclingGridItemRankVideoCard* item = (RecyclingGridItemRankVideoCard*)recycler->dequeueReusableCell("CellPGC");
+        RecyclingGridItemRankVideoCard* item =
+            (RecyclingGridItemRankVideoCard*)recycler->dequeueReusableCell(
+                "CellPGC");
 
         auto r = this->videoList[index];
         brls::Logger::debug("title: {}", r.title);
-        item->setCard(r.ss_horizontal_cover+"@672w_378h_1c.jpg", r.title,
-                      r.new_ep.index_show, 0, r.stat.view, r.stat.danmaku, 0, index + 1);
+        item->setCard(r.ss_horizontal_cover + "@672w_378h_1c.jpg", r.title,
+                      r.new_ep.index_show, 0, r.stat.view, r.stat.danmaku, 0,
+                      index + 1);
         return item;
     }
 
-    size_t getItemCount() override{
-        return videoList.size();
+    size_t getItemCount() override { return videoList.size(); }
+
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
+        brls::Application::pushActivity(
+            new PlayerSeasonActivity(videoList[index].season_id));
     }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override{
-        brls::Application::pushActivity(new PlayerSeasonActivity(videoList[index].season_id));
-    }
-
-    void appendData(const bilibili::HotsRankPGCVideoListResult& data){
-        brls::Logger::error("DataSourceRecommendVideoList: append data: {}", data.size());
+    void appendData(const bilibili::HotsRankPGCVideoListResult& data) {
+        brls::Logger::error("DataSourceRecommendVideoList: append data: {}",
+                            data.size());
         this->videoList.insert(this->videoList.end(), data.begin(), data.end());
     }
 
-    void clearData() override{
-        this->videoList.clear();
-    }
+    void clearData() override { this->videoList.clear(); }
 
 private:
     bilibili::HotsRankPGCVideoListResult videoList;
 };
 
-
 HomeHotsRank::HomeHotsRank() {
     this->inflateFromXMLRes("xml/fragment/home_hots_rank.xml");
     brls::Logger::debug("Fragment HomeHotsRank: create");
-    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemRankVideoCard::create(); });
-    recyclingGrid->registerCell("CellPGC", []() { return RecyclingGridItemRankVideoCard::create("xml/views/video_card_rank_pgc.xml"); });
+    recyclingGrid->registerCell(
+        "Cell", []() { return RecyclingGridItemRankVideoCard::create(); });
+    recyclingGrid->registerCell("CellPGC", []() {
+        return RecyclingGridItemRankVideoCard::create(
+            "xml/views/video_card_rank_pgc.xml");
+    });
     this->requestData();
-
 }
 
 void HomeHotsRank::onCreate() {
-    this->registerTabAction("切换", brls::ControllerButton::BUTTON_X, [this](brls::View* view)-> bool {
-        AutoTabFrame::focus2Sidebar(this);
-        static int selected = 0;
-        brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
-                "排行榜", this->getRankList(), [this](int _selected) {
-                    this->recyclingGrid->showSkeleton();
-                    selected = _selected;
-                    this->rank_label->setText("榜单：" + this->getRankList()[_selected]);
-                    this->requestData(_selected);
-                },
-                selected)));
+    this->registerTabAction(
+        "切换", brls::ControllerButton::BUTTON_X,
+        [this](brls::View* view) -> bool {
+            AutoTabFrame::focus2Sidebar(this);
+            static int selected = 0;
+            brls::Application::pushActivity(
+                new brls::Activity(new brls::Dropdown(
+                    "排行榜", this->getRankList(),
+                    [this](int _selected) {
+                        this->recyclingGrid->showSkeleton();
+                        selected = _selected;
+                        this->rank_label->setText(
+                            "榜单：" + this->getRankList()[_selected]);
+                        this->requestData(_selected);
+                    },
+                    selected)));
 
-        return true;
-    });
+            return true;
+        });
 }
 
-void HomeHotsRank::onHotsRankList(const bilibili::HotsRankVideoListResult &result, const std::string& note){
-    brls::Threading::sync([this, result, note](){
+void HomeHotsRank::onHotsRankList(
+    const bilibili::HotsRankVideoListResult& result, const std::string& note) {
+    brls::Threading::sync([this, result, note]() {
         this->rank_note->setText(note);
         recyclingGrid->estimatedRowHeight = 257.5;
         recyclingGrid->setDataSource(new DataSourceHotsRankVideoList(result));
     });
 }
 
-void HomeHotsRank::onHotsRankPGCList(const bilibili::HotsRankPGCVideoListResult &result, const std::string& note){
-    brls::Threading::sync([this, result, note](){
+void HomeHotsRank::onHotsRankPGCList(
+    const bilibili::HotsRankPGCVideoListResult& result,
+    const std::string& note) {
+    brls::Threading::sync([this, result, note]() {
         this->rank_note->setText(note);
         recyclingGrid->estimatedRowHeight = 220;
-        recyclingGrid->setDataSource(new DataSourceHotsRankPGCVideoList(result));
+        recyclingGrid->setDataSource(
+            new DataSourceHotsRankPGCVideoList(result));
     });
 }
 
@@ -133,8 +143,6 @@ HomeHotsRank::~HomeHotsRank() {
     brls::Logger::debug("Fragment HomeHotsRankActivity: delete");
 }
 
-void HomeHotsRank::onError(const std::string &error) {
-    brls::sync([this, error](){
-       this->recyclingGrid->setError(error);
-    });
+void HomeHotsRank::onError(const std::string& error) {
+    brls::sync([this, error]() { this->recyclingGrid->setError(error); });
 }

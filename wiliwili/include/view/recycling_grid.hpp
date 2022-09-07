@@ -13,8 +13,7 @@
 
 class RecyclingGrid;
 
-class RecyclingGridItem : public brls::Box
-{
+class RecyclingGridItem : public brls::Box {
 public:
     RecyclingGridItem();
     virtual ~RecyclingGridItem();
@@ -37,12 +36,12 @@ public:
     /*
      * Prepares a reusable cell for reuse by the recycler frame's data source.
      */
-    virtual void prepareForReuse() { }
+    virtual void prepareForReuse() {}
 
     /*
      * 表单项回收
      */
-    virtual void cacheForReuse() { }
+    virtual void cacheForReuse() {}
 
     static RecyclingGridItem* create();
 
@@ -50,8 +49,7 @@ private:
     size_t index;
 };
 
-class RecyclingGridDataSource
-{
+class RecyclingGridDataSource {
 public:
     virtual ~RecyclingGridDataSource() {}
 
@@ -63,31 +61,36 @@ public:
     /*
      * Asks the data source for a cell to insert in a particular location of the recycler frame.
      */
-    virtual RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) { return nullptr; }
+    virtual RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                          size_t index) {
+        return nullptr;
+    }
 
     /*
      * Asks the data source for the height to use for a row in a specified location.
      * Return -1 to use autoscaling.
      */
-    virtual float heightForRow(RecyclingGrid* recycler, size_t index) { return -1; }
+    virtual float heightForRow(RecyclingGrid* recycler, size_t index) {
+        return -1;
+    }
 
     /*
      * Tells the data source a row is selected.
      */
-    virtual void onItemSelected(RecyclingGrid* recycler, size_t index) { }
+    virtual void onItemSelected(RecyclingGrid* recycler, size_t index) {}
 
-    virtual void clearData() { }
-
+    virtual void clearData() {}
 };
 
 class RecyclingGrid : public brls::ScrollingFrame {
-
 public:
     RecyclingGrid();
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height,
+              brls::Style style, brls::FrameContext* ctx) override;
 
-    void registerCell(std::string identifier, std::function<RecyclingGridItem*()> allocation);
+    void registerCell(std::string identifier,
+                      std::function<RecyclingGridItem*()> allocation);
 
     void setDefaultCellFocus(size_t index);
 
@@ -106,14 +109,14 @@ public:
 
     void clearData();
 
-    void setEmpty(std::string msg="");
+    void setEmpty(std::string msg = "");
 
-    void setError(std::string error="");
+    void setError(std::string error = "");
 
     void selectRowAt(size_t index, bool animated);
 
     //    计算从start元素的顶点到index（不包含index）元素顶点的距离
-    float getHeightByCellIndex(int index, int start=0);
+    float getHeightByCellIndex(int index, int start = 0);
 
     View* getNextCellFocus(brls::FocusDirection direction, View* currentView);
 
@@ -135,7 +138,6 @@ public:
     void setPaddingBottom(float bottom) override;
     void setPaddingLeft(float left) override;
 
-
     // 获取一个列表项组件
     // 如果缓存列表中存在就从中取出一个
     // 如果缓存列表为空则生成一个新的
@@ -143,7 +145,7 @@ public:
 
     ~RecyclingGrid();
 
-    static View *create();
+    static View* create();
 
     /// 元素间距
     float estimatedRowSpace = 20;
@@ -162,8 +164,8 @@ public:
 
 private:
     RecyclingGridDataSource* dataSource = nullptr;
-    bool layouted                  = false;
-    float oldWidth = -1;
+    bool layouted                       = false;
+    float oldWidth                      = -1;
 
     bool requestNextPage = true;
     // true表示正在请求下一页，此时不会再次触发下一页请求
@@ -186,7 +188,8 @@ private:
     brls::Rect renderedFrame;
     std::vector<float> cellHeightCache;
     std::map<std::string, std::vector<RecyclingGridItem*>*> queueMap;
-    std::map<std::string, std::function<RecyclingGridItem*(void)>> allocationMap;
+    std::map<std::string, std::function<RecyclingGridItem*(void)>>
+        allocationMap;
 
     //检查宽度是否有变化
     bool checkWidth();
@@ -197,28 +200,26 @@ private:
     void itemsRecyclingLoop();
 
     void addCellAt(size_t index, int downSide);
-
 };
 
-class RecyclingGridContentBox : public brls::Box
-{
+class RecyclingGridContentBox : public brls::Box {
 public:
     RecyclingGridContentBox(RecyclingGrid* recycler);
-    brls::View* getNextFocus(brls::FocusDirection direction, brls::View* currentView) override;
+    brls::View* getNextFocus(brls::FocusDirection direction,
+                             brls::View* currentView) override;
 
 private:
     RecyclingGrid* recycler;
 };
 
-
-class SkeletonCell: public RecyclingGridItem {
+class SkeletonCell : public RecyclingGridItem {
 public:
     SkeletonCell();
 
     static RecyclingGridItem* create();
 
-    void draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
-              brls::FrameContext *ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height,
+              brls::Style style, brls::FrameContext* ctx) override;
 
 private:
     NVGcolor background = brls::Application::getTheme()["color/grey_3"];

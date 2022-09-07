@@ -4,7 +4,7 @@
 
 #include "fragment/mine_qr_login.hpp"
 
-MineQrLogin::MineQrLogin(loginStatusEvent cb):loginCb(cb) {
+MineQrLogin::MineQrLogin(loginStatusEvent cb) : loginCb(cb) {
     this->inflateFromXMLRes("xml/fragment/mine_qr_login.xml");
     brls::Logger::debug("Fragment MineQrLogin: create");
     this->getLoginUrl();

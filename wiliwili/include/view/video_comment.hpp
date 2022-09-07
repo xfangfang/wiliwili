@@ -15,7 +15,6 @@
 #include "bilibili/result/video_detail_result.h"
 
 class VideoComment : public RecyclingGridItem {
-
 public:
     VideoComment();
 
@@ -33,5 +32,4 @@ private:
     BRLS_BIND(brls::Label, label, "video/comment/label/content");
     BRLS_BIND(UserInfoView, userInfo, "comment/userinfo");
     bilibili::VideoCommentResult comment_data;
-
 };

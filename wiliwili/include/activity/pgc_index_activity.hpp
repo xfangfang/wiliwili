@@ -12,7 +12,7 @@ typedef brls::Event<UserRequestData> IndexChangeEvent;
 
 class RecyclingGrid;
 
-class PGCIndexActivity : public brls::Activity, PGCIndexRequest{
+class PGCIndexActivity : public brls::Activity, PGCIndexRequest {
 public:
     // Declare that the content of this activity is the given XML file
     CONTENT_FROM_XML_RES("activity/pgc_index_activity.xml");
@@ -23,9 +23,9 @@ public:
 
     ~PGCIndexActivity();
 
-    void onPGCIndex(const bilibili::PGCIndexResultWrapper &result) override;
+    void onPGCIndex(const bilibili::PGCIndexResultWrapper& result) override;
 
-    void onPGCFilter(const bilibili::PGCIndexFilters &result) override;
+    void onPGCFilter(const bilibili::PGCIndexFilters& result) override;
 
     void onError(const std::string& error) override;
 
@@ -48,5 +48,5 @@ private:
     BRLS_BIND(brls::Box, titleBox, "pgc/title");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "pgc/recyclingGrid");
     brls::Animatable alpha = 1.0f;
-    int openTimes = 0; // 辅助变量，每次顶栏获取焦点时增加一次
+    int openTimes = 0;  // 辅助变量，每次顶栏获取焦点时增加一次
 };

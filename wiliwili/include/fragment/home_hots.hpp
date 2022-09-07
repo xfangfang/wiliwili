@@ -13,7 +13,6 @@
 #include "view/auto_tab_frame.hpp"
 
 class HomeHots : public AttachedView {
-
 public:
     HomeHots();
 
@@ -24,6 +23,5 @@ public:
     void onCreate() override;
 
 private:
-     BRLS_BIND(AutoTabFrame, tabFrame, "homeHots/tabFrame");
-
+    BRLS_BIND(AutoTabFrame, tabFrame, "homeHots/tabFrame");
 };

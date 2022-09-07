@@ -18,8 +18,7 @@ typedef brls::Event<bilibili::LoginInfo> loginStatusEvent;
 class MineHistory;
 class MineCollection;
 
-class MineTab : public AttachedView, public UserHome{
-
+class MineTab : public AttachedView, public UserHome {
 public:
     MineTab();
 
@@ -35,7 +34,7 @@ public:
 
     void onUserRelationStat(const bilibili::UserRelationStat& data) override;
 
-    static View *create();
+    static View* create();
 
 private:
     BRLS_BIND(AutoTabFrame, tabFrame, "mine/tab/frame");

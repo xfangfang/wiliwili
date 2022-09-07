@@ -26,10 +26,9 @@ public:
     UpdateSearchEvent *getUpdateSearchEvent();
 
     inline static std::string currentKey = "";
-private:
 
+private:
     BRLS_BIND(brls::Label, labelSearchKey, "search/label/key");
     BRLS_BIND(SearchTab, searchTab, "search/tab");
     UpdateSearchEvent updateSearchEvent;
-
 };

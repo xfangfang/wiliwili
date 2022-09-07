@@ -13,62 +13,66 @@
 SearchCinema::SearchCinema() {
     this->inflateFromXMLRes("xml/fragment/search_cinema.xml");
     brls::Logger::debug("Fragment SearchCinema: create");
-    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemVideoCard::create(); });
-    recyclingGrid->onNextPage([this](){
-        this->_requestSearch(SearchActivity::currentKey);
-    });
-//    if(!SearchActivity::currentKey.empty()){
-//        this->_requestSearch(SearchActivity::currentKey);
-//    }
+    recyclingGrid->registerCell(
+        "Cell", []() { return RecyclingGridItemVideoCard::create(); });
+    recyclingGrid->onNextPage(
+        [this]() { this->_requestSearch(SearchActivity::currentKey); });
+    //    if(!SearchActivity::currentKey.empty()){
+    //        this->_requestSearch(SearchActivity::currentKey);
+    //    }
 }
 
 SearchCinema::~SearchCinema() {
     brls::Logger::debug("Fragment SearchCinemaActivity: delete");
 }
 
-brls::View *SearchCinema::create() {
-    return new SearchCinema();
-}
+brls::View* SearchCinema::create() { return new SearchCinema(); }
 
-void SearchCinema::requestSearch(const std::string& key){
+void SearchCinema::requestSearch(const std::string& key) {
     this->recyclingGrid->showSkeleton();
     this->requestIndex = 1;
     this->_requestSearch(key);
 }
 
-void SearchCinema::_requestSearch(const std::string& key){
+void SearchCinema::_requestSearch(const std::string& key) {
     ASYNC_RETAIN
-    bilibili::BilibiliClient::search_video(key, "media_ft", requestIndex, "", [ASYNC_TOKEN](const bilibili::SearchResult& result){
-        for(auto i: result.result){
-            brls::Logger::debug("search: {}", i.title);
-        }
-        brls::sync([ASYNC_TOKEN, result](){
-            ASYNC_RELEASE
-            DataSourceSearchVideoList* datasource = (DataSourceSearchVideoList *)recyclingGrid->getDataSource();
-            if(result.page != this->requestIndex){
-                // 请求的顺序和当前需要的顺序不符
-                brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}", result.page, this->requestIndex);
-                return;
+    bilibili::BilibiliClient::search_video(
+        key, "media_ft", requestIndex, "",
+        [ASYNC_TOKEN](const bilibili::SearchResult& result) {
+            for (auto i : result.result) {
+                brls::Logger::debug("search: {}", i.title);
             }
-            if(datasource && result.page != 1){
-                if(result.result.empty()){
-                    // 搜索到底啦
-                    brls::Logger::debug("搜索到底啦 {}", result.page);
+            brls::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                DataSourceSearchVideoList* datasource =
+                    (DataSourceSearchVideoList*)recyclingGrid->getDataSource();
+                if (result.page != this->requestIndex) {
+                    // 请求的顺序和当前需要的顺序不符
+                    brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}",
+                                        result.page, this->requestIndex);
                     return;
                 }
-                datasource->appendData(result.result);
-                recyclingGrid->notifyDataChanged();
-            } else{
-                // 搜索加载的第一页
-                recyclingGrid->setDataSource(new DataSourceSearchVideoList(result.result));
-            }
-            this->requestIndex = result.page + 1;
+                if (datasource && result.page != 1) {
+                    if (result.result.empty()) {
+                        // 搜索到底啦
+                        brls::Logger::debug("搜索到底啦 {}", result.page);
+                        return;
+                    }
+                    datasource->appendData(result.result);
+                    recyclingGrid->notifyDataChanged();
+                } else {
+                    // 搜索加载的第一页
+                    recyclingGrid->setDataSource(
+                        new DataSourceSearchVideoList(result.result));
+                }
+                this->requestIndex = result.page + 1;
+            });
+        },
+        [ASYNC_TOKEN](const std::string error) {
+            brls::Logger::error("SearchCinema: {}", error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->recyclingGrid->setError(error);
+            });
         });
-    }, [ASYNC_TOKEN](const std::string error){
-        brls::Logger::error("SearchCinema: {}", error);
-        brls::sync([ASYNC_TOKEN, error](){
-            ASYNC_RELEASE
-            this->recyclingGrid->setError(error);
-        });
-    });
 }

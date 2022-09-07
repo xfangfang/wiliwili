@@ -13,48 +13,57 @@ const std::string galleryViewXML = R"xml(
 GalleryView::GalleryView() {
     this->inflateFromXMLString(galleryViewXML);
     brls::Logger::debug("View GalleryView: create");
-    this->registerAction("Prev", brls::ControllerButton::BUTTON_LB, [this](brls::View* view)-> bool {
-        prev();
-        return true;
-    });
-    this->registerAction("Prev", brls::ControllerButton::BUTTON_LT, [this](brls::View* view)-> bool {
-        prev();
-        return true;
-    }, true);
-    this->registerAction("Prev", brls::ControllerButton::BUTTON_NAV_LEFT, [this](brls::View* view)-> bool {
-        prev();
-        return true;
-    }, true);
-    this->registerAction("Next", brls::ControllerButton::BUTTON_RB, [this](brls::View* view)-> bool {
-        next();
-        return true;
-    });
-    this->registerAction("Next", brls::ControllerButton::BUTTON_RT, [this](brls::View* view)-> bool {
-        next();
-        return true;
-    }, true);
-    this->registerAction("Next", brls::ControllerButton::BUTTON_NAV_RIGHT, [this](brls::View* view)-> bool {
-        next();
-        return true;
-    }, true);
+    this->registerAction("Prev", brls::ControllerButton::BUTTON_LB,
+                         [this](brls::View* view) -> bool {
+                             prev();
+                             return true;
+                         });
+    this->registerAction(
+        "Prev", brls::ControllerButton::BUTTON_LT,
+        [this](brls::View* view) -> bool {
+            prev();
+            return true;
+        },
+        true);
+    this->registerAction(
+        "Prev", brls::ControllerButton::BUTTON_NAV_LEFT,
+        [this](brls::View* view) -> bool {
+            prev();
+            return true;
+        },
+        true);
+    this->registerAction("Next", brls::ControllerButton::BUTTON_RB,
+                         [this](brls::View* view) -> bool {
+                             next();
+                             return true;
+                         });
+    this->registerAction(
+        "Next", brls::ControllerButton::BUTTON_RT,
+        [this](brls::View* view) -> bool {
+            next();
+            return true;
+        },
+        true);
+    this->registerAction(
+        "Next", brls::ControllerButton::BUTTON_NAV_RIGHT,
+        [this](brls::View* view) -> bool {
+            next();
+            return true;
+        },
+        true);
 }
 
-GalleryView::~GalleryView() {
-    brls::Logger::debug("View GalleryView: delete");
-}
+GalleryView::~GalleryView() { brls::Logger::debug("View GalleryView: delete"); }
 
-brls::View* GalleryView::create() {
-    return new GalleryView();
-}
+brls::View* GalleryView::create() { return new GalleryView(); }
 
-void GalleryView::setData(GalleryData value){
+void GalleryView::setData(GalleryData value) {
     this->clearViews();
     this->data = value;
 
-    if(value.size() == 0)
-        return;
+    if (value.size() == 0) return;
 
-    for(auto v : value){
+    for (auto v : value) {
         ImageGalleryItem* item = new ImageGalleryItem();
         item->setData(v);
         item->setSize(brls::Size(getWidth(), getHeight()));
@@ -64,40 +73,46 @@ void GalleryView::setData(GalleryData value){
 
     GalleryItem* first = (GalleryItem*)this->getChildren()[0];
     first->setVisibility(brls::Visibility::VISIBLE);
-    first->show([](){}, true, 500);
+    first->show([]() {}, true, 500);
     this->index = 0;
 }
 
-void GalleryView::addCustomView(GalleryItem* view){
+void GalleryView::addCustomView(GalleryItem* view) {
     view->setSize(brls::Size(getWidth(), getHeight()));
     this->addView(view, this->getChildren().size());
 }
 
-void GalleryView::prev(){
-    if(this->index <= 0){
-        brls::Application::getCurrentFocus()->shakeHighlight(brls::FocusDirection::LEFT);
+void GalleryView::prev() {
+    if (this->index <= 0) {
+        brls::Application::getCurrentFocus()->shakeHighlight(
+            brls::FocusDirection::LEFT);
         return;
     }
-    ((GalleryItem*)this->getChildren()[this->index])->animate(GalleryAnimation::EXIT_RIGHT);
+    ((GalleryItem*)this->getChildren()[this->index])
+        ->animate(GalleryAnimation::EXIT_RIGHT);
 
     this->index--;
-    ((GalleryItem*)this->getChildren()[this->index])->animate(GalleryAnimation::ENTER_LEFT);
+    ((GalleryItem*)this->getChildren()[this->index])
+        ->animate(GalleryAnimation::ENTER_LEFT);
 }
 
-void GalleryView::next(){
-    if(this->index + 1 >= this->getChildren().size()){
-        brls::Application::getCurrentFocus()->shakeHighlight(brls::FocusDirection::RIGHT);
+void GalleryView::next() {
+    if (this->index + 1 >= this->getChildren().size()) {
+        brls::Application::getCurrentFocus()->shakeHighlight(
+            brls::FocusDirection::RIGHT);
         return;
     }
-    ((GalleryItem*)this->getChildren()[this->index])->animate(GalleryAnimation::EXIT_LEFT);
+    ((GalleryItem*)this->getChildren()[this->index])
+        ->animate(GalleryAnimation::EXIT_LEFT);
 
     this->index++;
-    ((GalleryItem*)this->getChildren()[this->index])->animate(GalleryAnimation::ENTER_RIGHT);
+    ((GalleryItem*)this->getChildren()[this->index])
+        ->animate(GalleryAnimation::ENTER_RIGHT);
 }
 
-void GalleryView::draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
-                       brls::FrameContext *ctx) {
-
+void GalleryView::draw(NVGcontext* vg, float x, float y, float width,
+                       float height, brls::Style style,
+                       brls::FrameContext* ctx) {
     // Enable scissoring
     nvgSave(vg);
     nvgIntersectScissor(vg, x, y, width, height);
@@ -106,8 +121,7 @@ void GalleryView::draw(NVGcontext *vg, float x, float y, float width, float heig
 
     // Draw bottom points
     unsigned int n = this->getChildren().size();
-    if(n <= 1)
-        return;
+    if (n <= 1) return;
 
     auto padding = 10;
     auto circleR = 4;
@@ -117,9 +131,9 @@ void GalleryView::draw(NVGcontext *vg, float x, float y, float width, float heig
     auto drawY = height * 0.98;
 
     float offsetX = 0;
-    for(unsigned int i=0; i<n; i++){
+    for (unsigned int i = 0; i < n; i++) {
         nvgBeginPath(vg);
-        if(i == this->index){
+        if (i == this->index) {
             nvgFillColor(vg, RGBA(160, 160, 160, 160));
         } else {
             nvgFillColor(vg, RGBA(160, 160, 160, 48));
@@ -129,7 +143,6 @@ void GalleryView::draw(NVGcontext *vg, float x, float y, float width, float heig
         nvgFill(vg);
     }
 }
-
 
 const std::string galleryItemXML = R"xml(
     <brls:Box
@@ -155,12 +168,11 @@ const std::string galleryItemXML = R"xml(
 
 /// ImageGalleryItem
 
-ImageGalleryItem::ImageGalleryItem(){
+ImageGalleryItem::ImageGalleryItem() {
     this->inflateFromXMLString(galleryItemXML);
-
 }
 
-void ImageGalleryItem::setData(GalleryItemData value){
+void ImageGalleryItem::setData(GalleryItemData value) {
     this->data = value;
     this->image->setImageFromRes(value.first);
     this->label->setText(value.second);
@@ -170,46 +182,47 @@ void ImageGalleryItem::setData(GalleryItemData value){
 
 GalleryItem::GalleryItem() {
     this->setVisibility(brls::Visibility::INVISIBLE);
-    this->hide([](){}, false, 0);
+    this->hide([]() {}, false, 0);
     this->detach();
 }
 
-void GalleryItem::animate(GalleryAnimation animation){
+void GalleryItem::animate(GalleryAnimation animation) {
     this->setVisibility(brls::Visibility::VISIBLE);
     switch (animation) {
         case GalleryAnimation::ENTER_LEFT:
         case GalleryAnimation::ENTER_RIGHT:
-            if(animation == GalleryAnimation::ENTER_LEFT)
+            if (animation == GalleryAnimation::ENTER_LEFT)
                 //从左侧进入
                 this->contentOffsetX = -getWidth();
             else
                 //从右侧进入
                 this->contentOffsetX = getWidth();
-            brls::View::show([](){}, true, 500);
+            brls::View::show([]() {}, true, 500);
             startScrolling(0);
             {
                 // 滑入屏幕时按需获取焦点
                 View* view = this->getDefaultFocus();
-                if(view){
-                    brls::Logger::debug("GalleryItem defaultFocus: {}", view->describe());
+                if (view) {
+                    brls::Logger::debug("GalleryItem defaultFocus: {}",
+                                        view->describe());
                     brls::Application::giveFocus(view);
                 }
             }
             break;
         case GalleryAnimation::EXIT_LEFT:
         case GalleryAnimation::EXIT_RIGHT:
-            brls::View::hide([](){}, true, 100);
+            brls::View::hide([]() {}, true, 100);
             this->contentOffsetX = 0;
             {
                 // 滑出屏幕时将焦点归还给 GalleryView
                 View* view = this->getDefaultFocus();
-                if(view){
+                if (view) {
                     brls::Application::giveFocus(this->getParent());
                 }
             }
-            brls::View::hide([](){}, true, 100);
+            brls::View::hide([]() {}, true, 100);
             this->contentOffsetX = 0;
-            if(animation == GalleryAnimation::EXIT_LEFT)
+            if (animation == GalleryAnimation::EXIT_LEFT)
                 //向左滑出
                 startScrolling(-getWidth());
             else
@@ -219,18 +232,15 @@ void GalleryItem::animate(GalleryAnimation animation){
     }
 }
 
-
-void GalleryItem::startScrolling(float newScroll)
-{
-    if (newScroll == this->contentOffsetX)
-        return;
+void GalleryItem::startScrolling(float newScroll) {
+    if (newScroll == this->contentOffsetX) return;
 
     this->contentOffsetX.stop();
     this->contentOffsetX.reset();
-    this->contentOffsetX.addStep(newScroll, 500, brls::EasingFunction::quadraticOut);
-    this->contentOffsetX.setTickCallback([this] {
-        this->setTranslationX(this->contentOffsetX);
-    });
+    this->contentOffsetX.addStep(newScroll, 500,
+                                 brls::EasingFunction::quadraticOut);
+    this->contentOffsetX.setTickCallback(
+        [this] { this->setTranslationX(this->contentOffsetX); });
     this->contentOffsetX.start();
     this->invalidate();
 }

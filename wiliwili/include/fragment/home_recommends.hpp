@@ -14,12 +14,12 @@
 
 class RecyclingGrid;
 
-class HomeRecommends : public AttachedView, public Home{
-
+class HomeRecommends : public AttachedView, public Home {
 public:
     HomeRecommends();
 
-    void onRecommendVideoList(const bilibili::RecommendVideoListResult &result, int index) override;
+    void onRecommendVideoList(const bilibili::RecommendVideoListResult &result,
+                              int index) override;
 
     ~HomeRecommends();
 
@@ -31,5 +31,4 @@ public:
 
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/recommends/recyclingGrid");
-
 };

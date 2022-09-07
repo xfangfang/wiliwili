@@ -8,21 +8,17 @@ main_activity:
 
 包含：首页、动态、我的 三个子页面
 
-
 player_activity:
 
 视频播放界面，以及：评论、相关推荐 两个子页面
-
 
 settings_activity:
 
 应用的设置界面
 
-
 search_activity:
 
 视频搜索界面
-
 
 ## 其他页面
 

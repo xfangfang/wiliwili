@@ -14,9 +14,7 @@
 #include "view/recycling_grid.hpp"
 #include "presenter/mine_history.hpp"
 
-
-class MineHistory : public AttachedView, public MineHistoryRequest{
-
+class MineHistory : public AttachedView, public MineHistoryRequest {
 public:
     MineHistory();
 
@@ -26,11 +24,11 @@ public:
 
     void onCreate() override;
 
-    void onHistoryList(const bilibili::HistoryVideoResultWrapper &result) override;
+    void onHistoryList(
+        const bilibili::HistoryVideoResultWrapper &result) override;
 
-    void onError(const std::string& error) override;
+    void onError(const std::string &error) override;
 
 private:
-     BRLS_BIND(RecyclingGrid, recyclingGrid, "mine/history/recyclingGrid");
-
+    BRLS_BIND(RecyclingGrid, recyclingGrid, "mine/history/recyclingGrid");
 };

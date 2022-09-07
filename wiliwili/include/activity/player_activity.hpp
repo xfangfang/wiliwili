@@ -20,8 +20,7 @@ class SVGImage;
 typedef brls::Event<int> ChangeIndexEvent;
 typedef brls::Event<bilibili::Video> ChangeVideoEvent;
 
-class PlayerActivity : public brls::Activity, public VideoDetail
-{
+class PlayerActivity : public brls::Activity, public VideoDetail {
 public:
     CONTENT_FROM_XML_RES("activity/player_activity.xml");
 
@@ -33,16 +32,20 @@ public:
 
     void onContentAvailable() override;
 
-    void onVideoInfo(const bilibili::VideoDetailResult &result) override;
-    void onVideoPageListInfo(const bilibili::VideoDetailPageListResult &result) override;
-    void onUploadedVideos(const bilibili::UserUploadedVideoResultWrapper& result) override;
-    void onVideoPlayUrl(const bilibili::VideoUrlResult & result) override;
-    void onCommentInfo(const bilibili::VideoCommentResultWrapper &result) override;
-    void onError(const std::string &error) override;
-    void onRequestCommentError(const std::string &error) override;
+    void onVideoInfo(const bilibili::VideoDetailResult& result) override;
+    void onVideoPageListInfo(
+        const bilibili::VideoDetailPageListResult& result) override;
+    void onUploadedVideos(
+        const bilibili::UserUploadedVideoResultWrapper& result) override;
+    void onVideoPlayUrl(const bilibili::VideoUrlResult& result) override;
+    void onCommentInfo(
+        const bilibili::VideoCommentResultWrapper& result) override;
+    void onError(const std::string& error) override;
+    void onRequestCommentError(const std::string& error) override;
     void onVideoOnlineCount(const bilibili::VideoOnlineTotal& count) override;
     void onVideoRelationInfo(const bilibili::VideoRelation& result) override;
-    void onRelatedVideoList(const bilibili::VideoDetailListResult& result) override;
+    void onRelatedVideoList(
+        const bilibili::VideoDetailListResult& result) override;
     void onDanmaku(const std::string& filePath) override;
 
     // 初始化设置 播放界面通用内容
@@ -79,9 +82,8 @@ protected:
     BRLS_BIND(brls::Label, labelFavorite, "video/label/favorite");
     BRLS_BIND(brls::Label, labelQR, "video/label/qr");
 
-
-//    bilibili::VideoDetailResult video_data;
-    bool fullscreen = false;
+    //    bilibili::VideoDetailResult video_data;
+    bool fullscreen                              = false;
     brls::ActionIdentifier videoExitFullscreenID = -1;
 
     // 切换视频分P
@@ -94,18 +96,22 @@ protected:
     MPVEvent::Subscription eventSubscribeID;
 };
 
-class PlayerSeasonActivity: public PlayerActivity {
+class PlayerSeasonActivity : public PlayerActivity {
 public:
-
-    PlayerSeasonActivity(const unsigned int id, PGC_ID_TYPE type=PGC_ID_TYPE::SEASON_ID, int progress = -1);
+    PlayerSeasonActivity(const unsigned int id,
+                         PGC_ID_TYPE type = PGC_ID_TYPE::SEASON_ID,
+                         int progress     = -1);
 
     ~PlayerSeasonActivity() override;
 
     void onContentAvailable() override;
 
-    void onSeasonVideoInfo(const bilibili::SeasonResultWrapper& result) override;
+    void onSeasonVideoInfo(
+        const bilibili::SeasonResultWrapper& result) override;
 
-    void onSeasonEpisodeInfo(const bilibili::SeasonEpisodeResult& result) override;
+    void onSeasonEpisodeInfo(
+        const bilibili::SeasonEpisodeResult& result) override;
+
 private:
     unsigned int pgc_id;
     PGC_ID_TYPE pgcIdType;

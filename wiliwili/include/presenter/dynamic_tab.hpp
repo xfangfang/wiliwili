@@ -8,12 +8,11 @@
 
 class DynamicTabRequest {
 public:
-    virtual void onUpList(const bilibili::DynamicUpListResultWrapper &result);
+    virtual void onUpList(const bilibili::DynamicUpListResultWrapper& result);
 
     virtual void onError(const std::string& error);
 
     void requestData();
 
     void requestUpList();
-
 };

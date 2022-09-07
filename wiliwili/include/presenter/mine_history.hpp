@@ -8,13 +8,15 @@
 
 class MineHistoryRequest {
 public:
-    virtual void onHistoryList(const bilibili::HistoryVideoResultWrapper &result);
+    virtual void onHistoryList(
+        const bilibili::HistoryVideoResultWrapper& result);
 
     virtual void onError(const std::string& error);
 
     void requestData(bool refresh = false);
 
     void requestHistoryVideoList();
+
 protected:
     bilibili::HistoryVideoListCursor cursor;
 };

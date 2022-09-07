@@ -2,7 +2,6 @@
 // Created by fang on 2022/7/18.
 //
 
-
 #include "view/video_comment.hpp"
 #include "utils/number_helper.hpp"
 #include "bilibili.h"
@@ -14,24 +13,22 @@ VideoComment::VideoComment() {
 
 VideoComment::~VideoComment() {
     brls::Logger::debug("View VideoComment: delete");
-//    ImageHelper::clear(this->userInfo->getAvatar());
+    //    ImageHelper::clear(this->userInfo->getAvatar());
 }
 
-RecyclingGridItem* VideoComment::create() {
-    return new VideoComment();
-}
+RecyclingGridItem* VideoComment::create() { return new VideoComment(); }
 
-void VideoComment::setData(bilibili::VideoCommentResult data){
+void VideoComment::setData(bilibili::VideoCommentResult data) {
     this->comment_data = data;
 
     this->label->setText(data.content.message);
-    this->userInfo->setUserInfo(data.member.avatar+"@96w_96h_1c.jpg", data.member.uname, wiliwili::sec2date(data.ctime));
+    this->userInfo->setUserInfo(data.member.avatar + "@96w_96h_1c.jpg",
+                                data.member.uname,
+                                wiliwili::sec2date(data.ctime));
 }
 
-void VideoComment::prepareForReuse(){
+void VideoComment::prepareForReuse() {}
 
-}
-
-void VideoComment::cacheForReuse(){
+void VideoComment::cacheForReuse() {
     ImageHelper::clear(this->userInfo->getAvatar());
 }

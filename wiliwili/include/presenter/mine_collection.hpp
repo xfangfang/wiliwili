@@ -10,15 +10,16 @@ class MineCollectionRequest {
 public:
     MineCollectionRequest();
 
-    virtual void onCollectionList(const bilibili::CollectionListResultWrapper &result);
+    virtual void onCollectionList(
+        const bilibili::CollectionListResultWrapper& result);
 
     virtual void onError(const std::string& error);
 
-    void requestData(bool refresh=false);
+    void requestData(bool refresh = false);
 
-    void requestCollectionList(std::string& mid, int index=1, int num=20);
+    void requestCollectionList(std::string& mid, int index = 1, int num = 20);
 
 private:
-    int index = 1;
+    int index    = 1;
     bool hasMore = true;
 };

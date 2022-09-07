@@ -14,8 +14,7 @@
 #include "presenter/mine_collection.hpp"
 #include "view/recycling_grid.hpp"
 
-class MineCollection : public AttachedView, public MineCollectionRequest{
-
+class MineCollection : public AttachedView, public MineCollectionRequest {
 public:
     MineCollection();
 
@@ -25,11 +24,11 @@ public:
 
     void onCreate() override;
 
-    void onCollectionList(const bilibili::CollectionListResultWrapper &result) override;
+    void onCollectionList(
+        const bilibili::CollectionListResultWrapper &result) override;
 
-    void onError(const std::string& error) override;
+    void onError(const std::string &error) override;
 
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "mine/collection/recyclingGrid");
-
 };
