@@ -116,12 +116,6 @@ make wiliwili -j
 pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-make \
   git mingw-w64-x86_64-glfw mingw-w64-x86_64-glm mingw-w64-x86_64-mpv
 
-# using Ninja
-mkdir -p build && cd build
-cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release -DPLATFORM_DESKTOP=ON
-cmake --build ..
-
-# using make
 mkdir -p build && cd build
 cmake -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON ..
 mingw32-make wiliwili -j
