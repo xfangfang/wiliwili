@@ -384,3 +384,10 @@ void VideoDetail::addCoin(int aid) {
     if (token == "") return;
     bilibili::BilibiliClient::add_coin(token, aid, 1, true);
 }
+
+/// 收藏
+void VideoDetail::addResource(int aid) {
+    std::string token = ProgramConfig::instance().getCSRF();
+    if (token == "") return;
+    bilibili::BilibiliClient::add_resource(token, aid);
+}
