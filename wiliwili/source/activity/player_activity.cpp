@@ -227,6 +227,19 @@ void PlayerActivity::onContentAvailable() {
         return true;
     });
 
+    // 收藏按钮
+    this->btnFavorite->getParent()->registerClickAction([this](...) {
+        this->addResource((unsigned int)this->videoDetailResult.aid);
+        /// 收藏后，需要等待反馈后，再更新UI
+        std::thread updateUI([this]() {
+            sleep(1);
+            this->requestVideoRelationInfo(this->videoDetailResult.bvid);
+        });
+        updateUI.detach();
+
+        return true;
+    });
+
     // 二维码按钮
     this->btnQR->getParent()->registerClickAction([this](...) {
         this->showShareDialog("https://www.bilibili.com/video/" +

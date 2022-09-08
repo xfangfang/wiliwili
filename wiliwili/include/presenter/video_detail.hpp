@@ -86,6 +86,9 @@ public:
     /// 点赞
     void beAgree(int aid);
 
+    /// 收藏
+    void addResource(int aid);
+
 protected:
     bilibili::VideoDetailResult videoDetailResult;       //  视频数据
     bilibili::VideoDetailPage videoDetailPage;           // 视频分P数据

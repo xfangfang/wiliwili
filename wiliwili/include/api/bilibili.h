@@ -309,6 +309,11 @@ public:
                          const std::function<void()>& callback = nullptr,
                          const ErrorCallback& error            = nullptr);
 
+    /// 收藏
+    static void add_resource(const std::string& access_key, int aid,
+                         const std::function<void()>& callback = nullptr,
+                         const ErrorCallback& error            = nullptr);
+
     /// 搜索页 获取搜索视频内容
     static void search_video(
         const std::string& key, const std::string& search_type,

@@ -250,4 +250,27 @@ void BilibiliClient::add_coin(const std::string& access_key, int aid,
                          }
                      });
 }
+
+void BilibiliClient::add_resource(const std::string& access_key, int aid,
+                                  const std::function<void()>& callback,
+                                  const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"rid", std::to_string(aid)},
+        {"type", std::to_string(2)},
+        {"add_media_ids", std::to_string(1)},
+        {"csrf", access_key},
+    };
+    HTTP::__cpr_post(
+        "http://api.bilibili.com/medialist/gateway/coll/resource/deal", {},
+        payload, [callback, error](const cpr::Response& r) {
+            if (r.status_code != 200) {
+                ERROR_MSG("ERROOR: report_history: status_code: " +
+                              std::to_string(r.status_code),
+                          r.status_code);
+            } else {
+                callback();
+            }
+        });
+}
+
 }  // namespace bilibili
