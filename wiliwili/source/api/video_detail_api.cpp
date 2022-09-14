@@ -120,7 +120,7 @@ void BilibiliClient::get_live_url(
     const int roomid, const std::function<void(LiveUrlResultWrapper)>& callback,
     const ErrorCallback& error) {
     HTTP::getResultAsync<LiveUrlResultWrapper>(
-        Api::LiveUrl, {{"cid", std::to_string(roomid)}}, callback, error);
+        Api::LiveUrl, {{"cid", std::to_string(roomid)}, {"platform", "web"}, {"quality", "4"}}, callback, error);
 }
 
 /// 视频页 获取单个视频播放人数

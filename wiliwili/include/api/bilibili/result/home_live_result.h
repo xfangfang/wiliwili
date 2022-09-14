@@ -23,7 +23,7 @@ public:
     int current_qn;
     LiveUrlListResult durl;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveUrlResultWrapper, current_qn);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveUrlResultWrapper, current_qn, durl);
 
 class LiveAreaResult {
 public:

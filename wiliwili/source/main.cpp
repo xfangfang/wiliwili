@@ -14,6 +14,7 @@
 //#include "activity/search_activity.hpp"
 //#include "activity/pgc_index_activity.hpp"
 //#include "activity/player_activity.hpp"
+//#include "activity/live_player_activity.hpp"
 
 //#define DISK_LOG
 
@@ -72,6 +73,7 @@ int main(int argc, char* argv[]) {
         //        brls::Application::pushActivity(new HintActivity());
         //        brls::Application::pushActivity(new PGCIndexActivity("/page/home/pgc/more?type=2&index_type=2&area=2&order=2&season_status=-1&season_status=3,6"));
         //        brls::Application::pushActivity(new SettingActivity());
+        //        brls::Application::pushActivity(new LiveActivity(1942240));
     } else {
         brls::Application::pushActivity(new HintActivity());
     }

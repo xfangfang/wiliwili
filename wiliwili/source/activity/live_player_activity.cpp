@@ -8,23 +8,44 @@
 
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
-    brls::Logger::debug("LiveActivity: create");
+    brls::Logger::debug("LiveActivity: create: {}", live.roomid);
+}
+
+LiveActivity::LiveActivity(int roomid){
+    brls::Logger::debug("LiveActivity: create: {}", roomid);
+    this->liveData.roomid = roomid;
 }
 
 void LiveActivity::onContentAvailable() {
     brls::Logger::debug("LiveActivity: onContentAvailable");
 
-    if (!liveData.play_url.empty()) {
-        this->video->start(liveData.play_url);
-    }
+    this->video->registerAction("", brls::BUTTON_B,
+        [this](...) {
+            brls::Application::popActivity();
+            return true;
+        }
+    );
 
-    bilibili::BilibiliClient::get_live_url(
-        liveData.roomid, [this](const bilibili::LiveUrlResultWrapper& result) {
-            for (auto i : result.durl) {
-                this->video->start(i.url);
-                break;
-            }
-        });
+    // 使用api接口提供的播放链接，清晰度不高
+    // if (!liveData.play_url.empty()) {
+    //     this->video->start(liveData.play_url);
+    // }
+    brls::Logger::debug("live default url: {}", liveData.play_url);
+
+    // 根据房间号重新获取高清播放链接
+    this->requestData(liveData.roomid);
+}
+
+void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result){
+    for (auto i : result.durl) {
+        brls::Logger::debug("palyurl: {}", i.url);
+        this->video->start(i.url);
+        break;
+    }
+}
+
+void LiveActivity::onError(const std::string& error){
+    brls::Logger::error("ERROR request live data: {}", error);
 }
 
 LiveActivity::~LiveActivity() {

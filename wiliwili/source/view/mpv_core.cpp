@@ -104,6 +104,7 @@ MPVCore::MPVCore() {
     // mpv_set_option_string(mpv, "msg-level", "all=v");
     mpv_set_option_string(mpv, "msg-level", "all=no");
 
+
     if (mpv_initialize(mpv) < 0) {
         mpv_terminate_destroy(mpv);
         brls::fatal("Could not initialize mpv context");
@@ -343,7 +344,8 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     // return;
 
     if (mpv_context == nullptr) return;
-
+    // if (!(mpv_render_context_update(mpv_context) & MPV_RENDER_UPDATE_FRAME)) return;
+    
     mpv_render_context_render(this->mpv_context, mpv_params);
 
 #ifdef __SWITCH__
@@ -531,8 +533,7 @@ void MPVCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
 }
 
 void MPVCore::reset() {
-    DanmakuItem::lines = std::vector<std::pair<float, float>>(
-        20, std::make_pair<float, float>(0, 0));
+    DanmakuItem::lines = std::vector<std::pair<float, float>>(20, {0, 0});
     this->danmakuData.clear();
     this->core_idle      = 0;
     this->duration       = 0;  // second

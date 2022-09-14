@@ -61,8 +61,7 @@ public:
     //    int level; // 弹幕等级 0-10
 
     inline static std::vector<std::pair<float, float>> lines =
-        std::vector<std::pair<float, float>>(
-            20, std::make_pair<float, float>(0, 0));
+        std::vector<std::pair<float, float>>(20, {0, 0});
 };
 
 class MPVCore : public Singleton<MPVCore> {
