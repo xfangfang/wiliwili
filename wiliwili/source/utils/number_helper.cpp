@@ -66,7 +66,9 @@ std::string wiliwili::sec2date(time_t sec) {
     }
     size_t inter = curTime - sec;
 
-    if (abs(curTm.tm_mday - tm.tm_mday) >= 2) {  // 两天前
+    if (curTm.tm_mon != tm.tm_mon ||
+        ((curTm.tm_mon == tm.tm_mon) && abs(curTm.tm_mday - tm.tm_mday) >= 2)) {
+        // 两天前
         return std::to_string(tm.tm_mon + 1) + "-" + std::to_string(tm.tm_mday);
     } else if (inter > 86400) {  // 24小时前
         return "昨天";
@@ -100,9 +102,12 @@ std::string wiliwili::sec2TimeDate(time_t sec) {
                std::to_string(tm.tm_mon + 1) + "-" + std::to_string(tm.tm_mday);
     }
 
-    if (abs(curTm.tm_mday - tm.tm_mday) >= 2) {  // 两天前
+    if (curTm.tm_mon != tm.tm_mon ||
+        ((curTm.tm_mon == tm.tm_mon) && abs(curTm.tm_mday - tm.tm_mday) >= 2)) {
+        // 两天前
         return std::to_string(tm.tm_mon + 1) + "-" + std::to_string(tm.tm_mday);
-    } else if (abs(curTm.tm_mday - tm.tm_mday) >= 1) {  // 昨天 00:00
+    } else if (abs(curTm.tm_mday - tm.tm_mday) >= 1) {
+        // 昨天 00:00
         return "昨天 " + wiliwili::pre0(tm.tm_hour, 2) + ":" +
                wiliwili::pre0(tm.tm_min, 2);
     }
