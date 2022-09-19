@@ -84,7 +84,7 @@ VideoView::VideoView() {
     this->registerMpvEvent();
 
     osdSlider->getProgressEvent()->subscribe([](float progress) {
-        brls::Logger::debug("progress: {}", progress);
+        brls::Logger::verbose("progress: {}", progress);
         //todo: less call
         //todo: wakeup osd
         //        mpvCore->command_str(fmt::format("seek {} absolute-percent", progress * 100).c_str());
@@ -141,13 +141,7 @@ VideoView::VideoView() {
             brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
                                    brls::SOUND_NONE)));
 
-    if (mpvCore->showDanmaku) {
-        this->btnDanmakuIcon->setImageFromSVGRes(
-            "svg/bpx-svg-sprite-danmu-switch-on.svg");
-    } else {
-        this->btnDanmakuIcon->setImageFromSVGRes(
-            "svg/bpx-svg-sprite-danmu-switch-off.svg");
-    }
+    this->refreshDanmakuIcon();
 
     this->registerAction(
         "cancel", brls::ControllerButton::BUTTON_B,
@@ -291,18 +285,15 @@ void VideoView::onLayout() {
 }
 
 void VideoView::setUrl(std::string url) {
-    // const char *cmd[] = {"loadfile", url.c_str(), NULL};
-    // mpvCore->command_async(cmd);
-
     const char* cmd[] = {"loadfile", url.c_str(), NULL};
-    mpvCore->command(cmd);
+    mpvCore->command_async(cmd);
 }
 
 void VideoView::setUrl(std::string url, int progress) {
     std::string start = fmt::format("start={}", progress);
     const char* cmd[] = {"loadfile", url.c_str(), "replace", start.c_str(),
                          NULL};
-    mpvCore->command(cmd);
+    mpvCore->command_async(cmd);
 }
 
 void VideoView::resume() { mpvCore->command_str("set pause no"); }
@@ -310,9 +301,8 @@ void VideoView::resume() { mpvCore->command_str("set pause no"); }
 void VideoView::pause() { mpvCore->command_str("set pause yes"); }
 
 void VideoView::stop() {
-    //     const char *cmd[] = {"stop",  NULL};
-    //     mpvCore->command_async(cmd);
-    mpvCore->command_str("stop");
+    const char* cmd[] = {"stop", NULL};
+    mpvCore->command_async(cmd);
 }
 
 void VideoView::togglePlay() {
@@ -353,6 +343,10 @@ void VideoView::hideLoading() {
     osdSpinner->setVisibility(brls::Visibility::GONE);
 }
 
+void VideoView::hideDanmakuButton() {
+    btnDanmakuIcon->getParent()->setVisibility(brls::Visibility::GONE);
+}
+
 void VideoView::setTitle(std::string title) {
     brls::Threading::sync(
         [this, title]() { this->videoTitleLabel->setText(title); });
@@ -382,6 +376,16 @@ void VideoView::refreshFullscreenIcon() {
     } else {
         btnFullscreenIcon->setImageFromSVGRes(
             "svg/bpx-svg-sprite-fullscreen.svg");
+    }
+}
+
+void VideoView::refreshDanmakuIcon() {
+    if (mpvCore->showDanmaku) {
+        this->btnDanmakuIcon->setImageFromSVGRes(
+            "svg/bpx-svg-sprite-danmu-switch-on.svg");
+    } else {
+        this->btnDanmakuIcon->setImageFromSVGRes(
+            "svg/bpx-svg-sprite-danmu-switch-off.svg");
     }
 }
 
@@ -473,6 +477,7 @@ void VideoView::setFullScreen(bool fs) {
                         this->leftStatusLabel->getFullText());
                     video->registerMpvEvent();
                     video->refreshToggleIcon();
+                    video->refreshDanmakuIcon();
                     if (osdSpinner->getVisibility() == brls::Visibility::GONE) {
                         video->hideLoading();
                     } else {

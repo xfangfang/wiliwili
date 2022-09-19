@@ -50,6 +50,8 @@ public:
 
     void hideLoading();
 
+    void hideDanmakuButton();
+
     void setTitle(std::string title);
 
     std::string getTitle();
@@ -60,11 +62,14 @@ public:
 
     void setPlaybackTime(std::string value);
 
-    // 手动刷新osd右下角的图标
+    // 手动刷新osd右下角的全屏图标
     void refreshFullscreenIcon();
 
     // 手动刷新osd左下角的播放图标
     void refreshToggleIcon();
+
+    // 手动刷新osd右下角的弹幕图标
+    void refreshDanmakuIcon();
 
     void setProgress(float value);
 

@@ -4,29 +4,32 @@
 
 #include "activity/live_player_activity.hpp"
 #include "view/video_view.hpp"
+#include "view/mpv_core.hpp"
 #include "bilibili.h"
 
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
+    MPVCore::instance().showDanmaku = false;
 }
 
-LiveActivity::LiveActivity(int roomid){
+LiveActivity::LiveActivity(int roomid) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
-    this->liveData.roomid = roomid;
+    this->liveData.roomid           = roomid;
+    MPVCore::instance().showDanmaku = false;
 }
 
 void LiveActivity::onContentAvailable() {
     brls::Logger::debug("LiveActivity: onContentAvailable");
 
-    this->video->registerAction("", brls::BUTTON_B,
-        [this](...) {
-            brls::Application::popActivity();
-            return true;
-        }
-    );
+    this->video->registerAction("", brls::BUTTON_B, [](...) {
+        brls::Application::popActivity();
+        return true;
+    });
 
-    // 使用api接口提供的播放链接，清晰度不高
+    this->video->hideDanmakuButton();
+
+    // 使用api接口提供的播放链接，清晰度不高, switch上播放会报错退出
     // if (!liveData.play_url.empty()) {
     //     this->video->start(liveData.play_url);
     // }
@@ -36,7 +39,7 @@ void LiveActivity::onContentAvailable() {
     this->requestData(liveData.roomid);
 }
 
-void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result){
+void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result) {
     for (auto i : result.durl) {
         brls::Logger::debug("palyurl: {}", i.url);
         this->video->start(i.url);
@@ -44,7 +47,7 @@ void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result){
     }
 }
 
-void LiveActivity::onError(const std::string& error){
+void LiveActivity::onError(const std::string& error) {
     brls::Logger::error("ERROR request live data: {}", error);
 }
 

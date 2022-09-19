@@ -1,6 +1,6 @@
 <VideoView
-            id="live/video"
-            hideHighlight="true"
-            allowFullscreen="false"
-            width="1280"
-            height="720"/>
+        id="live/video"
+        hideHighlight="true"
+        allowFullscreen="true"
+        width="1280"
+        height="720"/>
