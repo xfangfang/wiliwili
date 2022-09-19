@@ -77,14 +77,12 @@ MPVCore::MPVCore() {
     mpv_set_option_string(mpv, "keep-open", "yes");
 
     // Less cpu cost
-    mpv_set_option_string(mpv, "vd-lavc-skiploopfilter", "all");
-    mpv_set_option_string(mpv, "vd-lavc-fast", "yes");
+    //    mpv_set_option_string(mpv, "vd-lavc-skiploopfilter", "all");
+    //    mpv_set_option_string(mpv, "vd-lavc-fast", "yes");
 
     // cache
-    mpv_set_option_string(mpv, "demuxer-max-bytes", "100MiB");
-    mpv_set_option_string(mpv, "demuxer-max-back-bytes", "50MiB");
-    mpv_set_option_string(mpv, "cache-on-disk", "no");
-    mpv_set_option_string(mpv, "cache-secs", "120");
+    mpv_set_option_string(mpv, "demuxer-max-bytes", "20MiB");
+    mpv_set_option_string(mpv, "demuxer-max-back-bytes", "10MiB");
 
     // hardware decoding
 #ifndef __SWITCH__
@@ -103,7 +101,6 @@ MPVCore::MPVCore() {
     // mpv_set_option_string(mpv, "msg-level", "ffmpeg=trace");
     // mpv_set_option_string(mpv, "msg-level", "all=v");
     mpv_set_option_string(mpv, "msg-level", "all=no");
-
 
     if (mpv_initialize(mpv) < 0) {
         mpv_terminate_destroy(mpv);
@@ -345,7 +342,7 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
 
     if (mpv_context == nullptr) return;
     // if (!(mpv_render_context_update(mpv_context) & MPV_RENDER_UPDATE_FRAME)) return;
-    
+
     mpv_render_context_render(this->mpv_context, mpv_params);
 
 #ifdef __SWITCH__
@@ -511,8 +508,8 @@ void MPVCore::eventMainLoop() {
                                      ->data;
                         }
 
-                        brls::Logger::debug("========> cache_speed: {}KB/s ",
-                                            cache_speed / 1024);
+                        brls::Logger::verbose("========> cache_speed: {}KB/s ",
+                                              cache_speed / 1024);
                         break;
                     default:
                         break;
