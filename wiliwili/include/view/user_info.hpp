@@ -22,6 +22,8 @@ class UserInfoView : public brls::Box {
 public:
     UserInfoView() { this->inflateFromXMLRes("xml/views/user_info.xml"); }
 
+    ~UserInfoView() { ImageHelper::clear(this->avatarView); }
+
     void setUserInfo(std::string avatar, std::string username,
                      std::string misc) {
         this->labelUsername->setText(username);

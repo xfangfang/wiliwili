@@ -4,73 +4,11 @@
 
 #include "utils/image_helper.hpp"
 #include "utils/singleton.hpp"
+#include "utils/cache_helper.hpp"
 #include "borealis/core/thread.hpp"
 
 std::vector<std::shared_ptr<ImageHelper>> ImageHelper::imagePool;
 std::default_random_engine ImageHelper::random_engine;
-
-template <typename K, typename T>
-struct Node {
-    K key;
-    T value;
-    Node(K k, T v) : key(k), value(v) {}
-};
-template <typename K, typename T>
-class LRUCache {
-public:
-    LRUCache(int c, T defaultValue) : capacity(c), defaultValue(defaultValue) {}
-
-    T get(K key) {
-        if (cacheMap.find(key) == cacheMap.end()) {
-            return defaultValue;
-        }
-        cacheList.splice(cacheList.begin(), cacheList, cacheMap[key]);
-        cacheMap[key] = cacheList.begin();
-        return cacheMap[key]->value;
-    }
-    void set(K key, T value) {
-        if (cacheMap.find(key) == cacheMap.end()) {
-            if (cacheList.size() == capacity) {
-                cacheMap.erase(cacheList.back().key);
-                cacheList.pop_back();
-            }
-            cacheList.push_front(Node<K, T>(key, value));
-            cacheMap[key] = cacheList.begin();
-        } else {
-            cacheMap[key]->value = value;
-            cacheList.splice(cacheList.begin(), cacheList, cacheMap[key]);
-            cacheMap[key] = cacheList.begin();
-        }
-    }
-
-    std::list<Node<K, T>>& getCacheList() { return cacheList; }
-
-private:
-    int capacity;
-    T defaultValue;
-    std::list<Node<K, T>> cacheList;
-    std::unordered_map<K, typename std::list<Node<K, T>>::iterator> cacheMap;
-};
-
-class TextureCache : public Singleton<TextureCache> {
-public:
-    int getCache(const std::string& url) { return cache.get(url); }
-
-    void addCache(const std::string& url, int texture) {
-        if (texture <= 0) return;
-
-        cache.set(url, texture);
-    }
-
-    void clean() {
-        auto vg = brls::Application::getNVGContext();
-        for (auto& i : cache.getCacheList()) {
-            nvgDeleteImage(vg, i.value);
-        }
-    }
-
-    LRUCache<std::string, int> cache = LRUCache<std::string, int>(200, 0);
-};
 
 void ImageHelper::init() {
     random_engine.seed(time(0));
@@ -104,9 +42,30 @@ void ImageHelper::setCurrentView(brls::View* view) {
     this->currentView = view;
 }
 
-void ImageHelper::cancel() { this->isCancel = true; }
+void ImageHelper::cancel() {
+    std::unique_lock<std::mutex> lock(this->availableMutex);
+    // 已经加载结束、出错或被取消
+    if (this->available) {
+        if (this->imageView) this->imageView->clear();
+        brls::Logger::verbose("Cancel loading pictures (done): {}",
+                              (size_t)this->imageView);
+        return;
+    }
+    this->isCancel = true;
+    brls::Logger::verbose("Cancel loading pictures: {}",
+                          (size_t)this->imageView);
+}
 
 bool ImageHelper::isAvailable() { return this->available; }
+
+void ImageHelper::setAvailable(bool value) {
+    this->available = value;
+    if (value) {
+        this->imageView = nullptr;
+    } else {
+        this->isCancel = false;
+    }
+}
 
 ImageHelper* ImageHelper::load(std::string url) {
     this->imageUrl = url;
@@ -114,44 +73,55 @@ ImageHelper* ImageHelper::load(std::string url) {
 }
 
 ImageHelper* ImageHelper::into(brls::Image* image) {
-    if (!this->available) brls::fatal("Not available");
-    this->imageView = image;
-    this->available = false;
-    this->isCancel  = false;
 
-    image->setFreeTexture(false);
-
-    int tex = TextureCache::instance().getCache(this->imageUrl);
-    if (tex > 0) {
-        image->innerSetImage(tex);
-        this->available = true;
+    std::unique_lock<std::mutex> lock(this->availableMutex);
+    if (!this->available) {
+        brls::Logger::error("Image: {} is not available now", (size_t)image);
         return this;
     }
 
+    this->imageView = image;
+    image->setFreeTexture(false);
+    this->setAvailable(false);
+
+    // 禁止删除图片
     image->ptrLock();
+
+    // 先检查缓存
+    int tex = TextureCache::instance().getCache(this->imageUrl);
+    if (tex > 0) {
+        brls::Logger::verbose("cache hit: {}", this->imageUrl);
+        image->innerSetImage(tex);
+        this->setAvailable(true);
+        image->ptrUnlock();
+        return this;
+    }
+
+    // 网络请求
     cpr::GetCallback(
         [this, image](cpr::Response r) {
-            brls::Logger::debug("net image status code: {} / {}", r.status_code,
-                                r.downloaded_bytes);
+            brls::Logger::verbose("net image status code: {} / {}",
+                                  r.status_code, r.downloaded_bytes);
+            std::unique_lock<std::mutex> lock(this->availableMutex);
             if (r.status_code != 200 || r.downloaded_bytes == 0 ||
                 this->isCancel) {
-                brls::Logger::debug("undone pic:{}", r.url.str());
-                this->available = true;
+                brls::Logger::verbose("undone pic:{}", r.url.str());
+                this->setAvailable(true);
                 image->ptrUnlock();
             } else {
-                brls::Logger::debug("load pic:{} size:{}bytes to {}",
-                                    r.url.str(), r.downloaded_bytes,
-                                    (size_t)this);
-                brls::Logger::debug("load pic to image1 {} {}", (size_t)image,
-                                    image->describe());
-                std::uniform_real_distribution<double> u(10, 100);
-                brls::Threading::delay(u(random_engine), [this, image, r]() {
+                brls::Logger::verbose("load pic:{} size:{}bytes by{} to {} {}",
+                                      r.url.str(), r.downloaded_bytes,
+                                      (size_t)this, (size_t)image,
+                                      image->describe());
+                brls::sync([this, image, r]() {
+                    std::unique_lock<std::mutex> lock(this->availableMutex);
+                    if (this->isCancel) return;
                     image->setImageFromMem((unsigned char*)r.text.c_str(),
                                            (size_t)r.downloaded_bytes);
                     if (image->getTexture() > 0)
                         TextureCache::instance().addCache(this->imageUrl,
                                                           image->getTexture());
-                    this->available = true;
+                    this->setAvailable(true);
                     image->ptrUnlock();
                 });
             }
@@ -171,11 +141,11 @@ ImageHelper* ImageHelper::into(brls::Image* image) {
 
 /// 清空图片内容
 void ImageHelper::clear(brls::Image* view) {
-    view->clear(false);
+    view->clear();
     for (auto i : imagePool) {
-        if (i->getImageView() == view && !i->isAvailable()) {
+        if (i->getImageView() == view) {
             // 图片正在加载中
-            brls::Logger::debug("clear image2: {}", (size_t)view);
+            brls::Logger::verbose("clear image2: {}", (size_t)view);
             i->cancel();
         }
     }

@@ -40,6 +40,8 @@ public:
 
     bool isAvailable();
 
+    void setAvailable(bool value);
+
     ImageHelper* load(std::string url);
 
     ImageHelper* into(brls::Image* image);
@@ -52,6 +54,7 @@ public:
 private:
     bool isCancel  = false;
     bool available = true;
+    std::mutex availableMutex;
     brls::View* currentView;
     brls::Image* imageView;
     std::string imageUrl;
