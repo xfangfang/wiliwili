@@ -127,7 +127,9 @@ RecyclingGrid::RecyclingGrid() {
 RecyclingGrid::~RecyclingGrid() {
     brls::Logger::debug("View RecyclingGridActivity: delete");
     if (this->hintImage) this->hintImage->freeView();
+    this->hintImage = nullptr;
     if (this->hintLabel) this->hintLabel->freeView();
+    this->hintLabel = nullptr;
     if (this->dataSource) delete this->dataSource;
     for (auto it : queueMap) {
         for (auto item : *it.second) item->freeView();
@@ -146,6 +148,7 @@ void RecyclingGrid::draw(NVGcontext* vg, float x, float y, float width,
     ScrollingFrame::draw(vg, x, y, width, height, style, ctx);
 
     if (!this->dataSource || this->dataSource->getItemCount() == 0) {
+        if (!this->hintImage) return;
         float w1 = hintImage->getWidth(), w2 = hintLabel->getWidth();
         float h1 = hintImage->getHeight(), h2 = hintLabel->getHeight();
         this->hintImage->setAlpha(this->getAlpha());
@@ -371,10 +374,12 @@ void RecyclingGrid::itemsRecyclingLoop() {
     while (true) {
         RecyclingGridItem* minCell = nullptr;
         for (auto it : contentBox->getChildren())
+
+            // todo: contentBox 循环时加锁？it出现过空指针报错
             if (*((size_t*)it->getParentUserData()) == visibleMin)
                 minCell = (RecyclingGridItem*)it;
 
-        // 当第一个cell的顶部 与 组件顶部的距离大于 preFetchLine 个元素的距离时结束
+        // 当第一个cell的顶部 与 组件顶部的距离大于 preFetchLine 行元素的距离时结束
         if (!minCell ||
             (minCell->getDetachedPosition().y +
                  getHeightByCellIndex(
@@ -404,11 +409,12 @@ void RecyclingGrid::itemsRecyclingLoop() {
     // 下方元素自动销毁
     while (true) {
         RecyclingGridItem* maxCell = nullptr;
+        // todo: contentBox 循环时加锁？it出现过空指针报错
         for (auto it : contentBox->getChildren())
             if (*((size_t*)it->getParentUserData()) == visibleMax)
                 maxCell = (RecyclingGridItem*)it;
 
-        // 当最后一个cell的顶部 与 组件底部间的距离 小于 preFetchLine 个元素的距离时结束
+        // 当最后一个cell的顶部 与 组件底部间的距离 小于 preFetchLine 行元素的距离时结束
         if (!maxCell ||
             (maxCell->getDetachedPosition().y -
                  getHeightByCellIndex(visibleMax,
@@ -435,7 +441,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
     // 上方元素自动添加
     while (visibleMin - 1 < dataSource->getItemCount()) {
         if ((visibleMin) % spanCount == 0)
-            // 当 renderedFrame 顶部 与 组件顶部的距离小于 preFetchLine 个cell的距离时结束
+            // 当 renderedFrame 顶部 与 组件顶部的距离小于 preFetchLine 行cell的距离时结束
             if (renderedFrame.getMinY() +
                     getHeightByCellIndex(visibleMin + preFetchLine * spanCount,
                                          visibleMin) <
@@ -449,7 +455,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
     while (visibleMax + 1 < dataSource->getItemCount()) {
         // 当即将被添加的元素为新一行的开始时结束，否则填充满一整行
         if ((visibleMax + 1) % spanCount == 0)
-            // 如果 renderedFrame 底部 与 组件底部 距离超过了preFetchLine 个cell的距离时结束
+            // 如果 renderedFrame 底部 与 组件底部 距离超过了preFetchLine 行cell的距离时结束
             if (renderedFrame.getMaxY() -
                     getHeightByCellIndex(
                         visibleMax + 1,

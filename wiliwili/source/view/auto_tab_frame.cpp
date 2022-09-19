@@ -223,11 +223,13 @@ void AutoTabFrame::clearTab(const std::string& name, bool onlyFirst) {
     for (auto& i : this->sidebar->getChildren()) {
         AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
         if (item && (item->getLabel() == name)) {
+            // maybe something wrong will happen ?
+            if (item->isFocused()) {
+                this->setLastFocusedView(nullptr);
+                brls::Application::giveFocus(this);
+            }
             this->sidebar->removeView(item, true);
             this->group.removeView(item);
-
-            // maybe something wrong will happen ?
-            if (item->isFocused()) this->setLastFocusedView(nullptr);
 
             if (onlyFirst) break;
         }
@@ -291,8 +293,10 @@ void AutoTabFrame::handleXMLElement(tinyxml2::XMLElement* element) {
 }
 
 AutoTabFrame::~AutoTabFrame() {
+    brls::Logger::debug("delete AutoTabFrame");
     if (this->activeTab) {
-        this->removeView(this->activeTab, false);
+        // 直接移除activeTab，销毁的工作交给其对应的 AutoSidebarItem 来处理
+        this->getChildren().erase(this->getChildren().end() - 1);
         this->activeTab = nullptr;
     }
 }
@@ -881,7 +885,12 @@ void AutoSidebarItem::setAttachedViewCreator(TabViewCreator creator) {
 AutoSidebarItem::~AutoSidebarItem() {
     brls::Logger::debug("del AutoSidebarItem");
     if (this->attachedView) {
-        delete this->attachedView;
+        this->attachedView->setParent(nullptr);
+        if (!this->attachedView->isPtrLocked()) {
+            delete this->attachedView;
+        } else {
+            this->attachedView->freeView();
+        }
         this->attachedView = nullptr;
     }
 }

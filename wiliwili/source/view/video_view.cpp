@@ -449,9 +449,15 @@ void VideoView::setFullScreen(bool fs) {
 
         // 将焦点 赋给新的video
         // 已修复：触摸点击全屏，按键返回，会导致焦点丢失
-        brls::sync([video]() { brls::Application::giveFocus(video); });
+        ASYNC_RETAIN
+        brls::sync([ASYNC_TOKEN, video]() {
+            ASYNC_RELEASE
+            brls::Application::giveFocus(video);
+        });
     } else {
-        brls::sync([this]() {
+        ASYNC_RETAIN
+        brls::sync([ASYNC_TOKEN]() {
+            ASYNC_RELEASE
             //todo: a better way to get videoView pointer
             PlayerActivity* last = dynamic_cast<PlayerActivity*>(
                 Application::getActivitiesStack()
