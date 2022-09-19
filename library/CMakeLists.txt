@@ -6,25 +6,26 @@ if (PLATFORM_DESKTOP)
     if (APPLE)
         set(CPR_FORCE_DARWINSSL_BACKEND ON)
     endif ()
-    if(WIN32)
+    if (WIN32)
         set(CPR_FORCE_USE_SYSTEM_CURL OFF)
         set(CPR_FORCE_WINSSL_BACKEND ON)
-    endif()
-else()
+    endif ()
+else ()
     set(CPR_FORCE_MBEDTLS_BACKEND ON)
-endif()
+endif ()
 
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_Declare(cpr
         GIT_REPOSITORY https://github.com/libcpr/cpr.git
-        GIT_TAG 7a02d679308a19220e3b75616c18ff9e8deb5f9a) # cpr 1.9.1
+        GIT_TAG f88fd7737de3e640c61703eb57a0fa0ce00c60cd) # cpr 1.9.2
+#7a02d679308a19220e3b75616c18ff9e8deb5f9a # cpr 1.9.1
 FetchContent_MakeAvailable(cpr)
 
 #import lunasvg
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_Declare(lunasvg
         GIT_REPOSITORY https://github.com/sammycage/lunasvg.git
-        GIT_TAG ef111f983225d7598cb9044796ed3b1146927135)
+        GIT_TAG 7417baa0aff477f361e44e2aa793fdb0c7aae352) # 2.3.2
 FetchContent_MakeAvailable(lunasvg)
 
 # add QR-Code-generator
@@ -49,8 +50,6 @@ set(BOREALIS_INCLUDE
         ${BOREALIS_PATH}/lib/extern/yoga/src
         ${BOREALIS_PATH}/lib/extern/tweeny/include
         ${BOREALIS_PATH}/include/borealis/extern/nanovg-gl
-#        ${NANOVG_PATH}
-        ${BOREALIS_PATH}/lib/platforms/glfw
         )
 set(BOREALIS_SOURCE
         ${BOREALIS_PATH}/lib/core
@@ -65,7 +64,6 @@ set(BOREALIS_SOURCE
         ${BOREALIS_PATH}/lib/extern/libretro-common/features
         ${BOREALIS_PATH}/lib/extern/yoga/src/yoga
         ${BOREALIS_PATH}/lib/extern/yoga/src/yoga/event
-#        ${NANOVG_PATH}
         ${BOREALIS_PATH}/lib/extern/nanovg-gl
         )
 
@@ -82,7 +80,7 @@ if (PLATFORM_DESKTOP)
     set(BRLS_PLATFORM_RESOURCES_PATH "\"./resources/\"")
     set(BRLS_PLATFORM_LIBS glfw)
     set(BRLS_PLATFORM_OPTION -DNO_TOUCH_SCROLLING=true -D__GLFW__)
-else()
+else ()
     list(APPEND BOREALIS_SOURCE
             ${BOREALIS_PATH}/lib/platforms/switch
             ${BOREALIS_PATH}/lib/extern/nxfmtwrapper
@@ -101,11 +99,11 @@ else()
     set(BRLS_PLATFORM_RESOURCES_PATH "\"romfs:/\"")
     set(BRLS_PLATFORM_LIBS glfw3 EGL glapi drm_nouveau nx m)
     set(BRLS_PLATFORM_OPTION $<$<COMPILE_LANGUAGE:CXX>:-Wno-volatile> -D__SWITCH__)
-endif()
-foreach(lib ${BOREALIS_SOURCE})
+endif ()
+foreach (lib ${BOREALIS_SOURCE})
     aux_source_directory(${lib} TEMP_SRC)
     list(APPEND BOREALIS_SRC ${TEMP_SRC})
-endforeach(lib)
+endforeach (lib)
 
 
 add_library(borealis STATIC ${BOREALIS_SRC})

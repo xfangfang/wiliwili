@@ -1,32 +1,32 @@
 cmake_minimum_required(VERSION 3.15)
 
 # build options
-set(PLATFORM_DESKTOP OFF CACHE BOOL  "build for desktop, ON for desktop; OFF for switch")
-set(BUILTIN_NSP OFF CACHE BOOL  "Built in NSP forwarder")
-set(WIN32_TERMINAL ON CACHE BOOL  "Show terminal when run on Windows")
+set(PLATFORM_DESKTOP OFF CACHE BOOL "build for desktop, ON for desktop; OFF for switch")
+set(BUILTIN_NSP OFF CACHE BOOL "Built in NSP forwarder")
+set(WIN32_TERMINAL ON CACHE BOOL "Show terminal when run on Windows")
 
 IF (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
             "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
     message("Build Type: ${CMAKE_BUILD_TYPE}")
-ENDIF()
+ENDIF ()
 
 
 # toolchain
-if(PLATFORM_DESKTOP)
+if (PLATFORM_DESKTOP)
     message("building for Desktop")
     set(TARGET_PLATFORM desktop CACHE STRING "")
     message("Build Type: ${CMAKE_BUILD_TYPE}")
     SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -g2 -ggdb -Wall")
     SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
-else()
+else ()
     message("building for SWITCH")
     message("Build Type: ${CMAKE_BUILD_TYPE}")
     set(CMAKE_USE_SYSTEM_ENVIRONMENT_PATH OFF)
     file(TO_CMAKE_PATH "$ENV{DEVKITPRO}" DEVKITPRO)
-    if(NOT IS_DIRECTORY ${DEVKITPRO})
+    if (NOT IS_DIRECTORY ${DEVKITPRO})
         message(FATAL_ERROR "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
-    endif()
+    endif ()
     set(DEVKITPRO $ENV{DEVKITPRO} CACHE BOOL "DEVKITPRO")
     include(${DEVKITPRO}/cmake/Switch.cmake REQUIRED)
     set(CMAKE_C_FLAGS "-I${DEVKITPRO}/libnx/include -I${DEVKITPRO}/portlibs/switch/include")
@@ -37,7 +37,7 @@ else()
     message(STATUS "CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}")
     message(STATUS "NX_NACP" = ${NX_NACPTOOL_EXE})
     message(STATUS "NX_ELF2NRO" = ${NX_ELF2NRO_EXE})
-endif()
+endif ()
 
 
 # project info
@@ -70,7 +70,7 @@ if (PLATFORM_DESKTOP)
     set(PLATFORM_OPTION -pthread)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
-else()
+else ()
     set(PLATFORM_LIBS
             # needed by borealis
             glfw3 EGL glapi drm_nouveau
@@ -82,24 +82,24 @@ else()
             # base lib
             nx m
             )
-    if(BUILTIN_NSP)
+    if (BUILTIN_NSP)
         list(APPEND PLATFORM_LIBS nsp)
         set(PLATFORM_OPTION -DBUILTIN_NSP)
-    endif()
+    endif ()
     list(APPEND MAIN_SRC ${CMAKE_SOURCE_DIR}/library/borealis/library/lib/platforms/switch/switch_wrapper.c)
-endif()
+endif ()
 
 
 # building target
-if(WIN32)
-    if(WIN32_TERMINAL)
+if (WIN32)
+    if (WIN32_TERMINAL)
         add_executable(${PROJECT_NAME} ${MAIN_SRC} app_win32.rc)
-    else()
+    else ()
         add_executable(${PROJECT_NAME} WIN32 ${MAIN_SRC} app_win32.rc)
-    endif()
-else()
+    endif ()
+else ()
     add_executable(${PROJECT_NAME} ${MAIN_SRC})
-endif()
+endif ()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -124,12 +124,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 
 # building release file
-if(PLATFORM_DESKTOP)
+if (PLATFORM_DESKTOP)
     add_custom_target(${PROJECT_NAME}.data
             COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_SOURCE_DIR}/resources ${CMAKE_CURRENT_BINARY_DIR}/resources
             )
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
-else()
+else ()
     set_target_properties(
             ${PROJECT_NAME} PROPERTIES
             LINK_FLAGS_RELEASE -s
@@ -150,4 +150,4 @@ else()
             COMMAND ${NX_ELF2NRO_EXE} ${PROJECT_NAME}.elf ${PROJECT_NAME}.nro --icon=${PROJECT_ICON}
             --nacp=${PROJECT_NAME}.nacp --romfsdir=${CMAKE_BINARY_DIR}/resources
             )
-endif()
+endif ()
