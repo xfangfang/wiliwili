@@ -51,12 +51,15 @@ public:
         : list(result), changeVideoEvent(cb) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
         //从缓存列表中取出 或者 新生成一个表单项
-        RecyclingGridItemVideoCard* item =
-            (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
+        RecyclingGridItemRelatedVideoCard* item =
+            (RecyclingGridItemRelatedVideoCard*)recycler->dequeueReusableCell(
+                "Cell");
 
         bilibili::UserUploadedVideoResult& r = this->list[index];
-        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title, r.author, r.created,
-                      r.play, r.video_review, r.length);
+        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title,
+                      r.author + " · " + wiliwili::sec2TimeDate(r.created),
+                      wiliwili::num2w(r.play), wiliwili::num2w(r.video_review),
+                      r.length);
         return item;
     }
 
@@ -81,11 +84,15 @@ public:
                                ChangeVideoEvent cb)
         : list(result), changeVideoEvent(cb) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
-        RecyclingGridItemVideoCard* item =
-            (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
+        RecyclingGridItemRelatedVideoCard* item =
+            (RecyclingGridItemRelatedVideoCard*)recycler->dequeueReusableCell(
+                "Cell");
         auto& r = this->list[index];
-        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title, r.owner.name,
-                      r.pubdate, 0, 0, r.duration);
+        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title,
+                      r.owner.name + " · " + wiliwili::sec2TimeDate(r.pubdate),
+                      wiliwili::num2w(r.stat.view),
+                      wiliwili::num2w(r.stat.danmaku),
+                      wiliwili::sec2Time(r.duration));
         return item;
     }
 
@@ -185,8 +192,8 @@ void PlayerActivity::onContentAvailable() {
 
         // 清空无用的tab
         this->tabFrame->clearTab("分集");
-        this->tabFrame->clearTab("投稿");
         this->tabFrame->clearTab("推荐");
+        this->tabFrame->clearTab("投稿");
 
         // 清空评论
         this->recyclingGrid->showSkeleton(4);
@@ -425,13 +432,14 @@ void PlayerActivity::onUploadedVideos(
             auto container = new AttachedView();
             container->setMarginTop(12);
             auto grid = new RecyclingGrid();
-            grid->setPadding(0, 40, 0, 20);
+            grid->setPadding(0, 20, 0, 20);
             grid->setGrow(1);
             grid->applyXMLAttribute("spanCount", "1");
             grid->applyXMLAttribute("itemSpace", "20");
-            grid->applyXMLAttribute("itemHeight", "250");
-            grid->registerCell(
-                "Cell", []() { return RecyclingGridItemVideoCard::create(); });
+            grid->applyXMLAttribute("itemHeight", "100");
+            grid->registerCell("Cell", []() {
+                return RecyclingGridItemRelatedVideoCard::create();
+            });
             grid->onNextPage([this]() {
                 this->requestUploadedVideos(videoDetailResult.owner.mid);
             });
@@ -466,6 +474,8 @@ void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) {
         progress = episodeResult.progress;
     }
 
+    // 向前回退5秒
+    progress -= 5;
     if (progress > 0) {
         for (const auto& i : result.durl) {
             this->video->setUrl(i.url, progress);
@@ -552,6 +562,9 @@ void PlayerActivity::setRelationButton(bool liked, bool coin, bool favorite) {
 
 void PlayerActivity::onRelatedVideoList(
     const bilibili::VideoDetailListResult& result) {
+    if (result.size() <= 1) {
+        return;
+    }
     AutoSidebarItem* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
@@ -560,13 +573,14 @@ void PlayerActivity::onRelatedVideoList(
         auto container = new AttachedView();
         container->setMarginTop(12);
         auto grid = new RecyclingGrid();
-        grid->setPadding(0, 40, 0, 20);
+        grid->setPadding(0, 20, 0, 20);
         grid->setGrow(1);
         grid->applyXMLAttribute("spanCount", "1");
-        grid->applyXMLAttribute("itemSpace", "20");
-        grid->applyXMLAttribute("itemHeight", "250");
-        grid->registerCell(
-            "Cell", []() { return RecyclingGridItemVideoCard::create(); });
+        grid->applyXMLAttribute("itemSpace", "15");
+        grid->applyXMLAttribute("itemHeight", "100");
+        grid->registerCell("Cell", []() {
+            return RecyclingGridItemRelatedVideoCard::create();
+        });
         item->setSubtitle(wiliwili::num2w(result.size()));
         container->addView(grid);
         grid->setDataSource(
@@ -582,7 +596,9 @@ void PlayerActivity::onDanmaku(const std::string& filePath) {
 }
 
 void PlayerActivity::onError(const std::string& error) {
-    brls::sync([error]() {
+    ASYNC_RETAIN
+    brls::sync([ASYNC_TOKEN, error]() {
+        ASYNC_RELEASE
         auto dialog = new brls::Dialog(error);
         dialog->setCancelable(false);
         dialog->addButton("OK", []() { brls::Application::popActivity(); });

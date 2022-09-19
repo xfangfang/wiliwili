@@ -391,12 +391,61 @@ void RecyclingGridItemCollectionVideoCard::setCard(
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
     if (pic.empty()) {
-        brls::sync([this]() {
+        ASYNC_RETAIN
+        brls::sync([ASYNC_TOKEN, pic]() {
+            ASYNC_RELEASE
             this->picture->setImageFromRes("pictures/playlistbg.png");
         });
     } else {
         ImageHelper::with(this)->load(pic)->into(this->picture);
     }
     this->labelCount->setText(leftBottomBadge);
+    this->labelDuration->setText(rightBottomBadge);
+}
+
+/// 播放页推荐 卡片
+
+RecyclingGridItemRelatedVideoCard::RecyclingGridItemRelatedVideoCard() {
+    this->inflateFromXMLRes("xml/views/video_card_related.xml");
+}
+
+RecyclingGridItemRelatedVideoCard::~RecyclingGridItemRelatedVideoCard() {
+    // 优先清空正在进行的图片请求
+    ImageHelper::clear(this->picture);
+}
+
+void RecyclingGridItemRelatedVideoCard::prepareForReuse() {
+    //准备显示该项
+}
+
+void RecyclingGridItemRelatedVideoCard::cacheForReuse() {
+    //准备回收该项
+    ImageHelper::clear(this->picture);
+}
+
+RecyclingGridItemRelatedVideoCard* RecyclingGridItemRelatedVideoCard::create() {
+    return new RecyclingGridItemRelatedVideoCard();
+}
+
+void RecyclingGridItemRelatedVideoCard::setCard(std::string pic,
+                                                std::string title,
+                                                std::string username,
+                                                std::string playCount,
+                                                std::string danmakuCount,
+                                                std::string rightBottomBadge) {
+    this->labelUsername->setText(username);
+    this->labelTitle->setIsWrapping(true);
+    this->labelTitle->setText(title);
+    if (pic.empty()) {
+        ASYNC_RETAIN
+        brls::sync([ASYNC_TOKEN, pic]() {
+            ASYNC_RELEASE
+            this->picture->setImageFromRes("pictures/playlistbg.png");
+        });
+    } else {
+        ImageHelper::with(this)->load(pic)->into(this->picture);
+    }
+    this->labelCount->setText(playCount);
+    this->labelDanmaku->setText(danmakuCount);
     this->labelDuration->setText(rightBottomBadge);
 }

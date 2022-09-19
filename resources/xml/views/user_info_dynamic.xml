@@ -6,20 +6,21 @@
 
     <brls:Image
             id="avatar"
-            width="auto"
-            height="80%"
+            width="40"
+            height="40"
             scalingType="fit"
             marginLeft="10"
             marginRight="10"
             cornerRadius="100"
-            image="@res/icon/akari.jpg"/>
+            image="@res/pictures/default_avatar.png"/>
 
     <brls:Label
             id="username"
+            grow="1"
             width="auto"
             height="auto"
             singleLine="true"
             fontSize="18"
-            text="username" />
+            text="username"/>
 
 </brls:Box>
