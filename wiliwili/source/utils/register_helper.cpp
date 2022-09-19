@@ -89,52 +89,63 @@ void Register::initCustomView() {
 void Register::initCustomTheme() {
     // Add custom values to the theme
     // 用于左侧边栏背景
-    brls::getLightTheme().addColor("color/grey_1", nvgRGB(245, 246, 247));
-    brls::getDarkTheme().addColor("color/grey_1", nvgRGB(51, 52, 53));
+    brls::Theme::getLightTheme().addColor("color/grey_1",
+                                          nvgRGB(245, 246, 247));
+    brls::Theme::getDarkTheme().addColor("color/grey_1", nvgRGB(51, 52, 53));
 
     // 用于二级切换分栏的背景色（例：直播切换分区、每周必看切换周）
-    brls::getLightTheme().addColor("color/grey_2", nvgRGB(245, 245, 245));
-    brls::getDarkTheme().addColor("color/grey_2", nvgRGB(51, 53, 55));
+    brls::Theme::getLightTheme().addColor("color/grey_2",
+                                          nvgRGB(245, 245, 245));
+    brls::Theme::getDarkTheme().addColor("color/grey_2", nvgRGB(51, 53, 55));
 
     // 用于骨架屏背景色
-    brls::getLightTheme().addColor("color/grey_3", nvgRGBA(200, 200, 200, 16));
-    brls::getDarkTheme().addColor("color/grey_3", nvgRGBA(160, 160, 160, 160));
+    brls::Theme::getLightTheme().addColor("color/grey_3",
+                                          nvgRGBA(200, 200, 200, 16));
+    brls::Theme::getDarkTheme().addColor("color/grey_3",
+                                         nvgRGBA(160, 160, 160, 160));
 
     // 用于历史记录右上角Badge的半透明背景
-    brls::getLightTheme().addColor("color/grey_4", nvgRGBA(48, 48, 48, 160));
-    brls::getDarkTheme().addColor("color/grey_4", nvgRGBA(48, 48, 48, 160));
+    brls::Theme::getLightTheme().addColor("color/grey_4",
+                                          nvgRGBA(48, 48, 48, 160));
+    brls::Theme::getDarkTheme().addColor("color/grey_4",
+                                         nvgRGBA(48, 48, 48, 160));
 
     // 深浅配色通用的灰色字体颜色
-    brls::getLightTheme().addColor("font/grey", nvgRGB(148, 153, 160));
-    brls::getDarkTheme().addColor("font/grey", nvgRGB(148, 153, 160));
+    brls::Theme::getLightTheme().addColor("font/grey", nvgRGB(148, 153, 160));
+    brls::Theme::getDarkTheme().addColor("font/grey", nvgRGB(148, 153, 160));
 
     // 入站必刷推荐原因背景色
-    brls::getLightTheme().addColor("color/yellow_1", nvgRGB(255, 245, 224));
-    brls::getDarkTheme().addColor("color/yellow_1", nvgRGB(46, 33, 17));
+    brls::Theme::getLightTheme().addColor("color/yellow_1",
+                                          nvgRGB(255, 245, 224));
+    brls::Theme::getDarkTheme().addColor("color/yellow_1", nvgRGB(46, 33, 17));
 
     // 入站必刷推荐原因字体颜色
-    brls::getLightTheme().addColor("font/yellow_1", nvgRGB(217, 118, 7));
-    brls::getDarkTheme().addColor("font/yellow_1", nvgRGB(217, 118, 7));
+    brls::Theme::getLightTheme().addColor("font/yellow_1", nvgRGB(217, 118, 7));
+    brls::Theme::getDarkTheme().addColor("font/yellow_1", nvgRGB(217, 118, 7));
 
     // 粉色文字，bilibili主题色
-    brls::getLightTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));
-    brls::getDarkTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));
+    brls::Theme::getLightTheme().addColor("color/bilibili",
+                                          nvgRGB(255, 102, 153));
+    brls::Theme::getDarkTheme().addColor("color/bilibili",
+                                         nvgRGB(255, 102, 153));
 
     // 分割线颜色
-    brls::getLightTheme().addColor("color/line", nvgRGB(208, 208, 208));
-    brls::getDarkTheme().addColor("color/line", nvgRGB(208, 208, 208));
+    brls::Theme::getLightTheme().addColor("color/line", nvgRGB(208, 208, 208));
+    brls::Theme::getDarkTheme().addColor("color/line", nvgRGB(208, 208, 208));
 
     // 粉色背景，用于扁平TabBar背景色
-    brls::getLightTheme().addColor("color/pink_1", nvgRGB(252, 237, 241));
-    brls::getDarkTheme().addColor("color/pink_1", nvgRGB(44, 27, 34));
+    brls::Theme::getLightTheme().addColor("color/pink_1",
+                                          nvgRGB(252, 237, 241));
+    brls::Theme::getDarkTheme().addColor("color/pink_1", nvgRGB(44, 27, 34));
 
-    brls::getLightTheme().addColor("color/white", nvgRGB(255, 255, 255));
-    brls::getDarkTheme().addColor("color/white", nvgRGBA(255, 255, 255, 180));
+    brls::Theme::getLightTheme().addColor("color/white", nvgRGB(255, 255, 255));
+    brls::Theme::getDarkTheme().addColor("color/white",
+                                         nvgRGBA(255, 255, 255, 180));
 
-    brls::getLightTheme().addColor("captioned_image/caption",
-                                   nvgRGB(2, 176, 183));
-    brls::getDarkTheme().addColor("captioned_image/caption",
-                                  nvgRGB(51, 186, 227));
+    brls::Theme::getLightTheme().addColor("captioned_image/caption",
+                                          nvgRGB(2, 176, 183));
+    brls::Theme::getDarkTheme().addColor("captioned_image/caption",
+                                         nvgRGB(51, 186, 227));
 }
 
 void Register::initCustomStyle() {

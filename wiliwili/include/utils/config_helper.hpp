@@ -14,8 +14,10 @@
 #include "utils/singleton.hpp"
 
 #ifdef __SWITCH__
+#define THREAD_POOL_MIN_THREAD_NUM 2
 #define THREAD_POOL_MAX_THREAD_NUM 2
 #else
+#define THREAD_POOL_MIN_THREAD_NUM 2
 #define THREAD_POOL_MAX_THREAD_NUM CPR_DEFAULT_THREAD_POOL_MAX_THREAD_NUM
 #endif
 

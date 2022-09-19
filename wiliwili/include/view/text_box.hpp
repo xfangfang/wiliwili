@@ -20,12 +20,7 @@ public:
         nvgFontSize(vg, this->getFontSize());
         nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
         nvgFontFaceId(vg, this->getFont());
-#ifdef __SWITCH__
         nvgTextLineHeight(vg, this->getLineHeight());
-#else
-        nvgTextLineHeight(vg, this->getLineHeight() * 2 / 3);
-#endif
-
         nvgFillColor(vg, a(this->getTextColor()));
         nvgTextBox(vg, x, y, width, this->getFullText().c_str(), nullptr);
 
