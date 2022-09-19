@@ -23,7 +23,8 @@ using namespace brls::literals;  // for _i18n
 int main(int argc, char* argv[]) {
     // Set min_threads and max_threads of http thread pool
     curl_global_init(CURL_GLOBAL_DEFAULT);
-    cpr::async::startup(1, THREAD_POOL_MAX_THREAD_NUM);
+    cpr::async::startup(THREAD_POOL_MIN_THREAD_NUM, THREAD_POOL_MAX_THREAD_NUM,
+                        std::chrono::milliseconds(5000));
 
     // Set log level
     brls::Logger::setLogLevel(brls::LogLevel::LOG_ERROR);
