@@ -54,15 +54,16 @@
                 wireframe="false"
                 grow="1"
                 width="100%"
+                height="20"
                 marginLeft="2"
                 alignItems="center">
             <SVGImage
-                    width="14"
-                    height="11"
+                    marginTop="2"
+                    height="14"
                     SVG="@res/svg/widget-up.svg"/>
             <brls:Label
                     id="video/card/label/username"
-                    fontSize="14"
+                    fontSize="16"
                     marginLeft="4"
                     singleLine="true"
                     wireframe="false"
@@ -70,6 +71,7 @@
         </brls:Box>
         <brls:Box
                 alignItems="center"
+                height="20"
                 wireframe="false">
             <SVGImage
                     width="16"
@@ -80,8 +82,7 @@
                     marginRight="4"
                     textColor="@theme/font/grey"
                     id="video/card/label/count"
-                    fontSize="14"
-                    text=""/>
+                    fontSize="14"/>
             <SVGImage
                     width="16"
                     height="16"
@@ -91,8 +92,7 @@
                     marginRight="4"
                     textColor="@theme/font/grey"
                     id="video/card/label/danmaku"
-                    fontSize="14"
-                    text=""/>
+                    fontSize="14"/>
         </brls:Box>
     </brls:Box>
 </brls:Box>

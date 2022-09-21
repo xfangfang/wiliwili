@@ -26,8 +26,9 @@
                 height="20%"
                 alignItems="center">
             <SVGImage
-                    width="16"
-                    height="16"
+                    width="18"
+                    height="18"
+                    marginTop="2"
                     SVG="@res/svg/widget-video-play-count.svg"/>
             <brls:Label
                     marginLeft="4"
@@ -37,8 +38,9 @@
                     fontSize="16"
                     text=""/>
             <SVGImage
-                    width="16"
-                    height="16"
+                    width="18"
+                    height="18"
+                    marginTop="2"
                     SVG="@res/svg/widget-video-danmaku.svg"/>
             <brls:Label
                     marginLeft="4"
@@ -60,8 +62,6 @@
             margin="10"
             axis="column">
         <TextBox
-                marginBottom="0"
-                wireframe="false"
                 id="video/card/label/title"
                 fontSize="20"
                 lineHeight="1.5"
@@ -70,25 +70,39 @@
         <brls:Box
                 grow="1"
                 width="100%"
+                height="20"
                 alignItems="center">
+            <brls:Box
+                    id="video/card/hint"
+                    backgroundColor="@theme/color/yellow_1"
+                    cornerRadius="4"
+                    marginTop="2"
+                    justifyContent="center"
+                    alignItems="center">
+                <brls:Label
+                        id="video/card/label/hint"
+                        fontSize="13"
+                        marginLeft="2"
+                        marginRight="2"
+                        horizontalAlign="center"
+                        textColor="@theme/font/yellow_1"/>
+            </brls:Box>
             <SVGImage
-                    width="14"
-                    height="11"
+                    id="video/svg/up"
+                    height="14"
                     SVG="@res/svg/widget-up.svg"/>
             <brls:Label
-                    wireframe="false"
                     id="video/card/label/username"
                     marginLeft="4"
                     fontSize="16"
                     singleLine="true"
                     textColor="@theme/font/grey"
-                    width="100%"
                     height="100%"/>
         </brls:Box>
         <brls:Box
                 id="video/card/rcmd_box"
                 visibility="gone"
-                marginTop="10"
+                marginTop="4"
                 height="20"
                 backgroundColor="@theme/color/grey_1"
                 cornerRadius="4"
@@ -111,7 +125,7 @@
         <brls:Box
                 id="video/card/achievement_box"
                 visibility="gone"
-                marginTop="10"
+                marginTop="4"
                 height="20"
                 backgroundColor="@theme/color/yellow_1"
                 cornerRadius="4"

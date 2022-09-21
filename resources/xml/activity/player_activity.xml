@@ -190,6 +190,7 @@
                         marginTop="10"
                         width="100%"
                         justifyContent="flexStart"
+                        alignItems="center"
                         marginLeft="20"
                         height="16">
                     <SVGImage

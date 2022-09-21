@@ -25,12 +25,12 @@
                 cornerRadius="4"
                 padding="4"
                 backgroundColor="#303030A0">
-        <brls:Label
-                id="video/card/label/badge/right/top"
-                textColor="#FFFFFF"
-                fontSize="16"
-                height="16"
-                horizontalAlign="center"/>
+            <brls:Label
+                    id="video/card/label/badge/right/top"
+                    textColor="#FFFFFF"
+                    fontSize="16"
+                    height="16"
+                    horizontalAlign="center"/>
         </brls:Box>
 
         <brls:Box
@@ -44,8 +44,8 @@
                 alignItems="center">
             <SVGImage
                     id="video/card/deviceType"
-                    width="16"
-                    height="16"
+                    width="18"
+                    height="18"
                     SVG="@res/svg/widget-video-play-count.svg"/>
             <brls:Label
                     marginLeft="4"
@@ -71,11 +71,11 @@
                 width="100%"
                 height="2"
                 backgroundColor="#353535">
-                <brls:Rectangle
-                        id="video/card/progress"
-                        height="2"
-                        width="50%"
-                        color="@theme/color/bilibili" />
+            <brls:Rectangle
+                    id="video/card/progress"
+                    height="2"
+                    width="50%"
+                    color="@theme/color/bilibili"/>
         </brls:Box>
     </brls:Box>
     <brls:Box
@@ -95,8 +95,7 @@
                 alignItems="center">
             <SVGImage
                     id="video/card/up"
-                    width="14"
-                    height="11"
+                    height="14"
                     SVG="@res/svg/widget-up.svg"/>
             <brls:Label
                     id="video/card/label/username"
@@ -104,7 +103,6 @@
                     fontSize="16"
                     singleLine="true"
                     textColor="@theme/font/grey"
-                    width="100%"
                     height="100%"/>
         </brls:Box>
     </brls:Box>

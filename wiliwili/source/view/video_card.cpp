@@ -46,7 +46,7 @@ RecyclingGridItemVideoCard* RecyclingGridItemVideoCard::create() {
 void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
                                          std::string username, int pubdate,
                                          int view_count, int danmaku,
-                                         int duration) {
+                                         int duration, std::string extra) {
     if (pubdate)
         this->labelUsername->setText(username + "·" +
                                      wiliwili::sec2date(pubdate));
@@ -63,12 +63,22 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
         this->labelDuration->setText(wiliwili::sec2Time(duration));
     else
         this->labelDuration->setText("");
+
+    if(extra.empty()){
+        this->svgUp->setVisibility(brls::Visibility::VISIBLE);
+        this->boxHint->setVisibility(brls::Visibility::GONE);
+    } else {
+        this->svgUp->setVisibility(brls::Visibility::GONE);
+        this->boxHint->setVisibility(brls::Visibility::VISIBLE);
+        this->labelHint->setText(extra);
+    }
 }
 
 void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
                                          std::string username, int pubdate,
                                          int view_count, int danmaku,
-                                         std::string rightBottomBadge) {
+                                         std::string rightBottomBadge,
+                                         std::string extra) {
     if (pubdate)
         this->labelUsername->setText(username + "·" +
                                      wiliwili::sec2date(pubdate));
@@ -178,11 +188,10 @@ void RecyclingGridItemLiveVideoCard::setCard(std::string pic, std::string title,
     if (following) {
         this->svgUp->setVisibility(brls::Visibility::GONE);
         this->boxHint->setVisibility(brls::Visibility::VISIBLE);
-    } else{
+    } else {
         this->svgUp->setVisibility(brls::Visibility::VISIBLE);
         this->boxHint->setVisibility(brls::Visibility::GONE);
     }
-
 }
 
 void RecyclingGridItemLiveVideoCard::prepareForReuse() {

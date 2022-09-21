@@ -1,5 +1,5 @@
 <brls:Box
-    marginLeft="8">
+        marginLeft="8">
     <AutoTabFrame
             id="home/tab/frame"
             defaultTab="1"

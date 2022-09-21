@@ -65,7 +65,8 @@
                 alignItems="center">
             <brls:Box
                     id="video/card/hint"
-                    height="20"
+                    height="18"
+                    marginTop="2"
                     backgroundColor="@theme/color/yellow_1"
                     cornerRadius="4"
                     justifyContent="center"
@@ -73,6 +74,7 @@
                 <brls:Label
                         fontSize="13"
                         text="已关注"
+                        margin="2"
                         horizontalAlign="center"
                         textColor="@theme/font/yellow_1"/>
             </brls:Box>

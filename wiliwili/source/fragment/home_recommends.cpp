@@ -21,7 +21,8 @@ public:
 
         bilibili::RecommendVideoResult& r = this->recommendList[index];
         item->setCard(r.pic + "@672w_378h_1c.jpg", r.title, r.owner.name,
-                      r.pubdate, r.stat.view, r.stat.danmaku, r.duration);
+                      r.pubdate, r.stat.view, r.stat.danmaku, r.duration,
+                      r.rcmd_reason.content);
         return item;
     }
 

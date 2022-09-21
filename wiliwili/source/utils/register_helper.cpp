@@ -116,7 +116,7 @@ void Register::initCustomTheme() {
 
     // 入站必刷推荐原因背景色
     brls::Theme::getLightTheme().addColor("color/yellow_1",
-                                          nvgRGB(255, 245, 224));
+                                          nvgRGB(253, 246, 230));
     brls::Theme::getDarkTheme().addColor("color/yellow_1", nvgRGB(46, 33, 17));
 
     // 入站必刷推荐原因字体颜色

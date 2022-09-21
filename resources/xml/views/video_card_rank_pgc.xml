@@ -42,8 +42,8 @@
                 height="20%"
                 alignItems="center">
             <SVGImage
-                    width="16"
-                    height="16"
+                    width="18"
+                    height="18"
                     SVG="@res/svg/widget-video-play-count.svg"/>
             <brls:Label
                     marginLeft="4"
@@ -53,8 +53,8 @@
                     fontSize="16"
                     text=""/>
             <SVGImage
-                    width="16"
-                    height="16"
+                    width="18"
+                    height="18"
                     SVG="@res/svg/widget-video-danmaku.svg"/>
             <brls:Label
                     marginLeft="4"
@@ -89,8 +89,7 @@
                 width="100%"
                 alignItems="center">
             <SVGImage
-                    width="14"
-                    height="11"
+                    height="14"
                     SVG="@res/svg/widget-up.svg"/>
             <brls:Label
                     wireframe="false"
@@ -99,7 +98,6 @@
                     fontSize="16"
                     singleLine="true"
                     textColor="@theme/font/grey"
-                    width="100%"
                     height="100%"/>
         </brls:Box>
     </brls:Box>

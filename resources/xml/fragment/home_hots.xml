@@ -16,22 +16,22 @@
         <Tab label="综合热门"
              style="plain"
              fontSize="18">
-            <HomeHotsAll />
+            <HomeHotsAll/>
         </Tab>
         <Tab label="排行榜"
              style="plain"
              fontSize="18">
-            <HomeHotsRank />
+            <HomeHotsRank/>
         </Tab>
         <Tab label="每周必看"
              style="plain"
              fontSize="18">
-            <HomeHotsWeekly />
+            <HomeHotsWeekly/>
         </Tab>
         <Tab label="入站必刷"
              style="plain"
              fontSize="18">
-            <HomeHotsHistory />
+            <HomeHotsHistory/>
         </Tab>
     </AutoTabFrame>
 </brls:Box>
