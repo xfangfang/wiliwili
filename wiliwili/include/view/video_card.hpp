@@ -91,7 +91,7 @@ public:
     ~RecyclingGridItemLiveVideoCard();
 
     void setCard(std::string pic, std::string title, std::string username,
-                 std::string area, int view_count = 0);
+                 std::string area, int view_count = 0, bool following = false);
 
     void prepareForReuse();
 
@@ -106,6 +106,8 @@ private:
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
     BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
     BRLS_BIND(brls::Box, boxPic, "video/card/pic_box");
+    BRLS_BIND(brls::Box, boxHint, "video/card/hint");
+    BRLS_BIND(SVGImage, svgUp, "video/svg/up");
 };
 
 class RecyclingGridItemPGCVideoCard : public RecyclingGridItem {

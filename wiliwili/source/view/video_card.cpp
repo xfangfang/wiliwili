@@ -167,13 +167,22 @@ RecyclingGridItemLiveVideoCard::~RecyclingGridItemLiveVideoCard() {
 
 void RecyclingGridItemLiveVideoCard::setCard(std::string pic, std::string title,
                                              std::string username,
-                                             std::string area, int view_count) {
+                                             std::string area, int view_count,
+                                             bool following) {
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(false);
     this->labelTitle->setText(title);
     ImageHelper::with(this)->load(pic)->into(this->picture);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDuration->setText(area);
+    if (following) {
+        this->svgUp->setVisibility(brls::Visibility::GONE);
+        this->boxHint->setVisibility(brls::Visibility::VISIBLE);
+    } else{
+        this->svgUp->setVisibility(brls::Visibility::VISIBLE);
+        this->boxHint->setVisibility(brls::Visibility::GONE);
+    }
+
 }
 
 void RecyclingGridItemLiveVideoCard::prepareForReuse() {

@@ -21,7 +21,7 @@ public:
 
         bilibili::LiveVideoResult& r = this->videoList[index];
         item->setCard(r.cover + "@672w_378h_1c.jpg", r.title, r.uname,
-                      r.area_name, r.online);
+                      r.area_name, r.online, r.following);
         return item;
     }
 

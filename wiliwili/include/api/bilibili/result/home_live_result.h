@@ -52,6 +52,7 @@ public:
     std::string play_url;
     std::string cover;
     std::string area_name;
+    bool following = false;  //是否为我关注的主播
 };
 
 inline void from_json(const nlohmann::json& nlohmann_json_j,
@@ -99,6 +100,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
             card_data.at("my_idol_v1")
                 .at("list")
                 .get_to(nlohmann_json_t.my_list);
+            for (auto& up : nlohmann_json_t.my_list) {
+                up.following = true;
+            }
         }
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more));

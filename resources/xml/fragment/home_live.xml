@@ -5,68 +5,44 @@
         width="auto"
         height="auto">
 
-        <brls:Box
-                wireframe="false"
-                alignItems="center"
-                height="50">
-
-                <brls:Box
-                        width="160"
-                        height="35"
-                        backgroundColor="@theme/color/grey_2"
-                        marginRight="10"
-                        paddingLeft="10"
-                        marginLeft="20"
-                        cornerRadius="6">
-                        <brls:Label
-                                id="home/live/label"
-                                culled="false"
-                                fontSize="13"
-                                singleLine="true"
-                                text="分区：推荐"/>
-                        <brls:Label
-                                positionType="absolute"
-                                positionRight="15"
-                                culled="false"
-                                height="35"
-                                marginLeft="4"
-                                fontSize="14"
-                                text=""/>
-                </brls:Box>
-
-        </brls:Box>
+    <brls:Box
+            wireframe="false"
+            alignItems="center"
+            height="50">
 
         <brls:Box
-                wireframe="false"
-                positionType="absolute"
-                positionRight="0"
-                positionTop="0"
-                justifyContent="flexEnd"
-                alignItems="center"
-                height="50">
-                <SVGImage
-                        culled="false"
-                        width="12"
-                        height="13"
-                        SVG="@res/svg/ico-sprite-info.svg"/>
-                <brls:Label
-                        id="home/hots/rank/note"
-                        culled="false"
-                        fontSize="13"
-                        marginLeft="4"
-                        marginRight="40"
-                        singleLine="true"
-                        textColor="@theme/font/grey"
-                        text="直播页面大概率会报错，欢迎任何了解ffmpeg、mpv、gdb 之一的朋友联系我: github.com/xfangfang/wiliwili"/>
+                width="160"
+                height="35"
+                backgroundColor="@theme/color/grey_2"
+                marginRight="10"
+                paddingLeft="10"
+                marginLeft="20"
+                cornerRadius="6">
+            <brls:Label
+                    id="home/live/label"
+                    culled="false"
+                    fontSize="13"
+                    singleLine="true"
+                    text="分区：推荐"/>
+            <brls:Label
+                    positionType="absolute"
+                    positionRight="15"
+                    culled="false"
+                    height="35"
+                    marginLeft="4"
+                    fontSize="14"
+                    text=""/>
         </brls:Box>
 
-        <RecyclingGrid
-                marginTop="10"
-                paddingLeft="20"
-                paddingRight="20"
-                grow="1"
-                spanCount="4"
-                itemHeight="200"
-                wireframe="false"
-                id="home/live/recyclingGrid"/>
+    </brls:Box>
+
+    <RecyclingGrid
+            marginTop="10"
+            paddingLeft="20"
+            paddingRight="20"
+            grow="1"
+            spanCount="4"
+            itemHeight="200"
+            wireframe="false"
+            id="home/live/recyclingGrid"/>
 </brls:Box>

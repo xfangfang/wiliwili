@@ -7,7 +7,7 @@
     <brls:Box
             id="video/card/pic_box"
             width="100%"
-            height="70%">
+            height="68%">
         <brls:Image
                 id="video/card/picture"
                 scalingType="fill"
@@ -26,8 +26,9 @@
                 height="20%"
                 alignItems="center">
             <SVGImage
-                    width="16"
-                    height="16"
+                    width="18"
+                    height="18"
+                    marginTop="2"
                     SVG="@res/svg/widget-people.svg"/>
             <brls:Label
                     marginLeft="4"
@@ -60,10 +61,25 @@
         <brls:Box
                 grow="1"
                 width="100%"
+                wireframe="false"
                 alignItems="center">
+            <brls:Box
+                    id="video/card/hint"
+                    height="20"
+                    backgroundColor="@theme/color/yellow_1"
+                    cornerRadius="4"
+                    justifyContent="center"
+                    alignItems="center">
+                <brls:Label
+                        fontSize="13"
+                        text="已关注"
+                        horizontalAlign="center"
+                        textColor="@theme/font/yellow_1"/>
+            </brls:Box>
             <SVGImage
-                    width="14"
-                    height="11"
+                    wireframe="false"
+                    id="video/svg/up"
+                    height="14"
                     SVG="@res/svg/widget-up.svg"/>
             <brls:Label
                     wireframe="false"
@@ -72,7 +88,6 @@
                     fontSize="16"
                     singleLine="true"
                     textColor="@theme/font/grey"
-                    width="100%"
                     height="100%"/>
         </brls:Box>
     </brls:Box>

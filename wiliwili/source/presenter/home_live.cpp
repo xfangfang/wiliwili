@@ -46,7 +46,10 @@ void HomeLiveRequest::requestLiveList(int parent_area, int area, int page) {
         parent_area, area, page, "pc",
         [this, page](const bilibili::LiveResultWrapper &result) {
             if (result.live_list.size() > 0) this->areaList = result.live_list;
-            this->onLiveList(result.card_list, page, result.has_more);
+            bilibili::LiveVideoListResult res = result.my_list;
+            res.insert(res.end(), result.card_list.begin(),
+                       result.card_list.end());
+            this->onLiveList(res, page, result.has_more);
         },
         [](const std::string &error) {});
 }
