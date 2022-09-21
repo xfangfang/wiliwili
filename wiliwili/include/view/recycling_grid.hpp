@@ -100,7 +100,7 @@ public:
 
     RecyclingGridDataSource* getDataSource() const;
 
-    void showSkeleton(unsigned int num = 24);
+    void showSkeleton(unsigned int num = 12);
 
     // 重新加载数据
     void reloadData();
@@ -167,9 +167,9 @@ private:
     bool layouted                       = false;
     float oldWidth                      = -1;
 
-    bool requestNextPage = true;
+    bool requestNextPage = false;
     // true表示正在请求下一页，此时不会再次触发下一页请求
-    // 默认不请求下一页，因为有些时候首页和下一页请求的内容或方式不同
+    // 数据为空时不请求下一页，因为有些时候首页和下一页请求的内容或方式不同
     // 当列表元素有变动时（添加或修改数据源，会重置为false，这是将允许请求下一页）
 
     uint32_t visibleMin, visibleMax;

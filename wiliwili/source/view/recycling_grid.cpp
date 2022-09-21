@@ -469,9 +469,13 @@ void RecyclingGrid::itemsRecyclingLoop() {
 
     if (visibleMax + 1 >= this->getItemCount()) {
         // 只有当 requestNextPage 为false时，才可以请求下一页，避免多次重复请求
-        if (!requestNextPage && this->nextPageCallback) {
-            brls::Logger::error("RecyclingGrid request next page");
-            this->nextPageCallback();
+        if (!requestNextPage && nextPageCallback) {
+            // 有数据、不是骨架屏数据、数据不为空
+            if (dataSource && !dynamic_cast<DataSourceSkeleton*>(dataSource) &&
+                dataSource->getItemCount() > 0) {
+                brls::Logger::verbose("RecyclingGrid request next page");
+                this->nextPageCallback();
+            }
         }
         requestNextPage = true;
     }
@@ -483,7 +487,6 @@ RecyclingGridDataSource* RecyclingGrid::getDataSource() const {
 
 void RecyclingGrid::showSkeleton(unsigned int num) {
     this->setDataSource(new DataSourceSkeleton(num));
-    requestNextPage = true;  // 默认不请求下一页
 }
 
 void RecyclingGrid::selectRowAt(size_t index, bool animated) {
