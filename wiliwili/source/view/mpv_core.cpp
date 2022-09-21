@@ -365,10 +365,20 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     // Set alpha
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glUniform1f(0, alpha);
-    //        glUniform1f(glGetUniformLocation(shader.prog, "Alpha"), alpha);
+    static GLuint alphaID = glGetUniformLocation(shader.prog, "Alpha");
+    glUniform1f(alphaID, alpha);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+    if (BOTTOM_BAR) {
+        NVGcontext *vg   = brls::Application::getNVGContext();
+        bottomBarColor.a = alpha;
+        nvgFillColor(vg, bottomBarColor);
+        nvgBeginPath(vg);
+        nvgRect(vg, rect.getMinX(), rect.getMaxY() - 2,
+                rect.getWidth() * playback_time / duration, 2);
+        nvgFill(vg);
+    }
 }
 
 mpv_render_context *MPVCore::getContext() { return this->mpv_context; }
@@ -412,6 +422,8 @@ void MPVCore::eventMainLoop() {
                 // event 21: 开始播放文件（一般是播放或调整进度结束之后触发）
                 brls::Logger::info("========> MPV_EVENT_PLAYBACK_RESTART");
                 mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
+                // 自动播放文件
+                this->resume();
                 break;
             case MPV_EVENT_END_FILE:
 // event 7: 文件播放结束

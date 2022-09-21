@@ -79,6 +79,7 @@ public:
     /// 上报播放进度
     void reportHistory(unsigned int aid, unsigned int cid,
                        unsigned int progress = 0, int type = 3);
+    inline static bool REPORT_HISTORY = true;
 
     /// 投币
     void addCoin(int aid);

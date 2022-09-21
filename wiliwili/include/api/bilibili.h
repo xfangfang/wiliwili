@@ -39,6 +39,7 @@ class VideoDetailResult;          // 视频详情
 class VideoDetailAllResult;  // 更详细的视频详情，包括 分P、合集、推荐、评论
 class UserRelationStat;  // 用户关注/粉丝/黑名单 数量
 class UserDynamicCount;  // 用户动态的数量
+class UnixTimeResult;
 
 using Cookies = std::map<std::string, std::string>;
 
@@ -311,8 +312,8 @@ public:
 
     /// 收藏
     static void add_resource(const std::string& access_key, int aid,
-                         const std::function<void()>& callback = nullptr,
-                         const ErrorCallback& error            = nullptr);
+                             const std::function<void()>& callback = nullptr,
+                             const ErrorCallback& error            = nullptr);
 
     /// 搜索页 获取搜索视频内容
     static void search_video(
@@ -338,6 +339,11 @@ public:
         const std::function<void(DynamicUpListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
+
+    /// 设置页 获取网络时间
+    static void get_unix_time(
+        const std::function<void(UnixTimeResult)>& callback = nullptr,
+        const ErrorCallback& error                          = nullptr);
 
     /// 初始化设置Cookie
     static void init(Cookies& cookies,

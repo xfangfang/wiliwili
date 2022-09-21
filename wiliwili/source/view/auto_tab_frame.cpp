@@ -883,7 +883,7 @@ void AutoSidebarItem::setAttachedViewCreator(TabViewCreator creator) {
 }
 
 AutoSidebarItem::~AutoSidebarItem() {
-    brls::Logger::debug("del AutoSidebarItem");
+    brls::Logger::debug("del AutoSidebarItem: {}", this->label->getFullText());
     if (this->attachedView) {
         this->attachedView->setParent(nullptr);
         if (!this->attachedView->isPtrLocked()) {
@@ -984,4 +984,4 @@ void AttachedView::registerTabAction(std::string hintText,
 
 AttachedView::AttachedView() { this->setGrow(1); }
 
-AttachedView::~AttachedView() {}
+AttachedView::~AttachedView() { brls::Logger::debug("delete AttachedView"); }

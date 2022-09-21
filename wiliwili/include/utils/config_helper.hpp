@@ -25,6 +25,10 @@ typedef std::map<std::string, std::string> Cookie;
 
 enum class SettingItem {
     HIDE_BOTTOM_BAR,
+    APP_THEME,
+    HISTORY_REPORT,
+    PLAYER_BOTTOM_BAR,
+    TEXTURE_CACHE_NUM,
 };
 
 class ProgramConfig : public Singleton<ProgramConfig> {

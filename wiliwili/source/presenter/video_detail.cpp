@@ -356,6 +356,7 @@ void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
 /// 上报历史记录
 void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
                                 unsigned int progress, int type) {
+    if (!REPORT_HISTORY) return;
     brls::Logger::debug("reportHistory: aid{} cid{} progress{}", aid, cid,
                         progress);
     std::string mid   = ProgramConfig::instance().getUserID();

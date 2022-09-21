@@ -1,86 +1,98 @@
 <brls:Box
-    width="auto"
-    height="auto">
-        
+        width="auto"
+        height="auto">
+
     <brls:Box
             grow="1.0"
             width="auto"
             height="auto"
             axis="column"
             wireframe="false"
-            paddingLeft="30"
-            paddingRight="30"
+            paddingLeft="60"
+            paddingRight="60"
             paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
             paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
         <brls:Box
-                height="180"
-                wireframe="false">
-                <brls:Image
-                        height="50"
-                        width="50"
-                        margin="10"
-                        cornerRadius="50"
-                        image="@res/pictures/default_avatar.png"/>
-                <brls:Image
-                        height="16"
-                        width="16"
-                        marginTop="10"
-                        marginRight="8"
-                        image="@res/pictures/icon-quotation.png"/>
-                <brls:Label
-                        width="660"
-                        fontSize="18"
-                        marginTop="20"
-                        textColor="@theme/font/grey"
-                        text="@i18n/wiliwili/speech"/>
+                justifyContent="center"
+                alignItems="flexEnd"
+                marginBottom="20px">
+            <brls:Label
+                    fontSize="60"
+                    marginRight="10"
+                    lineHeight="1"
+                    text="wiliwili"/>
+            <brls:Label
+                    marginRight="20"
+                    lineHeight="1"
+                    textColor="@theme/font/grey"
+                    text="@i18n/version/version"/>
         </brls:Box>
 
-        <brls:Image
-                height="150"
-                cornerRadius="6"
-                image="@res/icon/bilibili.png"/>
 
-        <brls:Box
-                height="100"
-                marginBottom="10px" >
-                <brls:Label
-                        fontSize="40"
-                        marginRight="10"
-                        text="wiliwili"/>
-                <brls:Label
-                        positionTop="9"
-                        marginRight="20"
-                        textColor="@theme/font/grey"
-                        text="v0.3.1"/>
-                <brls:Label
-                        positionTop="9"
-                        textColor="#6693B6"
-                        text="https://github.com/xfangfang/wiliwili" />
-        </brls:Box>
+        <brls:Header
+                title="@i18n/wiliwili/setting/about/brief_header"
+                marginBottom="20"/>
 
         <brls:Label
-                height="200"
-                text="@i18n/wiliwili/brief"/>
+                marginLeft="20"
+                marginBottom="20"
+                text="@i18n/wiliwili/setting/about/brief"/>
+        <brls:Header
+                title="@i18n/wiliwili/setting/about/repo_header"
+                marginBottom="20"/>
+        <brls:Label
+                textColor="#6693B6"
+                marginLeft="20"
+                marginBottom="20"
+                text="@i18n/wiliwili/github"/>
+
+        <brls:Header
+                width="760"
+                title="@i18n/wiliwili/setting/about/author_header"
+                marginBottom="20"/>
+
+        <brls:Box
+                wireframe="false">
+            <brls:Image
+                    height="50"
+                    width="50"
+                    margin="10"
+                    cornerRadius="50"
+                    image="@res/pictures/default_avatar.png"/>
+            <brls:Image
+                    height="16"
+                    width="16"
+                    marginTop="10"
+                    marginRight="8"
+                    image="@res/pictures/icon-quotation.png"/>
+            <brls:Label
+                    width="660"
+                    fontSize="18"
+                    marginTop="20"
+                    textColor="@theme/font/grey"
+                    text="@i18n/wiliwili/setting/about/author"/>
+        </brls:Box>
 
 
     </brls:Box>
 
-    <QRImage
+    <brls:Box
             positionType="absolute"
-            positionBottom="30"
-            positionRight="30"
-            width="200"
-            height="200"
-            cornerRadius="6"
-            QRContent="https://github.com/xfangfang/wiliwili"/>
-
-    <brls:Label
-            positionType="absolute"
-            positionBottom="0"
-            positionRight="80"
-            textColor="@theme/font/grey"
-            fontSize="18"
-            text="项目首页"/>
+            positionBottom="20"
+            axis="column"
+            alignItems="center"
+            positionRight="30">
+        <QRImage
+                width="200"
+                height="200"
+                cornerRadius="6"
+                QRContent="https://github.com/xfangfang/wiliwili"/>
+        <brls:Label
+                marginTop="10"
+                textColor="@theme/font/grey"
+                fontSize="18"
+                text="项目首页"/>
+    </brls:Box>
 
 </brls:Box>

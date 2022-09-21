@@ -2,22 +2,23 @@
         iconInterpolation="linear"
         headerHidden="true"
         footerHidden="false">
-        <AutoTabFrame
-                id="setting/tabFrame"
-                grow="1"
-                tabBackgroundColor="@theme/color/grey_1"
-                tabItemActiveTextColor="@theme/color/bilibili"
-                defaultTab="0"
-                demandMode="false"
-                sidebarWidth="200"
-                sidebarPosition="left">
+    <AutoTabFrame
+            id="setting/tabFrame"
+            grow="1"
+            tabBackgroundColor="@theme/color/grey_1"
+            tabItemActiveTextColor="@theme/color/bilibili"
+            defaultTab="0"
+            demandMode="false"
+            sidebarWidth="200"
+            sidebarPosition="left">
 
-            <Tab label="应用设置"
-                 fontSize="22">
-                <brls:ScrollingFrame
-                        width="auto"
-                        height="auto"
-                        grow="1.0" >
+        <Tab label="应用设置"
+             fontSize="22">
+            <brls:ScrollingFrame
+                    width="auto"
+                    height="auto"
+                    marginTop="10"
+                    grow="1.0">
 
                 <brls:Box
                         width="auto"
@@ -32,7 +33,7 @@
                             width="auto"
                             height="auto"
                             title="播放设置"
-                            marginBottom="0px" />
+                            marginBottom="0px"/>
                     <brls:Box
                             width="100%"
                             height="auto"
@@ -41,42 +42,35 @@
 
                         <brls:BooleanCell
                                 id="boolean"
-                                title="详情页自动播放（不可用）"/>
+                                title="视频页自动全屏播放（不可用）"/>
 
                         <brls:BooleanCell
-                                id="boolean"
-                                title="播放器下方固定显示进度条（不可用）"/>
+                                id="setting/video/progress"/>
 
                         <brls:BooleanCell
-                                id="boolean"
-                                title="详情页自动全屏播放（不可用）"/>
-
-                        <brls:BooleanCell
-                                id="boolean"
-                                title="记忆弹幕开关状态（不可用）"/>
+                                id="setting/history/log"/>
 
                     </brls:Box>
                     <brls:Header
                             width="auto"
                             height="auto"
                             title="缓存设置"
-                            marginBottom="0px" />
+                            marginBottom="0px"/>
                     <brls:Box
                             width="100%"
                             height="auto"
                             axis="column"
                             marginBottom="30px">
 
-                        <brls:RadioCell
-                                id="radio"
-                                title="清空本地图片缓存（不可用）"/>
+                        <brls:SelectorCell
+                                id="setting/cache/texture"/>
 
                     </brls:Box>
                     <brls:Header
                             width="auto"
                             height="auto"
                             title="其他设置"
-                            marginBottom="0px" />
+                            marginBottom="0px"/>
                     <brls:Box
                             width="100%"
                             height="auto"
@@ -84,20 +78,10 @@
                             marginBottom="30px">
 
                         <brls:BooleanCell
-                                id="cell/hideBottomBar"
-                                title="隐藏下方提示栏"/>
+                                id="cell/hideBottomBar"/>
 
-                        <brls:BooleanCell
-                                id="boolean"
-                                title="配色跟随系统（不可用）"/>
-
-                        <brls:BooleanCell
-                                id="boolean"
-                                title="不记录到历史播放记录（不可用）"/>
-
-                        <brls:BooleanCell
-                                id="boolean"
-                                title="关闭时直接返回到桌面（不可用）"/>
+                        <brls:SelectorCell
+                                id="setting/ui/theme"/>
 
                         <brls:SelectorCell
                                 id="selector"
@@ -105,15 +89,15 @@
 
                     </brls:Box>
                 </brls:Box>
-                </brls:ScrollingFrame>
-            </Tab>
+            </brls:ScrollingFrame>
+        </Tab>
 
-            <Tab label="实用工具"
-                 fontSize="22">
-                <brls:ScrollingFrame
-                        width="auto"
-                        height="auto"
-                        grow="1.0" >
+        <Tab label="实用工具"
+             fontSize="22">
+            <brls:ScrollingFrame
+                    width="auto"
+                    height="auto"
+                    grow="1.0">
 
                 <brls:Box
                         width="auto"
@@ -128,7 +112,7 @@
                             width="auto"
                             height="auto"
                             title="使用教程"
-                            marginBottom="0px" />
+                            marginBottom="0px"/>
                     <brls:Box
                             width="100%"
                             height="auto"
@@ -136,15 +120,23 @@
                             marginBottom="30px">
 
                         <brls:RadioCell
+                                id="tools/tutorial_video_intro"
+                                title="软件介绍 (在线视频)"/>
+
+                        <brls:RadioCell
                                 id="tools/tutorial_open"
-                                title="如何正确打开wiliwili"/>
+                                title="应用开启方式与安装桌面图标"/>
+
+                        <brls:RadioCell
+                                id="tools/tutorial_error"
+                                title="软件内报错或部分功能不可用"/>
 
                     </brls:Box>
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="网络诊断（不可用）"
-                            marginBottom="0px" />
+                            title="网络诊断"
+                            marginBottom="0px"/>
                     <brls:Box
                             width="100%"
                             height="auto"
@@ -152,63 +144,63 @@
                             marginBottom="30px">
 
                         <brls:RadioCell
-                                id="radio"
+                                id="tools/network_checker"
                                 title="检测网络状态"/>
 
                     </brls:Box>
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="其他（不可用）"
-                            marginBottom="0px" />
+                            title="其他"
+                            marginBottom="0px"/>
 
                     <brls:RadioCell
-                            id="radio"
-                            title="检测更新"/>
+                            id="tools/release_checker"
+                            title="检查更新"/>
                 </brls:Box>
-                </brls:ScrollingFrame>
-            </Tab>
+            </brls:ScrollingFrame>
+        </Tab>
 
-            <Tab label="关于更多"
-                 fontSize="22">
-                <brls:View xml="@res/xml/fragment/settings_about.xml" />
-            </Tab>
+        <Tab label="关于更多"
+             fontSize="22">
+            <brls:View xml="@res/xml/fragment/settings_about.xml"/>
+        </Tab>
 
-            <Tab label="开源许可"
-                 fontSize="22">
-                <brls:Box
+        <Tab label="开源许可"
+             fontSize="22">
+            <brls:Box
+                    width="auto"
+                    height="auto">
+
+                <brls:ScrollingFrame
                         width="auto"
-                        height="auto">
+                        height="auto"
+                        grow="1.0">
 
-                    <brls:ScrollingFrame
+                    <brls:Box
                             width="auto"
                             height="auto"
-                            grow="1.0" >
+                            axis="column"
+                            wireframe="false"
+                            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+                            paddingRight="@style/brls/tab_frame/content_padding_sides"
+                            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+                            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
-                        <brls:Box
+                        <TextBox
+                                id="setting/label/opensource"
                                 width="auto"
                                 height="auto"
-                                axis="column"
-                                wireframe="false"
-                                paddingLeft="@style/brls/tab_frame/content_padding_sides"
-                                paddingRight="@style/brls/tab_frame/content_padding_sides"
-                                paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
-                                paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+                                lineHeight="1.2"
+                                marginBottom="10px"/>
 
-                            <TextBox
-                                    id="setting/label/opensource"
-                                    width="auto"
-                                    height="auto"
-                                    lineHeight="1"
-                                    marginBottom="10px" />
+                    </brls:Box>
 
-                        </brls:Box>
+                </brls:ScrollingFrame>
 
-                    </brls:ScrollingFrame>
+            </brls:Box>
 
-                </brls:Box>
+        </Tab>
 
-            </Tab>
-
-        </AutoTabFrame>
+    </AutoTabFrame>
 </brls:AppletFrame>

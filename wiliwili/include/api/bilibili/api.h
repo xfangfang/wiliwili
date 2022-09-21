@@ -155,5 +155,13 @@ static const std::string DynamicVideo =
 static const std::string DynamicUpList =
     _vcBase + "/dynamic_svr/v1/dynamic_svr/w_dyn_uplist";
 static const std::string UserDynamicVideo = _apiBase + "/x/space/arc/list";
+
+/// ===
+/// 设置页API
+/// ===
+
+//使用http协议避免因为系统时间错误导致https请求失败
+static const std::string UnixTime =
+    "http://api.bilibili.com/x/click-interface/click/now";
 }  // namespace Api
 }  // namespace bilibili

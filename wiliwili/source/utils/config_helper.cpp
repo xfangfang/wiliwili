@@ -7,9 +7,16 @@
 
 #include "bilibili.h"
 #include "utils/config_helper.hpp"
+#include "utils/cache_helper.hpp"
+#include "presenter/video_detail.hpp"
+#include "view/mpv_core.hpp"
 
 std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
     {SettingItem::HIDE_BOTTOM_BAR, "hide_bottom_bar"},
+    {SettingItem::APP_THEME, "app_theme"},
+    {SettingItem::HISTORY_REPORT, "history_report"},
+    {SettingItem::PLAYER_BOTTOM_BAR, "player_bottom_bar"},
+    {SettingItem::TEXTURE_CACHE_NUM, "texture_cache_num"},
 };
 
 ProgramConfig::ProgramConfig() {}
@@ -60,9 +67,30 @@ void ProgramConfig::load() {
         brls::Logger::error("ProgramConfig::load: {}", e.what());
     }
 
-    // 初始化设置
+    // 初始化底部栏
     brls::AppletFrame::HIDE_BOTTOM_BAR =
         getSettingItem(SettingItem::HIDE_BOTTOM_BAR, false);
+
+    // 初始化主题
+    int themeData = getSettingItem(SettingItem::APP_THEME, 0);
+    if (themeData == 1) {
+        brls::Application::getPlatform()->setThemeVariant(
+            brls::ThemeVariant::LIGHT);
+    } else if (themeData == 2) {
+        brls::Application::getPlatform()->setThemeVariant(
+            brls::ThemeVariant::DARK);
+    }
+
+    // 初始化是否上传历史记录
+    VideoDetail::REPORT_HISTORY =
+        getSettingItem(SettingItem::HISTORY_REPORT, true);
+
+    // 初始化是否固定显示底部进度条
+    MPVCore::BOTTOM_BAR = getSettingItem(SettingItem::PLAYER_BOTTOM_BAR, true);
+
+    // 初始化纹理缓存数量
+    TextureCache::instance().cache.setCapacity(getSettingItem(SettingItem::TEXTURE_CACHE_NUM
+                                                              , 200));
 }
 
 void ProgramConfig::save() {

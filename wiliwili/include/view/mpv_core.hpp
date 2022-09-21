@@ -9,6 +9,7 @@
 #include <mpv/client.h>
 #include <mpv/render_gl.h>
 #include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <nanovg_gl.h>
 
@@ -141,6 +142,11 @@ public:
     std::vector<DanmakuItem> danmakuData;
     bool showDanmaku   = false;
     bool danmakuLoaded = false;
+
+    // Bottom progress bar
+    inline static bool BOTTOM_BAR = true;
+    NVGcolor bottomBarColor =
+        brls::Application::getTheme().getColor("color/bilibili");
 
 private:
     mpv_handle *mpv                 = nullptr;

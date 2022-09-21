@@ -2,6 +2,8 @@
 // Created by fang on 2022/9/17.
 //
 
+#include <stdexcept>
+
 #include "utils/singleton.hpp"
 
 template <typename K, typename T>
@@ -13,7 +15,9 @@ struct Node {
 template <typename K, typename T>
 class LRUCache {
 public:
-    LRUCache(int c, T defaultValue) : capacity(c), defaultValue(defaultValue) {}
+    LRUCache(int c, T defaultValue) : capacity(c), defaultValue(defaultValue) {
+        if (c < 1) throw std::logic_error("Cache capacity cannot less than 1.");
+    }
 
     T get(K key) {
         if (cacheMap.find(key) == cacheMap.end()) {
@@ -38,10 +42,19 @@ public:
         }
     }
 
+    void setCapacity(int c) {
+        if (c < 1) throw std::logic_error("Cache capacity cannot less than 1.");
+        this->capacity = c;
+        while (cacheList.size() > capacity) {
+            cacheMap.erase(cacheList.back().key);
+            cacheList.pop_back();
+        }
+    }
+
     std::list<Node<K, T>>& getCacheList() { return cacheList; }
 
 private:
-    int capacity;
+    int capacity = 1;
     T defaultValue;
     std::list<Node<K, T>> cacheList;
     std::unordered_map<K, typename std::list<Node<K, T>>::iterator> cacheMap;

@@ -8,6 +8,7 @@
 #include "curl/curl.h"
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/home_result.h"
+#include "bilibili/result/setting.h"
 
 namespace bilibili {
 
@@ -169,7 +170,7 @@ void BilibiliClient::get_user_videos(
             {"ps", std::to_string(ps)},
             {"pn", std::to_string(pn)},
         },
-        [callback](auto data) { callback(data); }, error);
+        callback, error);
 }
 
 void BilibiliClient::get_user_videos2(
@@ -183,6 +184,12 @@ void BilibiliClient::get_user_videos2(
             {"ps", std::to_string(ps)},
             {"pn", std::to_string(pn)},
         },
-        [callback](auto data) { callback(data); }, error);
+        callback, error);
+}
+
+void BilibiliClient::get_unix_time(
+    const std::function<void(UnixTimeResult)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<UnixTimeResult>(Api::UnixTime, {}, callback, error);
 }
 }  // namespace bilibili

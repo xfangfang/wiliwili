@@ -28,4 +28,8 @@ private:
     BRLS_BIND(VideoView, video, "live/video");
 
     bilibili::LiveVideoResult liveData;
+
+    // 用于缓存全局状态，进入直播时关闭弹幕与底部进度条，退出时恢复
+    bool globalShowDanmaku = false;
+    bool globalBottomBar = false;
 };
