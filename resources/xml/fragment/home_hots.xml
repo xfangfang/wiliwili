@@ -13,22 +13,22 @@
             tabItemActiveBackgroundColor="@theme/color/pink_1"
             tabItemActiveTextColor="@theme/color/bilibili"
             sidebarPosition="top">
-        <Tab label="综合热门"
+        <Tab label="@i18n/wiliwili/home/hots/t1"
              style="plain"
              fontSize="18">
             <HomeHotsAll/>
         </Tab>
-        <Tab label="排行榜"
+        <Tab label="@i18n/wiliwili/home/hots/t2"
              style="plain"
              fontSize="18">
             <HomeHotsRank/>
         </Tab>
-        <Tab label="每周必看"
+        <Tab label="@i18n/wiliwili/home/hots/t3"
              style="plain"
              fontSize="18">
             <HomeHotsWeekly/>
         </Tab>
-        <Tab label="入站必刷"
+        <Tab label="@i18n/wiliwili/home/hots/t4"
              style="plain"
              fontSize="18">
             <HomeHotsHistory/>

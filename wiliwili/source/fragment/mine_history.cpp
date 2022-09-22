@@ -22,7 +22,7 @@ public:
         bilibili::HistoryVideoResult& r = this->list[index];
         auto badge                      = r.badge;
         if (badge.empty() && r.progress == -1) {
-            badge = "已看完";
+            badge = "wiliwili/mine/done"_i18n;
         }
         auto author     = r.author_name;
         bool showUpName = true;
@@ -78,7 +78,7 @@ public:
             container->setAlignItems(brls::AlignItems::CENTER);
             auto l1 = new brls::Label();
             l1->setFontSize(24);
-            l1->setText("使用浏览器打开专栏内容:");
+            l1->setText("wiliwili/mine/article"_i18n);
             auto l2 = new brls::Label();
             l2->setMarginTop(10);
             l2->setTextColor(nvgRGB(102, 147, 182));
@@ -120,7 +120,8 @@ MineHistory::~MineHistory() {
 brls::View* MineHistory::create() { return new MineHistory(); }
 
 void MineHistory::onCreate() {
-    this->registerTabAction("刷新历史记录", brls::ControllerButton::BUTTON_X,
+    this->registerTabAction("wiliwili/mine/refresh_history"_i18n,
+                            brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
                                 AutoTabFrame::focus2Sidebar(this);
                                 this->recyclingGrid->showSkeleton();

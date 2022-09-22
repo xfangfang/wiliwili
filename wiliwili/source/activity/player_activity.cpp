@@ -158,7 +158,7 @@ void PlayerActivity::onContentAvailable() {
 
     // 点击标题查看简介
     this->videoTitleBox->registerAction(
-        "查看简介", brls::ControllerButton::BUTTON_A,
+        "wiliwili/player/intro"_i18n, brls::ControllerButton::BUTTON_A,
         [this](brls::View* view) -> bool {
             auto dialog = new brls::Dialog(this->videoDetailResult.desc);
             dialog->addButton("hints/ok"_i18n, []() {});
@@ -191,9 +191,9 @@ void PlayerActivity::onContentAvailable() {
         brls::Application::giveFocus(this->video);
 
         // 清空无用的tab
-        this->tabFrame->clearTab("分集");
-        this->tabFrame->clearTab("推荐");
-        this->tabFrame->clearTab("投稿");
+        this->tabFrame->clearTab("wiliwili/player/p"_i18n);
+        this->tabFrame->clearTab("wiliwili/player/related"_i18n);
+        this->tabFrame->clearTab("wiliwili/player/uploaded"_i18n);
 
         // 清空评论
         this->recyclingGrid->showSkeleton(4);
@@ -329,7 +329,7 @@ void PlayerActivity::showShareDialog(const std::string link) {
     qr->setMargins(20, 10, 10, 10);
     container->addView(qr);
     auto hint = new brls::Label();
-    hint->setText("手机扫码观看/分享");
+    hint->setText("wiliwili/player/qr"_i18n);
     hint->setMargins(0, 10, 10, 10);
     container->addView(hint);
     auto dialog = new brls::Dialog(container);
@@ -392,7 +392,7 @@ void PlayerActivity::onVideoPageListInfo(
     AutoSidebarItem* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
-    item->setLabel("分集");
+    item->setLabel("wiliwili/player/p"_i18n);
     this->tabFrame->addTab(item, [this, result, item]() {
         auto container = new AttachedView();
         container->setMarginTop(12);
@@ -427,7 +427,7 @@ void PlayerActivity::onUploadedVideos(
         AutoSidebarItem* item = new AutoSidebarItem();
         item->setTabStyle(AutoTabBarStyle::ACCENT);
         item->setFontSize(18);
-        item->setLabel("投稿");
+        item->setLabel("wiliwili/player/uploaded"_i18n);
         this->tabFrame->addTab(item, [this, result, item]() {
             auto container = new AttachedView();
             container->setMarginTop(12);
@@ -451,7 +451,7 @@ void PlayerActivity::onUploadedVideos(
         });
     } else {
         // 加载第N页
-        auto tab = this->tabFrame->getTab("投稿");
+        auto tab = this->tabFrame->getTab("wiliwili/player/uploaded"_i18n);
         if (!tab) return;
         auto view = (AttachedView*)tab->getAttachedView();
         if (!view) return;
@@ -503,7 +503,7 @@ void PlayerActivity::onCommentInfo(
                         result.replies.end());
         this->recyclingGrid->setDataSource(new DataSourceCommentList(comments));
         // 设置评论数量提示
-        auto item = this->tabFrame->getTab("评论");
+        auto item = this->tabFrame->getTab("wiliwili/player/comment"_i18n);
         if (item) item->setSubtitle(wiliwili::num2w(result.cursor.all_count));
     } else if (datasource) {
         // 第N页评论
@@ -518,8 +518,9 @@ void PlayerActivity::onRequestCommentError(const std::string& error) {
 
 void PlayerActivity::onVideoOnlineCount(
     const bilibili::VideoOnlineTotal& result) {
-    this->videoPeopleLabel->setText(result.total + "人正在看");
-    this->video->setOnlineCount(result.total + "人正在看");
+    this->videoPeopleLabel->setText(result.total +
+                                    "wiliwili/player/current"_i18n);
+    this->video->setOnlineCount(result.total + "wiliwili/player/current"_i18n);
 }
 
 void PlayerActivity::onVideoRelationInfo(
@@ -568,7 +569,7 @@ void PlayerActivity::onRelatedVideoList(
     AutoSidebarItem* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
-    item->setLabel("推荐");
+    item->setLabel("wiliwili/player/related"_i18n);
     this->tabFrame->addTab(item, [this, result, item]() {
         auto container = new AttachedView();
         container->setMarginTop(12);
@@ -601,7 +602,8 @@ void PlayerActivity::onError(const std::string& error) {
         ASYNC_RELEASE
         auto dialog = new brls::Dialog(error);
         dialog->setCancelable(false);
-        dialog->addButton("OK", []() { brls::Application::popActivity(); });
+        dialog->addButton("hints/ok"_i18n,
+                          []() { brls::Application::popActivity(); });
         dialog->open();
     });
 }
@@ -642,7 +644,7 @@ void PlayerSeasonActivity::onContentAvailable() {
     this->PlayerActivity::setCommonData();
 
     this->videoTitleBox->registerAction(
-        "查看简介", brls::ControllerButton::BUTTON_A,
+        "wiliwili/player/intro"_i18n, brls::ControllerButton::BUTTON_A,
         [this](brls::View* view) -> bool {
             auto dialog = new brls::Dialog(this->seasonInfo.evaluate);
             dialog->addButton("hints/ok"_i18n, []() {});
@@ -714,12 +716,12 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
     this->labelAgree->setText(wiliwili::num2w(result.stat.likes));
     this->labelCoin->setText(wiliwili::num2w(result.stat.coins));
     this->labelFavorite->setText(wiliwili::num2w(result.stat.favorite));
-    this->labelQR->setText("分享");
+    this->labelQR->setText("wiliwili/player/share"_i18n);
 
     AutoSidebarItem* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
-    item->setLabel("分集");
+    item->setLabel("wiliwili/player/p"_i18n);
     this->tabFrame->addTab(item, [this, result, item]() {
         auto container = new AttachedView();
         container->setMarginTop(12);

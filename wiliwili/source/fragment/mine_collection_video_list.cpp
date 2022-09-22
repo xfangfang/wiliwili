@@ -62,11 +62,12 @@ MineCollectionVideoList::MineCollectionVideoList(
 
     this->labelTitle->setText(collectionData.title);
 
-    auto badge = std::to_string(collectionData.media_count) + "个内容";
+    auto badge =
+        std::to_string(collectionData.media_count) + "wiliwili/mine/num"_i18n;
     if (collectionData.attr & 1) {
-        badge += " · 私密";
+        badge += " · " + "wiliwili/mine/public"_i18n;
     } else {
-        badge += " · 公开";
+        badge += " · " + "wiliwili/mine/private"_i18n;
     }
 
     this->labelSubtitle->setText(badge);
@@ -79,7 +80,8 @@ MineCollectionVideoList::MineCollectionVideoList(
     recyclingGrid->onNextPage([this]() { this->requestCollectionList(); });
     this->requestCollectionList();
 
-    this->registerAction("刷新", brls::ControllerButton::BUTTON_X,
+    this->registerAction("wiliwili/home/common/refresh"_i18n,
+                         brls::ControllerButton::BUTTON_X,
                          [this](brls::View* view) -> bool {
                              brls::Application::giveFocus(this->imageCover);
                              this->recyclingGrid->showSkeleton();

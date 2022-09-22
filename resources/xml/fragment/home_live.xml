@@ -23,7 +23,7 @@
                     culled="false"
                     fontSize="13"
                     singleLine="true"
-                    text="分区：推荐"/>
+                    text="@i18n/wiliwili/home/live/default"/>
             <brls:Label
                     positionType="absolute"
                     positionRight="15"

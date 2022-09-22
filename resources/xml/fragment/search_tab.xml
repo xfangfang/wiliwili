@@ -13,22 +13,22 @@
             tabItemActiveTextColor="@theme/color/bilibili"
             sidebarPosition="top">
 
-        <Tab label="热搜"
+        <Tab label="@i18n/wiliwili/search/t1"
              fontSize="18">
             <SearchHots id="search/tab/hots"/>
         </Tab>
 
-        <Tab label="视频"
+        <Tab label="@i18n/wiliwili/search/t2"
              fontSize="18">
             <SearchVideo id="search/tab/video"/>
         </Tab>
 
-        <Tab label="番剧"
+        <Tab label="@i18n/wiliwili/search/t3"
              fontSize="18">
             <SearchBangumi id="search/tab/bangumi"/>
         </Tab>
 
-        <Tab label="影视"
+        <Tab label="@i18n/wiliwili/search/t4"
              fontSize="18">
             <SearchCinema id="search/tab/cinema"/>
         </Tab>

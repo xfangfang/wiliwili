@@ -5,5 +5,10 @@
   "exit": "Exit",
   "on": "On",
   "off": "Off",
+  "preset": "Preset",
+  "default": "Default",
+  "current": "Current",
+  "success": "Success",
+  "failed": "Failed",
   "exit_hint": "Are you going to exit the application?"
 }

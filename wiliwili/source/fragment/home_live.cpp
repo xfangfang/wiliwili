@@ -8,6 +8,8 @@
 #include "view/video_card.hpp"
 #include "activity/live_player_activity.hpp"
 
+using namespace brls::literals;
+
 class DataSourceLiveVideoList : public RecyclingGridDataSource {
 public:
     DataSourceLiveVideoList(bilibili::LiveVideoListResult result)
@@ -66,13 +68,13 @@ void HomeLive::onLiveList(const bilibili::LiveVideoListResult& result,
 
 void HomeLive::onCreate() {
     this->registerTabAction(
-        "切换", brls::ControllerButton::BUTTON_X,
+        "wiliwili/home/common/switch"_i18n, brls::ControllerButton::BUTTON_X,
         [this](brls::View* view) -> bool {
             static int selected = 0;
             AutoTabFrame::focus2Sidebar(this);
             brls::Application::pushActivity(
                 new brls::Activity(new brls::Dropdown(
-                    "直播分区", this->getAreaList(),
+                    "wiliwili/home/live/dialog"_i18n, this->getAreaList(),
                     [this](int _selected) {
                         this->recyclingGrid->showSkeleton();
                         selected = _selected;
@@ -80,10 +82,12 @@ void HomeLive::onCreate() {
                         auto list = this->getAreaList();
                         if (_selected == 0 && list.size() <= 1) {
                             // 暂未加载出分区列表
-                            this->live_label->setText("分区：推荐");
+                            this->live_label->setText(
+                                "wiliwili/home/live/default"_i18n);
                         } else
                             this->live_label->setText(
-                                "分区：" + this->getAreaList()[_selected]);
+                                "wiliwili/home/common/part"_i18n +
+                                this->getAreaList()[_selected]);
                     },
                     selected)));
             return true;

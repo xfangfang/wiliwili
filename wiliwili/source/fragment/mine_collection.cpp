@@ -7,6 +7,8 @@
 #include "view/video_card.hpp"
 #include "utils/number_helper.hpp"
 
+using namespace brls::literals;
+
 class DataSourceMineCollectionList : public RecyclingGridDataSource {
 public:
     DataSourceMineCollectionList(bilibili::CollectionListResult result)
@@ -19,13 +21,13 @@ public:
 
         bilibili::CollectionResult& r = this->list[index];
 
-        auto badge = std::to_string(r.media_count) + "个内容";
+        auto badge = std::to_string(r.media_count) + "wiliwili/mine/num"_i18n;
         if (r.attr & 1) {
-            badge += " 私密";
+            badge += " " + "wiliwili/mine/public"_i18n;
         } else {
-            badge += " 公开";
+            badge += " " + "wiliwili/mine/private"_i18n;
         }
-        auto time = "创建于" + wiliwili::sec2date(r.ctime);
+        auto time = "wiliwili/mine/pub"_i18n + wiliwili::sec2date(r.ctime);
 
         auto cover = r.cover;
         if (!cover.empty()) {
@@ -69,7 +71,8 @@ MineCollection::~MineCollection() {
 brls::View* MineCollection::create() { return new MineCollection(); }
 
 void MineCollection::onCreate() {
-    this->registerTabAction("刷新收藏夹", brls::ControllerButton::BUTTON_X,
+    this->registerTabAction("wiliwili/mine/refresh_collection"_i18n,
+                            brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
                                 AutoTabFrame::focus2Sidebar(this);
                                 this->recyclingGrid->showSkeleton();

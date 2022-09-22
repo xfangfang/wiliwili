@@ -8,6 +8,8 @@
 #include "bilibili/result/setting.h"
 #include "utils/number_helper.hpp"
 
+using namespace brls::literals;
+
 SettingNetwork::SettingNetwork() {
     this->inflateFromXMLRes("xml/fragment/setting_network.xml");
     brls::Logger::debug("Fragment SettingNetwork: create");
@@ -16,10 +18,10 @@ SettingNetwork::SettingNetwork() {
 
     if (brls::Application::getPlatform()->hasWirelessConnection()) {
         labelWIFI->setTextColor(nvgRGB(72, 154, 83));
-        labelWIFI->setText("开");
+        labelWIFI->setText("hints/on"_i18n);
     } else {
         labelWIFI->setTextColor(nvgRGB(199, 84, 80));
-        labelWIFI->setText("关");
+        labelWIFI->setText("hints/off"_i18n);
     }
     labelIP->setText(brls::Application::getPlatform()->getIpAddress());
     labelDNS->setText(brls::Application::getPlatform()->getDnsServer());
@@ -33,14 +35,14 @@ void SettingNetwork::networkTest() {
             brls::sync([ASYNC_TOKEN]() {
                 ASYNC_RELEASE
                 this->labelTest1->setTextColor(nvgRGB(72, 154, 83));
-                this->labelTest1->setText("成功");
+                this->labelTest1->setText("hints/success"_i18n);
             });
         },
         [ASYNC_TOKEN](const std::string& error) {
             brls::sync([ASYNC_TOKEN]() {
                 ASYNC_RELEASE
                 this->labelTest1->setTextColor(nvgRGB(199, 84, 80));
-                this->labelTest1->setText("失败");
+                this->labelTest1->setText("hints/failed"_i18n);
             });
         });
 }
@@ -63,7 +65,7 @@ void SettingNetwork::getUnixTime() {
             brls::sync([ASYNC_TOKEN]() {
                 ASYNC_RELEASE
                 this->labelNetTime->setTextColor(nvgRGB(199, 84, 80));
-                this->labelNetTime->setText("失败");
+                this->labelNetTime->setText("hints/failed"_i18n);
             });
         });
 }

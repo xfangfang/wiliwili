@@ -30,7 +30,7 @@
                     marginTop="20"
                     id="mine/label/username"
                     grow="1"
-                    text="检查登录信息..."/>
+                    text="@i18n/wiliwili/mine/login/check"/>
             <brls:Label
                     id="mine/label/sign"
                     marginBottom="10"
@@ -60,7 +60,7 @@
                         marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
-                        text="动态"/>
+                        text="@i18n/wiliwili/mine/activity"/>
             </brls:Box>
             <brls:Rectangle
                     marginTop="10"
@@ -68,7 +68,7 @@
                     marginRight="20"
                     height="20"
                     width="1"
-                    color="@theme/color/line" />
+                    color="@theme/color/line"/>
             <brls:Box
                     wireframe="false"
                     grow="1"
@@ -84,7 +84,7 @@
                         marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
-                        text="关注"/>
+                        text="@i18n/wiliwili/mine/following"/>
             </brls:Box>
             <brls:Rectangle
                     marginTop="10"
@@ -92,7 +92,7 @@
                     marginRight="20"
                     height="20"
                     width="1"
-                    color="@theme/color/line" />
+                    color="@theme/color/line"/>
             <brls:Box
                     wireframe="false"
                     grow="1"
@@ -108,7 +108,7 @@
                         marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
-                        text="粉丝"/>
+                        text="@i18n/wiliwili/mine/follower"/>
             </brls:Box>
             <brls:Rectangle
                     marginTop="10"
@@ -116,7 +116,7 @@
                     marginRight="20"
                     height="20"
                     width="1"
-                    color="@theme/color/line" />
+                    color="@theme/color/line"/>
             <brls:Box
                     wireframe="false"
                     alignItems="center"
@@ -132,7 +132,7 @@
                         marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
-                        text="硬币"/>
+                        text="@i18n/wiliwili/mine/coin"/>
             </brls:Box>
         </brls:Box>
     </brls:Box>
@@ -146,29 +146,15 @@
             tabItemActiveTextColor="@theme/color/bilibili"
             sidebarPosition="top">
 
-        <Tab label="历史记录"
+        <Tab label="@i18n/wiliwili/mine/history"
              fontSize="18">
             <MineHistory id="mine/history"/>
         </Tab>
 
-        <Tab label="我的收藏"
+        <Tab label="@i18n/wiliwili/mine/collection"
              fontSize="18">
             <MineCollection id="mine/collection"/>
         </Tab>
 
     </AutoTabFrame>
-
-    <brls:Label
-            positionType="absolute"
-            positionLeft="0"
-            positionTop="160"
-            fontSize="14"
-            text=""/>
-    <brls:Label
-            positionType="absolute"
-            positionLeft="224"
-            positionTop="160"
-            fontSize="14"
-            text=""/>
-
 </brls:Box>

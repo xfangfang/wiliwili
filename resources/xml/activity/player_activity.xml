@@ -280,7 +280,7 @@
                                 marginTop="1"
                                 textColor="@theme/font/grey"
                                 fontSize="13"
-                                text="未经作者授权，禁止转载"/>
+                                text="@i18n/wiliwili/player/rights"/>
                     </brls:Box>
                 </brls:Box>
 
@@ -306,7 +306,7 @@
                     defaultTab="0"
                     sidebarPosition="top">
 
-                <Tab label="评论"
+                <Tab label="@i18n/wiliwili/player/comment"
                      fontSize="18">
                     <brls:Box
                             width="100%"

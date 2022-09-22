@@ -23,7 +23,7 @@
                         id="search/label/key"
                         fontSize="14"
                         textColor="#18191c"
-                        text="搜索你感兴趣的视频"/>
+                        text="@i18n/home/common/search"/>
                 <brls:Label
                         height="35"
                         positionType="absolute"

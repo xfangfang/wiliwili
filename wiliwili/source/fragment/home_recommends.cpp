@@ -67,7 +67,8 @@ HomeRecommends::HomeRecommends() {
 }
 
 void HomeRecommends::onCreate() {
-    this->registerTabAction("刷新", brls::ControllerButton::BUTTON_X,
+    this->registerTabAction("wiliwili/home/common/refresh"_i18n,
+                            brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
                                 AutoTabFrame::focus2Sidebar(this);
                                 this->recyclingGrid->showSkeleton();

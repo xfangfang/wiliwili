@@ -89,7 +89,8 @@ void SettingActivity::onContentAvailable() {
     });
 
     btnTutorialOpenVideoIntro->registerClickAction([](...) -> bool {
-        brls::Application::pushActivity(new PlayerActivity("BV18W4y1q72C"));
+        brls::Application::pushActivity(new PlayerActivity(
+            "wiliwili/setting/tools/tutorial/intro_bvid"_i18n));
         return true;
     });
 
@@ -110,7 +111,8 @@ void SettingActivity::onContentAvailable() {
     });
 
     btnReleaseChecker->title->setText(
-        fmt::format("检查更新 (当前版本: {})", "version/version"_i18n));
+        "wiliwili/setting/tools/others/release"_i18n + " (" +
+        "hints/current"_i18n + ": " + "version/version"_i18n + ")");
     btnReleaseChecker->registerClickAction([](...) -> bool {
         brls::Application::getPlatform()->openBrowser(
             "https://github.com/xfangfang/wiliwili/releases/latest");
@@ -122,7 +124,7 @@ void SettingActivity::onContentAvailable() {
     auto& conf = ProgramConfig::instance();
 
     cellHideBar->init(
-        "隐藏下方提示栏",
+        "wiliwili/setting/app/others/hide_bottom"_i18n,
         conf.getSettingItem(SettingItem::HIDE_BOTTOM_BAR, false),
         [this](bool value) {
             ProgramConfig::instance().setSettingItem(
@@ -142,11 +144,13 @@ void SettingActivity::onContentAvailable() {
 
     int themeData = conf.getSettingItem(SettingItem::APP_THEME, 0);
     selectorTheme->init(
-        "主题配色 (需要重启)", {"跟随系统", "浅色", "深色"}, themeData,
-        [themeData](int data) {
+        "wiliwili/setting/app/others/theme/header"_i18n,
+        {"wiliwili/setting/app/others/theme/1"_i18n,
+         "wiliwili/setting/app/others/theme/2"_i18n,
+         "wiliwili/setting/app/others/theme/3"_i18n},
+        themeData, [themeData](int data) {
             if (themeData == data) return false;
-            auto dialog =
-                new brls::Dialog("即将退出应用, 设置内容将在下次启动后生效");
+            auto dialog = new brls::Dialog("wiliwili/setting/quit_hint"_i18n);
             dialog->addButton("hints/ok"_i18n, [data]() {
                 ProgramConfig::instance().setSettingItem(SettingItem::APP_THEME,
                                                          data);
@@ -160,7 +164,8 @@ void SettingActivity::onContentAvailable() {
         });
 
     selectorTexture->init(
-        "图片纹理缓存数量", {"100", "200(默认)", "300", "400", "500"},
+        "wiliwili/setting/app/cache/texture"_i18n,
+        {"100", "200 (" + "hints/preset"_i18n + ")", "300", "400", "500"},
         conf.getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200) / 100 - 1,
         [](int data) {
             int num = 100 * data + 100;
@@ -169,7 +174,7 @@ void SettingActivity::onContentAvailable() {
             TextureCache::instance().cache.setCapacity(num);
         });
 
-    btnHistory->init("上传历史播放记录",
+    btnHistory->init("wiliwili/setting/app/playback/report"_i18n,
                      conf.getSettingItem(SettingItem::HISTORY_REPORT, true),
                      [](bool value) {
                          ProgramConfig::instance().setSettingItem(
@@ -177,7 +182,7 @@ void SettingActivity::onContentAvailable() {
                          VideoDetail::REPORT_HISTORY = value;
                      });
 
-    btnProgress->init("播放器下方固定显示进度条",
+    btnProgress->init("wiliwili/setting/app/playback/player_bar"_i18n,
                       conf.getSettingItem(SettingItem::PLAYER_BOTTOM_BAR, true),
                       [](bool value) {
                           ProgramConfig::instance().setSettingItem(

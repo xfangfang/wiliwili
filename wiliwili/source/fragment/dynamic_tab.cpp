@@ -173,7 +173,8 @@ void DynamicTab::onError(const std::string& error) {
 }
 
 void DynamicTab::onCreate() {
-    this->registerTabAction("刷新列表", brls::ControllerButton::BUTTON_X,
+    this->registerTabAction("wiliwili/activity/refresh"_i18n,
+                            brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
                                 AutoTabFrame::focus2Sidebar(this);
                                 this->upRecyclingGrid->showSkeleton();
@@ -182,7 +183,7 @@ void DynamicTab::onCreate() {
                                 return true;
                             });
     this->videoRecyclingGrid->registerAction(
-        "刷新", brls::ControllerButton::BUTTON_X,
+        "wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
         [this](brls::View* view) -> bool {
             //焦点转移到UP主列表
             brls::Application::giveFocus(this->upRecyclingGrid);

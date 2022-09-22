@@ -54,13 +54,13 @@ HomeHotsWeekly::HomeHotsWeekly() {
 
 void HomeHotsWeekly::onCreate() {
     this->registerTabAction(
-        "切换", brls::ControllerButton::BUTTON_X,
+        "wiliwili/home/common/switch"_i18n, brls::ControllerButton::BUTTON_X,
         [this](brls::View* view) -> bool {
             AutoTabFrame::focus2Sidebar(this);
             static int selected = 1;
             brls::Application::pushActivity(
                 new brls::Activity(new brls::Dropdown(
-                    "每周必看", this->getWeeklyList(),
+                    "wiliwili/home/hots/t3"_i18n, this->getWeeklyList(),
                     [this](int _selected) {
                         this->recyclingGrid->showSkeleton();
                         if (_selected == 0) {

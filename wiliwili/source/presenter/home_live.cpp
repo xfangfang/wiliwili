@@ -5,6 +5,9 @@
 #include "bilibili.h"
 #include "presenter/home_live.hpp"
 #include "bilibili/result/home_live_result.h"
+#include "borealis/core/i18n.hpp"
+
+using namespace brls::literals;
 
 void HomeLiveRequest::onLiveList(const bilibili::LiveVideoListResult &result,
                                  int index, bool no_more) {}
@@ -58,7 +61,7 @@ std::vector<std::string> HomeLiveRequest::getAreaList() {
     std::vector<std::string> list;
     for (auto i : this->areaList) list.push_back(i.title);
     if (list.empty()) {
-        list.push_back("刷新");
+        list.push_back("wiliwili/home/common/refresh"_i18n);
     }
     return list;
 }

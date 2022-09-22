@@ -12,7 +12,7 @@
             sidebarWidth="200"
             sidebarPosition="left">
 
-        <Tab label="应用设置"
+        <Tab label="@i18n/wiliwili/setting/app/tab"
              fontSize="22">
             <brls:ScrollingFrame
                     width="auto"
@@ -32,7 +32,7 @@
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="播放设置"
+                            title="@i18n/wiliwili/setting/app/playback/header"
                             marginBottom="0px"/>
                     <brls:Box
                             width="100%"
@@ -54,7 +54,7 @@
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="缓存设置"
+                            title="@i18n/wiliwili/setting/app/cache/header"
                             marginBottom="0px"/>
                     <brls:Box
                             width="100%"
@@ -69,7 +69,7 @@
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="其他设置"
+                            title="@i18n/wiliwili/setting/app/others/header"
                             marginBottom="0px"/>
                     <brls:Box
                             width="100%"
@@ -92,7 +92,7 @@
             </brls:ScrollingFrame>
         </Tab>
 
-        <Tab label="实用工具"
+        <Tab label="@i18n/wiliwili/setting/tools/tab"
              fontSize="22">
             <brls:ScrollingFrame
                     width="auto"
@@ -111,7 +111,7 @@
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="使用教程"
+                            title="@i18n/wiliwili/setting/tools/tutorial/header"
                             marginBottom="0px"/>
                     <brls:Box
                             width="100%"
@@ -121,21 +121,21 @@
 
                         <brls:RadioCell
                                 id="tools/tutorial_video_intro"
-                                title="软件介绍 (在线视频)"/>
+                                title="@i18n/wiliwili/setting/tools/tutorial/intro"/>
 
                         <brls:RadioCell
                                 id="tools/tutorial_open"
-                                title="应用开启方式与安装桌面图标"/>
+                                title="@i18n/wiliwili/setting/tools/tutorial/open"/>
 
                         <brls:RadioCell
                                 id="tools/tutorial_error"
-                                title="软件内报错或部分功能不可用"/>
+                                title="@i18n/wiliwili/setting/tools/tutorial/error"/>
 
                     </brls:Box>
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="网络诊断"
+                            title="@i18n/wiliwili/setting/tools/net/header"
                             marginBottom="0px"/>
                     <brls:Box
                             width="100%"
@@ -145,28 +145,27 @@
 
                         <brls:RadioCell
                                 id="tools/network_checker"
-                                title="检测网络状态"/>
+                                title="@i18n/wiliwili/setting/tools/net/checker"/>
 
                     </brls:Box>
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="其他"
+                            title="@i18n/wiliwili/setting/tools/others/header"
                             marginBottom="0px"/>
 
                     <brls:RadioCell
-                            id="tools/release_checker"
-                            title="检查更新"/>
+                            id="tools/release_checker"/>
                 </brls:Box>
             </brls:ScrollingFrame>
         </Tab>
 
-        <Tab label="关于更多"
+        <Tab label="@i18n/wiliwili/setting/about/tab"
              fontSize="22">
             <brls:View xml="@res/xml/fragment/settings_about.xml"/>
         </Tab>
 
-        <Tab label="开源许可"
+        <Tab label="@i18n/wiliwili/setting/opensource/tab"
              fontSize="22">
             <brls:Box
                     width="auto"

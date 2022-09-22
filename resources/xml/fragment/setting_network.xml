@@ -4,22 +4,22 @@
         margin="40"
         height="auto">
     <brls:Header
-            title="访问网络"
+            title="@i18n/wiliwili/setting/net/test/header"
             marginBottom="20"/>
     <brls:Box
             marginLeft="20"
             marginRight="20">
         <brls:Label
                 grow="1"
-                text="测试获取首页推荐"/>
+                text="@i18n/wiliwili/setting/net/test/feed"/>
         <brls:Label
                 id="setting/net/test1"
                 horizontalAlign="right"
                 text="..."/>
     </brls:Box>
     <brls:Header
-            title="系统时间"
-            subtitle="系统时间不正确可能会导致网络访问失败"
+            title="@i18n/wiliwili/setting/net/time/header"
+            subtitle="@i18n/wiliwili/setting/net/time/subtitle"
             marginTop="20"
             marginBottom="20"/>
     <brls:Box
@@ -28,7 +28,7 @@
             marginRight="20">
         <brls:Label
                 grow="1"
-                text="当前系统时间"/>
+                text="@i18n/wiliwili/setting/net/time/sys"/>
         <brls:Label
                 id="setting/net/sysTime"
                 horizontalAlign="right"
@@ -40,7 +40,7 @@
             marginRight="20">
         <brls:Label
                 grow="1"
-                text="获取网络时间"/>
+                text="@i18n/wiliwili/setting/net/time/net"/>
         <brls:Label
                 id="setting/net/netTime"
                 horizontalAlign="right"
@@ -48,8 +48,8 @@
     </brls:Box>
 
     <brls:Header
-            title="网络设置"
-            subtitle="若无法访问网络，可尝试还原系统网络设定"
+            title="@i18n/wiliwili/setting/net/profile/header"
+            subtitle="@i18n/wiliwili/setting/net/profile/subtitle"
             marginBottom="20"
             marginTop="20"/>
     <brls:Box
@@ -62,7 +62,7 @@
         <brls:Label
                 id="setting/net/wifi"
                 horizontalAlign="right"
-                text="开"/>
+                text="@i18n/hints/on"/>
     </brls:Box>
     <brls:Box
             marginBottom="20"
@@ -70,7 +70,7 @@
             marginRight="20">
         <brls:Label
                 grow="1"
-                text="IP地址"/>
+                text="@i18n/wiliwili/setting/net/profile/ip"/>
         <brls:Label
                 id="setting/net/ip"
                 horizontalAlign="right"
@@ -82,7 +82,7 @@
             marginRight="20">
         <brls:Label
                 grow="1"
-                text="DNS服务器地址"/>
+                text="@i18n/wiliwili/setting/net/profile/dns"/>
         <brls:Label
                 id="setting/net/dns"
                 horizontalAlign="right"

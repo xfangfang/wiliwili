@@ -20,7 +20,7 @@ MineTab::MineTab() {
 
     this->loginCb.subscribe([this](bilibili::LoginInfo status) {
         if (status == bilibili::LoginInfo::SUCCESS) {
-            brls::Logger::debug("登录成功");
+            brls::Logger::debug("wiliwili/mine/login/success"_i18n);
             this->requestData();
             try {
                 this->mineHistory->requestData(true);
@@ -38,7 +38,8 @@ MineTab::MineTab() {
 }
 
 void MineTab::onCreate() {
-    this->registerTabAction("刷新个人信息", brls::ControllerButton::BUTTON_X,
+    this->registerTabAction("wiliwili/mine/login/refresh"_i18n,
+                            brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
                                 this->requestData();
                                 return true;
@@ -79,7 +80,7 @@ void MineTab::onUserNotLogin() {
     ASYNC_RETAIN
     brls::sync([ASYNC_TOKEN]() {
         ASYNC_RELEASE
-        labelUserName->setText("点击登录");
+        labelUserName->setText("wiliwili/mine/login/click"_i18n);
         imageUserAvater->setImageFromRes("pictures/default_avatar.png");
         labelSign->setText("");
         labelCoins->setText("0");
@@ -92,7 +93,7 @@ void MineTab::onUserInfo(const bilibili::UserResult& data) {
     boxGotoUserSpace->registerAction(
         "hints/ok"_i18n, BUTTON_A,
         [](View*) -> bool {
-            auto dialog = new Dialog("退出登录当前的账户 (应用将会退出或重启)");
+            auto dialog = new Dialog("wiliwili/mine/login/logout"_i18n);
             dialog->addButton("hints/back"_i18n, []() {});
             dialog->addButton("hints/ok"_i18n, []() {
                 ProgramConfig::instance().setCookie({});

@@ -4,6 +4,9 @@
 
 #include "bilibili.h"
 #include "presenter/home_hots_weekly.hpp"
+#include "borealis/core/i18n.hpp"
+
+using namespace brls::literals;
 
 void HomeHotsWeeklyRequest::requestData() { this->requestHotsWeeklyList(); }
 
@@ -37,7 +40,7 @@ void HomeHotsWeeklyRequest::requestHotsWeeklyVideoListByIndex(size_t index) {
 }
 
 std::vector<std::string> HomeHotsWeeklyRequest::getWeeklyList() {
-    std::vector<std::string> res = {"刷新"};
+    std::vector<std::string> res = {"wiliwili/home/common/refresh"_i18n};
     for (auto w : weeklyList) {
         res.push_back(w.name + "    " + w.subject);
     }

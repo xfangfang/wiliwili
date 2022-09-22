@@ -92,7 +92,7 @@
                 marginTop="10"
                 textColor="@theme/font/grey"
                 fontSize="18"
-                text="项目首页"/>
+                text="@i18n/wiliwili/setting/about/repository"/>
     </brls:Box>
 
 </brls:Box>

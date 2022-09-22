@@ -17,11 +17,12 @@ void SearchActivity::onContentAvailable() {
         this->search(currentKey);
     }
 
-    this->registerAction("搜索", brls::ControllerButton::BUTTON_Y,
+    this->registerAction("wiliwili/search/tab"_i18n,
+                         brls::ControllerButton::BUTTON_Y,
                          [this](brls::View* view) -> bool {
                              brls::Swkbd::openForText(
                                  [&](std::string text) { this->search(text); },
-                                 "搜索你感兴趣的视频", "", 32,
+                                 "wiliwili/home/common/search"_i18n, "", 32,
                                  SearchActivity::currentKey, 0);
                              return true;
                          });

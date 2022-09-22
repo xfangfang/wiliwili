@@ -20,6 +20,8 @@ class SVGImage;
 typedef brls::Event<int> ChangeIndexEvent;
 typedef brls::Event<bilibili::Video> ChangeVideoEvent;
 
+using namespace brls::literals;
+
 class PlayerActivity : public brls::Activity, public VideoDetail {
 public:
     CONTENT_FROM_XML_RES("activity/player_activity.xml");

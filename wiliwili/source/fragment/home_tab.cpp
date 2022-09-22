@@ -7,6 +7,8 @@
 #include "fragment/home_tab.hpp"
 #include "activity/search_activity.hpp"
 
+using namespace brls::literals;
+
 HomeTab::HomeTab() {
     this->inflateFromXMLRes("xml/fragment/home_tab.xml");
     brls::Logger::debug("Fragment HomeTab: create");
@@ -14,12 +16,13 @@ HomeTab::HomeTab() {
 
 void HomeTab::onCreate() {
     this->registerTabAction(
-        "搜索", brls::ControllerButton::BUTTON_Y, [](brls::View* view) -> bool {
+        "wiliwili/search/tab"_i18n, brls::ControllerButton::BUTTON_Y,
+        [](brls::View* view) -> bool {
             brls::Swkbd::openForText(
                 [](std::string text) {
                     brls::Application::pushActivity(new SearchActivity(text));
                 },
-                "搜索你感兴趣的视频", "", 32, "", 0);
+                "wiliwili/home/common/search"_i18n, "", 32, "", 0);
 
             return true;
         });
@@ -46,7 +49,7 @@ void HomeTab::onCreate() {
                 [](std::string text) {
                     brls::Application::pushActivity(new SearchActivity(text));
                 },
-                "搜索你感兴趣的视频", "", 32, "", 0);
+                "wiliwili/home/common/search"_i18n, "", 32, "", 0);
         }));
 }
 

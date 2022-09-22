@@ -7,27 +7,27 @@
             tabItemActiveTextColor="@theme/color/bilibili"
             sidebarPosition="top">
 
-        <Tab label="直播"
+        <Tab label="@i18n/wiliwili/home/live/tab"
              fontSize="22">
             <HomeLive/>
         </Tab>
 
-        <Tab label="推荐"
+        <Tab label="@i18n/wiliwili/home/rcmd/tab"
              fontSize="22">
             <HomeRecommends/>
         </Tab>
 
-        <Tab label="热门"
+        <Tab label="@i18n/wiliwili/home/hots/tab"
              fontSize="22">
             <HomeHots/>
         </Tab>
 
-        <Tab label="追番"
+        <Tab label="@i18n/wiliwili/home/bangumi/tab"
              fontSize="22">
             <HomeBangumi/>
         </Tab>
 
-        <Tab label="影视"
+        <Tab label="@i18n/wiliwili/home/cinema/tab"
              fontSize="22">
             <HomeCinema/>
         </Tab>
@@ -51,7 +51,7 @@
             <brls:Label
                     fontSize="14"
                     textColor="#18191c"
-                    text="搜索你感兴趣的视频"/>
+                    text="@i18n/wiliwili/home/common/search"/>
             <brls:Label
                     height="35"
                     positionType="absolute"
@@ -61,16 +61,4 @@
                     text=""/>
         </brls:Box>
     </brls:Box>
-    <brls:Label
-            positionType="absolute"
-            positionLeft="0"
-            positionTop="18"
-            fontSize="14"
-            text=""/>
-    <brls:Label
-            positionType="absolute"
-            positionLeft="382"
-            positionTop="18"
-            fontSize="14"
-            text=""/>
 </brls:Box>
