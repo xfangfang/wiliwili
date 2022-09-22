@@ -557,6 +557,11 @@ void MPVCore::reset() {
 
 DanmakuItem::DanmakuItem(const std::string &content, const char *attributes)
     : msg(std::move(content)) {
+#ifdef OPENCC
+    static bool skip = brls::Application::getLocale() == brls::LOCALE_ZH_HANS ||
+                       brls::Application::getLocale() == brls::LOCALE_ZH_CN;
+    if (!skip && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
+#endif
     auto attrs = pystring::split(attributes, ",", 3);
     time       = atof(attrs[0].c_str());
     type       = atoi(attrs[1].c_str());

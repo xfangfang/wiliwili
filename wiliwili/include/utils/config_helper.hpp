@@ -29,6 +29,7 @@ enum class SettingItem {
     HISTORY_REPORT,
     PLAYER_BOTTOM_BAR,
     TEXTURE_CACHE_NUM,
+    OPENCC_ON,
 };
 
 class ProgramConfig : public Singleton<ProgramConfig> {

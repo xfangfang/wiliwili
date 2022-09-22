@@ -163,6 +163,26 @@ void SettingActivity::onContentAvailable() {
             return true;
         });
 
+    if (brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
+        brls::Application::getLocale() == brls::LOCALE_ZH_TW) {
+        btnOpencc->init(
+            "wiliwili/setting/app/others/opencc"_i18n,
+            conf.getSettingItem(SettingItem::OPENCC_ON, true), [](bool value) {
+                auto dialog =
+                    new brls::Dialog("wiliwili/setting/quit_hint"_i18n);
+                dialog->addButton("hints/ok"_i18n, [value]() {
+                    ProgramConfig::instance().setSettingItem(
+                        SettingItem::OPENCC_ON, value);
+                    brls::Application::getPlatform()->exitToHomeMode(false);
+                    brls::Application::quit();
+                });
+                dialog->setCancelable(false);
+                dialog->open();
+            });
+    } else {
+        btnOpencc->setVisibility(brls::Visibility::GONE);
+    }
+
     selectorTexture->init(
         "wiliwili/setting/app/cache/texture"_i18n,
         {"100", "200 (" + "hints/preset"_i18n + ")", "300", "400", "500"},

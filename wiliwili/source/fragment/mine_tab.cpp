@@ -10,6 +10,7 @@
 
 #include "fragment/mine_collection.hpp"
 #include "fragment/mine_history.hpp"
+#include "fragment/dynamic_tab.hpp"
 
 using namespace brls;
 using namespace brls::literals;
@@ -24,8 +25,30 @@ MineTab::MineTab() {
             this->requestData();
             try {
                 this->mineHistory->requestData(true);
+            } catch (...) {
+            }
+            try {
                 this->mineCollection->requestData(true);
-            } catch (ViewNotFoundException& e) {
+            } catch (...) {
+            }
+            try {
+                //动态页刷新
+                auto mainTab = dynamic_cast<AutoTabFrame*>(this->getParent());
+                DynamicTab* tab =
+                    (DynamicTab*)mainTab->getTab(1)->getAttachedView();
+                if (!tab) {
+                    brls::sync([mainTab]() {
+                        auto tab = dynamic_cast<DynamicTab*>(
+                            mainTab->getTab(1)->createAttachedView());
+                        tab->requestUpList();
+                        tab->requestDynamicVideoList(1, "");
+                    });
+                } else {
+                    tab->requestUpList();
+                    tab->requestDynamicVideoList(1, "");
+                }
+            } catch (...) {
+                brls::Logger::error("error: cannot refresh activity page");
             }
         }
     });

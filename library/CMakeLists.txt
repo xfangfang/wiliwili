@@ -28,6 +28,9 @@ FetchContent_Declare(lunasvg
         GIT_TAG 7417baa0aff477f361e44e2aa793fdb0c7aae352) # 2.3.2
 FetchContent_MakeAvailable(lunasvg)
 
+##import libopencc
+add_subdirectory(OpenCC)
+
 # add QR-Code-generator
 add_library(qrcode STATIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp/QrCode.cpp)
 target_include_directories(qrcode PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp)
@@ -108,10 +111,11 @@ endforeach (lib)
 
 add_library(borealis STATIC ${BOREALIS_SRC})
 set_property(TARGET borealis PROPERTY CXX_STANDARD 17)
-target_include_directories(borealis PUBLIC ${BOREALIS_INCLUDE})
-target_link_libraries(borealis ${BRLS_PLATFORM_LIBS})
+target_include_directories(borealis PUBLIC ${BOREALIS_INCLUDE} ${CMAKE_CURRENT_SOURCE_DIR}/OpenCC/src)
+target_link_libraries(borealis ${BRLS_PLATFORM_LIBS} libopencc)
 target_compile_options(borealis PUBLIC
         -DBRLS_RESOURCES=${BRLS_PLATFORM_RESOURCES_PATH}
+        -DOPENCC
         -DYG_ENABLE_EVENTS
         -ffunction-sections
         -fdata-sections

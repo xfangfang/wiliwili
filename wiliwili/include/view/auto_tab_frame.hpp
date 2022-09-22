@@ -147,6 +147,7 @@ public:
     void clearTab(const std::string& name, bool onlyFirst = true);
     bool isHaveTab(const std::string& name);
     AutoSidebarItem* getTab(const std::string& name);
+    AutoSidebarItem* getTab(size_t index);
 
     static brls::View* create();
     ~AutoTabFrame();

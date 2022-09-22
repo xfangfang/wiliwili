@@ -133,7 +133,7 @@ void MineHistory::onCreate() {
 void MineHistory::onHistoryList(
     const bilibili::HistoryVideoResultWrapper& result) {
     for (auto i : result.list) {
-        brls::Logger::debug("history: {}: {}", i.title, i.progress);
+        brls::Logger::verbose("history: {}: {}", i.title, i.progress);
     }
 
     int view_at = this->cursor.view_at;

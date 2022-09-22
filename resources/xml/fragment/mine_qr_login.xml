@@ -7,7 +7,7 @@
 
     <brls:Label
             marginTop="30"
-            text="扫描二维码登录"/>
+            text="@i18n/wiliwili/mine/login/scan"/>
 
     <QRImage
             id="mine/qr"
@@ -23,13 +23,13 @@
             fontSize="16"
             textColor="@theme/font/grey"
             marginBottom="10"
-            text="加载二维码中..."/>
+            text="@i18n/wiliwili/mine/login/loading"/>
 
     <brls:Label
             fontSize="16"
             textColor="@theme/font/grey"
             marginBottom="20"
-            text="请使用哔哩哔哩客户端扫码登录"/>
+            text="@i18n/wiliwili/mine/login/hint"/>
 
     <brls:Image
             positionType="absolute"

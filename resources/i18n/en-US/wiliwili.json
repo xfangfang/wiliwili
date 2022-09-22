@@ -3,81 +3,81 @@
   "github": "https://github.com/xfangfang/wiliwili",
   "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
   "setting": {
-    "quit_hint": "即将退出应用, 设置内容将在下次启动后生效",
+    "quit_hint": "You are about to exit the application. The settings will take effect after the next startup",
     "app": {
-      "tab": "应用设置",
+      "tab": "App",
       "playback": {
-        "header": "播放设置",
-        "report": "上传历史播放记录",
-        "player_bar": "播放器下方固定显示进度条"
+        "header": "Playback",
+        "report": "Upload history playback record",
+        "player_bar": "Always show progress bar"
       },
       "cache": {
-        "header": "缓存设置",
-        "texture": "图片纹理缓存数量"
+        "header": "Cache",
+        "texture": "Number of picture texture caches"
       },
       "others": {
-        "header": "其他",
-        "hide_bottom": "隐藏下方提示栏",
+        "header": "Others",
+        "hide_bottom": "Hide the hint bar below",
         "theme": {
-          "header": "主题配色 (需要重启)",
-          "1": "跟随系统",
-          "2": "浅色",
-          "3": "深色"
+          "header": "Theme (restart required)",
+          "1": "Auto",
+          "2": "Light",
+          "3": "Dark"
         }
       }
     },
     "tools": {
-      "tab": "实用工具",
+      "tab": "Tools",
       "tutorial": {
-        "header": "使用教程",
-        "intro": "软件介绍 (在线视频)",
+        "header": "Tutorial",
+        "intro": "Software introduction (online video; Chinese)",
         "intro_bvid": "BV18W4y1q72C",
-        "open": "应用开启方式与安装桌面图标",
-        "error": "软件内报错或部分功能不可用"
+        "open": "How to install desktop icon",
+        "error": "If you encounter a bug"
       },
       "net": {
-        "header": "网络诊断",
-        "checker": "检测网络状态"
+        "header": "Network Diagnostics",
+        "checker": "Detect network status"
       },
       "others": {
-        "header": "其他",
-        "release": "检查更新"
+        "header": "Others",
+        "release": "Check for updates"
       }
     },
     "about": {
-      "tab": "关于更多",
-      "brief_header": "软件介绍",
-      "repository": "项目首页",
-      "brief": "专为手柄控制设计的第三方跨平台B站客户端\n完美复刻官方PC端B站，满足日常使用, 目前可以运行在PC全平台和 Nintendo Switch 上\n仅在最新 大气层 + 最新 固件 + FAT32 内存卡测试",
-      "repo_header": "开源地址",
-      "author_header": "作者发言",
+      "tab": "About",
+      "brief_header": "Introduction",
+      "repository": "Repository",
+      "brief": "Yet another third-party bilibili client",
+      "repo_header": "Repository",
+      "author_header": "Author's speech",
       "author": "一直想做个艺术家, 可惜程序员都没什么发挥的空间\n直到这个作品诞生，实现了：「在游戏机上看视频；用手机来玩游戏」\n或许算得上是一种行为艺术，这样的话我也就圆满了"
     },
     "opensource": {
-      "tab": "开源许可"
+      "tab": "Opensource"
     },
     "tutorial": {
-      "error_q1": "无法访问网络",
-      "error_a1": "1. 确保大气层、系统固件最新\n2. 确认系统时间（包括日期）是正确的\n3. 恢复默认网络设置，包括IP、DNS等",
-      "error_q2": "软件随机报错退出",
-      "error_a2": "1. 使用Fat32格式内存卡\n2. 确保大气层、系统固件最新\n3. 等待开发者们修复"
+      "error_q1": "Unable to access the network",
+      "error_a1": "1. Ensure the atmosphere and system firmware are up to date\n2. Confirm that the system time is correct\n3. Restore the default network settings, including IP, DNS, etc\n4.Using in China",
+      "error_q2": "Exits with random error",
+      "error_a2": "1. Using a Fat32 format memory card\n2. Ensure the atmosphere and system firmware are up to date\n3. Waiting for developers to repair"
     },
     "net": {
       "test": {
-        "header": "访问网络",
-        "feed": "测试获取首页推荐"
+        "header": "Access Network",
+        "feed": "Test to get recommended videos"
       },
       "time": {
-        "header": "系统时间",
-        "subtitle": "系统时间不正确可能会导致网络访问失败",
-        "sys": "当前系统时间",
-        "net": "获取网络时间"
+        "header": "Time",
+        "subtitle": "Incorrect system time may cause network access failure",
+        "sys": "Current system time",
+        "net": "Get network time"
       },
       "profile": {
-        "header": "网络设置",
-        "subtitle": "若无法访问网络，可尝试还原系统网络设定",
-        "ip": "IP地址",
-        "dns": "DNS服务器地址"
+        "header": "Network",
+        "subtitle": "Restoring network settings can solve some problems",
+        "ip": "IP Address",
+        "dns": "DNS Address"
       }
     }
   },
@@ -86,85 +86,93 @@
     "hint2": "Hold the \uE0E5 key and click \uE0E0 to enter hbmenu",
     "hint3": "In the hbmenu, select wiliwili",
     "hint4": "Optional: Using provided wiliwili NSP forwarder",
-    "hint_nsp": "点击 \uE0E0 安装桌面图标",
-    "hint_confirm": "安装桌面图标可能导致ban机\n请再次确认",
+    "hint_nsp": "Click \uE0E0 to install NSP forwarder",
+    "hint_confirm": "Installing NSP forwarder may result in a ban\nPlease confirm again",
     "hint_right": "The pictures are from the Internet, and the copyright belongs to Nintendo Co., Ltd"
   },
   "home": {
     "common": {
-      "part": "分区",
-      "recommend": "推荐",
-      "search": "搜索你感兴趣的视频",
-      "switch": "切换",
-      "refresh": "刷新",
-      "last": "上一项",
-      "next": "下一项"
+      "part": "Channel: ",
+      "recommend": "Recommend",
+      "search": "Search for videos",
+      "switch": "Switch",
+      "refresh": "Refresh",
+      "last": "Last",
+      "next": "Next"
     },
     "live": {
-      "tab": "直播",
-      "dialog": "直播分区",
-      "default": "分区: 推荐"
+      "tab": "Live",
+      "dialog": "Channels",
+      "default": "Channel: Explore"
     },
     "rcmd": {
-      "tab": "推荐"
+      "tab": "Explore"
     },
     "hots": {
-      "tab": "热门",
-      "t1": "综合热门",
-      "t2": "排行榜",
-      "t3": "每周必看",
-      "t4": "入站必刷"
+      "tab": "Hots",
+      "t1": "Hots",
+      "t2": "Rank",
+      "t3": "Weekly",
+      "t4": "History"
     },
     "bangumi": {
-      "tab": "追番"
+      "tab": "Bangumi"
     },
     "cinema": {
-      "tab": "影视"
+      "tab": "Cinema"
     }
   },
   "search": {
-    "tab": "搜索",
-    "t1": "热搜",
-    "t2": "视频",
-    "t3": "番剧",
-    "t4": "影视"
+    "tab": "Search",
+    "t1": "Hots",
+    "t2": "Video",
+    "t3": "Bangumi",
+    "t4": "Cinema"
   },
   "activity": {
-    "all": "全部动态",
-    "refresh": "刷新列表"
+    "all": "All activities",
+    "refresh": "Refresh list"
   },
   "mine": {
     "login": {
-      "check": "检查登录信息...",
-      "success": "登录成功",
-      "refresh": "刷新个人信息",
-      "click": "点击登录",
-      "logout": "退出登录当前的账户 (应用将会退出)"
+      "check": "Checking login info...",
+      "success": "Login success",
+      "refresh": "Refresh",
+      "click": "Click to login",
+      "logout": "Logout of the current account \n(the application will quit)",
+      "scan": "Scan QR code to login",
+      "loading": "Loading QR code...",
+      "hint": "Please use the BiliBili client to scan the QR code",
+      "network_error": "Network error, please try again",
+      "qr_not_available": "QR code invalid, please re-enter the dialog",
+      "need_confirm": "Waiting for confirmation",
+      "need_scan": "Waiting for scanning QR code"
     },
-    "history": "历史记录",
-    "collection": "我的收藏",
-    "coin": "硬币",
-    "following": "关注",
-    "follower": "粉丝",
-    "activity": "动态",
-    "refresh_collection": "刷新收藏夹",
-    "public": "公开",
-    "private": "私密",
-    "num": "个内容",
-    "pub": "创建于",
-    "done": "已看完",
-    "article": "使用浏览器打开专栏内容:",
-    "refresh_history": "刷新历史记录"
+    "history": "History",
+    "collection": "Favorite",
+    "coin": "Coin",
+    "following": "Following",
+    "follower": "Follower",
+    "activity": "Activity",
+    "refresh_collection": "Refresh favorite",
+    "public": "Public",
+    "private": "Private",
+    "num": " contents",
+    "pub": "Created at ",
+    "done": "Finished",
+    "article": "Open with browser:",
+    "refresh_history": "Refresh history"
   },
   "player": {
-    "intro": "查看简介",
-    "p": "分集",
-    "related": "推荐",
-    "uploaded": "投稿",
-    "qr": "手机扫码观看/分享",
-    "comment": "评论",
-    "current": "人正在看",
-    "share": "分享",
-    "rights": "未经作者授权，禁止转载"
+    "intro": "Introduction",
+    "p": "Parts",
+    "related": "Related",
+    "uploaded": "Others",
+    "qr": "Scan QR code to watch/share",
+    "comment": "Comment",
+    "current": " people are watching",
+    "share": "Share",
+    "rights": "未经作者授权，禁止转载",
+    "fs": "Fullscreen"
   }
 }

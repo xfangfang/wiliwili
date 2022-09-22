@@ -2,8 +2,13 @@
   "ok": "确定",
   "back": "返回",
   "cancel": "取消",
-  "exit": "Exit",
-  "on": "On",
-  "off": "Off",
+  "exit": "退出",
+  "on": "开",
+  "off": "关",
+  "preset": "预设",
+  "default": "默认",
+  "current": "当前",
+  "success": "成功",
+  "failed": "失败",
   "exit_hint": "退出wiliwili？"
 }

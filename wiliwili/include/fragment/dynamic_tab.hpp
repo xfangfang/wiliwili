@@ -22,7 +22,7 @@ typedef brls::Event<unsigned int> UserSelectedEvent;
 
 class DynamicTab : public AttachedView,
                    public DynamicTabRequest,
-                   DynamicVideoRequest {
+                   public DynamicVideoRequest {
 public:
     DynamicTab();
 

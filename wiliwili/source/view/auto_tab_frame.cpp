@@ -252,6 +252,18 @@ AutoSidebarItem* AutoTabFrame::getTab(const std::string& name) {
     return nullptr;
 }
 
+AutoSidebarItem* AutoTabFrame::getTab(size_t value) {
+    size_t index = 0;
+    for (auto& i : this->sidebar->getChildren()) {
+        AutoSidebarItem* item = dynamic_cast<AutoSidebarItem*>(i);
+        if (item && index == value) {
+            return item;
+        }
+        index++;
+    }
+    return nullptr;
+}
+
 void AutoTabFrame::handleXMLElement(tinyxml2::XMLElement* element) {
     std::string name = element->Name();
 

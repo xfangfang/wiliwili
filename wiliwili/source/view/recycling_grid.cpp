@@ -237,7 +237,7 @@ void RecyclingGrid::addCellAt(size_t index, int downSide) {
             getHeightByCellIndex(this->dataSource->getItemCount()) +
             paddingTop + paddingBottom);
 
-    brls::Logger::debug("Cell #" + std::to_string(index) + " - added");
+    brls::Logger::verbose("Cell #" + std::to_string(index) + " - added");
 }
 
 void RecyclingGrid::setDataSource(RecyclingGridDataSource* source) {
@@ -690,7 +690,7 @@ void RecyclingGrid::setPaddingLeft(float left) {
 brls::View* RecyclingGrid::create() { return new RecyclingGrid(); }
 
 RecyclingGridItem* RecyclingGrid::dequeueReusableCell(std::string identifier) {
-    brls::Logger::debug("RecyclingGrid::dequeueReusableCell: {}", identifier);
+    brls::Logger::verbose("RecyclingGrid::dequeueReusableCell: {}", identifier);
     RecyclingGridItem* cell = nullptr;
     auto it                 = queueMap.find(identifier);
 

@@ -7,3 +7,6 @@
 [submodule "library/pystring"]
 	path = library/pystring
 	url = https://github.com/imageworks/pystring.git
+[submodule "library/OpenCC"]
+	path = library/OpenCC
+	url = https://github.com/xfangfang/OpenCC.git

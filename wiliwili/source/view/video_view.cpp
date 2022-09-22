@@ -155,7 +155,8 @@ VideoView::VideoView() {
         },
         true);
 
-    this->registerAction("全屏", brls::ControllerButton::BUTTON_A,
+    this->registerAction("wiliwili/player/fs"_i18n,
+                         brls::ControllerButton::BUTTON_A,
                          [this](brls::View* view) {
                              if (this->isFullscreen()) {
                                  //全屏状态下切换播放状态

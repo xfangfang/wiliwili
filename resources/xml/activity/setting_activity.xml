@@ -41,10 +41,6 @@
                             marginBottom="30px">
 
                         <brls:BooleanCell
-                                id="boolean"
-                                title="视频页自动全屏播放（不可用）"/>
-
-                        <brls:BooleanCell
                                 id="setting/video/progress"/>
 
                         <brls:BooleanCell
@@ -75,17 +71,17 @@
                             width="100%"
                             height="auto"
                             axis="column"
-                            marginBottom="30px">
+                            marginBottom="0px">
 
                         <brls:BooleanCell
                                 id="cell/hideBottomBar"/>
 
+                        <brls:BooleanCell
+                                id="setting/opencc"/>
+
                         <brls:SelectorCell
                                 id="setting/ui/theme"/>
 
-                        <brls:SelectorCell
-                                id="selector"
-                                title="默认图片质量（不可用）"/>
 
                     </brls:Box>
                 </brls:Box>
