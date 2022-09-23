@@ -38,7 +38,7 @@ VideoView::VideoView() {
     });
 
     this->registerAction(
-        "-10s", brls::ControllerButton::BUTTON_LB,
+        "\uE08F", brls::ControllerButton::BUTTON_LB,
         [this](brls::View* view) -> bool {
             mpvCore->command_str("seek -10");
             return true;
@@ -46,7 +46,7 @@ VideoView::VideoView() {
         false, true);
 
     this->registerAction(
-        "+10s", brls::ControllerButton::BUTTON_RB,
+        "\uE08E", brls::ControllerButton::BUTTON_RB,
         [this](brls::View* view) -> bool {
             mpvCore->command_str("seek +10");
             return true;
@@ -210,45 +210,65 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         //取出需要的弹幕
         uint64_t currentTime = getCPUTimeUsec();
         float bounds[4];
-        for (auto& i : mpvCore->danmakuData) {
-            if (i.isShown) continue;
-            if (!i.canShow) continue;
-            if (i.showing) {
-                float position =
-                    i.speed * (currentTime - i.startTime) / 1000000;
-                if (position > width + i.length) {
-                    i.isShown = true;
+        for (size_t j = mpvCore->danmakuIndex; j < mpvCore->danmakuData.size();
+             j++) {
+            auto& i = mpvCore->danmakuData[j];
+            if (!i.canShow) continue;  // 溢出屏幕外
+            if (i.showing) {           // 正在展示中
+                float position = 0;
+                if (mpvCore->core_idle) {
+                    // 暂停状态弹幕也要暂停
+                    position = i.speed * (mpvCore->playback_time - i.time);
+                    i.startTime =
+                        currentTime - (mpvCore->playback_time - i.time) * 1e6;
+                } else {
+                    position = i.speed * (currentTime - i.startTime) / 1e6;
+                }
+
+                // 根据时间或位置判断是否显示弹幕
+                if (position > width + i.length ||
+                    i.time + SECOND < mpvCore->playback_time) {
+                    i.showing             = false;
+                    mpvCore->danmakuIndex = j + 1;
                     continue;
                 }
 
+                // 画弹幕文字包边
                 nvgFillColor(vg, a(i.borderColor));
                 nvgText(vg, x + width - position + 1,
                         y + i.line * LINE_HEIGHT + 1, i.msg.c_str(), nullptr);
 
+                // 画弹幕文字
                 nvgFillColor(vg, a(i.color));
                 nvgText(vg, x + width - position, y + i.line * LINE_HEIGHT,
                         i.msg.c_str(), nullptr);
                 continue;
             }
-            if (mpvCore->playback_time > i.time) {
+            if (i.time < mpvCore->playback_time) {
+                if (i.time + SECOND < mpvCore->playback_time) {
+                    mpvCore->danmakuIndex = j + 1;
+                    continue;
+                }
                 i.showing = true;
                 nvgTextBounds(vg, 0, 0, i.msg.c_str(), nullptr, bounds);
                 i.length  = bounds[2] - bounds[0];
                 i.speed   = (width + i.length) / SECOND;
                 i.canShow = false;
                 for (int k = 0; k < LINES; k++) {
-                    if (i.time > DanmakuItem::lines[k].first &&
-                        i.time + width / i.speed >
-                            DanmakuItem::lines[k].second) {
-                        i.line = k;
-                        DanmakuItem::lines[k].first =
-                            i.time + i.length / i.speed;
-                        DanmakuItem::lines[k].second = i.time + SECOND;
-                        i.canShow                    = true;
-                        i.startTime                  = getCPUTimeUsec();
-                        break;
-                    }
+                    if (i.time < DanmakuItem::lines[k].first ||
+                        i.time + width / i.speed < DanmakuItem::lines[k].second)
+                        continue;
+                    i.line                       = k;
+                    DanmakuItem::lines[k].first  = i.time + i.length / i.speed;
+                    DanmakuItem::lines[k].second = i.time + SECOND;
+                    i.canShow                    = true;
+                    i.startTime                  = getCPUTimeUsec();
+                    if (mpvCore->playback_time - i.time > 0.2)
+                        i.startTime -= (mpvCore->playback_time - i.time) * 1e6;
+                    break;
                 }
+            } else {
+                break;
             }
         }
 
@@ -423,6 +443,9 @@ void VideoView::setFullScreen(bool fs) {
         return;
     }
 
+    // 让下一次显示弹幕时刷新正在显示的弹幕位置
+    mpvCore->resetDanmakuPosition();
+
     brls::Logger::info("VideoView set fullscreen state: {}", fs);
     if (fs) {
         this->unRegisterMpvEvent();
@@ -529,6 +552,7 @@ void VideoView::registerMpvEvent() {
                     break;
                 case MpvEventEnum::LOADING_END:
                     this->hideLoading();
+                    mpvCore->resetDanmakuPosition();
                     break;
                 case MpvEventEnum::MPV_STOP:
                     // todo: 当前播放结束，尝试播放下一个视频

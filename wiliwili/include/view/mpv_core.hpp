@@ -50,7 +50,7 @@ public:
     bool showing         = false;
     bool canShow         = true;
     float length         = 0;
-    int line             = 0;
+    int line             = 0;  // 弹幕在屏幕上的行数
     float speed          = 0;
     int64_t startTime    = 0;
     NVGcolor color       = nvgRGBA(255, 255, 255, 160);
@@ -63,6 +63,10 @@ public:
 
     inline static std::vector<std::pair<float, float>> lines =
         std::vector<std::pair<float, float>>(20, {0, 0});
+
+    bool operator<(const DanmakuItem &item) const {
+        return this->time < item.time;
+    }
 };
 
 class MPVCore : public Singleton<MPVCore> {
@@ -103,6 +107,11 @@ public:
         return ret == 1;
     }
 
+    double getPlaybackTime() {
+        get_property("pause", MPV_FORMAT_DOUBLE, &this->playback_time);
+        return this->playback_time;
+    }
+
     void setUrl(std::string url) {
         const char *cmd[] = {"loadfile", url.c_str(), NULL};
         command_async(cmd);
@@ -133,15 +142,18 @@ public:
 
     void reset();
 
+    void resetDanmakuPosition();
+
     // core states
     int core_idle          = 0;
     int64_t duration       = 0;  // second
     int64_t cache_speed    = 0;  // Bps
     double playback_time   = 0;
     int64_t video_progress = 0;
+    bool showDanmaku       = false;
+    bool danmakuLoaded     = false;
+    size_t danmakuIndex    = 0;  // 当前显示的第一条弹幕序号
     std::vector<DanmakuItem> danmakuData;
-    bool showDanmaku   = false;
-    bool danmakuLoaded = false;
 
     // Bottom progress bar
     inline static bool BOTTOM_BAR = true;
