@@ -3,7 +3,7 @@
   "github": "https://github.com/xfangfang/wiliwili",
   "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
   "setting": {
-    "quit_hint": "即將退出應用, 設置內容將在下次啟動後生效",
+    "quit_hint": "即將退出應用, 設定內容將在下次啟動後生效",
     "app": {
       "tab": "應用設定",
       "playback": {
@@ -30,15 +30,15 @@
     "tools": {
       "tab": "實用工具",
       "tutorial": {
-        "header": "使用教程",
-        "intro": "軟件介紹 (在線視頻)",
+        "header": "使用教學",
+        "intro": "軟體介紹 (線上影片)",
         "intro_bvid": "BV18W4y1q72C",
-        "open": "應用開啟方式與安裝桌面圖標",
-        "error": "軟件內報錯或部分功能不可用"
+        "open": "應用開啟方式與安裝桌面圖示",
+        "error": "軟體內報錯或部份功能不可用"
       },
       "net": {
-        "header": "網絡診斷",
-        "checker": "檢測網絡狀態"
+        "header": "網路診斷",
+        "checker": "檢測網路狀態"
       },
       "others": {
         "header": "其他",
@@ -47,58 +47,58 @@
     },
     "about": {
       "tab": "關於更多",
-      "brief_header": "軟件介紹",
-      "repository": "項目首頁",
-      "brief": "專為手柄控製設計的第三方跨平臺B站客戶端\n完美復刻官方PC端B站，滿足日常使用, 目前可以運行在PC全平臺和 Nintendo Switch 上\n僅在最新 大氣層 + 最新 固件 + FAT32 內存卡測試",
-      "repo_header": "開源地址",
+      "brief_header": "軟體介紹",
+      "repository": "專案首頁",
+      "brief": "專為搖桿控制設計的第三方跨平臺B站客戶端\n完美復刻官方PC端B站，滿足日常使用, 目前可以執行在PC全平臺和 Nintendo Switch 上\n僅在最新 大氣層 + 最新 韌體 + FAT32 記憶卡測試",
+      "repo_header": "開源位址",
       "author_header": "作者發言",
-      "author": "一直想做個藝術家, 可惜程序員都沒什麽發揮的空間\n直到這個作品誕生，實現了：「在遊戲機上看視頻；用手機來玩遊戲」\n或許算得上是一種行為藝術，這樣的話我也就圓滿了"
+      "author": "一直想做個藝術家, 可惜程式設計師都沒什麽發揮的空間\n直到這個作品誕生，實現了：「在遊戲機上看影片；用手機來玩遊戲」\n或許算得上是一種行為藝術，這樣的話我也就圓滿了"
     },
     "opensource": {
       "tab": "開源許可"
     },
     "tutorial": {
-      "error_q1": "無法訪問網絡",
-      "error_a1": "1. 確保大氣層、系統固件最新\n2. 確認系統時間（包括日期）是正確的\n3. 恢復默認網絡設置，包括IP、DNS等",
-      "error_q2": "軟件隨機報錯退出",
-      "error_a2": "1. 使用Fat32格式內存卡\n2. 確保大氣層、系統固件最新\n3. 等待開發者們修復"
+      "error_q1": "無法訪問網路",
+      "error_a1": "1. 確保大氣層、系統韌體最新\n2. 確認系統時間（包括日期）是正確的\n3. 恢復預設網路設定，包括IP、DNS等",
+      "error_q2": "軟體隨機報錯退出",
+      "error_a2": "1. 使用Fat32格式記憶卡\n2. 確保大氣層、系統韌體最新\n3. 等待開發者們修復"
     },
     "net": {
       "test": {
-        "header": "訪問網絡",
+        "header": "訪問網路",
         "feed": "測試獲取首頁推薦"
       },
       "time": {
         "header": "系統時間",
-        "subtitle": "系統時間不正確可能會導致網絡訪問失敗",
+        "subtitle": "系統時間不正確可能會導致網路訪問失敗",
         "sys": "當前系統時間",
-        "net": "獲取網絡時間"
+        "net": "獲取網路時間"
       },
       "profile": {
-        "header": "網絡設置",
-        "subtitle": "若無法訪問網絡，可嘗試還原系統網絡設定",
-        "ip": "IP地址",
-        "dns": "DNS服務器地址"
+        "header": "網路設定",
+        "subtitle": "若無法訪問網路，可嘗試還原系統網路設定",
+        "ip": "IP位址",
+        "dns": "DNS伺服器位址"
       }
     }
   },
   "hints": {
     "hint1": "請從桌面選擇任意遊戲並按住 \uE0E5 鍵",
     "hint2": "點擊 \uE0E0 打開, 在應用開啟期間保持按住 \uE0E5 鍵，直到進入 hbmenu",
-    "hint3": "在 hbmenu 菜單中選擇 wiliwili",
-    "hint4": "可選：安裝 wiliwili NSP 通過桌面圖標直接打開 wiliwili",
-    "hint_nsp": "點擊 \uE0E0 安裝桌面圖標",
-    "hint_confirm": "安裝桌面圖標可能導致ban機\n請再次確認",
-    "hint_right": "掌機圖片來源於網絡，版權歸任天堂 Nintendo Co., Ltd 所有",
-    "brief": "wiliwili 是專為手柄控製設計的第三方跨平臺B站客戶端\n目前可以運行在PC全平臺和Nintendo Switch上\n完美復刻官方B站PC客戶端，滿足日常使用\n僅在最新 大氣層 + 最新 固件 + FAT32 內存卡測試，其他組合出現的問題不進行處理。"
+    "hint3": "在 hbmenu 目錄中選擇 wiliwili",
+    "hint4": "可選：安裝 wiliwili NSP 通過桌面圖示直接打開 wiliwili",
+    "hint_nsp": "點擊 \uE0E0 安裝桌面圖示",
+    "hint_confirm": "安裝桌面圖示可能導致ban機\n請再次確認",
+    "hint_right": "掌機圖片來源於網路，版權歸任天堂 Nintendo Co., Ltd 所有",
+    "brief": "wiliwili 是專為搖桿控制設計的第三方跨平臺B站客戶端\n目前可以運行在PC全平臺和Nintendo Switch上\n完美復刻官方B站PC客戶端，滿足日常使用\n僅在最新 大氣層 + 最新 韌體  + FAT32 記憶卡測試，其他組合出現的問題不進行處理。"
   },
   "home": {
     "common": {
-      "part": "分區: ",
+      "part": "分區",
       "recommend": "推薦",
-      "search": "搜索你感興趣的視頻",
+      "search": "搜索你感興趣的影片",
       "switch": "切換",
-      "refresh": "刷新",
+      "refresh": "重新整理",
       "last": "上一項",
       "next": "下一項"
     },
@@ -125,27 +125,27 @@
     }
   },
   "search": {
-    "tab": "搜索",
+    "tab": "搜尋",
     "t1": "熱搜",
-    "t2": "視頻",
+    "t2": "影片",
     "t3": "番劇",
     "t4": "影視"
   },
   "activity": {
     "all": "全部動態",
-    "refresh": "刷新列表"
+    "refresh": "重新整理列表"
   },
   "mine": {
     "login": {
-      "check": "檢查登錄信息...",
-      "success": "登錄成功",
-      "refresh": "刷新個人信息",
-      "click": "點擊登錄",
-      "logout": "退出登錄當前的賬戶 (應用將會退出)",
+      "check": "檢查登入資訊...",
+      "success": "登入成功",
+      "refresh": "重新整理個人資訊",
+      "click": "點選登入",
+      "logout": "退出登入當前的賬號 (應用將會退出)",
       "scan": "掃描二維碼登錄",
       "loading": "加載二維碼中...",
       "hint": "請使用嗶哩嗶哩客戶端掃碼登錄",
-      "network_error": "網絡錯誤，請重試",
+      "network_error": "網路錯誤，請重試",
       "qr_not_available": "二維碼失效，請重新進入對話框",
       "need_confirm": "等待確認",
       "need_scan": "等待掃碼"
@@ -156,14 +156,14 @@
     "following": "關註",
     "follower": "粉絲",
     "activity": "動態",
-    "refresh_collection": "刷新收藏夾",
+    "refresh_collection": "重新整理收藏夾",
     "public": "公開",
     "private": "私密",
     "num": "個內容",
-    "pub": "創建於",
+    "pub": "建立於",
     "done": "已看完",
-    "article": "使用瀏覽器打開專欄內容:",
-    "refresh_history": "刷新歷史記錄"
+    "article": "使用瀏覽器開啟專欄內容:",
+    "refresh_history": "重新整理歷史記錄"
   },
   "player": {
     "intro": "查看簡介",
