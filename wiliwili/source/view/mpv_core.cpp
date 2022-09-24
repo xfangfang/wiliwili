@@ -72,17 +72,20 @@ MPVCore::MPVCore() {
     mpv_set_option_string(mpv, "fbo-format", "rgba8");
     mpv_set_option_string(mpv, "reset-on-next-file", "all");
     mpv_set_option_string(mpv, "loop-file", "no");
-    //    mpv_set_option_string(mpv, "osd-level", "3");
+    mpv_set_option_string(mpv, "osd-level", "0");
     mpv_set_option_string(mpv, "video-timing-offset", "0");  // 60fps
     mpv_set_option_string(mpv, "keep-open", "yes");
+    mpv_set_option_string(mpv, "hr-seek", "yes");
 
     // Less cpu cost
-    //    mpv_set_option_string(mpv, "vd-lavc-skiploopfilter", "all");
-    //    mpv_set_option_string(mpv, "vd-lavc-fast", "yes");
+    mpv_set_option_string(mpv, "vd-lavc-skiploopfilter", "all");
+    mpv_set_option_string(mpv, "vd-lavc-fast", "yes");
 
     // cache
+#ifdef __SWITCH__
     mpv_set_option_string(mpv, "demuxer-max-bytes", "20MiB");
     mpv_set_option_string(mpv, "demuxer-max-back-bytes", "10MiB");
+#endif
 
     // hardware decoding
 #ifndef __SWITCH__
@@ -534,35 +537,49 @@ void MPVCore::eventMainLoop() {
 }
 
 void MPVCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
+    danmakuMutex.lock();
     this->danmakuData.clear();
-    danmakuLoaded     = true;
     this->danmakuData = std::move(data);
+    if (data.size() != 0) danmakuLoaded = true;
     std::sort(danmakuData.begin(), danmakuData.end());
+    danmakuMutex.unlock();
     mpvCoreEvent.fire(MpvEventEnum::DANMAKU_LOADED);
 }
 
 void MPVCore::reset() {
+    danmakuMutex.lock();
     DanmakuItem::lines = std::vector<std::pair<float, float>>(20, {0, 0});
     this->danmakuData.clear();
+    //    this->showDanmaku = true; // todo: 根据配置文件修改
+    this->danmakuLoaded = false;
+    danmakuIndex        = 0;
+    danmakuMutex.unlock();
     this->core_idle      = 0;
     this->duration       = 0;  // second
     this->cache_speed    = 0;  // Bps
     this->playback_time  = 0;
     this->video_progress = 0;
-    //    this->showDanmaku = true; // todo: 根据配置文件修改
-    this->danmakuLoaded = false;
 }
 
 void MPVCore::resetDanmakuPosition() {
+    danmakuMutex.lock();
     danmakuIndex = 0;
     for (auto &i : danmakuData) {
         i.showing = false;
         i.canShow = true;
     }
+    danmakuMutex.unlock();
     for (int k = 0; k < 20; k++) {
         DanmakuItem::lines[k].first  = 0;
         DanmakuItem::lines[k].second = 0;
     }
+}
+
+std::vector<DanmakuItem> MPVCore::getDanmakuData() {
+    danmakuMutex.lock();
+    std::vector<DanmakuItem> data = danmakuData;
+    danmakuMutex.unlock();
+    return data;
 }
 
 /// Danmaku

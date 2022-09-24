@@ -195,6 +195,10 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         static float SECOND      = 8.0;
         static float FONT_SIZE   = 30;
         static float LINE_HEIGHT = FONT_SIZE + 10;
+        if (danmakuData.size() == 0) {
+            mpvCore->resetDanmakuPosition();
+            danmakuData = mpvCore->getDanmakuData();
+        }
 
         // Enable scissoring
         nvgSave(vg);
@@ -210,9 +214,9 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         //取出需要的弹幕
         uint64_t currentTime = getCPUTimeUsec();
         float bounds[4];
-        for (size_t j = mpvCore->danmakuIndex; j < mpvCore->danmakuData.size();
+        for (size_t j = mpvCore->danmakuIndex; j < this->danmakuData.size();
              j++) {
-            auto& i = mpvCore->danmakuData[j];
+            auto& i = this->danmakuData[j];
             if (!i.canShow) continue;  // 溢出屏幕外
             if (i.showing) {           // 正在展示中
                 float position = 0;
@@ -443,9 +447,6 @@ void VideoView::setFullScreen(bool fs) {
         return;
     }
 
-    // 让下一次显示弹幕时刷新正在显示的弹幕位置
-    mpvCore->resetDanmakuPosition();
-
     brls::Logger::info("VideoView set fullscreen state: {}", fs);
     if (fs) {
         this->unRegisterMpvEvent();
@@ -502,6 +503,7 @@ void VideoView::setFullScreen(bool fs) {
                     video->registerMpvEvent();
                     video->refreshToggleIcon();
                     video->refreshDanmakuIcon();
+                    video->resetDanmakuPosition();
                     if (osdSpinner->getVisibility() == brls::Visibility::GONE) {
                         video->hideLoading();
                     } else {
@@ -552,7 +554,7 @@ void VideoView::registerMpvEvent() {
                     break;
                 case MpvEventEnum::LOADING_END:
                     this->hideLoading();
-                    mpvCore->resetDanmakuPosition();
+                    this->resetDanmakuPosition();
                     break;
                 case MpvEventEnum::MPV_STOP:
                     // todo: 当前播放结束，尝试播放下一个视频
@@ -572,6 +574,9 @@ void VideoView::registerMpvEvent() {
                                            mpvCore->duration);
                     break;
                 case MpvEventEnum::DANMAKU_LOADED:
+                    mpvCore->danmakuMutex.lock();
+                    danmakuData = mpvCore->danmakuData;
+                    mpvCore->danmakuMutex.unlock();
                     break;
                 case MpvEventEnum::END_OF_FILE:
                     // 播放结束自动取消全屏
@@ -588,4 +593,9 @@ void VideoView::registerMpvEvent() {
 
 void VideoView::unRegisterMpvEvent() {
     mpvCore->getEvent()->unsubscribe(eventSubscribeID);
+}
+
+void VideoView::resetDanmakuPosition() {
+    mpvCore->resetDanmakuPosition();
+    this->danmakuData = mpvCore->danmakuData;
 }
