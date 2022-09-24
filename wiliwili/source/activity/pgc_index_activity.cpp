@@ -37,6 +37,7 @@ public:
         this->content->setHorizontalAlign(brls::HorizontalAlign::CENTER);
         this->content->setMargins(0, 8, 0, 8);
         this->addView(this->content);
+        this->addGestureRecognizer(new brls::TapGestureRecognizer(this));
     }
 
     void onFocusGained() override {
@@ -183,6 +184,9 @@ public:
             this->close([this]() { this->dismiss(); });
             return true;
         });
+        tabFrame->addGestureRecognizer(
+            new brls::TapGestureRecognizer(tabFrame));
+
         this->registerAction(
             "上一项", brls::ControllerButton::BUTTON_LB,
             [this](brls::View* view) -> bool {
@@ -362,6 +366,8 @@ void PGCIndexActivity::onContentAvailable() {
     brls::Logger::debug("PGCIndexActivity requestPGCIndex: {}",
                         this->originParam);
     this->requestPGCIndex(this->originParam);
+
+    titleBox->addGestureRecognizer(new brls::TapGestureRecognizer(titleBox));
 }
 
 PGCIndexActivity::~PGCIndexActivity() {

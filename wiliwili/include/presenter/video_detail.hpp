@@ -58,6 +58,8 @@ public:
     /// 获取番剧地址
     void requestSeasonVideoUrl(const std::string& bvid, int cid);
 
+    int getQualityIndex();
+
     /// 切换番剧分集
     void changeEpisode(const bilibili::SeasonEpisodeResult& i);
 
@@ -97,6 +99,8 @@ protected:
     bilibili::VideoUrlResult videoUrlResult;
     bilibili::SeasonResultWrapper seasonInfo;  // 番剧/综艺/影视 数据
     bilibili::SeasonEpisodeResult episodeResult;  // 番剧/综艺/影视 单集数据
+
+    static inline int defaultQuality = 116;
 
     unsigned int commentRequestIndex           = 1;
     unsigned int userUploadedVideoRequestIndex = 1;

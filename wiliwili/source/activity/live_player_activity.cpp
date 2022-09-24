@@ -31,6 +31,7 @@ void LiveActivity::onContentAvailable() {
     brls::Logger::debug("LiveActivity: onContentAvailable");
 
     this->video->registerAction("", brls::BUTTON_B, [](...) {
+        brls::Logger::debug("exit live");
         brls::Application::popActivity();
         return true;
     });

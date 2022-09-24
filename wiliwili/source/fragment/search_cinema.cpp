@@ -17,13 +17,11 @@ SearchCinema::SearchCinema() {
         "Cell", []() { return RecyclingGridItemVideoCard::create(); });
     recyclingGrid->onNextPage(
         [this]() { this->_requestSearch(SearchActivity::currentKey); });
-    //    if(!SearchActivity::currentKey.empty()){
-    //        this->_requestSearch(SearchActivity::currentKey);
-    //    }
 }
 
 SearchCinema::~SearchCinema() {
     brls::Logger::debug("Fragment SearchCinemaActivity: delete");
+    this->recyclingGrid->clearData();
 }
 
 brls::View* SearchCinema::create() { return new SearchCinema(); }

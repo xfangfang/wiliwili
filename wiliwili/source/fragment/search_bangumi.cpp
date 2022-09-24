@@ -21,6 +21,7 @@ SearchBangumi::SearchBangumi() {
 
 SearchBangumi::~SearchBangumi() {
     brls::Logger::debug("Fragment SearchBangumiActivity: delete");
+    this->recyclingGrid->clearData();
 }
 
 brls::View* SearchBangumi::create() { return new SearchBangumi(); }

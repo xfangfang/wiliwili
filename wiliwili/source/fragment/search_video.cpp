@@ -21,6 +21,7 @@ SearchVideo::SearchVideo() {
 
 SearchVideo::~SearchVideo() {
     brls::Logger::debug("Fragment SearchVideoActivity: delete");
+    this->recyclingGrid->clearData();
 }
 
 brls::View* SearchVideo::create() { return new SearchVideo(); }

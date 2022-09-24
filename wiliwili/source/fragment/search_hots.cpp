@@ -23,7 +23,10 @@ SearchHots::SearchHots() {
 
 brls::View *SearchHots::create() { return new SearchHots(); }
 
-SearchHots::~SearchHots() { brls::Logger::debug("Fragment Hots: delete"); }
+SearchHots::~SearchHots() {
+    brls::Logger::debug("Fragment Hots: delete");
+    this->recyclingGrid->clearData();
+}
 
 class HotsDataSource : public RecyclingGridDataSource {
 public:
@@ -46,9 +49,7 @@ public:
 
     size_t getItemCount() { return list.size(); }
 
-    void clearData() override{
-        this->list.clear();
-    }
+    void clearData() override { this->list.clear(); }
 
 private:
     bilibili::SearchHotsListResult list;

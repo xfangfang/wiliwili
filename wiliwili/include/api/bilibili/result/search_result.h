@@ -27,8 +27,8 @@ typedef std::vector<VideoSearchBadgeResult> VideoSearchBadgeListResult;
 
 class VideoItemSearchResult {
 public:
-    std::string
-        type;  // 搜索的类型：video/media_bangumi/media_ft 视频/影视/番剧
+    // 搜索的类型：video/media_bangumi/media_ft 视频/影视/番剧
+    std::string type;
 
     unsigned int aid;
     std::string bvid;

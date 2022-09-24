@@ -284,6 +284,35 @@ void PlayerActivity::setCommonData() {
         },
         true);
 
+    // 调整清晰度
+    this->registerAction(
+        "wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
+        [this](brls::View* view) -> bool {
+            brls::Application::pushActivity(
+                new brls::Activity(new brls::Dropdown(
+                    "wiliwili/player/quality"_i18n,
+                    this->videoUrlResult.accept_description,
+                    [this](int _selected) {
+                        PlayerActivity::defaultQuality =
+                            this->videoUrlResult.accept_quality[_selected];
+                        auto self = dynamic_cast<PlayerSeasonActivity*>(this);
+                        if (self) {
+                            episodeResult.progress =
+                                MPVCore::instance().video_progress + 5;
+                            this->requestSeasonVideoUrl(episodeResult.bvid,
+                                                        episodeResult.cid);
+                        } else {
+                            videoDetailPage.progress =
+                                MPVCore::instance().video_progress + 5;
+                            this->requestVideoUrl(videoDetailResult.bvid,
+                                                  videoDetailPage.cid);
+                        }
+                    },
+                    getQualityIndex())));
+
+            return true;
+        });
+
     this->btnQR->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnQR->getParent()));
 

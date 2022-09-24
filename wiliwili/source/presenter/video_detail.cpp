@@ -151,7 +151,7 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
     ASYNC_RETAIN
     brls::Logger::debug("请求视频播放地址: {}/{}", bvid, cid);
     bilibili::BilibiliClient::get_video_url(
-        bvid, cid, 116,
+        bvid, cid, defaultQuality,
         [ASYNC_TOKEN](const bilibili::VideoUrlResult& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
@@ -177,15 +177,11 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
 void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
     // 重置MPV
     MPVCore::instance().reset();
-    // 请求当前视频在线人数
-    this->requestVideoOnline(bvid, cid);
-    // 请求弹幕
-    this->requestVideoDanmaku(cid);
 
     ASYNC_RETAIN
     brls::Logger::debug("请求番剧视频播放地址: {}", cid);
     bilibili::BilibiliClient::get_season_url(
-        cid, 116,
+        cid, defaultQuality,
         [ASYNC_TOKEN](const bilibili::VideoUrlResult& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
@@ -198,6 +194,21 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
             ASYNC_RELEASE
             brls::Logger::error(error);
         });
+
+    // 请求当前视频在线人数
+    this->requestVideoOnline(bvid, cid);
+    // 请求弹幕
+    this->requestVideoDanmaku(cid);
+}
+
+/// 获取当前清晰度的序号，默认为0，从最高清开始排起
+int VideoDetail::getQualityIndex() {
+    for (size_t i = 0; i < videoUrlResult.accept_quality.size(); i++) {
+        if (videoUrlResult.accept_quality[i] == videoUrlResult.quality) {
+            return i;
+        }
+    }
+    return 0;
 }
 
 /// 切换番剧分集

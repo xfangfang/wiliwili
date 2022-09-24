@@ -77,12 +77,12 @@ MPVCore::MPVCore() {
     mpv_set_option_string(mpv, "keep-open", "yes");
     mpv_set_option_string(mpv, "hr-seek", "yes");
 
+#ifdef __SWITCH__
     // Less cpu cost
     mpv_set_option_string(mpv, "vd-lavc-skiploopfilter", "all");
     mpv_set_option_string(mpv, "vd-lavc-fast", "yes");
 
     // cache
-#ifdef __SWITCH__
     mpv_set_option_string(mpv, "demuxer-max-bytes", "20MiB");
     mpv_set_option_string(mpv, "demuxer-max-back-bytes", "10MiB");
 #endif
