@@ -5,6 +5,7 @@
 #include "fragment/mine_history.hpp"
 #include "view/video_card.hpp"
 #include "activity/player_activity.hpp"
+#include "activity/live_player_activity.hpp"
 #include "utils/number_helper.hpp"
 
 using namespace brls::literals;
@@ -51,9 +52,9 @@ public:
         return item;
     }
 
-    size_t getItemCount() { return list.size(); }
+    size_t getItemCount() override { return list.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) {
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         auto& data = list[index].history;
 
         std::string& bvid     = data.bvid;
@@ -68,6 +69,10 @@ public:
             if (list[index].progress > 0) progress = list[index].progress;
             brls::Application::pushActivity(new PlayerSeasonActivity(
                 data.epid, PGC_ID_TYPE::EP_ID, progress));
+        } else if (business == "live") {
+            if (list[index].live_status) {
+                brls::Application::pushActivity(new LiveActivity(data.oid));
+            }
         } else if (business == "article" || business == "article-list") {
             auto cvid = data.oid;
             if (data.cid != 0) cvid = data.cid;

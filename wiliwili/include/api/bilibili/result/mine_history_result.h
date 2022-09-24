@@ -40,7 +40,8 @@ public:
     HistoryVideoData history;
     int view_at;
     int duration;
-    int progress;  // -1：表示看完了
+    int progress;         // -1：表示看完了
+    int live_status = 0;  // 是否在直播
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       HistoryVideoResult& nlohmann_json_t) {
@@ -50,9 +51,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     } else {
         nlohmann_json_j.at("cover").get_to(nlohmann_json_t.cover);
     }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, show_title, author_name,
-                            badge, progress, duration, view_at, history));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
+        NLOHMANN_JSON_FROM, title, show_title, author_name, badge, progress,
+        duration, view_at, history, live_status));
 }
 
 typedef std::vector<HistoryVideoResult> HistoryVideoListResult;
