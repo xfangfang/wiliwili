@@ -39,9 +39,7 @@ public:
         changeEpisodeEvent.fire(index);
     }
 
-    void clearData() override{
-        this->data.clear();
-    }
+    void clearData() override { this->data.clear(); }
 
 private:
     std::vector<std::string> data;
@@ -77,7 +75,7 @@ public:
         this->list.insert(this->list.end(), data.begin(), data.end());
     }
 
-    void clearData() override {this->list.clear();};
+    void clearData() override { this->list.clear(); };
 
 private:
     bilibili::UserUploadedVideoListResult list;
@@ -112,7 +110,7 @@ public:
         this->list.insert(this->list.end(), data.begin(), data.end());
     }
 
-    void clearData() {this->list.clear();};
+    void clearData() { this->list.clear(); };
 
 private:
     bilibili::VideoDetailListResult list;
@@ -211,8 +209,7 @@ void PlayerActivity::onContentAvailable() {
         this->requestVideoInfo(videoData.bvid);
     });
 
-    //todo: X键 刷新播放页
-
+    // 自动加载下一页评论
     this->recyclingGrid->onNextPage(
         [this]() { this->requestVideoComment(this->videoDetailResult.aid); });
 
@@ -627,7 +624,6 @@ PlayerActivity::~PlayerActivity() {
     this->video->stop();
 
     this->recyclingGrid->clearData();
-}
 }
 
 /// season player
