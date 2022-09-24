@@ -79,7 +79,7 @@ public:
      */
     virtual void onItemSelected(RecyclingGrid* recycler, size_t index) {}
 
-    virtual void clearData() {}
+    virtual void clearData() = 0;
 };
 
 class RecyclingGrid : public brls::ScrollingFrame {

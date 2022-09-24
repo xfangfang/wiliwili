@@ -77,6 +77,10 @@ public:
 
     UserSelectedEvent* getSelectedEvent() { return &this->userSelectedEvent; }
 
+    void clearData() override{
+        this->list.clear();
+    }
+
 private:
     bilibili::DynamicUpListResult list;
     UserSelectedEvent userSelectedEvent;
@@ -117,6 +121,10 @@ public:
                 this->list.push_back(i);
             }
         }
+    }
+
+    void clearData() override{
+        this->list.clear();
     }
 
 private:

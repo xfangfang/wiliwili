@@ -22,7 +22,9 @@ class UserInfoView : public brls::Box {
 public:
     UserInfoView() { this->inflateFromXMLRes("xml/views/user_info.xml"); }
 
-    ~UserInfoView() { ImageHelper::clear(this->avatarView); }
+    ~UserInfoView() {
+        //        ImageHelper::clear(this->avatarView);
+    }
 
     void setUserInfo(std::string avatar, std::string username,
                      std::string misc) {
@@ -105,10 +107,10 @@ public:
     }
 
 private:
-    BRLS_BIND(brls::Image, avatarView, "avatar");
-    BRLS_BIND(brls::Label, labelUsername, "username");
-    BRLS_BIND(brls::Label, labeMisc, "misc");
-    BRLS_BIND(brls::Label, labeHint, "label/hint");
-    BRLS_BIND(SVGImage, svgHint, "svg/hint");
-    BRLS_BIND(brls::Box, boxHint, "box/hint");
+    BRLS_BIND(brls::Image, avatarView, "userinfo/avatar");
+    BRLS_BIND(brls::Label, labelUsername, "userinfo/label/username");
+    BRLS_BIND(brls::Label, labeMisc, "userinfo/label/misc");
+    BRLS_BIND(brls::Label, labeHint, "userinfo/label/hint");
+    BRLS_BIND(SVGImage, svgHint, "userinfo/svg/hint");
+    BRLS_BIND(brls::Box, boxHint, "userinfo/box/hint");
 };

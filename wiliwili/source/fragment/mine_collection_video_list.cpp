@@ -12,7 +12,8 @@ class DataSourceCollectionVideoList : public RecyclingGridDataSource {
 public:
     DataSourceCollectionVideoList(bilibili::CollectionVideoListResult result)
         : list(result) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemVideoCard* item =
             (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
@@ -27,9 +28,9 @@ public:
         return item;
     }
 
-    size_t getItemCount() { return list.size(); }
+    size_t getItemCount() override { return list.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) {
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         auto& data = list[index];
         switch (data.type) {
             case 2:  // 普通视频
@@ -49,6 +50,8 @@ public:
     void appendData(const bilibili::CollectionVideoListResult& data) {
         this->list.insert(this->list.end(), data.begin(), data.end());
     }
+
+    void clearData() override { this->list.clear(); }
 
 private:
     bilibili::CollectionVideoListResult list;

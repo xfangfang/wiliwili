@@ -58,6 +58,10 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override;
 
+    void clearData() override{
+        data.clear();
+    }
+
 private:
     std::vector<std::string> data;
     GridDropdown* dropdown;

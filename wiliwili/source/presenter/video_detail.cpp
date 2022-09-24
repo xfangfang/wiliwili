@@ -89,14 +89,7 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                 this->videoDetailResult = result.View;
                 this->userDetailResult  = result.Card;
 
-                // 请求视频评论
-                this->requestVideoComment(this->videoDetailResult.aid, 1);
-
-                // 请求用户投稿列表
-                this->requestUploadedVideos(this->videoDetailResult.owner.mid,
-                                            1);
-
-                //  请求视频播放地址
+                // 展示分P数据
                 this->onVideoPageListInfo(this->videoDetailResult.pages);
 
                 // 尝试打开指定的分P
@@ -129,9 +122,15 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                         break;
                     }
 
-                // 播放PV
+                // 请求视频播放地址
                 this->requestVideoUrl(this->videoDetailResult.bvid,
-                                      videoDetailPage.cid);
+                                      this->videoDetailPage.cid);
+
+                // 请求视频评论
+                this->requestVideoComment(this->videoDetailResult.aid, 1);
+
+                // 请求用户投稿列表
+                this->requestUploadedVideos(videoDetailResult.owner.mid, 1);
 
                 this->onVideoInfo(this->videoDetailResult);
                 this->onRelatedVideoList(result.Related);
@@ -148,10 +147,6 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
 void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
     // 重置MPV
     MPVCore::instance().reset();
-    // 请求当前视频在线人数
-    this->requestVideoOnline(bvid, cid);
-    // 请求弹幕
-    this->requestVideoDanmaku(cid);
 
     ASYNC_RETAIN
     brls::Logger::debug("请求视频播放地址: {}/{}", bvid, cid);
@@ -171,6 +166,11 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
             ASYNC_RELEASE
             brls::Logger::error(error);
         });
+
+    // 请求当前视频在线人数
+    this->requestVideoOnline(bvid, cid);
+    // 请求弹幕
+    this->requestVideoDanmaku(cid);
 }
 
 /// 获取番剧地址
@@ -223,6 +223,7 @@ void VideoDetail::requestVideoComment(int aid, int next, int mode) {
     if (next != 0) {
         this->commentRequestIndex = next;
     }
+    brls::Logger::debug("请求视频评论: {}", aid);
     ASYNC_RETAIN
     bilibili::BilibiliClient::get_comment(
         aid, commentRequestIndex, mode,
@@ -271,6 +272,7 @@ void VideoDetail::requestUploadedVideos(int mid, int pn, int ps) {
 
 /// 获取单个视频播放人数
 void VideoDetail::requestVideoOnline(const std::string& bvid, int cid) {
+    brls::Logger::debug("请求当前视频在线人数: bvid: {} cid: {}", bvid, cid);
     ASYNC_RETAIN
     bilibili::BilibiliClient::get_video_online(
         bvid, cid,
@@ -305,10 +307,12 @@ void VideoDetail::requestVideoRelationInfo(const std::string& bvid) {
 
 /// 获取视频弹幕
 void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
+    brls::Logger::debug("请求弹幕：cid: {}", cid);
     ASYNC_RETAIN
     bilibili::BilibiliClient::get_danmaku(
         cid,
         [ASYNC_TOKEN](const std::string& result) {
+            ASYNC_RELEASE
             brls::Logger::debug("DANMAKU: start decode");
 
             // Load XML
@@ -339,13 +343,11 @@ void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
                                         child->GetText());
                 }
             }
-            MPVCore::instance().loadDanmakuData(items);
-            brls::Logger::debug("DANMAKU: decode done: {}", items.size());
 
-            brls::sync([ASYNC_TOKEN]() {
-                ASYNC_RELEASE
-                //                this->onDanmaku(assFile);
-            });
+            brls::sync(
+                [items]() { MPVCore::instance().loadDanmakuData(items); });
+
+            brls::Logger::debug("DANMAKU: decode done: {}", items.size());
         },
         [ASYNC_TOKEN](const std::string& error) {
             ASYNC_RELEASE

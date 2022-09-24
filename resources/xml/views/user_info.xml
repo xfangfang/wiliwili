@@ -9,17 +9,17 @@
             width="18%"
             wireframe="false"
             axis="column">
-            <brls:Image
-                    id="avatar"
-                    width="auto"
-                    maxHeight="90%"
-                    aspectRatio="1"
-                    scalingType="fit"
-                    marginLeft="10"
-                    borderThickness="4"
-                    borderColor="@theme/color/grey_1"
-                    cornerRadius="100"
-                    image="@res/pictures/default_avatar.png"/>
+        <brls:Image
+                id="userinfo/avatar"
+                width="auto"
+                maxHeight="90%"
+                aspectRatio="1"
+                scalingType="fit"
+                marginLeft="10"
+                borderThickness="4"
+                borderColor="@theme/color/grey_1"
+                cornerRadius="100"
+                image="@res/pictures/default_avatar.png"/>
     </brls:Box>
 
     <brls:Box
@@ -31,18 +31,17 @@
             alignItems="flexStart">
 
         <brls:Label
-                id="username"
+                id="userinfo/label/username"
                 width="auto"
                 height="auto"
                 wireframe="false"
                 grow="1"
                 fontSize="20"
                 marginBottom="8"
-                verticalAlign="bottom"
-                text="" />
+                verticalAlign="bottom"/>
 
         <brls:Label
-                id="misc"
+                id="userinfo/label/misc"
                 width="auto"
                 height="auto"
                 fontSize="16"
@@ -50,13 +49,12 @@
                 marginTop="8"
                 verticalAlign="top"
                 wireframe="false"
-                textColor="@theme/font/grey"
-                text="" />
+                textColor="@theme/font/grey"/>
 
     </brls:Box>
 
     <brls:Box
-            id="box/hint"
+            id="userinfo/box/hint"
             visibility="gone"
             width="100"
             height="34"
@@ -64,18 +62,17 @@
             cornerRadius="6"
             justifyContent="center"
             alignItems="center">
-            <SVGImage
-                    id="svg/hint"
-                    width="16"
-                    height="16"
-                    marginLeft="6"
-                    marginRight="6"/>
-            <brls:Label
-                    id="label/hint"
-                    textColor="@theme/font/grey"
-                    fontSize="16"
-                    marginTop="1"
-                    text=""/>
+        <SVGImage
+                id="userinfo/svg/hint"
+                width="16"
+                height="16"
+                marginLeft="6"
+                marginRight="6"/>
+        <brls:Label
+                id="userinfo/label/hint"
+                textColor="@theme/font/grey"
+                fontSize="16"
+                marginTop="1"/>
     </brls:Box>
 
 </brls:Box>

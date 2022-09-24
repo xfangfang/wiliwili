@@ -39,6 +39,10 @@ public:
         changeEpisodeEvent.fire(index);
     }
 
+    void clearData() override{
+        this->data.clear();
+    }
+
 private:
     std::vector<std::string> data;
     ChangeIndexEvent changeEpisodeEvent;
@@ -73,6 +77,8 @@ public:
         this->list.insert(this->list.end(), data.begin(), data.end());
     }
 
+    void clearData() override {this->list.clear();};
+
 private:
     bilibili::UserUploadedVideoListResult list;
     ChangeVideoEvent changeVideoEvent;
@@ -105,6 +111,8 @@ public:
     void appendData(const bilibili::VideoDetailListResult& data) {
         this->list.insert(this->list.end(), data.begin(), data.end());
     }
+
+    void clearData() {this->list.clear();};
 
 private:
     bilibili::VideoDetailListResult list;
@@ -617,6 +625,9 @@ PlayerActivity::~PlayerActivity() {
     MPVCore::instance().getEvent()->unsubscribe(eventSubscribeID);
     // 停止视频播放
     this->video->stop();
+
+    this->recyclingGrid->clearData();
+}
 }
 
 /// season player

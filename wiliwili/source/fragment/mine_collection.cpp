@@ -50,6 +50,10 @@ public:
         this->list.insert(this->list.end(), data.begin(), data.end());
     }
 
+    void clearData() override{
+        this->list.clear();
+    }
+
 private:
     bilibili::CollectionListResult list;
 };

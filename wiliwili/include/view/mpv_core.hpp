@@ -144,15 +144,18 @@ public:
 
     void resetDanmakuPosition();
 
+    std::vector<DanmakuItem> getDanmakuData();
+
     // core states
     int core_idle          = 0;
     int64_t duration       = 0;  // second
     int64_t cache_speed    = 0;  // Bps
     double playback_time   = 0;
     int64_t video_progress = 0;
-    bool showDanmaku       = false;
-    bool danmakuLoaded     = false;
-    size_t danmakuIndex    = 0;  // 当前显示的第一条弹幕序号
+    std::mutex danmakuMutex;
+    bool showDanmaku    = false;
+    bool danmakuLoaded  = false;
+    size_t danmakuIndex = 0;  // 当前显示的第一条弹幕序号
     std::vector<DanmakuItem> danmakuData;
 
     // Bottom progress bar

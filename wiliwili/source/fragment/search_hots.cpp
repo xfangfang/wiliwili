@@ -46,6 +46,10 @@ public:
 
     size_t getItemCount() { return list.size(); }
 
+    void clearData() override{
+        this->list.clear();
+    }
+
 private:
     bilibili::SearchHotsListResult list;
     UpdateSearchEvent *updateSearchEvent = nullptr;

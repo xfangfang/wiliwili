@@ -100,6 +100,8 @@ public:
 
     void unRegisterMpvEvent();
 
+    void resetDanmakuPosition();
+
 private:
     bool allowFullscreen  = true;
     VideoState videoState = VideoState::STOPPED;
@@ -125,6 +127,7 @@ private:
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
     int danmakuFont    = 0;
+    std::vector<DanmakuItem> danmakuData;
 
     //DEBUG
     BRLS_BIND(brls::Box, videoLayerDebug, "video/layer/debug");

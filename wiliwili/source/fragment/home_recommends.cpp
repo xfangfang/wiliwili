@@ -52,6 +52,8 @@ public:
         }
     }
 
+    void clearData() override { this->recommendList.clear(); }
+
 private:
     bilibili::RecommendVideoListResult recommendList;
 };
