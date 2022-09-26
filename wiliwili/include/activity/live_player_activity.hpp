@@ -22,6 +22,9 @@ public:
     void onLiveData(const bilibili::LiveUrlResultWrapper& result) override;
     void onError(const std::string& error) override;
 
+    std::vector<std::string> getQualityDescriptionList();
+    int getCurrentQualityIndex();
+
     ~LiveActivity();
 
 private:

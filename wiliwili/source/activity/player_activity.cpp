@@ -65,9 +65,9 @@ public:
         return item;
     }
 
-    size_t getItemCount() { return list.size(); }
+    size_t getItemCount() override { return list.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) {
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         changeVideoEvent.fire(list[index]);
     }
 
@@ -288,6 +288,7 @@ void PlayerActivity::setCommonData() {
     this->registerAction(
         "wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
         [this](brls::View* view) -> bool {
+            if (this->videoUrlResult.accept_description.empty()) return true;
             brls::Application::pushActivity(
                 new brls::Activity(new brls::Dropdown(
                     "wiliwili/player/quality"_i18n,

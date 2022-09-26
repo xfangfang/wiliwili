@@ -373,13 +373,19 @@ void VideoView::hideDanmakuButton() {
 }
 
 void VideoView::setTitle(std::string title) {
-    brls::Threading::sync(
-        [this, title]() { this->videoTitleLabel->setText(title); });
+    ASYNC_RETAIN
+    brls::Threading::sync([ASYNC_TOKEN, title]() {
+        ASYNC_RELEASE
+        this->videoTitleLabel->setText(title);
+    });
 }
 
 void VideoView::setOnlineCount(std::string count) {
-    brls::Threading::sync(
-        [this, count]() { this->videoOnlineCountLabel->setText(count); });
+    ASYNC_RETAIN
+    brls::Threading::sync([ASYNC_TOKEN, count]() {
+        ASYNC_RELEASE
+        this->videoOnlineCountLabel->setText(count);
+    });
 }
 
 std::string VideoView::getTitle() {
@@ -519,6 +525,10 @@ void VideoView::setFullScreen(bool fs) {
     }
 }
 
+void VideoView::setCloseOnEndOfFile(bool value) {
+    this->closeOnEndOfFile = value;
+}
+
 View* VideoView::getDefaultFocus() { return this; }
 
 View* VideoView::getNextFocus(brls::FocusDirection direction,
@@ -581,7 +591,7 @@ void VideoView::registerMpvEvent() {
                 case MpvEventEnum::END_OF_FILE:
                     // 播放结束自动取消全屏
                     this->showOSD(false);
-                    if (this->isFullscreen()) {
+                    if (this->closeOnEndOfFile && this->isFullscreen()) {
                         this->setFullScreen(false);
                     }
                     break;

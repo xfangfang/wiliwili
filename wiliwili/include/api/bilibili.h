@@ -175,7 +175,7 @@ public:
 
     /// get live video url by roomid
     static void get_live_url(
-        const int roomid,
+        const int roomid, const int qn = 10000,
         const std::function<void(LiveUrlResultWrapper)>& callback = nullptr,
         const ErrorCallback& error                                = nullptr);
 

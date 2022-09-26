@@ -86,6 +86,8 @@ public:
 
     void setFullScreen(bool fs);
 
+    void setCloseOnEndOfFile(bool value);
+
     void initializeGL();
 
     void draw(NVGcontext* vg, float x, float y, float width, float height,
@@ -128,6 +130,8 @@ private:
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
     int danmakuFont    = 0;
     std::vector<DanmakuItem> danmakuData;
+
+    bool closeOnEndOfFile = true; // 全屏时 播放结束自动取消全屏
 
     //DEBUG
     BRLS_BIND(brls::Box, videoLayerDebug, "video/layer/debug");

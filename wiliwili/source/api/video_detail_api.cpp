@@ -117,10 +117,14 @@ void BilibiliClient::get_season_url(
 }
 
 void BilibiliClient::get_live_url(
-    const int roomid, const std::function<void(LiveUrlResultWrapper)>& callback,
+    const int roomid, const int qn,
+    const std::function<void(LiveUrlResultWrapper)>& callback,
     const ErrorCallback& error) {
-    HTTP::getResultAsync<LiveUrlResultWrapper>(
-        Api::LiveUrl, {{"cid", std::to_string(roomid)}, {"platform", "web"}, {"quality", "4"}}, callback, error);
+    HTTP::getResultAsync<LiveUrlResultWrapper>(Api::LiveUrl,
+                                               {{"cid", std::to_string(roomid)},
+                                                {"platform", "web"},
+                                                {"qn", std::to_string(qn)}},
+                                               callback, error);
 }
 
 /// 视频页 获取单个视频播放人数

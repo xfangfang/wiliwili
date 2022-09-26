@@ -7,6 +7,8 @@
 #include "view/mpv_core.hpp"
 #include "bilibili.h"
 
+using namespace brls::literals;
+
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
@@ -40,6 +42,28 @@ void LiveActivity::onContentAvailable() {
         [](brls::View* view) -> bool { return true; }, true);
 
     this->video->hideDanmakuButton();
+    this->video->setTitle(liveData.title);
+    this->video->setOnlineCount(liveData.watched_show.text_large);
+    this->video->setCloseOnEndOfFile(false);
+
+    // 调整清晰度
+    this->registerAction(
+        "wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
+        [this](brls::View* view) -> bool {
+            if (this->liveUrl.quality_description.empty()) return true;
+            brls::Application::pushActivity(
+                new brls::Activity(new brls::Dropdown(
+                    "wiliwili/player/quality"_i18n,
+                    this->getQualityDescriptionList(),
+                    [this](int _selected) {
+                        defaultQuality =
+                            liveUrl.quality_description[_selected].qn;
+                        this->requestData(this->liveData.roomid);
+                    },
+                    this->getCurrentQualityIndex())));
+
+            return true;
+        });
 
     // 使用api接口提供的播放链接，清晰度不高, switch上播放会报错退出
     // if (!liveData.play_url.empty()) {
@@ -51,7 +75,27 @@ void LiveActivity::onContentAvailable() {
     this->requestData(liveData.roomid);
 }
 
+std::vector<std::string> LiveActivity::getQualityDescriptionList() {
+    std::vector<std::string> res;
+    for (auto& i : liveUrl.quality_description) {
+        res.push_back(i.desc);
+    }
+    return res;
+}
+
+int LiveActivity::getCurrentQualityIndex() {
+    for (size_t i = 0; i < liveUrl.quality_description.size(); i++) {
+        if (liveUrl.quality_description[i].qn == this->liveUrl.current_qn)
+            return i;
+    }
+    return 0;
+}
+
 void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result) {
+    brls::Logger::debug("current quality: {}", result.current_qn);
+    for (auto& i : result.quality_description) {
+        brls::Logger::debug("quality: {}/{}", i.desc, i.qn);
+    }
     for (auto i : result.durl) {
         brls::Logger::debug("palyurl: {}", i.url);
         this->video->start(i.url);

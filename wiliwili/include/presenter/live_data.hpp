@@ -10,15 +10,20 @@
 
 class LiveDataRequest : public Presenter {
 public:
-    virtual void onLiveData(const bilibili::LiveUrlResultWrapper& result){}
+    virtual void onLiveData(const bilibili::LiveUrlResultWrapper& result) {}
 
-    virtual void onError(const std::string& error){}
+    virtual void onError(const std::string& error) {}
 
-    void requestData(int roomid){
-        bilibili::BilibiliClient::get_live_url(roomid, [this](const bilibili::LiveUrlResultWrapper& result) {
-            onLiveData(result);
-        }, [this](const std::string& error){
-            this->onError(error);
-        });
+    void requestData(int roomid) {
+        bilibili::BilibiliClient::get_live_url(
+            roomid, defaultQuality,
+            [this](const bilibili::LiveUrlResultWrapper& result) {
+                liveUrl = result;
+                onLiveData(result);
+            },
+            [this](const std::string& error) { this->onError(error); });
     }
+
+    static inline int defaultQuality = 10000;
+    bilibili::LiveUrlResultWrapper liveUrl;
 };
