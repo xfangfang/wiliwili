@@ -65,7 +65,6 @@ MPVCore::MPVCore() {
     mpv_set_option_string(mpv, "no-ytdl", "yes");
     mpv_set_option_string(mpv, "terminal", "yes");
     mpv_set_option_string(mpv, "audio-channels", "stereo");
-    mpv_set_option_string(mpv, "user-agent", "wiliwili/0.1(NintendoSwitch)");
     mpv_set_option_string(mpv, "referrer", "https://www.bilibili.com/");
     mpv_set_option_string(mpv, "idle", "yes");
     mpv_set_option_string(mpv, "opengl-pbo", "yes");
@@ -548,7 +547,8 @@ void MPVCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
 
 void MPVCore::reset() {
     danmakuMutex.lock();
-    DanmakuItem::lines = std::vector<std::pair<float, float>>(20, {0, 0});
+    DanmakuItem::lines       = std::vector<std::pair<float, float>>(20, {0, 0});
+    DanmakuItem::centerLines = std::vector<float>(20, {0});
     this->danmakuData.clear();
     //    this->showDanmaku = true; // todo: 根据配置文件修改
     this->danmakuLoaded = false;
@@ -572,6 +572,7 @@ void MPVCore::resetDanmakuPosition() {
     for (int k = 0; k < 20; k++) {
         DanmakuItem::lines[k].first  = 0;
         DanmakuItem::lines[k].second = 0;
+        DanmakuItem::centerLines[k]  = 0;
     }
 }
 

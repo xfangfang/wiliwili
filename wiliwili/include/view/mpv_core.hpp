@@ -64,6 +64,8 @@ public:
     inline static std::vector<std::pair<float, float>> lines =
         std::vector<std::pair<float, float>>(20, {0, 0});
 
+    inline static std::vector<float> centerLines = std::vector<float>(20, {0});
+
     bool operator<(const DanmakuItem &item) const {
         return this->time < item.time;
     }
