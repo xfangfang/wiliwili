@@ -22,6 +22,18 @@
           }
         ]
       }
+    },
+    {
+      "dict": {
+        "type": "ocd",
+        "file": "TWPhrases.ocd"
+      }
+    },
+    {
+      "dict": {
+        "type": "ocd",
+        "file": "TWVariants.ocd"
+      }
     }
   ]
 }
