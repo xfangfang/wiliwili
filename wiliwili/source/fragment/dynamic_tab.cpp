@@ -42,7 +42,8 @@ private:
 class DataSourceUpList : public RecyclingGridDataSource {
 public:
     DataSourceUpList(bilibili::DynamicUpListResult result) : list(result) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
         if (index == 0) {
             DynamicUserInfoView* item =
                 (DynamicUserInfoView*)recycler->dequeueReusableCell("CellAll");
@@ -59,9 +60,9 @@ public:
         return item;
     }
 
-    size_t getItemCount() { return list.size() + 1; }
+    size_t getItemCount() override { return list.size() + 1; }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) {
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         if (index == 0) {
             // 选择全部
             userSelectedEvent.fire(0);
@@ -77,9 +78,7 @@ public:
 
     UserSelectedEvent* getSelectedEvent() { return &this->userSelectedEvent; }
 
-    void clearData() override{
-        this->list.clear();
-    }
+    void clearData() override { this->list.clear(); }
 
 private:
     bilibili::DynamicUpListResult list;
@@ -90,7 +89,8 @@ class DataSourceDynamicVideoList : public RecyclingGridDataSource {
 public:
     DataSourceDynamicVideoList(bilibili::DynamicVideoListResult result)
         : list(result) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemVideoCard* item =
             (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
@@ -101,9 +101,9 @@ public:
         return item;
     }
 
-    size_t getItemCount() { return list.size(); }
+    size_t getItemCount() override { return list.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) {
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         brls::Application::pushActivity(new PlayerActivity(list[index].bvid));
     }
 
@@ -123,9 +123,7 @@ public:
         }
     }
 
-    void clearData() override{
-        this->list.clear();
-    }
+    void clearData() override { this->list.clear(); }
 
 private:
     bilibili::DynamicVideoListResult list;

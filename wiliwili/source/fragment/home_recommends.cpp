@@ -14,7 +14,8 @@ class DataSourceRecommendVideoList : public RecyclingGridDataSource {
 public:
     DataSourceRecommendVideoList(bilibili::RecommendVideoListResult result)
         : recommendList(result) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemVideoCard* item =
             (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
@@ -26,9 +27,9 @@ public:
         return item;
     }
 
-    size_t getItemCount() { return recommendList.size(); }
+    size_t getItemCount() override { return recommendList.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) {
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         brls::Application::pushActivity(
             new PlayerActivity(recommendList[index].bvid));
     }

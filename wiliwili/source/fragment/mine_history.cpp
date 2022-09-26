@@ -14,7 +14,8 @@ class DataSourceMineHistoryVideoList : public RecyclingGridDataSource {
 public:
     DataSourceMineHistoryVideoList(bilibili::HistoryVideoListResult result)
         : list(result) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemHistoryVideoCard* item =
             (RecyclingGridItemHistoryVideoCard*)recycler->dequeueReusableCell(

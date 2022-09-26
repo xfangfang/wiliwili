@@ -51,7 +51,8 @@ public:
     DataSourceUserUploadedVideoList(
         bilibili::UserUploadedVideoListResult result, ChangeVideoEvent cb)
         : list(result), changeVideoEvent(cb) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemRelatedVideoCard* item =
             (RecyclingGridItemRelatedVideoCard*)recycler->dequeueReusableCell(
@@ -87,7 +88,8 @@ public:
     DataSourceRelatedVideoList(bilibili::VideoDetailListResult result,
                                ChangeVideoEvent cb)
         : list(result), changeVideoEvent(cb) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
         RecyclingGridItemRelatedVideoCard* item =
             (RecyclingGridItemRelatedVideoCard*)recycler->dequeueReusableCell(
                 "Cell");
@@ -100,9 +102,9 @@ public:
         return item;
     }
 
-    size_t getItemCount() { return list.size(); }
+    size_t getItemCount() override { return list.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) {
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         changeVideoEvent.fire(list[index]);
     }
 
@@ -110,7 +112,7 @@ public:
         this->list.insert(this->list.end(), data.begin(), data.end());
     }
 
-    void clearData() { this->list.clear(); };
+    void clearData() override { this->list.clear(); };
 
 private:
     bilibili::VideoDetailListResult list;

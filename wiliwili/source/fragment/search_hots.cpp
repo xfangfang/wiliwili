@@ -33,7 +33,8 @@ public:
     HotsDataSource(bilibili::SearchHotsListResult result, UpdateSearchEvent *u)
         : list(result), updateSearchEvent(u) {}
 
-    RecyclingGridItem *cellForRow(RecyclingGrid *recycler, size_t index) {
+    RecyclingGridItem *cellForRow(RecyclingGrid *recycler,
+                                  size_t index) override {
         RecyclingGridItemHotsCard *item =
             (RecyclingGridItemHotsCard *)recycler->dequeueReusableCell("Cell");
         bilibili::SearchHotsResult &r = this->list[index];
@@ -41,13 +42,13 @@ public:
         return item;
     }
 
-    void onItemSelected(RecyclingGrid *recycler, size_t index) {
+    void onItemSelected(RecyclingGrid *recycler, size_t index) override {
         if (this->updateSearchEvent) {
             this->updateSearchEvent->fire(list[index].keyword);
         }
     }
 
-    size_t getItemCount() { return list.size(); }
+    size_t getItemCount() override { return list.size(); }
 
     void clearData() override { this->list.clear(); }
 
