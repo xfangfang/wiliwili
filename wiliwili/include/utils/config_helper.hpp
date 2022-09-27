@@ -63,7 +63,7 @@ public:
 
     std::string getConfigDir();
 
-    Cookie cookie;
+    Cookie cookie = {{"DedeUserID", "0"}};
     nlohmann::json setting;
 
     static std::unordered_map<SettingItem, std::string> SETTING_MAP;

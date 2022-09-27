@@ -21,9 +21,16 @@ public:
     int bg_style;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoSearchBadgeResult, text);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoSearchBadgeResult, text, bg_color);
 
 typedef std::vector<VideoSearchBadgeResult> VideoSearchBadgeListResult;
+
+class MediaScore {
+public:
+    float score;
+    int user_count;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MediaScore, score, user_count);
 
 class VideoItemSearchResult {
 public:
@@ -36,6 +43,14 @@ public:
 
     std::string title;  // 部分带xml标识关键词
     std::string subtitle;
+    std::string areas;             // PGC 作品国家
+    std::string season_type_name;  // eg: 番剧
+    std::string styles;            // eg: 奇幻/校园
+    std::string desc;
+    std::string index_show;  // eg:  全12话
+    std::string cv;          // 演员
+    std::string staff;       //导演
+    MediaScore media_score;
 
     std::string cover;  // 封面
 
@@ -47,7 +62,7 @@ public:
 
     std::string rightBottomBadge;
 
-    VideoSearchBadgeListResult badges;
+    VideoSearchBadgeResult badge;
 };
 
 inline void from_json(const nlohmann::json &nlohmann_json_j,
@@ -69,17 +84,21 @@ inline void from_json(const nlohmann::json &nlohmann_json_j,
         nlohmann_json_j.at("season_id").get_to(nlohmann_json_t.season_id);
         nlohmann_json_j.at("pubtime").get_to(nlohmann_json_t.pubdate);
         nlohmann_json_j.at("cover").get_to(nlohmann_json_t.cover);
-        nlohmann_json_j.at("index_show")
-            .get_to(nlohmann_json_t.rightBottomBadge);
+        nlohmann_json_j.at("index_show").get_to(nlohmann_json_t.index_show);
+        nlohmann_json_j.at("media_score").get_to(nlohmann_json_t.media_score);
+        nlohmann_json_j.at("styles").get_to(nlohmann_json_t.styles);
+        nlohmann_json_j.at("areas").get_to(nlohmann_json_t.areas);
+        nlohmann_json_j.at("desc").get_to(nlohmann_json_t.desc);
+        nlohmann_json_j.at("cv").get_to(nlohmann_json_t.cv);
+        nlohmann_json_j.at("staff").get_to(nlohmann_json_t.staff);
+        nlohmann_json_j.at("season_type_name")
+            .get_to(nlohmann_json_t.season_type_name);
 
-        nlohmann_json_t.subtitle =
-            nlohmann_json_j.at("areas").get<std::string>() +
-            nlohmann_json_j.at("styles").get<std::string>();
-    }
-
-    if (nlohmann_json_j.contains("badges") &&
-        !nlohmann_json_j.at("badges").is_null()) {
-        nlohmann_json_j.at("badges").get_to(nlohmann_json_t.badges);
+        if (nlohmann_json_j.contains("badges") &&
+            nlohmann_json_j.at("badges").is_array() &&
+            nlohmann_json_j.at("badges").size() > 0) {
+            nlohmann_json_j.at("badges")[0].get_to(nlohmann_json_t.badge);
+        }
     }
 
     nlohmann_json_j.at("title").get_to(nlohmann_json_t.title);

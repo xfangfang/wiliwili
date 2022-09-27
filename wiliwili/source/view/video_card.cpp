@@ -64,7 +64,7 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
     else
         this->labelDuration->setText("");
 
-    if(extra.empty()){
+    if (extra.empty()) {
         this->svgUp->setVisibility(brls::Visibility::VISIBLE);
         this->boxHint->setVisibility(brls::Visibility::GONE);
     } else {
@@ -265,6 +265,62 @@ void RecyclingGridItemPGCVideoCard::cacheForReuse() {
 RecyclingGridItemPGCVideoCard* RecyclingGridItemPGCVideoCard::create(
     bool vertical_cover) {
     return new RecyclingGridItemPGCVideoCard(vertical_cover);
+}
+
+/// 搜索 番剧 和 影视 卡片
+RecyclingGridItemSearchPGCVideoCard::RecyclingGridItemSearchPGCVideoCard() {
+    this->inflateFromXMLRes("xml/views/video_card_search_pgc.xml");
+}
+
+RecyclingGridItemSearchPGCVideoCard::~RecyclingGridItemSearchPGCVideoCard() {
+    // 优先清空正在进行的图片请求
+    ImageHelper::clear(this->picture);
+}
+
+void RecyclingGridItemSearchPGCVideoCard::setCard(
+    std::string pic, std::string title, std::string subtitle, std::string actor,
+    std::string desc, std::string badge_top, std::string badge_color,
+    std::string scoreCount, std::string score, std::string type,
+    std::string bottom) {
+    this->labelType->setText(type);
+    this->labelTitle->setText(title);
+    this->labelSubtitle->setText(subtitle);
+    this->labelScore->setText(score);
+    this->labelScoreCount->setText(scoreCount);
+    this->labelDesc->setText(desc);
+    this->labelBottom->setText(bottom);
+    this->badgeTop->setText(badge_top);
+
+    if(actor.empty()){
+        this->labelActor->setVisibility(brls::Visibility::GONE);
+    }else{
+        this->labelActor->setVisibility(brls::Visibility::VISIBLE);
+        this->labelActor->setText(actor);
+    }
+
+    unsigned char r, g, b;
+    int result = sscanf(badge_color.c_str(), "#%02hhx%02hhx%02hhx", &r, &g, &b);
+    if (result == 3) {
+        this->boxTop->setVisibility(brls::Visibility::VISIBLE);
+        this->boxTop->setBackgroundColor(nvgRGB(r, g, b));
+    } else {
+        this->boxTop->setVisibility(brls::Visibility::GONE);
+    }
+
+    ImageHelper::with(this)->load(pic)->into(this->picture);
+}
+
+void RecyclingGridItemSearchPGCVideoCard::prepareForReuse() {
+    //准备显示该项
+}
+
+void RecyclingGridItemSearchPGCVideoCard::cacheForReuse() {
+    //准备回收该项
+    ImageHelper::clear(this->picture);
+}
+
+RecyclingGridItem* RecyclingGridItemSearchPGCVideoCard::create() {
+    return new RecyclingGridItemSearchPGCVideoCard();
 }
 
 /// PGC 查看更多卡片

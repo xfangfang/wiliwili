@@ -63,6 +63,56 @@ private:
     bilibili::VideoItemSearchListResult list;
 };
 
+class DataSourceSearchPGCList : public RecyclingGridDataSource {
+public:
+    DataSourceSearchPGCList(bilibili::VideoItemSearchListResult result)
+        : list(result) {}
+
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
+        //从缓存列表中取出 或者 新生成一个表单项
+        RecyclingGridItemSearchPGCVideoCard* item =
+            (RecyclingGridItemSearchPGCVideoCard*)recycler->dequeueReusableCell(
+                "Cell");
+
+        bilibili::VideoItemSearchResult& r = this->list[index];
+
+        std::string score = "", score_count = "", cv = "", subtitle = "";
+        if (r.media_score.score > 0) {
+            score_count = fmt::format("{}人评分", r.media_score.user_count);
+            score       = fmt::format("{}分", r.media_score.score);
+        }
+        if (!r.cv.empty()) {
+            cv = "演员: " + r.cv;
+        }
+        subtitle =
+            fmt::format("{} · {}", r.styles, wiliwili::sec2TimeDate(r.pubdate));
+        if (!r.index_show.empty()) subtitle += " · " + r.index_show;
+
+        item->setCard(r.cover + "@312w_420h_1c.jpg", r.title, subtitle, cv,
+                      "简介: " + r.desc, r.badge.text, r.badge.bg_color,
+                      score_count, score, r.season_type_name, r.areas);
+        return item;
+    }
+
+    size_t getItemCount() override { return list.size(); }
+
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
+        auto video = list[index];
+        brls::Application::pushActivity(
+            new PlayerSeasonActivity(list[index].season_id));
+    }
+
+    void appendData(const bilibili::VideoItemSearchListResult& data) {
+        this->list.insert(this->list.end(), data.begin(), data.end());
+    }
+
+    void clearData() override { this->list.clear(); }
+
+private:
+    bilibili::VideoItemSearchListResult list;
+};
+
 class SearchTab : public brls::Box {
 public:
     SearchTab();

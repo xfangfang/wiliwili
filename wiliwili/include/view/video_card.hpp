@@ -144,6 +144,38 @@ private:
     bool vertical_cover = true;
 };
 
+class RecyclingGridItemSearchPGCVideoCard : public RecyclingGridItem {
+public:
+    RecyclingGridItemSearchPGCVideoCard();
+
+    ~RecyclingGridItemSearchPGCVideoCard();
+
+    void setCard(std::string pic, std::string title, std::string subtitle,
+                 std::string actor, std::string desc, std::string badge_top,
+                 std::string badge_color, std::string scoreCount,
+                 std::string score, std::string type, std::string bottom);
+
+    void prepareForReuse();
+
+    void cacheForReuse();
+
+    static RecyclingGridItem* create();
+
+private:
+    BRLS_BIND(brls::Image, picture, "video/card/picture");
+    BRLS_BIND(brls::Box, boxTop, "video/card/badge/boxTop");
+    BRLS_BIND(brls::Label, badgeTop, "video/card/badge/top");
+    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(brls::Label, labelSubtitle, "video/card/label/subtitle");
+    BRLS_BIND(brls::Label, labelActor, "video/card/label/actor");
+    BRLS_BIND(brls::Label, labelDesc, "video/card/label/desc");
+    BRLS_BIND(brls::Label, labelScoreCount, "video/card/label/count");
+    BRLS_BIND(brls::Label, labelScore, "video/card/label/score");
+    BRLS_BIND(brls::Label, labelType, "video/card/label/type");
+    BRLS_BIND(brls::Label, labelBottom, "video/card/label/bottom");
+    BRLS_BIND(brls::Box, boxPic, "video/card/pic_box");
+};
+
 class RecyclingGridItemViewMoreCard : public RecyclingGridItem {
 public:
     RecyclingGridItemViewMoreCard(bool vertical_cover = true);

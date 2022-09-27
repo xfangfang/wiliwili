@@ -26,14 +26,14 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 动态页：关注的UP主更新的视频  
 直播页：不是十分稳定的支持 (也可以说是十分不稳定)  
 分类检索：快速找到想看的电影和番剧  
-首页推荐：完美复制原版pc端布局  
+首页推荐：完美复制原版pc端布局
 
 <br>
 
 # 安装流程
 
 0. 下载安装包：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
-1. 将wiliwli.nro放置在内存卡路径： switch/wiliwili.nro 
+1. 将wiliwli.nro放置在内存卡路径： switch/wiliwili.nro
 2. 在主页 `按住` R键打开任意游戏进入HBMenu，在列表中选择wiliwili点击打开即可。
 3. [可选] 在应用内安装桌面图标，入口：设置/实用工具/使用教程
 
@@ -77,7 +77,7 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 本应用基于 nanovg 绘制界面，nanovg底层可移植切换到任意图形库，视频播放部分则使用MPV+FFMPEG 通过OpenGL绘制。
 所以按照我的理解 wiliwili 应该可以移植到任何一个内存大于500MB，支持OpenGL（ES）的设备。
 
-目前我正在处理mpv在switch上播放部分直播视频报错的问题，也欢迎了解 FFMPEG、MPV或命令行GDB调试的朋友与我联系共同研究。
+目前我正在处理mpv在switch上播放部分视频报错的问题，也欢迎了解 FFMPEG、MPV或命令行GDB调试的朋友与我联系共同研究。
 
 <br>
 
@@ -162,15 +162,15 @@ make wiliwili.nro -j
 # Acknowledgement
 
 - devkitpro and switchbrew
-  - https://github.com/devkitPro/pacman/releases
-  - https://github.com/devkitPro/pacman-packages
-  - https://github.com/switchbrew/libnx
+    - https://github.com/devkitPro/pacman/releases
+    - https://github.com/devkitPro/pacman-packages
+    - https://github.com/switchbrew/libnx
 - natinusala and XITRIX
-  - https://github.com/natinusala/borealis
-  - https://github.com/XITRIX/borealis
+    - https://github.com/natinusala/borealis
+    - https://github.com/XITRIX/borealis
 - Cpasjuste and proconsule
-  - https://github.com/Cpasjuste/pplay
-  - https://github.com/proconsule/nxmp
+    - https://github.com/Cpasjuste/pplay
+    - https://github.com/proconsule/nxmp
 - https://github.com/whoshuu/cpr
 - https://github.com/nlohmann/json
 - https://github.com/nayuki/QR-Code-generator

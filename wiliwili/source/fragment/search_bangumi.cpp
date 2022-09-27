@@ -14,7 +14,7 @@ SearchBangumi::SearchBangumi() {
     this->inflateFromXMLRes("xml/fragment/search_bangumi.xml");
     brls::Logger::debug("Fragment SearchBangumi: create");
     recyclingGrid->registerCell(
-        "Cell", []() { return RecyclingGridItemVideoCard::create(); });
+        "Cell", []() { return RecyclingGridItemSearchPGCVideoCard::create(); });
     recyclingGrid->onNextPage(
         [this]() { this->_requestSearch(SearchActivity::currentKey); });
 }
@@ -42,8 +42,8 @@ void SearchBangumi::_requestSearch(const std::string& key) {
             }
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
-                DataSourceSearchVideoList* datasource =
-                    (DataSourceSearchVideoList*)recyclingGrid->getDataSource();
+                DataSourceSearchPGCList* datasource =
+                    (DataSourceSearchPGCList*)recyclingGrid->getDataSource();
                 if (result.page != this->requestIndex) {
                     // 请求的顺序和当前需要的顺序不符
                     brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}",
@@ -61,7 +61,7 @@ void SearchBangumi::_requestSearch(const std::string& key) {
                 } else {
                     // 搜索加载的第一页
                     recyclingGrid->setDataSource(
-                        new DataSourceSearchVideoList(result.result));
+                        new DataSourceSearchPGCList(result.result));
                 }
                 this->requestIndex = result.page + 1;
             });

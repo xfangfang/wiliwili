@@ -213,7 +213,7 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         int LINES = height / LINE_HEIGHT;
 
         //取出需要的弹幕
-        uint64_t currentTime = getCPUTimeUsec();
+        int64_t currentTime = getCPUTimeUsec();
         float bounds[4];
         for (size_t j = mpvCore->danmakuIndex; j < this->danmakuData.size();
              j++) {
