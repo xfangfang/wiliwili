@@ -1,0 +1,138 @@
+name: Build wiliwili
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      ssh_darwin:
+        description: 'SSH connection to Darwin'
+        required: false
+        default: 'false'
+      ssh_ubuntu:
+        description: 'SSH connection to Ubuntu'
+        required: false
+        default: 'false'
+      release:
+        description: 'Push a new release'
+        required: false
+        default: 'false'
+      version:
+        description: 'Version'
+        required: false
+        default: '0.0.0'
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.info.outputs.version }}
+      standard_version: ${{ steps.info.outputs.standard_version }}
+      DIST_EXE: ${{ steps.info.outputs.DIST_EXE }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: 'xfangfang/wiliwili'
+
+      - name: Debug version
+        run: |
+          export VERSION=`git rev-parse --short HEAD`
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Release version
+        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
+        run: |
+          export VERSION="${{ github.event.inputs.version }}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Version
+        id: info
+        env:
+          VERSION: ${{ env.VERSION }}
+        run: |
+          echo "::set-output name=version::${VERSION}"
+          echo "::set-output name=DIST_EXE::wiliwili-Windows-x64-${VERSION}"
+          echo $VERSION
+          echo "${{  github.event.inputs.version }}"
+
+  release:
+    needs: [ build-win-x64, version ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
+
+      - name: Version
+        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
+        run: |
+          echo "DIST_EXE=${{ needs.version.outputs.DIST_EXE }}" >> $GITHUB_ENV
+          echo $GITHUB_ENV
+
+      - name: Upload
+        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
+        uses: ncipollo/release-action@v1
+        with:
+          name: wiliwili ${{  github.event.inputs.version }}
+          tag: ${{  github.event.inputs.version }}
+          omitBodyDuringUpdate: true
+          body: This release is built by github-action.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+          artifacts: >
+            ${{ env.DIST_EXE }}/${{ env.DIST_EXE }}.tar.gz
+
+  build-win-x64:
+    needs: [ version ]
+    runs-on: windows-2019
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: 'xfangfang/wiliwili'
+          submodules: 'recursive'
+
+      - name: Install dependency
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-glfw
+            mingw-w64-x86_64-glm
+            mingw-w64-x86_64-mpv
+            git
+            p7zip
+
+      - name: Build
+        shell: msys2 {0}
+        id: compile
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          DIST_EXE="${{ needs.version.outputs.DIST_EXE }}"
+          echo ${VERSION} ${DIST_EXE}
+          
+          mkdir -p build && pushd build
+          cmake .. -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON -DWIN32_TERMINAL=OFF -DCMAKE_BUILD_TYPE=Release
+          mingw32-make wiliwili -j4
+          strip wiliwili.exe
+          mkdir wiliwili && mv wiliwili.exe wiliwili && mv resources wiliwili
+          for i in {libwinpthread-1,libgcc_s_seh-1,zlib1,libssh2-1,glfw3,libstdc++-6,libcrypto-1_1-x64}; do
+          cp /mingw64/bin/${i}.dll wiliwili
+          done
+          wget https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/mpv-dev-x86_64-v3-20220904-git-d433c5d.7z -O mpv.7z
+          7z e mpv.7z -ompv
+          cp mpv/mpv-2.dll wiliwili/mpv-1.dll
+          tar -czvf ../${DIST_EXE}.tar.gz wiliwili
+          echo "::set-output name=status::success"
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v2
+        if: steps.compile.outputs.status == 'success'
+        with:
+          name: ${{ needs.version.outputs.DIST_EXE }}
+          path: "${{ needs.version.outputs.DIST_EXE }}.tar.gz"
