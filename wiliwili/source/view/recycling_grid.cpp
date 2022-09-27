@@ -132,7 +132,13 @@ RecyclingGrid::~RecyclingGrid() {
     this->hintLabel = nullptr;
     if (this->dataSource) delete this->dataSource;
     for (auto it : queueMap) {
-        for (auto item : *it.second) item->freeView();
+        for (auto item : *it.second) {
+            item->setParent(nullptr);
+            if (item->isPtrLocked())
+                item->freeView();
+            else
+                delete item;
+        }
         delete it.second;
     }
 }

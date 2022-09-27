@@ -3,7 +3,7 @@ name: Build wiliwili
 on:
   push:
     branches:
-      - main
+      - yoga
   pull_request:
   workflow_dispatch:
     inputs:
@@ -115,7 +115,7 @@ jobs:
           VERSION="${{ needs.version.outputs.version }}"
           DIST_EXE="${{ needs.version.outputs.DIST_EXE }}"
           echo ${VERSION} ${DIST_EXE}
-          
+
           mkdir -p build && pushd build
           cmake .. -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON -DWIN32_TERMINAL=OFF -DCMAKE_BUILD_TYPE=Release
           mingw32-make wiliwili -j4

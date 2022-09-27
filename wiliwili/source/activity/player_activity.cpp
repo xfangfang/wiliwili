@@ -627,12 +627,6 @@ void PlayerActivity::onRelatedVideoList(
     });
 }
 
-void PlayerActivity::onDanmaku(const std::string& filePath) {
-    const char* cmd[] = {"sub-add", filePath.c_str(), "select", "danmaku",
-                         NULL};
-    MPVCore::instance().command_async(cmd);
-}
-
 void PlayerActivity::onError(const std::string& error) {
     ASYNC_RETAIN
     brls::sync([ASYNC_TOKEN, error]() {

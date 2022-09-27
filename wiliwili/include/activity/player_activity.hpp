@@ -48,7 +48,6 @@ public:
     void onVideoRelationInfo(const bilibili::VideoRelation& result) override;
     void onRelatedVideoList(
         const bilibili::VideoDetailListResult& result) override;
-    void onDanmaku(const std::string& filePath) override;
 
     // 初始化设置 播放界面通用内容
     void setCommonData();

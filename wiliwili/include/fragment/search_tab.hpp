@@ -79,8 +79,9 @@ public:
 
         std::string score = "", score_count = "", cv = "", subtitle = "";
         if (r.media_score.score > 0) {
-            score_count = fmt::format("{}人评分", r.media_score.user_count);
-            score       = fmt::format("{}分", r.media_score.score);
+            score_count = fmt::format(
+                "{}人评分", wiliwili::num2w(r.media_score.user_count));
+            score = fmt::format("{}分", r.media_score.score);
         }
         if (!r.cv.empty()) {
             cv = "演员: " + r.cv;

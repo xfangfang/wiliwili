@@ -11,6 +11,22 @@
 SearchTab::SearchTab() {
     this->inflateFromXMLRes("xml/fragment/search_tab.xml");
     brls::Logger::debug("Fragment SearchTab: create");
+
+    this->registerAction(
+        "上一项", brls::ControllerButton::BUTTON_LB,
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2LastTab();
+            return true;
+        },
+        true);
+
+    this->registerAction(
+        "下一项", brls::ControllerButton::BUTTON_RB,
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2NextTab();
+            return true;
+        },
+        true);
 }
 
 SearchTab::~SearchTab() {

@@ -87,7 +87,7 @@ private:
 
     brls::GenericEvent activeEvent;
 
-    AutoSidebarItemGroup* group;
+    AutoSidebarItemGroup* group = nullptr;
 
     AutoTabBarStyle tabStyle = AutoTabBarStyle::NONE;
 

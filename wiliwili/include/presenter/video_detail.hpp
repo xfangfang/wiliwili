@@ -36,7 +36,6 @@ public:
     virtual void onVideoRelationInfo(const bilibili::VideoRelation& result) {}
     virtual void onRelatedVideoList(
         const bilibili::VideoDetailListResult& result) {}
-    virtual void onDanmaku(const std::string& filePath) {}
 
     // todo: 获取视频合集
 

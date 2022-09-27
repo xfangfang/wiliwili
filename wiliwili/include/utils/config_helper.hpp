@@ -77,7 +77,8 @@ inline void to_json(nlohmann::json& nlohmann_json_j,
 
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       ProgramConfig& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("cookie"))
+    if (nlohmann_json_j.contains("cookie") &&
+        !nlohmann_json_j.at("cookie").empty())
         nlohmann_json_j.at("cookie").get_to(nlohmann_json_t.cookie);
     if (nlohmann_json_j.contains("setting"))
         nlohmann_json_j.at("setting").get_to(nlohmann_json_t.setting);

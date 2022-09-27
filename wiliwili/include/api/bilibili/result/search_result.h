@@ -89,8 +89,10 @@ inline void from_json(const nlohmann::json &nlohmann_json_j,
         nlohmann_json_j.at("styles").get_to(nlohmann_json_t.styles);
         nlohmann_json_j.at("areas").get_to(nlohmann_json_t.areas);
         nlohmann_json_j.at("desc").get_to(nlohmann_json_t.desc);
-        nlohmann_json_j.at("cv").get_to(nlohmann_json_t.cv);
-        nlohmann_json_j.at("staff").get_to(nlohmann_json_t.staff);
+        nlohmann_json_t.cv = pystring::replace(
+            nlohmann_json_j.at("cv").get<std::string>(), "\n", " ");
+        nlohmann_json_t.staff = pystring::replace(
+            nlohmann_json_j.at("staff").get<std::string>(), "\n", " ");
         nlohmann_json_j.at("season_type_name")
             .get_to(nlohmann_json_t.season_type_name);
 
