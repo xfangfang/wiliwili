@@ -62,7 +62,7 @@ const std::string OPENSOURCE =
     "Copyright (c) 2020 Nwutobo Samuel Ugochukwu.\n\n"
     "Licensed under MIT license\n\n\n"
     "--------------------------------\n"
-    "QR-Code-generator\n"
+    "cpr\n"
     "--------------------------------\n"
     "Official site: https://docs.libcpr.org\n"
     "https://github.com/libcpr/cpr\n\n"
