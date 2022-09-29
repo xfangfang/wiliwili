@@ -479,11 +479,11 @@ void RecyclingGrid::itemsRecyclingLoop() {
             // 有数据、不是骨架屏数据、数据不为空
             if (dataSource && !dynamic_cast<DataSourceSkeleton*>(dataSource) &&
                 dataSource->getItemCount() > 0) {
-                brls::Logger::verbose("RecyclingGrid request next page");
+                brls::Logger::debug("RecyclingGrid request next page");
+                requestNextPage = true;
                 this->nextPageCallback();
             }
         }
-        requestNextPage = true;
     }
 }
 
