@@ -58,8 +58,8 @@ public:
 
     void setPlaybackTime(std::string value);
 
-    // 手动刷新osd右下角的全屏图标
-    void refreshFullscreenIcon();
+    // 手动设置osd右下角的全屏图标
+    void setFullscreenIcon(bool fs);
 
     // 手动刷新osd左下角的播放图标
     void refreshToggleIcon();
@@ -127,7 +127,7 @@ private:
     int danmakuFont    = 0;
     std::vector<DanmakuItem> danmakuData;
 
-    bool closeOnEndOfFile = true; // 全屏时 播放结束自动取消全屏
+    bool closeOnEndOfFile = true;  // 全屏时 播放结束自动取消全屏
 
     //DEBUG
     BRLS_BIND(brls::Box, videoLayerDebug, "video/layer/debug");

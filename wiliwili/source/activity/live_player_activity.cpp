@@ -42,6 +42,7 @@ void LiveActivity::onContentAvailable() {
         [](brls::View* view) -> bool { return true; }, true);
 
     this->video->hideDanmakuButton();
+    this->video->setFullscreenIcon(true);
     this->video->setTitle(liveData.title);
     this->video->setOnlineCount(liveData.watched_show.text_large);
     this->video->setCloseOnEndOfFile(false);

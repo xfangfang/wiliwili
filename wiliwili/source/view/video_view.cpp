@@ -458,8 +458,8 @@ void VideoView::setPlaybackTime(std::string value) {
     this->leftStatusLabel->setText(value);
 }
 
-void VideoView::refreshFullscreenIcon() {
-    if (isFullscreen()) {
+void VideoView::setFullscreenIcon(bool fs) {
+    if (fs) {
         btnFullscreenIcon->setImageFromSVGRes(
             "svg/bpx-svg-sprite-fullscreen-off.svg");
     } else {
@@ -529,7 +529,7 @@ void VideoView::setFullScreen(bool fs) {
         video->setPlaybackTime(this->leftStatusLabel->getFullText());
         video->setProgress(this->getProgress());
         video->showOSD(this->osdLastShowTime != 0xffffffff);
-        video->refreshFullscreenIcon();
+        video->setFullscreenIcon(true);
         video->setHideHighlight(true);
         video->refreshToggleIcon();
         video->setOnlineCount(this->videoOnlineCountLabel->getFullText());
