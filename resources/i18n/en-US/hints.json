@@ -10,5 +10,6 @@
   "current": "Current",
   "success": "Success",
   "failed": "Failed",
-  "exit_hint": "Are you going to exit the application?"
+  "exit_hint": "Are you going to exit the application?",
+  "loading": "Loading"
 }

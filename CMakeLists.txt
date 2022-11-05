@@ -45,7 +45,7 @@ endif ()
 project(wiliwili)
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "4")
-set(VERSION_REVISION "1")
+set(VERSION_REVISION "2")
 set(PROJECT_TITLEID "0x010FF000FFFF0001")
 set(PROJECT_AUTHOR "xfangfang")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/bilibili.jpg)
@@ -131,11 +131,6 @@ if (PLATFORM_DESKTOP)
             )
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
 else ()
-    set_target_properties(
-            ${PROJECT_NAME} PROPERTIES
-            LINK_FLAGS_RELEASE -s
-            LINK_FLAGS "-Wl,-no-as-needed -Wl,-Map,.map"
-    )
     add_custom_target(${PROJECT_NAME}.nro
             DEPENDS ${PROJECT_NAME}
             COMMAND ${NX_NACPTOOL_EXE} --create "${PROJECT_NAME}"
@@ -143,10 +138,6 @@ else ()
             ${PROJECT_NAME}.nacp --titleid=${PROJECT_TITLEID}
             COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/resources
             COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/icon/wiliwili.ico
-            COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/test.flv
-            COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/Illegal-Font.ttf
-            COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/Wingdings.ttf
-            COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/resources/inter
             COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/resources/font
             COMMAND ${NX_ELF2NRO_EXE} ${PROJECT_NAME}.elf ${PROJECT_NAME}.nro --icon=${PROJECT_ICON}
             --nacp=${PROJECT_NAME}.nacp --romfsdir=${CMAKE_BINARY_DIR}/resources

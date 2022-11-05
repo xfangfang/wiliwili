@@ -10,5 +10,6 @@
   "current": "當前",
   "success": "成功",
   "failed": "失敗",
-  "exit_hint": "退出wiliwili？"
+  "exit_hint": "退出wiliwili？",
+  "loading": "載入中"
 }

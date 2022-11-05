@@ -50,13 +50,23 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 - [x] 播放页新增分集与UP主最新投稿
 - [ ] 完善视频播放页用户评论内容
 - [ ] 重构图片异步加载逻辑
-- [ ] 解决收藏夹、搜索页某些情况导致闪退的问题
-- [ ] 完善搜索页：番剧、影视 转为竖图
+- [x] 解决收藏夹、搜索页某些情况导致闪退的问题
+- [x] 完善搜索页：番剧、影视 转为竖图
 - [x] 完善播放页投稿列表：调整结构、自动加载下一页
 - [ ] 播放页展示合集与推荐
 - [x] 添加动态页
 - [x] 添加视频检索页
 - [x] 完善设置页
+- [ ] 弹幕相关设置
+- [ ] 点赞、投币、收藏
+- [ ] 拖拽调节进度、长按快速调节进度
+- [ ] 增加单手模式使用一个手柄来控制播放器
+- [ ] 安装图标时检查wiliwili位置
+- [ ] NSP forwarder自动检查多个位置的nro文件，避免无法打开
+- [ ] 增加设置使首页无法通过返回退出，避免误触
+- [ ] 使用教程添加未指明的快捷键说明
+- [ ] 重压摇杆临时快进
+- [ ] 增加平板模式与电视模式页面样式的切换
 
 <br>
 
@@ -114,6 +124,8 @@ make wiliwili -j
 
 ##### Windows
 
+可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions) 下载自动构建的测试版客户端
+
 ```shell
 # Windows: install dependencies (MSYS2 MinGW64)
 pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-make \
@@ -126,7 +138,7 @@ mingw32-make wiliwili -j
 
 ### 交叉编译 Switch 可执行文件
 
-稍后会制作一个docker镜像来更便捷的构建
+稍后会制作一个docker镜像来更便捷地构建
 
 ```shell
 # 安装devkitpro环境: https://github.com/devkitPro/pacman/releases
@@ -172,7 +184,8 @@ make wiliwili.nro -j
 - Cpasjuste and proconsule
     - https://github.com/Cpasjuste/pplay
     - https://github.com/proconsule/nxmp
-- https://github.com/whoshuu/cpr
+- https://github.com/libcpr/cpr
 - https://github.com/nlohmann/json
 - https://github.com/nayuki/QR-Code-generator
+- https://github.com/BYVoid/OpenCC
 - https://github.com/progschj/ThreadPool

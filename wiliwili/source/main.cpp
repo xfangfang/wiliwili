@@ -64,17 +64,19 @@ int main(int argc, char* argv[]) {
 
     if (brls::Application::getPlatform()->isApplicationMode()) {
         brls::Application::pushActivity(new MainActivity());
-        //        use these activities for debugging
-        //        brls::Application::pushActivity(new PlayerActivity("BV1A44y1u7PF"));
-        //        brls::Application::pushActivity(new PlayerActivity("BV1434y1D7hB"), brls::TransitionAnimation::NONE);
-        //        brls::Application::pushActivity(new PlayerActivity("BV1U3411c7Qx"), brls::TransitionAnimation::NONE);
+        // Use these activities to debug
+        //        brls::Application::pushActivity(new PlayerActivity("BV18W4y1q72C"));  // wiliwili介绍
+        //        brls::Application::pushActivity(new PlayerActivity("BV1dx411c7Av"));  // flv拼接视频
+        //        brls::Application::pushActivity(new PlayerActivity("BV15z4y1Z734"));  // 4K HDR 视频
+        //        brls::Application::pushActivity(new PlayerActivity("BV1A44y1u7PF"), brls::TransitionAnimation::NONE); // 测试FFMPEG在switch上的bug（加载时间过长）
+        //        brls::Application::pushActivity(new PlayerActivity("BV1U3411c7Qx"), brls::TransitionAnimation::NONE); // 测试长标题
         //        brls::Application::pushActivity(new PlayerActivity("BV1fG411W7Px"), brls::TransitionAnimation::NONE); // 测试弹幕
-        //        brls::Application::pushActivity(new SearchActivity("qq"));
-        //        brls::Application::pushActivity(new SplashActivity());
-        //        brls::Application::pushActivity(new HintActivity());
-        //        brls::Application::pushActivity(new PGCIndexActivity("/page/home/pgc/more?type=2&index_type=2&area=2&order=2&season_status=-1&season_status=3,6"));
-        //        brls::Application::pushActivity(new SettingActivity());
-        //        brls::Application::pushActivity(new LiveActivity(1942240));
+        //        brls::Application::pushActivity(new SearchActivity("哈利波特")); // 测试搜索影片
+        //        brls::Application::pushActivity(new SplashActivity()); // 首屏页面（暂时未使用）
+        //        brls::Application::pushActivity(new HintActivity());   // 应用开启教程页面
+        //        brls::Application::pushActivity(new PGCIndexActivity("/page/home/pgc/more?type=2&index_type=2&area=2&order=2&season_status=-1&season_status=3,6")); // 影片分类索引
+        //        brls::Application::pushActivity(new SettingActivity());     //  设置页面
+        //        brls::Application::pushActivity(new LiveActivity(1942240)); // 直播页面
     } else {
         brls::Application::pushActivity(new HintActivity());
     }

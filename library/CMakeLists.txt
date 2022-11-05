@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 # import cpr
-set(CPR_FORCE_USE_SYSTEM_CURL ON)
+set(CPR_USE_SYSTEM_CURL ON)
 if (PLATFORM_DESKTOP)
     if (APPLE)
         set(CPR_FORCE_DARWINSSL_BACKEND ON)
@@ -17,8 +17,7 @@ endif ()
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_Declare(cpr
         GIT_REPOSITORY https://github.com/libcpr/cpr.git
-        GIT_TAG f88fd7737de3e640c61703eb57a0fa0ce00c60cd) # cpr 1.9.2
-#7a02d679308a19220e3b75616c18ff9e8deb5f9a # cpr 1.9.1
+        GIT_TAG 142a496e49bc71dc1be85a3ce47bb25573670000) # 2022/11/04
 FetchContent_MakeAvailable(cpr)
 
 #import lunasvg
