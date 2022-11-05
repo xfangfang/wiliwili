@@ -120,6 +120,31 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, order, length, size, url));
 }
 
+class DashMedia {
+public:
+    int id;  // The format ID of Bilibili, corresponds to one resolution.
+             // There may be items with the same ID but different bandwidth.
+    std::string base_url;
+    std::vector<std::string> backup_url;
+    unsigned int bandwidth;
+    int width, height;  // only for video
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DashMedia, id, base_url, backup_url,
+                                   bandwidth, height, width);
+
+class Dash {
+public:
+    unsigned int duration;
+    float min_buffer_time;
+    std::vector<DashMedia> video;
+    std::vector<DashMedia> audio;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      Dash& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, duration,
+                                             video, audio, min_buffer_time));
+}
+
 class VideoUrlResult {
 public:
     int quality;                                  //当前画质
@@ -127,12 +152,21 @@ public:
     std::vector<std::string> accept_description;  //可供选择的分辨率
     std::vector<int> accept_quality;  //可供选择的分辨率编号
     std::vector<VideoDUrl> durl;
+    Dash dash;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoUrlResult& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("durl") &&
+        !nlohmann_json_j.at("durl").is_null()) {
+        nlohmann_json_j.at("durl").get_to(nlohmann_json_t.durl);
+    }
+    if (nlohmann_json_j.contains("dash") &&
+        !nlohmann_json_j.at("dash").is_null()) {
+        nlohmann_json_j.at("dash").get_to(nlohmann_json_t.dash);
+    }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, quality,
                                              timelength, accept_description,
-                                             accept_quality, durl));
+                                             accept_quality));
 }
 
 // todo：up主精选评论

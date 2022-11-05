@@ -149,15 +149,13 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
     MPVCore::instance().reset();
 
     ASYNC_RETAIN
-    brls::Logger::debug("请求视频播放地址: {}/{}", bvid, cid);
+    brls::Logger::debug("请求视频播放地址: {}/{}/{}", bvid, cid,
+                        defaultQuality);
     bilibili::BilibiliClient::get_video_url(
         bvid, cid, defaultQuality,
         [ASYNC_TOKEN](const bilibili::VideoUrlResult& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
-                brls::Logger::debug(
-                    "bilibili::BilibiliClient::get_video_url : {}",
-                    result.quality);
                 this->videoUrlResult = result;
                 this->onVideoPlayUrl(result);
             });

@@ -25,11 +25,7 @@ public:
     ~VideoView() override;
 
     /// Video control
-    void start(std::string url);
-
-    void setUrl(std::string url);
-
-    void setUrl(std::string url, int progress);
+    void setUrl(std::string url, int progress = 0, std::string audio = "");
 
     void resume();
 

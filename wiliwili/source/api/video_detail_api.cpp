@@ -56,7 +56,7 @@ void BilibiliClient::get_video_url(
                                           {"cid", std::to_string(cid)},
                                           {"qn", std::to_string(qn)},
                                           {"fourk", "1"},
-                                          {"fnval", "128"},
+                                          {"fnval", "16"},
                                           {"fnver", "0"}},
                                          callback, error);
 }
@@ -70,7 +70,7 @@ void BilibiliClient::get_video_url(
                                           {"cid", std::to_string(cid)},
                                           {"qn", std::to_string(qn)},
                                           {"fourk", "1"},
-                                          {"fnval", "128"},
+                                          {"fnval", "16"},
                                           {"fnver", "0"}},
                                          callback, error);
 }
@@ -112,6 +112,7 @@ void BilibiliClient::get_season_url(
                                          {{"cid", std::to_string(cid)},
                                           {"qn", std::to_string(qn)},
                                           {"fourk", "1"},
+                                          {"fnval", "16"},
                                           {"fnver", "0"}},
                                          callback, error);
 }

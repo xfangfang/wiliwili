@@ -211,6 +211,7 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         nvgTextLineHeight(vg, 1);
 
         int LINES = height / LINE_HEIGHT;
+        if (LINES > 20) LINES = 20;
 
         //取出需要的弹幕
         int64_t currentTime = getCPUTimeUsec();
@@ -265,11 +266,11 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
                 // 画弹幕文字包边
                 nvgFillColor(vg, a(i.borderColor));
                 nvgText(vg, x + width - position + 1,
-                        y + i.line * LINE_HEIGHT + 1, i.msg.c_str(), nullptr);
+                        y + i.line * LINE_HEIGHT + 6, i.msg.c_str(), nullptr);
 
                 // 画弹幕文字
                 nvgFillColor(vg, a(i.color));
-                nvgText(vg, x + width - position, y + i.line * LINE_HEIGHT,
+                nvgText(vg, x + width - position, y + i.line * LINE_HEIGHT + 5,
                         i.msg.c_str(), nullptr);
                 continue;
             }
@@ -364,14 +365,22 @@ void VideoView::onLayout() {
     oldRect = rect;
 }
 
-void VideoView::setUrl(std::string url) {
-    const char* cmd[] = {"loadfile", url.c_str(), NULL};
-    mpvCore->command_async(cmd);
-}
+void VideoView::setUrl(std::string url, int progress, std::string audio) {
+    brls::Logger::debug("set video url: {}", url);
 
-void VideoView::setUrl(std::string url, int progress) {
-    std::string start = fmt::format("start={}", progress);
-    const char* cmd[] = {"loadfile", url.c_str(), "replace", start.c_str(),
+    if (progress < 0) progress = 0;
+    std::string extra = "referrer=https://www.bilibili.com";
+    if (progress > 0) {
+        extra += fmt::format(",start={}", progress);
+        brls::Logger::debug("set video progress: {}", progress);
+    }
+    if (!audio.empty()) {
+        extra += fmt::format(",audio-file=\"{}\"", audio);
+        brls::Logger::debug("set audio: {}", audio);
+    }
+    brls::Logger::debug("Extra options: {}", extra);
+
+    const char* cmd[] = {"loadfile", url.c_str(), "replace", extra.c_str(),
                          NULL};
     mpvCore->command_async(cmd);
 }
@@ -391,12 +400,6 @@ void VideoView::togglePlay() {
     } else {
         this->pause();
     }
-}
-
-void VideoView::start(std::string url) {
-    brls::Logger::debug("start mpv: {}", url);
-    this->setUrl(url);
-    brls::Logger::debug("set url to mpv done");
 }
 
 /// OSD

@@ -154,9 +154,9 @@ PlayerActivity::PlayerActivity(std::string bvid) {
 
 PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid,
                                int progress) {
-    videoDetailResult.bvid   = bvid;
-    videoDetailPage.cid      = cid;
-    videoDetailPage.progress = progress;
+    videoDetailResult.bvid = bvid;
+    videoDetailPage.cid    = cid;
+    this->setProgress(progress);
     brls::Logger::debug("create PlayerActivity: bvid: {} cid: {} progress: {}",
                         bvid, cid, progress);
 }
@@ -298,15 +298,26 @@ void PlayerActivity::setCommonData() {
                     [this](int _selected) {
                         PlayerActivity::defaultQuality =
                             this->videoUrlResult.accept_quality[_selected];
+
+                        // 在加载视频时，若设置了进度，会自动向前跳转5秒，
+                        // 这里提前加上5s用来抵消播放视频时的进度问题。
+                        setProgress(MPVCore::instance().video_progress + 5);
+
+                        // dash
+                        if (!this->videoUrlResult.dash.video.empty()) {
+                            // dash格式的视频无需重复请求视频链接，这里简单的设置清晰度即可
+                            videoUrlResult.quality =
+                                PlayerActivity::defaultQuality;
+                            this->onVideoPlayUrl(videoUrlResult);
+                            return;
+                        }
+
+                        // flv
                         auto self = dynamic_cast<PlayerSeasonActivity*>(this);
                         if (self) {
-                            episodeResult.progress =
-                                MPVCore::instance().video_progress + 5;
                             this->requestSeasonVideoUrl(episodeResult.bvid,
                                                         episodeResult.cid);
                         } else {
-                            videoDetailPage.progress =
-                                MPVCore::instance().video_progress + 5;
                             this->requestVideoUrl(videoDetailResult.bvid,
                                                   videoDetailPage.cid);
                         }
@@ -373,6 +384,10 @@ void PlayerActivity::showShareDialog(const std::string link) {
     dialog->addButton("hints/ok"_i18n, []() {});
     dialog->open();
 }
+
+void PlayerActivity::setProgress(int p) { videoDetailPage.progress = p; }
+
+int PlayerActivity::getProgress() { return videoDetailPage.progress; }
 
 void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
     brls::Logger::debug("[onVideoInfo] title:{} author:{}", result.title,
@@ -501,26 +516,31 @@ void PlayerActivity::onUploadedVideos(
 }
 
 void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) {
-    brls::Logger::debug("quality: {}", result.quality);
-    // todo: 将多个文件加入播放列表
+    brls::Logger::debug("onVideoPlayUrl quality: {}", result.quality);
     //todo: 播放失败时可以尝试备用播放链接
 
-    int progress = videoDetailPage.progress;
-    auto self    = dynamic_cast<PlayerSeasonActivity*>(this);
-    if (self) {
-        progress = episodeResult.progress;
-    }
+    // 进度向前回退5秒，避免当前进度过于接近结尾出现一加载就结束的情况
+    int progress = this->getProgress() - 5;
 
-    // 向前回退5秒
-    progress -= 5;
-    if (progress > 0) {
-        for (const auto& i : result.durl) {
-            this->video->setUrl(i.url, progress);
-            break;
+    if (!result.dash.video.empty()) {
+        // dash
+        brls::Logger::debug("Video type: dash");
+        for (const auto& i : result.dash.video) {
+            // todo: 相同清晰度的码率选择方案
+            if (result.quality == i.id) {
+                for (const auto& j : result.dash.audio) {
+                    this->video->setUrl(i.base_url, progress, j.base_url);
+                    break;
+                }
+                break;
+            }
         }
     } else {
+        // flv
+        brls::Logger::debug("Video type: flv");
+        // todo: 处理flv分段的问题
         for (const auto& i : result.durl) {
-            this->video->start(i.url);
+            this->video->setUrl(i.url, progress);
             break;
         }
     }
@@ -633,8 +653,9 @@ void PlayerActivity::onError(const std::string& error) {
         ASYNC_RELEASE
         auto dialog = new brls::Dialog(error);
         dialog->setCancelable(false);
-        dialog->addButton("hints/ok"_i18n,
-                          []() { brls::Application::popActivity(); });
+        dialog->addButton("hints/ok"_i18n, []() {
+            brls::sync([]() { brls::Application::popActivity(); });
+        });
         dialog->open();
     });
 }
@@ -663,7 +684,7 @@ PlayerSeasonActivity::PlayerSeasonActivity(const unsigned int id,
         brls::Logger::debug("open ep: {}", id);
     }
 
-    episodeResult.progress = progress;
+    this->setProgress(progress);
 }
 
 PlayerSeasonActivity::~PlayerSeasonActivity() {
@@ -672,6 +693,10 @@ PlayerSeasonActivity::~PlayerSeasonActivity() {
     this->reportHistory(episodeResult.aid, episodeResult.cid,
                         MPVCore::instance().video_progress, 4);
 }
+
+void PlayerSeasonActivity::setProgress(int p) { episodeResult.progress = p; }
+
+int PlayerSeasonActivity::getProgress() { return episodeResult.progress; }
 
 void PlayerSeasonActivity::onContentAvailable() {
     this->PlayerActivity::setCommonData();

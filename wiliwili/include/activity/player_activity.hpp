@@ -58,6 +58,12 @@ public:
     // 展示二维码共享对话框
     void showShareDialog(const std::string link);
 
+    // 设定当前的播放进度，获取视频链接后会自动跳转到该进度
+    virtual void setProgress(int p);
+
+    // 获取当前设定的播放进度
+    virtual int getProgress();
+
     ~PlayerActivity() override;
 
 protected:
@@ -104,6 +110,12 @@ public:
                          int progress     = -1);
 
     ~PlayerSeasonActivity() override;
+
+    // 设定当前的播放进度，获取视频链接后会自动跳转到该进度
+    void setProgress(int p) override;
+
+    // 获取当前设定的播放进度
+    int getProgress() override;
 
     void onContentAvailable() override;
 
