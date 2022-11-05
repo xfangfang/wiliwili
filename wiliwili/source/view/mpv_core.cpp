@@ -115,6 +115,7 @@ MPVCore::MPVCore() {
     check_error(
         mpv_observe_property(mpv, 4, "playback-time", MPV_FORMAT_DOUBLE));
     check_error(mpv_observe_property(mpv, 5, "cache-speed", MPV_FORMAT_INT64));
+    check_error(mpv_observe_property(mpv, 6, "percent-pos", MPV_FORMAT_DOUBLE));
 
     brls::Logger::debug("initializeGL");
     this->initializeGL();
@@ -378,7 +379,7 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
         nvgFillColor(vg, bottomBarColor);
         nvgBeginPath(vg);
         nvgRect(vg, rect.getMinX(), rect.getMaxY() - 2,
-                rect.getWidth() * playback_time / duration, 2);
+                rect.getWidth() * percent_pos / 100, 2);
         nvgFill(vg);
     }
 }
@@ -388,6 +389,16 @@ mpv_render_context *MPVCore::getContext() { return this->mpv_context; }
 mpv_handle *MPVCore::getHandle() { return this->mpv; }
 
 MPVEvent *MPVCore::getEvent() { return &this->mpvCoreEvent; }
+
+std::string MPVCore::getCacheSpeed() {
+    if (cache_speed >> 20 > 0) {
+        return fmt::format("{:.2f} MB/s", (cache_speed >> 10) / 1024.0f);
+    } else if (cache_speed >> 10 > 0) {
+        return fmt::format("{:.2f} KB/s", cache_speed / 1024.0f);
+    } else {
+        return fmt::format("{} B/s", cache_speed);
+    }
+}
 
 void MPVCore::eventMainLoop() {
     while (true) {
@@ -520,10 +531,19 @@ void MPVCore::eventMainLoop() {
                             cache_speed =
                                 *(int64_t *)((mpv_event_property *)event->data)
                                      ->data;
+                            mpvCoreEvent.fire(MpvEventEnum::CACHE_SPEED_CHANGE);
                         }
 
-                        brls::Logger::verbose("========> cache_speed: {}KB/s ",
-                                              cache_speed / 1024);
+                        brls::Logger::verbose("========> cache_speed: {}",
+                                              getCacheSpeed());
+                        break;
+                    case 6:
+                        // 视频进度更新（百分比）
+                        if (((mpv_event_property *)event->data)->data) {
+                            percent_pos =
+                                *(double *)((mpv_event_property *)event->data)
+                                     ->data;
+                        }
                         break;
                     default:
                         break;

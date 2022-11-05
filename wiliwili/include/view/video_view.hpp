@@ -111,8 +111,10 @@ private:
     BRLS_BIND(brls::Label, videoOnlineCountLabel, "video/view/label/people");
     BRLS_BIND(brls::Box, osdTopBox, "video/osd/top/box");
     BRLS_BIND(brls::Box, osdBottomBox, "video/osd/bottom/box");
+    BRLS_BIND(brls::Box, osdCenterBox, "video/osd/center/box");
     BRLS_BIND(brls::ProgressSpinner, osdSpinner, "video/osd/loading");
     BRLS_BIND(VideoProgressSlider, osdSlider, "video/osd/bottom/progress");
+    BRLS_BIND(brls::Label, centerLabel, "video/osd/center/label");
     BRLS_BIND(brls::Label, leftStatusLabel, "video/left/status");
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
     BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");

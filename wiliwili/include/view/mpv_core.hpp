@@ -32,6 +32,7 @@ typedef enum MpvEventEnum {
     START_FILE,
     END_OF_FILE,
     DANMAKU_LOADED,
+    CACHE_SPEED_CHANGE,
 } MpvEventEnum;
 
 typedef brls::Event<MpvEventEnum> MPVEvent;
@@ -114,6 +115,8 @@ public:
         return this->playback_time;
     }
 
+    std::string getCacheSpeed();
+
     void setUrl(std::string url) {
         const char *cmd[] = {"loadfile", url.c_str(), NULL};
         command_async(cmd);
@@ -153,6 +156,7 @@ public:
     int64_t duration       = 0;  // second
     int64_t cache_speed    = 0;  // Bps
     double playback_time   = 0;
+    double percent_pos     = 0;
     int64_t video_progress = 0;
     std::mutex danmakuMutex;
     bool showDanmaku    = false;

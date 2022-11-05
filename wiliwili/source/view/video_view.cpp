@@ -341,7 +341,7 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         osdTopBox->frame(ctx);
     }
 
-    osdSpinner->frame(ctx);
+    osdCenterBox->frame(ctx);
 }
 
 void VideoView::invalidate() { View::invalidate(); }
@@ -419,11 +419,12 @@ bool VideoView::isOSDShown() {
 
 // Loading
 void VideoView::showLoading() {
-    osdSpinner->setVisibility(brls::Visibility::VISIBLE);
+    centerLabel->setVisibility(brls::Visibility::INVISIBLE);
+    osdCenterBox->setVisibility(brls::Visibility::VISIBLE);
 }
 
 void VideoView::hideLoading() {
-    osdSpinner->setVisibility(brls::Visibility::GONE);
+    osdCenterBox->setVisibility(brls::Visibility::GONE);
 }
 
 void VideoView::hideDanmakuButton() {
@@ -533,7 +534,7 @@ void VideoView::setFullScreen(bool fs) {
         video->setHideHighlight(true);
         video->refreshToggleIcon();
         video->setOnlineCount(this->videoOnlineCountLabel->getFullText());
-        if (osdSpinner->getVisibility() == brls::Visibility::GONE) {
+        if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
             video->hideLoading();
         }
         container->addView(video);
@@ -568,7 +569,8 @@ void VideoView::setFullScreen(bool fs) {
                     video->refreshToggleIcon();
                     video->refreshDanmakuIcon();
                     video->resetDanmakuPosition();
-                    if (osdSpinner->getVisibility() == brls::Visibility::GONE) {
+                    if (osdCenterBox->getVisibility() ==
+                        brls::Visibility::GONE) {
                         video->hideLoading();
                     } else {
                         video->showLoading();
@@ -651,6 +653,17 @@ void VideoView::registerMpvEvent() {
                     this->showOSD(false);
                     if (this->closeOnEndOfFile && this->isFullscreen()) {
                         this->setFullScreen(false);
+                    }
+                    break;
+                case MpvEventEnum::CACHE_SPEED_CHANGE:
+                    // 仅当加载圈已经开始转起的情况显示缓存
+                    if (this->osdCenterBox->getVisibility() !=
+                        brls::Visibility::GONE) {
+                        if (this->centerLabel->getVisibility() !=
+                            brls::Visibility::VISIBLE)
+                            this->centerLabel->setVisibility(
+                                brls::Visibility::VISIBLE);
+                        this->centerLabel->setText(mpvCore->getCacheSpeed());
                     }
                     break;
                 default:

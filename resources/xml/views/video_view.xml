@@ -37,10 +37,24 @@
         </brls:Box>
     </brls:Box>
 
-    <brls:ProgressSpinner
-            id="video/osd/loading"
-            width="100"
-            height="100"/>
+    <brls:Box
+            axis="column"
+            alignItems="center"
+            id="video/osd/center/box">
+        <brls:ProgressSpinner
+                id="video/osd/loading"
+                width="100"
+                height="100"/>
+        <brls:Label
+                id="video/osd/center/label"
+                visibility="invisible"
+                cornerRadius="4"
+                backgroundColor="#303030A0"
+                textColor="#FFFFFF"
+                fontSize="16"
+                horizontalAlign="center"
+                verticalAlign="center"/>
+    </brls:Box>
 
 
     <brls:Box
@@ -82,59 +96,59 @@
                     width="100%"
                     alignItems="center"
                     grow="1">
-                    <brls:Label
+                <brls:Label
+                        wireframe="false"
+                        horizontalAlign="right"
+                        id="video/left/status"
+                        height="100%"
+                        width="100"
+                        textColor="#FFFFFF"
+                        text="00:00"/>
+                <brls:Label
+                        horizontalAlign="center"
+                        height="100%"
+                        textColor="#FFFFFF"
+                        text="/"/>
+                <brls:Label
+                        wireframe="false"
+                        horizontalAlign="left"
+                        id="video/right/status"
+                        height="100%"
+                        width="100"
+                        textColor="#FFFFFF"
+                        text="00:00"/>
+                <brls:Box
+                        wireframe="false"
+                        id="video/osd/danmaku"
+                        positionType="absolute"
+                        positionRight="100"
+                        alignItems="center"
+                        justifyContent="center"
+                        height="60"
+                        width="60">
+                    <SVGImage
+                            id="video/osd/danmaku/icon"
                             wireframe="false"
-                            horizontalAlign="right"
-                            id="video/left/status"
-                            height="100%"
-                            width="100"
-                            textColor="#FFFFFF"
-                            text="00:00"/>
-                    <brls:Label
-                            horizontalAlign="center"
-                            height="100%"
-                            textColor="#FFFFFF"
-                            text="/"/>
-                    <brls:Label
+                            height="30"
+                            width="30"
+                            SVG="@res/svg/bpx-svg-sprite-danmu-switch-on.svg"/>
+                </brls:Box>
+                <brls:Box
+                        wireframe="false"
+                        id="video/osd/fullscreen"
+                        positionType="absolute"
+                        positionRight="20"
+                        alignItems="center"
+                        justifyContent="center"
+                        height="60"
+                        width="60">
+                    <SVGImage
+                            id="video/osd/fullscreen/icon"
                             wireframe="false"
-                            horizontalAlign="left"
-                            id="video/right/status"
-                            height="100%"
-                            width="100"
-                            textColor="#FFFFFF"
-                            text="00:00"/>
-                    <brls:Box
-                            wireframe="false"
-                            id="video/osd/danmaku"
-                            positionType="absolute"
-                            positionRight="100"
-                            alignItems="center"
-                            justifyContent="center"
-                            height="60"
-                            width="60">
-                        <SVGImage
-                                id="video/osd/danmaku/icon"
-                                wireframe="false"
-                                height="30"
-                                width="30"
-                                SVG="@res/svg/bpx-svg-sprite-danmu-switch-on.svg"/>
-                    </brls:Box>
-                    <brls:Box
-                            wireframe="false"
-                            id="video/osd/fullscreen"
-                            positionType="absolute"
-                            positionRight="20"
-                            alignItems="center"
-                            justifyContent="center"
-                            height="60"
-                            width="60">
-                            <SVGImage
-                                    id="video/osd/fullscreen/icon"
-                                    wireframe="false"
-                                    height="30"
-                                    width="30"
-                                    SVG="@res/svg/bpx-svg-sprite-fullscreen.svg"/>
-                    </brls:Box>
+                            height="30"
+                            width="30"
+                            SVG="@res/svg/bpx-svg-sprite-fullscreen.svg"/>
+                </brls:Box>
             </brls:Box>
         </brls:Box>
     </brls:Box>
