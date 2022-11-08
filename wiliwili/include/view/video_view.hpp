@@ -27,6 +27,8 @@ public:
     /// Video control
     void setUrl(std::string url, int progress = 0, std::string audio = "");
 
+    void setUrl(std::vector<std::string> urls, int progress = 0);
+
     void resume();
 
     void pause();

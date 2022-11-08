@@ -385,6 +385,27 @@ void VideoView::setUrl(std::string url, int progress, std::string audio) {
     mpvCore->command_async(cmd);
 }
 
+void VideoView::setUrl(std::vector<std::string> urls, int progress) {
+    brls::Logger::debug("set video urls");
+
+    if (progress < 0) progress = 0;
+    std::string extra = "referrer=https://www.bilibili.com";
+    if (progress > 0) {
+        extra += fmt::format(",start={}", progress);
+        brls::Logger::debug("set video progress: {}", progress);
+    }
+    brls::Logger::debug("Extra options: {}", extra);
+
+    std::string url = "edl://";
+    for (auto& i : urls) i = fmt::format("%{}%{}", i.size(), i);
+    url += pystring::join(";", urls);
+    brls::Logger::debug("Virtual files: {}", url);
+
+    const char* cmd[] = {"loadfile", url.c_str(), "replace", extra.c_str(),
+                         NULL};
+    mpvCore->command_async(cmd);
+}
+
 void VideoView::resume() { mpvCore->command_str("set pause no"); }
 
 void VideoView::pause() { mpvCore->command_str("set pause yes"); }

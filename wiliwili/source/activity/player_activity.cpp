@@ -538,10 +538,16 @@ void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) {
     } else {
         // flv
         brls::Logger::debug("Video type: flv");
-        // todo: 处理flv分段的问题
-        for (const auto& i : result.durl) {
-            this->video->setUrl(i.url, progress);
-            break;
+        if (result.durl.size() == 0) {
+            brls::Logger::error("No media");
+        } else if (result.durl.size() == 1) {
+            this->video->setUrl(result.durl[0].url, progress);
+        } else {
+            std::vector<std::string> urls;
+            for (auto& i : result.durl) {
+                urls.emplace_back(i.url);
+            }
+            this->video->setUrl(urls, progress);
         }
     }
 

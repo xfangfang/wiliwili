@@ -575,6 +575,7 @@ void MPVCore::reset() {
     danmakuIndex        = 0;
     danmakuMutex.unlock();
     this->core_idle      = 0;
+    this->percent_pos    = 0;
     this->duration       = 0;  // second
     this->cache_speed    = 0;  // Bps
     this->playback_time  = 0;
