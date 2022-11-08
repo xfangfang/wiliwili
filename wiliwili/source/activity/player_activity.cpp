@@ -543,9 +543,9 @@ void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) {
         } else if (result.durl.size() == 1) {
             this->video->setUrl(result.durl[0].url, progress);
         } else {
-            std::vector<std::string> urls;
+            std::vector<EDLUrl> urls;
             for (auto& i : result.durl) {
-                urls.emplace_back(i.url);
+                urls.emplace_back(EDLUrl(i.url, i.length / 1000.0f));
             }
             this->video->setUrl(urls, progress);
         }

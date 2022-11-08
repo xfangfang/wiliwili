@@ -18,6 +18,15 @@ typedef enum VideoState {
 
 class SVGImage;
 
+// https://github.com/mpv-player/mpv/blob/master/DOCS/edl-mpv.rst
+class EDLUrl {
+public:
+    std::string url;
+    float length = -1;  // second
+
+    EDLUrl(std::string url, float length = -1) : url(url), length(length) {}
+};
+
 class VideoView : public brls::Box {
 public:
     VideoView();
@@ -27,7 +36,7 @@ public:
     /// Video control
     void setUrl(std::string url, int progress = 0, std::string audio = "");
 
-    void setUrl(std::vector<std::string> urls, int progress = 0);
+    void setUrl(const std::vector<EDLUrl>& edl_urls, int progress = 0);
 
     void resume();
 

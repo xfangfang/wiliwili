@@ -385,25 +385,27 @@ void VideoView::setUrl(std::string url, int progress, std::string audio) {
     mpvCore->command_async(cmd);
 }
 
-void VideoView::setUrl(std::vector<std::string> urls, int progress) {
-    brls::Logger::debug("set video urls");
-
-    if (progress < 0) progress = 0;
-    std::string extra = "referrer=https://www.bilibili.com";
-    if (progress > 0) {
-        extra += fmt::format(",start={}", progress);
-        brls::Logger::debug("set video progress: {}", progress);
-    }
-    brls::Logger::debug("Extra options: {}", extra);
-
+void VideoView::setUrl(const std::vector<EDLUrl>& edl_urls, int progress) {
     std::string url = "edl://";
-    for (auto& i : urls) i = fmt::format("%{}%{}", i.size(), i);
+    std::vector<std::string> urls;
+    bool delay_open = true;
+    for (auto& i : edl_urls) {
+        if (i.length < 0) {
+            delay_open = false;
+            break;
+        }
+    }
+    for (auto& i : edl_urls) {
+        if (!delay_open) {
+            urls.emplace_back(fmt::format("%{}%{}", i.url.size(), i.url));
+            continue;
+        }
+        urls.emplace_back(
+            "!delay_open,media_type=video;!delay_open,media_type=audio;" +
+            fmt::format("%{}%{},length={}", i.url.size(), i.url, i.length));
+    }
     url += pystring::join(";", urls);
-    brls::Logger::debug("Virtual files: {}", url);
-
-    const char* cmd[] = {"loadfile", url.c_str(), "replace", extra.c_str(),
-                         NULL};
-    mpvCore->command_async(cmd);
+    this->setUrl(url, progress);
 }
 
 void VideoView::resume() { mpvCore->command_str("set pause no"); }
