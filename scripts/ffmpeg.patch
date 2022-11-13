@@ -1,0 +1,111 @@
+diff --git a/configure b/configure
+index 89af70d..ed6b490 100755
+--- a/configure
++++ b/configure
+@@ -2210,6 +2210,7 @@ SYSTEM_FUNCS="
+     CommandLineToArgvW
+     fcntl
+     getaddrinfo
++    getnameinfo
+     gethrtime
+     getopt
+     GetModuleHandle
+@@ -5580,6 +5581,10 @@ case $target_os in
+         ;;
+     minix)
+         ;;
++    horizon)
++        network_extralibs="-lnx"
++        enable section_data_rel_ro
++        ;;
+     none)
+         ;;
+     *)
+@@ -6047,6 +6052,7 @@ check_ldflags -Wl,-z,noexecstack
+ 
+ if ! disabled network; then
+     check_func getaddrinfo $network_extralibs
++    check_func getnameinfo $network_extralibs
+     check_func inet_aton $network_extralibs
+ 
+     check_type netdb.h "struct addrinfo"
+diff --git a/libavfilter/vf_drawtext.c b/libavfilter/vf_drawtext.c
+index 7b1000e..c9144a0 100644
+--- a/libavfilter/vf_drawtext.c
++++ b/libavfilter/vf_drawtext.c
+@@ -37,7 +37,9 @@
+ #if HAVE_UNISTD_H
+ #include <unistd.h>
+ #endif
++#ifndef __SWITCH__
+ #include <fenv.h>
++#endif
+ 
+ #if CONFIG_LIBFONTCONFIG
+ #include <fontconfig/fontconfig.h>
+@@ -1084,14 +1086,17 @@ static int func_eval_expr_int_format(AVFilterContext *ctx, AVBPrint *bp,
+             return AVERROR(EINVAL);
+         }
+     }
+-
++#ifndef __SWITCH__
+     feclearexcept(FE_ALL_EXCEPT);
++#endif
+     intval = res;
++#ifndef __SWITCH__
+ #if defined(FE_INVALID) && defined(FE_OVERFLOW) && defined(FE_UNDERFLOW)
+     if ((ret = fetestexcept(FE_INVALID|FE_OVERFLOW|FE_UNDERFLOW))) {
+         av_log(ctx, AV_LOG_ERROR, "Conversion of floating-point result to int failed. Control register: 0x%08x. Conversion result: %d\n", ret, intval);
+         return AVERROR(EINVAL);
+     }
++#endif
+ #endif
+ 
+     if (argc == 3)
+diff --git a/libavformat/network.h b/libavformat/network.h
+index 71347e8..7ffe360 100644
+--- a/libavformat/network.h
++++ b/libavformat/network.h
+@@ -211,13 +211,16 @@ struct addrinfo {
+ int ff_getaddrinfo(const char *node, const char *service,
+                    const struct addrinfo *hints, struct addrinfo **res);
+ void ff_freeaddrinfo(struct addrinfo *res);
++#define getaddrinfo ff_getaddrinfo
++#define freeaddrinfo ff_freeaddrinfo
++#endif /* !HAVE_GETADDRINFO */
++
++#if (!HAVE_GETNAMEINFO) || (!HAVE_GETADDRINFO)
+ int ff_getnameinfo(const struct sockaddr *sa, int salen,
+                    char *host, int hostlen,
+                    char *serv, int servlen, int flags);
+-#define getaddrinfo ff_getaddrinfo
+-#define freeaddrinfo ff_freeaddrinfo
+ #define getnameinfo ff_getnameinfo
+-#endif /* !HAVE_GETADDRINFO */
++#endif /* (!HAVE_GETNAMEINFO) || (!HAVE_GETADDRINFO) */
+ 
+ #if !HAVE_GETADDRINFO || HAVE_WINSOCK2_H
+ const char *ff_gai_strerror(int ecode);
+diff --git a/libavformat/os_support.c b/libavformat/os_support.c
+index 15cea7f..bea1ec7 100644
+--- a/libavformat/os_support.c
++++ b/libavformat/os_support.c
+@@ -137,7 +137,9 @@ void ff_freeaddrinfo(struct addrinfo *res)
+     av_freep(&res->ai_addr);
+     av_freep(&res);
+ }
++#endif /* !HAVE_GETADDRINFO */
+ 
++#if (!HAVE_GETNAMEINFO) || (!HAVE_GETADDRINFO)
+ int ff_getnameinfo(const struct sockaddr *sa, int salen,
+                    char *host, int hostlen,
+                    char *serv, int servlen, int flags)
+@@ -176,7 +178,7 @@ int ff_getnameinfo(const struct sockaddr *sa, int salen,
+ 
+     return 0;
+ }
+-#endif /* !HAVE_GETADDRINFO */
++#endif /* (!HAVE_GETNAMEINFO) || (!HAVE_GETADDRINFO) */
+ 
+ #if !HAVE_GETADDRINFO || HAVE_WINSOCK2_H
+ const char *ff_gai_strerror(int ecode)

@@ -1,4 +1,4 @@
-‼️：仅在最新 `大气层` + 最新 `固件` + `FAT32` 内存卡测试，其他组合出现的问题不进行处理。
+‼️：仅在最新 `大气层` + 最新 `固件` + `FAT32` 内存卡测试。
 
 <br>
 
@@ -40,7 +40,9 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 
 <br>
 
-# TODO list
+<p>
+<details >
+<summary id="sponsorships"><h1> TODO list（点击展开）</h1></summary>
 
 - [x] 初步完成底层基础组件、首页各类推荐视频、用户视频播放页
 - [x] 微调页面、解决播放器启动速度慢、解决播放页面退出卡顿
@@ -68,11 +70,14 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 - [ ] 重压摇杆临时快进
 - [ ] 增加平板模式与电视模式页面样式的切换
 
+</details>
+</p>
+
 <br>
 
 # 反馈问题前要做的事
 
-仅在最新 `大气层` + 最新 `固件` + `FAT32` 内存卡测试，其他组合出现的问题不进行处理。
+仅在最新 `大气层` + 最新 `固件` + `FAT32` 内存卡测试。
 
 1. 首先确保 `大气层`、`固件`、`内存卡` 三者符合要求
 2. 确保switch系统时间正常，如果进入应用弹出 `网络错误` 一般是由这个问题导致的。
@@ -146,11 +151,16 @@ mingw32-make wiliwili -j
 # 安装预编译的依赖
 sudo dkp-pacman -S switch-glfw switch-mesa switch-glm \
   switch-sdl2 switch-zlib switch-mbedtls switch-libass \
-  switch-cmake  switch-bzip2 devkita64-cmake
+  switch-cmake  switch-bzip2 devkita64-cmake switch-pkg-config \
+  dkp-toolchain-vars
 
 # 手动构建 ffmpeg与mpv
+# 参考：scripts/README.md
 # 参考：https://github.com/proconsule/nxmp-portlibs
 # 参考：https://github.com/xfangfang/wiliwili/issues/6#issuecomment-1236321540
+
+bash ./scripts/build_ffmpeg.sh
+bash ./scripts/build_mpv.sh
 
 # 可选：安装依赖库 mininsp：https://github.com/StarDustCFW/nspmini
 # 1. 在resources 目录下放置：nsp_forwarder.nsp

@@ -7,3 +7,5 @@ resources/font/switch_icons.ttf
 resources/nsp_forwarder.nsp
 tasks.json
 settings.json
+ffmpeg-*
+mpv-*
