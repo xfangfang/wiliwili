@@ -5,14 +5,15 @@ Build System: `Ubuntu 22.04`
 ### Build and install
 
 ```shell
-for dir in $(ls scripts/switch); do
-    pushd scripts/switch/$dir
+libs=(ffmpeg mpv)
+for lib in ${libs[@]}; do
+    pushd switch/$lib
     dkp-makepkg -i
-    popd
+    popd 
 done
 ```
 
-### Another way (archived)
+### Another way (Not recommended)
 
 ```shell
 sudo dkp-pacman -S switch-pkg-config dkp-toolchain-vars switch-zlib \
@@ -22,7 +23,7 @@ bash ./build_ffmpeg.sh
 bash ./build_mpv.sh
 ```
 
-# Precompile
+# Precompiled
 
 ```
 sudo dkp-pacman -U https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-ffmpeg-4.4.3-1-any.pkg.tar.xz
