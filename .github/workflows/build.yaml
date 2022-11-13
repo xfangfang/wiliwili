@@ -31,6 +31,7 @@ jobs:
       version: ${{ steps.info.outputs.version }}
       standard_version: ${{ steps.info.outputs.standard_version }}
       DIST_EXE: ${{ steps.info.outputs.DIST_EXE }}
+      DIST_NRO: ${{ steps.info.outputs.DIST_NRO }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -53,13 +54,14 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
         run: |
-          echo "::set-output name=version::${VERSION}"
-          echo "::set-output name=DIST_EXE::wiliwili-Windows-x64-${VERSION}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_EXE=wiliwili-Windows-x64-${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_NRO=wiliwili-NintendoSwitch-${VERSION}" >> $GITHUB_OUTPUT
           echo $VERSION
           echo "${{  github.event.inputs.version }}"
 
   release:
-    needs: [ build-win-x64, version ]
+    needs: [ build-win-x64, build-switch, version ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
@@ -69,6 +71,7 @@ jobs:
         if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
         run: |
           echo "DIST_EXE=${{ needs.version.outputs.DIST_EXE }}" >> $GITHUB_ENV
+          echo "DIST_NRO=${{ needs.version.outputs.DIST_NRO }}" >> $GITHUB_ENV
           echo $GITHUB_ENV
 
       - name: Upload
@@ -83,6 +86,7 @@ jobs:
           allowUpdates: true
           artifacts: >
             ${{ env.DIST_EXE }}/${{ env.DIST_EXE }}.tar.gz
+            ${{ env.DIST_NRO }}/${{ env.DIST_NRO }}.tar.gz
 
   build-win-x64:
     needs: [ version ]
@@ -128,11 +132,39 @@ jobs:
           7z e mpv.7z -ompv
           cp mpv/mpv-2.dll wiliwili/mpv-1.dll
           tar -czvf ../${DIST_EXE}.tar.gz wiliwili
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload dist
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: steps.compile.outputs.status == 'success'
         with:
           name: ${{ needs.version.outputs.DIST_EXE }}
           path: "${{ needs.version.outputs.DIST_EXE }}.tar.gz"
+
+  build-switch:
+    needs: [ version ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: 'xfangfang/wiliwili'
+          submodules: 'recursive'
+
+      - name: Build
+        id: compile
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          DIST_NRO="${{ needs.version.outputs.DIST_NRO }}"
+          echo ${VERSION} ${DIST_NRO}
+          docker run --rm -v $(pwd):/data devkitpro/devkita64:latest sh -c "/data/scripts/build_switch.sh"
+          cd cmake-build-switch
+          tar -czvf ../${DIST_NRO}.tar.gz wiliwili.nro
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v3
+        if: steps.compile.outputs.status == 'success'
+        with:
+          name: ${{ needs.version.outputs.DIST_NRO }}
+          path: "${{ needs.version.outputs.DIST_NRO }}.tar.gz"
