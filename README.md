@@ -1,26 +1,22 @@
-‼️：仅在最新 `大气层` + 最新 `固件` + `FAT32` 内存卡测试。
-
-<br>
-
 # wiliwili
 
-一个第三方 Nintendo Switch [B站](https://www.bilibili.com)客户端
+一个专为手柄用户设计的 [B站](https://www.bilibili.com)客户端
 
 <img src="resources/icon/bilibili.png" alt="icon" height="128" width="128" align="left">
 
 wiliwili 拥有非常接近官方PC客户端的B站浏览体验，  
-同时支持触屏与手柄按键操控，  
+同时支持**触屏**与**手柄**操控，  
 让你的switch瞬间变身机顶盒与掌上平板。
 <br>
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/xfangfang/wiliwili)](https://github.com/xfangfang/wiliwili/releases) ![GitHub All Releases](https://img.shields.io/github/downloads/xfangfang/wiliwili/total) ![GitHub stars](https://img.shields.io/github/stars/xfangfang/wiliwili?style=flat) ![GitHub forks](https://img.shields.io/github/forks/xfangfang/wiliwili)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/xfangfang/wiliwili)](https://github.com/xfangfang/wiliwili/releases) ![GitHub All Releases](https://img.shields.io/github/downloads/xfangfang/wiliwili/total) ![GitHub stars](https://img.shields.io/github/stars/xfangfang/wiliwili?style=flat) ![GitHub forks](https://img.shields.io/github/forks/xfangfang/wiliwili) ![NS](https://img.shields.io/badge/-Nintendo%20Switch-e4000f?style=flat&logo=Nintendo%20Switch) ![MS](https://img.shields.io/badge/-Windows-357ec7?style=flat&logo=Windows) ![mac](https://img.shields.io/badge/-macOS-black?style=flat&logo=Apple) ![Linux](https://img.shields.io/badge/-Linux-lightgrey?style=flat&logo=Linux)
 
 <br>
 
 # 支持特性
 
 多语言：简体、繁体（自动翻译）、英语  
-主题色：支持根据switch主题自动切换深浅主题  
+主题色：支持根据主题自动切换深浅主题  
 播放页：视频 番剧 影视 综艺，同时支持弹幕  
 个人页：扫码登录 历史记录 个人收藏  
 搜索页：热搜 视频 番剧 影视  
@@ -31,18 +27,20 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 
 <br>
 
-# 安装流程
+# 安装流程 (Nintendo Switch)
 
 0. 下载安装包：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 1. 将 wiliwili.nro 放置在内存卡路径： switch/wiliwili.nro
-2. 在主页 `按住` R键打开任意游戏进入HBMenu，在列表中选择wiliwili点击打开即可。
+2. 在主页 `按住` R键打开任意游戏进入 hbmenu，在列表中选择 wiliwili 点击打开即可。
 3. [可选] 在应用内安装桌面图标，入口：设置/实用工具/使用教程
 
 <br>
 
+# TODO list
+
 <p>
-<details >
-<summary id="sponsorships"><h1> TODO list（点击展开）</h1></summary>
+<details>
+<summary id="todo">点击展开</summary>
 
 - [x] 初步完成底层基础组件、首页各类推荐视频、用户视频播放页
 - [x] 微调页面、解决播放器启动速度慢、解决播放页面退出卡顿
@@ -77,13 +75,13 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 
 # 反馈问题前要做的事
 
-仅在最新 `大气层` + 最新 `固件` + `FAT32` 内存卡测试。
+仅在 `最新大气层` + `最新固件` + `FAT32` 内存卡测试。
 
 1. 首先确保 `大气层`、`固件`、`内存卡` 三者符合要求
 2. 确保switch系统时间正常，如果进入应用弹出 `网络错误` 一般是由这个问题导致的。
 3. 重置switch系统网络设置，尤其是DNS配置，某些DNS服务器无法正确解析API域名和视频地址
-4. 完整且详细地描述你的问题，最好附加演示视频、截图。
-5. 网络相关的问题附加网络诊断截图，入口：设置/实用工具/网络诊断
+4. `完整且详细地` 描述你的问题，最好附加演示视频、截图。
+5. 网络相关的问题附加 `网络诊断截图`，入口：应用内设置/实用工具/网络诊断
 6. 尝试复现问题，尽力找到BUG出现的规律
 
 <br>
@@ -100,77 +98,99 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 # 开发
 
 ```shell
+# 拉取代码
 git clone --recursive https://github.com/xfangfang/wiliwili.git
+cd wiliwili
 ```
 
 ### PC本地运行
 
-##### macOS
+目前 wiliwili 支持运行在 Linux macOS 和 Windows上
+
+可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions) 下载自动构建的测试版客户端(目前仅有Windows版)
+
+构建出来的客户端某些图标缺失，请参考：https://github.com/xfangfang/wiliwili/issues/13#issuecomment-1296299063
+
+<p>
+<details>
+<summary id="local-pc">点击展开</summary>
+
+#### macOS
 
 ```shell
 # macOS: install dependencies
 brew install glfw3 glm mpv
 
-mkdir -p build && cd build
-cmake -DPLATFORM_DESKTOP=ON ..
-make wiliwili -j
+cmake -B build -DPLATFORM_DESKTOP=ON
+make -C build wiliwili -j$(nproc)
 ```
 
-##### Linux
+#### Linux
 
 ```shell
 # Ubuntu: install dependencies (glfw3.3 or later)
 sudo apt install libcurl4-openssl-dev libglfw3-dev libglm-dev libmpv-dev
 
-mkdir -p build && cd build
-cmake -DPLATFORM_DESKTOP=ON ..
-make wiliwili -j
+cmake -B build -DPLATFORM_DESKTOP=ON
+make -C build wiliwili -j$(nproc)
 ```
 
-##### Windows
-
-可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions) 下载自动构建的测试版客户端
+#### Windows
 
 ```shell
 # Windows: install dependencies (MSYS2 MinGW64)
 pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-make \
   git mingw-w64-x86_64-glfw mingw-w64-x86_64-glm mingw-w64-x86_64-mpv
 
-mkdir -p build && cd build
-cmake -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON ..
-mingw32-make wiliwili -j
+cmake -B build -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON ..
+mingw32-make -C build wiliwili -j$(nproc)
 ```
 
-### 交叉编译 Switch 可执行文件
+</details>
+</p>
 
-稍后会制作一个docker镜像来更便捷地构建
+### 交叉编译 Switch 可执行文件 (wiliwili.nro)
+
+推荐使用docker构建，本地构建配置环境略微繁琐不过可用来切换底层的ffmpeg或mpv等其他依赖库更灵活地进行调试。
+
+<p>
+<details>
+<summary id="local-switch">点击展开</summary>
+
+#### Docker
 
 ```shell
-# 安装devkitpro环境: https://github.com/devkitPro/pacman/releases
+docker run --rm -v $(pwd):/data devkitpro/devkita64:20221113 \
+  sh -c "/data/scripts/build_switch.sh"
+```
 
-# 安装预编译的依赖
-sudo dkp-pacman -S switch-glfw switch-mesa switch-glm \
-  switch-sdl2 switch-zlib switch-mbedtls switch-libass \
-  switch-cmake  switch-bzip2 devkita64-cmake switch-pkg-config \
-  dkp-toolchain-vars
+#### 本地编译
 
-# 手动构建 ffmpeg与mpv
-# 参考：scripts/README.md
-# 参考：https://github.com/proconsule/nxmp-portlibs
-# 参考：https://github.com/xfangfang/wiliwili/issues/6#issuecomment-1236321540
+```shell
+# 1. 安装devkitpro环境: https://github.com/devkitPro/pacman/releases
 
-bash ./scripts/build_ffmpeg.sh
-bash ./scripts/build_mpv.sh
+# 2. 安装预编译的依赖
+sudo dkp-pacman -S switch-glfw switch-glm dkp-toolchain-vars \
+  switch-cmake devkita64-cmake switch-pkg-config
 
-# 可选：安装依赖库 mininsp：https://github.com/StarDustCFW/nspmini
-# 1. 在resources 目录下放置：nsp_forwarder.nsp
-# 2. cmake 构建参数添加 -DBUILTIN_NSP=ON
+# 3. 安装ffmpeg与mpv（使用自编译的库，官方的库无法播放网络视频）
+# 手动编译方法请看：scripts/README.md
+sudo dkp-pacman -U https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-ffmpeg-4.4.3-1-any.pkg.tar.xz
+
+sudo dkp-pacman -U https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-libmpv-0.34.1-1-any.pkg.tar.xz
+
+# 4. 可选：安装依赖库 mininsp：https://github.com/StarDustCFW/nspmini
+# (1). 在resources 目录下放置：nsp_forwarder.nsp
+# (2). cmake 构建参数添加 -DBUILTIN_NSP=ON
 # 按上述配置后，从相册打开wiliwili时会增加一个安装NSP Forwarder的按钮
 
-# build
-mkdir build_switch && cd build_switch && cmake ..
-make wiliwili.nro -j
+# 5. build
+cmake -B cmake-build-switch
+make -C cmake-build-switch wiliwili.nro -j$(nproc)
 ```
+
+</details>
+</p>
 
 <br>
 
@@ -179,7 +199,6 @@ make wiliwili.nro -j
 <p align="center">
 <img src="docs/images/screenshot-2.png" alt="screenshot-2">
 <img src="docs/images/screenshot-1.png" alt="screenshot-1">
-
 </p>
 
 # Acknowledgement

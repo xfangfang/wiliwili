@@ -14,7 +14,7 @@ if [ ! -d "${FFMPEG_PATH}" ];then
     tar -xzvf ${FFMPEG_PATH}.tar.gz
     cd ${FFMPEG_PATH}
     # patch for switch
-    patch -Np1 -i  ../scripts/ffmpeg.patch
+    patch -Np1 -i  ../scripts/switch/ffmpeg/ffmpeg.patch
 else
     echo "Found ${FFMPEG_PATH}"
     cd ${FFMPEG_PATH}

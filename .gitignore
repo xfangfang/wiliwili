@@ -9,3 +9,5 @@ tasks.json
 settings.json
 ffmpeg-*
 mpv-*
+*.tar.*
+config/

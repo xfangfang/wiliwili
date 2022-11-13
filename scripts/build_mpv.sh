@@ -15,7 +15,7 @@ if [ ! -d "${MPV_PATH}" ];then
     tar -xzvf ${MPV_PATH}.tar.gz
     cd ${MPV_PATH}
     # patch for switch
-    patch -Np1 -i ../scripts/mpv.patch
+    patch -Np1 -i ../scripts/switch/libmpv/mpv.patch
 else
     echo "Found ${MPV_PATH}"
     cd ${MPV_PATH}
