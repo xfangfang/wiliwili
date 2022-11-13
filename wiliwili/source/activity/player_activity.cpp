@@ -527,7 +527,9 @@ void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) {
         brls::Logger::debug("Video type: dash");
         for (const auto& i : result.dash.video) {
             // todo: 相同清晰度的码率选择方案
-            if (result.quality == i.id) {
+            if (result.quality >= i.id) {
+                // 手动设置当前选择的清晰度
+                videoUrlResult.quality = i.id;
                 for (const auto& j : result.dash.audio) {
                     this->video->setUrl(i.base_url, progress, j.base_url);
                     break;
