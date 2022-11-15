@@ -32,6 +32,7 @@ jobs:
       standard_version: ${{ steps.info.outputs.standard_version }}
       DIST_EXE: ${{ steps.info.outputs.DIST_EXE }}
       DIST_NRO: ${{ steps.info.outputs.DIST_NRO }}
+      DIST_INTEL_DMG: ${{ steps.info.outputs.DIST_INTEL_DMG }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -57,11 +58,13 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_EXE=wiliwili-Windows-x64-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_NRO=wiliwili-NintendoSwitch-${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_INTEL_DMG=wiliwili-macOS-IntelChip-${VERSION}" >> $GITHUB_OUTPUT
           echo $VERSION
           echo "${{  github.event.inputs.version }}"
 
+
   release:
-    needs: [ build-win-x64, build-switch, version ]
+    needs: [ build-win-x64, build-switch, build-macos-intel, version ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
@@ -72,6 +75,7 @@ jobs:
         run: |
           echo "DIST_EXE=${{ needs.version.outputs.DIST_EXE }}" >> $GITHUB_ENV
           echo "DIST_NRO=${{ needs.version.outputs.DIST_NRO }}" >> $GITHUB_ENV
+          echo "DIST_INTEL_DMG=${{ needs.version.outputs.DIST_INTEL_DMG }}" >> $GITHUB_ENV
           echo $GITHUB_ENV
 
       - name: Upload
@@ -87,6 +91,8 @@ jobs:
           artifacts: >
             ${{ env.DIST_EXE }}/${{ env.DIST_EXE }}.tar.gz
             ${{ env.DIST_NRO }}/${{ env.DIST_NRO }}.tar.gz
+            ${{ env.DIST_INTEL_DMG }}/${{ env.DIST_INTEL_DMG }}.dmg
+
 
   build-win-x64:
     needs: [ version ]
@@ -168,3 +174,62 @@ jobs:
         with:
           name: ${{ needs.version.outputs.DIST_NRO }}
           path: "${{ needs.version.outputs.DIST_NRO }}.tar.gz"
+
+  build-macos-intel:
+    needs: [ version ]
+    runs-on: macos-11
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: 'xfangfang/wiliwili'
+          submodules: 'recursive'
+
+      - name: install deps
+        run: |
+          brew install create-dmg dylibbundler glfw glm
+          brew tap xfangfang/wiliwili
+          brew install -v mpv-wiliwili
+
+      - name: Readme
+        run: |
+          mkdir -p dist
+          echo "wiliwili" > dist/readme.txt
+          echo "" >> dist/readme.txt
+          echo "if you see any of these after open this application:" >> dist/readme.txt
+          echo "1: wiliwili.app is damaged and can't be opened. You should move it to he Trash." >> dist/readme.txt
+          echo "2: wiliwili.app can't be opened because it is from an unidentified developer." >> dist/readme.txt
+          echo "" >> dist/readme.txt
+          echo "Please run this command in your terminal:" >> dist/readme.txt
+          echo "sudo xattr -rd com.apple.quarantine /Applications/wiliwili.app" >> dist/readme.txt
+
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh_darwin == 'true' && github.event.inputs.ssh_darwin  != 'false') || contains(github.event.action, 'ssh_darwin')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: Build
+        id: compile
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          DIST_INTEL_DMG: ${{ needs.version.outputs.DIST_INTEL_DMG }}
+        run: |
+          echo $VERSION $DIST_INTEL_DMG
+          cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release
+          make -C build wiliwili.app -j$(nproc)
+          mv build/wiliwili.app dist/
+          create-dmg --window-pos 200 120 --window-size 800 400 \
+            --icon-size 100 --icon "wiliwili.app" 200 190 \
+            --icon "readme.txt" 400 100 --hide-extension "wiliwili.app" \
+            --app-drop-link 600 185  --volicon ./scripts/mac/dmg.icns \
+            --volname "wiliwili (${VERSION})" ${DIST_INTEL_DMG}.dmg "dist/"
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v3
+        if: steps.compile.outputs.status == 'success'
+        with:
+          name: ${{ needs.version.outputs.DIST_INTEL_DMG }}
+          path: "${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg"

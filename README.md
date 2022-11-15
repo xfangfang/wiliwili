@@ -107,13 +107,13 @@ cd wiliwili
 
 目前 wiliwili 支持运行在 Linux macOS 和 Windows上
 
-可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions) 下载自动构建的测试版客户端(目前仅有Windows版)
-
-构建出来的客户端某些图标缺失，请参考：https://github.com/xfangfang/wiliwili/issues/13#issuecomment-1296299063
+可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions/workflows/build.yaml) 下载自动构建的测试版客户端
 
 <p>
 <details>
 <summary id="local-pc">点击展开</summary>
+
+构建出来的客户端某些图标缺失，请参考：https://github.com/xfangfang/wiliwili/issues/13#issuecomment-1296299063
 
 #### macOS
 
@@ -170,14 +170,13 @@ docker run --rm -v $(pwd):/data devkitpro/devkita64:20221113 \
 # 1. 安装devkitpro环境: https://github.com/devkitPro/pacman/releases
 
 # 2. 安装预编译的依赖
-sudo dkp-pacman -S switch-glfw switch-glm dkp-toolchain-vars \
-  switch-cmake devkita64-cmake switch-pkg-config
+sudo dkp-pacman -S switch-glfw switch-glm switch-cmake devkita64-cmake switch-pkg-config
 
 # 3. 安装ffmpeg与mpv（使用自编译的库，官方的库无法播放网络视频）
 # 手动编译方法请看：scripts/README.md
-sudo dkp-pacman -U https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-ffmpeg-4.4.3-1-any.pkg.tar.xz
-
-sudo dkp-pacman -U https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-libmpv-0.34.1-1-any.pkg.tar.xz
+sudo dkp-pacman -U \
+  https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-ffmpeg-4.4.3-1-any.pkg.tar.xz \
+  https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-libmpv-0.34.1-1-any.pkg.tar.xz
 
 # 4. 可选：安装依赖库 mininsp：https://github.com/StarDustCFW/nspmini
 # (1). 在resources 目录下放置：nsp_forwarder.nsp

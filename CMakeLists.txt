@@ -64,11 +64,11 @@ set(PLATFORM_OPTION)
 if (PLATFORM_DESKTOP)
     find_package(MPV REQUIRED)
     if (MPV_FOUND)
-        message(STATUS "Found libmpv: ${MPV_VERSION} ${MPV_INCLUDE_DIRS} ${MPV_LIBRARIES}")
+        message(STATUS "Found libmpv: ${MPV_VERSION} ${MPV_INCLUDE_DIR} ${MPV_LIBRARY}")
     endif ()
-    set(PLATFORM_LIBS ${MPV_LIBRARIES})
+    set(PLATFORM_LIBS ${MPV_LIBRARY})
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-    set(PLATFORM_OPTION -pthread)
+    set(PLATFORM_OPTION -pthread -I${MPV_INCLUDE_DIR})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 else ()
@@ -130,6 +130,13 @@ if (PLATFORM_DESKTOP)
             COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_SOURCE_DIR}/resources ${CMAKE_CURRENT_BINARY_DIR}/resources
             )
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
+
+    if (APPLE)
+        add_custom_target(${PROJECT_NAME}.app
+                COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/build_mac.sh"
+                )
+        add_dependencies(${PROJECT_NAME}.app ${PROJECT_NAME})
+    endif ()
 else ()
     add_custom_target(${PROJECT_NAME}.nro
             DEPENDS ${PROJECT_NAME}
