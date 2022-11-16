@@ -5,6 +5,10 @@ set(PLATFORM_DESKTOP OFF CACHE BOOL "build for desktop, ON for desktop; OFF for 
 set(BUILTIN_NSP OFF CACHE BOOL "Built in NSP forwarder")
 set(WIN32_TERMINAL ON CACHE BOOL "Show terminal when run on Windows")
 
+# Strongly depends on the environment, these options may lead to build errors
+set(MAC_10_15 OFF CACHE BOOL "Set the Minimum OS X deployment version to 10.15")
+set(MAC_UNIVERSAL OFF CACHE BOOL "Support x86_64;arm64 at the same time")
+
 IF (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
             "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
@@ -132,6 +136,15 @@ if (PLATFORM_DESKTOP)
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
 
     if (APPLE)
+        if (MAC_10_15)
+            message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: 10.15")
+            set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version" FORCE)
+        endif ()
+        if (MAC_UNIVERSAL)
+            message(STATUS "CMAKE_OSX_ARCHITECTURES: x86_64;arm64")
+            set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Architectures" FORCE)
+            set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET[arch=arm64] "11.0" CACHE STRING "arm 64 minimum deployment target" FORCE)
+        endif ()
         add_custom_target(${PROJECT_NAME}.app
                 COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/build_mac.sh"
                 )
