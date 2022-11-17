@@ -214,6 +214,21 @@ void SettingActivity::onContentAvailable() {
                               SettingItem::PLAYER_BOTTOM_BAR, value);
                           MPVCore::BOTTOM_BAR = value;
                       });
+
+#ifdef __SWITCH__
+    bool defaultValue = true;
+#else
+    bool defaultValue = false;
+#endif
+    btnQuality->init(
+        "wiliwili/setting/app/playback/low_quality"_i18n,
+        conf.getSettingItem(SettingItem::PLAYER_LOW_QUALITY, defaultValue),
+        [](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::PLAYER_LOW_QUALITY, value);
+            MPVCore::LOW_QUALITY = value;
+            MPVCore::instance().restart();
+        });
 }
 
 SettingActivity::~SettingActivity() {

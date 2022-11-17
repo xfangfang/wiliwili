@@ -15,6 +15,7 @@ std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
     {SettingItem::APP_THEME, "app_theme"},
     {SettingItem::HISTORY_REPORT, "history_report"},
     {SettingItem::PLAYER_BOTTOM_BAR, "player_bottom_bar"},
+    {SettingItem::PLAYER_LOW_QUALITY, "player_low_quality"},
     {SettingItem::TEXTURE_CACHE_NUM, "texture_cache_num"},
     {SettingItem::OPENCC_ON, "opencc"},
 };
@@ -100,6 +101,15 @@ void ProgramConfig::load() {
 
     // 初始化是否使用opencc自动转换简体
     brls::Label::OPENCC_ON = getSettingItem(SettingItem::OPENCC_ON, true);
+
+    // 是否使用低质量解码
+#ifdef __SWITCH__
+    MPVCore::LOW_QUALITY =
+        getSettingItem(SettingItem::PLAYER_LOW_QUALITY, true);
+#else
+    MPVCore::LOW_QUALITY =
+        getSettingItem(SettingItem::PLAYER_LOW_QUALITY, false);
+#endif
 }
 
 void ProgramConfig::save() {

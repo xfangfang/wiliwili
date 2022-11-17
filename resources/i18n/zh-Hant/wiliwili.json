@@ -9,7 +9,8 @@
       "playback": {
         "header": "播放設定",
         "report": "上傳歷史播放記錄",
-        "player_bar": "播放器下方固定顯示進度條"
+        "player_bar": "播放器下方固定顯示進度條",
+        "low_quality": "低畫質解碼（以畫質為代價換取更低的功耗）"
       },
       "cache": {
         "header": "快取設定",

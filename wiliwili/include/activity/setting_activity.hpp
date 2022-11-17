@@ -31,6 +31,7 @@ private:
     BRLS_BIND(brls::BooleanCell, btnHistory, "setting/history/log");
     BRLS_BIND(brls::BooleanCell, btnOpencc, "setting/opencc");
     BRLS_BIND(brls::BooleanCell, btnProgress, "setting/video/progress");
+    BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/quality");
     BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
     BRLS_BIND(brls::BooleanCell, cellHideBar, "cell/hideBottomBar");
 };

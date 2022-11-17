@@ -44,6 +44,9 @@
                                 id="setting/video/progress"/>
 
                         <brls:BooleanCell
+                                id="setting/video/quality"/>
+
+                        <brls:BooleanCell
                                 id="setting/history/log"/>
 
                     </brls:Box>

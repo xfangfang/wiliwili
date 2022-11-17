@@ -9,7 +9,8 @@
       "playback": {
         "header": "Playback",
         "report": "Upload history playback record",
-        "player_bar": "Always show progress bar"
+        "player_bar": "Always show progress bar",
+        "low_quality": "Low quality decoding (with less CPU usage)"
       },
       "cache": {
         "header": "Cache",

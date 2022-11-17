@@ -53,7 +53,9 @@ void MPVCore::on_wakeup(void *self) {
     brls::sync([]() { MPVCore::instance().eventMainLoop(); });
 }
 
-MPVCore::MPVCore() {
+MPVCore::MPVCore() { this->init(); }
+
+void MPVCore::init() {
     setlocale(LC_NUMERIC, "C");
     this->mpv = mpv_create();
     if (!mpv) {
@@ -76,11 +78,14 @@ MPVCore::MPVCore() {
     mpv_set_option_string(mpv, "keep-open", "yes");
     mpv_set_option_string(mpv, "hr-seek", "yes");
 
-#ifdef __SWITCH__
-    // Less cpu cost
-    mpv_set_option_string(mpv, "vd-lavc-skiploopfilter", "all");
-    mpv_set_option_string(mpv, "vd-lavc-fast", "yes");
+    if (MPVCore::LOW_QUALITY) {
+        brls::Logger::info("lavc: skip loop filter and fast decode");
+        // Less cpu cost
+        mpv_set_option_string(mpv, "vd-lavc-skiploopfilter", "all");
+        mpv_set_option_string(mpv, "vd-lavc-fast", "yes");
+    }
 
+#ifdef __SWITCH__
     // cache
     mpv_set_option_string(mpv, "demuxer-max-bytes", "20MiB");
     mpv_set_option_string(mpv, "demuxer-max-back-bytes", "10MiB");
@@ -121,7 +126,9 @@ MPVCore::MPVCore() {
     this->initializeGL();
 }
 
-MPVCore::~MPVCore() {
+MPVCore::~MPVCore() { this->clean(); }
+
+void MPVCore::clean() {
     check_error(mpv_command_string(this->mpv, "quit"));
 
     brls::Logger::info("trying delete fbo");
@@ -142,6 +149,11 @@ MPVCore::~MPVCore() {
         // mpv_destroy(this->mpv);
         this->mpv = nullptr;
     }
+}
+
+void MPVCore::restart() {
+    this->clean();
+    this->init();
 }
 
 void MPVCore::deleteFrameBuffer() {

@@ -28,6 +28,7 @@ enum class SettingItem {
     APP_THEME,
     HISTORY_REPORT,
     PLAYER_BOTTOM_BAR,
+    PLAYER_LOW_QUALITY,
     TEXTURE_CACHE_NUM,
     OPENCC_ON,
 };
