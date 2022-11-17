@@ -175,7 +175,8 @@ typedef std::unordered_map<std::string, std::string> VideoCommentEmoteMap;
 
 class VideoCommentContent {
 public:
-    VideoCommentEmoteMap emote;
+    // 未初始化貌似会导致VideoCommentContent释放时候在switch上报错
+    //    VideoCommentEmoteMap emote;
     std::string message;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoCommentContent, message);

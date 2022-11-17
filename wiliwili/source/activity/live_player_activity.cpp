@@ -98,7 +98,7 @@ void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result) {
         brls::Logger::debug("quality: {}/{}", i.desc, i.qn);
     }
     for (auto i : result.durl) {
-        brls::Logger::debug("palyurl: {}", i.url);
+        brls::Logger::debug("Live stream url: {}", i.url);
         this->video->setUrl(i.url);
         break;
     }

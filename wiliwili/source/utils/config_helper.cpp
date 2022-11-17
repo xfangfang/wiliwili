@@ -29,6 +29,11 @@ ProgramConfig::ProgramConfig(const ProgramConfig& conf) {
 void ProgramConfig::setProgramConfig(const ProgramConfig& conf) {
     this->cookie  = conf.cookie;
     this->setting = conf.setting;
+    brls::Logger::info("ProgramConfig::setProgramConfig:");
+    for (auto c : conf.cookie) {
+        brls::Logger::info("cookie: {}:{}", c.first, c.second);
+    }
+    brls::Logger::info("setting: {}", conf.setting.dump());
 }
 
 void ProgramConfig::setCookie(Cookie data) {
@@ -66,6 +71,7 @@ void ProgramConfig::load() {
     } catch (const std::exception& e) {
         brls::Logger::error("ProgramConfig::load: {}", e.what());
     }
+    brls::Logger::info("Load config from: {}", path);
 
     // 初始化底部栏
     brls::AppletFrame::HIDE_BOTTOM_BAR =
@@ -89,8 +95,8 @@ void ProgramConfig::load() {
     MPVCore::BOTTOM_BAR = getSettingItem(SettingItem::PLAYER_BOTTOM_BAR, true);
 
     // 初始化纹理缓存数量
-    TextureCache::instance().cache.setCapacity(getSettingItem(SettingItem::TEXTURE_CACHE_NUM
-                                                              , 200));
+    TextureCache::instance().cache.setCapacity(
+        getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
 
     // 初始化是否使用opencc自动转换简体
     brls::Label::OPENCC_ON = getSettingItem(SettingItem::OPENCC_ON, true);
@@ -101,17 +107,18 @@ void ProgramConfig::save() {
     std::filesystem::create_directories(this->getConfigDir());
     nlohmann::json content(*this);
     std::ofstream writeFile(path);
-    if (!writeFile) return;
+    if (!writeFile) {
+        brls::Logger::error("Cannot write config to: {}", path);
+        return;
+    }
     writeFile << content.dump(2);
     writeFile.close();
+    brls::Logger::info("Write config to: {}", path);
 }
 
 void ProgramConfig::init() {
     this->load();
     Cookie diskCookie = this->getCookie();
-    for (auto c : diskCookie) {
-        brls::Logger::info("cookie: {}:{}", c.first, c.second);
-    }
     // set bilibili cookie and cookie update callback
     bilibili::BilibiliClient::init(
         diskCookie,
@@ -129,6 +136,22 @@ std::string ProgramConfig::getConfigDir() {
 #ifdef __SWITCH__
     return "/config/wiliwili";
 #else
+#ifdef _DEBUG
     return "./config/wiliwili";
+#else
+#ifdef __APPLE__
+    return std::string(getenv("HOME")) +
+           "/Library/Application Support/wiliwili";
 #endif
+#ifdef __linux__
+    std::string config = getenv("XDG_CONFIG_HOME");
+    if (config.empty()) config = std::string(getenv("HOME")) + "/.config";
+    return config + "/wiliwili";
+#endif
+#ifdef _WIN32
+    return std::string(getenv("HOMEPATH")) +
+           "/AppData/Local/xfangfang/wiliwili";
+#endif
+#endif /* _DEBUG */
+#endif /* __SWITCH__ */
 }

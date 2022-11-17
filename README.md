@@ -119,7 +119,7 @@ cd wiliwili
 
 ```shell
 # macOS: install dependencies
-brew install glfw3 glm mpv
+brew install glfw glm mpv
 
 cmake -B build -DPLATFORM_DESKTOP=ON
 make -C build wiliwili -j$(nproc)

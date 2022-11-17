@@ -72,6 +72,7 @@ set(BOREALIS_SOURCE
 set(BOREALIS_SRC)
 if (PLATFORM_DESKTOP)
     find_package(glfw3 REQUIRED)
+    find_package(glm REQUIRED)
     list(APPEND BOREALIS_SOURCE
             ${BOREALIS_PATH}/lib/platforms/glfw
             ${BOREALIS_PATH}/lib/extern/fmt/src/
