@@ -163,6 +163,7 @@ jobs:
           VERSION="${{ needs.version.outputs.version }}"
           DIST_NRO="${{ needs.version.outputs.DIST_NRO }}"
           echo ${VERSION} ${DIST_NRO}
+          wget https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/nsp_forwarder.nsp -P resources
           docker run --rm -v $(pwd):/data devkitpro/devkita64:latest sh -c "/data/scripts/build_switch.sh"
           cd cmake-build-switch
           tar -czvf ../${DIST_NRO}.tar.gz wiliwili.nro

@@ -1,0 +1,32 @@
+pkgbasename=nspmini
+pkgname=switch-${pkgbasename}
+pkgver=48d4fc2
+pkgrel=1
+pkgdesc='Command line video player (library only)'
+arch=('any')
+license=('GPL')
+options=(!strip libtool staticlibs)
+source=("${pkgbasename}-${pkgver}.tar.gz::https://github.com/StarDustCFW/nspmini/archive/refs/heads/main.zip")
+sha256sums=(
+  'SKIP'
+)
+makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
+groups=('switch-portlibs')
+
+
+build() {
+  cd nspmini-main
+
+  source /opt/devkitpro/switchvars.sh
+
+  make
+}
+
+package() {
+  cd nspmini-main
+
+  mkdir -p $pkgdir/${PORTLIBS_PREFIX}
+
+  cp -r lib $pkgdir/${PORTLIBS_PREFIX}/lib
+  cp -r include $pkgdir/${PORTLIBS_PREFIX}/include
+}

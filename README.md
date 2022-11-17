@@ -178,7 +178,7 @@ sudo dkp-pacman -U \
   https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-ffmpeg-4.4.3-1-any.pkg.tar.xz \
   https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-libmpv-0.34.1-1-any.pkg.tar.xz
 
-# 4. 可选：安装依赖库 mininsp：https://github.com/StarDustCFW/nspmini
+# 4. 可选：安装依赖库 nspmini：https://github.com/StarDustCFW/nspmini
 # (1). 在resources 目录下放置：nsp_forwarder.nsp
 # (2). cmake 构建参数添加 -DBUILTIN_NSP=ON
 # 按上述配置后，从相册打开wiliwili时会增加一个安装NSP Forwarder的按钮
