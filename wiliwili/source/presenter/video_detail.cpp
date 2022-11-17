@@ -92,12 +92,13 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                 // 展示分P数据
                 this->onVideoPageListInfo(this->videoDetailResult.pages);
 
+                unsigned int cid    = videoDetailPage.cid;
+                videoDetailPage.cid = 0;
                 // 尝试打开指定的分P
-                if (videoDetailPage.cid != 0)
+                if (cid != 0)
                     for (const auto& i : this->videoDetailResult.pages) {
-                        if (i.cid == videoDetailPage.cid) {
-                            brls::Logger::debug("获取视频分P列表: PV {}",
-                                                i.cid);
+                        if (i.cid == cid) {
+                            brls::Logger::debug("获取视频分P列表: PV {}", cid);
                             int progress    = videoDetailPage.progress;
                             videoDetailPage = i;
                             //用于从历史记录加载进播放页面，视频开始播放时自动跳转
@@ -121,6 +122,8 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                                             videoDetailPage.cid, 0);
                         break;
                     }
+
+                if (videoDetailPage.cid == 0) brls::Logger::error("未获取到视频列表");
 
                 // 请求视频播放地址
                 this->requestVideoUrl(this->videoDetailResult.bvid,
@@ -147,10 +150,11 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
 void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
     // 重置MPV
     MPVCore::instance().reset();
-
     ASYNC_RETAIN
     brls::Logger::debug("请求视频播放地址: {}/{}/{}", bvid, cid,
                         defaultQuality);
+    if (cid == 0) return ;
+
     bilibili::BilibiliClient::get_video_url(
         bvid, cid, defaultQuality,
         [ASYNC_TOKEN](const bilibili::VideoUrlResult& result) {
