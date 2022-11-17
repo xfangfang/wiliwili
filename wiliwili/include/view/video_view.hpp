@@ -115,6 +115,7 @@ private:
     bool allowFullscreen  = true;
     VideoState videoState = VideoState::STOPPED;
 
+    bool registerMPVEvent = false;
     MPVEvent::Subscription eventSubscribeID;
 
     ///OSD

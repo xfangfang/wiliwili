@@ -621,6 +621,9 @@ View* VideoView::getNextFocus(brls::FocusDirection direction,
 }
 
 void VideoView::registerMpvEvent() {
+    if (registerMPVEvent) {
+        brls::Logger::error("VideoView already register MPV Event");
+    }
     eventSubscribeID =
         mpvCore->getEvent()->subscribe([this](MpvEventEnum event) {
             // brls::Logger::info("mpv event => : {}", event);
@@ -693,10 +696,13 @@ void VideoView::registerMpvEvent() {
                     break;
             }
         });
+    registerMPVEvent = true;
 }
 
 void VideoView::unRegisterMpvEvent() {
+    if (!registerMPVEvent) return;
     mpvCore->getEvent()->unsubscribe(eventSubscribeID);
+    registerMPVEvent = false;
 }
 
 void VideoView::resetDanmakuPosition() {
