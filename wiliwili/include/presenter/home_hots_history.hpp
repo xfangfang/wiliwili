@@ -5,8 +5,9 @@
 #pragma once
 
 #include "bilibili/result/home_hots_history_result.h"
+#include "presenter.h"
 
-class HomeHotsHistoryRequest {
+class HomeHotsHistoryRequest : public Presenter {
 public:
     virtual void onHotsHistoryList(
         const bilibili::HotsHistoryVideoListResult& result,

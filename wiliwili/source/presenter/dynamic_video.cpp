@@ -17,6 +17,7 @@ void DynamicVideoRequest::setCurrentUser(unsigned int mid) {
 }
 
 void DynamicVideoRequest::requestData(bool refresh) {
+    CHECK_REQUEST
     if (refresh) {
         currentPage   = 1;
         currentOffset = "";
@@ -30,6 +31,7 @@ void DynamicVideoRequest::requestData(bool refresh) {
 
 void DynamicVideoRequest::requestDynamicVideoList(unsigned int page,
                                                   const std::string &offset) {
+    CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::dynamic_video(
         page, offset,
         [this](const bilibili::DynamicVideoListResultWrapper &result) {
@@ -42,11 +44,16 @@ void DynamicVideoRequest::requestDynamicVideoList(unsigned int page,
             currentOffset = result.offset;
             currentPage   = result.page + 1;
             this->onDynamicVideoList(result.items, result.page);
+            UNSET_REQUEST
         },
-        [this](const std::string &error) { this->onError(error); });
+        [this](const std::string &error) {
+            this->onError(error);
+            UNSET_REQUEST
+        });
 }
 
 void DynamicVideoRequest::requestUserDynamicVideoList(int mid, int pn, int ps) {
+    CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_user_videos2(
         mid, pn, ps,
         [this](const bilibili::UserDynamicVideoResultWrapper &result) {
@@ -58,6 +65,10 @@ void DynamicVideoRequest::requestUserDynamicVideoList(int mid, int pn, int ps) {
             }
             currentPage = result.page.pn + 1;
             this->onDynamicVideoList(result.archives, result.page.pn);
+            UNSET_REQUEST
         },
-        [this](const std::string &error) { this->onError(error); });
+        [this](const std::string &error) {
+            this->onError(error);
+            UNSET_REQUEST
+        });
 }

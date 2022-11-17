@@ -41,8 +41,8 @@ public:
     int id;
     std::string bvid;
     int cid;
-    std::string pic;
-    std::string title;
+    std::string pic   = "";
+    std::string title = "";
     int duration;
     int pubdate;
     UserSimpleResult owner;
@@ -56,9 +56,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         !nlohmann_json_j.at("rcmd_reason").is_null()) {
         nlohmann_json_j.at("rcmd_reason").get_to(nlohmann_json_t.rcmd_reason);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
-        NLOHMANN_JSON_FROM, id, bvid, cid, pic, title, duration, pubdate, owner,
-        stat, is_followed, rcmd_reason));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, bvid, cid,
+                                             pic, title, duration, pubdate,
+                                             owner, stat, is_followed));
 }
 
 typedef std::vector<RecommendVideoResult> RecommendVideoListResult;
@@ -66,6 +66,7 @@ typedef std::vector<RecommendVideoResult> RecommendVideoListResult;
 class RecommendVideoListResultWrapper {
 public:
     RecommendVideoListResult item;
+    int requestIndex = 0;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       RecommendVideoListResultWrapper& nlohmann_json_t) {

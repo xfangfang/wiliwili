@@ -92,7 +92,8 @@ void MineCollection::onCollectionList(
     }
     brls::Threading::sync([this, result]() {
         DataSourceMineCollectionList* datasource =
-            (DataSourceMineCollectionList*)recyclingGrid->getDataSource();
+            dynamic_cast<DataSourceMineCollectionList*>(
+                recyclingGrid->getDataSource());
         if (datasource && result.index != 1) {
             datasource->appendData(result.list);
             recyclingGrid->notifyDataChanged();

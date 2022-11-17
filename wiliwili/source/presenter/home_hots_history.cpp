@@ -11,14 +11,20 @@ void HomeHotsHistoryRequest::onHotsHistoryList(
 void HomeHotsHistoryRequest::onError(const std::string& error) {}
 
 void HomeHotsHistoryRequest::requestData() {
+    CHECK_REQUEST
     this->requestHotsHistoryVideoList();
 }
 
 void HomeHotsHistoryRequest::requestHotsHistoryVideoList() {
+    CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_hots_history(
         [this](const bilibili::HotsHistoryVideoListResult& result,
                const std::string& explain) {
             this->onHotsHistoryList(result, explain);
+            UNSET_REQUEST
         },
-        [this](const std::string& error) { this->onError(error); });
+        [this](const std::string& error) {
+            this->onError(error);
+            UNSET_REQUEST
+        });
 }

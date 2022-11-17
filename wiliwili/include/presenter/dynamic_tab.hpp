@@ -5,8 +5,9 @@
 #pragma once
 
 #include "bilibili/result/dynamic_video.h"
+#include "presenter.h"
 
-class DynamicTabRequest {
+class DynamicTabRequest : public Presenter {
 public:
     virtual void onUpList(const bilibili::DynamicUpListResultWrapper& result);
 

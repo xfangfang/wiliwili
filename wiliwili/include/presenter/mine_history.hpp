@@ -5,8 +5,9 @@
 #pragma once
 
 #include "bilibili/result/mine_history_result.h"
+#include "presenter.h"
 
-class MineHistoryRequest {
+class MineHistoryRequest : public Presenter {
 public:
     virtual void onHistoryList(
         const bilibili::HistoryVideoResultWrapper& result);

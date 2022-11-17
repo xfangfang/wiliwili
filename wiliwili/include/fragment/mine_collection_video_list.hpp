@@ -23,9 +23,6 @@ public:
 
     void requestCollectionList();
 
-    void onCollectionList(
-        const bilibili::CollectionVideoListResultWrapper& result);
-
 private:
     bilibili::CollectionResult collectionData;
 

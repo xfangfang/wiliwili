@@ -43,7 +43,8 @@ void SearchVideo::_requestSearch(const std::string& key) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
                 DataSourceSearchVideoList* datasource =
-                    (DataSourceSearchVideoList*)recyclingGrid->getDataSource();
+                    dynamic_cast<DataSourceSearchVideoList*>(
+                        recyclingGrid->getDataSource());
                 if (result.page != this->requestIndex) {
                     // 请求的顺序和当前需要的顺序不符
                     brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}",

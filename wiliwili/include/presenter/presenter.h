@@ -7,6 +7,7 @@
 
 #pragma once
 
+// 检查异步返回时组件是否已经被销毁
 #define ASYNC_RETAIN                               \
     if (!deletionToken && !deletionTokenCounter) { \
         deletionToken        = new bool(false);    \
@@ -34,6 +35,13 @@
 
 #define ASYNC_TOKEN this, token, tokenCounter
 
+// 避免多次请求API
+#define CHECK_REQUEST \
+    if (requesting) return;
+#define SET_REQUEST requesting = true;
+#define CHECK_AND_SET_REQUEST CHECK_REQUEST SET_REQUEST
+#define UNSET_REQUEST requesting = false;
+
 class Presenter {
 public:
     virtual ~Presenter() {
@@ -43,4 +51,5 @@ public:
 protected:
     bool* deletionToken       = nullptr;
     int* deletionTokenCounter = nullptr;
+    bool requesting           = false;
 };

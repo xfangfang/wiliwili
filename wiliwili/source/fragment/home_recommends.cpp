@@ -73,6 +73,7 @@ void HomeRecommends::onCreate() {
     this->registerTabAction("wiliwili/home/common/refresh"_i18n,
                             brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
+                                brls::Logger::debug("refresh home recommends");
                                 AutoTabFrame::focus2Sidebar(this);
                                 this->recyclingGrid->showSkeleton();
                                 this->requestData(true);
@@ -81,16 +82,20 @@ void HomeRecommends::onCreate() {
 }
 
 void HomeRecommends::onRecommendVideoList(
-    const bilibili::RecommendVideoListResult& result, int index) {
-    brls::Threading::sync([this, result, index]() {
+    const bilibili::RecommendVideoListResultWrapper& result) {
+    brls::Threading::sync([this, result]() {
         DataSourceRecommendVideoList* datasource =
-            (DataSourceRecommendVideoList*)recyclingGrid->getDataSource();
-        if (datasource && index != 1) {
-            datasource->appendData(result);
+            dynamic_cast<DataSourceRecommendVideoList*>(
+                recyclingGrid->getDataSource());
+        if (datasource && result.requestIndex != 1) {
+            brls::Logger::debug("refresh home recommends: auto load {}",
+                                result.requestIndex);
+            datasource->appendData(result.item);
             recyclingGrid->notifyDataChanged();
         } else {
+            brls::Logger::verbose("refresh home recommends: first page");
             recyclingGrid->setDataSource(
-                new DataSourceRecommendVideoList(result));
+                new DataSourceRecommendVideoList(result.item));
         }
     });
 }

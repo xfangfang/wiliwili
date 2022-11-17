@@ -378,7 +378,8 @@ void PGCIndexActivity::onPGCIndex(
     const bilibili::PGCIndexResultWrapper& result) {
     brls::sync([this, result]() {
         DataSourcePGCIndexVideoList* datasource =
-            (DataSourcePGCIndexVideoList*)recyclingGrid->getDataSource();
+            dynamic_cast<DataSourcePGCIndexVideoList*>(
+                recyclingGrid->getDataSource());
         if (datasource && result.num != 1) {
             datasource->appendData(result.list);
             recyclingGrid->notifyDataChanged();

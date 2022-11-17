@@ -6,10 +6,11 @@
 #include "bilibili.h"
 
 void Home::onRecommendVideoList(
-    const bilibili::RecommendVideoListResult &result, int index) {}
+    const bilibili::RecommendVideoListResultWrapper &result) {}
 void Home::onError(const std::string &error) {}
 
 void Home::requestData(bool refresh) {
+    CHECK_REQUEST
     static int current_page = 1;
     if (refresh) {
         current_page = 1;
@@ -19,10 +20,15 @@ void Home::requestData(bool refresh) {
 }
 
 void Home::requestRecommendVideoList(int index, int num) {
+    CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_recommend(
         index, num,
-        [this, index](const bilibili::RecommendVideoListResult &result) {
-            this->onRecommendVideoList(result, index);
+        [this](const bilibili::RecommendVideoListResultWrapper &result) {
+            this->onRecommendVideoList(result);
+            UNSET_REQUEST
         },
-        [this](const std::string &error) { this->onError(error); });
+        [this](const std::string &error) {
+            this->onError(error);
+            UNSET_REQUEST
+        });
 }

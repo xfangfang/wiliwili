@@ -5,8 +5,9 @@
 #pragma once
 
 #include "bilibili/result/mine_collection_result.h"
+#include "presenter.h"
 
-class MineCollectionRequest {
+class MineCollectionRequest : public Presenter {
 public:
     MineCollectionRequest();
 

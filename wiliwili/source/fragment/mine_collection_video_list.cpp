@@ -104,27 +104,24 @@ brls::View* MineCollectionVideoList::create(
 }
 
 void MineCollectionVideoList::requestCollectionList() {
+    ASYNC_RETAIN
     bilibili::BilibiliClient::get_collection_video_list(
         collectionData.id, requestIndex++, 20,
-        [this](const bilibili::CollectionVideoListResultWrapper& result) {
-            this->onCollectionList(result);
+        [ASYNC_TOKEN](
+            const bilibili::CollectionVideoListResultWrapper& result) {
+            brls::Threading::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                DataSourceCollectionVideoList* datasource =
+                    dynamic_cast<DataSourceCollectionVideoList*>(
+                        recyclingGrid->getDataSource());
+                if (datasource && result.index != 1) {
+                    datasource->appendData(result.medias);
+                    recyclingGrid->notifyDataChanged();
+                } else {
+                    recyclingGrid->setDataSource(
+                        new DataSourceCollectionVideoList(result.medias));
+                }
+            });
         },
         [](const std::string& error) { brls::Logger::error(error); });
-}
-
-void MineCollectionVideoList::onCollectionList(
-    const bilibili::CollectionVideoListResultWrapper& result) {
-    ASYNC_RETAIN
-    brls::Threading::sync([ASYNC_TOKEN, result]() {
-        ASYNC_RELEASE
-        DataSourceCollectionVideoList* datasource =
-            (DataSourceCollectionVideoList*)recyclingGrid->getDataSource();
-        if (datasource && result.index != 1) {
-            datasource->appendData(result.medias);
-            recyclingGrid->notifyDataChanged();
-        } else {
-            recyclingGrid->setDataSource(
-                new DataSourceCollectionVideoList(result.medias));
-        }
-    });
 }

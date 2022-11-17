@@ -58,7 +58,8 @@ void HomeHotsAll::onHotsAllVideoList(
     const bilibili::HotsAllVideoListResult& result, int index) {
     brls::Threading::sync([this, index, result]() {
         DataSourceHotsAllVideoList* datasource =
-            (DataSourceHotsAllVideoList*)recyclingGrid->getDataSource();
+            dynamic_cast<DataSourceHotsAllVideoList*>(
+                recyclingGrid->getDataSource());
         if (datasource && index != 1) {
             datasource->appendData(result);
             recyclingGrid->notifyDataChanged();

@@ -18,8 +18,8 @@ class HomeRecommends : public AttachedView, public Home {
 public:
     HomeRecommends();
 
-    void onRecommendVideoList(const bilibili::RecommendVideoListResult &result,
-                              int index) override;
+    void onRecommendVideoList(
+        const bilibili::RecommendVideoListResultWrapper &result) override;
 
     ~HomeRecommends();
 

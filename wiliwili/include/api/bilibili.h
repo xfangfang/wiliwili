@@ -182,7 +182,8 @@ public:
     /// 主页 推荐
     static void get_recommend(
         const int index = 1, const int num = 24,
-        const std::function<void(RecommendVideoListResult)>& callback = nullptr,
+        const std::function<void(RecommendVideoListResultWrapper)>& callback =
+            nullptr,
         const ErrorCallback& error = nullptr);
 
     /// 主页 热门 热门综合

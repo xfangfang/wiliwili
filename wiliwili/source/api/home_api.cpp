@@ -12,7 +12,7 @@ namespace bilibili {
 /// 主页 推荐
 void BilibiliClient::get_recommend(
     const int index, const int num,
-    const std::function<void(RecommendVideoListResult)>& callback,
+    const std::function<void(RecommendVideoListResultWrapper)>& callback,
     const ErrorCallback& error) {
     //        BilibiliClient::pool.enqueue([=]{
     HTTP::getResultAsync<RecommendVideoListResultWrapper>(
@@ -24,8 +24,9 @@ void BilibiliClient::get_recommend(
             {"fresh_type", "4"},
             {"plat", "1"},
         },
-        [callback](const RecommendVideoListResultWrapper& wrapper) {
-            callback(wrapper.item);
+        [callback, index](RecommendVideoListResultWrapper wrapper) {
+            wrapper.requestIndex = index;
+            callback(wrapper);
         },
         error);
     //        });

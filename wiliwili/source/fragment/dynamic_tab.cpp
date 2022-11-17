@@ -212,7 +212,8 @@ void DynamicTab::onDynamicVideoList(
     const bilibili::DynamicVideoListResult& result, unsigned int index) {
     brls::Threading::sync([this, result, index]() {
         DataSourceDynamicVideoList* datasource =
-            (DataSourceDynamicVideoList*)videoRecyclingGrid->getDataSource();
+            dynamic_cast<DataSourceDynamicVideoList*>(
+                videoRecyclingGrid->getDataSource());
         if (datasource && index != 1) {
             datasource->appendData(result);
             videoRecyclingGrid->notifyDataChanged();

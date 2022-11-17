@@ -11,8 +11,8 @@ namespace bilibili {
 class UserSimpleResult {
 public:
     int mid;
-    std::string name;
-    std::string face;
+    std::string name = "";
+    std::string face = "";
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult, mid, name, face);

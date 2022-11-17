@@ -7,6 +7,7 @@
 #include "presenter/home_hots_all.hpp"
 
 void HomeHotsAllRequest::requestData(bool refresh) {
+    CHECK_REQUEST
     static int current_page = 1;
     if (refresh) {
         current_page = 1;
@@ -16,6 +17,7 @@ void HomeHotsAllRequest::requestData(bool refresh) {
 }
 
 void HomeHotsAllRequest::requestHotsAllVideoList(int index, int num) {
+    CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_hots_all(
         index, num,
         [this, index](const bilibili::HotsAllVideoListResult &result,
@@ -24,6 +26,10 @@ void HomeHotsAllRequest::requestHotsAllVideoList(int index, int num) {
             } else {
                 this->onHotsAllVideoList(result, index);
             }
+            UNSET_REQUEST
         },
-        [this](const std::string &error) { this->onError(error); });
+        [this](const std::string &error) {
+            this->onError(error);
+            UNSET_REQUEST
+        });
 }

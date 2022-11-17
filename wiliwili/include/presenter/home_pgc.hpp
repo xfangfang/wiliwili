@@ -9,8 +9,9 @@
 #include "view/video_card.hpp"
 #include "activity/player_activity.hpp"
 #include "activity/pgc_index_activity.hpp"
+#include "presenter.h"
 
-class HomeBangumiRequest {
+class HomeBangumiRequest : public Presenter {
 public:
     virtual void onBangumiList(const bilibili::PGCResultWrapper& result);
 
@@ -25,7 +26,7 @@ protected:
     int refresh_flag        = 0;
 };
 
-class HomeCinemaRequest {
+class HomeCinemaRequest : public Presenter {
 public:
     virtual void onCinemaList(const bilibili::PGCResultWrapper& result);
 

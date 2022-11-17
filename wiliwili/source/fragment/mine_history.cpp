@@ -147,7 +147,8 @@ void MineHistory::onHistoryList(
     int view_at = this->cursor.view_at;
     brls::Threading::sync([this, result, view_at]() {
         DataSourceMineHistoryVideoList* datasource =
-            (DataSourceMineHistoryVideoList*)recyclingGrid->getDataSource();
+            dynamic_cast<DataSourceMineHistoryVideoList*>(
+                recyclingGrid->getDataSource());
         if (datasource && view_at != 0) {
             datasource->appendData(result.list);
             recyclingGrid->notifyDataChanged();

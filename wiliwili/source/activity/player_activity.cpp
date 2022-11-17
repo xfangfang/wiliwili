@@ -559,7 +559,7 @@ void PlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) {
 void PlayerActivity::onCommentInfo(
     const bilibili::VideoCommentResultWrapper& result) {
     DataSourceCommentList* datasource =
-        (DataSourceCommentList*)recyclingGrid->getDataSource();
+        dynamic_cast<DataSourceCommentList*>(recyclingGrid->getDataSource());
     if (result.cursor.prev == 1) {
         // 第一页评论
         //整合置顶评论

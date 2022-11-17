@@ -31,7 +31,7 @@ void SettingNetwork::networkTest() {
     ASYNC_RETAIN
     bilibili::BilibiliClient::get_recommend(
         1, 1,
-        [ASYNC_TOKEN](const bilibili::RecommendVideoListResult& result) {
+        [ASYNC_TOKEN](const auto& result) {
             brls::sync([ASYNC_TOKEN]() {
                 ASYNC_RELEASE
                 this->labelTest1->setTextColor(nvgRGB(72, 154, 83));

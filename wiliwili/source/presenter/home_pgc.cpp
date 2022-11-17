@@ -11,6 +11,7 @@ void HomeBangumiRequest::onBangumiList(
 void HomeBangumiRequest::onError(const std::string& error) {}
 
 void HomeBangumiRequest::requestData(bool refresh) {
+    CHECK_REQUEST
     if (refresh) {
         this->next_cursor  = "0";
         this->refresh_flag = 0;
@@ -23,13 +24,18 @@ void HomeBangumiRequest::requestData(bool refresh) {
 
 void HomeBangumiRequest::requestBangumiList(int is_refresh,
                                             std::string cursor) {
+    CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_bangumi(
         is_refresh, cursor,
         [this](const bilibili::PGCResultWrapper& result) {
             this->next_cursor = result.next_cursor;
             this->onBangumiList(result);
+            UNSET_REQUEST
         },
-        [this](const std::string& error) { this->onError(error); });
+        [this](const std::string& error) {
+            this->onError(error);
+            UNSET_REQUEST
+        });
 }
 
 void HomeCinemaRequest::onCinemaList(const bilibili::PGCResultWrapper& result) {
@@ -38,6 +44,7 @@ void HomeCinemaRequest::onCinemaList(const bilibili::PGCResultWrapper& result) {
 void HomeCinemaRequest::onError(const std::string& error) {}
 
 void HomeCinemaRequest::requestData(bool refresh) {
+    CHECK_REQUEST
     if (refresh) {
         this->next_cursor  = "0";
         this->refresh_flag = 0;
@@ -49,13 +56,18 @@ void HomeCinemaRequest::requestData(bool refresh) {
 }
 
 void HomeCinemaRequest::requestCinemaList(int is_refresh, std::string cursor) {
+    CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_cinema(
         is_refresh, cursor,
         [this](const bilibili::PGCResultWrapper& result) {
             this->next_cursor = result.next_cursor;
             this->onCinemaList(result);
+            UNSET_REQUEST
         },
-        [this](const std::string& error) { this->onError(error); });
+        [this](const std::string& error) {
+            this->onError(error);
+            UNSET_REQUEST
+        });
 }
 
 DataSourcePGCVideoList::DataSourcePGCVideoList(bilibili::PGCModuleResult result)

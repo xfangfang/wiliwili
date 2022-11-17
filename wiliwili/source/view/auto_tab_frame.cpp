@@ -493,7 +493,7 @@ void AutoTabFrame::draw(NVGcontext* vg, float x, float y, float width,
                         float height, Style style, FrameContext* ctx) {
     Box::draw(vg, x, y, width, height, style, ctx);
 
-    if (this->sidebar->getChildren().size() != 0) return;
+    if (!this->sidebar || this->sidebar->getChildren().size() != 0) return;
 
     // Draw skeleton screen
     // Only fit to home_bangumi and home_cinema page

@@ -5,8 +5,9 @@
 #pragma once
 
 #include "bilibili/result/dynamic_video.h"
+#include "presenter.h"
 
-class DynamicVideoRequest {
+class DynamicVideoRequest : public Presenter {
 public:
     virtual void onDynamicVideoList(
         const bilibili::DynamicVideoListResult& result, unsigned int index);
