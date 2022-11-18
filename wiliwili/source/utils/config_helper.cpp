@@ -7,6 +7,7 @@
 #include "bilibili.h"
 #include "utils/config_helper.hpp"
 #include "utils/cache_helper.hpp"
+#include "utils/number_helper.hpp"
 #include "presenter/video_detail.hpp"
 #include "view/mpv_core.hpp"
 
@@ -30,7 +31,9 @@ ProgramConfig::ProgramConfig(const ProgramConfig& conf) {
 void ProgramConfig::setProgramConfig(const ProgramConfig& conf) {
     this->cookie  = conf.cookie;
     this->setting = conf.setting;
+    this->client  = conf.client;
     brls::Logger::info("ProgramConfig::setProgramConfig:");
+    brls::Logger::info("client: {}", conf.client);
     for (auto c : conf.cookie) {
         brls::Logger::info("cookie: {}:{}", c.first, c.second);
     }
@@ -56,6 +59,14 @@ std::string ProgramConfig::getUserID() {
         return "";
     }
     return this->cookie["DedeUserID"];
+}
+
+std::string ProgramConfig::getClientID() {
+    if (this->client.empty()) {
+        this->client = wiliwili::getRandomText();
+        this->save();
+    }
+    return this->client;
 }
 
 void ProgramConfig::load() {

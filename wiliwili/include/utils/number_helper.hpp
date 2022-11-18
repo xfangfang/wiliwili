@@ -22,6 +22,8 @@ static inline time_t unix_time() {
         std::chrono::system_clock::now());
 }
 
+std::string getRandomText(int length = 16);
+
 //100 => 01:40
 std::string sec2Time(size_t t);
 

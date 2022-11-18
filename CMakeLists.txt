@@ -5,6 +5,11 @@ set(PLATFORM_DESKTOP OFF CACHE BOOL "build for desktop, ON for desktop; OFF for 
 set(BUILTIN_NSP OFF CACHE BOOL "Built in NSP forwarder")
 set(WIN32_TERMINAL ON CACHE BOOL "Show terminal when run on Windows")
 
+# analytics
+set(ANALYTICS OFF CACHE BOOL "Using Google Analytics")
+set(ANALYTICS_ID "" CACHE STRING "Google Analytics ID")
+set(ANALYTICS_KEY "" CACHE STRING "Google Analytics key")
+
 # Strongly depends on the environment, these options may lead to build errors
 set(MAC_10_15 OFF CACHE BOOL "Set the Minimum OS X deployment version to 10.15")
 set(MAC_UNIVERSAL OFF CACHE BOOL "Support x86_64;arm64 at the same time")
@@ -108,6 +113,17 @@ if (WIN32)
     endif ()
 else ()
     add_executable(${PROJECT_NAME} ${MAIN_SRC})
+endif ()
+
+# set google analytics
+if (ANALYTICS)
+    if (NOT ANALYTICS_ID OR NOT ANALYTICS_KEY)
+        message(FATAL_ERROR "ANALYTICS set to ON, You need set ANALYTICS_ID and ANALYTICS_KEY too")
+    endif ()
+    target_compile_options(${PROJECT_NAME} PRIVATE
+            -DANALYTICS=${ANALYTICS}
+            -DANALYTICS_ID=${ANALYTICS_ID}
+            -DANALYTICS_KEY=${ANALYTICS_KEY})
 endif ()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)

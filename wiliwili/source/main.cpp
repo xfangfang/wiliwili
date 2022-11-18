@@ -2,9 +2,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <borealis.hpp>
 #include <string>
+#include <borealis.hpp>
+
+//#define NO_GA
+#include "analytics.h"
 
 #include "utils/config_helper.hpp"
 #include "activity/main_activity.hpp"
@@ -80,6 +82,8 @@ int main(int argc, char* argv[]) {
     } else {
         brls::Application::pushActivity(new HintActivity());
     }
+
+    GA("open_app")
 
     // Run the app
     while (brls::Application::mainLoop()) {

@@ -42,6 +42,7 @@ public:
     Cookie getCookie();
     std::string getCSRF();
     std::string getUserID();
+    std::string getClientID();
 
     template <typename T>
     T getSettingItem(SettingItem item, T defaultValue) {
@@ -66,6 +67,7 @@ public:
 
     Cookie cookie = {{"DedeUserID", "0"}};
     nlohmann::json setting;
+    std::string client = "";
 
     static std::unordered_map<SettingItem, std::string> SETTING_MAP;
 };
@@ -73,7 +75,7 @@ public:
 inline void to_json(nlohmann::json& nlohmann_json_j,
                     const ProgramConfig& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, cookie, setting));
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, cookie, setting, client));
 }
 
 inline void from_json(const nlohmann::json& nlohmann_json_j,
@@ -83,6 +85,8 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("cookie").get_to(nlohmann_json_t.cookie);
     if (nlohmann_json_j.contains("setting"))
         nlohmann_json_j.at("setting").get_to(nlohmann_json_t.setting);
+    if (nlohmann_json_j.contains("client"))
+        nlohmann_json_j.at("client").get_to(nlohmann_json_t.client);
 }
 
 class Register {
