@@ -13,7 +13,7 @@ license=('LGPL' 'GPL', 'GPL3')
 options=(!strip staticlibs)
 makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
 depends=('switch-zlib' 'switch-bzip2' 'switch-libass' 'switch-libfribidi'
-         'switch-freetype', 'switch-mbedtls')
+         'switch-freetype' 'switch-mbedtls')
 source=("https://ffmpeg.org/releases/ffmpeg-$pkgver.tar.xz" "ffmpeg.patch")
 sha256sums=(
  'SKIP'

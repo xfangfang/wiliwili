@@ -165,7 +165,9 @@ std::string ProgramConfig::getConfigDir() {
            "/Library/Application Support/wiliwili";
 #endif
 #ifdef __linux__
-    std::string config = getenv("XDG_CONFIG_HOME");
+    std::string config = "";
+    char* config_home = getenv("XDG_CONFIG_HOME");
+    if (config_home) config = std::string(config_home);
     if (config.empty()) config = std::string(getenv("HOME")) + "/.config";
     return config + "/wiliwili";
 #endif
