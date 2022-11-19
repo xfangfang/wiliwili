@@ -1,0 +1,19 @@
+<brls:Box
+        margin="40"
+        axis="column">
+    <brls:Header
+            title="@i18n/wiliwili/setting/hot_keys/common_header"
+            marginBottom="20"/>
+    <brls:Label
+            marginLeft="20"
+            marginBottom="20"
+            text="@i18n/wiliwili/setting/hot_keys/common_content"/>
+    <brls:Header
+            title="@i18n/wiliwili/setting/hot_keys/player_header"
+            marginBottom="20"/>
+
+    <brls:Label
+            marginLeft="20"
+            marginBottom="20"
+            text="@i18n/wiliwili/setting/hot_keys/player_content"/>
+</brls:Box>

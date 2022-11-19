@@ -109,12 +109,15 @@ public:
 
     void resetDanmakuPosition();
 
+    void buttonProcessing();
+
 private:
     bool allowFullscreen  = true;
     VideoState videoState = VideoState::STOPPED;
 
     bool registerMPVEvent = false;
     MPVEvent::Subscription eventSubscribeID;
+    brls::InputManager* input;
 
     ///OSD
     BRLS_BIND(brls::Label, videoTitleLabel, "video/osd/title");

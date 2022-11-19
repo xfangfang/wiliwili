@@ -22,6 +22,8 @@ VideoView::VideoView() {
     this->setHideHighlightBackground(true);
     this->setHideClickAnimation(true);
 
+    input = brls::Application::getPlatform()->getInputManager();
+
     this->registerBoolXMLAttribute("allowFullscreen", [this](bool value) {
         this->allowFullscreen = value;
         if (!value) {
@@ -48,8 +50,6 @@ VideoView::VideoView() {
     this->registerAction(
         "\uE08E", brls::ControllerButton::BUTTON_RB,
         [this](brls::View* view) -> bool {
-            brls::InputManager* input =
-                brls::Application::getPlatform()->getInputManager();
             ControllerState state;
             input->updateUnifiedControllerState(&state);
             if (state.buttons[BUTTON_Y]) {
@@ -355,6 +355,9 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         osdTopBox->frame(ctx);
     }
 
+    // hot key
+    this->buttonProcessing();
+
     osdCenterBox->frame(ctx);
 }
 
@@ -632,6 +635,78 @@ View* VideoView::getNextFocus(brls::FocusDirection direction,
                               View* currentView) {
     if (this->isFullscreen()) return this;
     return Box::getNextFocus(direction, currentView);
+}
+
+enum ClickState {
+    IDLE         = 0,
+    PRESS        = 1,
+    FAST_RELEASE = 3,
+    FAST_PRESS   = 4,
+    DOUBLE_CLICK = 5
+};
+
+void VideoView::buttonProcessing() {
+    ControllerState state;
+    input->updateUnifiedControllerState(&state);
+    static int64_t rsb_press_time = 0;
+    int CHECK_TIME                = 200000;
+
+    // todo: 从框架层面实现点击、双击、长按事件
+    static int click_state = ClickState::IDLE;
+    switch (click_state) {
+        case ClickState::IDLE:
+            if (state.buttons[BUTTON_RSB]) {
+                mpvCore->command_str("set speed 2.0");
+                rsb_press_time = getCPUTimeUsec();
+                click_state    = ClickState::PRESS;
+            }
+            break;
+        case ClickState::PRESS:
+            if (!state.buttons[BUTTON_RSB]) {
+                mpvCore->command_str("set speed 1.0");
+                int64_t current_time = getCPUTimeUsec();
+                if (current_time - rsb_press_time < CHECK_TIME) {
+                    // 点击事件
+                    brls::Logger::debug("点击");
+                    rsb_press_time = current_time;
+                    click_state    = ClickState::FAST_RELEASE;
+                } else {
+                    click_state = ClickState::IDLE;
+                }
+            }
+            break;
+        case ClickState::FAST_RELEASE:
+            if (state.buttons[BUTTON_RSB]) {
+                mpvCore->command_str("set speed 2.0");
+                int64_t current_time = getCPUTimeUsec();
+                if (current_time - rsb_press_time < CHECK_TIME) {
+                    rsb_press_time = current_time;
+                    click_state    = ClickState::FAST_PRESS;
+                } else {
+                    rsb_press_time = current_time;
+                    click_state    = ClickState::PRESS;
+                }
+            }
+            break;
+        case ClickState::FAST_PRESS:
+            if (!state.buttons[BUTTON_RSB]) {
+                int64_t current_time = getCPUTimeUsec();
+                if (current_time - rsb_press_time < CHECK_TIME) {
+                    rsb_press_time = current_time;
+                    // 双击事件
+                    mpvCore->command_str("set speed 2.0");
+                    click_state = ClickState::DOUBLE_CLICK;
+                } else {
+                    mpvCore->command_str("set speed 1.0");
+                    click_state = ClickState::IDLE;
+                }
+            }
+            break;
+        case ClickState::DOUBLE_CLICK:
+            brls::Logger::debug("speed lock: 2.0");
+            click_state = ClickState::IDLE;
+            break;
+    }
 }
 
 void VideoView::registerMpvEvent() {

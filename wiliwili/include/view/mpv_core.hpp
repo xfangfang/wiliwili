@@ -171,8 +171,9 @@ public:
     std::vector<DanmakuItem> danmakuData;
 
     // Bottom progress bar
-    inline static bool BOTTOM_BAR   = true;
-    inline static bool LOW_QUALITY = false;
+    inline static bool BOTTOM_BAR    = true;
+    inline static bool LOW_QUALITY   = false;
+    inline static int INMEMORY_CACHE = 0;
     NVGcolor bottomBarColor =
         brls::Application::getTheme().getColor("color/bilibili");
 

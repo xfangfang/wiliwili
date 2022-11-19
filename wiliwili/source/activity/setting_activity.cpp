@@ -108,6 +108,15 @@ void SettingActivity::onContentAvailable() {
         return true;
     });
 
+    btnHotKey->registerClickAction([](...) -> bool {
+        auto dialog =
+            new brls::Dialog((brls::Box*)brls::View::createFromXMLResource(
+                "fragment/settings_hot_keys.xml"));
+        dialog->addButton("hints/ok"_i18n, []() {});
+        dialog->open();
+        return true;
+    });
+
     btnNetworkChecker->registerClickAction([](...) -> bool {
         auto dialog = new brls::Dialog((brls::Box*)new SettingNetwork());
         dialog->addButton("hints/ok"_i18n, []() {});
@@ -200,6 +209,26 @@ void SettingActivity::onContentAvailable() {
             TextureCache::instance().cache.setCapacity(num);
         });
 
+    // todo: 从config_helper中实现一个可通用的选项选择方式
+    std::vector<int> inmemoryData = {0, 10, 20, 50, 100, 200, 500};
+    int inmemory = conf.getSettingItem(SettingItem::PLAYER_INMEMORY_CACHE, 10);
+    int inmemorySelect = 1;
+    for (int i = 0; i < inmemoryData.size(); i++) {
+        inmemorySelect = i;
+        if (inmemory <= inmemoryData[i]) break;
+    }
+    selectorInmemory->init(
+        "wiliwili/setting/app/playback/in_memory_cache"_i18n,
+        {"0MB (" + "hints/off"_i18n + ")", "10MB (" + "hints/preset"_i18n + ")",
+         "20MB", "50MB", "100MB", "200MB", "500MB"},
+        inmemorySelect, [inmemoryData](int data) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::PLAYER_INMEMORY_CACHE, inmemoryData[data]);
+            if (MPVCore::INMEMORY_CACHE == inmemoryData[data]) return;
+            MPVCore::INMEMORY_CACHE = inmemoryData[data];
+            MPVCore::instance().restart();
+        });
+
     btnHistory->init("wiliwili/setting/app/playback/report"_i18n,
                      conf.getSettingItem(SettingItem::HISTORY_REPORT, true),
                      [](bool value) {
@@ -227,6 +256,7 @@ void SettingActivity::onContentAvailable() {
         [](bool value) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::PLAYER_LOW_QUALITY, value);
+            if (MPVCore::LOW_QUALITY == value) return;
             MPVCore::LOW_QUALITY = value;
             MPVCore::instance().restart();
         });

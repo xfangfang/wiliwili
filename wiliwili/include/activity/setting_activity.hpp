@@ -24,6 +24,7 @@ private:
     BRLS_BIND(brls::RadioCell, btnTutorialOpenVideoIntro,
               "tools/tutorial_video_intro");
     BRLS_BIND(brls::RadioCell, btnTutorialError, "tools/tutorial_error");
+    BRLS_BIND(brls::RadioCell, btnHotKey, "tools/hot_key");
     BRLS_BIND(brls::RadioCell, btnNetworkChecker, "tools/network_checker");
     BRLS_BIND(brls::RadioCell, btnReleaseChecker, "tools/release_checker");
     BRLS_BIND(brls::SelectorCell, selectorTheme, "setting/ui/theme");
@@ -32,6 +33,7 @@ private:
     BRLS_BIND(brls::BooleanCell, btnOpencc, "setting/opencc");
     BRLS_BIND(brls::BooleanCell, btnProgress, "setting/video/progress");
     BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/quality");
+    BRLS_BIND(brls::SelectorCell, selectorInmemory, "setting/video/inmemory");
     BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
     BRLS_BIND(brls::BooleanCell, cellHideBar, "cell/hideBottomBar");
 };

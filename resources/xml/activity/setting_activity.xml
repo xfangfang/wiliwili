@@ -46,6 +46,9 @@
                         <brls:BooleanCell
                                 id="setting/video/quality"/>
 
+                        <brls:SelectorCell
+                                id="setting/video/inmemory"/>
+
                         <brls:BooleanCell
                                 id="setting/history/log"/>
 
@@ -129,6 +132,10 @@
                         <brls:RadioCell
                                 id="tools/tutorial_error"
                                 title="@i18n/wiliwili/setting/tools/tutorial/error"/>
+
+                        <brls:RadioCell
+                                id="tools/hot_key"
+                                title="@i18n/wiliwili/setting/tools/tutorial/hot_key"/>
 
                     </brls:Box>
                     <brls:Header

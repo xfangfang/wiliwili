@@ -10,7 +10,8 @@
         "header": "Playback",
         "report": "Upload history playback record",
         "player_bar": "Always show progress bar",
-        "low_quality": "Low quality decoding (with less CPU usage)"
+        "low_quality": "Low quality decoding (with less CPU usage)",
+        "in_memory_cache": "Inmemory cache"
       },
       "cache": {
         "header": "Cache",
@@ -34,7 +35,8 @@
         "intro": "Software introduction (online video; Chinese)",
         "intro_bvid": "BV18W4y1q72C",
         "open": "How to install desktop icon",
-        "error": "If you encounter a bug"
+        "error": "If you encounter a bug",
+        "hot_key": "Hot keys"
       },
       "net": {
         "header": "Network Diagnostics",
@@ -62,6 +64,12 @@
       "error_a1": "1. Ensure the atmosphere and system firmware are up to date\n2. Confirm that the system time is correct\n3. Restore the default network settings, including IP, DNS, etc\n4.Using in China",
       "error_q2": "Exits with random error",
       "error_a2": "1. Using a Fat32 format memory card\n2. Ensure the atmosphere and system firmware are up to date\n3. Waiting for developers to repair"
+    },
+    "hot_keys": {
+      "common_header": "Common",
+      "common_content": "\uE0A4 / \uE0A5 Switch the primary page\n \uE0A6 / \uE0A7 Switch the secondary page",
+      "player_header": "Player",
+      "player_content": "\uE0C5 Speed up，double click \uE0C5 to lock\n \uE0A3 + \uE0A5 Seek forward\n \uE0A3 Toggle player OSD \n \uE0A2 Toggle danmaku"
     },
     "net": {
       "test": {

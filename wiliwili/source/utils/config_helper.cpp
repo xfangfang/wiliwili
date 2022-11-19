@@ -17,6 +17,7 @@ std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
     {SettingItem::HISTORY_REPORT, "history_report"},
     {SettingItem::PLAYER_BOTTOM_BAR, "player_bottom_bar"},
     {SettingItem::PLAYER_LOW_QUALITY, "player_low_quality"},
+    {SettingItem::PLAYER_INMEMORY_CACHE, "player_inmemory_cache"},
     {SettingItem::TEXTURE_CACHE_NUM, "texture_cache_num"},
     {SettingItem::OPENCC_ON, "opencc"},
     {SettingItem::CUSTOM_UPDATE_API, "custom_update_api"},
@@ -110,6 +111,10 @@ void ProgramConfig::load() {
     // 初始化纹理缓存数量
     TextureCache::instance().cache.setCapacity(
         getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
+
+    // 初始化内存缓存大小
+    MPVCore::INMEMORY_CACHE =
+        getSettingItem(SettingItem::PLAYER_INMEMORY_CACHE, 10);
 
     // 初始化是否使用opencc自动转换简体
     brls::Label::OPENCC_ON = getSettingItem(SettingItem::OPENCC_ON, true);

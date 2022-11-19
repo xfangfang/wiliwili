@@ -6,6 +6,7 @@
 #include <clocale>
 #include "view/mpv_core.hpp"
 #include "pystring.h"
+#include "utils/config_helper.hpp"
 
 #ifdef __SWITCH__
 #include <switch.h>
@@ -56,7 +57,6 @@ void MPVCore::on_wakeup(void *self) {
 MPVCore::MPVCore() { this->init(); }
 
 void MPVCore::init() {
-    setlocale(LC_NUMERIC, "C");
     this->mpv = mpv_create();
     if (!mpv) {
         brls::fatal("Error Create mpv Handle");
@@ -79,30 +79,33 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "hr-seek", "yes");
 
     if (MPVCore::LOW_QUALITY) {
-        brls::Logger::info("lavc: skip loop filter and fast decode");
         // Less cpu cost
+        brls::Logger::info("lavc: skip loop filter and set fast decode");
         mpv_set_option_string(mpv, "vd-lavc-skiploopfilter", "all");
         mpv_set_option_string(mpv, "vd-lavc-fast", "yes");
     }
 
-#ifdef __SWITCH__
-    // cache
-    mpv_set_option_string(mpv, "demuxer-max-bytes", "20MiB");
-    mpv_set_option_string(mpv, "demuxer-max-back-bytes", "10MiB");
-#endif
+    if (MPVCore::INMEMORY_CACHE) {
+        // cache
+        brls::Logger::info("set memory cache: {}MB", MPVCore::INMEMORY_CACHE);
+        mpv_set_option_string(
+            mpv, "demuxer-max-bytes",
+            fmt::format("{}MiB", MPVCore::INMEMORY_CACHE).c_str());
+        mpv_set_option_string(
+            mpv, "demuxer-max-back-bytes",
+            fmt::format("{}MiB", MPVCore::INMEMORY_CACHE / 2).c_str());
+    }
 
     // hardware decoding
 #ifndef __SWITCH__
     mpv_set_option_string(mpv, "hwdec", "auto-safe");
 #endif
 
-    // rebase-start-time no
-    // demuxer-lavf-hacks no
-
     // Making the loading process faster
     mpv_set_option_string(mpv, "vd-lavc-threads", "4");
-    // mpv_set_option_string(mpv, "demuxer-lavf-analyzeduration", "2");
-    // mpv_set_option_string(mpv, "demuxer-lavf-probescore", "24");
+    mpv_set_option_string(mpv, "demuxer-lavf-analyzeduration", "0.1");
+    mpv_set_option_string(mpv, "demuxer-lavf-probe-info", "nostreams");
+    mpv_set_option_string(mpv, "demuxer-lavf-probescore", "24");
 
     // log
     // mpv_set_option_string(mpv, "msg-level", "ffmpeg=trace");
@@ -114,6 +117,7 @@ void MPVCore::init() {
         brls::fatal("Could not initialize mpv context");
     }
 
+    // set observe properties
     check_error(mpv_observe_property(mpv, 1, "core-idle", MPV_FORMAT_FLAG));
     check_error(mpv_observe_property(mpv, 2, "pause", MPV_FORMAT_FLAG));
     check_error(mpv_observe_property(mpv, 3, "duration", MPV_FORMAT_INT64));
@@ -121,8 +125,33 @@ void MPVCore::init() {
         mpv_observe_property(mpv, 4, "playback-time", MPV_FORMAT_DOUBLE));
     check_error(mpv_observe_property(mpv, 5, "cache-speed", MPV_FORMAT_INT64));
     check_error(mpv_observe_property(mpv, 6, "percent-pos", MPV_FORMAT_DOUBLE));
+    //    check_error(mpv_observe_property(mpv, 7, "paused-for-cache", MPV_FORMAT_FLAG));
+    //    check_error(mpv_observe_property(mpv, 8, "demuxer-cache-time", MPV_FORMAT_DOUBLE));
+    //    check_error(mpv_observe_property(mpv, 9, "demuxer-cache-state", MPV_FORMAT_NODE));
 
-    brls::Logger::debug("initializeGL");
+    // init renderer params
+    mpv_opengl_init_params gl_init_params{get_proc_address, nullptr};
+    mpv_render_param params[]{
+        {MPV_RENDER_PARAM_API_TYPE,
+         const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
+        {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
+        {MPV_RENDER_PARAM_INVALID, nullptr}};
+
+    if (mpv_render_context_create(&mpv_context, mpv, params) < 0) {
+        mpv_terminate_destroy(mpv);
+        brls::fatal("failed to initialize mpv GL context");
+    }
+
+    brls::Logger::info("MPV Version: {}",
+                       mpv_get_property_string(mpv, "mpv-version"));
+    brls::Logger::info("FFMPEG Version: {}",
+                       mpv_get_property_string(mpv, "ffmpeg-version"));
+
+    // set event callback
+    mpv_set_wakeup_callback(mpv, on_wakeup, this);
+    // set render callback
+    mpv_render_context_set_update_callback(mpv_context, on_update, this);
+
     this->initializeGL();
 }
 
@@ -176,34 +205,13 @@ void MPVCore::deleteShader() {
 
 void MPVCore::initializeGL() {
     if (media_framebuffer != 0) return;
-
-    brls::Logger::debug("initializeGL1");
-    mpv_opengl_init_params gl_init_params{get_proc_address, nullptr};
-    int mpv_advanced_control = 1;
-    brls::Logger::debug("initializeGL2");
-    mpv_render_param params[]{
-        {MPV_RENDER_PARAM_API_TYPE,
-         const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
-        {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
-        {MPV_RENDER_PARAM_ADVANCED_CONTROL, &mpv_advanced_control},
-        {MPV_RENDER_PARAM_INVALID, nullptr}};
-    if (mpv_render_context_create(&mpv_context, mpv, params) < 0) {
-        mpv_terminate_destroy(mpv);
-        brls::fatal("failed to initialize mpv GL context");
-    }
-    brls::Logger::debug("initializeGL3");
-
-    // set event callback
-    mpv_set_wakeup_callback(mpv, on_wakeup, this);
-    // set render callback
-    mpv_render_context_set_update_callback(mpv_context, on_update, this);
+    brls::Logger::debug("initializeGL");
 
     // create frame buffer
     glGenFramebuffers(1, &this->media_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, this->media_framebuffer);
     glGenTextures(1, &this->media_texture);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
-    brls::Logger::debug("initializeGL4");
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, brls::Application::windowWidth,
                  brls::Application::windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
@@ -215,13 +223,10 @@ void MPVCore::initializeGL() {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                            this->media_texture, 0);
 
-    brls::Logger::debug("initializeGL5");
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         brls::Logger::error("glCheckFramebufferStatus failed");
         this->deleteFrameBuffer();
     }
-
-    brls::Logger::debug("initializeGL6");
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -235,43 +240,41 @@ void MPVCore::initializeGL() {
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
     // check for shader compile errors
-    brls::Logger::debug("initializeGL6.1 start");
     int success;
     char infoLog[512];
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        brls::Logger::debug("initializeGL6.1 {}", infoLog);
+        brls::Logger::error("vertex shader compile error:", infoLog);
     }
+
     // fragment shader
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
     // check for shader compile errors
-    brls::Logger::debug("initializeGL6.2 start");
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        brls::Logger::debug("initializeGL6.2 {}", infoLog);
+        brls::Logger::error("fragment shader compile error:", infoLog);
     }
+
     // link shaders
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
+
     // check for linking errors
-    brls::Logger::debug("initializeGL6.3 start");
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        brls::Logger::debug("initializeGL6.3 {}", infoLog);
+        brls::Logger::error("shaders linking error: {}", infoLog);
     }
+
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-
     this->shader.prog = shaderProgram;
-
-    brls::Logger::debug("initializeGL6.4");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -299,7 +302,7 @@ void MPVCore::initializeGL() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    brls::Logger::debug("initializeGL7");
+    brls::Logger::debug("initializeGL done");
 }
 
 void MPVCore::command_str(const char *args) {
@@ -352,11 +355,7 @@ void MPVCore::setFrameSize(brls::Rect rect) {
 bool MPVCore::isValid() { return mpv_context != nullptr; }
 
 void MPVCore::openglDraw(brls::Rect rect, float alpha) {
-    // if(mpv_context== nullptr || !(mpv_render_context_update(mpv_context) & MPV_RENDER_UPDATE_FRAME))
-    // return;
-
     if (mpv_context == nullptr) return;
-    // if (!(mpv_render_context_update(mpv_context) & MPV_RENDER_UPDATE_FRAME)) return;
 
     mpv_render_context_render(this->mpv_context, mpv_params);
 
@@ -384,6 +383,8 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     glUniform1f(alphaID, alpha);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+    mpv_render_context_report_swap(this->mpv_context);
 
     if (BOTTOM_BAR) {
         NVGcontext *vg   = brls::Application::getNVGContext();
