@@ -4,6 +4,7 @@
         margin="40"
         height="auto">
     <brls:Header
+            id="setting/net/test/header"
             title="@i18n/wiliwili/setting/net/test/header"
             marginBottom="20"/>
     <brls:Box

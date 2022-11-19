@@ -1,0 +1,63 @@
+<brls:Box
+        axis="column"
+        margin="20"
+        width="auto"
+        height="500">
+
+    <brls:Box
+            width="400"
+            alignItems="center">
+        <UserInfoView
+                height="60"
+                id="latest/author"/>
+    </brls:Box>
+
+
+    <brls:Rectangle
+            width="auto"
+            height="1"
+            margin="4"
+            color="@theme/color/line"/>
+
+    <brls:ScrollingFrame
+            margin="10"
+            width="auto"
+            height="auto"
+            focusable="true"
+            grow="1.0">
+
+        <brls:Box
+                width="auto"
+                height="auto"
+                minHeight="500"
+                axis="column"
+                paddingLeft="20"
+                paddingRight="20"
+                paddingTop="10"
+                paddingBottom="10">
+
+            <brls:Label
+                    id="latest/header"
+                    width="auto"
+                    height="auto"
+                    fontSize="36"
+                    marginBottom="30"
+                    textColor="#18191c"/>
+
+            <brls:Label
+                    id="latest/content/label"
+                    width="auto"
+                    height="auto"
+                    textColor="#18191c"/>
+
+            <QRImage
+                    margin="30"
+                    width="200"
+                    height="200"
+                    QRContent="https://github.com/xfangfang/wiliwili/releases"/>
+
+        </brls:Box>
+
+    </brls:ScrollingFrame>
+
+</brls:Box>

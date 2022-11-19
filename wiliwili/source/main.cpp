@@ -84,6 +84,7 @@ int main(int argc, char* argv[]) {
     }
 
     GA("open_app")
+    APPVersion::instance().checkUpdate();
 
     // Run the app
     while (brls::Application::mainLoop()) {

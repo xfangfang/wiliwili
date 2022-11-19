@@ -7,6 +7,7 @@
 #include "bilibili/result/home_result.h"
 #include "bilibili/result/setting.h"
 #include "utils/number_helper.hpp"
+#include "utils/config_helper.hpp"
 
 using namespace brls::literals;
 
@@ -25,6 +26,8 @@ SettingNetwork::SettingNetwork() {
     }
     labelIP->setText(brls::Application::getPlatform()->getIpAddress());
     labelDNS->setText(brls::Application::getPlatform()->getDnsServer());
+
+    headerTest->setSubtitle(APPVersion::instance().git_tag);
 }
 
 void SettingNetwork::networkTest() {

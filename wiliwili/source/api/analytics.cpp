@@ -29,6 +29,7 @@ void Analytics::send() {
     Package package;
     events_mutex.lock();
     package.events = events;
+    events.clear();
     events_mutex.unlock();
     if (events.empty()) return;
 
@@ -58,7 +59,7 @@ void Analytics::send() {
 
 Analytics::Analytics() {
     brls::Logger::debug("Analytics url: {}", GA_URL);
-    this->app_version = "version/version"_i18n;
+    this->app_version = APPVersion::instance().getVersionStr();
 }
 
 }  // namespace analytics

@@ -52,6 +52,7 @@
                 backgroundColor="#303030A0"
                 textColor="#FFFFFF"
                 fontSize="16"
+                height="16"
                 horizontalAlign="center"
                 verticalAlign="center"/>
     </brls:Box>

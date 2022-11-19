@@ -117,7 +117,8 @@ void SettingActivity::onContentAvailable() {
 
     btnReleaseChecker->title->setText(
         "wiliwili/setting/tools/others/release"_i18n + " (" +
-        "hints/current"_i18n + ": " + "version/version"_i18n + ")");
+        "hints/current"_i18n + ": v" + APPVersion::instance().getVersionStr() +
+        ")");
     btnReleaseChecker->registerClickAction([](...) -> bool {
         brls::Application::getPlatform()->openBrowser(
             "https://github.com/xfangfang/wiliwili/releases/latest");

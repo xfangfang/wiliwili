@@ -19,6 +19,7 @@ std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_LOW_QUALITY, "player_low_quality"},
     {SettingItem::TEXTURE_CACHE_NUM, "texture_cache_num"},
     {SettingItem::OPENCC_ON, "opencc"},
+    {SettingItem::CUSTOM_UPDATE_API, "custom_update_api"},
 };
 
 ProgramConfig::ProgramConfig() {}
@@ -166,7 +167,7 @@ std::string ProgramConfig::getConfigDir() {
 #endif
 #ifdef __linux__
     std::string config = "";
-    char* config_home = getenv("XDG_CONFIG_HOME");
+    char* config_home  = getenv("XDG_CONFIG_HOME");
     if (config_home) config = std::string(config_home);
     if (config.empty()) config = std::string(getenv("HOME")) + "/.config";
     return config + "/wiliwili";

@@ -30,4 +30,5 @@ private:
     BRLS_BIND(brls::Label, labelWIFI, "setting/net/wifi");
     BRLS_BIND(brls::Label, labelIP, "setting/net/ip");
     BRLS_BIND(brls::Label, labelDNS, "setting/net/dns");
+    BRLS_BIND(brls::Header, headerTest, "setting/net/test/header");
 };

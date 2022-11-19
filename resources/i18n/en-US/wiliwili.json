@@ -76,7 +76,7 @@
       },
       "profile": {
         "header": "Network",
-        "subtitle": "Restoring network settings can solve some problems",
+        "subtitle": "Restoring network settings can also solve some problems",
         "ip": "IP Address",
         "dns": "DNS Address"
       }

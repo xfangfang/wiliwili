@@ -14,16 +14,7 @@ set(ANALYTICS_KEY "" CACHE STRING "Google Analytics key")
 set(MAC_10_15 OFF CACHE BOOL "Set the Minimum OS X deployment version to 10.15")
 set(MAC_UNIVERSAL OFF CACHE BOOL "Support x86_64;arm64 at the same time")
 
-IF (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
-            "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
-    message("Build Type: ${CMAKE_BUILD_TYPE}")
-ENDIF ()
-
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
-    add_definitions(-D_DEBUG)
-endif ()
-
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)
 
 # toolchain
 if (PLATFORM_DESKTOP)
@@ -64,6 +55,10 @@ set(PROJECT_AUTHOR "xfangfang")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/bilibili.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+add_definitions(
+        -DBUILD_VERSION_MAJOR=${VERSION_MAJOR}
+        -DBUILD_VERSION_MINOR=${VERSION_MINOR}
+        -DBUILD_VERSION_REVISION=${VERSION_REVISION})
 include(FetchContent)
 
 # build borealis qrcode and other third party libraries

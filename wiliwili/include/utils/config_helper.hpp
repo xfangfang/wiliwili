@@ -31,6 +31,24 @@ enum class SettingItem {
     PLAYER_LOW_QUALITY,
     TEXTURE_CACHE_NUM,
     OPENCC_ON,
+    CUSTOM_UPDATE_API,
+};
+
+class APPVersion : public Singleton<APPVersion> {
+    inline static std::string RELEASE_API =
+        "https://api.github.com/repos/xfangfang/wiliwili/releases/latest";
+
+public:
+    int major, minor, revision;
+    std::string git_commit = "", git_tag = "";
+
+    APPVersion();
+
+    std::string getVersionStr();
+
+    bool needUpdate(std::string latestVersion);
+
+    void checkUpdate(int delay = 2000);
 };
 
 class ProgramConfig : public Singleton<ProgramConfig> {
