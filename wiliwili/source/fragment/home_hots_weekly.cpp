@@ -53,28 +53,36 @@ HomeHotsWeekly::HomeHotsWeekly() {
 }
 
 void HomeHotsWeekly::onCreate() {
-    this->registerTabAction(
-        "wiliwili/home/common/switch"_i18n, brls::ControllerButton::BUTTON_X,
-        [this](brls::View* view) -> bool {
-            AutoTabFrame::focus2Sidebar(this);
-            static int selected = 1;
-            brls::Application::pushActivity(
-                new brls::Activity(new brls::Dropdown(
-                    "wiliwili/home/hots/t3"_i18n, this->getWeeklyList(),
-                    [this](int _selected) {
-                        this->recyclingGrid->showSkeleton();
-                        if (_selected == 0) {
-                            selected = 1;
-                            this->requestData();
-                        } else {
-                            selected = _selected;
-                            this->requestHotsWeeklyVideoListByIndex(selected -
-                                                                    1);
-                        }
-                    },
-                    selected)));
+    this->registerTabAction("wiliwili/home/common/switch"_i18n,
+                            brls::ControllerButton::BUTTON_X,
+                            [this](brls::View* view) -> bool {
+                                this->switchChannel();
+                                return true;
+                            });
+
+    this->weekly_box->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->weekly_box, [this]() {
+            this->switchChannel();
             return true;
-        });
+        }));
+}
+
+void HomeHotsWeekly::switchChannel() {
+    AutoTabFrame::focus2Sidebar(this);
+    static int selected = 1;
+    brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
+        "wiliwili/home/hots/t3"_i18n, this->getWeeklyList(),
+        [this](int _selected) {
+            this->recyclingGrid->showSkeleton();
+            if (_selected == 0) {
+                selected = 1;
+                this->requestData();
+            } else {
+                selected = _selected;
+                this->requestHotsWeeklyVideoListByIndex(selected - 1);
+            }
+        },
+        selected)));
 }
 
 brls::View* HomeHotsWeekly::create() { return new HomeHotsWeekly(); }

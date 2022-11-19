@@ -28,6 +28,8 @@ public:
                            const std::string& note) override;
     void onError(const std::string& error) override;
 
+    void switchChannel();
+
     ~HomeHotsRank();
 
     static View* create() { return new HomeHotsRank(); }
@@ -36,4 +38,5 @@ private:
     BRLS_BIND(brls::Label, rank_note, "home/hots/rank/note");
     BRLS_BIND(brls::Label, rank_label, "home/hots/rank/label");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/hots/rank/recyclingGrid");
+    BRLS_BIND(brls::Box, rank_box, "home/hots/rank/box");
 };

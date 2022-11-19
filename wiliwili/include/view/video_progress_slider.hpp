@@ -29,15 +29,21 @@ public:
 
     float getProgress() { return progress; }
 
+    // Progress is manually dragged
     brls::Event<float>* getProgressEvent() { return &progressEvent; }
+
+    // Manual dragging is over
+    brls::Event<float>* getProgressSetEvent() { return &progressSetEvent; }
 
 private:
     brls::InputManager* input;
     brls::Rectangle* line;
     brls::Rectangle* lineEmpty;
-    SVGImage* pointer;
+    SVGImage* pointerIcon;
+    brls::Box* pointer;
 
     brls::Event<float> progressEvent;
+    brls::Event<float> progressSetEvent;
 
     float progress = 1;
 

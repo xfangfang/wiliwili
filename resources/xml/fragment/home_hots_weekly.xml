@@ -27,6 +27,7 @@
                 text="每周五晚18:00更新"/>
 
         <brls:Box
+                id="home/hots/weekly/box"
                 width="160"
                 height="35"
                 backgroundColor="@theme/color/grey_2"

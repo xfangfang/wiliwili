@@ -35,8 +35,11 @@ public:
         const std::string& label, const std::string& reminder) override;
     void onError(const std::string& error) override;
 
+    void switchChannel();
+
 private:
     BRLS_BIND(brls::Label, weekly_reminder, "home/hots/weekly/reminder");
     BRLS_BIND(brls::Label, weekly_label, "home/hots/weekly/label");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/hots/weekly/recyclingGrid");
+    BRLS_BIND(brls::Box, weekly_box, "home/hots/weekly/box");
 };

@@ -10,17 +10,14 @@ using namespace brls;
 VideoProgressSlider::VideoProgressSlider() {
     input = Application::getPlatform()->getInputManager();
 
-    line      = new brls::Rectangle();
-    lineEmpty = new brls::Rectangle();
-    pointer   = new SVGImage();
+    line        = new brls::Rectangle();
+    lineEmpty   = new brls::Rectangle();
+    pointerIcon = new SVGImage();
+    pointer     = new brls::Box();
 
     line->detach();
     lineEmpty->detach();
     pointer->detach();
-
-    addView(pointer);
-    addView(line);
-    addView(lineEmpty);
 
     setHeight(40);
 
@@ -30,25 +27,24 @@ VideoProgressSlider::VideoProgressSlider() {
     lineEmpty->setHeight(7);
     lineEmpty->setCornerRadius(3.5f);
 
-    pointer->setDimensions(44, 44);
-    pointer->setImageFromSVGRes("svg/bpx-svg-sprite-thumb.svg");
+    pointerIcon->setDimensions(44, 44);
+    pointerIcon->setImageFromSVGRes("svg/bpx-svg-sprite-thumb.svg");
+
+    pointer->setDimensions(60, 60);
+    pointer->setFocusable(true);
+    pointer->setHideHighlight(true);
+    pointer->setAlignItems(brls::AlignItems::CENTER);
+    pointer->setJustifyContent(brls::JustifyContent::CENTER);
+    pointer->addView(pointerIcon);
+
+    addView(pointer);
+    addView(line);
+    addView(lineEmpty);
 
     Theme theme = Application::getTheme();
 
     line->setColor(theme["brls/slider/line_filled"]);
     lineEmpty->setColor(theme["brls/slider/line_empty"]);
-
-    pointer->registerAction(
-        "Right Click Blocker", BUTTON_NAV_RIGHT,
-        [this](View* view) { return true; }, true, true, SOUND_NONE);
-
-    pointer->registerAction(
-        "Right Click Blocker", BUTTON_NAV_LEFT,
-        [this](View* view) { return true; }, true, true, SOUND_NONE);
-
-    pointer->registerAction(
-        "A Button Click Blocker", BUTTON_A, [this](View* view) { return true; },
-        true, false, SOUND_NONE);
 
     pointer->addGestureRecognizer(new PanGestureRecognizer(
         [this](PanGestureStatus status, Sound* soundToPlay) {
@@ -75,10 +71,15 @@ VideoProgressSlider::VideoProgressSlider() {
             float delta        = status.position.x - status.startPosition.x;
 
             setProgress(lastProgress + delta / paddingWidth);
+            progressEvent.fire(this->progress);
 
-            if (status.state == GestureState::END)
+            if (status.state == GestureState::END) {
                 Application::getPlatform()->getAudioPlayer()->play(
                     SOUND_SLIDER_RELEASE);
+                progressSetEvent.fire(this->progress);
+                Application::giveFocus(
+                    this->getParentActivity()->getContentView());
+            }
         },
         PanAxis::HORIZONTAL));
 
@@ -149,7 +150,6 @@ void VideoProgressSlider::setProgress(float progress) {
         Application::getAudioPlayer()->play(SOUND_SLIDER_TICK);
     }
 
-    progressEvent.fire(this->progress);
     updateUI();
 }
 

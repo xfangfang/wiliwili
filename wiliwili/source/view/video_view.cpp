@@ -48,7 +48,15 @@ VideoView::VideoView() {
     this->registerAction(
         "\uE08E", brls::ControllerButton::BUTTON_RB,
         [this](brls::View* view) -> bool {
-            mpvCore->command_str("seek +10");
+            brls::InputManager* input =
+                brls::Application::getPlatform()->getInputManager();
+            ControllerState state;
+            input->updateUnifiedControllerState(&state);
+            if (state.buttons[BUTTON_Y]) {
+                mpvCore->command_str("seek -10");
+            } else {
+                mpvCore->command_str("seek +10");
+            }
             return true;
         },
         false, true);
@@ -83,11 +91,17 @@ VideoView::VideoView() {
 
     this->registerMpvEvent();
 
-    osdSlider->getProgressEvent()->subscribe([](float progress) {
-        brls::Logger::verbose("progress: {}", progress);
-        //todo: less call
-        //todo: wakeup osd
-        //        mpvCore->command_str(fmt::format("seek {} absolute-percent", progress * 100).c_str());
+    osdSlider->getProgressSetEvent()->subscribe([this](float progress) {
+        brls::Logger::verbose("Set progress: {}", progress);
+        this->showOSD(true);
+        mpvCore->command_str(
+            fmt::format("seek {} absolute-percent", progress * 100).c_str());
+    });
+
+    osdSlider->getProgressEvent()->subscribe([this](float progress) {
+        this->showOSD(false);
+        leftStatusLabel->setText(
+            wiliwili::sec2Time(mpvCore->duration * progress));
     });
 
     this->addGestureRecognizer(new brls::TapGestureRecognizer(this, [this]() {

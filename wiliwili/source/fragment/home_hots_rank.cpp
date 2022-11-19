@@ -98,25 +98,32 @@ HomeHotsRank::HomeHotsRank() {
 }
 
 void HomeHotsRank::onCreate() {
-    this->registerTabAction(
-        "切换", brls::ControllerButton::BUTTON_X,
-        [this](brls::View* view) -> bool {
-            AutoTabFrame::focus2Sidebar(this);
-            static int selected = 0;
-            brls::Application::pushActivity(
-                new brls::Activity(new brls::Dropdown(
-                    "排行榜", this->getRankList(),
-                    [this](int _selected) {
-                        this->recyclingGrid->showSkeleton();
-                        selected = _selected;
-                        this->rank_label->setText(
-                            "榜单：" + this->getRankList()[_selected]);
-                        this->requestData(_selected);
-                    },
-                    selected)));
+    this->registerTabAction("切换", brls::ControllerButton::BUTTON_X,
+                            [this](brls::View* view) -> bool {
+                                this->switchChannel();
+                                return true;
+                            });
 
+    this->rank_box->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->rank_box, [this]() {
+            this->switchChannel();
             return true;
-        });
+        }));
+}
+
+void HomeHotsRank::switchChannel() {
+    AutoTabFrame::focus2Sidebar(this);
+    static int selected = 0;
+    brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
+        "排行榜", this->getRankList(),
+        [this](int _selected) {
+            this->recyclingGrid->showSkeleton();
+            selected = _selected;
+            this->rank_label->setText("榜单：" +
+                                      this->getRankList()[_selected]);
+            this->requestData(_selected);
+        },
+        selected)));
 }
 
 void HomeHotsRank::onHotsRankList(

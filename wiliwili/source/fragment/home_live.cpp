@@ -68,31 +68,37 @@ void HomeLive::onLiveList(const bilibili::LiveVideoListResult& result,
 }
 
 void HomeLive::onCreate() {
-    this->registerTabAction(
-        "wiliwili/home/common/switch"_i18n, brls::ControllerButton::BUTTON_X,
-        [this](brls::View* view) -> bool {
-            static int selected = 0;
-            AutoTabFrame::focus2Sidebar(this);
-            brls::Application::pushActivity(
-                new brls::Activity(new brls::Dropdown(
-                    "wiliwili/home/live/dialog"_i18n, this->getAreaList(),
-                    [this](int _selected) {
-                        this->recyclingGrid->showSkeleton();
-                        selected = _selected;
-                        this->requestData(selected);
-                        auto list = this->getAreaList();
-                        if (_selected == 0 && list.size() <= 1) {
-                            // 暂未加载出分区列表
-                            this->live_label->setText(
-                                "wiliwili/home/live/default"_i18n);
-                        } else
-                            this->live_label->setText(
-                                "wiliwili/home/common/part"_i18n +
-                                this->getAreaList()[_selected]);
-                    },
-                    selected)));
+    this->live_box->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->live_box, [this]() {
+            this->switchChannel();
             return true;
-        });
+        }));
+    this->registerTabAction("wiliwili/home/common/switch"_i18n,
+                            brls::ControllerButton::BUTTON_X,
+                            [this](brls::View* view) -> bool {
+                                this->switchChannel();
+                                return true;
+                            });
+}
+
+void HomeLive::switchChannel() {
+    static int selected = 0;
+    AutoTabFrame::focus2Sidebar(this);
+    brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
+        "wiliwili/home/live/dialog"_i18n, this->getAreaList(),
+        [this](int _selected) {
+            this->recyclingGrid->showSkeleton();
+            selected = _selected;
+            this->requestData(selected);
+            auto list = this->getAreaList();
+            if (_selected == 0 && list.size() <= 1) {
+                // 暂未加载出分区列表
+                this->live_label->setText("wiliwili/home/live/default"_i18n);
+            } else
+                this->live_label->setText("wiliwili/home/common/part"_i18n +
+                                          this->getAreaList()[_selected]);
+        },
+        selected)));
 }
 
 HomeLive::~HomeLive() {

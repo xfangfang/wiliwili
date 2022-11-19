@@ -41,14 +41,13 @@
                     width="auto"
                     height="auto"
                     fontSize="36"
-                    marginBottom="30"
-                    textColor="#18191c"/>
+                    marginBottom="30"/>
 
             <brls:Label
                     id="latest/content/label"
                     width="auto"
-                    height="auto"
-                    textColor="#18191c"/>
+                    margin="4"
+                    height="auto"/>
 
             <QRImage
                     margin="30"

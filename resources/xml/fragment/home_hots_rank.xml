@@ -27,6 +27,7 @@
                 text="排行榜根据稿件内容质量，近期的数据综合展示，动态更新"/>
 
         <brls:Box
+                id="home/hots/rank/box"
                 width="160"
                 height="35"
                 backgroundColor="@theme/color/grey_2"

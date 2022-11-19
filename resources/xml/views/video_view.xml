@@ -86,12 +86,10 @@
                 alignItems="center"
                 axis="column">
             <VideoProgressSlider
-                    wireframe="false"
                     focusable="false"
-                    marginTop="30"
                     id="video/osd/bottom/progress"
                     width="100%"
-                    height="20"
+                    height="50"
                     grow="1"/>
             <brls:Box
                     width="100%"
