@@ -20,7 +20,11 @@ cpr::Response HTTP::get(const std::string& url,
                         {"User-Agent", "NintendoSwitch"},
                         {"Referer", "https://www.bilibili.com"},
                     },
-                    parameters, HTTP::COOKIES, cpr::Timeout{timeout});
+                    parameters, HTTP::COOKIES,
+#ifndef VERIFY_SSL
+            cpr::VerifySsl{false},
+#endif
+                    cpr::Timeout{timeout});
 }
 
 };  // namespace bilibili

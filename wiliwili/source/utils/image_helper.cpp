@@ -5,10 +5,24 @@
 #include "utils/image_helper.hpp"
 #include "utils/singleton.hpp"
 #include "utils/cache_helper.hpp"
+#include "utils/thread_helper.hpp"
 #include "borealis/core/thread.hpp"
 
 std::vector<std::shared_ptr<ImageHelper>> ImageHelper::imagePool;
 std::default_random_engine ImageHelper::random_engine;
+
+class ImageThreadPool : public cpr::ThreadPool,
+                        public Singleton<ImageThreadPool> {
+public:
+    ImageThreadPool()
+        : cpr::ThreadPool(THREAD_POOL_MIN_THREAD_NUM,
+                          THREAD_POOL_MAX_THREAD_NUM,
+                          std::chrono::milliseconds(5000)) {
+        this->Start();
+    }
+
+    ~ImageThreadPool() { this->Stop(); }
+};
 
 void ImageHelper::init() {
     random_engine.seed(time(0));
@@ -73,7 +87,6 @@ ImageHelper* ImageHelper::load(std::string url) {
 }
 
 ImageHelper* ImageHelper::into(brls::Image* image) {
-
     std::unique_lock<std::mutex> lock(this->availableMutex);
     if (!this->available) {
         brls::Logger::error("Image: {} is not available now", (size_t)image);
@@ -97,45 +110,45 @@ ImageHelper* ImageHelper::into(brls::Image* image) {
         return this;
     }
 
-    // 网络请求
-    cpr::GetCallback(
-        [this, image](cpr::Response r) {
-            brls::Logger::verbose("net image status code: {} / {}",
-                                  r.status_code, r.downloaded_bytes);
-            std::unique_lock<std::mutex> lock(this->availableMutex);
-            if (r.status_code != 200 || r.downloaded_bytes == 0 ||
-                this->isCancel) {
-                brls::Logger::verbose("undone pic:{}", r.url.str());
+    ImageThreadPool::instance().Submit([this, image]() {
+        cpr::Response r = cpr::Get(
+#ifndef VERIFY_SSL
+            cpr::VerifySsl{false},
+#endif
+            cpr::Url{this->imageUrl},
+            cpr::ProgressCallback(
+                [this](cpr::cpr_off_t downloadTotal, cpr::cpr_off_t downloadNow,
+                       cpr::cpr_off_t uploadTotal, cpr::cpr_off_t uploadNow,
+                       intptr_t userdata) -> bool {
+                    if (this->isCancel) {
+                        return false;
+                    }
+                    return true;
+                }));
+        brls::Logger::verbose("net image status code: {} / {}", r.status_code,
+                              r.downloaded_bytes);
+        std::unique_lock<std::mutex> lock(this->availableMutex);
+        if (r.status_code != 200 || r.downloaded_bytes == 0 || this->isCancel) {
+            brls::Logger::verbose("undone pic:{}", r.url.str());
+            this->setAvailable(true);
+            image->ptrUnlock();
+        } else {
+            brls::Logger::verbose("load pic:{} size:{}bytes by{} to {} {}",
+                                  r.url.str(), r.downloaded_bytes, (size_t)this,
+                                  (size_t)image, image->describe());
+            brls::sync([this, image, r]() {
+                std::unique_lock<std::mutex> lock(this->availableMutex);
+                if (this->isCancel) return;
+                image->setImageFromMem((unsigned char*)r.text.c_str(),
+                                       (size_t)r.downloaded_bytes);
+                if (image->getTexture() > 0)
+                    TextureCache::instance().addCache(this->imageUrl,
+                                                      image->getTexture());
                 this->setAvailable(true);
                 image->ptrUnlock();
-            } else {
-                brls::Logger::verbose("load pic:{} size:{}bytes by{} to {} {}",
-                                      r.url.str(), r.downloaded_bytes,
-                                      (size_t)this, (size_t)image,
-                                      image->describe());
-                brls::sync([this, image, r]() {
-                    std::unique_lock<std::mutex> lock(this->availableMutex);
-                    if (this->isCancel) return;
-                    image->setImageFromMem((unsigned char*)r.text.c_str(),
-                                           (size_t)r.downloaded_bytes);
-                    if (image->getTexture() > 0)
-                        TextureCache::instance().addCache(this->imageUrl,
-                                                          image->getTexture());
-                    this->setAvailable(true);
-                    image->ptrUnlock();
-                });
-            }
-        },
-        cpr::Url{this->imageUrl},
-        cpr::ProgressCallback(
-            [this](cpr::cpr_off_t downloadTotal, cpr::cpr_off_t downloadNow,
-                   cpr::cpr_off_t uploadTotal, cpr::cpr_off_t uploadNow,
-                   intptr_t userdata) -> bool {
-                if (this->isCancel) {
-                    return false;
-                }
-                return true;
-            }));
+            });
+        }
+    });
     return this;
 }
 

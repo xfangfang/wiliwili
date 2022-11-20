@@ -51,6 +51,9 @@ void Analytics::send() {
             {"api_secret", GA_KEY},
             {"measurement_id", GA_ID},
         },
+#ifndef VERIFY_SSL
+        cpr::VerifySsl{false},
+#endif
         cpr::Url{GA_URL},
         cpr::Header{{"User-Agent", "wiliwili/" + app_version},
                     {"Content-Type", "application/json"}},

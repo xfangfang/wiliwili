@@ -175,6 +175,9 @@ void BilibiliClient::get_danmaku(
                 printf("ERROR: %s\n", e.what());
             }
         },
+#ifndef VERIFY_SSL
+        cpr::VerifySsl{false},
+#endif
         cpr::Url{Api::VideoDanmaku}, HTTP::HEADERS,
         cpr::Parameters({{"oid", std::to_string(cid)}}), HTTP::COOKIES,
         cpr::Timeout{HTTP::TIMEOUT});

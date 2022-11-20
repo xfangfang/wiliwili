@@ -142,7 +142,7 @@ make -C build wiliwili -j$(nproc)
 pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-make \
   git mingw-w64-x86_64-glfw mingw-w64-x86_64-glm mingw-w64-x86_64-mpv
 
-cmake -B build -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON ..
+cmake -B build -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON
 mingw32-make -C build wiliwili -j$(nproc)
 ```
 
@@ -216,4 +216,3 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 - https://github.com/nlohmann/json
 - https://github.com/nayuki/QR-Code-generator
 - https://github.com/BYVoid/OpenCC
-- https://github.com/progschj/ThreadPool

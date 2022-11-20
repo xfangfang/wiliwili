@@ -642,7 +642,7 @@ enum ClickState {
     PRESS        = 1,
     FAST_RELEASE = 3,
     FAST_PRESS   = 4,
-    DOUBLE_CLICK = 5
+    CLICK_DOUBLE = 5
 };
 
 void VideoView::buttonProcessing() {
@@ -695,14 +695,14 @@ void VideoView::buttonProcessing() {
                     rsb_press_time = current_time;
                     // 双击事件
                     mpvCore->command_str("set speed 2.0");
-                    click_state = ClickState::DOUBLE_CLICK;
+                    click_state = ClickState::CLICK_DOUBLE;
                 } else {
                     mpvCore->command_str("set speed 1.0");
                     click_state = ClickState::IDLE;
                 }
             }
             break;
-        case ClickState::DOUBLE_CLICK:
+        case ClickState::CLICK_DOUBLE:
             brls::Logger::debug("speed lock: 2.0");
             click_state = ClickState::IDLE;
             break;

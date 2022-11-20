@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 set(PLATFORM_DESKTOP OFF CACHE BOOL "build for desktop, ON for desktop; OFF for switch")
 set(BUILTIN_NSP OFF CACHE BOOL "Built in NSP forwarder")
 set(WIN32_TERMINAL ON CACHE BOOL "Show terminal when run on Windows")
+set(VERIFY_SSL ON CACHE BOOL "Whether to verify ssl")
 
 # analytics
 set(ANALYTICS OFF CACHE BOOL "Using Google Analytics")
@@ -119,6 +120,10 @@ if (ANALYTICS)
             -DANALYTICS=${ANALYTICS}
             -DANALYTICS_ID=${ANALYTICS_ID}
             -DANALYTICS_KEY=${ANALYTICS_KEY})
+endif ()
+
+if (VERIFY_SSL)
+    target_compile_options(${PROJECT_NAME} PRIVATE -DVERIFY_SSL)
 endif ()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)

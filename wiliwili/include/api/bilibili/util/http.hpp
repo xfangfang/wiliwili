@@ -83,7 +83,11 @@ public:
                 {"Referer", "https://www.bilibili.com/"},
                 {"Origin", "https://www.bilibili.com"},
             },
-            parameters, payload, HTTP::COOKIES, cpr::Timeout{HTTP::TIMEOUT});
+            parameters, payload, HTTP::COOKIES,
+#ifndef VERIFY_SSL
+            cpr::VerifySsl{false},
+#endif
+            cpr::Timeout{HTTP::TIMEOUT});
     }
 
     template <typename ReturnType>
@@ -146,7 +150,11 @@ public:
                 {"Referer", "https://www.bilibili.com/"},
                 {"Origin", "https://www.bilibili.com"},
             },
-            parameters, HTTP::COOKIES, cpr::Timeout{HTTP::TIMEOUT});
+            parameters, HTTP::COOKIES,
+#ifndef VERIFY_SSL
+            cpr::VerifySsl{false},
+#endif
+            cpr::Timeout{HTTP::TIMEOUT});
     }
 
     template <typename ReturnType>

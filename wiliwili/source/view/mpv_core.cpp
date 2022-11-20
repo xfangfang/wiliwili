@@ -94,6 +94,8 @@ void MPVCore::init() {
         mpv_set_option_string(
             mpv, "demuxer-max-back-bytes",
             fmt::format("{}MiB", MPVCore::INMEMORY_CACHE / 2).c_str());
+    } else {
+        mpv_set_option_string(mpv, "cache", "no");
     }
 
     // hardware decoding

@@ -13,14 +13,6 @@
 #include <cpr/cpr.h>
 #include "utils/singleton.hpp"
 
-#ifdef __SWITCH__
-#define THREAD_POOL_MIN_THREAD_NUM 3
-#define THREAD_POOL_MAX_THREAD_NUM 4
-#else
-#define THREAD_POOL_MIN_THREAD_NUM 4
-#define THREAD_POOL_MAX_THREAD_NUM CPR_DEFAULT_THREAD_POOL_MAX_THREAD_NUM
-#endif
-
 typedef std::map<std::string, std::string> Cookie;
 
 enum class SettingItem {

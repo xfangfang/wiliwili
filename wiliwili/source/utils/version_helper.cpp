@@ -3,9 +3,9 @@
 //
 
 #include <stdlib.h>
+#include "borealis.hpp"
 #include "fmt/format.h"
 #include "cpr/cpr.h"
-#include "borealis.hpp"
 #include "pystring.h"
 #include "utils/config_helper.hpp"
 #include "fragment/latest_update.hpp"
@@ -83,6 +83,9 @@ void APPVersion::checkUpdate(int delay) {
                                         e.what());
                 }
             },
+#ifndef VERIFY_SSL
+            cpr::VerifySsl{false},
+#endif
             cpr::Url{url}, cpr::Timeout{10000});
     });
 }

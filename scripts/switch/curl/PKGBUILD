@@ -1,0 +1,45 @@
+
+# Maintainer: WinterMute <davem@devkitpro.org>
+pkgname=switch-curl
+pkgver=7.86.0
+pkgrel=1
+pkgdesc='An URL retrieval utility and library'
+arch=('any')
+url='http://www.zlib.net/'
+license=('zlib')
+options=(!strip libtool staticlibs)
+depends=('switch-zlib' 'switch-mbedtls')
+makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
+source=("https://curl.haxx.se/download/curl-${pkgver}.tar.xz")
+groups=('switch-portlibs')
+
+sha256sums=('SKIP')
+
+build() {
+  cd curl-$pkgver
+
+  source /opt/devkitpro/switchvars.sh
+  LDFLAGS="-specs=${DEVKITPRO}/libnx/switch.specs ${LDFLAGS}"
+
+  autoreconf -fi
+
+  ./configure --prefix=$PORTLIBS_PREFIX --host=aarch64-none-elf \
+    --disable-shared --enable-static --disable-ipv6 --disable-unix-sockets \
+    --disable-manual --disable-ntlm-wb --disable-threaded-resolver \
+    --with-mbedtls=$PORTLIBS_PREFIX \
+    --with-default-ssl-backend=mbedtls
+
+  make -C lib
+
+}
+
+package() {
+  cd curl-$pkgver
+
+  source /opt/devkitpro/switchvars.sh
+
+  make DESTDIR="$pkgdir" -C lib install
+  make DESTDIR="$pkgdir" -C include install
+  make DESTDIR="$pkgdir" install-binSCRIPTS
+
+}

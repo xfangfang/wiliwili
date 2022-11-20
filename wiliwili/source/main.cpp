@@ -9,6 +9,7 @@
 #include "analytics.h"
 
 #include "utils/config_helper.hpp"
+#include "utils/thread_helper.hpp"
 #include "activity/main_activity.hpp"
 #include "activity/hint_activity.hpp"
 //#include "activity/setting_activity.hpp"
