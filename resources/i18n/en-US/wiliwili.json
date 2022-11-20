@@ -94,7 +94,7 @@
     "hint1": "Select a game from home screen",
     "hint2": "Hold the \uE0E5 key and click \uE0E0 to enter hbmenu",
     "hint3": "In the hbmenu, select wiliwili",
-    "hint4": "Optional: Using provided wiliwili NSP forwarder",
+    "hint4": "Optional: Using provided wiliwili NSP forwarder (Please place wiliwili.nro in /switch/wiliwili.nro)",
     "hint_nsp": "Click \uE0E0 to install NSP forwarder",
     "hint_confirm": "Installing NSP forwarder may result in a ban\nPlease confirm again",
     "hint_right": "The pictures are from the Internet, and the copyright belongs to Nintendo Co., Ltd"

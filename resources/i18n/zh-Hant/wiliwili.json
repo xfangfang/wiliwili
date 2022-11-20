@@ -95,7 +95,7 @@
     "hint1": "請從桌面選擇任意遊戲並按住 \uE0E5 鍵",
     "hint2": "點擊 \uE0E0 打開, 在應用開啟期間保持按住 \uE0E5 鍵，直到進入 hbmenu",
     "hint3": "在 hbmenu 目錄中選擇 wiliwili",
-    "hint4": "可選：安裝 wiliwili NSP 通過桌面圖示直接打開 wiliwili",
+    "hint4": "可選：安裝 wiliwili NSP 通過桌面圖示直接打開 wiliwili (請將 wiliwili.nro 放置在 /switch/wiliwili.nro)",
     "hint_nsp": "點擊 \uE0E0 安裝桌面圖示",
     "hint_confirm": "安裝桌面圖示可能導致ban機\n請再次確認",
     "hint_right": "掌機圖片來源於網路，版權歸任天堂 Nintendo Co., Ltd 所有",

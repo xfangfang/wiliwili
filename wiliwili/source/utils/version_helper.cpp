@@ -36,10 +36,10 @@ bool APPVersion::needUpdate(std::string latestVersion) {
         brls::Logger::error("Cannot parse version info");
         return false;
     }
-    if (major > atoi(v[0].c_str())) return false;
-    if (minor > atoi(v[1].c_str())) return false;
-    if (revision > atoi(v[2].c_str())) return false;
-    return true;
+    if (atoi(v[0].c_str()) > major) return true;
+    if (atoi(v[1].c_str()) > minor) return true;
+    if (atoi(v[2].c_str()) > revision) return true;
+    return false;
 }
 
 void APPVersion::checkUpdate(int delay) {
