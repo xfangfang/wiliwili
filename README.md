@@ -122,7 +122,7 @@ cd wiliwili
 brew install glfw glm mpv
 
 cmake -B build -DPLATFORM_DESKTOP=ON
-make -C build wiliwili -j$(nproc)
+make -C build wiliwili -j$(sysctl -n hw.ncpu)
 ```
 
 #### Linux

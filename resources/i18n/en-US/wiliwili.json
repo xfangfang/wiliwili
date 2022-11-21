@@ -107,7 +107,8 @@
       "switch": "Switch",
       "refresh": "Refresh",
       "last": "Last",
-      "next": "Next"
+      "next": "Next",
+      "filter": "Filter"
     },
     "live": {
       "tab": "Live",

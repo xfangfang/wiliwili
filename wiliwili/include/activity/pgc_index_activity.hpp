@@ -48,5 +48,4 @@ private:
     BRLS_BIND(brls::Box, titleBox, "pgc/title");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "pgc/recyclingGrid");
     brls::Animatable alpha = 1.0f;
-    int openTimes = 0;  // 辅助变量，每次顶栏获取焦点时增加一次
 };

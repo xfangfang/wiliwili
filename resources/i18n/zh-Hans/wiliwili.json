@@ -108,7 +108,8 @@
       "switch": "切换",
       "refresh": "刷新",
       "last": "上一项",
-      "next": "下一项"
+      "next": "下一项",
+      "filter": "筛选"
     },
     "live": {
       "tab": "直播",

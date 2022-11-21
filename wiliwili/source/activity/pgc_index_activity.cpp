@@ -349,10 +349,6 @@ void PGCIndexActivity::onContentAvailable() {
         return true;
     });
 
-    // 顶栏获取到焦点时同样打开检索页面
-    this->titleBox->getFocusEvent()->subscribe(
-        [this](...) { this->openIndexActivity(); });
-
     recyclingGrid->registerCell(
         "Cell", []() { return RecyclingGridItemPGCVideoCard::create(); });
     recyclingGrid->onNextPage(
@@ -366,7 +362,19 @@ void PGCIndexActivity::onContentAvailable() {
                         this->originParam);
     this->requestPGCIndex(this->originParam);
 
-    titleBox->addGestureRecognizer(new brls::TapGestureRecognizer(titleBox));
+    titleBox->addGestureRecognizer(new brls::TapGestureRecognizer(
+        [this](brls::TapGestureStatus status, brls::Sound*) {
+            if (status.state == brls::GestureState::END) {
+                this->openIndexActivity();
+            }
+        }));
+
+    this->registerAction("wiliwili/home/common/filter"_i18n,
+                         brls::ControllerButton::BUTTON_X,
+                         [this](brls::View* view) {
+                             this->openIndexActivity();
+                             return true;
+                         });
 }
 
 PGCIndexActivity::~PGCIndexActivity() {
@@ -392,9 +400,6 @@ void PGCIndexActivity::onPGCIndex(
 
 void PGCIndexActivity::onPGCFilter(const bilibili::PGCIndexFilters& result) {
     brls::sync([this]() {
-        // 重置顶栏焦点计数器
-        this->openTimes = 1;
-
         this->updateTitleBox();
     });
 }
@@ -487,15 +492,8 @@ void PGCIndexActivity::updateTitleBox() {
 }
 
 void PGCIndexActivity::openIndexActivity() {
-    // 巧妙地通过焦点次数控制显示检索面板
-    // openTimes：每次点击或获取焦点自增1，初始值为0，页面打开后会增长到1
     if (PGCIndexRequest::INDEX_FILTERS.empty()) return;
-    openTimes++;
-    if (openTimes % 2 == 1) {
-        this->alpha.reset(0.1f);
-        this->startAnimation(1.0f);
-        return;
-    }
+    brls::Application::giveFocus(this->titleBox);
 
     this->alpha.reset(1.0f);
     this->startAnimation(0.1f);
