@@ -41,8 +41,13 @@ static inline void check_error(int status) {
 }
 
 static void *get_proc_address(void *unused, const char *name) {
+#ifdef __SDL2__
+    SDL_GL_GetCurrentContext();
+    return (void *)SDL_GL_GetProcAddress(name);
+#else
     glfwGetCurrentContext();
     return (void *)glfwGetProcAddress(name);
+#endif
 }
 
 void MPVCore::on_update(void *self) {

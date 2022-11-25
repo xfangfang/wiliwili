@@ -169,7 +169,7 @@ public:
         }
 
         tabFrame->setHideClickAnimation(true);
-        tabFrame->registerAction("back"_i18n, brls::BUTTON_B,
+        tabFrame->registerAction("hints/back"_i18n, brls::BUTTON_B,
                                  [this](View* view) {
                                      this->close([this]() { this->dismiss(); });
                                      return true;
@@ -399,9 +399,7 @@ void PGCIndexActivity::onPGCIndex(
 }
 
 void PGCIndexActivity::onPGCFilter(const bilibili::PGCIndexFilters& result) {
-    brls::sync([this]() {
-        this->updateTitleBox();
-    });
+    brls::sync([this]() { this->updateTitleBox(); });
 }
 
 void PGCIndexActivity::onError(const std::string& error) {

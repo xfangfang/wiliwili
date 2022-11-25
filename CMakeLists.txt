@@ -15,6 +15,19 @@ set(ANALYTICS_KEY "" CACHE STRING "Google Analytics key")
 set(MAC_10_15 OFF CACHE BOOL "Set the Minimum OS X deployment version to 10.15")
 set(MAC_UNIVERSAL OFF CACHE BOOL "Support x86_64;arm64 at the same time")
 
+option(USE_GLFW "using glfw for input and create window" ON)
+option(USE_SDL2 "using sdl2 for input and create window" OFF)
+
+if (USE_SDL2)
+    message("SDL2")
+    set(USE_GLFW OFF)
+else ()
+    # default glfw3.3
+    message("GLFW")
+    set(USE_GLFW ON)
+    set(USE_SDL2 OFF)
+endif ()
+
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)
 
 # toolchain
@@ -60,6 +73,11 @@ add_definitions(
         -DBUILD_VERSION_MAJOR=${VERSION_MAJOR}
         -DBUILD_VERSION_MINOR=${VERSION_MINOR}
         -DBUILD_VERSION_REVISION=${VERSION_REVISION})
+if (USE_SDL2)
+    add_definitions(-D__SDL2__)
+else ()
+    add_definitions(-D__GLFW__)
+endif ()
 include(FetchContent)
 
 # build borealis qrcode and other third party libraries
@@ -79,11 +97,15 @@ if (PLATFORM_DESKTOP)
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
     set(PLATFORM_OPTION -pthread -I${MPV_INCLUDE_DIR})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-
 else ()
-    set(PLATFORM_LIBS
+    if (USE_SDL2)
+        set(PLATFORM_LIBS SDL2)
+    else ()
+        set(PLATFORM_LIBS glfw3)
+    endif ()
+    list(APPEND PLATFORM_LIBS
             # needed by borealis
-            glfw3 EGL glapi drm_nouveau
+            EGL glapi drm_nouveau
             # needed by mpv
             mpv swscale swresample avformat avfilter avcodec avutil ass freetype fribidi png bz2 z SDL2
             mbedx509 mbedtls mbedcrypto mbedx509 mbedtls

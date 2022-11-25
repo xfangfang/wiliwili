@@ -146,6 +146,18 @@ cmake -B build -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON
 mingw32-make -C build wiliwili -j$(nproc)
 ```
 
+#### SDL2 （测试支持）
+
+由于 SDL2 支持的平台比GLFW更多，考虑到未来向其他平台移植，所以wiliwili目前也支持切换到SDL2环境构建，目前只在switch和macOS上进行了测试。
+
+```shell
+# macOS
+brew install sdl2 glm mpv
+
+cmake -B build -DPLATFORM_DESKTOP=ON -DUSE_SDL2=ON
+make -C build wiliwili -j$(sysctl -n hw.ncpu)
+```
+
 </details>
 </p>
 
