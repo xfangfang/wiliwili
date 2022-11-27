@@ -20,6 +20,7 @@
       "others": {
         "header": "Others",
         "hide_bottom": "Hide the hint bar below",
+        "fullscreen": "Fullscreen",
         "theme": {
           "header": "Theme (restart required)",
           "1": "Auto",

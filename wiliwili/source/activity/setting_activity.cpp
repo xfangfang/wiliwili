@@ -157,6 +157,23 @@ void SettingActivity::onContentAvailable() {
                                             : brls::Visibility::VISIBLE);
         });
 
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    cellFullscreen->init(
+        "wiliwili/setting/app/others/fullscreen"_i18n,
+        conf.getSettingItem(SettingItem::FULLSCREEN, true),
+        [this](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::FULLSCREEN, value);
+            // 更新设置
+            VideoContext::FULLSCREEN = value;
+            // 设置当前状态
+            brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
+        });
+#else
+    btnOpencc->setVisibility(brls::Visibility::GONE);
+#endif
+    
+
     int themeData = conf.getSettingItem(SettingItem::APP_THEME, 0);
     selectorTheme->init(
         "wiliwili/setting/app/others/theme/header"_i18n,

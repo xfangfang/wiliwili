@@ -13,6 +13,7 @@
 
 std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
     {SettingItem::HIDE_BOTTOM_BAR, "hide_bottom_bar"},
+    {SettingItem::FULLSCREEN, "fullscreen"},
     {SettingItem::APP_THEME, "app_theme"},
     {SettingItem::HISTORY_REPORT, "history_report"},
     {SettingItem::PLAYER_BOTTOM_BAR, "player_bottom_bar"},
@@ -90,6 +91,9 @@ void ProgramConfig::load() {
     // 初始化底部栏
     brls::AppletFrame::HIDE_BOTTOM_BAR =
         getSettingItem(SettingItem::HIDE_BOTTOM_BAR, false);
+
+    VideoContext::FULLSCREEN =
+        getSettingItem(SettingItem::FULLSCREEN, true);
 
     // 初始化主题
     int themeData = getSettingItem(SettingItem::APP_THEME, 0);

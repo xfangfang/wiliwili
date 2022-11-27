@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
                         std::chrono::milliseconds(5000));
 
     // Set log level
-    brls::Logger::setLogLevel(brls::LogLevel::LOG_ERROR);
+    brls::Logger::setLogLevel(brls::LogLevel::LOG_INFO);
     brls::Logger::debug("std::thread::hardware_concurrency(): {}",
                         std::thread::hardware_concurrency());
 
@@ -42,6 +42,9 @@ int main(int argc, char* argv[]) {
     brls::Logger::getLogEvent()->subscribe(
         [&logFile](std::string log) { logFile << log << std::endl; });
 #endif
+
+    // Load Cookies for bilibili from disk
+    ProgramConfig::instance().init();
 
     // Init the app and i18n
     if (!brls::Application::init()) {
@@ -57,8 +60,6 @@ int main(int argc, char* argv[]) {
     brls::Application::setGlobalQuit(false);
 
     brls::Logger::info("createWindow done");
-    // Load Cookies for bilibili from disk
-    ProgramConfig::instance().init();
 
     // Register custom view\theme\style
     Register::initCustomView();

@@ -68,9 +68,9 @@ MineCollectionVideoList::MineCollectionVideoList(
     auto badge =
         std::to_string(collectionData.media_count) + "wiliwili/mine/num"_i18n;
     if (collectionData.attr & 1) {
-        badge += " · " + "wiliwili/mine/public"_i18n;
-    } else {
         badge += " · " + "wiliwili/mine/private"_i18n;
+    } else {
+        badge += " · " + "wiliwili/mine/public"_i18n;
     }
 
     this->labelSubtitle->setText(badge);

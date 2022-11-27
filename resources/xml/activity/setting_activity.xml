@@ -80,6 +80,9 @@
                             marginBottom="0px">
 
                         <brls:BooleanCell
+                                id="cell/fullscreen"/>
+
+                        <brls:BooleanCell
                                 id="cell/hideBottomBar"/>
 
                         <brls:BooleanCell

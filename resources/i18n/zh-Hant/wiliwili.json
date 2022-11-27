@@ -20,6 +20,7 @@
       "others": {
         "header": "其他",
         "hide_bottom": "隱藏下方提示欄",
+        "fullscreen": "全荧幕顯示",
         "theme": {
           "header": "主題配色 (需要重啟)",
           "1": "跟隨系統",

@@ -24,9 +24,9 @@ public:
 
         auto badge = std::to_string(r.media_count) + "wiliwili/mine/num"_i18n;
         if (r.attr & 1) {
-            badge += " " + "wiliwili/mine/public"_i18n;
-        } else {
             badge += " " + "wiliwili/mine/private"_i18n;
+        } else {
+            badge += " " + "wiliwili/mine/public"_i18n;
         }
         auto time = "wiliwili/mine/pub"_i18n + wiliwili::sec2date(r.ctime);
 
