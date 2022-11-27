@@ -92,8 +92,7 @@ void ProgramConfig::load() {
     brls::AppletFrame::HIDE_BOTTOM_BAR =
         getSettingItem(SettingItem::HIDE_BOTTOM_BAR, false);
 
-    VideoContext::FULLSCREEN =
-        getSettingItem(SettingItem::FULLSCREEN, true);
+    VideoContext::FULLSCREEN = getSettingItem(SettingItem::FULLSCREEN, true);
 
     // 初始化主题
     int themeData = getSettingItem(SettingItem::APP_THEME, 0);
@@ -112,9 +111,11 @@ void ProgramConfig::load() {
     // 初始化是否固定显示底部进度条
     MPVCore::BOTTOM_BAR = getSettingItem(SettingItem::PLAYER_BOTTOM_BAR, true);
 
-    // 初始化纹理缓存数量
-    TextureCache::instance().cache.setCapacity(
-        getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
+    // 初始化纹理缓存数量。同步函数运行，避免在窗口未创建时初始化纹理
+    brls::sync([this]() {
+        TextureCache::instance().cache.setCapacity(
+            getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
+    });
 
     // 初始化内存缓存大小
     MPVCore::INMEMORY_CACHE =
