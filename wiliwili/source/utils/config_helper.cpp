@@ -92,17 +92,8 @@ void ProgramConfig::load() {
     brls::AppletFrame::HIDE_BOTTOM_BAR =
         getSettingItem(SettingItem::HIDE_BOTTOM_BAR, false);
 
+    // 初始化是否全屏，必须在创建窗口前设置此值
     VideoContext::FULLSCREEN = getSettingItem(SettingItem::FULLSCREEN, true);
-
-    // 初始化主题
-    int themeData = getSettingItem(SettingItem::APP_THEME, 0);
-    if (themeData == 1) {
-        brls::Application::getPlatform()->setThemeVariant(
-            brls::ThemeVariant::LIGHT);
-    } else if (themeData == 2) {
-        brls::Application::getPlatform()->setThemeVariant(
-            brls::ThemeVariant::DARK);
-    }
 
     // 初始化是否上传历史记录
     VideoDetail::REPORT_HISTORY =
@@ -110,12 +101,6 @@ void ProgramConfig::load() {
 
     // 初始化是否固定显示底部进度条
     MPVCore::BOTTOM_BAR = getSettingItem(SettingItem::PLAYER_BOTTOM_BAR, true);
-
-    // 初始化纹理缓存数量。同步函数运行，避免在窗口未创建时初始化纹理
-    brls::sync([this]() {
-        TextureCache::instance().cache.setCapacity(
-            getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
-    });
 
     // 初始化内存缓存大小
     MPVCore::INMEMORY_CACHE =
@@ -132,6 +117,24 @@ void ProgramConfig::load() {
     MPVCore::LOW_QUALITY =
         getSettingItem(SettingItem::PLAYER_LOW_QUALITY, false);
 #endif
+
+    // 初始化一些在创建窗口之后才能初始化的内容
+    brls::Application::getWindowCreationDoneEvent()->subscribe([this](){
+
+        // 初始化主题
+        int themeData = getSettingItem(SettingItem::APP_THEME, 0);
+        if (themeData == 1) {
+            brls::Application::getPlatform()->setThemeVariant(
+                brls::ThemeVariant::LIGHT);
+        } else if (themeData == 2) {
+            brls::Application::getPlatform()->setThemeVariant(
+                brls::ThemeVariant::DARK);
+        }
+
+        // 初始化纹理缓存数量
+        TextureCache::instance().cache.setCapacity(
+            getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
+    });
 }
 
 void ProgramConfig::save() {
