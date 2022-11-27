@@ -677,8 +677,6 @@ PlayerActivity::~PlayerActivity() {
     MPVCore::instance().getEvent()->unsubscribe(eventSubscribeID);
     // 停止视频播放
     this->video->stop();
-
-    this->recyclingGrid->clearData();
 }
 
 /// season player
