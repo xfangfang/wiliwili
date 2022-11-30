@@ -186,7 +186,7 @@ void AutoTabFrame::focus2NextTab() {
     if (currentIndex < 0) {
         // not found
         if (this->sidebar->getChildren().size() > 0) this->focusTab(0);
-    } else if (currentIndex + 1 >= this->sidebar->getChildren().size()) {
+    } else if (currentIndex + 1 >= (int)this->sidebar->getChildren().size()) {
         // shake highlight
         if (this->isHorizontal)
             brls::Application::getCurrentFocus()->shakeHighlight(

@@ -21,6 +21,6 @@ public:
     void requestCollectionList(std::string& mid, int index = 1, int num = 20);
 
 private:
-    int index    = 1;
+    size_t index    = 1;
     bool hasMore = true;
 };

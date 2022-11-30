@@ -116,7 +116,7 @@ public:
     void selectRowAt(size_t index, bool animated);
 
     //    计算从start元素的顶点到index（不包含index）元素顶点的距离
-    float getHeightByCellIndex(int index, int start = 0);
+    float getHeightByCellIndex(size_t index, size_t start = 0);
 
     View* getNextCellFocus(brls::FocusDirection direction, View* currentView);
 

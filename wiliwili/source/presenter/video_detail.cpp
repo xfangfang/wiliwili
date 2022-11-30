@@ -92,7 +92,7 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                 // 展示分P数据
                 this->onVideoPageListInfo(this->videoDetailResult.pages);
 
-                unsigned int cid    = videoDetailPage.cid;
+                int cid    = videoDetailPage.cid;
                 videoDetailPage.cid = 0;
                 // 尝试打开指定的分P
                 if (cid != 0)

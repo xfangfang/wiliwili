@@ -101,6 +101,6 @@ protected:
 
     static inline int defaultQuality = 116;
 
-    unsigned int commentRequestIndex           = 1;
+    int commentRequestIndex           = 1;
     unsigned int userUploadedVideoRequestIndex = 1;
 };

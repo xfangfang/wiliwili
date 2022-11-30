@@ -15,7 +15,7 @@ struct Node {
 template <typename K, typename T>
 class LRUCache {
 public:
-    LRUCache(int c, T defaultValue) : capacity(c), defaultValue(defaultValue) {
+    LRUCache(size_t c, T defaultValue) : capacity(c), defaultValue(defaultValue) {
         if (c < 1) throw std::logic_error("Cache capacity cannot less than 1.");
     }
 
@@ -54,7 +54,7 @@ public:
     std::list<Node<K, T>>& getCacheList() { return cacheList; }
 
 private:
-    int capacity = 1;
+    size_t capacity = 1;
     T defaultValue;
     std::list<Node<K, T>> cacheList;
     std::unordered_map<K, typename std::list<Node<K, T>>::iterator> cacheMap;

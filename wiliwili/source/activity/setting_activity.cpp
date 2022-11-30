@@ -228,8 +228,8 @@ void SettingActivity::onContentAvailable() {
     // todo: 从config_helper中实现一个可通用的选项选择方式
     std::vector<int> inmemoryData = {0, 10, 20, 50, 100, 200, 500};
     int inmemory = conf.getSettingItem(SettingItem::PLAYER_INMEMORY_CACHE, 10);
-    int inmemorySelect = 1;
-    for (int i = 0; i < inmemoryData.size(); i++) {
+    size_t inmemorySelect = 1;
+    for (size_t i = 0; i < inmemoryData.size(); i++) {
         inmemorySelect = i;
         if (inmemory <= inmemoryData[i]) break;
     }

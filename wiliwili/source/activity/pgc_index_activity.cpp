@@ -102,7 +102,7 @@ public:
         brls::Box::onChildFocusGained(directChild, focusedView);
     }
 
-    int getSelectedIndex() { return this->selectedIndex; }
+    size_t getSelectedIndex() { return this->selectedIndex; }
 
     IndexItemSinglePairData getData() {
         return std::make_pair(data.field, data.values[selectedIndex].keyword);
@@ -122,13 +122,13 @@ public:
         if (children.size() > 0) children[0]->onFocusGained();
     }
 
-    void setSelectedIndex(int value) {
+    void setSelectedIndex(size_t value) {
         auto& children = this->getChildren();
         if (value < 0 || value >= children.size()) return;
         children[value]->onFocusGained();
     }
 
-    int selectedIndex = 0;
+    size_t selectedIndex = 0;
     std::string key;
     bilibili::PGCIndexFilter data;
 };

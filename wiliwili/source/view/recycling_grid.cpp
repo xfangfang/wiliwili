@@ -281,7 +281,7 @@ void RecyclingGrid::reloadData() {
         } else {
             // 获取每个cell的高度并缓存起来
             cellHeightCache.clear();
-            for (int section = 0; section < dataSource->getItemCount();
+            for (size_t section = 0; section < dataSource->getItemCount();
                  section++) {
                 float height = dataSource->heightForRow(this, section);
                 cellHeightCache.push_back(height);
@@ -293,7 +293,7 @@ void RecyclingGrid::reloadData() {
 
         // 填充足够多的cell到屏幕上
         brls::Rect frame = getLocalFrame();
-        for (auto row = 0; row < dataSource->getItemCount(); row++) {
+        for (size_t row = 0; row < dataSource->getItemCount(); row++) {
             this->addCellAt(row, true);
             // 只关注最后一列，因为只有当前行最后一列元素添加完毕时才需要考虑要不要继续添加下一行元素
             if ((row + 1) % spanCount == 0) {
@@ -316,7 +316,7 @@ void RecyclingGrid::notifyDataChanged() {
 
     if (dataSource) {
         if (isFlowMode) {
-            for (int i = cellHeightCache.size(); i < dataSource->getItemCount();
+            for (size_t i = cellHeightCache.size(); i < dataSource->getItemCount();
                  i++) {
                 float height = dataSource->heightForRow(this, i);
                 cellHeightCache.push_back(height);
@@ -507,11 +507,11 @@ void RecyclingGrid::selectRowAt(size_t index, bool animated) {
     }
 }
 
-float RecyclingGrid::getHeightByCellIndex(int index, int start) {
+float RecyclingGrid::getHeightByCellIndex(size_t index, size_t start) {
     if (index < start) return 0;
     if (!isFlowMode)
         return (estimatedRowHeight + estimatedRowSpace) *
-               (int)((index - start) / spanCount);
+               (size_t)((index - start) / spanCount);
 
     if (cellHeightCache.size() == 0) {
         brls::Logger::error(
