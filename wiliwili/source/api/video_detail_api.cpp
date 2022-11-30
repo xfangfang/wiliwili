@@ -216,6 +216,33 @@ void BilibiliClient::report_history(const std::string& mid,
                          }
                      });
 }
+
+/// 直播页 上报历史
+void BilibiliClient::report_live_history(const int room_id,
+                                         const std::string& csrf,
+                                         const std::function<void()>& callback,
+                                         const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"room_id", std::to_string(room_id)},
+        {"platform", "pc"},
+        {"csrf_token", csrf},
+        {"csrf", csrf},
+        {"visit_id", ""},
+    };
+
+    HTTP::__cpr_post(Api::LiveReport, {}, payload,
+                     [callback, error](const cpr::Response& r) {
+                         if (r.status_code != 200) {
+                             ERROR_MSG(
+                                 "ERROOR: report_live_history: status_code: " +
+                                     std::to_string(r.status_code),
+                                 r.status_code);
+                         } else {
+                             callback();
+                         }
+                     });
+}
+
 void BilibiliClient::be_agree(const std::string& access_key, int aid,
                               bool is_like,
                               const std::function<void()>& callback,

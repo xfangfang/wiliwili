@@ -300,6 +300,13 @@ public:
                                unsigned int epid                     = 0,
                                const std::function<void()>& callback = nullptr,
                                const ErrorCallback& error            = nullptr);
+
+    /// 直播页 上报观看记录
+    static void report_live_history(
+        const int room, const std::string& csrf,
+        const std::function<void()>& callback = nullptr,
+        const ErrorCallback& error            = nullptr);
+    
     /// 点赞
     static void be_agree(const std::string& access_key, int aid, bool is_like,
                          const std::function<void()>& callback = nullptr,

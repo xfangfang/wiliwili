@@ -76,6 +76,9 @@ static const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
 
 /// 直播API
 static const std::string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
+/// 直播历史记录
+static const std::string LiveReport =
+    _liveBase + "/xlive/web-room/v1/index/roomEntryAction";
 
 /// ===
 /// 主页API
