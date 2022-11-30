@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-# import cpr
+# add cpr
 set(CPR_USE_SYSTEM_CURL ON)
 if (PLATFORM_DESKTOP)
     if (APPLE)
@@ -13,22 +13,15 @@ if (PLATFORM_DESKTOP)
 else ()
     set(CPR_FORCE_MBEDTLS_BACKEND ON)
 endif ()
-
 set(BUILD_SHARED_LIBS OFF)
-FetchContent_Declare(cpr
-        GIT_REPOSITORY https://github.com/libcpr/cpr.git
-        GIT_TAG 142a496e49bc71dc1be85a3ce47bb25573670000) # 2022/11/04
-FetchContent_MakeAvailable(cpr)
+add_subdirectory(cpr EXCLUDE_FROM_ALL)
 
-#import lunasvg
+# add lunasvg
 set(BUILD_SHARED_LIBS OFF)
-FetchContent_Declare(lunasvg
-        GIT_REPOSITORY https://github.com/sammycage/lunasvg.git
-        GIT_TAG 7417baa0aff477f361e44e2aa793fdb0c7aae352) # 2.3.2
-FetchContent_MakeAvailable(lunasvg)
+add_subdirectory(lunasvg EXCLUDE_FROM_ALL)
 
-##import libopencc
-add_subdirectory(OpenCC)
+# add libopencc
+add_subdirectory(OpenCC EXCLUDE_FROM_ALL)
 
 # add QR-Code-generator
 add_library(qrcode STATIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp/QrCode.cpp)

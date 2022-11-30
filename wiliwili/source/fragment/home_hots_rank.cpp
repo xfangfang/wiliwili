@@ -36,8 +36,6 @@ public:
     }
 
     void appendData(const bilibili::HotsRankVideoListResult& data) {
-        brls::Logger::error("DataSourceRecommendVideoList: append data: {}",
-                            data.size());
         this->videoList.insert(this->videoList.end(), data.begin(), data.end());
     }
 
@@ -74,8 +72,6 @@ public:
     }
 
     void appendData(const bilibili::HotsRankPGCVideoListResult& data) {
-        brls::Logger::error("DataSourceRecommendVideoList: append data: {}",
-                            data.size());
         this->videoList.insert(this->videoList.end(), data.begin(), data.end());
     }
 

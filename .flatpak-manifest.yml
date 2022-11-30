@@ -1,0 +1,147 @@
+app-id: cn.xfangfang.wiliwili
+runtime: org.freedesktop.Platform
+runtime-version: '22.08'
+sdk: org.freedesktop.Sdk
+command: wiliwili
+copy-icon: true
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --device=all
+  - --share=network
+  - --socket=pulseaudio
+  - --filesystem=home/.var/app/cn.xfangfang.wiliwili/config:create
+  - --env=LC_NUMERIC=C
+modules:
+  - name: wiliwili
+    buildsystem: cmake-ninja
+    config-opts:
+      - '-DPLATFORM_DESKTOP=ON'
+      - '-DINSTALL=ON'
+      - '-DCMAKE_BUILD_TYPE=Release'
+    builddir: true 
+    sources:
+      - type: dir
+        path: '.'
+    modules:
+      - name: glfw
+        buildsystem: cmake-ninja
+        config-opts:
+          - -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          - -DBUILD_SHARED_LIBS:BOOL=ON
+          - -DBUILD_GLFW_EXAMPLES:BOOL=OFF
+          - -DBUILD_GLFW_DOCS:BOOL=OFF
+        sources:
+          - type: archive
+            url: https://github.com/glfw/glfw/releases/download/3.3.8/glfw-3.3.8.zip
+            sha256: 4d025083cc4a3dd1f91ab9b9ba4f5807193823e565a5bcf4be202669d9911ea6
+        cleanup:
+          - /include
+          - /lib/cmake
+          - /lib/pkgconfig
+
+      - name: libmpv
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+          - /share/man
+        buildsystem: simple
+        build-commands:
+          - python3 waf configure --prefix=/app --enable-libmpv-shared --disable-cplayer --disable-build-date --disable-alsa
+          - python3 waf build
+          - python3 waf install
+        sources:
+          - type: archive
+            url: 'https://github.com/mpv-player/mpv/archive/refs/tags/v0.35.0.tar.gz'
+            sha256: 'dc411c899a64548250c142bf1fa1aa7528f1b4398a24c86b816093999049ec00'
+          - type: file
+            url: 'https://waf.io/waf-2.0.24'
+            sha256: '93909bca823a675f9f40af7c65b24887c3a3c0efdf411ff1978ba827194bdeb0'
+            dest-filename: waf
+        modules:
+          - name: libv4l2
+            cleanup:
+              - /sbin
+              - /bin
+              - /include
+              - /lib/*.la
+              - /lib/*/*.la
+              - /lib*/*/*/*.la
+              - /lib/pkgconfig
+              - /share/man
+            config-opts:
+              - '--disable-static'
+              - '--disable-bpf'
+              - '--with-udevdir=/app/lib/udev'
+            sources:
+              - type: archive
+                url: 'https://linuxtv.org/downloads/v4l-utils/v4l-utils-1.22.1.tar.bz2'
+                sha256: '65c6fbe830a44ca105c443b027182c1b2c9053a91d1e72ad849dfab388b94e31'
+
+          - name: nv-codec-headers
+            cleanup:
+              - '*'
+            no-autogen: true
+            make-install-args:
+              - PREFIX=/app
+            sources:
+              - type: archive
+                url: 'https://github.com/FFmpeg/nv-codec-headers/releases/download/n11.1.5.1/nv-codec-headers-11.1.5.1.tar.gz'
+                sha256: 'a28cdde3ac0e9e02c2dde7a1b4de5333b4ac6148a8332ca712da243a3361a0d9'
+
+          - name: ffmpeg
+            cleanup:
+              - /include
+              - /lib/pkgconfig
+              - /share/ffmpeg/examples
+            config-opts:
+              - '--enable-shared'
+              - '--disable-static'
+              - '--enable-gnutls'
+              - '--enable-gpl'
+              - '--disable-doc'
+              - '--disable-programs'
+              - '--disable-encoders'
+              - '--disable-muxers'
+              - '--enable-encoder=png,libwebp'
+              - '--enable-libv4l2'
+              - '--enable-libdav1d'
+              - '--enable-libfontconfig'
+              - '--enable-libfreetype'
+              - '--enable-libopus'
+              - '--enable-librsvg'
+              - '--enable-libvpx'
+              - '--enable-libmp3lame'
+              - '--enable-libwebp'
+            sources:
+              - type: archive
+                url: 'https://ffmpeg.org/releases/ffmpeg-5.1.tar.gz'
+                sha256: 'c0b2ec290abd5ad31b5e0a8c455c34f90306ecd2ede6ace5db5ca3a07f3b842f'
+
+          - name: libass
+            cleanup:
+              - /include
+              - /lib/*.la
+              - /lib/pkgconfig
+            config-opts:
+              - '--disable-static'
+            sources:
+              - type: archive
+                url: 'https://github.com/libass/libass/releases/download/0.16.0/libass-0.16.0.tar.gz'
+                sha256: 'fea8019b1887cab9ab00c1e58614b4ec2b1cee339b3f7e446f5fab01b032d430'
+
+          - name: uchardet
+            buildsystem: cmake-ninja
+            config-opts:
+              - '-DCMAKE_BUILD_TYPE=Release'
+              - '-DBUILD_STATIC=0'
+            cleanup:
+              - /bin
+              - /include
+              - /lib/pkgconfig
+              - /share/man
+            sources:
+              - type: archive
+                url: 'https://gitlab.freedesktop.org/uchardet/uchardet/-/archive/v0.0.7/uchardet-v0.0.7.tar.gz'
+                sha256: 'f3635d1d10e1470452bc42c1bf509451a9926b399a11740a9949e86069d69f58'

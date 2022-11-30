@@ -10,3 +10,9 @@
 [submodule "library/OpenCC"]
 	path = library/OpenCC
 	url = https://github.com/xfangfang/OpenCC.git
+[submodule "library/lunasvg"]
+	path = library/lunasvg
+	url = https://github.com/sammycage/lunasvg.git
+[submodule "library/cpr"]
+	path = library/cpr
+	url = https://github.com/libcpr/cpr.git

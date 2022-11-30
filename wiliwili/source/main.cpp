@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     //    brls::Application::getPlatform()->forceEnableGamePlayRecording();
     brls::Application::getPlatform()->exitToHomeMode(true);
 
-    brls::Application::createWindow("wiliwili/title"_i18n);
+    brls::Application::createWindow("wiliwili");
 
     // Have the application register an action on every activity that will quit when you press BUTTON_START
     brls::Application::setGlobalQuit(false);

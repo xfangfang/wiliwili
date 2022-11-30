@@ -18,6 +18,8 @@ set(MAC_UNIVERSAL OFF CACHE BOOL "Support x86_64;arm64 at the same time")
 option(USE_GLFW "using glfw for input and create window" ON)
 option(USE_SDL2 "using sdl2 for input and create window" OFF)
 
+option(INSTALL "Install to system. only use this option with Linux." OFF)
+
 if (USE_SDL2)
     message("SDL2")
     set(USE_GLFW OFF)
@@ -67,7 +69,12 @@ set(VERSION_REVISION "0")
 set(PROJECT_TITLEID "0x010FF000FFFF0001")
 set(PROJECT_AUTHOR "xfangfang")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/bilibili.jpg)
+set(PROJECT_ICON_PNG ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/bilibili.png)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
+set(PACKAGE_NAME cn.xfangfang.wiliwili)
+set(PROJECT_DESKTOP ${CMAKE_CURRENT_SOURCE_DIR}/scripts/linux/${PACKAGE_NAME}.desktop)
+set(PROJECT_ICON_SVG ${CMAKE_CURRENT_SOURCE_DIR}/resources/svg/${PACKAGE_NAME}.svg)
+set(RESOURCES_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/wiliwili) # Only used in Linux
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 add_definitions(
         -DBUILD_VERSION_MAJOR=${VERSION_MAJOR}
@@ -78,7 +85,18 @@ if (USE_SDL2)
 else ()
     add_definitions(-D__GLFW__)
 endif ()
-include(FetchContent)
+
+# disable in-source build
+if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
+  message(FATAL_ERROR "In-source builds are not allowed")
+endif()
+
+# set resources dir
+if (INSTALL)
+    set(BRLS_RESOURCES_DIR ${RESOURCES_INSTALL_DIR})
+else()
+    set(BRLS_RESOURCES_DIR ".")
+endif()
 
 # build borealis qrcode and other third party libraries
 add_subdirectory(library)
@@ -191,6 +209,44 @@ if (PLATFORM_DESKTOP)
                 COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/build_mac.sh"
                 )
         add_dependencies(${PROJECT_NAME}.app ${PROJECT_NAME})
+    elseif (UNIX)
+        if (INSTALL)
+            message("install prefix: ${CMAKE_INSTALL_PREFIX}")
+            install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+            install(DIRECTORY ${PROJECT_RESOURCES}
+                DESTINATION ${RESOURCES_INSTALL_DIR}
+                FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+                )
+
+            install(FILES ${PROJECT_ICON_SVG}
+                DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps
+                PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+                )
+
+            set(icon_dirs 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256)
+            foreach(icon_dir ${icon_dirs})
+                install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/${PACKAGE_NAME}.png 
+                    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/${icon_dir}/apps
+                    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+                    )        
+            endforeach()
+
+            install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/linux/${PACKAGE_NAME}.appdata.xml 
+                DESTINATION ${CMAKE_INSTALL_PREFIX}/share/metainfo
+                PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+                )
+
+            install(FILES ${PROJECT_DESKTOP}
+                DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications
+                )
+
+            add_custom_target(${PROJECT_NAME}.install
+                COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/bilibili.png
+                    ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/${PACKAGE_NAME}.png 
+                )
+            add_dependencies(${PROJECT_NAME}.install ${PROJECT_NAME}.data)
+            add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.install)
+        endif()
     endif ()
 else ()
     add_custom_target(${PROJECT_NAME}.nro

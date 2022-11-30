@@ -32,8 +32,6 @@ public:
     }
 
     void appendData(const bilibili::HotsAllVideoListResult& data) {
-        brls::Logger::error("DataSourceRecommendVideoList: append data: {}",
-                            data.size());
         this->videoList.insert(this->videoList.end(), data.begin(), data.end());
     }
 

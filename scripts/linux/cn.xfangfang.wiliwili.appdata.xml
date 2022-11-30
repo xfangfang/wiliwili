@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+ <id>cn.xfangfang.wiliwili</id>
+ <metadata_license>CC0-1.0</metadata_license>
+ <project_license>GPL-3.0</project_license>
+ <name>wiliwili</name>
+ <summary>A 3rd party bilibili client</summary>
+ <launchable type="desktop-id">cn.xfangfang.wiliwili.desktop</launchable>
+ <translation type="gettext">wiliwili</translation>
+ <content_rating type="oars-1.1" />
+ <description>
+  <p>
+   Yet another Bilibili client.
+  </p>
+  <p>Features:</p>
+  <ul>
+   <li>Multilingual: Simplified Chinese, Traditional Chinese (automatic translation), English</li>
+   <li>Theme: support automatic switching of theme according to system settings</li>
+   <li>Play page: video, bangumi, film and TV show</li>
+   <li>Personal page: Scan qrcode to login, history and Personal collection</li>
+   <li>Search page: hot search, videos and bangumi</li>
+   <li>Activity page: recently updated video of the following UPers</li>
+   <li>Live page: support watching the following UPers and other system recommendations</li>
+   <li>Flatpak: wiliwili config directory is  ~/.var/app/cn.xfangfang.wiliwili/config/wiliwili</li>
+  </ul>
+ </description>
+ <releases>
+  <release date="2022-11-20" version="0.5.0">
+   <description>
+    <p>
+     Please See Official Changelog at github.com/xfangfang/wiliwili/releases
+    </p>
+   </description>
+  </release>
+ </releases>
+ <screenshots>
+  <screenshot type="default">
+   <image>https://github.com/xfangfang/wiliwili/raw/yoga/docs/images/screenshot-2.png</image>
+   <caption>Light theme</caption>
+  </screenshot>
+  <screenshot type="default">
+   <image>https://github.com/xfangfang/wiliwili/raw/yoga/docs/images/screenshot-1.png</image>
+   <caption>Dark theme</caption>
+  </screenshot>
+ </screenshots>
+ <url type="homepage">https://github.com/xfangfang/wiliwili</url>
+ <url type="bugtracker">https://github.com/xfangfang/wiliwili/issues</url>
+</component>

@@ -11,3 +11,7 @@ ffmpeg-*
 mpv-*
 *.tar.*
 config/
+.flatpak-builder/
+pack/
+repo/
+*.flatpak

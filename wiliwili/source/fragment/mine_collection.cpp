@@ -47,7 +47,6 @@ public:
     }
 
     void appendData(const bilibili::CollectionListResult& data) {
-        brls::Logger::error("DataSourceRecommendVideoList: append data");
         this->list.insert(this->list.end(), data.begin(), data.end());
     }
 

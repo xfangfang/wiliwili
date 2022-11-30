@@ -119,7 +119,7 @@ cd wiliwili
 
 ```shell
 # macOS: install dependencies
-brew install glfw glm mpv
+brew install glfw mpv
 
 cmake -B build -DPLATFORM_DESKTOP=ON
 make -C build wiliwili -j$(sysctl -n hw.ncpu)
@@ -129,10 +129,20 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 
 ```shell
 # Ubuntu: install dependencies (glfw3.3 or later)
-sudo apt install libcurl4-openssl-dev libglfw3-dev libglm-dev libmpv-dev
+sudo apt install libcurl4-openssl-dev libglfw3-dev libmpv-dev
 
 cmake -B build -DPLATFORM_DESKTOP=ON
 make -C build wiliwili -j$(nproc)
+```
+
+```shell
+# install to system and add a desktop icon
+cmake -B build -DPLATFORM_DESKTOP=ON -DINSTALL=ON -DCMAKE_BUILD_TYPE=Release
+make -C build -j$(nproc)
+sudo make install
+
+# uninstall (run after install)
+sudo xargs -a build/install_manifest.txt rm
 ```
 
 #### Windows
@@ -140,7 +150,7 @@ make -C build wiliwili -j$(nproc)
 ```shell
 # Windows: install dependencies (MSYS2 MinGW64)
 pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-make \
-  git mingw-w64-x86_64-glfw mingw-w64-x86_64-glm mingw-w64-x86_64-mpv
+  git mingw-w64-x86_64-glfw mingw-w64-x86_64-mpv
 
 cmake -B build -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON
 mingw32-make -C build wiliwili -j$(nproc)
@@ -152,7 +162,7 @@ mingw32-make -C build wiliwili -j$(nproc)
 
 ```shell
 # macOS
-brew install sdl2 glm mpv
+brew install sdl2 mpv
 
 cmake -B build -DPLATFORM_DESKTOP=ON -DUSE_SDL2=ON
 make -C build wiliwili -j$(sysctl -n hw.ncpu)
@@ -182,7 +192,7 @@ docker run --rm -v $(pwd):/data devkitpro/devkita64:20221113 \
 # 1. 安装devkitpro环境: https://github.com/devkitPro/pacman/releases
 
 # 2. 安装预编译的依赖
-sudo dkp-pacman -S switch-glfw switch-glm switch-cmake devkita64-cmake switch-pkg-config
+sudo dkp-pacman -S switch-glfw switch-cmake devkita64-cmake switch-pkg-config
 
 # 3. 安装ffmpeg与mpv（使用自编译的库，官方的库无法播放网络视频）
 # 手动编译方法请看：scripts/README.md
