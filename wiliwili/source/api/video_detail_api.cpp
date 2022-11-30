@@ -56,7 +56,7 @@ void BilibiliClient::get_video_url(
                                           {"cid", std::to_string(cid)},
                                           {"qn", std::to_string(qn)},
                                           {"fourk", "1"},
-                                          {"fnval", "16"},
+                                          {"fnval", "1744"},
                                           {"fnver", "0"}},
                                          callback, error);
 }
@@ -70,7 +70,7 @@ void BilibiliClient::get_video_url(
                                           {"cid", std::to_string(cid)},
                                           {"qn", std::to_string(qn)},
                                           {"fourk", "1"},
-                                          {"fnval", "16"},
+                                          {"fnval", "1744"},
                                           {"fnver", "0"}},
                                          callback, error);
 }
