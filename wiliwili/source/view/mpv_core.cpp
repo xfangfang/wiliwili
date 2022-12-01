@@ -105,7 +105,8 @@ void MPVCore::init() {
 
     // hardware decoding
 #ifndef __SWITCH__
-    mpv_set_option_string(mpv, "hwdec", "auto-safe");
+    mpv_set_option_string(mpv, "hwdec", HARDWARE_DEC ? "auto-safe" : "no");
+    brls::Logger::info("MPV hardware decode: {}", HARDWARE_DEC);
 #endif
 
     // Making the loading process faster

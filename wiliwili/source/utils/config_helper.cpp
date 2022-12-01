@@ -18,6 +18,7 @@ std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
     {SettingItem::HISTORY_REPORT, "history_report"},
     {SettingItem::PLAYER_BOTTOM_BAR, "player_bottom_bar"},
     {SettingItem::PLAYER_LOW_QUALITY, "player_low_quality"},
+    {SettingItem::PLAYER_HWDEC, "player_hwdec"},
     {SettingItem::PLAYER_INMEMORY_CACHE, "player_inmemory_cache"},
     {SettingItem::TEXTURE_CACHE_NUM, "texture_cache_num"},
     {SettingItem::OPENCC_ON, "opencc"},
@@ -101,6 +102,9 @@ void ProgramConfig::load() {
 
     // 初始化是否固定显示底部进度条
     MPVCore::BOTTOM_BAR = getSettingItem(SettingItem::PLAYER_BOTTOM_BAR, true);
+
+    // 初始化是否使用硬件加速 （仅限非switch设备）
+    MPVCore::HARDWARE_DEC = getSettingItem(SettingItem::PLAYER_HWDEC, true);
 
     // 初始化内存缓存大小
     MPVCore::INMEMORY_CACHE =

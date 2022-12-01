@@ -46,6 +46,9 @@
                         <brls:BooleanCell
                                 id="setting/video/quality"/>
 
+                        <brls:BooleanCell
+                                id="setting/video/hwdec"/>
+
                         <brls:SelectorCell
                                 id="setting/video/inmemory"/>
 

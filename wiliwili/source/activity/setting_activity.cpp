@@ -262,6 +262,21 @@ void SettingActivity::onContentAvailable() {
                       });
 
 #ifdef __SWITCH__
+    btnHWDEC->setVisibility(brls::Visibility::GONE);
+#else
+    btnHWDEC->init(
+        "wiliwili/setting/app/playback/hwdec"_i18n,
+        conf.getSettingItem(SettingItem::PLAYER_HWDEC, true),
+        [](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::PLAYER_HWDEC, value);
+            if (MPVCore::HARDWARE_DEC == value) return;
+            MPVCore::HARDWARE_DEC = value;
+            MPVCore::instance().restart();
+        });
+#endif
+
+#ifdef __SWITCH__
     bool defaultValue = true;
 #else
     bool defaultValue = false;

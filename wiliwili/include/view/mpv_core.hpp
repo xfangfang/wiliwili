@@ -178,6 +178,7 @@ public:
     inline static bool BOTTOM_BAR    = true;
     inline static bool LOW_QUALITY   = false;
     inline static int INMEMORY_CACHE = 0;
+    inline static bool HARDWARE_DEC  = false;
     NVGcolor bottomBarColor =
         brls::Application::getTheme().getColor("color/bilibili");
 
