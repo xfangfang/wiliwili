@@ -109,7 +109,9 @@ void MPVCore::init() {
 #endif
 
     // Making the loading process faster
+#ifdef __SWITCH__
     mpv_set_option_string(mpv, "vd-lavc-threads", "4");
+#endif
     mpv_set_option_string(mpv, "demuxer-lavf-analyzeduration", "0.1");
     mpv_set_option_string(mpv, "demuxer-lavf-probe-info", "nostreams");
     mpv_set_option_string(mpv, "demuxer-lavf-probescore", "24");
@@ -117,7 +119,7 @@ void MPVCore::init() {
     // log
     // mpv_set_option_string(mpv, "msg-level", "ffmpeg=trace");
     // mpv_set_option_string(mpv, "msg-level", "all=v");
-    mpv_set_option_string(mpv, "msg-level", "all=no");
+    // mpv_set_option_string(mpv, "msg-level", "all=no");
 
     if (mpv_initialize(mpv) < 0) {
         mpv_terminate_destroy(mpv);
