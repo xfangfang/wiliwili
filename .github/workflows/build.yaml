@@ -107,6 +107,9 @@ jobs:
           repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
 
+      - name: Fetch tags
+        run: git fetch --tags
+
       - name: Install dependency
         uses: msys2/setup-msys2@v2
         with:
@@ -160,6 +163,9 @@ jobs:
           repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
 
+      - name: Fetch tags
+        run: git fetch --tags
+
       - name: Build
         id: compile
         run: |
@@ -188,6 +194,9 @@ jobs:
         with:
           repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
+
+      - name: Fetch tags
+        run: git fetch --tags
 
       - name: install deps
         run: |
@@ -256,6 +265,10 @@ jobs:
         with:
           repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
+
+      - name: Fetch tags
+        run: git fetch --tags
+
       - name: Install deps
         run: |
           dnf -y install docker

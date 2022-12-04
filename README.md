@@ -42,7 +42,7 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 1. 此页面同时提供了 `测试版switch客户端`、 `Windows (win7 sp1 and later; x86_64)` 、 `macOS (11.7 and later; intel)`
    和 `Linux (flatpak x86_64 id:cn.xfangfang.wiliwili)` 客户端
 2. PC客户端支持硬件解码、秒开流畅适合老电脑、支持鼠标操控（左键点击
-   右键返回）、缺少部分字体的解决办法见：https://github.com/xfangfang/wiliwili/issues/13#issuecomment-1296299063
+   右键返回）、缺少部分字体的解决办法见：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
 3. 如果不知道如何从 Github-Actions 下载，这里是 [教程](https://xfangfang.github.io/036)
 
 <br>
@@ -119,7 +119,7 @@ cd wiliwili
 
 <details>
 
-构建出来的客户端某些图标缺失，请参考：https://github.com/xfangfang/wiliwili/issues/13#issuecomment-1296299063
+构建出来的客户端某些图标缺失，请参考：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
 
 #### macOS
 
@@ -142,10 +142,10 @@ make -C build wiliwili -j$(nproc)
 ```
 
 ```shell
-# install to system and add a desktop icon
+# 如果你想安装在系统路径，并生成一个桌面图标，请使用如下内容编译
 cmake -B build -DPLATFORM_DESKTOP=ON -DINSTALL=ON -DCMAKE_BUILD_TYPE=Release
 make -C build -j$(nproc)
-sudo make install
+sudo make -C build install
 
 # uninstall (run after install)
 sudo xargs -a build/install_manifest.txt rm

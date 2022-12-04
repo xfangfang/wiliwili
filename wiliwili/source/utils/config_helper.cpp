@@ -123,8 +123,7 @@ void ProgramConfig::load() {
 #endif
 
     // 初始化一些在创建窗口之后才能初始化的内容
-    brls::Application::getWindowCreationDoneEvent()->subscribe([this](){
-
+    brls::Application::getWindowCreationDoneEvent()->subscribe([this]() {
         // 初始化主题
         int themeData = getSettingItem(SettingItem::APP_THEME, 0);
         if (themeData == 1) {
@@ -156,9 +155,15 @@ void ProgramConfig::save() {
 }
 
 void ProgramConfig::init() {
+    // load config from disk
     this->load();
-    Cookie diskCookie = this->getCookie();
+
+    // init custom font path
+    brls::FontLoader::USER_FONT_PATH = getConfigDir() + "/font.ttf";
+    brls::FontLoader::USER_ICON_PATH = getConfigDir() + "/icon.ttf";
+
     // set bilibili cookie and cookie update callback
+    Cookie diskCookie = this->getCookie();
     bilibili::BilibiliClient::init(
         diskCookie,
         [](Cookie newCookie) {

@@ -26,11 +26,11 @@ bash ./build_mpv.sh
 # Precompiled
 
 ```
-sudo dkp-pacman -U https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-ffmpeg-4.4.3-1-any.pkg.tar.xz
-
-sudo dkp-pacman -U https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-libmpv-0.34.1-1-any.pkg.tar.xz
+base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
+sudo dkp-pacman -U \
+    $base_url/switch-ffmpeg-4.4.3-1-any.pkg.tar.xz
+    $base_url/switch-libmpv-0.34.1-1-any.pkg.tar.xz
 ```
-
 
 # Acknowledgement
 
