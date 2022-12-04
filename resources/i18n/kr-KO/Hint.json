@@ -1,0 +1,15 @@
+{
+  "ok": "확인",
+  "back": "뒤로 가기",
+  "cancel": "취소",
+  "exit": "종료",
+  "on": "켬",
+  "off": "끔",
+  "preset": "사전 설정",
+  "default": "기본",
+  "current": "현재",
+  "success": "성공",
+  "failed": "실패",
+  "exit_hint": "응용 프로그램을 종료하겠습니까?",
+  "loading": "불러오기 중"
+}
