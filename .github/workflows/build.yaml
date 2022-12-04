@@ -106,9 +106,7 @@ jobs:
         with:
           repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
-
-      - name: Fetch tags
-        run: git fetch --tags
+          fetch-depth: 0
 
       - name: Install dependency
         uses: msys2/setup-msys2@v2
@@ -162,9 +160,7 @@ jobs:
         with:
           repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
-
-      - name: Fetch tags
-        run: git fetch --tags
+          fetch-depth: 0
 
       - name: Build
         id: compile
@@ -194,9 +190,7 @@ jobs:
         with:
           repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
-
-      - name: Fetch tags
-        run: git fetch --tags
+          fetch-depth: 0
 
       - name: install deps
         run: |
@@ -265,9 +259,7 @@ jobs:
         with:
           repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
-
-      - name: Fetch tags
-        run: git fetch --tags
+          fetch-depth: 0
 
       - name: Install deps
         run: |
