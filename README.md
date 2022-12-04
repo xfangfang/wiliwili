@@ -52,7 +52,6 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 如果你有其他改进的想法或创意，欢迎在讨论区交流：[Discussions](https://github.com/xfangfang/wiliwili/discussions/categories/ideas)
 
 <details>
-<summary id="todo">点击展开</summary>
 
 - [x] 初步完成底层基础组件、首页各类推荐视频、用户视频播放页
 - [x] 微调页面、解决播放器启动速度慢、解决播放页面退出卡顿
@@ -119,7 +118,6 @@ cd wiliwili
 目前 wiliwili 支持运行在 Linux macOS 和 Windows上
 
 <details>
-<summary id="local-pc">点击展开</summary>
 
 构建出来的客户端某些图标缺失，请参考：https://github.com/xfangfang/wiliwili/issues/13#issuecomment-1296299063
 
@@ -183,7 +181,6 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 推荐使用docker构建，本地构建配置环境略微繁琐不过可用来切换底层的ffmpeg或mpv等其他依赖库更灵活地进行调试。
 
 <details>
-<summary id="local-switch">点击展开</summary>
 
 #### Docker
 
