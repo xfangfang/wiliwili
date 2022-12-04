@@ -36,9 +36,21 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 
 <br>
 
+# 安装流程 (PC)
+
+0. 可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions/workflows/build.yaml) 下载自动构建的测试版客户端
+1. 此页面同时提供了 `测试版switch客户端`、 `Windows (win7 sp1 and later; x86_64)` 、 `macOS (11.7 and later; intel)`
+   和 `Linux (flatpak x86_64 id:cn.xfangfang.wiliwili)` 客户端
+2. PC客户端支持硬件解码、秒开流畅适合老电脑、支持鼠标操控（左键点击
+   右键返回）、缺少部分字体的解决办法见：https://github.com/xfangfang/wiliwili/issues/13#issuecomment-1296299063
+3. 如果不知道如何从 Github-Actions 下载，这里是 [教程](https://xfangfang.github.io/036)
+
+<br>
+
 # TODO list
 
-<p>
+如果你有其他改进的想法或创意，欢迎在讨论区交流：[Discussions](https://github.com/xfangfang/wiliwili/discussions/categories/ideas)
+
 <details>
 <summary id="todo">点击展开</summary>
 
@@ -59,29 +71,28 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 - [x] 完善设置页
 - [ ] 弹幕相关设置
 - [ ] 点赞、投币、收藏
-- [ ] 拖拽调节进度、长按快速调节进度
-- [ ] 增加单手模式使用一个手柄来控制播放器
+- [x] 拖拽调节进度
+- [ ] 长按快速调节进度
+- [x] 增加单手模式使用一个手柄来控制播放器
 - [ ] 安装图标时检查wiliwili位置
 - [ ] NSP forwarder自动检查多个位置的nro文件，避免无法打开
-- [ ] 增加设置使首页无法通过返回退出，避免误触
-- [ ] 使用教程添加未指明的快捷键说明
-- [ ] 重压摇杆临时快进
+- [x] 增加设置使首页无法通过返回退出，避免误触
+- [x] 使用教程添加未指明的快捷键说明
+- [x] 重压摇杆临时快进
 - [ ] 增加平板模式与电视模式页面样式的切换
 
 </details>
-</p>
 
 <br>
 
 # 反馈问题前要做的事
 
-仅在 `最新大气层` + `最新固件` + `FAT32` 内存卡测试。
-
-1. 首先确保 `大气层`、`固件`、`内存卡` 三者符合要求
-2. 确保switch系统时间正常，如果进入应用弹出 `网络错误` 一般是由这个问题导致的。
-3. 重置switch系统网络设置，尤其是DNS配置，某些DNS服务器无法正确解析API域名和视频地址
-4. `完整且详细地` 描述你的问题，最好附加演示视频、截图。
-5. 网络相关的问题附加 `网络诊断截图`，入口：应用内设置/实用工具/网络诊断
+0. 网络相关的问题附加 `网络诊断截图`，入口：应用内设置/实用工具/网络诊断
+1. [Switch用户] 要确保 `大气层`和`系统固件` 更新到 **最新** ，`内存卡`为 **FAT32**
+2. [Switch用户] 如果打开应用黑屏时间过长，可以尝试删除内存卡目录 `config/wiliwili` 重新进入
+3. 确保 `系统时间`正确、系统`网络设置`正确（主要是DNS）、如果使用了`网络代理`请在反馈前关闭并重新测试
+4. 查找有没有其他人出现过类似的问题：[Issues](https://github.com/xfangfang/wiliwili/issues?q=is%3Aissue)
+5. **完整且详细地** 描述你的问题，最好附加演示视频、截图。
 6. 尝试复现问题，尽力找到BUG出现的规律
 
 <br>
@@ -107,9 +118,6 @@ cd wiliwili
 
 目前 wiliwili 支持运行在 Linux macOS 和 Windows上
 
-可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions/workflows/build.yaml) 下载自动构建的测试版客户端
-
-<p>
 <details>
 <summary id="local-pc">点击展开</summary>
 
@@ -169,13 +177,11 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 ```
 
 </details>
-</p>
 
 ### 交叉编译 Switch 可执行文件 (wiliwili.nro)
 
 推荐使用docker构建，本地构建配置环境略微繁琐不过可用来切换底层的ffmpeg或mpv等其他依赖库更灵活地进行调试。
 
-<p>
 <details>
 <summary id="local-switch">点击展开</summary>
 
@@ -211,7 +217,6 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 ```
 
 </details>
-</p>
 
 <br>
 

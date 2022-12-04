@@ -101,7 +101,6 @@ public:
     }
 
     void appendData(const bilibili::HistoryVideoListResult& data) {
-        brls::Logger::error("DataSourceMineHistoryVideoList: append data");
         this->list.insert(this->list.end(), data.begin(), data.end());
     }
 

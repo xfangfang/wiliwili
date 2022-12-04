@@ -42,6 +42,7 @@ if (PLATFORM_DESKTOP)
 else ()
     message("building for SWITCH")
     message("Build Type: ${CMAKE_BUILD_TYPE}")
+    message("DEVKITPRO: $ENV{DEVKITPRO}")
     set(CMAKE_USE_SYSTEM_ENVIRONMENT_PATH OFF)
     file(TO_CMAKE_PATH "$ENV{DEVKITPRO}" DEVKITPRO)
     if (NOT IS_DIRECTORY ${DEVKITPRO})
@@ -87,16 +88,16 @@ else ()
 endif ()
 
 # disable in-source build
-if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
-  message(FATAL_ERROR "In-source builds are not allowed")
-endif()
+if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
+    message(FATAL_ERROR "In-source builds are not allowed")
+endif ()
 
 # set resources dir
 if (INSTALL)
     set(BRLS_RESOURCES_DIR ${RESOURCES_INSTALL_DIR})
-else()
+else ()
     set(BRLS_RESOURCES_DIR ".")
-endif()
+endif ()
 
 # build borealis qrcode and other third party libraries
 add_subdirectory(library)
@@ -214,39 +215,39 @@ if (PLATFORM_DESKTOP)
             message("install prefix: ${CMAKE_INSTALL_PREFIX}")
             install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
             install(DIRECTORY ${PROJECT_RESOURCES}
-                DESTINATION ${RESOURCES_INSTALL_DIR}
-                FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
-                )
+                    DESTINATION ${RESOURCES_INSTALL_DIR}
+                    FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+                    )
 
             install(FILES ${PROJECT_ICON_SVG}
-                DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps
-                PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
-                )
+                    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps
+                    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+                    )
 
             set(icon_dirs 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256)
-            foreach(icon_dir ${icon_dirs})
-                install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/${PACKAGE_NAME}.png 
-                    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/${icon_dir}/apps
-                    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
-                    )        
-            endforeach()
+            foreach (icon_dir ${icon_dirs})
+                install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/${PACKAGE_NAME}.png
+                        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/${icon_dir}/apps
+                        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+                        )
+            endforeach ()
 
-            install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/linux/${PACKAGE_NAME}.appdata.xml 
-                DESTINATION ${CMAKE_INSTALL_PREFIX}/share/metainfo
-                PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
-                )
+            install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/linux/${PACKAGE_NAME}.appdata.xml
+                    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/metainfo
+                    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+                    )
 
             install(FILES ${PROJECT_DESKTOP}
-                DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications
-                )
+                    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications
+                    )
 
             add_custom_target(${PROJECT_NAME}.install
-                COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/bilibili.png
-                    ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/${PACKAGE_NAME}.png 
-                )
+                    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/bilibili.png
+                    ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/${PACKAGE_NAME}.png
+                    )
             add_dependencies(${PROJECT_NAME}.install ${PROJECT_NAME}.data)
             add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.install)
-        endif()
+        endif ()
     endif ()
 else ()
     add_custom_target(${PROJECT_NAME}.nro

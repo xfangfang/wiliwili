@@ -222,7 +222,7 @@ jobs:
         run: |
           echo $VERSION $DIST_INTEL_DMG
           cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release
-          make -C build wiliwili.app -j$(nproc)
+          make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
           mv build/wiliwili.app dist/
           create-dmg --window-pos 200 120 --window-size 800 400 \
             --icon-size 100 --icon "wiliwili.app" 200 190 \
