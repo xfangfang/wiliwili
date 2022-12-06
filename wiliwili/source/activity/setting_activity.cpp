@@ -253,6 +253,22 @@ void SettingActivity::onContentAvailable() {
                          VideoDetail::REPORT_HISTORY = value;
                      });
 
+    btnAutoNextPart->init(
+        "wiliwili/setting/app/playback/auto_play_next_part"_i18n,
+        conf.getSettingItem(SettingItem::AUTO_NEXT_PART, true), [](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::AUTO_NEXT_PART, value);
+            PlayerActivity::AUTO_NEXT_PART = value;
+        });
+
+    btnAutoNextRcmd->init(
+        "wiliwili/setting/app/playback/auto_play_recommend"_i18n,
+        conf.getSettingItem(SettingItem::AUTO_NEXT_RCMD, true), [](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::AUTO_NEXT_RCMD, value);
+            PlayerActivity::AUTO_NEXT_RCMD = value;
+        });
+
     btnProgress->init("wiliwili/setting/app/playback/player_bar"_i18n,
                       conf.getSettingItem(SettingItem::PLAYER_BOTTOM_BAR, true),
                       [](bool value) {

@@ -94,6 +94,7 @@ public:
 protected:
     bilibili::VideoDetailResult videoDetailResult;       //  视频数据
     bilibili::VideoDetailPage videoDetailPage;           // 视频分P数据
+    bilibili::VideoDetailListResult videDetailRelated;   // 推荐视频
     bilibili::UserDetailResultWrapper userDetailResult;  // 作者数据
     bilibili::VideoUrlResult videoUrlResult;
     bilibili::SeasonResultWrapper seasonInfo;  // 番剧/综艺/影视 数据
@@ -101,6 +102,6 @@ protected:
 
     static inline int defaultQuality = 116;
 
-    int commentRequestIndex           = 1;
+    int commentRequestIndex                    = 1;
     unsigned int userUploadedVideoRequestIndex = 1;
 };

@@ -12,7 +12,9 @@
         "player_bar": "진행 표시줄 항상 표시",
         "low_quality": "낮은 품질의 디코딩(CPU 사용량이 적음)",
         "in_memory_cache": "메모리 캐시",
-        "hwdec": "하드웨어 디코드"
+        "hwdec": "하드웨어 디코드",
+        "auto_play_next_part": "Automatically playing next part",
+        "auto_play_recommend": "Automatically playing recommend video"
       },
       "cache": {
         "header": "캐시",

@@ -12,7 +12,9 @@
         "player_bar": "播放器下方固定顯示進度條",
         "low_quality": "低畫質解碼（以畫質為代價換取更低的功耗）",
         "in_memory_cache": "解码緩存（Switch上更小的值可减少BUG發生，不過會導致跳轉不流暢）\n",
-        "hwdec": "硬體加速解碼"
+        "hwdec": "硬體解碼",
+        "auto_play_next_part": "自動播放下一分集",
+        "auto_play_recommend": "自動播放推薦影片"
       },
       "cache": {
         "header": "快取設定",

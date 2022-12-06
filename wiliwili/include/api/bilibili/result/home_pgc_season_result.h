@@ -11,6 +11,7 @@ namespace bilibili {
 
 class SeasonEpisodeResult {
 public:
+    size_t index;
     unsigned int aid;
     unsigned int cid;
     unsigned int id;  //ep id
@@ -96,8 +97,14 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("new_ep").at("desc").get_to(
             nlohmann_json_t.season_desc);
     }
+    if (nlohmann_json_j.contains("episodes")) {
+        nlohmann_json_j.at("episodes").get_to(nlohmann_json_t.episodes);
+        for (size_t i = 0; i < nlohmann_json_t.episodes.size(); i++) {
+            nlohmann_json_t.episodes[i].index = i;
+        }
+    }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, season_id,
-                                             season_title, episodes, evaluate));
+                                             season_title, evaluate));
 }
 
 };  // namespace bilibili

@@ -10,6 +10,7 @@
 #include "utils/number_helper.hpp"
 #include "presenter/video_detail.hpp"
 #include "view/mpv_core.hpp"
+#include "activity/player_activity.hpp"
 
 std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
     {SettingItem::HIDE_BOTTOM_BAR, "hide_bottom_bar"},
@@ -23,6 +24,8 @@ std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
     {SettingItem::TEXTURE_CACHE_NUM, "texture_cache_num"},
     {SettingItem::OPENCC_ON, "opencc"},
     {SettingItem::CUSTOM_UPDATE_API, "custom_update_api"},
+    {SettingItem::AUTO_NEXT_PART, "auto_next_part"},
+    {SettingItem::AUTO_NEXT_RCMD, "auto_next_recommend"},
 };
 
 ProgramConfig::ProgramConfig() {}
@@ -99,6 +102,14 @@ void ProgramConfig::load() {
     // 初始化是否上传历史记录
     VideoDetail::REPORT_HISTORY =
         getSettingItem(SettingItem::HISTORY_REPORT, true);
+
+    // 初始化是否自动播放下一分集
+    PlayerActivity::AUTO_NEXT_PART =
+        getSettingItem(SettingItem::AUTO_NEXT_PART, true);
+
+    // 初始化是否自动播放推荐视频
+    PlayerActivity::AUTO_NEXT_RCMD =
+        getSettingItem(SettingItem::AUTO_NEXT_RCMD, true);
 
     // 初始化是否固定显示底部进度条
     MPVCore::BOTTOM_BAR = getSettingItem(SettingItem::PLAYER_BOTTOM_BAR, true);

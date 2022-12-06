@@ -83,7 +83,7 @@ VideoProgressSlider::VideoProgressSlider() {
         },
         PanAxis::HORIZONTAL));
 
-    progress = 0.33f;
+    progress = 0;
 }
 
 brls::View* VideoProgressSlider::create() { return new VideoProgressSlider(); }

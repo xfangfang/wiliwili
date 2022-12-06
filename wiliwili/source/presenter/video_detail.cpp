@@ -88,17 +88,16 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                     "bilibili::BilibiliClient::get_video_detail");
                 this->videoDetailResult = result.View;
                 this->userDetailResult  = result.Card;
+                this->videDetailRelated = result.Related;
 
-                // 展示分P数据
-                this->onVideoPageListInfo(this->videoDetailResult.pages);
-
-                int cid    = videoDetailPage.cid;
-                videoDetailPage.cid = 0;
-                // 尝试打开指定的分P
-                if (cid != 0)
+                // 如果请求前就设定了指定分P，那么尝试打开指定的分P，两种情况会预设cid
+                // 1. 从历史记录打开视频
+                // 2. 切换分P播放
+                if (videoDetailPage.cid != 0) {
                     for (const auto& i : this->videoDetailResult.pages) {
-                        if (i.cid == cid) {
-                            brls::Logger::debug("获取视频分P列表: PV {}", cid);
+                        if (i.cid == videoDetailPage.cid) {
+                            brls::Logger::debug("获取视频分P列表: PV {}",
+                                                i.cid);
                             int progress    = videoDetailPage.progress;
                             videoDetailPage = i;
                             //用于从历史记录加载进播放页面，视频开始播放时自动跳转
@@ -111,9 +110,10 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                             break;
                         }
                     }
-
-                // 默认打开PV1，没有找到指定cid的PV也打开PV1
-                if (videoDetailPage.cid == 0)
+                } else {
+                    // 其他两种情况打开PV1
+                    // 1. 未指定PV
+                    // 2. 指定了错误的PV（比如Up主重新上传过视频，那么历史记录中保存的PV就是错误的）
                     for (const auto& i : this->videoDetailResult.pages) {
                         brls::Logger::debug("获取视频分P列表: PV1 {}", i.cid);
                         videoDetailPage = i;
@@ -122,12 +122,22 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                                             videoDetailPage.cid, 0);
                         break;
                     }
+                }
 
-                if (videoDetailPage.cid == 0) brls::Logger::error("未获取到视频列表");
+                if (videoDetailPage.cid == 0) {
+                    brls::Logger::error("未获取到视频列表");
+                    return;
+                }
 
                 // 请求视频播放地址
                 this->requestVideoUrl(this->videoDetailResult.bvid,
                                       this->videoDetailPage.cid);
+
+                // 展示视频相关信息
+                this->onVideoInfo(this->videoDetailResult);
+
+                // 展示分P数据
+                this->onVideoPageListInfo(this->videoDetailResult.pages);
 
                 // 请求视频评论
                 this->requestVideoComment(this->videoDetailResult.aid, 1);
@@ -135,8 +145,8 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                 // 请求用户投稿列表
                 this->requestUploadedVideos(videoDetailResult.owner.mid, 1);
 
-                this->onVideoInfo(this->videoDetailResult);
-                this->onRelatedVideoList(result.Related);
+                // 展示相关推荐
+                this->onRelatedVideoList(videDetailRelated);
             });
         },
         [ASYNC_TOKEN](const std::string& error) {
@@ -153,7 +163,7 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
     ASYNC_RETAIN
     brls::Logger::debug("请求视频播放地址: {}/{}/{}", bvid, cid,
                         defaultQuality);
-    if (cid == 0) return ;
+    if (cid == 0) return;
 
     bilibili::BilibiliClient::get_video_url(
         bvid, cid, defaultQuality,
@@ -168,7 +178,6 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
             ASYNC_RELEASE
             brls::Logger::error(error);
         });
-
     // 请求当前视频在线人数
     this->requestVideoOnline(bvid, cid);
     // 请求弹幕

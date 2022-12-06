@@ -12,7 +12,9 @@
         "player_bar": "Always show progress bar",
         "low_quality": "Low quality decoding (with less CPU usage)",
         "in_memory_cache": "Inmemory cache",
-        "hwdec": "Hardware decode"
+        "hwdec": "Hardware decode",
+        "auto_play_next_part": "Automatically playing next part",
+        "auto_play_recommend": "Automatically playing recommend video"
       },
       "cache": {
         "header": "Cache",

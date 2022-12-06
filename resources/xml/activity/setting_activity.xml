@@ -55,6 +55,12 @@
                         <brls:BooleanCell
                                 id="setting/history/log"/>
 
+                        <brls:BooleanCell
+                                id="setting/auto/nextPart"/>
+
+                        <brls:BooleanCell
+                                id="setting/auto/nextRcmd"/>
+
                     </brls:Box>
                     <brls:Header
                             width="auto"

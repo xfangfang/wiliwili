@@ -175,13 +175,7 @@ void PlayerActivity::onContentAvailable() {
         });
 
     // 切换视频分P
-    changePEvent.subscribe([this](int index) {
-        brls::Logger::debug("切换分区: {}", index);
-        videoDetailPage = videoDetailResult.pages[index];
-        this->requestVideoUrl(videoDetailResult.bvid, videoDetailPage.cid);
-        //上报历史记录
-        this->reportHistory(videoDetailResult.aid, videoDetailPage.cid, 0);
-    });
+    changePEvent.subscribe([this](int index) { this->onIndexChange(index); });
 
     // 切换到其他视频
     changeVideoEvent.subscribe([this](bilibili::Video videoData) {
@@ -339,6 +333,7 @@ void PlayerActivity::setCommonData() {
 
     eventSubscribeID =
         MPVCore::instance().getEvent()->subscribe([this](MpvEventEnum event) {
+            // 上一次报告历史记录的时间点
             static int64_t lastProgress = MPVCore::instance().video_progress;
             switch (event) {
                 case MpvEventEnum::UPDATE_PROGRESS:
@@ -346,25 +341,57 @@ void PlayerActivity::setCommonData() {
                     if (lastProgress + 15 <
                         MPVCore::instance().video_progress) {
                         lastProgress = MPVCore::instance().video_progress;
-                        auto self = dynamic_cast<PlayerSeasonActivity*>(this);
-                        if (self) {
-                            this->reportHistory(episodeResult.aid,
-                                                episodeResult.cid, lastProgress,
-                                                4);
-                        } else {
-                            this->reportHistory(videoDetailResult.aid,
-                                                videoDetailPage.cid,
-                                                lastProgress, 3);
-                        }
+                        this->reportCurrentProgress(lastProgress);
                     } else if (MPVCore::instance().video_progress <
                                lastProgress) {
+                        // 当前播放时间小于上一次上传历史记录的时间点
+                        // 发生于向前拖拽进度的时候，此时重置lastProgress的值
                         lastProgress = MPVCore::instance().video_progress;
                     }
+                    break;
+                case MpvEventEnum::END_OF_FILE:
+                    // 尝试自动加载下一分P
+                    if (AUTO_NEXT_PART) this->onIndexChangeToNext();
                     break;
                 default:
                     break;
             }
         });
+}
+
+void PlayerActivity::reportCurrentProgress(size_t progress) {
+    this->reportHistory(videoDetailResult.aid, videoDetailPage.cid, progress,
+                        3);
+}
+
+void PlayerActivity::onIndexChange(size_t index) {
+    if (index >= videoDetailResult.pages.size()) {
+        brls::Logger::error("unaccepted index: {}, accepted range 0 - {}",
+                            index, videoDetailResult.pages.size() - 1);
+        return;
+    }
+
+    brls::Logger::debug("切换分区: {}", index);
+    // 设置当前分P数据
+    videoDetailPage = videoDetailResult.pages[index];
+    // 设置播放器标题
+    this->video->setTitle(
+        fmt::format("{} - {}", videoDetailResult.title, videoDetailPage.part));
+    // 请求视频链接
+    this->requestVideoUrl(videoDetailResult.bvid, videoDetailPage.cid);
+    // 上报历史记录
+    this->reportHistory(videoDetailResult.aid, videoDetailPage.cid, 0);
+}
+
+void PlayerActivity::onIndexChangeToNext() {
+    // videoDetailPage.page 是从1开始计数的单调递增序号，所以这里是尝试加载下一分P
+    if (videoDetailPage.page < videoDetailResult.pages.size()) {
+        this->onIndexChange(videoDetailPage.page);
+    } else if (AUTO_NEXT_RCMD) {
+        // 分集播放结束，判断是否要播放推荐视频
+        if (videDetailRelated.size() > 0)
+            changeVideoEvent.fire(videDetailRelated[0]);
+    }
 }
 
 void PlayerActivity::showShareDialog(const std::string link) {
@@ -407,8 +434,12 @@ void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
         this->videoUserInfo->setHintType(InfoHintType::UP_NOT_FOLLOWED);
     }
 
+    // 只在分P数大于1时显示分P标题
+    std::string subtitle =
+        result.pages.size() > 1 ? " - " + videoDetailPage.part : "";
+
     // videoView osd
-    this->video->setTitle(result.title);
+    this->video->setTitle(result.title + subtitle);
 
     // video title
     this->videoTitleLabel->setText(result.title);
@@ -704,6 +735,24 @@ void PlayerSeasonActivity::setProgress(int p) { episodeResult.progress = p; }
 
 int PlayerSeasonActivity::getProgress() { return episodeResult.progress; }
 
+void PlayerSeasonActivity::reportCurrentProgress(size_t progress) {
+    this->reportHistory(episodeResult.aid, episodeResult.cid, progress, 4);
+}
+
+void PlayerSeasonActivity::onIndexChange(size_t index) {
+    if (index >= seasonInfo.episodes.size()) {
+        brls::Logger::error("unaccepted index: {}, accepted range 0 - {}",
+                            index, seasonInfo.episodes.size() - 1);
+        return;
+    }
+    this->changeEpisode(seasonInfo.episodes[index]);
+}
+
+void PlayerSeasonActivity::onIndexChangeToNext() {
+    // episodeResult.index 是从0开始计数的分集序号
+    this->onIndexChange(episodeResult.index + 1);
+}
+
 void PlayerSeasonActivity::onContentAvailable() {
     this->PlayerActivity::setCommonData();
 
@@ -723,11 +772,7 @@ void PlayerSeasonActivity::onContentAvailable() {
     });
 
     //切换分集
-    changeEpisodeEvent.subscribe([this](int index) {
-        this->reportHistory(episodeResult.aid, episodeResult.cid,
-                            MPVCore::instance().video_progress, 4);
-        this->changeEpisode(seasonInfo.episodes[index]);
-    });
+    changeEpisodeEvent.subscribe([this](int i) { this->onIndexChange(i); });
 
     // 二维码按钮
     this->btnQR->getParent()->registerClickAction([this](...) {

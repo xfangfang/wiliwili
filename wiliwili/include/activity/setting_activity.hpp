@@ -30,6 +30,8 @@ private:
     BRLS_BIND(brls::SelectorCell, selectorTheme, "setting/ui/theme");
     BRLS_BIND(brls::SelectorCell, selectorTexture, "setting/cache/texture");
     BRLS_BIND(brls::BooleanCell, btnHistory, "setting/history/log");
+    BRLS_BIND(brls::BooleanCell, btnAutoNextPart, "setting/auto/nextPart");
+    BRLS_BIND(brls::BooleanCell, btnAutoNextRcmd, "setting/auto/nextRcmd");
     BRLS_BIND(brls::BooleanCell, btnOpencc, "setting/opencc");
     BRLS_BIND(brls::BooleanCell, btnProgress, "setting/video/progress");
     BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/quality");

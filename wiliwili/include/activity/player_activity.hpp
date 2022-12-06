@@ -59,12 +59,28 @@ public:
     void showShareDialog(const std::string link);
 
     // 设定当前的播放进度，获取视频链接后会自动跳转到该进度
+    // 目前有两个使用场景：
+    // 1. 从历史记录进入视频时
+    // 2. 切换清晰度前
     virtual void setProgress(int p);
 
     // 获取当前设定的播放进度
+    // 在任何视频播放前都会从此接口读入播放进度，并在此基础上 -5s 进行播放
     virtual int getProgress();
 
+    // 切换分集
+    virtual void onIndexChange(size_t index);
+
+    // 切换到下一集
+    virtual void onIndexChangeToNext();
+
+    // 上报播放进度
+    virtual void reportCurrentProgress(size_t progress);
+
     ~PlayerActivity() override;
+
+    inline static bool AUTO_NEXT_RCMD = true;
+    inline static bool AUTO_NEXT_PART = true;
 
 protected:
     BRLS_BIND(VideoView, video, "video/detail/video");
@@ -89,10 +105,6 @@ protected:
     BRLS_BIND(brls::Label, labelFavorite, "video/label/favorite");
     BRLS_BIND(brls::Label, labelQR, "video/label/qr");
 
-    //    bilibili::VideoDetailResult video_data;
-    bool fullscreen                              = false;
-    brls::ActionIdentifier videoExitFullscreenID = -1;
-
     // 切换视频分P
     ChangeIndexEvent changePEvent;
 
@@ -111,10 +123,8 @@ public:
 
     ~PlayerSeasonActivity() override;
 
-    // 设定当前的播放进度，获取视频链接后会自动跳转到该进度
     void setProgress(int p) override;
 
-    // 获取当前设定的播放进度
     int getProgress() override;
 
     void onContentAvailable() override;
@@ -124,6 +134,12 @@ public:
 
     void onSeasonEpisodeInfo(
         const bilibili::SeasonEpisodeResult& result) override;
+
+    void onIndexChange(size_t index) override;
+
+    void onIndexChangeToNext() override;
+
+    void reportCurrentProgress(size_t progress) override;
 
 private:
     unsigned int pgc_id;
