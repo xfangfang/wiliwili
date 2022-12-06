@@ -381,6 +381,7 @@ void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
 void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
                                 unsigned int progress, int type) {
     if (!REPORT_HISTORY) return;
+    if (aid == 0 || cid == 0) return;
     brls::Logger::debug("reportHistory: aid{} cid{} progress{}", aid, cid,
                         progress);
     std::string mid   = ProgramConfig::instance().getUserID();
@@ -392,8 +393,10 @@ void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
         epid = episodeResult.id;
     }
 
-    bilibili::BilibiliClient::report_history(mid, token, aid, cid, type,
-                                             progress, sid, epid);
+    bilibili::BilibiliClient::report_history(
+        mid, token, aid, cid, type, progress, sid, epid,
+        []() { brls::Logger::debug("reportHistory: success"); },
+        [](const std::string& err) { brls::Logger::error(err); });
 }
 
 /// 点赞

@@ -193,7 +193,7 @@ void BilibiliClient::report_history(const std::string& mid,
                                     const ErrorCallback& error) {
     cpr::Payload payload = {
         {"mid", mid},
-        {"access_key", access_key},
+        {"csrf", access_key},
         {"aid", std::to_string(aid)},
         {"cid", std::to_string(cid)},
         {"progress", std::to_string(progress)},
@@ -205,16 +205,25 @@ void BilibiliClient::report_history(const std::string& mid,
         if (epid != 0) payload.Add({"epid", std::to_string(epid)});
     }
 
-    HTTP::__cpr_post(Api::ProgressReport, {}, payload,
-                     [callback, error](const cpr::Response& r) {
-                         if (r.status_code != 200) {
-                             ERROR_MSG("ERROOR: report_history: status_code: " +
-                                           std::to_string(r.status_code),
-                                       r.status_code);
-                         } else {
-                             callback();
-                         }
-                     });
+    HTTP::__cpr_post(
+        Api::ProgressReport, {}, payload,
+        [callback, error](const cpr::Response& r) {
+            if (r.status_code != 200) {
+                ERROR_MSG(
+                    "ERROR report_history: " + std::to_string(r.status_code),
+                    r.status_code);
+            } else {
+                nlohmann::json res = nlohmann::json::parse(r.text);
+                int code           = res.at("code");
+                if (code == 0) {
+                    callback();
+                } else {
+                    ERROR_MSG("ERROR report_history:" +
+                                  res.at("message").get<std::string>(),
+                              code);
+                }
+            }
+        });
 }
 
 /// 直播页 上报历史
