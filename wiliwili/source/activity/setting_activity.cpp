@@ -255,18 +255,32 @@ void SettingActivity::onContentAvailable() {
 
     btnAutoNextPart->init(
         "wiliwili/setting/app/playback/auto_play_next_part"_i18n,
-        conf.getSettingItem(SettingItem::AUTO_NEXT_PART, true), [](bool value) {
+        conf.getSettingItem(SettingItem::AUTO_NEXT_PART, true),
+        [this](bool value) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::AUTO_NEXT_PART, value);
             PlayerActivity::AUTO_NEXT_PART = value;
+            if (!value) {
+                ProgramConfig::instance().setSettingItem(
+                    SettingItem::AUTO_NEXT_RCMD, false);
+                PlayerActivity::AUTO_NEXT_RCMD = false;
+                btnAutoNextRcmd->setOn(false, btnAutoNextRcmd->isOn());
+            }
         });
 
     btnAutoNextRcmd->init(
         "wiliwili/setting/app/playback/auto_play_recommend"_i18n,
-        conf.getSettingItem(SettingItem::AUTO_NEXT_RCMD, true), [](bool value) {
+        conf.getSettingItem(SettingItem::AUTO_NEXT_RCMD, true),
+        [this](bool value) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::AUTO_NEXT_RCMD, value);
             PlayerActivity::AUTO_NEXT_RCMD = value;
+            if (value) {
+                ProgramConfig::instance().setSettingItem(
+                    SettingItem::AUTO_NEXT_PART, true);
+                PlayerActivity::AUTO_NEXT_PART = true;
+                btnAutoNextPart->setOn(true, !btnAutoNextPart->isOn());
+            }
         });
 
     btnProgress->init("wiliwili/setting/app/playback/player_bar"_i18n,
@@ -280,16 +294,15 @@ void SettingActivity::onContentAvailable() {
 #ifdef __SWITCH__
     btnHWDEC->setVisibility(brls::Visibility::GONE);
 #else
-    btnHWDEC->init(
-        "wiliwili/setting/app/playback/hwdec"_i18n,
-        conf.getSettingItem(SettingItem::PLAYER_HWDEC, true),
-        [](bool value) {
-            ProgramConfig::instance().setSettingItem(
-                SettingItem::PLAYER_HWDEC, value);
-            if (MPVCore::HARDWARE_DEC == value) return;
-            MPVCore::HARDWARE_DEC = value;
-            MPVCore::instance().restart();
-        });
+    btnHWDEC->init("wiliwili/setting/app/playback/hwdec"_i18n,
+                   conf.getSettingItem(SettingItem::PLAYER_HWDEC, true),
+                   [](bool value) {
+                       ProgramConfig::instance().setSettingItem(
+                           SettingItem::PLAYER_HWDEC, value);
+                       if (MPVCore::HARDWARE_DEC == value) return;
+                       MPVCore::HARDWARE_DEC = value;
+                       MPVCore::instance().restart();
+                   });
 #endif
 
 #ifdef __SWITCH__

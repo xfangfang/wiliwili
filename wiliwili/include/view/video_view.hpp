@@ -9,13 +9,6 @@
 
 class VideoProgressSlider;
 
-typedef enum VideoState {
-    PLAYING,
-    STOPPED,
-    LOADING,
-    PAUSED,
-} VideoState;
-
 class SVGImage;
 
 // https://github.com/mpv-player/mpv/blob/master/DOCS/edl-mpv.rst
@@ -113,8 +106,6 @@ public:
 
 private:
     bool allowFullscreen  = true;
-    VideoState videoState = VideoState::STOPPED;
-
     bool registerMPVEvent = false;
     MPVEvent::Subscription eventSubscribeID;
     brls::InputManager* input;

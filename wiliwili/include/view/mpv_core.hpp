@@ -179,6 +179,10 @@ public:
     inline static bool LOW_QUALITY   = false;
     inline static int INMEMORY_CACHE = 0;
     inline static bool HARDWARE_DEC  = false;
+
+    // 此变量为真时，加载结束后自动播放视频
+    inline static bool AUTO_PLAY = true;
+
     NVGcolor bottomBarColor =
         brls::Application::getTheme().getColor("color/bilibili");
 
@@ -201,6 +205,8 @@ private:
     float vertices[20] = {1.0f, 1.0f,  0.0f, 1.0f,  1.0f,  1.0f, -1.0f,
                           0.0f, 1.0f,  0.0f, -1.0f, -1.0f, 0.0f, 0.0f,
                           0.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f};
+
+    brls::Event<bool>::Subscription focusSubscription;
 
     /// Will be called in main thread to get events from mpv core
     void eventMainLoop();

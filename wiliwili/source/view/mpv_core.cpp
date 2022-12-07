@@ -119,8 +119,11 @@ void MPVCore::init() {
 
     // log
     // mpv_set_option_string(mpv, "msg-level", "ffmpeg=trace");
-    // mpv_set_option_string(mpv, "msg-level", "all=v");
     // mpv_set_option_string(mpv, "msg-level", "all=no");
+
+#ifdef _DEBUG
+    mpv_set_option_string(mpv, "msg-level", "all=v");
+#endif
 
     if (mpv_initialize(mpv) < 0) {
         mpv_terminate_destroy(mpv);
@@ -163,12 +166,37 @@ void MPVCore::init() {
     mpv_render_context_set_update_callback(mpv_context, on_update, this);
 
     this->initializeGL();
+
+    focusSubscription =
+        brls::Application::getWindowFocusChangedEvent()->subscribe(
+            [this](bool focus) {
+                static bool playing = false;
+                // save current AUTO_PLAY value to autoPlay
+                static bool autoPlay = AUTO_PLAY;
+                if (focus) {
+                    // restore AUTO_PLAY
+                    AUTO_PLAY = autoPlay;
+                    // application is on top
+                    if (playing) {
+                        resume();
+                    }
+                } else {
+                    // application is sleep, save the current state
+                    playing = !isPaused();
+                    pause();
+                    // do not automatically play video
+                    AUTO_PLAY = false;
+                }
+            });
 }
 
 MPVCore::~MPVCore() { this->clean(); }
 
 void MPVCore::clean() {
     check_error(mpv_command_string(this->mpv, "quit"));
+
+    brls::Application::getWindowFocusChangedEvent()->unsubscribe(
+        focusSubscription);
 
     brls::Logger::info("trying delete fbo");
     this->deleteFrameBuffer();
@@ -369,17 +397,8 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
 
     mpv_render_context_render(this->mpv_context, mpv_params);
 
-#ifdef __SWITCH__
     glViewport(0, 0, brls::Application::windowWidth,
-               brls::Application::windowHeight);  // restore viewport
-#else
-    // PC运行可能因为拖拽窗口导致画面比例不是默认的，所以需要重新计算一下宽高
-    int realWindowWidth =
-        (int)(brls::Application::windowScale * brls::Application::contentWidth);
-    int realWindowHeight = (int)(brls::Application::windowScale *
-                                 brls::Application::contentHeight);
-    glViewport(0, 0, realWindowWidth, realWindowHeight);
-#endif
+               brls::Application::windowHeight);
 
     // shader draw
     glUseProgram(shader.prog);
@@ -458,8 +477,10 @@ void MPVCore::eventMainLoop() {
                 // event 21: 开始播放文件（一般是播放或调整进度结束之后触发）
                 brls::Logger::info("========> MPV_EVENT_PLAYBACK_RESTART");
                 mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
-                // 自动播放文件
-                this->resume();
+                if (AUTO_PLAY)
+                    this->resume();
+                else
+                    this->pause();
                 break;
             case MPV_EVENT_END_FILE:
 // event 7: 文件播放结束
@@ -531,8 +552,11 @@ void MPVCore::eventMainLoop() {
                             duration =
                                 *(int64_t *)((mpv_event_property *)event->data)
                                      ->data;
-                        brls::Logger::debug("========> duration: {}", duration);
-                        mpvCoreEvent.fire(MpvEventEnum::UPDATE_DURATION);
+                        if (duration != 0) {
+                            brls::Logger::debug("========> duration: {}",
+                                                duration);
+                            mpvCoreEvent.fire(MpvEventEnum::UPDATE_DURATION);
+                        }
                         break;
                     case 4:
                         // 播放进度更新

@@ -730,9 +730,6 @@ void VideoView::registerMpvEvent() {
                     break;
                 case MpvEventEnum::START_FILE:
                     this->showOSD(false);
-                    rightStatusLabel->setText("00:00");
-                    leftStatusLabel->setText("00:00");
-                    osdSlider->setProgress(0);
                     break;
                 case MpvEventEnum::LOADING_START:
                     this->showLoading();
@@ -747,16 +744,19 @@ void VideoView::registerMpvEvent() {
                     this->showOSD(false);
                     break;
                 case MpvEventEnum::MPV_LOADED:
+                    this->setPlaybackTime(
+                        wiliwili::sec2Time(this->mpvCore->video_progress));
                     break;
                 case MpvEventEnum::UPDATE_DURATION:
-                    rightStatusLabel->setText(
-                        wiliwili::sec2Time(mpvCore->duration));
+                    this->setDuration(wiliwili::sec2Time(mpvCore->duration));
+                    this->setProgress(this->mpvCore->playback_time /
+                                      this->mpvCore->duration);
                     break;
                 case MpvEventEnum::UPDATE_PROGRESS:
-                    leftStatusLabel->setText(
-                        wiliwili::sec2Time(mpvCore->video_progress));
-                    osdSlider->setProgress(mpvCore->playback_time /
-                                           mpvCore->duration);
+                    this->setPlaybackTime(
+                        wiliwili::sec2Time(this->mpvCore->video_progress));
+                    this->setProgress(this->mpvCore->playback_time /
+                                      this->mpvCore->duration);
                     break;
                 case MpvEventEnum::DANMAKU_LOADED:
                     mpvCore->danmakuMutex.lock();
