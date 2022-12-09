@@ -99,7 +99,7 @@ jobs:
 
   build-win-x64:
     needs: [ version ]
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -138,7 +138,7 @@ jobs:
           for i in {libwinpthread-1,libgcc_s_seh-1,zlib1,libssh2-1,glfw3,libstdc++-6,libcrypto-1_1-x64}; do
           cp /mingw64/bin/${i}.dll wiliwili
           done
-          wget https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/mpv-dev-x86_64-v3-20220904-git-d433c5d.7z -O mpv.7z
+          wget https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/mpv-dev-x86_64-20221204-git-4574dd5.7z -O mpv.7z
           7z e mpv.7z -ompv
           cp mpv/mpv-2.dll wiliwili/mpv-1.dll
           tar -czvf ../${DIST_EXE}.tar.gz wiliwili
