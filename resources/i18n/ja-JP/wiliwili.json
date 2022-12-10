@@ -8,17 +8,17 @@
       "tab": "アプリ",
       "playback": {
         "header": "再生",
-        "report": "アップロード履歴再生記録",
+        "report": "アップロード履歴と再生記録",
         "player_bar": "プログレスバーを常に表示する",
-        "low_quality": "低品質のデコード (CPU 使用率が低い)",
-        "in_memory_cache": "インメモリ キャッシュ",
+        "low_quality": "低品質のデコード (CPU使用率が低くなります)",
+        "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
         "auto_play_next_part": "次のパートを自動再生",
         "auto_play_recommend": "おすすめ動画の自動再生"
       },
       "cache": {
         "header": "キャッシュ",
-        "texture": "ピクチャ テクスチャ キャッシュの数"
+        "texture": "ピクチャテクスチャキャッシュの数"
       },
       "others": {
         "header": "その他",
@@ -44,7 +44,7 @@
       },
       "net": {
         "header": "ネットワークの診断",
-        "checker": "ネットワークの状態を検出する"
+        "checker": "ネットワークの状態を診断する"
       },
       "others": {
         "header": "その他",
@@ -82,7 +82,7 @@
       },
       "time": {
         "header": "時間",
-        "subtitle": "システム時刻が正しくない場合、ネットワーク アクセスが失敗する可能性があります",
+        "subtitle": "システム時刻が正しくない場合、ネットワークアクセスが失敗する可能性があります",
         "sys": "現在のシステム時刻",
         "net": "ネットワークで時間を取得する"
       },
@@ -98,10 +98,10 @@
     "hint1": "ホーム画面からゲームを選択",
     "hint2": "\uE0E5キーを押しながら \uE0E0をクリックしてhbmenuに入ります",
     "hint3": "hbmenuで、wiliwiliを選択",
-    "hint4": "オプション: 提供されたwiliwiliNSPフォワーダーを使用 (wiliwili.nroを/switch/wiliwili.nroに配置してください)",
+    "hint4": "オプション： 提供されたwiliwiliNSPフォワーダーを使用 (wiliwili.nroを/switch/wiliwili.nroに配置してください)",
     "hint_nsp": "\uE0E0をクリックしてNSPフォワーダーをインストールします",
-    "hint_confirm": "Installing NSP forwarder may result in a ban\nPlease confirm again",
-    "hint_right": "The pictures are from the Internet, and the copyright belongs to Nintendo Co., Ltd"
+    "hint_confirm": "NSPフォワーダをインストールすると、BANされる可能性があります\nもう一度確認してください",
+    "hint_right": "写真はインターネットからのもので、著作権は任天堂株式会社に属します"
   },
   "home": {
     "common": {
