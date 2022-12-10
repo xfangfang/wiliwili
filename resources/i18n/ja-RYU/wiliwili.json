@@ -1,0 +1,193 @@
+{
+  "title": "wiliwili",
+  "github": "https://github.com/xfangfang/wiliwili",
+  "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
+  "setting": {
+    "quit_hint": "アプリケーション終了さんでぃそーいびーん。 設定ー次回起動時に有効なやびーん",
+    "app": {
+      "tab": "アプリ",
+      "playback": {
+        "header": "再生",
+        "report": "アップロード履歴とぅ再生記録",
+        "player_bar": "プログレスバー常に表示すん",
+        "low_quality": "低品質ぬデコード (CPU使用率がふぃくくなやびーん)",
+        "in_memory_cache": "インメモリキャッシュ",
+        "hwdec": "ハードウェアデコード",
+        "auto_play_next_part": "次ぬパート自動再生",
+        "auto_play_recommend": "うすすみ動画ぬ自動再生"
+      },
+      "cache": {
+        "header": "キャッシュ",
+        "texture": "ピクチャテクスチャキャッシュぬかじ"
+      },
+      "others": {
+        "header": "すぬ他",
+        "hide_bottom": "しちゃぬヒントバーくゎっくゎすん",
+        "fullscreen": "フルスクリーン",
+        "theme": {
+          "header": "テーマ(再起動ぬいりゆーやいびーん)",
+          "1": "自動",
+          "2": "ライト",
+          "3": "ダーク"
+        }
+      }
+    },
+    "tools": {
+      "tab": "ツール",
+      "tutorial": {
+        "header": "チュートリアル",
+        "intro": "ソフトウェアぬ紹介（オンライン動画・中国語）",
+        "intro_bvid": "BV18W4y1q72C",
+        "open": "デスクトップアイコンぬインストール方法",
+        "error": "バグんかい遭遇さるばー",
+        "hot_key": "ホットキー"
+      },
+      "net": {
+        "header": "ネットワークぬ診断",
+        "checker": "ネットワークぬ状態診断すん"
+      },
+      "others": {
+        "header": "すぬ他",
+        "release": "更新確認"
+      }
+    },
+    "about": {
+      "tab": "概要",
+      "brief_header": "紹介",
+      "repository": "リポジトリ",
+      "brief": "さらに別ぬサードパーティぬビリビリクライアント",
+      "repo_header": "リポジトリ",
+      "author_header": "著者ぬスピーチ",
+      "author": "わんねーかたくじらアーティストないぶさんでぃうむとーいびたしが、じゃんにんがちープログラマーぬ居場所ーあいびらん\n「ゲーム機っし動画んーちゃい、携帯電話っしゲームさいすん」でぃぬしぐとぅぬんまりー、実現すか\nあるさにぬパフォーマンスアート、くぬばーわんねーみーなやびーん"
+    },
+    "opensource": {
+      "tab": "オープンソース"
+    },
+    "tutorial": {
+      "error_q1": "ネットワークんかいアクセスなやびらん",
+      "error_a1": "1. 環境とぅシステムファームウェアぬ最新やんくとぅ確認しくぃみそーれー\n2. システム時刻ぬまくとぅ確認しくぃみそーれー\n3. IP、DNSんでーくくむるデフォルトぬネットワーク設定復元さびーん\n4.中国うぅてぃぬ使用",
+      "error_q2": "ランダムエラーっし終了",
+      "error_a2": "1. Fat32フォーマットぬメモリーカード使用\n2. 環境とぅシステムファームウェアぬ最新やんくとぅ確認しくぃみそーれー\n3. 開発者が修正すし待ちゃびーん"
+    },
+    "hot_keys": {
+      "common_header": "一般",
+      "common_content": "\uE0A4 / \uE0A5 プライマリページ切り替いーん\n \uE0A6 / \uE0A7 セカンダリページ切り替いーん",
+      "player_header": "プレーヤー",
+      "player_content": "\uE0C5 速度上ぎやびーん。\uE0C5ダブルクリックしロック\n \uE0A3 + \uE0A5 前方んかいシークさびーん\n \uE0A3 プレーヤーぬOSD切り替えい \n \uE0A2 弾幕切り替い"
+    },
+    "net": {
+      "test": {
+        "header": "ネットワークぬアクセス",
+        "feed": "うすすみぬ動画テストし取得すん"
+      },
+      "time": {
+        "header": "時間",
+        "subtitle": "システム時刻ぬ正しこーねーんばー、ネットワーク アクセスぬしーやんじゅる可能性があいびーん",
+        "sys": "現在ぬシステム時刻",
+        "net": "ネットワークっし時間取得すん"
+      },
+      "profile": {
+        "header": "ネットワーク",
+        "subtitle": "ネットワーク設定復元しーねー、いくちがぬ問題はんすしんなやびーん",
+        "ip": "IPアドレス",
+        "dns": "DNSアドレス"
+      }
+    }
+  },
+  "hints": {
+    "hint1": "ホーム画面からゲーム選択",
+    "hint2": "\uE0E5キーうさがちー \uE0E0クリックしhbmenuんかいいやびーん",
+    "hint3": "hbmenuっし、wiliwili選択",
+    "hint4": "オプション: 提供さったるwiliwiliNSPフォワーダー使用 (wiliwili.nro/switch/wiliwili.nroんかい配置しくぃみそーれー)",
+    "hint_nsp": "\uE0E0クリックしNSPフォワーダーインストールさびーん",
+    "hint_confirm": "NSPフォワーダインストールしーねー、BANさりーる可能性があいびーん\nなーいちどぅ確認しくぃみそーれー",
+    "hint_right": "さしのーインターネットからぬむんでぃ、著作権ー任天堂株式会社んかい属さびーん"
+  },
+  "home": {
+    "common": {
+      "part": "チャンネル： ",
+      "recommend": "うすすみ",
+      "search": "動画検索",
+      "switch": "スイッチ",
+      "refresh": "更新",
+      "last": "ラスト",
+      "next": "次",
+      "filter": "フィルター"
+    },
+    "live": {
+      "tab": "ライブ",
+      "dialog": "チャンネル",
+      "default": "チャンネル：探索"
+    },
+    "rcmd": {
+      "tab": "探索"
+    },
+    "hots": {
+      "tab": "ホット",
+      "t1": "ホット",
+      "t2": "ランク",
+      "t3": "毎週",
+      "t4": "履歴"
+    },
+    "bangumi": {
+      "tab": "番組"
+    },
+    "cinema": {
+      "tab": "シネマ"
+    }
+  },
+  "search": {
+    "tab": "検索",
+    "t1": "ホット",
+    "t2": "動画",
+    "t3": "番組",
+    "t4": "シネマ"
+  },
+  "activity": {
+    "all": "まじりぬ活動",
+    "refresh": "リスト更新"
+  },
+  "mine": {
+    "login": {
+      "check": "ログイン情報確認そーいびーん...",
+      "success": "ログインんかいでぃかさびたん",
+      "refresh": "更新",
+      "click": "クリックしログイン",
+      "logout": "現在ぬアカウントからログアウト \n(アプリケーションぬ終了さびーん)",
+      "scan": "QRコード読み取てぃログイン",
+      "loading": "QRコード読み込どーいびーん...",
+      "hint": "BiliBiliクライアント使用しQRコードスキャンしくぃみそーれー",
+      "network_error": "ネットワークエラーやいびーん。なーいちどぅう試しくぃみそーれー",
+      "qr_not_available": "QRコードぬ無効やいびーん。ダイアログ再入力しくぃみそーれー",
+      "need_confirm": "確認待ちゅん",
+      "need_scan": "QRコードぬスキャン待っちょーいびーん"
+    },
+    "history": "履歴",
+    "collection": "う気に入り",
+    "coin": "コイン",
+    "following": "支援者",
+    "follower": "フォロワー",
+    "activity": "活動",
+    "refresh_collection": "う気に入りリフレッシュ",
+    "public": "パブリック",
+    "private": "プライベート",
+    "num": " コンテンツ",
+    "pub": "でぃ作成 ",
+    "done": "終了さびたん",
+    "article": "ブラウザっしふぃらちゅん：",
+    "refresh_history": "履歴リフレッシュ"
+  },
+  "player": {
+    "intro": "序章",
+    "p": "パート",
+    "related": "関連",
+    "uploaded": "すぬ他",
+    "qr": "QRコード読み取てぃ視聴/共有",
+    "comment": "コメント",
+    "current": " むるがんーちょーん",
+    "share": "シェア",
+    "rights": "作成者ぬ許可なく転載するくとぅ禁じやびーん",
+    "fs": "フルスクリーン",
+    "quality": "品質"
+  }
+}
