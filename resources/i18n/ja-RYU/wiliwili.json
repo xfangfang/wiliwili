@@ -8,10 +8,10 @@
       "tab": "アプリ",
       "playback": {
         "header": "再生",
-        "report": "アップロード履歴再生記録",
+        "report": "アップロード履歴とぅ再生記録",
         "player_bar": "プログレスバー常に表示すん",
         "low_quality": "低品質ぬデコード (CPU使用率がふぃくくなやびーん)",
-        "in_memory_cache": "インメモリ キャッシュ",
+        "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
         "auto_play_next_part": "次ぬパート自動再生",
         "auto_play_recommend": "うすすみ動画ぬ自動再生"
@@ -22,7 +22,7 @@
       },
       "others": {
         "header": "すぬ他",
-        "hide_bottom": "下のヒントバーを隠す",
+        "hide_bottom": "しちゃぬヒントバーくゎっくゎすん",
         "fullscreen": "フルスクリーン",
         "theme": {
           "header": "テーマ(再起動ぬいりゆーやいびーん)",
@@ -48,7 +48,7 @@
       },
       "others": {
         "header": "すぬ他",
-        "release": "更新を確認"
+        "release": "更新確認"
       }
     },
     "about": {
@@ -100,8 +100,8 @@
     "hint3": "hbmenuっし、wiliwili選択",
     "hint4": "オプション: 提供さったるwiliwiliNSPフォワーダー使用 (wiliwili.nro/switch/wiliwili.nroんかい配置しくぃみそーれー)",
     "hint_nsp": "\uE0E0クリックしNSPフォワーダーインストールさびーん",
-    "hint_confirm": "Installing NSP forwarder may result in a ban\nPlease confirm again",
-    "hint_right": "The pictures are from the Internet, and the copyright belongs to Nintendo Co., Ltd"
+    "hint_confirm": "NSPフォワーダインストールしーねー、BANさりーる可能性があいびーん\nなーいちどぅ確認しくぃみそーれー",
+    "hint_right": "さしのーインターネットからぬむんでぃ、著作権ー任天堂株式会社んかい属さびーん"
   },
   "home": {
     "common": {
@@ -144,49 +144,49 @@
     "t4": "シネマ"
   },
   "activity": {
-    "all": "全ての活動",
-    "refresh": "リストを更新"
+    "all": "まじりぬ活動",
+    "refresh": "リスト更新"
   },
   "mine": {
     "login": {
-      "check": "ログイン情報を確認しています...",
-      "success": "ログインに成功しました",
+      "check": "ログイン情報確認そーいびーん...",
+      "success": "ログインんかいでぃかさびたん",
       "refresh": "更新",
-      "click": "クリックしてログイン",
-      "logout": "現在のアカウントからログアウト \in(アプリケーションが終了します)",
-      "scan": "QRコードを読み取ってログイン",
-      "loading": "QRコードを読み込んでいます...",
-      "hint": "BiliBiliクライアントを使用して QR コードをスキャンしてください",
-      "network_error": "ネットワークエラーです。もう一度お試しください",
-      "qr_not_available": "QRコードが無効です。ダイアログを再入力してください",
-      "need_confirm": "確認を待つ",
-      "need_scan": "QRコードのスキャンを待っています"
+      "click": "クリックしログイン",
+      "logout": "現在ぬアカウントからログアウト \n(アプリケーションぬ終了さびーん)",
+      "scan": "QRコード読み取てぃログイン",
+      "loading": "QRコード読み込どーいびーん...",
+      "hint": "BiliBiliクライアント使用しQRコードスキャンしくぃみそーれー",
+      "network_error": "ネットワークエラーやいびーん。なーいちどぅう試しくぃみそーれー",
+      "qr_not_available": "QRコードぬ無効やいびーん。ダイアログ再入力しくぃみそーれー",
+      "need_confirm": "確認待ちゅん",
+      "need_scan": "QRコードぬスキャン待っちょーいびーん"
     },
     "history": "履歴",
-    "collection": "お気に入り",
+    "collection": "う気に入り",
     "coin": "コイン",
     "following": "支援者",
     "follower": "フォロワー",
     "activity": "活動",
-    "refresh_collection": "お気に入りをリフレッシュ",
+    "refresh_collection": "う気に入りリフレッシュ",
     "public": "パブリック",
     "private": "プライベート",
     "num": " コンテンツ",
-    "pub": "で作成 ",
-    "done": "終了しました",
-    "article": "ブラウザで開く：",
-    "refresh_history": "履歴をリフレッシュ"
+    "pub": "でぃ作成 ",
+    "done": "終了さびたん",
+    "article": "ブラウザっしふぃらちゅん：",
+    "refresh_history": "履歴リフレッシュ"
   },
   "player": {
     "intro": "序章",
     "p": "パート",
     "related": "関連",
-    "uploaded": "その他",
-    "qr": "QRコードを読み取って視聴/共有",
+    "uploaded": "すぬ他",
+    "qr": "QRコード読み取てぃ視聴/共有",
     "comment": "コメント",
-    "current": " みんなが見ている",
+    "current": " むるがんーちょーん",
     "share": "シェア",
-    "rights": "作成者の許可なく転載することを禁じます",
+    "rights": "作成者ぬ許可なく転載するくとぅ禁じやびーん",
     "fs": "フルスクリーン",
     "quality": "品質"
   }
