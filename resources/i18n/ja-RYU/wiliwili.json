@@ -52,62 +52,62 @@
       }
     },
     "about": {
-      "tab": "About",
-      "brief_header": "Introduction",
-      "repository": "Repository",
-      "brief": "Yet another third-party bilibili client",
-      "repo_header": "Repository",
-      "author_header": "Author's speech",
-      "author": "私はずっとアーティストになりたいと思っていましたが、残念ながらプログラマーの居場所はありません\n「ゲーム機で動画を見たり、携帯電話でゲームをしたりする」という仕事が生まれ、実現するまで\nある種のパフォーマンスアート、この場合私は完成します"
+      "tab": "概要",
+      "brief_header": "紹介",
+      "repository": "リポジトリ",
+      "brief": "さらに別ぬサードパーティぬビリビリクライアント",
+      "repo_header": "リポジトリ",
+      "author_header": "著者ぬスピーチ",
+      "author": "わんねーかたくじらアーティストないぶさんでぃうむとーいびたしが、じゃんにんがちープログラマーぬ居場所ーあいびらん\n「ゲーム機っし動画んーちゃい、携帯電話っしゲームさいすん」でぃぬしぐとぅぬんまりー、実現すか\nあるさにぬパフォーマンスアート、くぬばーわんねーみーなやびーん"
     },
     "opensource": {
       "tab": "オープンソース"
     },
     "tutorial": {
-      "error_q1": "ネットワークにアクセスできません",
-      "error_a1": "1. 環境とシステムファームウェアが最新であることを確認してください\n2. システム時刻が正しいことを確認してください\n3. IP、DNSなどを含むデフォルトのネットワーク設定を復元します\n4.中国での使用",
-      "error_q2": "ランダムエラーで終了",
-      "error_a2": "1. Fat32フォーマットのメモリーカードを使用\n2. 環境とシステムファームウェアが最新であることを確認してください\n3. 開発者が修正するのを待ちます"
+      "error_q1": "ネットワークんかいアクセスなやびらん",
+      "error_a1": "1. 環境とぅシステムファームウェアぬ最新やんくとぅ確認しくぃみそーれー\n2. システム時刻ぬまくとぅ確認しくぃみそーれー\n3. IP、DNSんでーくくむるデフォルトぬネットワーク設定復元さびーん\n4.中国うぅてぃぬ使用",
+      "error_q2": "ランダムエラーっし終了",
+      "error_a2": "1. Fat32フォーマットぬメモリーカード使用\n2. 環境とぅシステムファームウェアぬ最新やんくとぅ確認しくぃみそーれー\n3. 開発者が修正すし待ちゃびーん"
     },
     "hot_keys": {
       "common_header": "一般",
-      "common_content": "\uE0A4 / \uE0A5 プライマリページを切り替える\n \uE0A6 / \uE0A7 セカンダリページを切り替える",
+      "common_content": "\uE0A4 / \uE0A5 プライマリページ切り替いーん\n \uE0A6 / \uE0A7 セカンダリページ切り替いーん",
       "player_header": "プレーヤー",
-      "player_content": "\uE0C5 速度を上げます。\uE0C5をダブルクリックしてロック\n \uE0A3 + \uE0A5 前方にシークします\n \uE0A3 プレーヤーのOSDを切り替え \n \uE0A2 弾幕を切り替え"
+      "player_content": "\uE0C5 速度上ぎやびーん。\uE0C5ダブルクリックしロック\n \uE0A3 + \uE0A5 前方んかいシークさびーん\n \uE0A3 プレーヤーぬOSD切り替えい \n \uE0A2 弾幕切り替い"
     },
     "net": {
       "test": {
-        "header": "ネットワークのアクセス",
-        "feed": "おすすめの動画をテストして取得する"
+        "header": "ネットワークぬアクセス",
+        "feed": "うすすみぬ動画テストし取得すん"
       },
       "time": {
         "header": "時間",
-        "subtitle": "システム時刻が正しくない場合、ネットワーク アクセスが失敗する可能性があります",
-        "sys": "現在のシステム時刻",
-        "net": "ネットワークで時間を取得する"
+        "subtitle": "システム時刻ぬ正しこーねーんばー、ネットワーク アクセスぬしーやんじゅる可能性があいびーん",
+        "sys": "現在ぬシステム時刻",
+        "net": "ネットワークっし時間取得すん"
       },
       "profile": {
         "header": "ネットワーク",
-        "subtitle": "ネットワーク設定を復元すると、いくつかの問題を解決することもできます",
+        "subtitle": "ネットワーク設定復元しーねー、いくちがぬ問題はんすしんなやびーん",
         "ip": "IPアドレス",
         "dns": "DNSアドレス"
       }
     }
   },
   "hints": {
-    "hint1": "ホーム画面からゲームを選択",
-    "hint2": "\uE0E5キーを押しながら \uE0E0をクリックしてhbmenuに入ります",
-    "hint3": "hbmenuで、wiliwiliを選択",
-    "hint4": "オプション: 提供されたwiliwiliNSPフォワーダーを使用 (wiliwili.nroを/switch/wiliwili.nroに配置してください)",
-    "hint_nsp": "\uE0E0をクリックしてNSPフォワーダーをインストールします",
+    "hint1": "ホーム画面からゲーム選択",
+    "hint2": "\uE0E5キーうさがちー \uE0E0クリックしhbmenuんかいいやびーん",
+    "hint3": "hbmenuっし、wiliwili選択",
+    "hint4": "オプション: 提供さったるwiliwiliNSPフォワーダー使用 (wiliwili.nro/switch/wiliwili.nroんかい配置しくぃみそーれー)",
+    "hint_nsp": "\uE0E0クリックしNSPフォワーダーインストールさびーん",
     "hint_confirm": "Installing NSP forwarder may result in a ban\nPlease confirm again",
     "hint_right": "The pictures are from the Internet, and the copyright belongs to Nintendo Co., Ltd"
   },
   "home": {
     "common": {
       "part": "チャンネル： ",
-      "recommend": "おすすめ",
-      "search": "動画を検索",
+      "recommend": "うすすみ",
+      "search": "動画検索",
       "switch": "スイッチ",
       "refresh": "更新",
       "last": "ラスト",
