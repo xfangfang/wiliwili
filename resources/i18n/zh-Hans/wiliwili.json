@@ -55,7 +55,7 @@
       "tab": "关于更多",
       "brief_header": "软件介绍",
       "repository": "项目首页",
-      "brief": "专为手柄控制设计的第三方跨平台B站客户端\n完美复刻官方PC端B站，满足日常使用, 目前可以运行在PC全平台和 Nintendo Switch 上\n仅在最新 大气层 + 最新 固件 + FAT32 内存卡测试",
+      "brief": "专为手柄控制设计的第三方跨平台B站客户端\n完美复刻官方PC端B站，满足日常使用, 目前可以运行在PC全平台和 Nintendo Switch 上",
       "repo_header": "开源地址",
       "author_header": "作者发言",
       "author": "一直想做个艺术家, 可惜程序员都没什么发挥的空间\n直到这个作品诞生，实现了：「在游戏机上看视频；用手机来玩游戏」\n或许算得上是一种行为艺术，这样的话我也就圆满了"
@@ -101,8 +101,7 @@
     "hint4": "可选：安装 wiliwili NSP 通过桌面图标直接打开 wiliwili (请将 wiliwili.nro 放置在 /switch/wiliwili.nro )",
     "hint_nsp": "点击 \uE0E0 安装桌面图标",
     "hint_confirm": "安装桌面图标可能导致ban机\n请再次确认",
-    "hint_right": "掌机图片来源于网络，版权归任天堂 Nintendo Co., Ltd 所有",
-    "brief": "wiliwili 是专为手柄控制设计的第三方跨平台B站客户端\n目前可以运行在PC全平台和Nintendo Switch上\n完美复刻官方B站PC客户端，满足日常使用\n仅在最新 大气层 + 最新 固件 + FAT32 内存卡测试，其他组合出现的问题不进行处理。"
+    "hint_right": "掌机图片来源于网络，版权归任天堂 Nintendo Co., Ltd 所有"
   },
   "home": {
     "common": {

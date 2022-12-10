@@ -291,9 +291,9 @@ void RecyclingGridItemSearchPGCVideoCard::setCard(
     this->labelBottom->setText(bottom);
     this->badgeTop->setText(badge_top);
 
-    if(actor.empty()){
+    if (actor.empty()) {
         this->labelActor->setVisibility(brls::Visibility::GONE);
-    }else{
+    } else {
         this->labelActor->setVisibility(brls::Visibility::VISIBLE);
         this->labelActor->setText(actor);
     }
@@ -408,11 +408,12 @@ void RecyclingGridItemHistoryVideoCard::setCard(
     }
 
     switch (deviceType) {
-        case 1:  // phone
+        case 1:  // ios
+        case 3:  // android
         case 5:
             svgDT->setImageFromSVGRes("svg/history-phone.svg");
             break;
-        case 3:  // voice
+        case 9:  // voice
             svgDT->setImageFromSVGRes("svg/history-voice.svg");
             break;
         case 2:  // pc

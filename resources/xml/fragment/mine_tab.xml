@@ -1,7 +1,5 @@
 <brls:Box
         width="auto"
-        height="100%"
-        grow="1.0"
         axis="column"
         marginLeft="8"
         alignItems="stretch">
@@ -13,7 +11,7 @@
             focusable="true"
             hideHighlightBackground="true"
             cornerRadius="6"
-            marginTop="40"
+            marginTop="28"
             marginRight="40"
             marginLeft="20">
         <brls:Image

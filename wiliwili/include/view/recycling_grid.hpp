@@ -82,6 +82,8 @@ public:
     virtual void clearData() = 0;
 };
 
+class RecyclingGridContentBox;
+
 class RecyclingGrid : public brls::ScrollingFrame {
 public:
     RecyclingGrid();
@@ -182,7 +184,7 @@ private:
 
     std::function<void()> nextPageCallback = nullptr;
 
-    brls::Box* contentBox;
+    RecyclingGridContentBox* contentBox;
     brls::Image* hintImage;
     brls::Label* hintLabel;
     brls::Rect renderedFrame;

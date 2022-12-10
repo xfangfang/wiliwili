@@ -593,7 +593,7 @@ void VideoView::setFullScreen(bool fs) {
         brls::sync([ASYNC_TOKEN]() {
             ASYNC_RELEASE
             //todo: a better way to get videoView pointer
-            PlayerActivity* last = dynamic_cast<PlayerActivity*>(
+            BasePlayerActivity* last = dynamic_cast<BasePlayerActivity*>(
                 Application::getActivitiesStack()
                     [Application::getActivitiesStack().size() - 2]);
             if (last) {

@@ -111,6 +111,7 @@
             <brls:ScrollingFrame
                     width="auto"
                     height="auto"
+                    marginTop="10"
                     grow="1.0">
 
                 <brls:Box
@@ -185,38 +186,32 @@
 
         <Tab label="@i18n/wiliwili/setting/opensource/tab"
              fontSize="22">
-            <brls:Box
+            <brls:ScrollingFrame
                     width="auto"
-                    height="auto">
+                    height="auto"
+                    marginTop="10"
+                    grow="1.0">
 
-                <brls:ScrollingFrame
+                <brls:Box
                         width="auto"
                         height="auto"
-                        grow="1.0">
+                        axis="column"
+                        wireframe="false"
+                        paddingLeft="@style/brls/tab_frame/content_padding_sides"
+                        paddingRight="@style/brls/tab_frame/content_padding_sides"
+                        paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+                        paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
-                    <brls:Box
+                    <TextBox
+                            id="setting/label/opensource"
                             width="auto"
                             height="auto"
-                            axis="column"
-                            wireframe="false"
-                            paddingLeft="@style/brls/tab_frame/content_padding_sides"
-                            paddingRight="@style/brls/tab_frame/content_padding_sides"
-                            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
-                            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+                            lineHeight="1.2"
+                            marginBottom="10px"/>
 
-                        <TextBox
-                                id="setting/label/opensource"
-                                width="auto"
-                                height="auto"
-                                lineHeight="1.2"
-                                marginBottom="10px"/>
+                </brls:Box>
 
-                    </brls:Box>
-
-                </brls:ScrollingFrame>
-
-            </brls:Box>
-
+            </brls:ScrollingFrame>
         </Tab>
 
     </AutoTabFrame>

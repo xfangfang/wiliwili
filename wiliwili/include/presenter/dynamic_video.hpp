@@ -14,17 +14,17 @@ public:
 
     virtual void onError(const std::string& error);
 
-    void setCurrentUser(unsigned int mid);
+    void setCurrentUser(int64_t mid);
 
     void requestData(bool refresh = false);
 
     void requestDynamicVideoList(unsigned int page         = 1,
                                  const std::string& offset = "");
 
-    void requestUserDynamicVideoList(int mid, int pn = 0, int ps = 30);
+    void requestUserDynamicVideoList(int64_t mid, int pn = 0, int ps = 30);
 
 protected:
-    unsigned int currentUser  = 0;
+    int64_t currentUser       = 0;
     unsigned int currentPage  = 1;
     std::string currentOffset = "";
 };

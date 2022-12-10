@@ -12,7 +12,7 @@ void DynamicVideoRequest::onDynamicVideoList(
 
 void DynamicVideoRequest::onError(const std::string &error) {}
 
-void DynamicVideoRequest::setCurrentUser(unsigned int mid) {
+void DynamicVideoRequest::setCurrentUser(int64_t mid) {
     this->currentUser = mid;
 }
 
@@ -52,7 +52,8 @@ void DynamicVideoRequest::requestDynamicVideoList(unsigned int page,
         });
 }
 
-void DynamicVideoRequest::requestUserDynamicVideoList(int mid, int pn, int ps) {
+void DynamicVideoRequest::requestUserDynamicVideoList(int64_t mid, int pn,
+                                                      int ps) {
     CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_user_videos2(
         mid, pn, ps,

@@ -505,8 +505,7 @@ void MPVCore::eventMainLoop() {
                         brls::Logger::info("========> core-idle: {}",
                                            core_idle);
                         if (isPaused()) {
-                            if (fabs(playback_time - duration) < 1 &&
-                                duration > 0) {
+                            if (playback_time > duration - 1 && duration > 0) {
                                 brls::Logger::info(
                                     "========> END OF FILE (paused)");
                                 mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
@@ -519,7 +518,7 @@ void MPVCore::eventMainLoop() {
 #endif
                         } else {
                             if (core_idle) {
-                                if (fabs(playback_time - duration) < 1 &&
+                                if (playback_time > duration - 1 &&
                                     duration > 0) {
                                     brls::Logger::info("========> END OF FILE");
                                     this->pause();

@@ -66,7 +66,7 @@ public:
     void requestVideoComment(int aid, int next = 0, int mode = 3);
 
     /// 获取Up主的其他视频: pn 为0 自动获取下一页
-    void requestUploadedVideos(int mid, int pn = 0, int ps = 10);
+    void requestUploadedVideos(int64_t mid, int pn = 0, int ps = 10);
 
     /// 获取单个视频播放人数
     void requestVideoOnline(const std::string& bvid, int cid);
@@ -79,7 +79,8 @@ public:
 
     /// 上报播放进度
     void reportHistory(unsigned int aid, unsigned int cid,
-                       unsigned int progress = 0, int type = 3);
+                       unsigned int progress = 0, unsigned int duration = 0,
+                       int type = 3);
     inline static bool REPORT_HISTORY = true;
 
     /// 投币

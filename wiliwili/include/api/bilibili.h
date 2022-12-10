@@ -86,7 +86,7 @@ public:
 
     /// get person collection list
     static void get_my_collection_list(
-        const int mid, const int index = 1, const int num = 20,
+        const int64_t mid, const int index = 1, const int num = 20,
         const std::function<void(CollectionListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
@@ -106,14 +106,14 @@ public:
 
     /// get user's upload videos
     static void get_user_videos(
-        int mid, int pn, int ps,
+        const int64_t mid, int pn, int ps,
         const std::function<void(UserUploadedVideoResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
 
     /// get user's dynamic videos
     static void get_user_videos2(
-        int mid, int pn, int ps,
+        const int64_t mid, int pn, int ps,
         const std::function<void(UserDynamicVideoResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
@@ -296,7 +296,8 @@ public:
     static void report_history(const std::string& mid,
                                const std::string& access_key, unsigned int aid,
                                unsigned int cid, int type = 3,
-                               unsigned int progress = 0, unsigned int sid = 0,
+                               unsigned int progress = 0,
+                               unsigned int duration = 0, unsigned int sid = 0,
                                unsigned int epid                     = 0,
                                const std::function<void()>& callback = nullptr,
                                const ErrorCallback& error            = nullptr);
@@ -306,7 +307,7 @@ public:
         const int room, const std::string& csrf,
         const std::function<void()>& callback = nullptr,
         const ErrorCallback& error            = nullptr);
-    
+
     /// 点赞
     static void be_agree(const std::string& access_key, int aid, bool is_like,
                          const std::function<void()>& callback = nullptr,

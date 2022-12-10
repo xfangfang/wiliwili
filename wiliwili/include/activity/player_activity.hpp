@@ -22,23 +22,14 @@ typedef brls::Event<bilibili::Video> ChangeVideoEvent;
 
 using namespace brls::literals;
 
-class PlayerActivity : public brls::Activity, public VideoDetail {
+class BasePlayerActivity : public brls::Activity, public VideoDetail {
 public:
     CONTENT_FROM_XML_RES("activity/player_activity.xml");
 
-    PlayerActivity() = default;
-
-    PlayerActivity(std::string bvid);
-
-    PlayerActivity(std::string bvid, unsigned int cid, int progress = -1);
+    BasePlayerActivity() = default;
 
     void onContentAvailable() override;
 
-    void onVideoInfo(const bilibili::VideoDetailResult& result) override;
-    void onVideoPageListInfo(
-        const bilibili::VideoDetailPageListResult& result) override;
-    void onUploadedVideos(
-        const bilibili::UserUploadedVideoResultWrapper& result) override;
     void onVideoPlayUrl(const bilibili::VideoUrlResult& result) override;
     void onCommentInfo(
         const bilibili::VideoCommentResultWrapper& result) override;
@@ -46,8 +37,6 @@ public:
     void onRequestCommentError(const std::string& error) override;
     void onVideoOnlineCount(const bilibili::VideoOnlineTotal& count) override;
     void onVideoRelationInfo(const bilibili::VideoRelation& result) override;
-    void onRelatedVideoList(
-        const bilibili::VideoDetailListResult& result) override;
 
     // 初始化设置 播放界面通用内容
     void setCommonData();
@@ -62,22 +51,22 @@ public:
     // 目前有两个使用场景：
     // 1. 从历史记录进入视频时
     // 2. 切换清晰度前
-    virtual void setProgress(int p);
+    virtual void setProgress(int p) = 0;
 
     // 获取当前设定的播放进度
     // 在任何视频播放前都会从此接口读入播放进度，并在此基础上 -5s 进行播放
-    virtual int getProgress();
+    virtual int getProgress() = 0;
 
     // 切换分集
-    virtual void onIndexChange(size_t index);
+    virtual void onIndexChange(size_t index) = 0;
 
     // 切换到下一集
-    virtual void onIndexChangeToNext();
+    virtual void onIndexChangeToNext() = 0;
 
     // 上报播放进度
-    virtual void reportCurrentProgress(size_t progress);
+    virtual void reportCurrentProgress(size_t progress, size_t duration) = 0;
 
-    ~PlayerActivity() override;
+    ~BasePlayerActivity() override;
 
     inline static bool AUTO_NEXT_RCMD = true;
     inline static bool AUTO_NEXT_PART = true;
@@ -105,17 +94,39 @@ protected:
     BRLS_BIND(brls::Label, labelFavorite, "video/label/favorite");
     BRLS_BIND(brls::Label, labelQR, "video/label/qr");
 
+    // 监控mpv事件
+    MPVEvent::Subscription eventSubscribeID;
+};
+
+class PlayerActivity : public BasePlayerActivity {
+public:
+    PlayerActivity(std::string bvid, unsigned int cid = 0, int progress = -1);
+
+    void setProgress(int p) override;
+    int getProgress() override;
+    void onIndexChange(size_t index) override;
+    void onIndexChangeToNext() override;
+    void reportCurrentProgress(size_t progress, size_t duration) override;
+
+    void onVideoInfo(const bilibili::VideoDetailResult& result) override;
+    void onVideoPageListInfo(
+        const bilibili::VideoDetailPageListResult& result) override;
+    void onUploadedVideos(
+        const bilibili::UserUploadedVideoResultWrapper& result) override;
+    void onRelatedVideoList(
+        const bilibili::VideoDetailListResult& result) override;
+
+    ~PlayerActivity();
+
+private:
     // 切换视频分P
     ChangeIndexEvent changePEvent;
 
     // 切换UP视频
     ChangeVideoEvent changeVideoEvent;
-
-    // 监控mpv事件
-    MPVEvent::Subscription eventSubscribeID;
 };
 
-class PlayerSeasonActivity : public PlayerActivity {
+class PlayerSeasonActivity : public BasePlayerActivity {
 public:
     PlayerSeasonActivity(const unsigned int id,
                          PGC_ID_TYPE type = PGC_ID_TYPE::SEASON_ID,
@@ -139,7 +150,7 @@ public:
 
     void onIndexChangeToNext() override;
 
-    void reportCurrentProgress(size_t progress) override;
+    void reportCurrentProgress(size_t progress, size_t duration) override;
 
 private:
     unsigned int pgc_id;

@@ -230,7 +230,7 @@ void VideoDetail::changeEpisode(const bilibili::SeasonEpisodeResult& i) {
     int progress = 0;
     if (episodeResult.progress > 0) progress = episodeResult.progress;
 
-    this->reportHistory(i.aid, i.cid, progress, 4);
+    this->reportHistory(i.aid, i.cid, progress, 0, 4);
 
     // 重置MPV
     MPVCore::instance().reset();
@@ -266,7 +266,7 @@ void VideoDetail::requestVideoComment(int aid, int next, int mode) {
 }
 
 /// 获取Up主的其他视频
-void VideoDetail::requestUploadedVideos(int mid, int pn, int ps) {
+void VideoDetail::requestUploadedVideos(int64_t mid, int pn, int ps) {
     if (pn != 0) {
         this->userUploadedVideoRequestIndex = pn;
     }
@@ -379,11 +379,12 @@ void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
 
 /// 上报历史记录
 void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
-                                unsigned int progress, int type) {
+                                unsigned int progress, unsigned int duration,
+                                int type) {
     if (!REPORT_HISTORY) return;
     if (aid == 0 || cid == 0) return;
-    brls::Logger::debug("reportHistory: aid{} cid{} progress{}", aid, cid,
-                        progress);
+    brls::Logger::debug("reportHistory: aid{} cid{} progress{} duration{}", aid,
+                        cid, progress, duration);
     std::string mid   = ProgramConfig::instance().getUserID();
     std::string token = ProgramConfig::instance().getCSRF();
     if (mid == "" || token == "") return;
@@ -394,7 +395,7 @@ void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
     }
 
     bilibili::BilibiliClient::report_history(
-        mid, token, aid, cid, type, progress, sid, epid,
+        mid, token, aid, cid, type, progress, duration, sid, epid,
         []() { brls::Logger::debug("reportHistory: success"); },
         [](const std::string& err) { brls::Logger::error(err); });
 }

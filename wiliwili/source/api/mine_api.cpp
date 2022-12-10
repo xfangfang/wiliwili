@@ -100,7 +100,7 @@ void BilibiliClient::get_my_history(
 
 /// get person collection list
 void BilibiliClient::get_my_collection_list(
-    const int mid, const int index, const int num,
+    const int64_t mid, const int index, const int num,
     const std::function<void(CollectionListResultWrapper)>& callback,
     const ErrorCallback& error) {
     HTTP::getResultAsync<CollectionListResultWrapper>(
@@ -160,7 +160,7 @@ void BilibiliClient::get_collection_video_list(
 
 /// get user's upload videos
 void BilibiliClient::get_user_videos(
-    int mid, int pn, int ps,
+    const int64_t mid, int pn, int ps,
     const std::function<void(UserUploadedVideoResultWrapper)>& callback,
     const ErrorCallback& error) {
     HTTP::getResultAsync<UserUploadedVideoResultWrapper>(
@@ -174,7 +174,7 @@ void BilibiliClient::get_user_videos(
 }
 
 void BilibiliClient::get_user_videos2(
-    int mid, int pn, int ps,
+    const int64_t mid, int pn, int ps,
     const std::function<void(UserDynamicVideoResultWrapper)>& callback,
     const ErrorCallback& error) {
     HTTP::getResultAsync<UserDynamicVideoResultWrapper>(

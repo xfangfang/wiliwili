@@ -184,21 +184,20 @@ void BilibiliClient::get_danmaku(
 }
 
 /// 视频页 上报历史记录
-void BilibiliClient::report_history(const std::string& mid,
-                                    const std::string& access_key,
-                                    unsigned int aid, unsigned int cid,
-                                    int type, unsigned int progress,
-                                    unsigned int sid, unsigned int epid,
-                                    const std::function<void()>& callback,
-                                    const ErrorCallback& error) {
+void BilibiliClient::report_history(
+    const std::string& mid, const std::string& access_key, unsigned int aid,
+    unsigned int cid, int type, unsigned int progress, unsigned int duration,
+    unsigned int sid, unsigned int epid, const std::function<void()>& callback,
+    const ErrorCallback& error) {
     cpr::Payload payload = {
         {"mid", mid},
         {"csrf", access_key},
         {"aid", std::to_string(aid)},
         {"cid", std::to_string(cid)},
         {"progress", std::to_string(progress)},
+        {"duration", std::to_string(duration)},
         {"type", std::to_string(type)},
-        {"dt", "3"},
+        {"dt", "9"},  // 显示为智能音箱的播放数据
     };
     if (type == 4) {
         if (sid != 0) payload.Add({"sid", std::to_string(sid)});

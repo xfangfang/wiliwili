@@ -1,11 +1,11 @@
 <brls:AppletFrame
-    iconInterpolation="linear"
-    headerHidden="true"
-    footerHidden="false">
+        iconInterpolation="linear"
+        headerHidden="true"
+        footerHidden="false">
     <brls:Box
-        axis="column"
-        width="100%"
-        height="100%">
+            axis="column"
+            width="100%"
+            height="100%">
         <AutoTabFrame
                 id="main/tabFrame"
                 grow="1"
@@ -33,7 +33,7 @@
                  focusDown="main/setting"
                  icon="@res/svg/ico-mine.svg"
                  iconActivate="@res/svg/ico-mine-activate.svg">
-                <MineTab />
+                <MineTab/>
             </Tab>
         </AutoTabFrame>
         <brls:Box
@@ -44,25 +44,17 @@
                 alignItems="center"
                 positionType="absolute"
                 positionBottom="20">
-                <CustomButton
-                        id="main/setting"
+            <CustomButton
+                    id="main/setting"
+                    focusable="true"
+                    highlightCornerRadius="50"
+                    wireframe="false">
+                <SVGImage
                         focusable="true"
-                        highlightCornerRadius="50"
-                        wireframe="false">
-                        <SVGImage
-                                focusable="true"
-                                width="48"
-                                height="48"
-                                SVG="@res/svg/ico-setting.svg"/>
-                </CustomButton>
-                <brls:Label
-                        wireframe="false"
-                        marginTop="4"
-                        marginLeft="2"
-                        textColor="#61666D"
-                        horizontalAlign="center"
-                        fontSize="12"
-                        text=" /  "/>
+                        width="48"
+                        height="48"
+                        SVG="@res/svg/ico-setting.svg"/>
+            </CustomButton>
         </brls:Box>
     </brls:Box>
 </brls:AppletFrame>

@@ -165,7 +165,7 @@ void DynamicTab::onUpList(const bilibili::DynamicUpListResultWrapper& result) {
         auto dataSource = new DataSourceUpList(result.items);
         upRecyclingGrid->setDataSource(dataSource);
         dataSource->getSelectedEvent()->subscribe(
-            [this](unsigned int mid) { this->changeUser(mid); });
+            [this](int64_t mid) { this->changeUser(mid); });
     });
 }
 
@@ -201,7 +201,7 @@ void DynamicTab::onCreate() {
         });
 }
 
-void DynamicTab::changeUser(unsigned int mid) {
+void DynamicTab::changeUser(int64_t mid) {
     this->setCurrentUser(mid);
     this->videoRecyclingGrid->showSkeleton();
     this->DynamicVideoRequest::requestData(true);
