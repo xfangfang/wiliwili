@@ -259,11 +259,11 @@ void SettingActivity::onContentAvailable() {
         [this](bool value) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::AUTO_NEXT_PART, value);
-            PlayerActivity::AUTO_NEXT_PART = value;
+            BasePlayerActivity::AUTO_NEXT_PART = value;
             if (!value) {
                 ProgramConfig::instance().setSettingItem(
                     SettingItem::AUTO_NEXT_RCMD, false);
-                PlayerActivity::AUTO_NEXT_RCMD = false;
+                BasePlayerActivity::AUTO_NEXT_RCMD = false;
                 btnAutoNextRcmd->setOn(false, btnAutoNextRcmd->isOn());
             }
         });
@@ -274,11 +274,11 @@ void SettingActivity::onContentAvailable() {
         [this](bool value) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::AUTO_NEXT_RCMD, value);
-            PlayerActivity::AUTO_NEXT_RCMD = value;
+            BasePlayerActivity::AUTO_NEXT_RCMD = value;
             if (value) {
                 ProgramConfig::instance().setSettingItem(
                     SettingItem::AUTO_NEXT_PART, true);
-                PlayerActivity::AUTO_NEXT_PART = true;
+                BasePlayerActivity::AUTO_NEXT_PART = true;
                 btnAutoNextPart->setOn(true, !btnAutoNextPart->isOn());
             }
         });

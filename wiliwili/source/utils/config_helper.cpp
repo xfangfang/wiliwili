@@ -104,11 +104,11 @@ void ProgramConfig::load() {
         getSettingItem(SettingItem::HISTORY_REPORT, true);
 
     // 初始化是否自动播放下一分集
-    PlayerActivity::AUTO_NEXT_PART =
+    BasePlayerActivity::AUTO_NEXT_PART =
         getSettingItem(SettingItem::AUTO_NEXT_PART, true);
 
     // 初始化是否自动播放推荐视频
-    PlayerActivity::AUTO_NEXT_RCMD =
+    BasePlayerActivity::AUTO_NEXT_RCMD =
         getSettingItem(SettingItem::AUTO_NEXT_RCMD, true);
 
     // 初始化是否固定显示底部进度条

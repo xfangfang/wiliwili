@@ -251,7 +251,7 @@ void BasePlayerActivity::setCommonData() {
                     "wiliwili/player/quality"_i18n,
                     this->videoUrlResult.accept_description,
                     [this](int _selected) {
-                        PlayerActivity::defaultQuality =
+                        BasePlayerActivity::defaultQuality =
                             this->videoUrlResult.accept_quality[_selected];
 
                         // 在加载视频时，若设置了进度，会自动向前跳转5秒，
@@ -262,7 +262,7 @@ void BasePlayerActivity::setCommonData() {
                         if (!this->videoUrlResult.dash.video.empty()) {
                             // dash格式的视频无需重复请求视频链接，这里简单的设置清晰度即可
                             videoUrlResult.quality =
-                                PlayerActivity::defaultQuality;
+                                BasePlayerActivity::defaultQuality;
                             this->onVideoPlayUrl(videoUrlResult);
                             return;
                         }
@@ -378,7 +378,7 @@ void BasePlayerActivity::onVideoPlayUrl(
         }
     }
 
-    brls::Logger::debug("PlayerActivity::onVideoPlayUrl done");
+    brls::Logger::debug("BasePlayerActivity::onVideoPlayUrl done");
 }
 
 void BasePlayerActivity::onCommentInfo(
