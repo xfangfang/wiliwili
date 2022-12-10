@@ -52,12 +52,12 @@
       }
     },
     "about": {
-      "tab": "About",
-      "brief_header": "Introduction",
-      "repository": "Repository",
-      "brief": "Yet another third-party bilibili client",
-      "repo_header": "Repository",
-      "author_header": "Author's speech",
+      "tab": "概要",
+      "brief_header": "紹介",
+      "repository": "リポジトリ",
+      "brief": "さらに別のサードパーティのビリビリクライアント",
+      "repo_header": "リポジトリ",
+      "author_header": "著者のスピーチ",
       "author": "私はずっとアーティストになりたいと思っていましたが、残念ながらプログラマーの居場所はありません\n「ゲーム機で動画を見たり、携帯電話でゲームをしたりする」という仕事が生まれ、実現するまで\nある種のパフォーマンスアート、この場合私は完成します"
     },
     "opensource": {
