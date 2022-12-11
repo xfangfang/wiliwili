@@ -1,5 +1,5 @@
 {
-  "title": "윌리윌리",
+  "title": "wiliwili",
   "github": "https://github.com/xfangfang/wiliwili",
   "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
   "setting": {
@@ -55,7 +55,7 @@
       "tab": "정보",
       "brief_header": "소개",
       "repository": "저장소",
-      "brief": "또 다른 타사 빌리빌리 클라이언트",
+      "brief": "또 다른 타사 bilibili 클라이언트",
       "repo_header": "저장소",
       "author_header": "제작자의 말",
       "author": "항상 예술가가 되고 싶었지만 안타깝게도 프로그래머를 위한 자리가 많지 않습니다.\n이 작품이 탄생하고 실현되기까지:「게임 콘솔에서 비디오 보기, 휴대폰에서 게임하기」\n일종의 공연 예술이라고 할 수 있을지도 모르겠지만, 나는 완성 될 것입니다."
@@ -97,11 +97,11 @@
   "hints": {
     "hint1": "홈 화면에서 게임 선택",
     "hint2": "\uE0E5 키를 누른 상태에서 \uE0E0 을 클릭하여 hbmenu로 진입",
-    "hint3": "hbmenu에서, 윌리윌리 선택",
+    "hint3": "hbmenu에서, wiliwili 선택",
     "hint4": "선택 사항: 제공된 wiliwili NSP 포워더 사용 (wiliwili.nro를 /switch/wiliwili.nro에 배치)",
     "hint_nsp": "NSP 포워더를 설치하려면 \uE0E0 를 클릭",
     "hint_confirm": "NSP 포워더를 설치하면 차단될 수 있음\n다시 확인 필요",
-    "hint_right": "사진은 인터넷에서 가져온 것이며 저작권은 닌텐도에 있음"
+    "hint_right": "사진은 인터넷에서 가져온 것이며 저작권은 Nintendo Co., Ltd에 있음"
   },
   "home": {
     "common": {
@@ -156,7 +156,7 @@
       "logout": "현재 계정에서 로그아웃 \n(응용 프로그램이 종료)",
       "scan": "QR 코드를 스캔하여 로그인",
       "loading": "QR 코드 로드 중...",
-      "hint": "빌리빌리 클라이언트를 사용하여 QR 코드 스캔",
+      "hint": "BiliBili 클라이언트를 사용하여 QR 코드 스캔",
       "network_error": "네트워크 오류, 다시 시도",
       "qr_not_available": "QR 코드가 유효하지 않음, 대화 상자에 다시 진입",
       "need_confirm": "확인 대기 중",
