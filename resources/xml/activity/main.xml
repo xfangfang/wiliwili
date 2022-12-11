@@ -48,6 +48,7 @@
                     id="main/setting"
                     focusable="true"
                     highlightCornerRadius="50"
+                    cornerRadius="50"
                     wireframe="false">
                 <SVGImage
                         focusable="true"

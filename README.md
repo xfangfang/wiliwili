@@ -38,12 +38,21 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 
 # 安装流程 (PC)
 
+PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标操控（左键点击 右键返回）
+
 0. 可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions/workflows/build.yaml) 下载自动构建的测试版客户端
-1. 此页面同时提供了 `测试版switch客户端`、 `Windows (win7 sp1 and later; x86_64)` 、 `macOS (11.7 and later; intel)`
-   和 `Linux (flatpak x86_64 id:cn.xfangfang.wiliwili)` 客户端
-2. PC客户端支持硬件解码、秒开流畅适合老电脑、支持鼠标操控（左键点击
-   右键返回）、缺少部分字体的解决办法见：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
-3. 如果不知道如何从 Github-Actions 下载，这里是 [教程](https://xfangfang.github.io/036)
+1. 此页面同时提供了如下客户端:
+    - 测试版switch客户端
+    - Windows `win7 sp1 and later; x86_64`
+    - macOS `11.7 and later; intel`
+    - Linux `flatpak x86_64 id:cn.xfangfang.wiliwili`
+2. 【必看】缺少图标的解决办法见：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
+
+补充信息：
+
+0. 如果不知道如何从 Github-Actions 下载软件，这里是 [教程](https://xfangfang.github.io/036)
+1. 显卡驱动需要支持 `Opengl 3.2` 以运行此程序
+2. 如果运行有错误，Windows用户可以通过下载 [debug版](https://github.com/xfangfang/DIY/actions/workflows/wiliwili_win_debug.yml) 来查看log
 
 <br>
 
