@@ -13,8 +13,8 @@
         "low_quality": "낮은 품질의 디코딩(CPU 사용량이 적음)",
         "in_memory_cache": "메모리 캐시",
         "hwdec": "하드웨어 디코드",
-        "auto_play_next_part": "Automatically playing next part",
-        "auto_play_recommend": "Automatically playing recommend video"
+        "auto_play_next_part": "자동으로 다음 동영상 재생",
+        "auto_play_recommend": "추천 동영상 자동 재생"
       },
       "cache": {
         "header": "캐시",
