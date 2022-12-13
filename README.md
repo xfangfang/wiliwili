@@ -53,6 +53,7 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 0. 如果不知道如何从 Github-Actions 下载软件，这里是 [教程](https://xfangfang.github.io/036)
 1. 显卡驱动需要支持 `Opengl 3.2` 以运行此程序
 2. 如果运行有错误，Windows用户可以通过下载 [debug版](https://github.com/xfangfang/DIY/actions/workflows/wiliwili_win_debug.yml) 来查看log
+3. 目前支持的快捷键见：[#47](https://github.com/xfangfang/wiliwili/discussions/47)
 
 <br>
 
@@ -249,3 +250,5 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 - https://github.com/nlohmann/json
 - https://github.com/nayuki/QR-Code-generator
 - https://github.com/BYVoid/OpenCC
+- https://github.com/imageworks/pystring
+- https://github.com/sammycage/lunasvg
