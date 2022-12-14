@@ -110,6 +110,8 @@ ImageHelper* ImageHelper::into(brls::Image* image) {
         return this;
     }
 
+    //todo: 可能会发生同时请求多个重复链接的情况，此种情况下最好合并为一个请求
+
     ImageThreadPool::instance().Submit([this, image]() {
         cpr::Response r = cpr::Get(
 #ifndef VERIFY_SSL
@@ -138,12 +140,24 @@ ImageHelper* ImageHelper::into(brls::Image* image) {
                                   (size_t)image, image->describe());
             brls::sync([this, image, r]() {
                 std::unique_lock<std::mutex> lock(this->availableMutex);
-                if (this->isCancel) return;
-                image->setImageFromMem((unsigned char*)r.text.c_str(),
-                                       (size_t)r.downloaded_bytes);
-                if (image->getTexture() > 0)
-                    TextureCache::instance().addCache(this->imageUrl,
-                                                      image->getTexture());
+                if (this->isCancel) {
+                    this->setAvailable(true);
+                    image->ptrUnlock();
+                    return;
+                }
+
+                // 还需要再检查一遍缓存
+                int tex = TextureCache::instance().getCache(this->imageUrl);
+                if (tex > 0) {
+                    brls::Logger::verbose("cache hit 2: {}", this->imageUrl);
+                    image->innerSetImage(tex);
+                } else {
+                    image->setImageFromMem((unsigned char*)r.text.c_str(),
+                                           (size_t)r.downloaded_bytes);
+                    if (image->getTexture() > 0)
+                        TextureCache::instance().addCache(this->imageUrl,
+                                                          image->getTexture());
+                }
                 this->setAvailable(true);
                 image->ptrUnlock();
             });
@@ -154,6 +168,8 @@ ImageHelper* ImageHelper::into(brls::Image* image) {
 
 /// 清空图片内容
 void ImageHelper::clear(brls::Image* view) {
+    TextureCache::instance().removeCache(view->getTexture());
+
     view->clear();
     for (auto i : imagePool) {
         if (i->getImageView() == view) {

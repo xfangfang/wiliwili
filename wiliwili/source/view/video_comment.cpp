@@ -13,7 +13,6 @@ VideoComment::VideoComment() {
 
 VideoComment::~VideoComment() {
     brls::Logger::debug("View VideoComment: delete");
-    //    ImageHelper::clear(this->userInfo->getAvatar());
 }
 
 RecyclingGridItem* VideoComment::create() { return new VideoComment(); }

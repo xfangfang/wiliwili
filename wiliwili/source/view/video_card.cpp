@@ -392,7 +392,7 @@ void RecyclingGridItemHistoryVideoCard::setCard(
     } else {
         boxBadge->setVisibility(brls::Visibility::VISIBLE);
         auto theme = brls::Application::getTheme();
-        if (rightTopBadge == "已看完") {
+        if (rightTopBadge == "wiliwili/mine/done"_i18n) {
             boxBadge->setBackgroundColor(theme.getColor("color/grey_4"));
         } else {
             boxBadge->setBackgroundColor(theme.getColor("color/bilibili"));
