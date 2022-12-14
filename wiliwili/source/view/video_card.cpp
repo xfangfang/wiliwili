@@ -7,6 +7,8 @@
 #include "utils/number_helper.hpp"
 #include "utils/image_helper.hpp"
 
+using namespace brls::literals;
+
 /// 普通视频封面
 
 RecyclingGridItemVideoCard::RecyclingGridItemVideoCard() {
