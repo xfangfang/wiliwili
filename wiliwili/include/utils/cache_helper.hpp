@@ -3,7 +3,6 @@
 //
 
 #include <stdexcept>
-#include <pystring.h>
 
 #include "utils/singleton.hpp"
 
@@ -37,7 +36,7 @@ public:
     }
 
     T get(K key) {
-        if (cacheMap.find(key) == cacheMap.end() || cacheMap[key]->dirty) {
+        if (!isCacheHit(key)) {
             // 缓存未命中
             return defaultValue;
         }
@@ -46,20 +45,17 @@ public:
         cacheList.splice(cacheList.begin(), cacheList, cacheMap[key]);
         cacheMap[key]                  = cacheList.begin();
         valueMap[cacheMap[key]->value] = cacheList.begin();
-        // 开启缓存本地图片后，非本地图片时才计数，避免本地图片命中太多次而不删除导致计数值溢出
-        if (!pystring::startswith(key, BRLS_RESOURCES) ||
-            !ALWAYS_CACHE_LOCAL_FILE)
-            cacheMap[key]->count++;
+        cacheMap[key]->count++;
         return cacheMap[key]->value;
     }
 
     void set(K key, T value) {
-        if (cacheMap.find(key) != cacheMap.end() && !cacheMap[key]->dirty) {
-            // 缓存命中，修改已有的 Key，但不标记为dirty，避免缓存容量不够被删除，等待主动删除
-            // 多次设置同一个key，可能会导致出现重复的 `dirty key`，不过不影响，因为这样的key已经没用了
-            K newKey = key + DIRTY;
-            cacheMap[key]->key += DIRTY;
-            cacheMap[newKey] = cacheMap[key];
+        if (isCacheHit(key)) {
+            // 缓存命中，修改已有的 Key
+            K newKey             = key + DIRTY;
+            cacheMap[key]->key   = newKey;
+            cacheMap[key]->dirty = true;
+            cacheMap[newKey]     = cacheMap[key];
         }
 
         //检查容量限制
@@ -77,10 +73,22 @@ public:
      * 不是真的移除一个缓存，只是将对应缓存的计数器减1
      */
     void remove(T value) {
-        if (valueMap.find(value) == valueMap.end() || valueMap[value]->dirty) {
+        if (!isExisted(value)) {
             return;
         }
         valueMap[value]->count--;
+    }
+
+    /*
+     * 更新某个缓存值
+     */
+    void update(size_t old_val, size_t new_val) {
+        if (!isExisted(old_val)) {
+            return;
+        }
+        valueMap[old_val]->value = new_val;
+        valueMap[new_val]        = valueMap[old_val];
+        valueMap.erase(old_val);
     }
 
     void setCapacity(int c) {
@@ -97,7 +105,6 @@ public:
     void markDirty() {
         for (auto& i : cacheList) {
             i.dirty = true;
-            i.key += DIRTY;
         }
     }
 
@@ -128,7 +135,7 @@ private:
         if (num <= 0) return 0;
         auto vg = brls::Application::getNVGContext();
         for (auto i = cacheList.rbegin(); i != cacheList.rend(); i++) {
-            if (i->count <= 0 || i->dirty) {
+            if (i->count <= 0) {
                 num--;
                 nvgDeleteImage(vg, i->value);
                 cacheMap.erase(i->key);
@@ -138,6 +145,15 @@ private:
             }
         }
         return num;
+    }
+
+    bool isExisted(K key) { return cacheMap.find(key) != cacheMap.end(); }
+
+    bool isExisted(T val) { return valueMap.find(val) != valueMap.end(); }
+
+    bool isCacheHit(K key) {
+        if (isExisted(key)) return !cacheMap[key]->dirty;
+        return false;
     }
 };
 
@@ -164,6 +180,14 @@ public:
     void removeCache(size_t texture) {
         if (texture <= 0) return;
         cache.remove(texture);
+    }
+
+    /*
+     * 更新纹理id
+     */
+    void updateCache(size_t old_tex, size_t new_tex) {
+        if (old_tex <= 0 || new_tex <= 0) return;
+        cache.update(old_tex, new_tex);
     }
 
     void clean() {

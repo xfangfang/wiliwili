@@ -11,6 +11,17 @@ SVGImage::SVGImage() {
 
     // 交给缓存自动处理纹理的删除
     this->setFreeTexture(false);
+
+    // 改变窗口大小时自动更新纹理
+    subscription =
+        brls::Application::getWindowSizeChangedEvent()->subscribe([this]() {
+            if (!filePath.empty()) {
+                brls::Visibility v = getVisibility();
+                this->setVisibility(brls::Visibility::VISIBLE);
+                setImageFromSVGFile(filePath);
+                this->setVisibility(v);
+            }
+        });
 }
 
 void SVGImage::setImageFromSVGRes(std::string name) {
@@ -18,7 +29,11 @@ void SVGImage::setImageFromSVGRes(std::string name) {
 }
 
 void SVGImage::setImageFromSVGFile(const std::string value) {
-    int tex = TextureCache::instance().getCache(value);
+    filePath   = value;
+    size_t tex = this->getTexture();
+    if (tex > 0) TextureCache::instance().removeCache(tex);
+
+    tex = TextureCache::instance().getCache(value);
     if (tex > 0) {
         brls::Logger::verbose("cache hit: {} {}", value, tex);
         this->innerSetImage(tex);
@@ -49,6 +64,12 @@ void SVGImage::updateBitmap() {
     int tex        = nvgCreateImageRGBA(vg, bitmap.width(), bitmap.height(), 0,
                                         bitmap.data());
     this->innerSetImage(tex);
+}
+
+SVGImage::~SVGImage() {
+    size_t tex = this->getTexture();
+    if (tex > 0) TextureCache::instance().removeCache(tex);
+    brls::Application::getWindowSizeChangedEvent()->unsubscribe(subscription);
 }
 
 brls::View* SVGImage::create() { return new SVGImage(); }

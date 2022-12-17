@@ -68,7 +68,6 @@
                 width="100%"
                 height="60"/>
         <brls:Box
-                grow="1"
                 width="100%"
                 height="20"
                 alignItems="center">
@@ -90,6 +89,7 @@
             <SVGImage
                     id="video/svg/up"
                     height="14"
+                    width="18"
                     SVG="@res/svg/widget-up.svg"/>
             <brls:Label
                     id="video/card/label/username"

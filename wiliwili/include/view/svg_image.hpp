@@ -13,6 +13,8 @@ class SVGImage : public brls::Image {
 public:
     SVGImage();
 
+    ~SVGImage();
+
     void setImageFromSVGRes(std::string name);
 
     void setImageFromSVGFile(const std::string value);
@@ -21,14 +23,10 @@ public:
 
     void updateBitmap();
 
-    //todo: 窗口大小调整后 图像模糊
-    //    void invalidateImageBounds(){
-    //        this->updateBitmap();
-    //        Image::invalidateImageBounds();
-    //    }
-
-    static View* create();
+    static View *create();
 
 private:
     std::unique_ptr<lunasvg::Document> document = nullptr;
+    brls::VoidEvent::Subscription subscription;
+    std::string filePath = "";
 };
