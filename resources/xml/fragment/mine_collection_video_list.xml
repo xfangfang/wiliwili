@@ -10,15 +10,20 @@
             grow="1">
         <brls:Box
                 axis="column"
-                margin="8"
+                marginLeft="10"
+                marginTop="16"
                 grow="1">
             <brls:Box
-                    margin="8"
+                    marginTop="8"
+                    marginLeft="20"
+                    marginBottom="16"
                     height="100">
                 <brls:Image
                         scalingType="fill"
                         id="collection/cover"
-                        image="@res/pictures/playlistbg.png"
+                        image="@res/pictures/video-card-bg.png"
+                        backgroundColor="@theme/color/grey_1"
+                        cornerRadius="4"
                         height="100"
                         width="178"
                         focusable="true"/>
@@ -47,7 +52,7 @@
 
             <RecyclingGrid
                     paddingLeft="20"
-                    paddingRight="20"
+                    paddingRight="10"
                     itemHeight="250"
                     grow="1"
                     preFetchLine="1"

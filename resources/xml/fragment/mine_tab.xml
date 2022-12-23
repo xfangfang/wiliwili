@@ -21,9 +21,8 @@
                 image="@res/pictures/default_avatar.png"/>
         <brls:Box
                 marginLeft="40"
-                wireframe="false"
                 axis="column"
-                width="25%">
+                width="35%">
             <brls:Label
                     marginTop="20"
                     id="mine/label/username"
@@ -33,13 +32,12 @@
                     id="mine/label/sign"
                     marginBottom="10"
                     grow="1"
+                    singleLine="true"
                     fontSize="16"
                     textColor="@theme/font/grey"
                     text=""/>
         </brls:Box>
         <brls:Box
-                wireframe="false"
-                marginLeft="100"
                 marginRight="100"
                 alignItems="center"
                 grow="1">

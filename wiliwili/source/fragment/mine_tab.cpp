@@ -133,6 +133,12 @@ void MineTab::onUserInfo(const bilibili::UserResult& data) {
         ASYNC_RELEASE
         labelUserName->setText(data.name);
         ImageHelper::with(this->imageUserAvater)->load(data.face);
+        if (data.sign.empty()) {
+            labelSign->setText("这个人很神秘，什么都没有写");
+        } else {
+            labelSign->setText(data.sign);
+        }
+
         labelCoins->setText(fmt::format("{}", data.coins));
     });
 }
