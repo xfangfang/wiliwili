@@ -40,9 +40,12 @@ void HomeHotsWeeklyRequest::requestHotsWeeklyVideoListByIndex(size_t index) {
 }
 
 std::vector<std::string> HomeHotsWeeklyRequest::getWeeklyList() {
-    std::vector<std::string> res = {"wiliwili/home/common/refresh"_i18n};
+    std::vector<std::string> res;
+    if (weeklyList.empty()) {
+        res.emplace_back("wiliwili/home/common/refresh"_i18n);
+    }
     for (auto w : weeklyList) {
-        res.push_back(w.name + "    " + w.subject);
+        res.emplace_back(w.name + "    " + w.subject);
     }
     return res;
 }

@@ -67,17 +67,16 @@ void HomeHotsWeekly::onCreate() {
 
 void HomeHotsWeekly::switchChannel() {
     AutoTabFrame::focus2Sidebar(this);
-    static int selected = 1;
+    static int selected = 0;
     brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
         "wiliwili/home/hots/t3"_i18n, this->getWeeklyList(),
         [this](int _selected) {
+            selected = _selected;
             this->recyclingGrid->showSkeleton();
-            if (_selected == 0) {
-                selected = 1;
+            if (this->weeklyList.empty()) {
                 this->requestData();
             } else {
-                selected = _selected;
-                this->requestHotsWeeklyVideoListByIndex(selected - 1);
+                this->requestHotsWeeklyVideoListByIndex(selected);
             }
         },
         selected)));
