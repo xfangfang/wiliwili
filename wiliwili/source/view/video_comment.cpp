@@ -21,12 +21,14 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
     this->comment_data = data;
 
     this->label->setText(data.content.message);
-    this->userInfo->setUserInfo(data.member.avatar + "@96w_96h_1c.jpg",
+    this->userInfo->setUserInfo(data.member.avatar + ImageHelper::face_ext,
                                 data.member.uname,
                                 wiliwili::sec2date(data.ctime));
 }
 
-void VideoComment::prepareForReuse() {}
+void VideoComment::prepareForReuse() {
+    this->userInfo->getAvatar()->setImageFromRes("pictures/default_avatar.png");
+}
 
 void VideoComment::cacheForReuse() {
     ImageHelper::clear(this->userInfo->getAvatar());

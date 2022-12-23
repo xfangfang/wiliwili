@@ -11,7 +11,7 @@
 #include <nlohmann/json.hpp>
 #include <filesystem>
 #include <cpr/cpr.h>
-#include "utils/singleton.hpp"
+#include "borealis/core/singleton.hpp"
 
 typedef std::map<std::string, std::string> Cookie;
 
@@ -31,7 +31,7 @@ enum class SettingItem {
     CUSTOM_UPDATE_API,
 };
 
-class APPVersion : public Singleton<APPVersion> {
+class APPVersion : public brls::Singleton<APPVersion> {
     inline static std::string RELEASE_API =
         "https://api.github.com/repos/xfangfang/wiliwili/releases/latest";
 
@@ -48,7 +48,7 @@ public:
     void checkUpdate(int delay = 2000);
 };
 
-class ProgramConfig : public Singleton<ProgramConfig> {
+class ProgramConfig : public brls::Singleton<ProgramConfig> {
 public:
     ProgramConfig();
     ProgramConfig(const ProgramConfig& config);

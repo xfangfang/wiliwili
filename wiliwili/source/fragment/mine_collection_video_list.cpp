@@ -23,7 +23,7 @@ public:
         std::string author = r.upper.name;
         if (r.type == 24) author = r.intro;
 
-        item->setCard(r.cover + "@672w_378h_1c.jpg", r.title, author, r.pubtime,
+        item->setCard(r.cover + ImageHelper::h_ext, r.title, author, r.pubtime,
                       r.cnt_info.play, r.cnt_info.danmaku, r.duration);
         return item;
     }
@@ -74,9 +74,7 @@ MineCollectionVideoList::MineCollectionVideoList(
     }
 
     this->labelSubtitle->setText(badge);
-    ImageHelper::with(this->imageCover)
-        ->load(collectionData.cover)
-        ->into(this->imageCover);
+    ImageHelper::with(this->imageCover)->load(collectionData.cover);
 
     recyclingGrid->registerCell(
         "Cell", []() { return RecyclingGridItemVideoCard::create(); });

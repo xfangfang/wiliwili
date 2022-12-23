@@ -8,7 +8,7 @@
 #include "fragment/setting_network.hpp"
 #include "view/text_box.hpp"
 #include "utils/config_helper.hpp"
-#include "utils/cache_helper.hpp"
+#include "borealis/core/cache_helper.hpp"
 #include "borealis/views/applet_frame.hpp"
 
 using namespace brls::literals;
@@ -222,7 +222,8 @@ void SettingActivity::onContentAvailable() {
             int num = 100 * data + 100;
             ProgramConfig::instance().setSettingItem(
                 SettingItem::TEXTURE_CACHE_NUM, num);
-            TextureCache::instance().cache.setCapacity(num);
+            brls::TextureCache::instance().cache.setCapacity(num);
+        });
         });
 
     // todo: 从config_helper中实现一个可通用的选项选择方式

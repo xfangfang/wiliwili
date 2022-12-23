@@ -17,10 +17,8 @@ void RecyclingGridItemHotsCard::setCard(int order, std::string showName,
     this->order->setText(std::to_string(order));
     this->content->setVisibility(brls::Visibility::VISIBLE);
     this->content->setText(showName);
-    //    this->content->setHorizontalAlign(brls::HorizontalAlign::CENTER);
     this->icon->setVisibility(brls::Visibility::VISIBLE);
-    if (pic.size()) ImageHelper::with(this)->load(pic)->into(this->icon);
-    //    this->icon->s
+    if (pic.size()) ImageHelper::with(this->icon)->load(pic);
 }
 
 RecyclingGridItemHotsCard *RecyclingGridItemHotsCard::create() {

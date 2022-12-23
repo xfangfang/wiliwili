@@ -92,10 +92,10 @@ RecyclingGridItem* DataSourcePGCVideoList::cellForRow(RecyclingGrid* recycler,
 
     bilibili::PGCItemResult& r = this->videoList.items[index];
     if (item->isVertical()) {
-        item->setCard(r.cover + "@312w_420h_1c.jpg", r.title, r.desc,
+        item->setCard(r.cover + ImageHelper::v_ext, r.title, r.desc,
                       r.badge_info, r.bottom_left_badge, r.bottom_right_badge);
     } else {
-        item->setCard(r.cover + "@672w_378h_1c.jpg", r.title, r.desc,
+        item->setCard(r.cover + ImageHelper::h_ext, r.title, r.desc,
                       r.badge_info, r.bottom_left_badge, r.bottom_right_badge);
     }
     return item;

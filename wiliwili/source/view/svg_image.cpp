@@ -3,7 +3,7 @@
 //
 
 #include "view/svg_image.hpp"
-#include "utils/cache_helper.hpp"
+#include "borealis/core/cache_helper.hpp"
 
 SVGImage::SVGImage() {
     this->registerFilePathXMLAttribute(
@@ -31,9 +31,9 @@ void SVGImage::setImageFromSVGRes(std::string name) {
 void SVGImage::setImageFromSVGFile(const std::string value) {
     filePath   = value;
     size_t tex = this->getTexture();
-    if (tex > 0) TextureCache::instance().removeCache(tex);
+    if (tex > 0) brls::TextureCache::instance().removeCache(tex);
 
-    tex = TextureCache::instance().getCache(value);
+    tex = brls::TextureCache::instance().getCache(value);
     if (tex > 0) {
         brls::Logger::verbose("cache hit: {} {}", value, tex);
         this->innerSetImage(tex);
@@ -46,7 +46,7 @@ void SVGImage::setImageFromSVGFile(const std::string value) {
     tex = this->getTexture();
     if (tex > 0) {
         brls::Logger::verbose("cache svg: {} {}", value, tex);
-        TextureCache::instance().addCache(value, tex);
+        brls::TextureCache::instance().addCache(value, tex);
     }
 }
 
@@ -68,7 +68,7 @@ void SVGImage::updateBitmap() {
 
 SVGImage::~SVGImage() {
     size_t tex = this->getTexture();
-    if (tex > 0) TextureCache::instance().removeCache(tex);
+    if (tex > 0) brls::TextureCache::instance().removeCache(tex);
     brls::Application::getWindowSizeChangedEvent()->unsubscribe(subscription);
 }
 

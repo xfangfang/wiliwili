@@ -5,7 +5,7 @@
 #pragma once
 
 #include "borealis.hpp"
-#include "utils/singleton.hpp"
+#include "borealis/core/singleton.hpp"
 #include <mpv/client.h>
 #include <mpv/render_gl.h>
 #include <glad/glad.h>
@@ -76,7 +76,7 @@ public:
     }
 };
 
-class MPVCore : public Singleton<MPVCore> {
+class MPVCore : public brls::Singleton<MPVCore> {
 public:
     MPVCore();
 

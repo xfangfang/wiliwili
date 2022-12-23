@@ -19,7 +19,7 @@ public:
 
         bilibili::HotsAllVideoResult& r = this->videoList[index];
         brls::Logger::debug("title: {}", r.title);
-        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title, r.owner.name,
+        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name,
                       r.pubdate, r.stat.view, r.stat.danmaku, r.duration);
         return item;
     }

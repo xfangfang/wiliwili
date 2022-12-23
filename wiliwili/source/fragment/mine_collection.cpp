@@ -6,6 +6,7 @@
 #include "fragment/mine_collection_video_list.hpp"
 #include "view/video_card.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/image_helper.hpp"
 
 using namespace brls::literals;
 
@@ -28,12 +29,9 @@ public:
         } else {
             badge += " " + "wiliwili/mine/public"_i18n;
         }
-        auto time = "wiliwili/mine/pub"_i18n + wiliwili::sec2date(r.ctime);
+        auto time  = "wiliwili/mine/pub"_i18n + wiliwili::sec2date(r.ctime);
+        auto cover = r.cover.empty() ? "" : r.cover + ImageHelper::h_ext;
 
-        auto cover = r.cover;
-        if (!cover.empty()) {
-            cover += "@672w_378h_1c.jpg";
-        }
         item->setCard(cover, r.title, time, badge);
 
         return item;

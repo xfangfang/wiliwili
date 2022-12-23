@@ -7,6 +7,7 @@
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "activity/live_player_activity.hpp"
+#include "utils/image_helper.hpp"
 
 using namespace brls::literals;
 
@@ -22,7 +23,7 @@ public:
                 "Cell");
 
         bilibili::LiveVideoResult& r = this->videoList[index];
-        item->setCard(r.cover + "@672w_378h_1c.jpg", r.title, r.uname,
+        item->setCard(r.cover + ImageHelper::h_ext, r.title, r.uname,
                       r.area_name, r.online, r.following);
         return item;
     }

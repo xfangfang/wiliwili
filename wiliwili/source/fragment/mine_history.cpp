@@ -47,7 +47,7 @@ public:
             progress = 1.0;
         }
 
-        item->setCard(r.cover + "@672w_378h_1c.jpg", r.title, author, time,
+        item->setCard(r.cover + ImageHelper::h_ext, r.title, author, time,
                       duration, badge, r.history.dt, progress, showUpName);
 
         return item;

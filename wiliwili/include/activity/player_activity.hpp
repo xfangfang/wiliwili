@@ -10,7 +10,6 @@
 #include "view/video_comment.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/auto_tab_frame.hpp"
-#include "utils/singleton.hpp"
 #include "view/mpv_core.hpp"
 
 class VideoView;

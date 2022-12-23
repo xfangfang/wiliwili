@@ -10,7 +10,17 @@
 class NetImage;
 class SVGImage;
 
-class RecyclingGridItemVideoCard : public RecyclingGridItem {
+class BaseVideoCard : public RecyclingGridItem {
+public:
+    void prepareForReuse();
+
+    void cacheForReuse();
+
+protected:
+    BRLS_BIND(brls::Image, picture, "video/card/picture");
+};
+
+class RecyclingGridItemVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemVideoCard();
 
@@ -34,14 +44,9 @@ public:
      */
     void setAchievement(std::string explain);
 
-    void prepareForReuse();
-
-    void cacheForReuse();
-
     static RecyclingGridItemVideoCard* create();
 
 private:
-    BRLS_BIND(brls::Image, picture, "video/card/picture");
     BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
@@ -57,7 +62,7 @@ private:
     BRLS_BIND(brls::Label, labelAchievement, "video/card/label/achievement");
 };
 
-class RecyclingGridItemRankVideoCard : public RecyclingGridItem {
+class RecyclingGridItemRankVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemRankVideoCard(
         std::string res = "xml/views/video_card_rank.xml");
@@ -68,15 +73,10 @@ public:
                  int pubdate = 0, int view_count = 0, int danmaku = 0,
                  int duration = 0, int index = 0);
 
-    void prepareForReuse();
-
-    void cacheForReuse();
-
     static RecyclingGridItemRankVideoCard* create(
         std::string res = "xml/views/video_card_rank.xml");
 
 private:
-    BRLS_BIND(brls::Image, picture, "video/card/picture");
     BRLS_BIND(SVGImage, svgIndex, "video/card/svg/index");
     BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
@@ -87,7 +87,7 @@ private:
     BRLS_BIND(brls::Box, boxPic, "video/card/pic_box");
 };
 
-class RecyclingGridItemLiveVideoCard : public RecyclingGridItem {
+class RecyclingGridItemLiveVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemLiveVideoCard();
 
@@ -96,14 +96,9 @@ public:
     void setCard(std::string pic, std::string title, std::string username,
                  std::string area, int view_count = 0, bool following = false);
 
-    void prepareForReuse();
-
-    void cacheForReuse();
-
     static RecyclingGridItemLiveVideoCard* create();
 
 private:
-    BRLS_BIND(brls::Image, picture, "video/card/picture");
     BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
@@ -113,7 +108,7 @@ private:
     BRLS_BIND(SVGImage, svgUp, "video/svg/up");
 };
 
-class RecyclingGridItemPGCVideoCard : public RecyclingGridItem {
+class RecyclingGridItemPGCVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemPGCVideoCard(bool vertical_cover = true);
 
@@ -125,14 +120,11 @@ public:
                  std::string badge_top, std::string badge_bottom_left,
                  std::string badge_bottom_right);
 
-    void prepareForReuse();
-
     void cacheForReuse();
 
     static RecyclingGridItemPGCVideoCard* create(bool vertical_cover = true);
 
 private:
-    BRLS_BIND(brls::Image, picture, "video/card/picture");
     BRLS_BIND(brls::Image, badgeTop, "video/card/badge/top");
     BRLS_BIND(brls::Image, badgeBottomLeft, "video/card/badge/bottom/left");
     BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
@@ -144,7 +136,7 @@ private:
     bool vertical_cover = true;
 };
 
-class RecyclingGridItemSearchPGCVideoCard : public RecyclingGridItem {
+class RecyclingGridItemSearchPGCVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemSearchPGCVideoCard();
 
@@ -155,14 +147,9 @@ public:
                  std::string badge_color, std::string scoreCount,
                  std::string score, std::string type, std::string bottom);
 
-    void prepareForReuse();
-
-    void cacheForReuse();
-
     static RecyclingGridItem* create();
 
 private:
-    BRLS_BIND(brls::Image, picture, "video/card/picture");
     BRLS_BIND(brls::Box, boxTop, "video/card/badge/boxTop");
     BRLS_BIND(brls::Label, badgeTop, "video/card/badge/top");
     BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
@@ -191,19 +178,10 @@ public:
     static RecyclingGridItem* create(bool vertical_cover = true);
 
 private:
-    BRLS_BIND(brls::Image, picture, "video/card/picture");
-    BRLS_BIND(brls::Image, badgeTop, "video/card/badge/top");
-    BRLS_BIND(brls::Image, badgeBottomLeft, "video/card/badge/bottom/left");
-    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
-    BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
-    BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
-    BRLS_BIND(brls::Box, boxPic, "video/card/pic_box");
-    BRLS_BIND(brls::Box, boxBadgeBottom, "video/card/badge/box/bottom");
-
     bool vertical_cover = true;
 };
 
-class RecyclingGridItemHistoryVideoCard : public RecyclingGridItem {
+class RecyclingGridItemHistoryVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemHistoryVideoCard();
 
@@ -215,14 +193,9 @@ public:
                  std::string rightTopBadge = "", int deviceType = 0,
                  float progress = -1, bool showName = true);
 
-    void prepareForReuse();
-
-    void cacheForReuse();
-
     static RecyclingGridItemHistoryVideoCard* create();
 
 private:
-    BRLS_BIND(brls::Image, picture, "video/card/picture");
     BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
@@ -235,7 +208,7 @@ private:
     BRLS_BIND(brls::Rectangle, rectProgress, "video/card/progress");
 };
 
-class RecyclingGridItemCollectionVideoCard : public RecyclingGridItem {
+class RecyclingGridItemCollectionVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemCollectionVideoCard();
 
@@ -245,14 +218,9 @@ public:
                  std::string leftBottomBadge  = "",
                  std::string rightBottomBadge = "");
 
-    void prepareForReuse();
-
-    void cacheForReuse();
-
     static RecyclingGridItemCollectionVideoCard* create();
 
 private:
-    BRLS_BIND(brls::Image, picture, "video/card/picture");
     BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
@@ -260,8 +228,7 @@ private:
     BRLS_BIND(brls::Box, boxPic, "video/card/pic_box");
 };
 
-/// 播放页推荐卡片
-class RecyclingGridItemRelatedVideoCard : public RecyclingGridItem {
+class RecyclingGridItemRelatedVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemRelatedVideoCard();
 
@@ -271,14 +238,9 @@ public:
                  std::string playCount, std::string danmakuCount,
                  std::string rightBottomBadge = "");
 
-    void prepareForReuse();
-
-    void cacheForReuse();
-
     static RecyclingGridItemRelatedVideoCard* create();
 
 private:
-    BRLS_BIND(brls::Image, picture, "video/card/picture");
     BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");

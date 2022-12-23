@@ -43,7 +43,7 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 0. 可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions/workflows/build.yaml) 下载自动构建的测试版客户端
 1. 此页面同时提供了如下客户端:
     - 测试版switch客户端
-    - Windows `win7 sp1 and later; x86_64`
+    - Windows `Win7 SP1 and later; x86_64`
     - macOS `11.7 and later; intel`
     - Linux `flatpak x86_64 id:cn.xfangfang.wiliwili`
 2. 【必看】缺少图标的解决办法见：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
@@ -51,7 +51,7 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 补充信息：
 
 0. 如果不知道如何从 Github-Actions 下载软件，这里是 [教程](https://xfangfang.github.io/036)
-1. 显卡驱动需要支持 `Opengl 3.2` 以运行此程序
+1. 显卡驱动需要支持 `OpenGL 3.2` 以运行此程序
 2. 如果运行有错误，Windows用户可以通过下载 [debug版](https://github.com/xfangfang/DIY/actions/workflows/wiliwili_win_debug.yml) 来查看log
 3. 目前支持的快捷键见：[#47](https://github.com/xfangfang/wiliwili/discussions/47)
 
@@ -70,7 +70,7 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 - [x] 初步添加搜索
 - [x] 播放页新增分集与UP主最新投稿
 - [ ] 完善视频播放页用户评论内容
-- [ ] 重构图片异步加载逻辑
+- [x] 重构图片异步加载逻辑
 - [x] 解决收藏夹、搜索页某些情况导致闪退的问题
 - [x] 完善搜索页：番剧、影视 转为竖图
 - [x] 完善播放页投稿列表：调整结构、自动加载下一页

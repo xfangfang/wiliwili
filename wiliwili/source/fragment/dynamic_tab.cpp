@@ -17,7 +17,7 @@ public:
     void setUserInfo(std::string avatar, std::string username,
                      bool isUpdate = false) {
         this->labelUsername->setText(username);
-        ImageHelper::with(this)->load(avatar)->into(this->avatarView);
+        ImageHelper::with(this->avatarView)->load(avatar);
     }
 
     brls::Image* getAvatar() { return this->avatarView; }
@@ -55,7 +55,7 @@ public:
             (DynamicUserInfoView*)recycler->dequeueReusableCell("Cell");
 
         auto& r = this->list[index - 1];
-        item->setUserInfo(r.user_profile.info.face + "@96w_96h_1c.jpg",
+        item->setUserInfo(r.user_profile.info.face + ImageHelper::face_ext,
                           r.user_profile.info.uname);
         return item;
     }
@@ -96,7 +96,7 @@ public:
             (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         auto& r = this->list[index];
-        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title, r.owner.name,
+        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name,
                       r.pubdate, r.stat.view, r.stat.danmaku, r.duration);
         return item;
     }

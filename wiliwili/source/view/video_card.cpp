@@ -9,6 +9,18 @@
 
 using namespace brls::literals;
 
+/// 视频卡片基类
+
+void BaseVideoCard::prepareForReuse() {
+    //准备显示该项
+    this->picture->setImageFromRes("pictures/video-card-bg.png");
+}
+
+void BaseVideoCard::cacheForReuse() {
+    //准备回收该项
+    ImageHelper::clear(this->picture);
+}
+
 /// 普通视频封面
 
 RecyclingGridItemVideoCard::RecyclingGridItemVideoCard() {
@@ -32,15 +44,6 @@ void RecyclingGridItemVideoCard::setAchievement(std::string explain) {
     this->boxPic->setHeightPercentage(54.8);
 }
 
-void RecyclingGridItemVideoCard::prepareForReuse() {
-    //准备显示该项
-}
-
-void RecyclingGridItemVideoCard::cacheForReuse() {
-    //准备回收该项
-    ImageHelper::clear(this->picture);
-}
-
 RecyclingGridItemVideoCard* RecyclingGridItemVideoCard::create() {
     return new RecyclingGridItemVideoCard();
 }
@@ -57,7 +60,7 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
 
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    ImageHelper::with(this)->load(pic)->into(this->picture);
+    ImageHelper::with(this->picture)->load(pic);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDanmaku->setText(wiliwili::num2w(danmaku));
 
@@ -89,7 +92,7 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
 
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    ImageHelper::with(this)->load(pic)->into(this->picture);
+    ImageHelper::with(this->picture)->load(pic);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDanmaku->setText(wiliwili::num2w(danmaku));
     this->labelDuration->setText(rightBottomBadge);
@@ -120,7 +123,7 @@ void RecyclingGridItemRankVideoCard::setCard(std::string pic, std::string title,
 
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    ImageHelper::with(this)->load(pic)->into(this->picture);
+    ImageHelper::with(this->picture)->load(pic);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDanmaku->setText(wiliwili::num2w(danmaku));
 
@@ -152,15 +155,6 @@ void RecyclingGridItemRankVideoCard::setCard(std::string pic, std::string title,
     }
 }
 
-void RecyclingGridItemRankVideoCard::prepareForReuse() {
-    //准备显示该项
-}
-
-void RecyclingGridItemRankVideoCard::cacheForReuse() {
-    //准备回收该项
-    ImageHelper::clear(this->picture);
-}
-
 RecyclingGridItemRankVideoCard* RecyclingGridItemRankVideoCard::create(
     std::string res) {
     return new RecyclingGridItemRankVideoCard(res);
@@ -184,7 +178,7 @@ void RecyclingGridItemLiveVideoCard::setCard(std::string pic, std::string title,
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(false);
     this->labelTitle->setText(title);
-    ImageHelper::with(this)->load(pic)->into(this->picture);
+    ImageHelper::with(this->picture)->load(pic);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDuration->setText(area);
     if (following) {
@@ -194,15 +188,6 @@ void RecyclingGridItemLiveVideoCard::setCard(std::string pic, std::string title,
         this->svgUp->setVisibility(brls::Visibility::VISIBLE);
         this->boxHint->setVisibility(brls::Visibility::GONE);
     }
-}
-
-void RecyclingGridItemLiveVideoCard::prepareForReuse() {
-    //准备显示该项
-}
-
-void RecyclingGridItemLiveVideoCard::cacheForReuse() {
-    //准备回收该项
-    ImageHelper::clear(this->picture);
 }
 
 RecyclingGridItemLiveVideoCard* RecyclingGridItemLiveVideoCard::create() {
@@ -239,22 +224,16 @@ void RecyclingGridItemPGCVideoCard::setCard(std::string pic, std::string title,
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(false);
     this->labelTitle->setText(title);
-    ImageHelper::with(this)->load(pic)->into(this->picture);
+    ImageHelper::with(this->picture)->load(pic);
     this->labelDuration->setText(badge_bottom_right);
 
     if (!badge_top.empty()) {
-        ImageHelper::with(this)->load(badge_top)->into(this->badgeTop);
+        ImageHelper::with(this->badgeTop)->load(badge_top);
     }
 
     if (!badge_bottom_left.empty()) {
-        ImageHelper::with(this)
-            ->load(badge_bottom_left)
-            ->into(this->badgeBottomLeft);
+        ImageHelper::with(this->badgeBottomLeft)->load(badge_bottom_left);
     }
-}
-
-void RecyclingGridItemPGCVideoCard::prepareForReuse() {
-    //准备显示该项
 }
 
 void RecyclingGridItemPGCVideoCard::cacheForReuse() {
@@ -309,16 +288,7 @@ void RecyclingGridItemSearchPGCVideoCard::setCard(
         this->boxTop->setVisibility(brls::Visibility::GONE);
     }
 
-    ImageHelper::with(this)->load(pic)->into(this->picture);
-}
-
-void RecyclingGridItemSearchPGCVideoCard::prepareForReuse() {
-    //准备显示该项
-}
-
-void RecyclingGridItemSearchPGCVideoCard::cacheForReuse() {
-    //准备回收该项
-    ImageHelper::clear(this->picture);
+    ImageHelper::with(this->picture)->load(pic);
 }
 
 RecyclingGridItem* RecyclingGridItemSearchPGCVideoCard::create() {
@@ -358,15 +328,6 @@ RecyclingGridItemHistoryVideoCard::~RecyclingGridItemHistoryVideoCard() {
     ImageHelper::clear(this->picture);
 }
 
-void RecyclingGridItemHistoryVideoCard::prepareForReuse() {
-    //准备显示该项
-}
-
-void RecyclingGridItemHistoryVideoCard::cacheForReuse() {
-    //准备回收该项
-    ImageHelper::clear(this->picture);
-}
-
 RecyclingGridItemHistoryVideoCard* RecyclingGridItemHistoryVideoCard::create() {
     return new RecyclingGridItemHistoryVideoCard();
 }
@@ -378,7 +339,7 @@ void RecyclingGridItemHistoryVideoCard::setCard(
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    ImageHelper::with(this)->load(pic)->into(this->picture);
+    ImageHelper::with(this->picture)->load(pic);
     this->labelCount->setText(leftBottomBadge);
     this->labelDuration->setText(rightBottomBadge);
     this->labelRightTop->setText(rightTopBadge);
@@ -447,15 +408,6 @@ RecyclingGridItemCollectionVideoCard::~RecyclingGridItemCollectionVideoCard() {
     ImageHelper::clear(this->picture);
 }
 
-void RecyclingGridItemCollectionVideoCard::prepareForReuse() {
-    //准备显示该项
-}
-
-void RecyclingGridItemCollectionVideoCard::cacheForReuse() {
-    //准备回收该项
-    ImageHelper::clear(this->picture);
-}
-
 RecyclingGridItemCollectionVideoCard*
 RecyclingGridItemCollectionVideoCard::create() {
     return new RecyclingGridItemCollectionVideoCard();
@@ -467,14 +419,8 @@ void RecyclingGridItemCollectionVideoCard::setCard(
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    if (pic.empty()) {
-        ASYNC_RETAIN
-        brls::sync([ASYNC_TOKEN, pic]() {
-            ASYNC_RELEASE
-            this->picture->setImageFromRes("pictures/playlistbg.png");
-        });
-    } else {
-        ImageHelper::with(this)->load(pic)->into(this->picture);
+    if (!pic.empty()) {
+        ImageHelper::with(this->picture)->load(pic);
     }
     this->labelCount->setText(leftBottomBadge);
     this->labelDuration->setText(rightBottomBadge);
@@ -491,15 +437,6 @@ RecyclingGridItemRelatedVideoCard::~RecyclingGridItemRelatedVideoCard() {
     ImageHelper::clear(this->picture);
 }
 
-void RecyclingGridItemRelatedVideoCard::prepareForReuse() {
-    //准备显示该项
-}
-
-void RecyclingGridItemRelatedVideoCard::cacheForReuse() {
-    //准备回收该项
-    ImageHelper::clear(this->picture);
-}
-
 RecyclingGridItemRelatedVideoCard* RecyclingGridItemRelatedVideoCard::create() {
     return new RecyclingGridItemRelatedVideoCard();
 }
@@ -513,15 +450,7 @@ void RecyclingGridItemRelatedVideoCard::setCard(std::string pic,
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    if (pic.empty()) {
-        ASYNC_RETAIN
-        brls::sync([ASYNC_TOKEN, pic]() {
-            ASYNC_RELEASE
-            this->picture->setImageFromRes("pictures/playlistbg.png");
-        });
-    } else {
-        ImageHelper::with(this)->load(pic)->into(this->picture);
-    }
+    ImageHelper::with(this->picture)->load(pic);
     this->labelCount->setText(playCount);
     this->labelDanmaku->setText(danmakuCount);
     this->labelDuration->setText(rightBottomBadge);

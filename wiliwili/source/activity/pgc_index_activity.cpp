@@ -309,7 +309,7 @@ public:
                 "Cell");
 
         auto& r = this->list[index];
-        item->setCard(r.cover + "@312w_420h_1c.jpg", r.title, r.index_show,
+        item->setCard(r.cover + ImageHelper::v_ext, r.title, r.index_show,
                       r.badge_info, "", r.order);
         return item;
     }

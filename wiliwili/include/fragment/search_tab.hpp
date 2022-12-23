@@ -35,7 +35,7 @@ public:
             (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::VideoItemSearchResult& r = this->list[index];
-        item->setCard(r.cover + "@672w_378h_1c.jpg", r.title, r.subtitle,
+        item->setCard(r.cover + ImageHelper::h_ext, r.title, r.subtitle,
                       r.pubdate, r.play, r.danmaku, "");
         return item;
     }
@@ -90,7 +90,7 @@ public:
             fmt::format("{} · {}", r.styles, wiliwili::sec2TimeDate(r.pubdate));
         if (!r.index_show.empty()) subtitle += " · " + r.index_show;
 
-        item->setCard(r.cover + "@312w_420h_1c.jpg", r.title, subtitle, cv,
+        item->setCard(r.cover + ImageHelper::v_ext, r.title, subtitle, cv,
                       "简介: " + r.desc, r.badge.text, r.badge.bg_color,
                       score_count, score, r.season_type_name, r.areas);
         return item;

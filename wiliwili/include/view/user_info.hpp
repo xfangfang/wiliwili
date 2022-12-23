@@ -35,7 +35,7 @@ public:
         } else {
             this->avatarView->getParent()->setVisibility(
                 brls::Visibility::VISIBLE);
-            ImageHelper::with(this)->load(avatar)->into(this->avatarView);
+            ImageHelper::with(this->avatarView)->load(avatar);
         }
     }
 

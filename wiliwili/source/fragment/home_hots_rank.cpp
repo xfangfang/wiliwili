@@ -22,7 +22,7 @@ public:
 
         auto r = this->videoList[index];
         brls::Logger::debug("title: {}", r.title);
-        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title, r.owner.name,
+        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name,
                       r.pubdate, r.stat.view, r.stat.danmaku, r.duration,
                       index + 1);
         return item;
@@ -58,7 +58,7 @@ public:
 
         auto r = this->videoList[index];
         brls::Logger::debug("title: {}", r.title);
-        item->setCard(r.ss_horizontal_cover + "@672w_378h_1c.jpg", r.title,
+        item->setCard(r.ss_horizontal_cover + ImageHelper::h_ext, r.title,
                       r.new_ep.index_show, 0, r.stat.view, r.stat.danmaku, 0,
                       index + 1);
         return item;

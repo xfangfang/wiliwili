@@ -63,7 +63,7 @@ public:
                 "Cell");
 
         bilibili::UserUploadedVideoResult& r = this->list[index];
-        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title,
+        item->setCard(r.pic + ImageHelper::h_ext, r.title,
                       r.author + " · " + wiliwili::sec2TimeDate(r.created),
                       wiliwili::num2w(r.play), wiliwili::num2w(r.video_review),
                       r.length);
@@ -98,7 +98,7 @@ public:
             (RecyclingGridItemRelatedVideoCard*)recycler->dequeueReusableCell(
                 "Cell");
         auto& r = this->list[index];
-        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title,
+        item->setCard(r.pic + ImageHelper::h_ext, r.title,
                       r.owner.name + " · " + wiliwili::sec2TimeDate(r.pubdate),
                       wiliwili::num2w(r.stat.view),
                       wiliwili::num2w(r.stat.danmaku),
@@ -522,7 +522,7 @@ void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
     // user info
     auto& user = this->userDetailResult;
     this->videoUserInfo->setUserInfo(
-        user.card.face + "@96w_96h_1c.jpg", user.card.name,
+        user.card.face + ImageHelper::face_ext, user.card.name,
         wiliwili::num2w(user.follower) + "粉丝 · " +
             wiliwili::num2w(user.like_num) + "点赞");
     if (user.card.mid == ProgramConfig::instance().getUserID()) {
@@ -814,7 +814,7 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
                         result.season_id);
 
     auto avatar = result.up_info.avatar;
-    if (!avatar.empty()) avatar += "@96w_96h_1c.jpg";
+    if (!avatar.empty()) avatar += ImageHelper::face_ext;
     auto desc = result.season_desc;
     if (result.rating.score >= 0)
         desc += fmt::format(" - {}分", result.rating.score);

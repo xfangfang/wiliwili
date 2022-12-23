@@ -132,8 +132,7 @@ void MineTab::onUserInfo(const bilibili::UserResult& data) {
     brls::sync([ASYNC_TOKEN, data]() {
         ASYNC_RELEASE
         labelUserName->setText(data.name);
-        ImageHelper::with(this)->load(data.face)->into(imageUserAvater);
-        labelSign->setText(data.sign);
+        ImageHelper::with(this->imageUserAvater)->load(data.face);
         labelCoins->setText(fmt::format("{}", data.coins));
     });
 }

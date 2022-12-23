@@ -146,7 +146,7 @@ void ProgramConfig::load() {
         }
 
         // 初始化纹理缓存数量
-        TextureCache::instance().cache.setCapacity(
+        brls::TextureCache::instance().cache.setCapacity(
             getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
     });
 }

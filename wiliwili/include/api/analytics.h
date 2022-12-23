@@ -9,7 +9,7 @@
 #include <vector>
 #include <mutex>
 
-#include "utils/singleton.hpp"
+#include "borealis/core/singleton.hpp"
 #include "bilibili/result/analytics_result.h"
 
 namespace analytics {
@@ -40,7 +40,7 @@ const std::string GA_URL = "http://httpbin.org/post";
 class Event;
 class Package;
 
-class Analytics : public Singleton<Analytics> {
+class Analytics : public brls::Singleton<Analytics> {
 public:
     std::vector<Event> events;
     std::mutex events_mutex;

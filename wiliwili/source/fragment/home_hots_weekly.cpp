@@ -19,7 +19,7 @@ public:
             (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::HotsWeeklyVideoResult& r = this->videoList[index];
-        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title, r.owner.name,
+        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name,
                       r.pubdate, r.stat.view, r.stat.danmaku, r.duration);
         item->setRCMDReason(r.rcmd_reason);
         return item;

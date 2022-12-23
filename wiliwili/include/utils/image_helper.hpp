@@ -8,54 +8,71 @@
 #include <cpr/cpr.h>
 #include <ctime>
 #include <random>
+#include <unordered_map>
 
-class ImageCache {
-public:
-    ImageCache(std::string d, size_t l) : data(d), length(l) {}
-
-    std::string data;
-    size_t length = 0;
-
-    int requestCache(const std::string& url);
-};
-
+/**
+ * 图片加载请求，每个请求对应一个ImageHelper的实例
+ */
 class ImageHelper {
+    typedef std::list<std::shared_ptr<ImageHelper>> Pool;
+
 public:
-    static std::vector<std::shared_ptr<ImageHelper>> imagePool;
-    static std::default_random_engine random_engine;
+    ImageHelper(brls::Image* view);
 
-    static void init();
+    virtual ~ImageHelper();
 
-    static void clean();
-
-    static std::shared_ptr<ImageHelper> with(brls::View* view);
-
-    ImageHelper(brls::View* view);
-
-    ~ImageHelper();
-
-    void setCurrentView(brls::View* view);
-
+    /**
+     * 取消图片请求
+     */
     void cancel();
 
-    bool isAvailable();
-
-    void setAvailable(bool value);
-
-    ImageHelper* load(std::string url);
-
-    ImageHelper* into(brls::Image* image);
-
-    /// 清空图片内容
-    static void clear(brls::Image* view);
+    void setImageView(brls::Image* view);
 
     brls::Image* getImageView();
 
+    /**
+     * 设置要加载内容的图片组件。此函数需要工作在主线程。
+     */
+    static std::shared_ptr<ImageHelper> with(brls::Image* view);
+
+    /**
+     * 加载网络图片。此函数需要工作在主线程。
+     */
+    void load(std::string url);
+
+    /**
+     * 取消请求，并清空图片。此函数需要工作在主线程。
+     */
+    static void clear(brls::Image* view);
+
+    static void setRequestThreads(size_t num);
+
+    /// 图片请求后缀，用来控制图片大小
+    inline static std::string h_ext    = "@672w_378h_1c.jpg";
+    inline static std::string v_ext    = "@312w_420h_1c.jpg";
+    inline static std::string face_ext = "@96w_96h_1c_1s.jpg";
+
+    /// 图片请求线程数
+    inline static size_t REQUEST_THREADS = 1;
+
+protected:
+    virtual void requestImage();
+
+    /**
+     * 图片请求结束时调用
+     */
+    void clean();
+
 private:
-    bool isCancel  = false;
-    bool available = true;
-    std::mutex availableMutex;
-    brls::View* currentView;
+    bool isCancel;
     brls::Image* imageView;
     std::string imageUrl;
+    Pool::iterator currentIter;
+
+    /// 清理图片或取消请求时，用来定位 ImageHelper
+    inline static std::unordered_map<brls::Image*, Pool::iterator> requestMap;
+
+    /// 请求队列，可复用其中的 ImageHelper
+    inline static Pool requestPool;
+    inline static std::mutex requestMutex;
 };
