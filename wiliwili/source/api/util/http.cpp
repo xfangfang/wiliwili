@@ -18,7 +18,7 @@ cpr::Response HTTP::get(const std::string& url,
     return cpr::Get(cpr::Url{url},
                     cpr::Header{
                         {"User-Agent", "NintendoSwitch"},
-                        {"Referer", "https://www.bilibili.com"},
+                        {"Referer", "https://www.bilibili.com/client"},
                     },
                     parameters, HTTP::COOKIES,
 #ifndef VERIFY_SSL
