@@ -30,6 +30,8 @@ public:
 
     void onCreate() override;
 
+    void onError(const std::string &error) override;
+
     static View *create();
 
 private:

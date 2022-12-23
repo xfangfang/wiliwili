@@ -11,7 +11,7 @@ public:
     virtual void onLiveList(const bilibili::LiveVideoListResult& result,
                             int index, bool no_more);
 
-    virtual void onError();
+    virtual void onError(const std::string& error) = 0;
 
     void requestData(int area_index = -1);
 

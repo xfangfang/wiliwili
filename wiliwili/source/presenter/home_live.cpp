@@ -12,8 +12,6 @@ using namespace brls::literals;
 void HomeLiveRequest::onLiveList(const bilibili::LiveVideoListResult &result,
                                  int index, bool no_more) {}
 
-void HomeLiveRequest::onError() { printf("error"); }
-
 // area_index -1: 加载下一页，默认
 //             0<=N<areaList.size(): 加载指定分区
 void HomeLiveRequest::requestData(int area_index) {
@@ -54,7 +52,7 @@ void HomeLiveRequest::requestLiveList(int parent_area, int area, int page) {
                        result.card_list.end());
             this->onLiveList(res, page, result.has_more);
         },
-        [](const std::string &error) {});
+        [this](const std::string &error) { this->onError(error); });
 }
 
 std::vector<std::string> HomeLiveRequest::getAreaList() {

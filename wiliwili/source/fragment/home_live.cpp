@@ -102,6 +102,10 @@ void HomeLive::switchChannel() {
         selected)));
 }
 
+void HomeLive::onError(const std::string& error) {
+    brls::sync([this, error]() { this->recyclingGrid->setError(error); });
+}
+
 HomeLive::~HomeLive() {
     brls::Logger::debug("Fragment HomeLiveActivity: delete");
 }
