@@ -215,7 +215,7 @@ void SettingActivity::onContentAvailable() {
     }
 
     selectorTexture->init(
-        "wiliwili/setting/app/cache/texture"_i18n,
+        "wiliwili/setting/app/image/texture"_i18n,
         {"100", "200 (" + "hints/preset"_i18n + ")", "300", "400", "500"},
         conf.getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200) / 100 - 1,
         [](int data) {
@@ -224,6 +224,16 @@ void SettingActivity::onContentAvailable() {
                 SettingItem::TEXTURE_CACHE_NUM, num);
             brls::TextureCache::instance().cache.setCapacity(num);
         });
+
+    auto threadOption = conf.getOptionData(SettingItem::IMAGE_REQUEST_THREADS);
+    selectorThreads->init(
+        "wiliwili/setting/app/image/threads"_i18n, threadOption.optionList,
+        conf.getIntOptionIndex(SettingItem::IMAGE_REQUEST_THREADS),
+        [threadOption](int data) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::IMAGE_REQUEST_THREADS,
+                threadOption.rawOptionList[data]);
+            ImageHelper::REQUEST_THREADS = threadOption.rawOptionList[data];
         });
 
     // todo: 从config_helper中实现一个可通用的选项选择方式

@@ -16,9 +16,10 @@
         "auto_play_next_part": "次ぬパート自動再生",
         "auto_play_recommend": "うすすみ動画ぬ自動再生"
       },
-      "cache": {
-        "header": "キャッシュ",
-        "texture": "ピクチャテクスチャキャッシュぬかじ"
+      "image": {
+        "header": "画像",
+        "texture": "ピクチャテクスチャキャッシュの数",
+        "threads": "画像ロードスレッド数"
       },
       "others": {
         "header": "すぬ他",

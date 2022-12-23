@@ -16,9 +16,10 @@
         "auto_play_next_part": "Automatically playing next part",
         "auto_play_recommend": "Automatically playing recommend video"
       },
-      "cache": {
-        "header": "Cache",
-        "texture": "Number of picture texture caches"
+      "image": {
+        "header": "Image",
+        "texture": "Number of picture texture caches",
+        "threads": "Number of image loading threads"
       },
       "others": {
         "header": "Others",

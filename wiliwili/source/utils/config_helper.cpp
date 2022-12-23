@@ -5,28 +5,56 @@
 #include <borealis.hpp>
 
 #include "bilibili.h"
-#include "utils/config_helper.hpp"
-#include "utils/cache_helper.hpp"
+#include "borealis/core/cache_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/image_helper.hpp"
+#include "utils/config_helper.hpp"
 #include "presenter/video_detail.hpp"
 #include "view/mpv_core.hpp"
 #include "activity/player_activity.hpp"
 
-std::unordered_map<SettingItem, std::string> ProgramConfig::SETTING_MAP = {
-    {SettingItem::HIDE_BOTTOM_BAR, "hide_bottom_bar"},
-    {SettingItem::FULLSCREEN, "fullscreen"},
-    {SettingItem::APP_THEME, "app_theme"},
-    {SettingItem::HISTORY_REPORT, "history_report"},
-    {SettingItem::PLAYER_BOTTOM_BAR, "player_bottom_bar"},
-    {SettingItem::PLAYER_LOW_QUALITY, "player_low_quality"},
-    {SettingItem::PLAYER_HWDEC, "player_hwdec"},
-    {SettingItem::PLAYER_INMEMORY_CACHE, "player_inmemory_cache"},
-    {SettingItem::TEXTURE_CACHE_NUM, "texture_cache_num"},
-    {SettingItem::OPENCC_ON, "opencc"},
-    {SettingItem::CUSTOM_UPDATE_API, "custom_update_api"},
-    {SettingItem::AUTO_NEXT_PART, "auto_next_part"},
-    {SettingItem::AUTO_NEXT_RCMD, "auto_next_recommend"},
+using namespace brls::literals;
+
+#ifdef __SWITCH__
+std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
+    {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
+    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 0}},
+    {SettingItem::APP_THEME, {"app_theme", {}, {}, 0}},
+    {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 0}},
+    {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 0}},
+    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
+    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
+    {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
+    {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
+    {SettingItem::OPENCC_ON, {"opencc", {}, {}, 0}},
+    {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
+    {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 0}},
+    {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 0}},
+    {SettingItem::IMAGE_REQUEST_THREADS,
+     {"image_request_threads", {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
 };
+#else
+std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
+    {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
+    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 0}},
+    {SettingItem::APP_THEME, {"app_theme", {}, {}, 0}},
+    {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 0}},
+    {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 0}},
+    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
+    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
+    {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
+    {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
+    {SettingItem::OPENCC_ON, {"opencc", {}, {}, 0}},
+    {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
+    {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 0}},
+    {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 0}},
+    {SettingItem::IMAGE_REQUEST_THREADS,
+     {"image_request_threads",
+      {"1", "2", "3", "4", "8", "12", "16"},
+      {1, 2, 3, 4, 8, 12, 16},
+      3}},
+};
+#endif
 
 ProgramConfig::ProgramConfig() {}
 
@@ -91,6 +119,10 @@ void ProgramConfig::load() {
         brls::Logger::error("ProgramConfig::load: {}", e.what());
     }
     brls::Logger::info("Load config from: {}", path);
+
+    // 初始化线程数
+    ImageHelper::REQUEST_THREADS =
+        getIntOption(SettingItem::IMAGE_REQUEST_THREADS);
 
     // 初始化底部栏
     brls::AppletFrame::HIDE_BOTTOM_BAR =

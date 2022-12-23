@@ -29,6 +29,7 @@ enum class SettingItem {
     TEXTURE_CACHE_NUM,
     OPENCC_ON,
     CUSTOM_UPDATE_API,
+    IMAGE_REQUEST_THREADS,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -48,6 +49,17 @@ public:
     void checkUpdate(int delay = 2000);
 };
 
+typedef struct ProgramOption {
+    /// 保存在配置文件中的选项明
+    std::string key;
+    /// 显示在屏幕上的选项内容
+    std::vector<std::string> optionList;
+    /// 保存在配置文件中的选项内容
+    std::vector<int> rawOptionList;
+    /// 默认的选项，范围为 [0 - optionList.size()-1]
+    size_t defaultOption;
+} ProgramOption;
+
 class ProgramConfig : public brls::Singleton<ProgramConfig> {
 public:
     ProgramConfig();
@@ -61,15 +73,42 @@ public:
 
     template <typename T>
     T getSettingItem(SettingItem item, T defaultValue) {
-        auto& key = SETTING_MAP[item];
+        auto& key = SETTING_MAP[item].key;
         if (!setting.contains(key)) return defaultValue;
         return this->setting.at(key).get<T>();
     }
 
     template <typename T>
     void setSettingItem(SettingItem item, T data) {
-        setting[SETTING_MAP[item]] = data;
+        setting[SETTING_MAP[item].key] = data;
         this->save();
+    }
+
+    ProgramOption getOptionData(SettingItem item) { return SETTING_MAP[item]; }
+
+    /**
+     * 获取 int 类型选项的当前设定值的索引
+     */
+    size_t getIntOptionIndex(SettingItem item) {
+        auto optionData = getOptionData(item);
+        if (setting.contains(optionData.key)) {
+            int option = this->setting.at(optionData.key).get<int>();
+            for (size_t i = 0; i < optionData.rawOptionList.size(); i++) {
+                if (optionData.rawOptionList[i] == option) return i;
+            }
+        }
+        return optionData.defaultOption;
+    }
+
+    /**
+     * 获取 int 类型选项的当前设定值
+     */
+    int getIntOption(SettingItem item) {
+        auto optionData = getOptionData(item);
+        if (setting.contains(optionData.key)) {
+            return this->setting.at(optionData.key).get<int>();
+        }
+        return optionData.rawOptionList[optionData.defaultOption];
     }
 
     void load();
@@ -84,7 +123,7 @@ public:
     nlohmann::json setting;
     std::string client = "";
 
-    static std::unordered_map<SettingItem, std::string> SETTING_MAP;
+    static std::unordered_map<SettingItem, ProgramOption> SETTING_MAP;
 };
 
 inline void to_json(nlohmann::json& nlohmann_json_j,

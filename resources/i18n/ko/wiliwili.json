@@ -16,9 +16,10 @@
         "auto_play_next_part": "자동으로 다음 동영상 재생",
         "auto_play_recommend": "추천 동영상 자동 재생"
       },
-      "cache": {
-        "header": "캐시",
-        "texture": "그림 텍스처 캐시 수"
+      "image": {
+        "header": "이미지",
+        "texture": "그림 텍스처 캐시 수",
+        "threads": "이미지 로드 스레드 수"
       },
       "others": {
         "header": "기타",

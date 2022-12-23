@@ -16,9 +16,10 @@
         "auto_play_next_part": "自动播放下一分集",
         "auto_play_recommend": "自动播放推荐视频"
       },
-      "cache": {
-        "header": "缓存设置",
-        "texture": "图片纹理缓存数量"
+      "image": {
+        "header": "图片设置",
+        "texture": "图片纹理缓存数量",
+        "threads": "图片加载线程数"
       },
       "others": {
         "header": "其他",

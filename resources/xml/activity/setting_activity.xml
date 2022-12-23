@@ -65,7 +65,7 @@
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="@i18n/wiliwili/setting/app/cache/header"
+                            title="@i18n/wiliwili/setting/app/image/header"
                             marginBottom="0px"/>
                     <brls:Box
                             width="100%"
@@ -74,7 +74,10 @@
                             marginBottom="30px">
 
                         <brls:SelectorCell
-                                id="setting/cache/texture"/>
+                                id="setting/image/texture"/>
+
+                        <brls:SelectorCell
+                                id="setting/image/threads"/>
 
                     </brls:Box>
                     <brls:Header

@@ -16,9 +16,10 @@
         "auto_play_next_part": "次のパートを自動再生",
         "auto_play_recommend": "おすすめ動画の自動再生"
       },
-      "cache": {
-        "header": "キャッシュ",
-        "texture": "ピクチャテクスチャキャッシュの数"
+      "image": {
+        "header": "画像",
+        "texture": "ピクチャテクスチャキャッシュの数",
+        "threads": "画像ロードスレッド数"
       },
       "others": {
         "header": "その他",

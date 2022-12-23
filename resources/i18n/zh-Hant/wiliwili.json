@@ -16,9 +16,10 @@
         "auto_play_next_part": "自動播放下一分集",
         "auto_play_recommend": "自動播放推薦影片"
       },
-      "cache": {
-        "header": "快取設定",
-        "texture": "圖片紋理快取數量"
+      "image": {
+        "header": "圖片設定",
+        "texture": "圖片紋理快取數量",
+        "threads": "圖片加載線程數"
       },
       "others": {
         "header": "其他",
