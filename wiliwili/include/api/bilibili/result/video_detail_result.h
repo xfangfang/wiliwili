@@ -129,8 +129,15 @@ public:
     unsigned int bandwidth;
     int width, height;  // only for video
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DashMedia, id, base_url, backup_url,
-                                   bandwidth, height, width);
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      DashMedia& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("backup_url") &&
+        !nlohmann_json_j.at("backup_url").is_null()) {
+        nlohmann_json_j.at("backup_url").get_to(nlohmann_json_t.backup_url);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, base_url,
+                                             bandwidth, height, width));
+}
 
 class Dash {
 public:
