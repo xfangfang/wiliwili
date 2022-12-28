@@ -23,9 +23,7 @@ size_t RecyclingGridItem::getIndex() const { return this->index; }
 
 void RecyclingGridItem::setIndex(size_t value) { this->index = value; }
 
-RecyclingGridItem::~RecyclingGridItem() {
-    brls::Logger::debug("delete RecyclingGridItem {}", this->describe());
-}
+RecyclingGridItem::~RecyclingGridItem() {}
 
 /// Skeleton cell
 
@@ -316,8 +314,8 @@ void RecyclingGrid::notifyDataChanged() {
 
     if (dataSource) {
         if (isFlowMode) {
-            for (size_t i = cellHeightCache.size(); i < dataSource->getItemCount();
-                 i++) {
+            for (size_t i = cellHeightCache.size();
+                 i < dataSource->getItemCount(); i++) {
                 float height = dataSource->heightForRow(this, i);
                 cellHeightCache.push_back(height);
             }
@@ -330,6 +328,16 @@ void RecyclingGrid::notifyDataChanged() {
                                   paddingTop + paddingBottom);
         }
     }
+}
+
+RecyclingGridItem* RecyclingGrid::getGridItemByIndex(size_t index) {
+    for (brls::View* i : contentBox->getChildren()) {
+        RecyclingGridItem* v = dynamic_cast<RecyclingGridItem*>(i);
+        if (!v) continue;
+        if (v->getIndex() == index) return v;
+    }
+    // 当前索引数据没有绑定列表项
+    return nullptr;
 }
 
 void RecyclingGrid::clearData() {

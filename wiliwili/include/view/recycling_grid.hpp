@@ -109,6 +109,10 @@ public:
 
     void notifyDataChanged();
 
+    /// 获取当前指定索引数据所在的item指针
+    ///（注意，因为是循环使用列表项的，所以此指针只能在获取时刻在主线程内使用）
+    RecyclingGridItem* getGridItemByIndex(size_t index);
+
     void clearData();
 
     void setEmpty(std::string msg = "");
