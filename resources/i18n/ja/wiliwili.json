@@ -49,6 +49,7 @@
         "header": "ネットワークの診断",
         "checker": "ネットワークの状態を診断する"
       },
+      "vibration": "Vibration Test",
       "others": {
         "header": "その他",
         "release": "更新を確認"

@@ -49,6 +49,7 @@
         "header": "Network Diagnostics",
         "checker": "Detect network status"
       },
+      "vibration": "Vibration Test",
       "others": {
         "header": "Others",
         "release": "Check for updates"

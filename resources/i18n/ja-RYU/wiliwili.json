@@ -49,6 +49,7 @@
         "header": "ネットワークぬ診断",
         "checker": "ネットワークぬ状態診断すん"
       },
+      "vibration": "Vibration Test",
       "others": {
         "header": "すぬ他",
         "release": "更新確認"

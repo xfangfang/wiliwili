@@ -172,6 +172,10 @@
                                 id="tools/network_checker"
                                 title="@i18n/wiliwili/setting/tools/net/checker"/>
 
+                        <brls:RadioCell
+                                id="tools/vibration_test"
+                                title="@i18n/wiliwili/setting/tools/vibration"/>
+
                     </brls:Box>
                     <brls:Header
                             width="auto"

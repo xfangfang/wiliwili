@@ -31,8 +31,7 @@ VideoProgressSlider::VideoProgressSlider() {
     pointerIcon->setImageFromSVGRes("svg/bpx-svg-sprite-thumb.svg");
 
     pointer->setDimensions(60, 60);
-    pointer->setFocusable(true);
-    pointer->setHideHighlight(true);
+    pointer->setFocusable(false);
     pointer->setAlignItems(brls::AlignItems::CENTER);
     pointer->setJustifyContent(brls::JustifyContent::CENTER);
     pointer->addView(pointerIcon);

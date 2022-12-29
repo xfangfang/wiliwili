@@ -31,7 +31,8 @@
           "1": "跟随系统",
           "2": "浅色",
           "3": "深色"
-        }
+        },
+        "opencc": "自动转换简体中文 (需要重启)"
       }
     },
     "tools": {
@@ -48,6 +49,7 @@
         "header": "网络诊断",
         "checker": "检测网络状态"
       },
+      "vibration": "振动测试",
       "others": {
         "header": "其他",
         "release": "检查更新"
@@ -73,9 +75,9 @@
     },
     "hot_keys": {
       "common_header": "通用快捷键",
-      "common_content": "\uE0A4 / \uE0A5 切换一级页面 \n \uE0A6 / \uE0A7 切换二级页面",
+      "common_content": " /  切换一级页面 \n  /  切换二级页面",
       "player_header": "播放器快捷键",
-      "player_content": "\uE0C5 快进，双击 \uE0C5 快进锁定 \n \uE0A3 + \uE0A5 向前跳转视频（单个 \uE126 即可完整操控播放） \n \uE0A3 显示/隐藏 播放器OSD \n \uE0A2 显示/隐藏 弹幕"
+      "player_content": " 快进，双击  快进锁定 \n  +  向前跳转视频（单个  即可完整操控播放） \n  显示/隐藏 播放器OSD \n  显示/隐藏 弹幕"
     },
     "net": {
       "test": {
@@ -97,11 +99,11 @@
     }
   },
   "hints": {
-    "hint1": "请从桌面选择任意游戏并按住 \uE0E5 键",
-    "hint2": "点击 \uE0E0 打开, 在应用开启期间保持按住 \uE0E5 键，直到进入 hbmenu",
+    "hint1": "请从桌面选择任意游戏并按住  键",
+    "hint2": "点击  打开, 在应用开启期间保持按住  键，直到进入 hbmenu",
     "hint3": "在 hbmenu 菜单中选择 wiliwili",
     "hint4": "可选：安装 wiliwili NSP 通过桌面图标直接打开 wiliwili (请将 wiliwili.nro 放置在 /switch/wiliwili.nro )",
-    "hint_nsp": "点击 \uE0E0 安装桌面图标",
+    "hint_nsp": "点击  安装桌面图标",
     "hint_confirm": "安装桌面图标可能导致ban机\n请再次确认",
     "hint_right": "掌机图片来源于网络，版权归任天堂 Nintendo Co., Ltd 所有"
   },
@@ -197,11 +199,11 @@
     "coin": {
       "title": "投币",
       "hint": "选择你的投币数量",
-      "like": "同时点赞 \uE0E3",
+      "like": "同时点赞 ",
       "own": "UP主不能自己投币",
       "run_out": "对本稿件的投币枚数已用完",
       "exp": "经验值+{}（今日{}/50）",
-      "exp_full": "今日投币+50经验成就 get \uE87D 赞！",
+      "exp_full": "今日投币+50经验成就 get  赞！",
       "pcs": "{}个"
     },
     "collection": {

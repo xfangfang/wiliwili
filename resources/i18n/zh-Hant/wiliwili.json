@@ -49,6 +49,7 @@
         "header": "網路診斷",
         "checker": "檢測網路狀態"
       },
+      "vibration": "振動測試",
       "others": {
         "header": "其他",
         "release": "檢查更新"

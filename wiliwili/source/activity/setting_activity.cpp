@@ -6,6 +6,7 @@
 #include "activity/hint_activity.hpp"
 #include "activity/player_activity.hpp"
 #include "fragment/setting_network.hpp"
+#include "fragment/test_rumble.hpp"
 #include "view/text_box.hpp"
 #include "utils/config_helper.hpp"
 #include "borealis/core/cache_helper.hpp"
@@ -123,6 +124,18 @@ void SettingActivity::onContentAvailable() {
         dialog->open();
         return true;
     });
+
+#ifdef __SWITCH__
+    btnVibrationTest->registerClickAction([](...) -> bool {
+        auto dialog = new brls::Dialog((brls::Box*)new TestRumble());
+        dialog->addButton("hints/ok"_i18n, []() {});
+        dialog->open();
+        return true;
+    });
+#else
+    btnVibrationTest->setVisibility(brls::Visibility::GONE);
+#endif
+
 
     std::string version = APPVersion::instance().git_tag.empty()
                               ? "v" + APPVersion::instance().getVersionStr()

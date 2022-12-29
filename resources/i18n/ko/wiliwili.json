@@ -49,6 +49,7 @@
         "header": "네트워크 진단",
         "checker": "네트워크 상태 감지"
       },
+      "vibration": "Vibration Test",
       "others": {
         "header": "기타",
         "release": "업데이트 확인"

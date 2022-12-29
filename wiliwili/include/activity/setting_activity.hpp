@@ -27,6 +27,7 @@ private:
     BRLS_BIND(brls::RadioCell, btnHotKey, "tools/hot_key");
     BRLS_BIND(brls::RadioCell, btnNetworkChecker, "tools/network_checker");
     BRLS_BIND(brls::RadioCell, btnReleaseChecker, "tools/release_checker");
+    BRLS_BIND(brls::RadioCell, btnVibrationTest, "tools/vibration_test");
     BRLS_BIND(brls::SelectorCell, selectorTheme, "setting/ui/theme");
     BRLS_BIND(brls::SelectorCell, selectorTexture, "setting/image/texture");
     BRLS_BIND(brls::SelectorCell, selectorThreads, "setting/image/threads");

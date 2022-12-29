@@ -1,0 +1,94 @@
+<brls:Box
+        margin="20"
+        axis="column">
+    <brls:Label
+            margin="20"
+            fontSize="25"
+            text="Low"/>
+    <brls:Box
+            axis="column"
+            height="70"
+            margin="10">
+        <brls:Label
+                marginBottom="20"
+                id="l1"
+                text="freq: 0"/>
+        <VideoProgressSlider
+                marginTop="10"
+                focusable="false"
+                id="p1"
+                width="100%"
+                height="30"
+                grow="1"/>
+    </brls:Box>
+    <brls:Box
+            axis="column"
+            height="70"
+            margin="10">
+        <brls:Label
+                marginBottom="20"
+                id="l2"
+                text="amp: 0"/>
+        <VideoProgressSlider
+                focusable="false"
+                id="p2"
+                width="100%"
+                height="30"
+                grow="1"/>
+    </brls:Box>
+    <brls:Label
+            margin="10"
+            fontSize="25"
+            text="High"/>
+    <brls:Box
+            axis="column"
+            height="70"
+            margin="10">
+        <brls:Label
+                marginBottom="20"
+                id="l3"
+                text="freq: 0"/>
+        <VideoProgressSlider
+                focusable="false"
+                id="p3"
+                width="100%"
+                height="30"
+                grow="1"/>
+    </brls:Box>
+    <brls:Box
+            axis="column"
+            height="70"
+            margin="10">
+        <brls:Label
+                marginBottom="20"
+                id="l4"
+                text="amp: 0"/>
+        <VideoProgressSlider
+                focusable="false"
+                id="p4"
+                width="100%"
+                height="30"
+                grow="1"/>
+    </brls:Box>
+    <brls:Box
+            justifyContent="center">
+        <brls:Button
+                margin="10"
+                grow="1"
+                fontSize="18"
+                id="btn_pcm1"
+                text="Demo 1"/>
+        <brls:Button
+                margin="10"
+                grow="1"
+                fontSize="18"
+                id="btn_pcm2"
+                text="Demo 2"/>
+        <brls:Button
+                margin="10"
+                grow="1"
+                fontSize="18"
+                id="btn"
+                text="Stop"/>
+    </brls:Box>
+</brls:Box>
