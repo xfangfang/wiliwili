@@ -20,6 +20,7 @@ public:
 
     static View* create();
 
+    void startMidi();
     void startPCM(const std::vector<std::vector<float>>& data);
     void stop();
     void setRumble(float lowFreq, float highFreq, float lowAmp, float highAmp);
@@ -47,6 +48,7 @@ private:
     BRLS_BIND(brls::Button, btn_stop, "btn");
     BRLS_BIND(brls::Button, btn_pcm1, "btn_pcm1");
     BRLS_BIND(brls::Button, btn_pcm2, "btn_pcm2");
+    BRLS_BIND(brls::Button, btn_midi, "btn_midi");
 
     void updateLabel();
 };

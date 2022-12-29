@@ -3,6 +3,7 @@
 //
 
 #include "fragment/test_rumble.hpp"
+#include "MidiFile.h"
 #ifdef __SWITCH__
 #include "borealis/platforms/switch/switch_input.hpp"
 #endif
@@ -117,6 +118,58 @@ TestRumble::TestRumble() {
     btn_pcm2->registerClickAction([this](...) -> bool {
         startPCM(demo2);
         return true;
+    });
+
+    btn_midi->registerClickAction([this](...) -> bool {
+        startMidi();
+        return true;
+    });
+}
+
+void TestRumble::startMidi() {
+    stop();
+    this->playing    = true;
+    this->playThread = std::thread([this]() {
+        int track      = 1;
+        double diff    = 24;
+        double curTime = 0;
+        int minRumble  = 523;
+        int note       = 0;
+        smf::MidiFile file;
+        file.read(BRLS_ASSET("overworld.mid"));
+        file.linkNotePairs();
+        file.doTimeAnalysis();
+        brls::Logger::debug("tracks: {}", file.getTrackCount());
+        brls::Logger::debug("track size: {}", file[track].size());
+        for (int i = 0; i < file[track].size(); i++) {
+            if (!this->playing) return;
+            //Calculate note/sleeptime
+            if (file[track][i].isNote()) {
+                double time  = file[track][i].seconds;
+                int timeDiff = ((time - curTime) * 1000);
+                std::this_thread::sleep_for(
+                    std::chrono::milliseconds(timeDiff));
+                curTime = time;
+            }
+            if (!this->playing) return;
+
+            //play noteOn
+            if (file[track][i].isNoteOn()) {
+                note =
+                    (file[track][i]
+                         .getKeyNumber());  // calculate midi note to joycon rumble value
+
+                note = diff * (note - 60) + minRumble;
+
+                setRumble(note, note, 0, 1);
+            }
+            //Turn note off
+            if (file[track][i].isNoteOff()) {
+                setRumble(note, note, 0, 0);
+            }
+        }
+        this->playing = false;
+        setRumble(160, 320, 0, 0);
     });
 }
 

@@ -24,6 +24,9 @@ add_subdirectory(lunasvg EXCLUDE_FROM_ALL)
 # add libopencc
 add_subdirectory(OpenCC EXCLUDE_FROM_ALL)
 
+# add midifile
+add_subdirectory(midifile EXCLUDE_FROM_ALL)
+
 # add QR-Code-generator
 add_library(qrcode STATIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp/QrCode.cpp)
 target_include_directories(qrcode PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp)

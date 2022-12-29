@@ -16,3 +16,6 @@
 [submodule "library/cpr"]
 	path = library/cpr
 	url = https://github.com/libcpr/cpr.git
+[submodule "library/midifile"]
+	path = library/midifile
+	url = https://github.com/craigsapp/midifile.git

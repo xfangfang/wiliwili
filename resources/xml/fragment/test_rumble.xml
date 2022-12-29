@@ -76,6 +76,12 @@
                 margin="10"
                 grow="1"
                 fontSize="18"
+                id="btn_midi"
+                text="MIDI"/>
+        <brls:Button
+                margin="10"
+                grow="1"
+                fontSize="18"
                 id="btn_pcm1"
                 text="Demo 1"/>
         <brls:Button

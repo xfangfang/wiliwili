@@ -170,7 +170,8 @@ endif ()
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PRIVATE
         wiliwili/include
-        wiliwili/include/api)
+        wiliwili/include/api
+        library/midifile/include)
 target_compile_options(${PROJECT_NAME} PRIVATE
         -D__VERSION_MAJOR__=${VERSION_MAJOR}
         -D__VERSION_MINOR__=${VERSION_MINOR}
@@ -185,6 +186,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         borealis
         lunasvg
         pystring
+        midifile
         ${PLATFORM_LIBS}
         )
 
