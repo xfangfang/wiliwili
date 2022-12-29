@@ -48,6 +48,7 @@ class BilibiliClient {
 
 public:
     static Cookies cookies;
+    inline static std::string FNVAL = "1744";
 
     /// get qrcode for login
     static void get_login_url(

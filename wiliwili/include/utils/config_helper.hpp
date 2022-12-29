@@ -30,6 +30,7 @@ enum class SettingItem {
     OPENCC_ON,
     CUSTOM_UPDATE_API,
     IMAGE_REQUEST_THREADS,
+    VIDEO_FORMAT,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {

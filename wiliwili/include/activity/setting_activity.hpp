@@ -38,6 +38,7 @@ private:
     BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/quality");
     BRLS_BIND(brls::BooleanCell, btnHWDEC, "setting/video/hwdec");
     BRLS_BIND(brls::SelectorCell, selectorInmemory, "setting/video/inmemory");
+    BRLS_BIND(brls::SelectorCell, selectorFormat, "setting/video/format");
     BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
     BRLS_BIND(brls::BooleanCell, cellHideBar, "cell/hideBottomBar");
     BRLS_BIND(brls::BooleanCell, cellFullscreen, "cell/fullscreen");

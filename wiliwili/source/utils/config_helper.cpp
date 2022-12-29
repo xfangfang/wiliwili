@@ -32,6 +32,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 0}},
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads", {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
+    {SettingItem::VIDEO_FORMAT,
+     {"video_format", {"dash", "flv/mp4"}, {1744, 0}, 0}},
 };
 #else
 std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
@@ -53,6 +55,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"1", "2", "3", "4", "8", "12", "16"},
       {1, 2, 3, 4, 8, 12, 16},
       3}},
+    {SettingItem::VIDEO_FORMAT,
+     {"video_format", {"dash", "flv"}, {1744, 0}, 0}},
 };
 #endif
 
@@ -119,6 +123,10 @@ void ProgramConfig::load() {
         brls::Logger::error("ProgramConfig::load: {}", e.what());
     }
     brls::Logger::info("Load config from: {}", path);
+
+    // 初始化视频格式
+    bilibili::BilibiliClient::FNVAL =
+        std::to_string(getIntOption(SettingItem::VIDEO_FORMAT));
 
     // 初始化线程数
     ImageHelper::REQUEST_THREADS =

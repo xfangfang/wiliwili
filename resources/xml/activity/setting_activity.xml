@@ -61,6 +61,9 @@
                         <brls:BooleanCell
                                 id="setting/auto/nextRcmd"/>
 
+                        <brls:SelectorCell
+                                id="setting/video/format"/>
+
                     </brls:Box>
                     <brls:Header
                             width="auto"

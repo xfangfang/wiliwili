@@ -124,10 +124,12 @@ void SettingActivity::onContentAvailable() {
         return true;
     });
 
+    std::string version = APPVersion::instance().git_tag.empty()
+                              ? "v" + APPVersion::instance().getVersionStr()
+                              : APPVersion::instance().git_tag;
     btnReleaseChecker->title->setText(
         "wiliwili/setting/tools/others/release"_i18n + " (" +
-        "hints/current"_i18n + ": v" + APPVersion::instance().getVersionStr() +
-        ")");
+        "hints/current"_i18n + ": " + version + ")");
     btnReleaseChecker->registerClickAction([](...) -> bool {
         brls::Application::getPlatform()->openBrowser(
             "https://github.com/xfangfang/wiliwili/releases/latest");
@@ -191,6 +193,20 @@ void SettingActivity::onContentAvailable() {
             });
             dialog->setCancelable(false);
             dialog->open();
+            return true;
+        });
+
+    /// VideoFormat
+    auto formatOption = conf.getOptionData(SettingItem::VIDEO_FORMAT);
+    selectorFormat->init(
+        "wiliwili/setting/app/playback/video_format"_i18n,
+        formatOption.optionList,
+        conf.getIntOptionIndex(SettingItem::VIDEO_FORMAT),
+        [formatOption](int data) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::VIDEO_FORMAT, formatOption.rawOptionList[data]);
+            bilibili::BilibiliClient::FNVAL =
+                std::to_string(formatOption.rawOptionList[data]);
             return true;
         });
 
