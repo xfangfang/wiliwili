@@ -63,18 +63,10 @@ MineCollectionVideoList::MineCollectionVideoList(
     this->inflateFromXMLRes("xml/fragment/mine_collection_video_list.xml");
     brls::Logger::debug("Fragment MineCollectionVideoList: create");
 
-    this->labelTitle->setText(collectionData.title);
-
-    auto badge =
-        std::to_string(collectionData.media_count) + "wiliwili/mine/num"_i18n;
-    if (collectionData.attr & 1) {
-        badge += " · " + "wiliwili/mine/private"_i18n;
-    } else {
-        badge += " · " + "wiliwili/mine/public"_i18n;
-    }
-
-    this->labelSubtitle->setText(badge);
-    ImageHelper::with(this->imageCover)->load(collectionData.cover);
+    this->labelTitle->setText(data.title);
+    this->labelSubtitle->setText(
+        fmt::format("{}{}", data.media_count, "wiliwili/mine/num"_i18n));
+    ImageHelper::with(this->imageCover)->load(data.cover);
 
     recyclingGrid->registerCell(
         "Cell", []() { return RecyclingGridItemVideoCard::create(); });
@@ -118,6 +110,12 @@ void MineCollectionVideoList::requestCollectionList() {
                 } else {
                     recyclingGrid->setDataSource(
                         new DataSourceCollectionVideoList(result.medias));
+                    labelSubtitle->setText(fmt::format(
+                        "{}{} · {}: {}", result.info.media_count,
+                        "wiliwili/mine/num"_i18n, "wiliwili/mine/creator"_i18n,
+                        result.info.upper.name));
+                    ImageHelper::with(this->imageCover)
+                        ->load(result.info.cover);
                 }
             });
         },
