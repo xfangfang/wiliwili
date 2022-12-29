@@ -16,6 +16,9 @@
 #include "view/video_progress_slider.hpp"
 #include "view/gallery_view.hpp"
 #include "view/custom_button.hpp"
+#include "view/animation_image.hpp"
+#include "view/button_close.hpp"
+#include "view/check_box.hpp"
 
 #include "fragment/home_tab.hpp"
 #include "fragment/dynamic_tab.hpp"
@@ -56,6 +59,10 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("UserInfoView", UserInfoView::create);
     brls::Application::registerXMLView("UpUserSmall", UpUserSmall::create);
     brls::Application::registerXMLView("VideoComment", VideoComment::create);
+    brls::Application::registerXMLView("ButtonClose", ButtonClose::create);
+    brls::Application::registerXMLView("CheckBox", CheckBox::create);
+    brls::Application::registerXMLView("AnimationImage",
+                                       AnimationImage::create);
 
     //     Register fragments
     brls::Application::registerXMLView("HomeTab", HomeTab::create);
