@@ -13,7 +13,7 @@ namespace bilibili {
 class VideoDetailPage {
 public:
     int cid = 0;
-    int page;           // 分p的序号
+    size_t page;        // 分p的序号
     int duration;       // 视频长度，单位秒
     int progress = -1;  // 视频初始化的播放时间，用于加载历史记录
     std::string part;  //标题

@@ -24,6 +24,7 @@
       },
       "others": {
         "header": "Others",
+        "vibration": "Gamepad vibration",
         "hide_bottom": "Hide the hint bar below",
         "fullscreen": "Fullscreen",
         "theme": {
@@ -45,11 +46,11 @@
         "error": "If you encounter a bug",
         "hot_key": "Hot keys"
       },
-      "net": {
-        "header": "Network Diagnostics",
-        "checker": "Detect network status"
+      "test": {
+        "header": "Diagnostics",
+        "net": "Network Diagnostics",
+        "vibration": "Vibration Test"
       },
-      "vibration": "Vibration Test",
       "others": {
         "header": "Others",
         "release": "Check for updates"

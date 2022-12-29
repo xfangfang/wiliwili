@@ -101,12 +101,13 @@
                                 id="cell/hideBottomBar"/>
 
                         <brls:BooleanCell
+                                id="cell/gamepadVibration"/>
+
+                        <brls:BooleanCell
                                 id="setting/opencc"/>
 
                         <brls:SelectorCell
                                 id="setting/ui/theme"/>
-
-
                     </brls:Box>
                 </brls:Box>
             </brls:ScrollingFrame>
@@ -160,7 +161,7 @@
                     <brls:Header
                             width="auto"
                             height="auto"
-                            title="@i18n/wiliwili/setting/tools/net/header"
+                            title="@i18n/wiliwili/setting/tools/test/header"
                             marginBottom="0px"/>
                     <brls:Box
                             width="100%"
@@ -170,11 +171,11 @@
 
                         <brls:RadioCell
                                 id="tools/network_checker"
-                                title="@i18n/wiliwili/setting/tools/net/checker"/>
+                                title="@i18n/wiliwili/setting/tools/test/net"/>
 
                         <brls:RadioCell
                                 id="tools/vibration_test"
-                                title="@i18n/wiliwili/setting/tools/vibration"/>
+                                title="@i18n/wiliwili/setting/tools/test/vibration"/>
 
                     </brls:Box>
                     <brls:Header

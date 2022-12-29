@@ -9,6 +9,7 @@
 #include "utils/number_helper.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/vibration_helper.hpp"
 #include "presenter/video_detail.hpp"
 #include "view/mpv_core.hpp"
 #include "activity/player_activity.hpp"
@@ -17,19 +18,25 @@ using namespace brls::literals;
 
 #ifdef __SWITCH__
 std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
+    /// string
+    {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
+
+    /// bool
+    {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
-    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 0}},
+    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
+    {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
+    {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
+    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
+    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 1}},
+    {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
+    {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
+    {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
+
+    /// select
     {SettingItem::APP_THEME, {"app_theme", {}, {}, 0}},
-    {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 0}},
-    {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 0}},
-    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
-    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
     {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
-    {SettingItem::OPENCC_ON, {"opencc", {}, {}, 0}},
-    {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
-    {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 0}},
-    {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 0}},
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads", {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
     {SettingItem::VIDEO_FORMAT,
@@ -37,26 +44,32 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 };
 #else
 std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
+    /// string
+    {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
+
+    /// bool
+    {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
-    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 0}},
-    {SettingItem::APP_THEME, {"app_theme", {}, {}, 0}},
-    {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 0}},
-    {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 0}},
+    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
+    {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
+    {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
-    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
+    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 1}},
+    {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
+    {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
+    {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
+
+    /// select
+    {SettingItem::APP_THEME, {"app_theme", {}, {}, 0}},
     {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
-    {SettingItem::OPENCC_ON, {"opencc", {}, {}, 0}},
-    {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
-    {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 0}},
-    {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 0}},
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads",
       {"1", "2", "3", "4", "8", "12", "16"},
       {1, 2, 3, 4, 8, 12, 16},
       3}},
     {SettingItem::VIDEO_FORMAT,
-     {"video_format", {"dash", "flv"}, {1744, 0}, 0}},
+     {"video_format", {"dash", "flv/mp4"}, {1744, 0}, 0}},
 };
 #endif
 
@@ -124,6 +137,10 @@ void ProgramConfig::load() {
     }
     brls::Logger::info("Load config from: {}", path);
 
+    // 初始化是否支持手柄振动
+    VibrationHelper::GAMEPAD_VIBRATION =
+        getBoolOption(SettingItem::GAMEPAD_VIBRATION);
+
     // 初始化视频格式
     bilibili::BilibiliClient::FNVAL =
         std::to_string(getIntOption(SettingItem::VIDEO_FORMAT));
@@ -134,44 +151,37 @@ void ProgramConfig::load() {
 
     // 初始化底部栏
     brls::AppletFrame::HIDE_BOTTOM_BAR =
-        getSettingItem(SettingItem::HIDE_BOTTOM_BAR, false);
+        getBoolOption(SettingItem::HIDE_BOTTOM_BAR);
 
     // 初始化是否全屏，必须在创建窗口前设置此值
-    VideoContext::FULLSCREEN = getSettingItem(SettingItem::FULLSCREEN, true);
+    VideoContext::FULLSCREEN = getBoolOption(SettingItem::FULLSCREEN);
 
     // 初始化是否上传历史记录
-    VideoDetail::REPORT_HISTORY =
-        getSettingItem(SettingItem::HISTORY_REPORT, true);
+    VideoDetail::REPORT_HISTORY = getBoolOption(SettingItem::HISTORY_REPORT);
 
     // 初始化是否自动播放下一分集
     BasePlayerActivity::AUTO_NEXT_PART =
-        getSettingItem(SettingItem::AUTO_NEXT_PART, true);
+        getBoolOption(SettingItem::AUTO_NEXT_PART);
 
     // 初始化是否自动播放推荐视频
     BasePlayerActivity::AUTO_NEXT_RCMD =
-        getSettingItem(SettingItem::AUTO_NEXT_RCMD, true);
+        getBoolOption(SettingItem::AUTO_NEXT_RCMD);
 
     // 初始化是否固定显示底部进度条
-    MPVCore::BOTTOM_BAR = getSettingItem(SettingItem::PLAYER_BOTTOM_BAR, true);
+    MPVCore::BOTTOM_BAR = getBoolOption(SettingItem::PLAYER_BOTTOM_BAR);
 
     // 初始化是否使用硬件加速 （仅限非switch设备）
-    MPVCore::HARDWARE_DEC = getSettingItem(SettingItem::PLAYER_HWDEC, true);
+    MPVCore::HARDWARE_DEC = getBoolOption(SettingItem::PLAYER_HWDEC);
 
     // 初始化内存缓存大小
     MPVCore::INMEMORY_CACHE =
         getSettingItem(SettingItem::PLAYER_INMEMORY_CACHE, 10);
 
     // 初始化是否使用opencc自动转换简体
-    brls::Label::OPENCC_ON = getSettingItem(SettingItem::OPENCC_ON, true);
+    brls::Label::OPENCC_ON = getBoolOption(SettingItem::OPENCC_ON);
 
     // 是否使用低质量解码
-#ifdef __SWITCH__
-    MPVCore::LOW_QUALITY =
-        getSettingItem(SettingItem::PLAYER_LOW_QUALITY, true);
-#else
-    MPVCore::LOW_QUALITY =
-        getSettingItem(SettingItem::PLAYER_LOW_QUALITY, false);
-#endif
+    MPVCore::LOW_QUALITY = getBoolOption(SettingItem::PLAYER_LOW_QUALITY);
 
     // 初始化一些在创建窗口之后才能初始化的内容
     brls::Application::getWindowCreationDoneEvent()->subscribe([this]() {

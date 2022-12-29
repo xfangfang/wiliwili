@@ -9,6 +9,7 @@
 #include "fragment/test_rumble.hpp"
 #include "view/text_box.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/vibration_helper.hpp"
 #include "borealis/core/cache_helper.hpp"
 #include "borealis/views/applet_frame.hpp"
 
@@ -136,7 +137,6 @@ void SettingActivity::onContentAvailable() {
     btnVibrationTest->setVisibility(brls::Visibility::GONE);
 #endif
 
-
     std::string version = APPVersion::instance().git_tag.empty()
                               ? "v" + APPVersion::instance().getVersionStr()
                               : APPVersion::instance().git_tag;
@@ -153,29 +153,44 @@ void SettingActivity::onContentAvailable() {
 
     auto& conf = ProgramConfig::instance();
 
+    /// Hide bottom bar
     cellHideBar->init(
         "wiliwili/setting/app/others/hide_bottom"_i18n,
-        conf.getSettingItem(SettingItem::HIDE_BOTTOM_BAR, false),
-        [this](bool value) {
+        conf.getBoolOption(SettingItem::HIDE_BOTTOM_BAR), [](bool value) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::HIDE_BOTTOM_BAR, value);
             // 更新设置
             brls::AppletFrame::HIDE_BOTTOM_BAR = value;
-            // 设置当前底栏
-            ((brls::AppletFrame*)this->getContentView())
-                ->setFooterVisibility(value ? brls::Visibility::GONE
-                                            : brls::Visibility::VISIBLE);
-            // 设置MainActivity底栏
-            ((brls::AppletFrame*)brls::Application::getActivitiesStack()[0]
-                 ->getContentView())
-                ->setFooterVisibility(value ? brls::Visibility::GONE
-                                            : brls::Visibility::VISIBLE);
+
+            // 修改所有正在显示的activity的底栏
+            auto stack = brls::Application::getActivitiesStack();
+            for (auto& activity : stack) {
+                brls::AppletFrame* frame = dynamic_cast<brls::AppletFrame*>(
+                    activity->getContentView());
+                if (!frame) continue;
+                frame->setFooterVisibility(value ? brls::Visibility::GONE
+                                                 : brls::Visibility::VISIBLE);
+            }
         });
 
+    /// Gamepad vibration
+#ifdef __SWITCH__
+    cellVibration->init("wiliwili/setting/app/others/vibration"_i18n,
+                        conf.getBoolOption(SettingItem::GAMEPAD_VIBRATION),
+                        [](bool value) {
+                            ProgramConfig::instance().setSettingItem(
+                                SettingItem::GAMEPAD_VIBRATION, value);
+                            VibrationHelper::GAMEPAD_VIBRATION = value;
+                        });
+#else
+    cellVibration->setVisibility(brls::Visibility::GONE);
+#endif
+
+    /// Fullscreen
 #if defined(__linux__) || defined(_WIN32)
     cellFullscreen->init(
         "wiliwili/setting/app/others/fullscreen"_i18n,
-        conf.getSettingItem(SettingItem::FULLSCREEN, true), [this](bool value) {
+        conf.getBoolOption(SettingItem::FULLSCREEN), [this](bool value) {
             ProgramConfig::instance().setSettingItem(SettingItem::FULLSCREEN,
                                                      value);
             // 更新设置
@@ -188,6 +203,7 @@ void SettingActivity::onContentAvailable() {
     cellFullscreen->setVisibility(brls::Visibility::GONE);
 #endif
 
+    /// App theme
     int themeData = conf.getSettingItem(SettingItem::APP_THEME, 0);
     selectorTheme->init(
         "wiliwili/setting/app/others/theme/header"_i18n,
@@ -223,11 +239,12 @@ void SettingActivity::onContentAvailable() {
             return true;
         });
 
+    /// Opencc
     if (brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
         brls::Application::getLocale() == brls::LOCALE_ZH_TW) {
         btnOpencc->init(
             "wiliwili/setting/app/others/opencc"_i18n,
-            conf.getSettingItem(SettingItem::OPENCC_ON, true), [](bool value) {
+            conf.getBoolOption(SettingItem::OPENCC_ON), [](bool value) {
                 auto dialog =
                     new brls::Dialog("wiliwili/setting/quit_hint"_i18n);
                 dialog->addButton("hints/ok"_i18n, [value]() {
@@ -254,6 +271,7 @@ void SettingActivity::onContentAvailable() {
             brls::TextureCache::instance().cache.setCapacity(num);
         });
 
+    /// Image request threads
     auto threadOption = conf.getOptionData(SettingItem::IMAGE_REQUEST_THREADS);
     selectorThreads->init(
         "wiliwili/setting/app/image/threads"_i18n, threadOption.optionList,
@@ -285,6 +303,7 @@ void SettingActivity::onContentAvailable() {
             MPVCore::instance().restart();
         });
 
+    /// Upload history record
     btnHistory->init("wiliwili/setting/app/playback/report"_i18n,
                      conf.getSettingItem(SettingItem::HISTORY_REPORT, true),
                      [](bool value) {
@@ -295,8 +314,7 @@ void SettingActivity::onContentAvailable() {
 
     btnAutoNextPart->init(
         "wiliwili/setting/app/playback/auto_play_next_part"_i18n,
-        conf.getSettingItem(SettingItem::AUTO_NEXT_PART, true),
-        [this](bool value) {
+        conf.getBoolOption(SettingItem::AUTO_NEXT_PART), [this](bool value) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::AUTO_NEXT_PART, value);
             BasePlayerActivity::AUTO_NEXT_PART = value;
@@ -310,8 +328,7 @@ void SettingActivity::onContentAvailable() {
 
     btnAutoNextRcmd->init(
         "wiliwili/setting/app/playback/auto_play_recommend"_i18n,
-        conf.getSettingItem(SettingItem::AUTO_NEXT_RCMD, true),
-        [this](bool value) {
+        conf.getBoolOption(SettingItem::AUTO_NEXT_RCMD), [this](bool value) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::AUTO_NEXT_RCMD, value);
             BasePlayerActivity::AUTO_NEXT_RCMD = value;
@@ -323,19 +340,21 @@ void SettingActivity::onContentAvailable() {
             }
         });
 
+    /// Player bottom bar
     btnProgress->init("wiliwili/setting/app/playback/player_bar"_i18n,
-                      conf.getSettingItem(SettingItem::PLAYER_BOTTOM_BAR, true),
+                      conf.getBoolOption(SettingItem::PLAYER_BOTTOM_BAR),
                       [](bool value) {
                           ProgramConfig::instance().setSettingItem(
                               SettingItem::PLAYER_BOTTOM_BAR, value);
                           MPVCore::BOTTOM_BAR = value;
                       });
 
+    /// Hardware decode
 #ifdef __SWITCH__
     btnHWDEC->setVisibility(brls::Visibility::GONE);
 #else
     btnHWDEC->init("wiliwili/setting/app/playback/hwdec"_i18n,
-                   conf.getSettingItem(SettingItem::PLAYER_HWDEC, true),
+                   conf.getBoolOption(SettingItem::PLAYER_HWDEC),
                    [](bool value) {
                        ProgramConfig::instance().setSettingItem(
                            SettingItem::PLAYER_HWDEC, value);
@@ -345,21 +364,16 @@ void SettingActivity::onContentAvailable() {
                    });
 #endif
 
-#ifdef __SWITCH__
-    bool defaultValue = true;
-#else
-    bool defaultValue = false;
-#endif
-    btnQuality->init(
-        "wiliwili/setting/app/playback/low_quality"_i18n,
-        conf.getSettingItem(SettingItem::PLAYER_LOW_QUALITY, defaultValue),
-        [](bool value) {
-            ProgramConfig::instance().setSettingItem(
-                SettingItem::PLAYER_LOW_QUALITY, value);
-            if (MPVCore::LOW_QUALITY == value) return;
-            MPVCore::LOW_QUALITY = value;
-            MPVCore::instance().restart();
-        });
+    /// Decode quality
+    btnQuality->init("wiliwili/setting/app/playback/low_quality"_i18n,
+                     conf.getBoolOption(SettingItem::PLAYER_LOW_QUALITY),
+                     [](bool value) {
+                         ProgramConfig::instance().setSettingItem(
+                             SettingItem::PLAYER_LOW_QUALITY, value);
+                         if (MPVCore::LOW_QUALITY == value) return;
+                         MPVCore::LOW_QUALITY = value;
+                         MPVCore::instance().restart();
+                     });
 }
 
 SettingActivity::~SettingActivity() {

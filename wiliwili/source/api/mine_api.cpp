@@ -151,7 +151,7 @@ void BilibiliClient::get_collection_list_all(
             {"up_mid", mid},
         },
         [callback](SimpleCollectionListResultWrapper result) {
-            for (int i = 0; i < result.list.size(); ++i)
+            for (size_t i = 0; i < result.list.size(); ++i)
                 result.list[i].index = i;
             std::sort(result.list.begin(), result.list.end());
             callback(result);

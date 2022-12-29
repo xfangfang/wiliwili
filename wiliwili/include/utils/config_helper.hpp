@@ -31,6 +31,7 @@ enum class SettingItem {
     CUSTOM_UPDATE_API,
     IMAGE_REQUEST_THREADS,
     VIDEO_FORMAT,
+    GAMEPAD_VIBRATION,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -110,6 +111,14 @@ public:
             return this->setting.at(optionData.key).get<int>();
         }
         return optionData.rawOptionList[optionData.defaultOption];
+    }
+
+    bool getBoolOption(SettingItem item) {
+        auto optionData = getOptionData(item);
+        if (setting.contains(optionData.key)) {
+            return this->setting.at(optionData.key).get<int>();
+        }
+        return optionData.defaultOption;
     }
 
     void load();

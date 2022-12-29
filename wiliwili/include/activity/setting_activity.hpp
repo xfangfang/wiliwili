@@ -43,4 +43,5 @@ private:
     BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
     BRLS_BIND(brls::BooleanCell, cellHideBar, "cell/hideBottomBar");
     BRLS_BIND(brls::BooleanCell, cellFullscreen, "cell/fullscreen");
+    BRLS_BIND(brls::BooleanCell, cellVibration, "cell/gamepadVibration");
 };

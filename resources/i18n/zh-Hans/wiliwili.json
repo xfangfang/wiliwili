@@ -45,11 +45,11 @@
         "error": "软件内报错或部分功能不可用",
         "hot_key": "隐藏的快捷键说明"
       },
-      "net": {
-        "header": "网络诊断",
-        "checker": "检测网络状态"
+      "test": {
+        "header": "诊断信息",
+        "net": "网络诊断",
+        "vibration": "振动测试"
       },
-      "vibration": "振动测试",
       "others": {
         "header": "其他",
         "release": "检查更新"

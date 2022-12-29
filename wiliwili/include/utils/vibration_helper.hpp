@@ -28,6 +28,8 @@ public:
     static VibrationData coinVibrationData;
     static VibrationData waitVibrationData;
 
+    static inline bool GAMEPAD_VIBRATION = true;
+
 private:
     bool playing = false;
     std::thread playThread;

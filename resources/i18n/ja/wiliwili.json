@@ -45,11 +45,11 @@
         "error": "バグに遭遇した場合",
         "hot_key": "ホットキー"
       },
-      "net": {
-        "header": "ネットワークの診断",
-        "checker": "ネットワークの状態を診断する"
+      "test": {
+        "header": "Diagnostics",
+        "net": "Network Diagnostics",
+        "vibration": "Vibration Test"
       },
-      "vibration": "Vibration Test",
       "others": {
         "header": "その他",
         "release": "更新を確認"

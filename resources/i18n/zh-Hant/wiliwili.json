@@ -45,11 +45,11 @@
         "error": "軟體內報錯或部份功能不可用",
         "hot_key": "隱藏的快速鍵說明"
       },
-      "net": {
-        "header": "網路診斷",
-        "checker": "檢測網路狀態"
+      "test": {
+        "header": "診斷訊息",
+        "net": "網路診斷",
+        "vibration": "振動測試"
       },
-      "vibration": "振動測試",
       "others": {
         "header": "其他",
         "release": "檢查更新"

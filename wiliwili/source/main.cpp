@@ -43,12 +43,12 @@ int main(int argc, char* argv[]) {
         [&logFile](std::string log) { logFile << log << std::endl; });
 #endif
 
-    // Load Cookies for bilibili from disk
+    // Load cookies and settings from disk
     ProgramConfig::instance().init();
 
     // Init the app and i18n
     if (!brls::Application::init()) {
-        brls::Logger::error("Unable to init Borealis application");
+        brls::Logger::error("Unable to init application");
         return EXIT_FAILURE;
     }
     //    brls::Application::getPlatform()->forceEnableGamePlayRecording();

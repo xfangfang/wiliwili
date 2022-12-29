@@ -44,6 +44,7 @@ void VibrationHelper::stop() {
 }
 
 void VibrationHelper::startVibrate(const VibrationData& data, bool loop) {
+    if (!GAMEPAD_VIBRATION) return;
     this->stop();
     this->playing = true;
 #ifdef __SWITCH__
