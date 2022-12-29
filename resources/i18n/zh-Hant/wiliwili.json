@@ -24,6 +24,7 @@
       },
       "others": {
         "header": "其他",
+        "vibration": "手柄振動",
         "hide_bottom": "隱藏下方提示欄",
         "fullscreen": "全荧幕顯示",
         "theme": {
@@ -196,6 +197,7 @@
     "rights": "未經作者授權，禁止轉載",
     "fs": "全屏",
     "quality": "畫質",
+    "not_follow": "取消關注？",
     "coin": {
       "title": "硬幣",
       "hint": "選擇你的投幣數量",

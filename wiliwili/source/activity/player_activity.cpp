@@ -554,8 +554,18 @@ void PlayerActivity::onContentAvailable() {
 
     // 用户头像框
     this->videoUserInfo->registerClickAction([this](...) {
-        this->followUp(this->userDetailResult.card.mid,
-                       !this->userDetailResult.following);
+        if (this->userDetailResult.following) {
+            auto dialog = new brls::Dialog("wiliwili/player/not_follow"_i18n);
+            dialog->addButton("hints/cancel"_i18n, [this]() {});
+            dialog->addButton("hints/ok"_i18n, [this]() {
+                this->followUp(this->userDetailResult.card.mid,
+                               !this->userDetailResult.following);
+            });
+            dialog->open();
+        } else {
+            this->followUp(this->userDetailResult.card.mid,
+                           !this->userDetailResult.following);
+        }
         return true;
     });
 }

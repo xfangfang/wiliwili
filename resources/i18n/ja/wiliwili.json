@@ -24,6 +24,7 @@
       },
       "others": {
         "header": "その他",
+        "vibration": "Gamepad vibration",
         "hide_bottom": "下のヒントバーを隠す",
         "fullscreen": "フルスクリーン",
         "theme": {
@@ -196,6 +197,7 @@
     "rights": "Reprint prohibited",
     "fs": "フルスクリーン",
     "quality": "品質",
+    "not_follow": "Cancel following?",
     "coin": {
       "title": "Coin",
       "hint": "Choose your coin num",

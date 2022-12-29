@@ -197,6 +197,7 @@
     "rights": "Reprint prohibited",
     "fs": "Fullscreen",
     "quality": "Quality",
+    "not_follow": "Cancel following?",
     "coin": {
       "title": "Coin",
       "hint": "Choose your coin num",
