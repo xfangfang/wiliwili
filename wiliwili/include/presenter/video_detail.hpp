@@ -36,6 +36,7 @@ public:
     virtual void onVideoRelationInfo(const bilibili::VideoRelation& result) {}
     virtual void onRelatedVideoList(
         const bilibili::VideoDetailListResult& result) {}
+    virtual void onUpInfo(const bilibili::UserDetailResultWrapper& result) {}
 
     // todo: 获取视频合集
 
@@ -102,6 +103,8 @@ public:
      */
     void addResource(int rid, int type = 2, bool isFavorite = true,
                      std::string add = "1", std::string del = "");
+
+    void followUp(const std::string& mid, bool follow);
 
 protected:
     bilibili::VideoDetailResult videoDetailResult;       //  视频数据

@@ -64,6 +64,8 @@ static const std::string ModifyFavorite = _apiBase + "/x/v3/fav/resource/deal";
 static const std::string Triple = _appBase + "/x/v2/view/like/triple";
 static const std::string TripleWeb =
     _apiBase + "x/web-interface/archive/like/triple";
+/// 关注 取关
+static const std::string Follow = _apiBase + "/x/relation/modify";
 /// 发送弹幕.
 static const std::string SendDanmaku = _apiBase + "/x/v2/dm/post";
 /// 获取视频字幕.

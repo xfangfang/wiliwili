@@ -280,4 +280,16 @@ void BilibiliClient::triple_like(const std::string& access_key, int aid,
     HTTP::postResultAsync(Api::TripleWeb, {}, payload, callback, error);
 }
 
+void BilibiliClient::follow_up(const std::string& access_key,
+                               const std::string& mid, bool follow,
+                               const std::function<void()>& callback,
+                               const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"fid", mid},
+        {"act", follow ? "1" : "2"},
+        {"csrf", access_key},
+    };
+    HTTP::postResultAsync(Api::Follow, {}, payload, callback, error);
+}
+
 }  // namespace bilibili

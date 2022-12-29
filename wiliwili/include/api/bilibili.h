@@ -329,6 +329,12 @@ public:
     static void get_coin_exp(const std::function<void(int)>& callback = nullptr,
                              const ErrorCallback& error = nullptr);
 
+    /// 关注或取关UP主
+    static void follow_up(const std::string& access_key, const std::string& mid,
+                          bool follow                           = true,
+                          const std::function<void()>& callback = nullptr,
+                          const ErrorCallback& error            = nullptr);
+
     /**
      * 收藏视频
      * @param access_key

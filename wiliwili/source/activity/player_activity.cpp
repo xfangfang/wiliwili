@@ -235,6 +235,9 @@ void BasePlayerActivity::setCommonData() {
     this->btnFavorite->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnFavorite->getParent()));
 
+    this->videoUserInfo->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->videoUserInfo));
+
     this->setRelationButton(false, false, false);
 
     eventSubscribeID =
@@ -548,26 +551,18 @@ void PlayerActivity::onContentAvailable() {
                               this->videoDetailResult.bvid);
         return true;
     });
+
+    // 用户头像框
+    this->videoUserInfo->registerClickAction([this](...) {
+        this->followUp(this->userDetailResult.card.mid,
+                       !this->userDetailResult.following);
+        return true;
+    });
 }
 
 void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
     brls::Logger::debug("[onVideoInfo] title:{} author:{}", result.title,
                         result.owner.name);
-
-    // user info
-    auto& user = this->userDetailResult;
-    this->videoUserInfo->setUserInfo(
-        user.card.face + ImageHelper::face_ext, user.card.name,
-        wiliwili::num2w(user.follower) + "粉丝 · " +
-            wiliwili::num2w(user.like_num) + "点赞");
-    if (user.card.mid == ProgramConfig::instance().getUserID()) {
-        this->videoUserInfo->setHintType(InfoHintType::NONE);
-    } else if (user.following) {
-        this->videoUserInfo->setHintType(InfoHintType::UP_FOLLOWING);
-    } else {
-        this->videoUserInfo->setHintType(InfoHintType::UP_NOT_FOLLOWED);
-    }
-
     // 只在分P数大于1时显示分P标题
     std::string subtitle =
         result.pages.size() > 1 ? " - " + videoDetailPage.part : "";
@@ -594,6 +589,21 @@ void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
     this->labelCoin->setText(wiliwili::num2w(result.stat.coin));
     this->labelFavorite->setText(wiliwili::num2w(result.stat.favorite));
     this->labelQR->setText(wiliwili::num2w(result.stat.share));
+}
+
+void PlayerActivity::onUpInfo(const bilibili::UserDetailResultWrapper& user) {
+    // user info
+    this->videoUserInfo->setUserInfo(
+        user.card.face + ImageHelper::face_ext, user.card.name,
+        wiliwili::num2w(user.follower) + "粉丝 · " +
+            wiliwili::num2w(user.like_num) + "点赞");
+    if (user.card.mid == ProgramConfig::instance().getUserID()) {
+        this->videoUserInfo->setHintType(InfoHintType::NONE);
+    } else if (user.following) {
+        this->videoUserInfo->setHintType(InfoHintType::UP_FOLLOWING);
+    } else {
+        this->videoUserInfo->setHintType(InfoHintType::UP_NOT_FOLLOWED);
+    }
 }
 
 void PlayerActivity::onVideoPageListInfo(

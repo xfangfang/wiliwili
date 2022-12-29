@@ -111,6 +111,7 @@ public:
     void reportCurrentProgress(size_t progress, size_t duration) override;
 
     void onVideoInfo(const bilibili::VideoDetailResult& result) override;
+    void onUpInfo(const bilibili::UserDetailResultWrapper& result) override;
     void onVideoPageListInfo(
         const bilibili::VideoDetailPageListResult& result) override;
     void onUploadedVideos(

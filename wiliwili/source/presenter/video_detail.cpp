@@ -133,6 +133,7 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                                       this->videoDetailPage.cid);
 
                 // 展示视频相关信息
+                this->onUpInfo(this->userDetailResult);
                 this->onVideoInfo(this->videoDetailResult);
 
                 // 展示分P数据
@@ -495,6 +496,32 @@ void VideoDetail::addResource(int aid, int type, bool isFavorite,
             brls::sync([ASYNC_TOKEN]() {
                 ASYNC_RELEASE
                 this->onVideoRelationInfo(videoRelation);
+            });
+        });
+}
+
+void VideoDetail::followUp(const std::string& mid, bool follow) {
+    std::string csrf = ProgramConfig::instance().getCSRF();
+    if (csrf == "") return;
+
+    // 返回前预先设置状态
+    bilibili::UserDetailResultWrapper temp = this->userDetailResult;
+    temp.following                         = follow;
+    this->onUpInfo(temp);
+
+    ASYNC_RETAIN
+    BILI::follow_up(
+        csrf, mid, follow,
+        [ASYNC_TOKEN, follow]() {
+            ASYNC_RELEASE
+            userDetailResult.following = follow;
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            // 请求失败 恢复默认状态
+            brls::Logger::error("{}", error);
+            brls::sync([ASYNC_TOKEN]() {
+                ASYNC_RELEASE
+                this->onUpInfo(this->userDetailResult);
             });
         });
 }
