@@ -1,0 +1,12 @@
+<brls:Box
+        justifyContent="center"
+        alignItems="center"
+        cornerRadius="50"
+        axis="column"
+        width="50"
+        height="50">
+    <brls:Label
+            marginTop="9"
+            fontSize="32"
+            text=""/>
+</brls:Box>
