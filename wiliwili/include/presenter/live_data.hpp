@@ -17,13 +17,18 @@ public:
     virtual void onError(const std::string& error) {}
 
     void requestData(int roomid) {
-        bilibili::BilibiliClient::get_live_url(
+        ASYNC_RETAIN
+        BILI::get_live_url(
             roomid, defaultQuality,
-            [this](const bilibili::LiveUrlResultWrapper& result) {
+            [ASYNC_TOKEN](const bilibili::LiveUrlResultWrapper& result) {
+                ASYNC_RELEASE
                 liveUrl = result;
                 onLiveData(result);
             },
-            [this](const std::string& error) { this->onError(error); });
+            [ASYNC_TOKEN](BILI_ERR) {
+                ASYNC_RELEASE
+                this->onError(error);
+            });
 
         reportHistory(roomid);
     }
@@ -32,10 +37,12 @@ public:
         // 复用视频播放页面的标记
         if (!VideoDetail::REPORT_HISTORY) return;
 
-        bilibili::BilibiliClient::report_live_history(
-            roomid, ProgramConfig::instance().getCSRF(), [roomid](){
+        BILI::report_live_history(
+            roomid, ProgramConfig::instance().getCSRF(),
+            [roomid]() {
                 brls::Logger::debug("report live history {}", roomid);
-            }, [this](const std::string& error) { this->onError(error); });
+            },
+            [this](BILI_ERR) { this->onError(error); });
     }
 
     static inline int defaultQuality = 10000;

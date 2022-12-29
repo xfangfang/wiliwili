@@ -66,12 +66,6 @@ void LiveActivity::onContentAvailable() {
             return true;
         });
 
-    // 使用api接口提供的播放链接，清晰度不高, switch上播放会报错退出
-    // if (!liveData.play_url.empty()) {
-    //     this->video->start(liveData.play_url);
-    // }
-    brls::Logger::debug("live default url: {}", liveData.play_url);
-
     // 根据房间号重新获取高清播放链接
     this->requestData(liveData.roomid);
 }
