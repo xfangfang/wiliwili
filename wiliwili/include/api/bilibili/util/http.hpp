@@ -22,6 +22,8 @@ const std::string BILIBILI_BUILD      = "1001005000";
 using ErrorCallback = std::function<void(const std::string&)>;
 #define ERROR_MSG(msg, ...) \
     if (error) error(msg)
+#define CALLBACK(data) \
+    if (callback) callback(data)
 
 class HTTP {
 public:
@@ -33,34 +35,34 @@ public:
                              const cpr::Parameters& parameters = {},
                              int timeout                       = 10000);
 
-    template <typename ReturnType>
-    static void getResult(
-        const std::string& url,
-        const std::initializer_list<cpr::Parameter>& parameters = {},
-        const std::function<void(ReturnType)>& callback         = nullptr,
-        const ErrorCallback& error                              = nullptr) {
-        cpr::Parameters param(parameters);
-        cpr::Response r = HTTP::get(url, param);
-        if (r.status_code != 200) {
-            ERROR_MSG("Network error. [Status code: " +
-                          std::to_string(r.status_code) + " ]",
-                      -404);
-            return;
-        }
-        try {
-            nlohmann::json res = nlohmann::json::parse(r.text);
-            int code           = res.at("code");
-            if (code == 0) {
-                if (callback) callback(res.at("data").get<ReturnType>());
-                return;
-            } else {
-                ERROR_MSG("Param error", code);
-            }
-        } catch (const std::exception& e) {
-            ERROR_MSG("API error");
-            printf("ERROR: %s\n", e.what());
-        }
-    }
+    //    template <typename ReturnType>
+    //    static void getResult(
+    //        const std::string& url,
+    //        const std::initializer_list<cpr::Parameter>& parameters = {},
+    //        const std::function<void(ReturnType)>& callback         = nullptr,
+    //        const ErrorCallback& error                              = nullptr) {
+    //        cpr::Parameters param(parameters);
+    //        cpr::Response r = HTTP::get(url, param);
+    //        if (r.status_code != 200) {
+    //            ERROR_MSG("Network error. [Status code: " +
+    //                          std::to_string(r.status_code) + " ]",
+    //                      -404);
+    //            return;
+    //        }
+    //        try {
+    //            nlohmann::json res = nlohmann::json::parse(r.text);
+    //            int code           = res.at("code");
+    //            if (code == 0) {
+    //                if (callback) callback(res.at("data").get<ReturnType>());
+    //                return;
+    //            } else {
+    //                ERROR_MSG("Param error", code);
+    //            }
+    //        } catch (const std::exception& e) {
+    //            ERROR_MSG("API error");
+    //            printf("ERROR: %s\n", e.what());
+    //        }
+    //    }
 
     static void __cpr_post(
         const std::string& url, cpr::Parameters parameters = {},
@@ -111,30 +113,25 @@ public:
             [callback, error](cpr::Response r) {
                 try {
                     nlohmann::json res = nlohmann::json::parse(r.text);
-                    int code           = res.at("code");
+                    int code           = res.at("code").get<int>();
                     if (code == 0) {
                         if (res.contains("data")) {
-                            if (callback)
-                                callback(res.at("data").get<ReturnType>());
+                            CALLBACK(res.at("data").get<ReturnType>());
                         } else if (res.contains("result")) {
-                            if (callback)
-                                callback(res.at("result").get<ReturnType>());
+                            CALLBACK(res.at("result").get<ReturnType>());
                         } else {
                             printf("data: %s\n", r.text.c_str());
                             ERROR_MSG("Cannot find data");
                         }
                         return;
+                    }
+
+                    if (res.at("message").is_string()) {
+                        ERROR_MSG("error msg: " +
+                                  res.at("message").get<std::string>() +
+                                  "; error code: " + std::to_string(code));
                     } else {
-                        if (error) {
-                            if (res.at("message").is_string()) {
-                                ERROR_MSG(
-                                    "error msg: " +
-                                    res.at("message").get<std::string>() +
-                                    "; error code: " + std::to_string(code));
-                            } else {
-                                ERROR_MSG("Param error");
-                            }
-                        }
+                        ERROR_MSG("Param error");
                     }
                 } catch (const std::exception& e) {
                     ERROR_MSG("Network error. [Status code: " +
@@ -180,17 +177,51 @@ public:
             [callback, error](const cpr::Response& r) {
                 try {
                     nlohmann::json res = nlohmann::json::parse(r.text);
-                    int code           = res.at("code");
+                    int code           = res.at("code").get<int>();
                     if (code == 0) {
-                        if (callback)
-                            callback(res.at("data").get<ReturnType>());
+                        if (res.contains("data")) {
+                            CALLBACK(res.at("data").get<ReturnType>());
+                        } else if (res.contains("result")) {
+                            CALLBACK(res.at("result").get<ReturnType>());
+                        } else {
+                            ERROR_MSG("");
+                        }
                         return;
-                    } else {
-                        // todo: 这里貌似code不为0时且设置了error 并没有报错
-                        ERROR_MSG("Param error");
                     }
+                    ERROR_MSG("code: " + std::to_string(code) +
+                              "; msg: " + res.at("message").get<std::string>());
                 } catch (const std::exception& e) {
-                    ERROR_MSG("API error");
+                    ERROR_MSG(
+                        "API error: code: " + std::to_string(r.status_code) +
+                        "; msg: " + std::string(e.what()));
+                    printf("data: %s\n", r.text.c_str());
+                    printf("ERROR: %s\n", e.what());
+                }
+            },
+            error);
+    }
+
+    static void postResultAsync(const std::string& url,
+                                cpr::Parameters parameters            = {},
+                                cpr::Payload payload                  = {},
+                                const std::function<void()>& callback = nullptr,
+                                const ErrorCallback& error = nullptr) {
+        __cpr_post(
+            url, parameters, payload,
+            [callback, error](const cpr::Response& r) {
+                try {
+                    nlohmann::json res = nlohmann::json::parse(r.text);
+                    int code           = res.at("code").get<int>();
+                    if (code == 0) {
+                        if (callback) callback();
+                        return;
+                    }
+                    ERROR_MSG("code: " + std::to_string(code) +
+                              "; msg: " + res.at("message").get<std::string>());
+                } catch (const std::exception& e) {
+                    ERROR_MSG(
+                        "API error: code: " + std::to_string(r.status_code) +
+                        "; msg: " + std::string(e.what()));
                     printf("data: %s\n", r.text.c_str());
                     printf("ERROR: %s\n", e.what());
                 }

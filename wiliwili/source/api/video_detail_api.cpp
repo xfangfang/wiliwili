@@ -204,25 +204,7 @@ void BilibiliClient::report_history(
         if (epid != 0) payload.Add({"epid", std::to_string(epid)});
     }
 
-    HTTP::__cpr_post(
-        Api::ProgressReport, {}, payload,
-        [callback, error](const cpr::Response& r) {
-            if (r.status_code != 200) {
-                ERROR_MSG(
-                    "ERROR report_history: " + std::to_string(r.status_code),
-                    r.status_code);
-            } else {
-                nlohmann::json res = nlohmann::json::parse(r.text);
-                int code           = res.at("code");
-                if (code == 0) {
-                    callback();
-                } else {
-                    ERROR_MSG("ERROR report_history:" +
-                                  res.at("message").get<std::string>(),
-                              code);
-                }
-            }
-        });
+    HTTP::postResultAsync(Api::ProgressReport, {}, payload, callback, error);
 }
 
 /// 直播页 上报历史
@@ -238,17 +220,7 @@ void BilibiliClient::report_live_history(const int room_id,
         {"visit_id", ""},
     };
 
-    HTTP::__cpr_post(Api::LiveReport, {}, payload,
-                     [callback, error](const cpr::Response& r) {
-                         if (r.status_code != 200) {
-                             ERROR_MSG(
-                                 "ERROOR: report_live_history: status_code: " +
-                                     std::to_string(r.status_code),
-                                 r.status_code);
-                         } else {
-                             callback();
-                         }
-                     });
+    HTTP::postResultAsync(Api::LiveReport, {}, payload, callback, error);
 }
 
 void BilibiliClient::be_agree(const std::string& access_key, int aid,
@@ -257,19 +229,10 @@ void BilibiliClient::be_agree(const std::string& access_key, int aid,
                               const ErrorCallback& error) {
     cpr::Payload payload = {
         {"aid", std::to_string(aid)},
-        {"like", std::to_string(is_like)},
+        {"like", is_like ? "1" : "2"},
         {"csrf", access_key},
     };
-    HTTP::__cpr_post("http://api.bilibili.com/x/web-interface/archive/like", {},
-                     payload, [callback, error](const cpr::Response& r) {
-                         if (r.status_code != 200) {
-                             ERROR_MSG("ERROOR: report_history: status_code: " +
-                                           std::to_string(r.status_code),
-                                       r.status_code);
-                         } else {
-                             callback();
-                         }
-                     });
+    HTTP::postResultAsync(Api::LikeWeb, {}, payload, callback, error);
 }
 
 void BilibiliClient::add_coin(const std::string& access_key, int aid,
@@ -278,42 +241,43 @@ void BilibiliClient::add_coin(const std::string& access_key, int aid,
                               const ErrorCallback& error) {
     cpr::Payload payload = {
         {"aid", std::to_string(aid)},
-        {"select_like", std::to_string(is_like)},
+        {"select_like", is_like ? "1" : "0"},
         {"multiply", std::to_string(coin_number)},
         {"csrf", access_key},
     };
-    HTTP::__cpr_post("http://api.bilibili.com/x/web-interface/coin/add", {},
-                     payload, [callback, error](const cpr::Response& r) {
-                         if (r.status_code != 200) {
-                             ERROR_MSG("ERROOR: report_history: status_code: " +
-                                           std::to_string(r.status_code),
-                                       r.status_code);
-                         } else {
-                             callback();
-                         }
-                     });
+
+    printf("[add coin] aid: %d; coin: %d; select_like: %d;\n", aid, coin_number,
+           is_like);
+    HTTP::postResultAsync(Api::CoinWeb, {}, payload, callback, error);
 }
 
-void BilibiliClient::add_resource(const std::string& access_key, int aid,
+void BilibiliClient::get_coin_exp(const std::function<void(int)>& callback,
+                                  const ErrorCallback& error) {
+    HTTP::getResultAsync<int>(Api::CoinExp, {}, callback, error);
+}
+
+void BilibiliClient::add_resource(const std::string& access_key, int rid,
+                                  int type, const std::string& add_ids,
+                                  const std::string& del_ids,
                                   const std::function<void()>& callback,
                                   const ErrorCallback& error) {
     cpr::Payload payload = {
-        {"rid", std::to_string(aid)},
-        {"type", std::to_string(2)},
-        {"add_media_ids", std::to_string(1)},
+        {"rid", std::to_string(rid)}, {"type", std::to_string(type)},
+        {"add_media_ids", add_ids},   {"del_media_ids", del_ids},
         {"csrf", access_key},
     };
-    HTTP::__cpr_post(
-        "http://api.bilibili.com/medialist/gateway/coll/resource/deal", {},
-        payload, [callback, error](const cpr::Response& r) {
-            if (r.status_code != 200) {
-                ERROR_MSG("ERROOR: report_history: status_code: " +
-                              std::to_string(r.status_code),
-                          r.status_code);
-            } else {
-                callback();
-            }
-        });
+    HTTP::postResultAsync(Api::CollectionVideoListSave, {}, payload, callback,
+                          error);
+}
+
+void BilibiliClient::triple_like(const std::string& access_key, int aid,
+                                 const std::function<void()>& callback,
+                                 const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"aid", std::to_string(aid)},
+        {"csrf", access_key},
+    };
+    HTTP::postResultAsync(Api::TripleWeb, {}, payload, callback, error);
 }
 
 }  // namespace bilibili

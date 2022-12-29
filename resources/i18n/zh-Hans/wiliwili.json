@@ -14,7 +14,8 @@
         "in_memory_cache": "解码缓存（Switch上更小的值可减少BUG发生，不过会导致跳转不流畅）",
         "hwdec": "硬件解码",
         "auto_play_next_part": "自动播放下一分集",
-        "auto_play_recommend": "自动播放推荐视频"
+        "auto_play_recommend": "自动播放推荐视频",
+        "video_format": "视频格式"
       },
       "image": {
         "header": "图片设置",
@@ -113,7 +114,9 @@
       "refresh": "刷新",
       "last": "上一项",
       "next": "下一项",
-      "filter": "筛选"
+      "filter": "筛选",
+      "save": "保存",
+      "no_login": "用户未登录"
     },
     "live": {
       "tab": "直播",
@@ -174,6 +177,7 @@
     "private": "私密",
     "num": "个内容",
     "pub": "创建于",
+    "creator": "创建者",
     "done": "已看完",
     "article": "使用浏览器打开专栏内容:",
     "refresh_history": "刷新历史记录"
@@ -189,6 +193,19 @@
     "share": "分享",
     "rights": "未经作者授权，禁止转载",
     "fs": "全屏",
-    "quality": "画质"
+    "quality": "画质",
+    "coin": {
+      "title": "投币",
+      "hint": "选择你的投币数量",
+      "like": "同时点赞 \uE0E3",
+      "own": "UP主不能自己投币",
+      "run_out": "对本稿件的投币枚数已用完",
+      "exp": "经验值+{}（今日{}/50）",
+      "exp_full": "今日投币+50经验成就 get \uE87D 赞！",
+      "pcs": "{}个"
+    },
+    "collection": {
+      "title": "选择收藏夹"
+    }
   }
 }

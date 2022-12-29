@@ -14,7 +14,8 @@
         "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
         "auto_play_next_part": "次のパートを自動再生",
-        "auto_play_recommend": "おすすめ動画の自動再生"
+        "auto_play_recommend": "おすすめ動画の自動再生",
+        "video_format": "Video format"
       },
       "image": {
         "header": "画像",
@@ -30,7 +31,8 @@
           "1": "自動",
           "2": "ライト",
           "3": "ダーク"
-        }
+        },
+        "opencc": "Automatically convert Simplified Chinese (restart required)"
       }
     },
     "tools": {
@@ -72,9 +74,9 @@
     },
     "hot_keys": {
       "common_header": "一般",
-      "common_content": "\uE0A4 / \uE0A5 プライマリページを切り替える\n \uE0A6 / \uE0A7 セカンダリページを切り替える",
+      "common_content": " /  プライマリページを切り替える\n  /  セカンダリページを切り替える",
       "player_header": "プレーヤー",
-      "player_content": "\uE0C5 速度を上げます。\uE0C5をダブルクリックしてロック\n \uE0A3 + \uE0A5 前方にシークします\n \uE0A3 プレーヤーのOSDを切り替え \n \uE0A2 弾幕を切り替え"
+      "player_content": " 速度を上げます。をダブルクリックしてロック\n  +  前方にシークします\n  プレーヤーのOSDを切り替え \n  弾幕を切り替え"
     },
     "net": {
       "test": {
@@ -97,10 +99,10 @@
   },
   "hints": {
     "hint1": "ホーム画面からゲームを選択",
-    "hint2": "\uE0E5キーを押しながら \uE0E0をクリックしてhbmenuに入ります",
+    "hint2": "キーを押しながら をクリックしてhbmenuに入ります",
     "hint3": "hbmenuで、wiliwiliを選択",
     "hint4": "オプション： 提供されたwiliwiliNSPフォワーダーを使用 (wiliwili.nroを/switch/wiliwili.nroに配置してください)",
-    "hint_nsp": "\uE0E0をクリックしてNSPフォワーダーをインストールします",
+    "hint_nsp": "をクリックしてNSPフォワーダーをインストールします",
     "hint_confirm": "NSPフォワーダをインストールすると、BANされる可能性があります\nもう一度確認してください",
     "hint_right": "写真はインターネットからのもので、著作権は任天堂株式会社に属します"
   },
@@ -113,7 +115,9 @@
       "refresh": "更新",
       "last": "ラスト",
       "next": "次",
-      "filter": "フィルター"
+      "filter": "フィルター",
+      "save": "Save",
+      "no_login": "You are not logged in yet"
     },
     "live": {
       "tab": "ライブ",
@@ -174,6 +178,7 @@
     "private": "プライベート",
     "num": " コンテンツ",
     "pub": "で作成 ",
+    "creator": "Creator",
     "done": "終了しました",
     "article": "ブラウザで開く：",
     "refresh_history": "履歴をリフレッシュ"
@@ -187,8 +192,21 @@
     "comment": "コメント",
     "current": " みんなが見ている",
     "share": "シェア",
-    "rights": "作成者の許可なく転載することを禁じます",
+    "rights": "Reprint prohibited",
     "fs": "フルスクリーン",
-    "quality": "品質"
+    "quality": "品質",
+    "coin": {
+      "title": "Coin",
+      "hint": "Choose your coin num",
+      "like": "Like at the same time ",
+      "own": "You can't give yourself a coin",
+      "run_out": "The number of coins for this video has been used up",
+      "exp": "Experience + {}（Today {}/50）",
+      "exp_full": "The experience gained today is full (50/50)  ！",
+      "pcs": "{} pcs"
+    },
+    "collection": {
+      "title": "Select Favorites"
+    }
   }
 }

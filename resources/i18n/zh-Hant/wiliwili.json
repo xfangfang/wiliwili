@@ -14,7 +14,8 @@
         "in_memory_cache": "解码緩存（Switch上更小的值可减少BUG發生，不過會導致跳轉不流暢）\n",
         "hwdec": "硬體解碼",
         "auto_play_next_part": "自動播放下一分集",
-        "auto_play_recommend": "自動播放推薦影片"
+        "auto_play_recommend": "自動播放推薦影片",
+        "video_format": "影像格式"
       },
       "image": {
         "header": "圖片設定",
@@ -31,7 +32,7 @@
           "2": "淺色",
           "3": "深色"
         },
-        "opencc": "自动转换简体中文 (需要重启)"
+        "opencc": "自動轉換簡體中文 (需要重啓)"
       }
     },
     "tools": {
@@ -73,9 +74,9 @@
     },
     "hot_keys": {
       "common_header": "通用快速鍵",
-      "common_content": "\uE0A4 / \uE0A5 切換一級頁面\n \uE0A6 / \uE0A7 切換二級頁面",
+      "common_content": " /  切換一級頁面\n  /  切換二級頁面",
       "player_header": "播放器快速鍵",
-      "player_content": "\uE0C5 快進，按兩下 \uE0C5 快進鎖定\n \uE0A3 + \uE0A5 向前跳轉視頻（單個 \uE126 即可完整操控播放）\n \uE0A3 顯示/隱藏播放器OSD \n \uE0A2 顯示/隱藏彈幕"
+      "player_content": " 快進，按兩下  快進鎖定\n  +  向前跳轉視頻（單個  即可完整操控播放）\n  顯示/隱藏播放器OSD \n  顯示/隱藏彈幕"
     },
     "net": {
       "test": {
@@ -97,11 +98,11 @@
     }
   },
   "hints": {
-    "hint1": "請從桌面選擇任意遊戲並按住 \uE0E5 鍵",
-    "hint2": "點擊 \uE0E0 打開, 在應用開啟期間保持按住 \uE0E5 鍵，直到進入 hbmenu",
+    "hint1": "請從桌面選擇任意遊戲並按住  鍵",
+    "hint2": "點擊  打開, 在應用開啟期間保持按住  鍵，直到進入 hbmenu",
     "hint3": "在 hbmenu 目錄中選擇 wiliwili",
     "hint4": "可選：安裝 wiliwili NSP 通過桌面圖示直接打開 wiliwili (請將 wiliwili.nro 放置在 /switch/wiliwili.nro)",
-    "hint_nsp": "點擊 \uE0E0 安裝桌面圖示",
+    "hint_nsp": "點擊  安裝桌面圖示",
     "hint_confirm": "安裝桌面圖示可能導致ban機\n請再次確認",
     "hint_right": "掌機圖片來源於網路，版權歸任天堂 Nintendo Co., Ltd 所有"
   },
@@ -114,7 +115,9 @@
       "refresh": "重新整理",
       "last": "上一項",
       "next": "下一項",
-      "filter": "篩選"
+      "filter": "篩選",
+      "save": "儲存",
+      "no_login": "您尚未登入"
     },
     "live": {
       "tab": "直播",
@@ -175,6 +178,7 @@
     "private": "私密",
     "num": "個內容",
     "pub": "建立於",
+    "creator": "創建者",
     "done": "已看完",
     "article": "使用瀏覽器開啟專欄內容:",
     "refresh_history": "重新整理歷史記錄"
@@ -190,6 +194,19 @@
     "share": "分享",
     "rights": "未經作者授權，禁止轉載",
     "fs": "全屏",
-    "quality": "畫質"
+    "quality": "畫質",
+    "coin": {
+      "title": "硬幣",
+      "hint": "選擇你的投幣數量",
+      "like": "同時點贊 ",
+      "own": "UP主不能自己投幣",
+      "run_out": "對本稿件的投幣枚數已用完",
+      "exp": "經驗值+{}（今日{}/50）",
+      "exp_full": "今日投幣+50經驗成就 get  贊！",
+      "pcs": "{} 个"
+    },
+    "collection": {
+      "title": "選擇收藏夾"
+    }
   }
 }

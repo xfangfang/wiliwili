@@ -4,6 +4,11 @@
         width="auto"
         height="500">
 
+    <ButtonClose
+            positionType="absolute"
+            positionTop="-16"
+            positionRight="-16"/>
+
     <brls:Box
             width="400"
             alignItems="center">

@@ -117,11 +117,14 @@
                                 padding="4"
                                 axis="column"
                                 alignItems="center"
+                                width="56"
+                                height="56"
                                 focusable="true">
                             <SVGImage
                                     id="video/btn/coin"
-                                    width="48"
-                                    height="48"/>
+                                    positionTop="4"
+                                    width="40"
+                                    height="40"/>
                             <brls:Label
                                     id="video/label/coin"
                                     positionType="absolute"
@@ -139,13 +142,16 @@
                                 highlightCornerRadius="50"
                                 cornerRadius="50"
                                 padding="4"
+                                width="56"
+                                height="56"
                                 axis="column"
                                 alignItems="center"
                                 focusable="true">
                             <SVGImage
                                     id="video/btn/favorite"
-                                    width="48"
-                                    height="48"/>
+                                    positionTop="4"
+                                    width="40"
+                                    height="40"/>
                             <brls:Label
                                     id="video/label/favorite"
                                     positionType="absolute"
@@ -163,13 +169,16 @@
                                 highlightCornerRadius="50"
                                 cornerRadius="50"
                                 padding="4"
+                                width="56"
+                                height="56"
                                 axis="column"
                                 alignItems="center"
                                 focusable="true">
                             <SVGImage
                                     id="video/btn/qr"
-                                    width="48"
-                                    height="48"/>
+                                    positionTop="4"
+                                    width="40"
+                                    height="40"/>
                             <brls:Label
                                     id="video/label/qr"
                                     positionType="absolute"
@@ -310,6 +319,7 @@
                      fontSize="18">
                     <brls:Box
                             width="100%"
+                            marginTop="12"
                             grow="1">
                         <RecyclingGrid
                                 id="video/comment/recyclingGrid"
@@ -318,7 +328,7 @@
                                 grow="1"
                                 spanCount="1"
                                 flowMode="true"
-                                itemHeight="416"
+                                itemHeight="100"
                                 wireframe="false"/>
                     </brls:Box>
                 </Tab>

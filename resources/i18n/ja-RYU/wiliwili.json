@@ -14,7 +14,8 @@
         "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
         "auto_play_next_part": "次ぬパート自動再生",
-        "auto_play_recommend": "うすすみ動画ぬ自動再生"
+        "auto_play_recommend": "うすすみ動画ぬ自動再生",
+        "video_format": "Video format"
       },
       "image": {
         "header": "画像",
@@ -30,7 +31,8 @@
           "1": "自動",
           "2": "ライト",
           "3": "ダーク"
-        }
+        },
+        "opencc": "Automatically convert Simplified Chinese (restart required)"
       }
     },
     "tools": {
@@ -72,9 +74,9 @@
     },
     "hot_keys": {
       "common_header": "一般",
-      "common_content": "\uE0A4 / \uE0A5 プライマリページ切り替いーん\n \uE0A6 / \uE0A7 セカンダリページ切り替いーん",
+      "common_content": " /  プライマリページ切り替いーん\n  /  セカンダリページ切り替いーん",
       "player_header": "プレーヤー",
-      "player_content": "\uE0C5 速度上ぎやびーん。\uE0C5ダブルクリックしロック\n \uE0A3 + \uE0A5 前方んかいシークさびーん\n \uE0A3 プレーヤーぬOSD切り替えい \n \uE0A2 弾幕切り替い"
+      "player_content": " 速度上ぎやびーん。ダブルクリックしロック\n  +  前方んかいシークさびーん\n  プレーヤーぬOSD切り替えい \n  弾幕切り替い"
     },
     "net": {
       "test": {
@@ -97,10 +99,10 @@
   },
   "hints": {
     "hint1": "ホーム画面からゲーム選択",
-    "hint2": "\uE0E5キーうさがちー \uE0E0クリックしhbmenuんかいいやびーん",
+    "hint2": "キーうさがちー クリックしhbmenuんかいいやびーん",
     "hint3": "hbmenuっし、wiliwili選択",
     "hint4": "オプション: 提供さったるwiliwiliNSPフォワーダー使用 (wiliwili.nro/switch/wiliwili.nroんかい配置しくぃみそーれー)",
-    "hint_nsp": "\uE0E0クリックしNSPフォワーダーインストールさびーん",
+    "hint_nsp": "クリックしNSPフォワーダーインストールさびーん",
     "hint_confirm": "NSPフォワーダインストールしーねー、BANさりーる可能性があいびーん\nなーいちどぅ確認しくぃみそーれー",
     "hint_right": "さしのーインターネットからぬむんでぃ、著作権ー任天堂株式会社んかい属さびーん"
   },
@@ -113,7 +115,9 @@
       "refresh": "更新",
       "last": "ラスト",
       "next": "次",
-      "filter": "フィルター"
+      "filter": "フィルター",
+      "save": "Save",
+      "no_login": "You are not logged in yet"
     },
     "live": {
       "tab": "ライブ",
@@ -174,6 +178,7 @@
     "private": "プライベート",
     "num": " コンテンツ",
     "pub": "でぃ作成 ",
+    "creator": "Creator",
     "done": "終了さびたん",
     "article": "ブラウザっしふぃらちゅん：",
     "refresh_history": "履歴リフレッシュ"
@@ -187,8 +192,21 @@
     "comment": "コメント",
     "current": " むるがんーちょーん",
     "share": "シェア",
-    "rights": "作成者ぬ許可なく転載するくとぅ禁じやびーん",
+    "rights": "Reprint prohibited",
     "fs": "フルスクリーン",
-    "quality": "品質"
+    "quality": "品質",
+    "coin": {
+      "title": "Coin",
+      "hint": "Choose your coin num",
+      "like": "Like at the same time ",
+      "own": "You can't give yourself a coin",
+      "run_out": "The number of coins for this video has been used up",
+      "exp": "Experience + {}（Today {}/50）",
+      "exp_full": "The experience gained today is full (50/50)  ！",
+      "pcs": "{} pcs"
+    },
+    "collection": {
+      "title": "Select Favorites"
+    }
   }
 }

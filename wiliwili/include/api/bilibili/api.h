@@ -52,14 +52,18 @@ static const std::string SegmentDanmaku =
 static const std::string ProgressReport = _apiBase + "/x/v2/history/report";
 /// 点赞视频.
 static const std::string Like    = _appBase + "/x/v2/view/like";
-static const std::string LikeWeb = _appBase + "/x/web-interface/archive/like";
+static const std::string LikeWeb = _apiBase + "/x/web-interface/archive/like";
 /// 给视频投币.
 static const std::string Coin    = _appBase + "/x/v2/view/coin/add";
-static const std::string CoinWeb = _appBase + "/x/web-interface/coin/add";
+static const std::string CoinWeb = _apiBase + "/x/web-interface/coin/add";
+/// 投币经验值
+static const std::string CoinExp = _apiBase + "/x/web-interface/coin/today/exp";
 /// 添加或删除视频收藏.
 static const std::string ModifyFavorite = _apiBase + "/x/v3/fav/resource/deal";
 /// 一键三连.
 static const std::string Triple = _appBase + "/x/v2/view/like/triple";
+static const std::string TripleWeb =
+    _apiBase + "x/web-interface/archive/like/triple";
 /// 发送弹幕.
 static const std::string SendDanmaku = _apiBase + "/x/v2/dm/post";
 /// 获取视频字幕.
@@ -136,8 +140,12 @@ static const std::string HistoryVideo =
     _apiBase + "/x/web-interface/history/cursor";
 static const std::string CollectionList =
     _apiBase + "/x/v3/fav/folder/created/list";
+static const std::string CollectionListAll =
+    _apiBase + "/x/v3/fav/folder/created/list-all";
 static const std::string CollectionVideoList =
     _apiBase + "/x/v3/fav/resource/list";
+static const std::string CollectionVideoListSave =
+    _apiBase + "/x/v3/fav/resource/deal";
 static const std::string UserUploadedVideo = _apiBase + "/x/space/arc/search";
 static const std::string UserRelationStat  = _apiBase + "/x/relation/stat";
 static const std::string UserDynamicStat =

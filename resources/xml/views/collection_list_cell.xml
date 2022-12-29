@@ -1,0 +1,38 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        focusable="true"
+        paddingTop="4"
+        paddingRight="8">
+
+    <CheckBox
+            id="fav/checkbox"
+            width="24"
+            height="24"
+            margin="10"
+            marginTop="4"
+            cornerRadius="3"/>
+
+    <brls:Box
+            grow="1"
+            axis="column"
+            marginRight="@style/brls/listitem/descriptionIndent">
+
+        <brls:Label
+                id="fav/title"
+                singleLine="true"
+                width="auto"
+                height="auto"/>
+
+        <brls:Label
+                id="fav/subtitle"
+                marginTop="4"
+                singleLine="true"
+                width="auto"
+                height="auto"
+                fontSize="18"
+                textColor="@theme/font/grey"/>
+
+    </brls:Box>
+
+</brls:Box>

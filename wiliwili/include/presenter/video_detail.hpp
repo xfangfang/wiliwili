@@ -83,14 +83,25 @@ public:
                        int type = 3);
     inline static bool REPORT_HISTORY = true;
 
+    /// 视频可以投币的数量
+    int getCoinTolerate();
+
     /// 投币
-    void addCoin(int aid);
+    void addCoin(int aid, int num, bool like);
 
     /// 点赞
     void beAgree(int aid);
 
-    /// 收藏
-    void addResource(int aid);
+    /**
+     * 收藏视频
+     * @param rid 视频id，aid或epid
+     * @param type 视频类型，2 / 24；普通视频/番剧
+     * @param add 添加的收藏夹
+     * @param del 移除的收藏夹
+     * @param isFavorite 在添加或移除过后是否处于收藏状态
+     */
+    void addResource(int rid, int type = 2, bool isFavorite = true,
+                     std::string add = "1", std::string del = "");
 
 protected:
     bilibili::VideoDetailResult videoDetailResult;       //  视频数据
@@ -100,6 +111,7 @@ protected:
     bilibili::VideoUrlResult videoUrlResult;
     bilibili::SeasonResultWrapper seasonInfo;  // 番剧/综艺/影视 数据
     bilibili::SeasonEpisodeResult episodeResult;  // 番剧/综艺/影视 单集数据
+    bilibili::VideoRelation videoRelation;  // 视频点赞投币收藏情况
 
     static inline int defaultQuality = 116;
 

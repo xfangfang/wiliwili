@@ -1,0 +1,35 @@
+<brls:Box
+        axis="column"
+        width="auto"
+        height="auto">
+
+    <ButtonClose
+            positionType="absolute"
+            positionTop="4"
+            positionRight="4"/>
+
+    <brls:Label
+            width="100%"
+            horizontalAlign="center"
+            fontSize="32"
+            marginTop="40"
+            marginBottom="30"
+            text="@i18n/wiliwili/player/collection/title"/>
+
+    <brls:Box
+            justifyContent="spaceEvenly"
+            height="350">
+
+        <RecyclingGrid
+                id="player/collection/recyclingGrid"
+                paddingLeft="20"
+                paddingRight="20"
+                grow="1"
+                spanCount="2"
+                itemSpace="8"
+                itemHeight="60"
+                wireframe="false"/>
+
+    </brls:Box>
+
+</brls:Box>

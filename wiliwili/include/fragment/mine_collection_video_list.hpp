@@ -12,6 +12,7 @@
 #include <borealis.hpp>
 #include "bilibili.h"
 #include "view/recycling_grid.hpp"
+#include "bilibili/result/mine_collection_result.h"
 
 class MineCollectionVideoList : public brls::Box {
 public:

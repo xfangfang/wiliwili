@@ -29,10 +29,10 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 
 # 安装流程 (Nintendo Switch)
 
-0. 下载安装包：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
-1. 将 wiliwili.nro 放置在内存卡路径： switch/wiliwili.nro
-2. 在主页 `按住` R键打开任意游戏进入 hbmenu，在列表中选择 wiliwili 点击打开即可。
-3. [可选] 在应用内安装桌面图标，入口：设置/实用工具/使用教程
+1. 下载安装包：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
+2. 将 wiliwili.nro 放置在内存卡路径： switch/wiliwili.nro
+3. 在主页 `按住` R键打开任意游戏进入 hbmenu，在列表中选择 wiliwili 点击打开即可。
+4. [可选] 在应用内安装桌面图标，入口：设置/实用工具/使用教程
 
 <br>
 
@@ -40,20 +40,20 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 
 PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标操控（左键点击 右键返回）
 
-0. 可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions/workflows/build.yaml) 下载自动构建的测试版客户端
-1. 此页面同时提供了如下客户端:
+1. 可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions/workflows/build.yaml) 下载自动构建的测试版客户端
+2. 此页面同时提供了如下客户端:
     - 测试版switch客户端
     - Windows `Win7 SP1 and later; x86_64`
     - macOS `11.7 and later; intel`
     - Linux `flatpak x86_64 id:cn.xfangfang.wiliwili`
-2. 【必看】缺少图标的解决办法见：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
+3. 【必看】缺少图标的解决办法见：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
 
 补充信息：
 
-0. 如果不知道如何从 Github-Actions 下载软件，这里是 [教程](https://xfangfang.github.io/036)
-1. 显卡驱动需要支持 `OpenGL 3.2` 以运行此程序
-2. 如果运行有错误，Windows用户可以通过下载 [debug版](https://github.com/xfangfang/DIY/actions/workflows/wiliwili_win_debug.yml) 来查看log
-3. 目前支持的快捷键见：[#47](https://github.com/xfangfang/wiliwili/discussions/47)
+1. 如果不知道如何从 Github-Actions 下载软件，这里是 [教程](https://xfangfang.github.io/036)
+2. 显卡驱动需要支持 `OpenGL 3.2` 以运行此程序
+3. Windows用户可以通过下载 [debug版](https://github.com/xfangfang/DIY/actions/workflows/wiliwili_win_debug.yml) 来查看log
+4. 目前支持的键盘映射见：[#47](https://github.com/xfangfang/wiliwili/discussions/47)
 
 <br>
 
@@ -79,9 +79,8 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 - [x] 添加视频检索页
 - [x] 完善设置页
 - [ ] 弹幕相关设置
-- [ ] 点赞、投币、收藏
+- [x] 点赞、投币、收藏、一键三连
 - [x] 拖拽调节进度
-- [ ] 长按快速调节进度
 - [x] 增加单手模式使用一个手柄来控制播放器
 - [ ] 安装图标时检查wiliwili位置
 - [ ] NSP forwarder自动检查多个位置的nro文件，避免无法打开
@@ -89,6 +88,8 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 - [x] 使用教程添加未指明的快捷键说明
 - [x] 重压摇杆临时快进
 - [ ] 增加平板模式与电视模式页面样式的切换
+- [ ] 搜索支持搜索用户
+- [ ] 支持切换按键图标
 
 </details>
 
@@ -96,13 +97,13 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 
 # 反馈问题前要做的事
 
-0. 网络相关的问题附加 `网络诊断截图`，入口：应用内设置/实用工具/网络诊断
-1. [Switch用户] 要确保 `大气层`和`系统固件` 更新到 **最新** ，`内存卡`为 **FAT32**
-2. [Switch用户] 如果打开应用黑屏时间过长，可以尝试删除内存卡目录 `config/wiliwili` 重新进入
-3. 确保 `系统时间`正确、系统`网络设置`正确（主要是DNS）、如果使用了`网络代理`请在反馈前关闭并重新测试
-4. 查找有没有其他人出现过类似的问题：[Issues](https://github.com/xfangfang/wiliwili/issues?q=is%3Aissue)
-5. **完整且详细地** 描述你的问题，最好附加演示视频、截图。
-6. 尝试复现问题，尽力找到BUG出现的规律
+1. 网络相关的问题附加 `网络诊断截图`，入口：应用内设置/实用工具/网络诊断
+2. [Switch用户] 要确保 `大气层`和`系统固件` 更新到 **最新** ，`内存卡`为 **FAT32**
+3. [Switch用户] 如果打开应用黑屏时间过长，可以尝试删除内存卡目录 `config/wiliwili` 重新进入
+4. 确保 `系统时间`正确、系统`网络设置`正确（主要是DNS）、如果使用了`网络代理`请在反馈前关闭并重新测试
+5. 查找有没有其他人出现过类似的问题：[Issues](https://github.com/xfangfang/wiliwili/issues?q=is%3Aissue)
+6. **完整且详细地** 描述你的问题，最好附加演示视频、截图。
+7. 尝试复现问题，尽力找到BUG出现的规律
 
 <br>
 
@@ -252,3 +253,9 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 - https://github.com/BYVoid/OpenCC
 - https://github.com/imageworks/pystring
 - https://github.com/sammycage/lunasvg
+
+# Special thanks
+
+Thanks to JetBrains for providing [Open Source development licenses](https://jb.gg/OpenSourceSupport).
+
+<img style="width: 70px;" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains Logo (Main) logo.">

@@ -7,6 +7,7 @@
 #include "presenter/video_detail.hpp"
 #include "utils/config_helper.hpp"
 #include "view/mpv_core.hpp"
+#include "bilibili/result/mine_collection_result.h"
 
 /// 请求视频数据
 void VideoDetail::requestData(const bilibili::VideoDetailResult& video) {
@@ -27,13 +28,12 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID) {
     MPVCore::instance().reset();
 
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_season_detail(
+    BILI::get_season_detail(
         seasonID, epID,
         [ASYNC_TOKEN, epID](const bilibili::SeasonResultWrapper& result) {
             brls::sync([ASYNC_TOKEN, result, epID]() {
                 ASYNC_RELEASE
-                brls::Logger::debug(
-                    "bilibili::BilibiliClient::get_season_detail");
+                brls::Logger::debug("BILI::get_season_detail");
                 seasonInfo = result;
                 this->onSeasonVideoInfo(result);
 
@@ -64,7 +64,7 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID) {
                 }
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error(error);
         });
@@ -79,13 +79,12 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
 
     ASYNC_RETAIN
     brls::Logger::debug("请求视频信息: {}", bvid);
-    bilibili::BilibiliClient::get_video_detail_all(
+    BILI::get_video_detail_all(
         bvid,
         [ASYNC_TOKEN](const bilibili::VideoDetailAllResult& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
-                brls::Logger::debug(
-                    "bilibili::BilibiliClient::get_video_detail");
+                brls::Logger::debug("BILI::get_video_detail");
                 this->videoDetailResult = result.View;
                 this->userDetailResult  = result.Card;
                 this->videDetailRelated = result.Related;
@@ -149,7 +148,7 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                 this->onRelatedVideoList(videDetailRelated);
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error("ERROR:请求视频信息 {}", error);
             this->onError(error);
@@ -165,7 +164,7 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
                         defaultQuality);
     if (cid == 0) return;
 
-    bilibili::BilibiliClient::get_video_url(
+    BILI::get_video_url(
         bvid, cid, defaultQuality,
         [ASYNC_TOKEN](const bilibili::VideoUrlResult& result) {
             brls::sync([ASYNC_TOKEN, result]() {
@@ -174,7 +173,7 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
                 this->onVideoPlayUrl(result);
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error(error);
         });
@@ -191,17 +190,17 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
 
     ASYNC_RETAIN
     brls::Logger::debug("请求番剧视频播放地址: {}", cid);
-    bilibili::BilibiliClient::get_season_url(
+    BILI::get_season_url(
         cid, defaultQuality,
         [ASYNC_TOKEN](const bilibili::VideoUrlResult& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
-                brls::Logger::debug("bilibili::BilibiliClient::get_video_url");
+                brls::Logger::debug("BILI::get_video_url");
                 this->videoUrlResult = result;
                 this->onVideoPlayUrl(result);
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error(error);
         });
@@ -247,7 +246,7 @@ void VideoDetail::requestVideoComment(int aid, int next, int mode) {
     }
     brls::Logger::debug("请求视频评论: {}", aid);
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_comment(
+    BILI::get_comment(
         aid, commentRequestIndex, mode,
         [ASYNC_TOKEN](const bilibili::VideoCommentResultWrapper& result) {
             brls::sync([ASYNC_TOKEN, result]() {
@@ -259,7 +258,7 @@ void VideoDetail::requestVideoComment(int aid, int next, int mode) {
                 this->onCommentInfo(result);
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             this->onRequestCommentError(error);
         });
@@ -273,7 +272,7 @@ void VideoDetail::requestUploadedVideos(int64_t mid, int pn, int ps) {
     brls::Logger::debug("请求投稿视频: {}/{}", mid,
                         userUploadedVideoRequestIndex);
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_user_videos(
+    BILI::get_user_videos(
         mid, userUploadedVideoRequestIndex, ps,
         [ASYNC_TOKEN](const bilibili::UserUploadedVideoResultWrapper& result) {
             brls::sync([ASYNC_TOKEN, result]() {
@@ -286,7 +285,7 @@ void VideoDetail::requestUploadedVideos(int64_t mid, int pn, int ps) {
                 this->onUploadedVideos(result);
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error(error);
         });
@@ -296,7 +295,7 @@ void VideoDetail::requestUploadedVideos(int64_t mid, int pn, int ps) {
 void VideoDetail::requestVideoOnline(const std::string& bvid, int cid) {
     brls::Logger::debug("请求当前视频在线人数: bvid: {} cid: {}", bvid, cid);
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_video_online(
+    BILI::get_video_online(
         bvid, cid,
         [ASYNC_TOKEN](const bilibili::VideoOnlineTotal& result) {
             brls::sync([ASYNC_TOKEN, result]() {
@@ -304,7 +303,7 @@ void VideoDetail::requestVideoOnline(const std::string& bvid, int cid) {
                 this->onVideoOnlineCount(result);
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error(error);
         });
@@ -313,15 +312,16 @@ void VideoDetail::requestVideoOnline(const std::string& bvid, int cid) {
 /// 获取视频的 点赞、投币、收藏情况
 void VideoDetail::requestVideoRelationInfo(const std::string& bvid) {
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_video_relation(
+    BILI::get_video_relation(
         bvid,
         [ASYNC_TOKEN](const bilibili::VideoRelation& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
+                videoRelation = result;
                 this->onVideoRelationInfo(result);
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error(error);
         });
@@ -331,7 +331,7 @@ void VideoDetail::requestVideoRelationInfo(const std::string& bvid) {
 void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
     brls::Logger::debug("请求弹幕：cid: {}", cid);
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_danmaku(
+    BILI::get_danmaku(
         cid,
         [ASYNC_TOKEN](const std::string& result) {
             ASYNC_RELEASE
@@ -371,7 +371,7 @@ void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
 
             brls::Logger::debug("DANMAKU: decode done: {}", items.size());
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error(error);
         });
@@ -394,29 +394,107 @@ void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
         epid = episodeResult.id;
     }
 
-    bilibili::BilibiliClient::report_history(
+    BILI::report_history(
         mid, token, aid, cid, type, progress, duration, sid, epid,
         []() { brls::Logger::debug("reportHistory: success"); },
         [](const std::string& err) { brls::Logger::error(err); });
 }
 
+int VideoDetail::getCoinTolerate() {
+    // 非番剧视频
+    int total = videoDetailResult.copyright == 1 ? 2 : 1;
+    return total - videoRelation.coin;
+}
+
 /// 点赞
 void VideoDetail::beAgree(int aid) {
-    std::string token = ProgramConfig::instance().getCSRF();
-    if (token == "") return;
-    bilibili::BilibiliClient::be_agree(token, aid, true);
+    std::string csrf = ProgramConfig::instance().getCSRF();
+    if (csrf == "") return;
+
+    // 在返回前预先设置状态
+    bool like                    = !videoRelation.like;
+    bilibili::VideoRelation temp = videoRelation;
+    temp.like                    = like;
+    this->onVideoRelationInfo(temp);
+
+    ASYNC_RETAIN
+    BILI::be_agree(
+        csrf, aid, like,
+        [ASYNC_TOKEN, like]() {
+            ASYNC_RELEASE
+            videoRelation.like = like;
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            // 请求失败 恢复默认状态
+            brls::Logger::error("{}", error);
+            brls::sync([ASYNC_TOKEN]() {
+                ASYNC_RELEASE
+                this->onVideoRelationInfo(videoRelation);
+            });
+        });
 }
 
 /// 投币
-void VideoDetail::addCoin(int aid) {
-    std::string token = ProgramConfig::instance().getCSRF();
-    if (token == "") return;
-    bilibili::BilibiliClient::add_coin(token, aid, 1, true);
+void VideoDetail::addCoin(int aid, int num, bool like) {
+    std::string csrf = ProgramConfig::instance().getCSRF();
+    if (csrf == "") return;
+    if (num < 1 || num > 2) return;
+
+    // 在返回前预先设置状态
+    bilibili::VideoRelation temp = videoRelation;
+    temp.coin += num;
+    temp.like |= like;
+    this->onVideoRelationInfo(temp);
+
+    // 若请求过慢，且在加载期间切换到其他视频可能会导致其他视频显示错误数据
+    // 不过应该是小概率事件
+    ASYNC_RETAIN
+    BILI::add_coin(
+        csrf, aid, num, like,
+        [ASYNC_TOKEN, num, like]() {
+            ASYNC_RELEASE
+            videoRelation.coin += num;
+            videoRelation.like |= like;
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            // 请求失败 恢复默认状态
+            brls::Logger::error("{}", error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                // 投币达到上限
+                if (pystring::count(error, "34005")) videoRelation.coin = 2;
+                this->onVideoRelationInfo(videoRelation);
+            });
+        });
 }
 
 /// 收藏
-void VideoDetail::addResource(int aid) {
-    std::string token = ProgramConfig::instance().getCSRF();
-    if (token == "") return;
-    bilibili::BilibiliClient::add_resource(token, aid);
+void VideoDetail::addResource(int aid, int type, bool isFavorite,
+                              std::string add, std::string del) {
+    std::string csrf = ProgramConfig::instance().getCSRF();
+    if (csrf == "") return;
+
+    if (add.empty() && del.empty()) return;
+
+    // 在返回前预先设置状态
+    bilibili::VideoRelation temp = videoRelation;
+    temp.favorite                = isFavorite;
+    this->onVideoRelationInfo(temp);
+
+    brls::Logger::debug("addResource: {} {} {} {}", aid, type, add, del);
+    ASYNC_RETAIN
+    BILI::add_resource(
+        csrf, aid, type, add, del,
+        [ASYNC_TOKEN, isFavorite]() {
+            ASYNC_RELEASE
+            videoRelation.favorite = isFavorite;
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            // 请求失败 恢复默认状态
+            brls::Logger::error("{}", error);
+            brls::sync([ASYNC_TOKEN]() {
+                ASYNC_RELEASE
+                this->onVideoRelationInfo(videoRelation);
+            });
+        });
 }

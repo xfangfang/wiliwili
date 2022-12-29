@@ -13,6 +13,9 @@
 #include "fmt/format.h"
 #include "utils/number_helper.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/dialog_helper.hpp"
+#include "fragment/player_coin.hpp"
+#include "fragment/player_collection.hpp"
 
 using namespace brls::literals;
 
@@ -153,71 +156,7 @@ private:
 
 /// BasePlayerActivity
 
-void BasePlayerActivity::onContentAvailable() {
-    this->setCommonData();
-
-    // 点击标题查看简介
-    this->videoTitleBox->registerAction(
-        "wiliwili/player/intro"_i18n, brls::ControllerButton::BUTTON_A,
-        [this](brls::View* view) -> bool {
-            auto dialog = new brls::Dialog(this->videoDetailResult.desc);
-            dialog->addButton("hints/ok"_i18n, []() {});
-            dialog->open();
-            return true;
-        });
-
-    // 自动加载下一页评论
-    this->recyclingGrid->onNextPage(
-        [this]() { this->requestVideoComment(this->videoDetailResult.aid); });
-
-    // 点赞按钮
-    this->btnAgree->getParent()->registerClickAction([this](...) {
-        this->beAgree(this->videoDetailResult.aid);
-        /// 点赞投币后，需要等待反馈后，再更新UI
-        std::thread updateUI([this]() {
-            sleep(1);
-            this->requestVideoRelationInfo(this->videoDetailResult.bvid);
-        });
-        updateUI.detach();
-
-        return true;
-    });
-
-    // 投币按钮
-    this->btnCoin->getParent()->registerClickAction([this](...) {
-        this->addCoin((unsigned int)this->videoDetailResult.aid);
-        /// 点赞投币后，需要等待反馈后，再更新UI
-        std::thread updateUI([this]() {
-            sleep(1);
-            this->requestVideoRelationInfo(this->videoDetailResult.bvid);
-        });
-        updateUI.detach();
-
-        return true;
-    });
-
-    // 收藏按钮
-    this->btnFavorite->getParent()->registerClickAction([this](...) {
-        this->addResource((unsigned int)this->videoDetailResult.aid);
-        /// 收藏后，需要等待反馈后，再更新UI
-        std::thread updateUI([this]() {
-            sleep(1);
-            this->requestVideoRelationInfo(this->videoDetailResult.bvid);
-        });
-        updateUI.detach();
-
-        return true;
-    });
-
-    // 二维码按钮
-    this->btnQR->getParent()->registerClickAction([this](...) {
-        this->showShareDialog("https://www.bilibili.com/video/" +
-                              this->videoDetailResult.bvid);
-        return true;
-    });
-
-    this->requestData(this->videoDetailResult);
-}
+void BasePlayerActivity::onContentAvailable() { this->setCommonData(); }
 
 void BasePlayerActivity::setCommonData() {
     // 视频评论
@@ -282,13 +221,19 @@ void BasePlayerActivity::setCommonData() {
             return true;
         });
 
+    this->btnQR->setImageFromSVGRes("svg/bpx-svg-sprite-share.svg");
+
     this->btnQR->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnQR->getParent()));
 
-    if (brls::Application::getThemeVariant() == brls::ThemeVariant::LIGHT)
-        btnQR->setImageFromSVGRes("svg/widget-qrcode-dark.svg");
-    else
-        btnQR->setImageFromSVGRes("svg/widget-qrcode.svg");
+    this->btnAgree->getParent()->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->btnAgree->getParent()));
+
+    this->btnCoin->getParent()->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->btnCoin->getParent()));
+
+    this->btnFavorite->getParent()->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->btnFavorite->getParent()));
 
     this->setRelationButton(false, false, false);
 
@@ -312,8 +257,15 @@ void BasePlayerActivity::setCommonData() {
                     }
                     break;
                 case MpvEventEnum::END_OF_FILE:
-                    // 尝试自动加载下一分P
-                    if (AUTO_NEXT_PART) this->onIndexChangeToNext();
+                    // 尝试自动加载下一分集
+                    // 如果当前最顶层是Dialog就放弃自动播放，因为有可能是用户点开了收藏或者投币对话框
+                    {
+                        auto stack    = brls::Application::getActivitiesStack();
+                        Activity* top = stack[stack.size() - 1];
+                        if (dynamic_cast<brls::Dialog*>(top->getContentView()))
+                            return;
+                        if (AUTO_NEXT_PART) this->onIndexChangeToNext();
+                    }
                     break;
                 default:
                     break;
@@ -336,6 +288,29 @@ void BasePlayerActivity::showShareDialog(const std::string link) {
     container->addView(hint);
     auto dialog = new brls::Dialog(container);
     dialog->addButton("hints/ok"_i18n, []() {});
+    dialog->open();
+}
+
+void BasePlayerActivity::showCollectionDialog(int64_t id, int videoType) {
+    if (!checkLogin()) return;
+    auto playerCollection = new PlayerCollection(id, videoType);
+    auto dialog           = new brls::Dialog(playerCollection);
+    dialog->addButton("wiliwili/home/common/save"_i18n, [this, id, videoType,
+                                                         playerCollection]() {
+        this->addResource(id, videoType, playerCollection->isFavorite(),
+                          playerCollection->getAddCollectionList(),
+                          playerCollection->getDeleteCollectionList());
+    });
+    playerCollection->registerAction(
+        "", brls::ControllerButton::BUTTON_START,
+        [this, id, videoType, playerCollection, dialog](...) {
+            this->addResource(id, videoType, playerCollection->isFavorite(),
+                              playerCollection->getAddCollectionList(),
+                              playerCollection->getDeleteCollectionList());
+            dialog->dismiss();
+            return true;
+        },
+        true);
     dialog->open();
 }
 
@@ -391,6 +366,8 @@ void BasePlayerActivity::onCommentInfo(
         std::vector<bilibili::VideoCommentResult> comments(result.top_replies);
         comments.insert(comments.end(), result.replies.begin(),
                         result.replies.end());
+        // 为了加载骨架屏美观，设置为了100，在加载评论时手动修改回来
+        this->recyclingGrid->estimatedRowHeight = 416;
         this->recyclingGrid->setDataSource(new DataSourceCommentList(comments));
         // 设置评论数量提示
         auto item = this->tabFrame->getTab("wiliwili/player/comment"_i18n);
@@ -422,33 +399,21 @@ void BasePlayerActivity::onVideoRelationInfo(
 
 void BasePlayerActivity::setRelationButton(bool liked, bool coin,
                                            bool favorite) {
-    bool lightTheme =
-        brls::Application::getThemeVariant() == brls::ThemeVariant::LIGHT;
-
     if (liked) {
         btnAgree->setImageFromSVGRes("svg/bpx-svg-sprite-liked-active.svg");
     } else {
-        if (lightTheme)
-            btnAgree->setImageFromSVGRes("svg/widget-agree-dark.svg");
-        else
-            btnAgree->setImageFromSVGRes("svg/widget-agree.svg");
+        btnAgree->setImageFromSVGRes("svg/bpx-svg-sprite-liked.svg");
     }
     if (coin) {
         btnCoin->setImageFromSVGRes("svg/bpx-svg-sprite-coin-active.svg");
     } else {
-        if (lightTheme)
-            btnCoin->setImageFromSVGRes("svg/widget-coin-dark.svg");
-        else
-            btnCoin->setImageFromSVGRes("svg/widget-coin.svg");
+        btnCoin->setImageFromSVGRes("svg/bpx-svg-sprite-coin.svg");
     }
     if (favorite) {
         btnFavorite->setImageFromSVGRes(
             "svg/bpx-svg-sprite-collection-active.svg");
     } else {
-        if (lightTheme)
-            btnFavorite->setImageFromSVGRes("svg/widget-favorite-dark.svg");
-        else
-            btnFavorite->setImageFromSVGRes("svg/widget-favorite.svg");
+        btnFavorite->setImageFromSVGRes("svg/bpx-svg-sprite-collection.svg");
     }
 }
 
@@ -507,11 +472,81 @@ PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid,
         this->tabFrame->clearTab("wiliwili/player/uploaded"_i18n);
 
         // 清空评论
-        this->recyclingGrid->showSkeleton(4);
+        // 强制设置高度100，提升骨架屏显示效果
+        this->recyclingGrid->estimatedRowHeight = 100;
+        this->recyclingGrid->showSkeleton(6);
 
         // 请求新视频的数据
         videoDetailPage.cid = 0;  // cid 设置为0，新视频默认打开PV1
         this->requestVideoInfo(videoData.bvid);
+    });
+}
+
+void PlayerActivity::onContentAvailable() {
+    this->setCommonData();
+
+    // 点击标题查看简介
+    this->videoTitleBox->registerAction(
+        "wiliwili/player/intro"_i18n, brls::ControllerButton::BUTTON_A,
+        [this](brls::View* view) -> bool {
+            auto dialog = new brls::Dialog(this->videoDetailResult.desc);
+            dialog->addButton("hints/ok"_i18n, []() {});
+            dialog->open();
+            return true;
+        });
+
+    // 自动加载下一页评论
+    this->recyclingGrid->onNextPage(
+        [this]() { this->requestVideoComment(this->videoDetailResult.aid); });
+
+    this->requestData(this->videoDetailResult);
+
+    // 点赞按钮
+    this->btnAgree->getParent()->registerClickAction([this](...) {
+        if (!checkLogin()) return true;
+        this->beAgree(this->videoDetailResult.aid);
+        return true;
+    });
+
+    // 投币按钮
+    this->btnCoin->getParent()->registerClickAction([this](...) {
+        if (!checkLogin()) return true;
+
+        if (std::to_string(videoDetailResult.owner.mid) ==
+            ProgramConfig::instance().getUserID()) {
+            showDialog("wiliwili/player/coin/own"_i18n);
+            return true;
+        }
+
+        int coins = getCoinTolerate();
+        if (coins <= 0) {
+            showDialog("wiliwili/player/coin/run_out"_i18n);
+            return true;
+        }
+
+        auto playerCoin = new PlayerCoin();
+        if (coins == 1) playerCoin->hideTwoCoin();
+        playerCoin->getSelectEvent()->subscribe([this, playerCoin](int value) {
+            this->addCoin((unsigned int)this->videoDetailResult.aid, value,
+                          playerCoin->likeAtTheSameTime());
+        });
+        auto dialog = new brls::Dialog(playerCoin);
+        dialog->open();
+        return true;
+    });
+
+    // 收藏按钮
+    this->btnFavorite->getParent()->registerClickAction([this](...) {
+        this->showCollectionDialog(videoDetailResult.aid,
+                                   (int)VideoType::Plain);
+        return true;
+    });
+
+    // 二维码按钮
+    this->btnQR->getParent()->registerClickAction([this](...) {
+        this->showShareDialog("https://www.bilibili.com/video/" +
+                              this->videoDetailResult.bvid);
+        return true;
     });
 }
 
@@ -548,7 +583,7 @@ void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
     this->videoCountLabel->setText(wiliwili::num2w(result.stat.view));
     this->videoDanmakuLabel->setText(wiliwili::num2w(result.stat.danmaku));
     this->videoTimeLabel->setText(wiliwili::sec2FullDate(result.pubdate));
-    if (result.copyright == 1) {
+    if (result.rights.no_reprint == 1) {
         this->videoCopyRightBox->setVisibility(brls::Visibility::VISIBLE);
     } else {
         this->videoCopyRightBox->setVisibility(brls::Visibility::GONE);

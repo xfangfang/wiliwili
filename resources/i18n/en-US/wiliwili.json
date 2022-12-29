@@ -14,7 +14,8 @@
         "in_memory_cache": "Inmemory cache",
         "hwdec": "Hardware decode",
         "auto_play_next_part": "Automatically playing next part",
-        "auto_play_recommend": "Automatically playing recommend video"
+        "auto_play_recommend": "Automatically playing recommend video",
+        "video_format": "Video format"
       },
       "image": {
         "header": "Image",
@@ -30,7 +31,8 @@
           "1": "Auto",
           "2": "Light",
           "3": "Dark"
-        }
+        },
+        "opencc": "Automatically convert Simplified Chinese (restart required)"
       }
     },
     "tools": {
@@ -113,7 +115,9 @@
       "refresh": "Refresh",
       "last": "Last",
       "next": "Next",
-      "filter": "Filter"
+      "filter": "Filter",
+      "save": "Save",
+      "no_login": "You are not logged in yet"
     },
     "live": {
       "tab": "Live",
@@ -174,6 +178,7 @@
     "private": "Private",
     "num": " contents",
     "pub": "Created at ",
+    "creator": "Creator",
     "done": "Finished",
     "article": "Open with browser:",
     "refresh_history": "Refresh history"
@@ -187,8 +192,21 @@
     "comment": "Comment",
     "current": " people are watching",
     "share": "Share",
-    "rights": "未经作者授权，禁止转载",
+    "rights": "Reprint prohibited",
     "fs": "Fullscreen",
-    "quality": "Quality"
+    "quality": "Quality",
+    "coin": {
+      "title": "Coin",
+      "hint": "Choose your coin num",
+      "like": "Like at the same time \uE0E3",
+      "own": "You can't give yourself a coin",
+      "run_out": "The number of coins for this video has been used up",
+      "exp": "Experience + {}（Today {}/50）",
+      "exp_full": "The experience gained today is full (50/50) \uE87D ！",
+      "pcs": "{} pcs"
+    },
+    "collection": {
+      "title": "Select Favorites"
+    }
   }
 }

@@ -9,6 +9,7 @@
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/home_result.h"
 #include "bilibili/result/setting.h"
+#include "bilibili/result/mine_collection_result.h"
 
 namespace bilibili {
 
@@ -138,9 +139,29 @@ void BilibiliClient::get_my_collection_list(
         error);
 }
 
+void BilibiliClient::get_collection_list_all(
+    int rid, int type, std::string mid,
+    const std::function<void(SimpleCollectionListResultWrapper)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<SimpleCollectionListResultWrapper>(
+        Api::CollectionListAll,
+        {
+            {"rid", std::to_string(rid)},
+            {"type", std::to_string(type)},
+            {"up_mid", mid},
+        },
+        [callback](SimpleCollectionListResultWrapper result) {
+            for (int i = 0; i < result.list.size(); ++i)
+                result.list[i].index = i;
+            std::sort(result.list.begin(), result.list.end());
+            callback(result);
+        },
+        error);
+}
+
 /// get collection video list
 void BilibiliClient::get_collection_video_list(
-    int media_id, const int index, const int num,
+    int64_t media_id, const int index, const int num,
     const std::function<void(CollectionVideoListResultWrapper)>& callback,
     const ErrorCallback& error) {
     HTTP::getResultAsync<CollectionVideoListResultWrapper>(

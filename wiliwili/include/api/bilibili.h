@@ -12,7 +12,6 @@
 #include "bilibili/result/home_hots_rank.h"
 #include "bilibili/result/mine_result.h"
 #include "bilibili/result/mine_history_result.h"
-#include "bilibili/result/mine_collection_result.h"
 #include "bilibili/result/home_pgc_season_result.h"
 
 namespace bilibili {
@@ -40,8 +39,14 @@ class VideoDetailAllResult;  // 更详细的视频详情，包括 分P、合集�
 class UserRelationStat;  // 用户关注/粉丝/黑名单 数量
 class UserDynamicCount;  // 用户动态的数量
 class UnixTimeResult;
+class CollectionListResultWrapper;       // 用户收藏列表
+class CollectionVideoListResultWrapper;  // 收藏夹 视频列表
+class SimpleCollectionListResultWrapper;  // 单个视频在所有收藏夹中的收藏情况
 
 using Cookies = std::map<std::string, std::string>;
+
+#define BILI bilibili::BilibiliClient
+#define BILI_ERR const std::string& error
 
 class BilibiliClient {
     inline static std::function<void(Cookies)> writeCookiesCallback = nullptr;
@@ -100,7 +105,7 @@ public:
 
     /// get collection video list
     static void get_collection_video_list(
-        int media_id, const int index = 1, const int num = 20,
+        int64_t media_id, const int index = 1, const int num = 20,
         const std::function<void(CollectionVideoListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
@@ -281,7 +286,7 @@ public:
         const std::function<void(VideoOnlineTotal)>& callback = nullptr,
         const ErrorCallback& error                            = nullptr);
 
-    /// 视频页 获取点赞/收藏/投屏情况
+    /// 视频页 获取点赞/收藏/投币情况
     static void get_video_relation(
         const std::string& bvid,
         const std::function<void(VideoRelation)>& callback = nullptr,
@@ -320,10 +325,44 @@ public:
                          const std::function<void()>& callback = nullptr,
                          const ErrorCallback& error            = nullptr);
 
-    /// 收藏
-    static void add_resource(const std::string& access_key, int aid,
+    /// 投币经验值
+    static void get_coin_exp(const std::function<void(int)>& callback = nullptr,
+                             const ErrorCallback& error = nullptr);
+
+    /**
+     * 收藏视频
+     * @param access_key
+     * @param rid 普通视频: aid, 番剧: epid
+     * @param type 普通视频:2, 番剧: 24; 暂且没找到在哪里可以获取到这个信息，所以hardcode吧
+     * @param add_ids eg: 1231243
+     * @param del_ids eg: 123123,123213,12321231
+     * @param callback 若成功 进行回调
+     * @param error 若失败返回失败原因
+     */
+    static void add_resource(const std::string& access_key, int rid, int type,
+                             const std::string& add_ids,
+                             const std::string& del_ids,
                              const std::function<void()>& callback = nullptr,
                              const ErrorCallback& error            = nullptr);
+
+    /**
+     * 获取对应视频
+     * @param rid
+     * @param type 普通视频:2, 番剧: 24
+     * @param mid
+     * @param callback
+     * @param error
+     */
+    static void get_collection_list_all(
+        int rid, int type, std::string mid,
+        const std::function<void(SimpleCollectionListResultWrapper)>& callback =
+            nullptr,
+        const ErrorCallback& error = nullptr);
+
+    /// 三连
+    static void triple_like(const std::string& access_key, int aid,
+                            const std::function<void()>& callback = nullptr,
+                            const ErrorCallback& error            = nullptr);
 
     /// 搜索页 获取搜索视频内容
     static void search_video(

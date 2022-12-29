@@ -36,6 +36,15 @@ public:
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailStat, aid, view, danmaku,
                                    favorite, coin, share, like, reply);
 
+class VideoDetailRights {
+public:
+    int download;
+    int no_reprint;
+    int is_cooperation;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailRights, download, no_reprint,
+                                   is_cooperation);
+
 class VideoDetailResult {
 public:
     std::string bvid;
@@ -43,13 +52,14 @@ public:
     int videos;         // 视频数量
     int tid;            //分类ID
     int tname;          //分类名称
-    int copyright;      //版权声明
+    int copyright;      //版权声明, 1: 有版权 2: 无版权
     std::string pic;    //封面图
     std::string title;  //标题
     std::string desc;   //简介
     int pubdate;        //发布时间
     int ctime;          //修改时间？
     int duration = 0;   //时长
+    VideoDetailRights rights;
     UserSimpleResult owner;
     VideoDetailPageListResult pages;
     VideoDetailStat stat;
@@ -67,7 +77,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, bvid, aid,
                                              owner, title, pic, desc, pubdate,
-                                             stat, copyright));
+                                             stat, rights, copyright));
 }
 inline void to_json(nlohmann::json& nlohmann_json_j,
                     const VideoDetailResult& nlohmann_json_t) {
@@ -243,10 +253,18 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
 class VideoRelation {
 public:
     bool attention, favorite, season_fav, like, dislike;
-    int coin;
+    int coin = 0;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoRelation, attention, favorite,
                                    season_fav, like, dislike, coin);
+
+/// 三连返回的数据
+class VideoTriple {
+public:
+    bool like, coin, fav;
+    int multiply;  // 此次三连投了几个币
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoTriple, like, coin, fav, multiply);
 
 class VideoOnlineTotal {
 public:
