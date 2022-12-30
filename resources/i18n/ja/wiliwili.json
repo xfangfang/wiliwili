@@ -15,7 +15,7 @@
         "hwdec": "ハードウェアデコード",
         "auto_play_next_part": "次のパートを自動再生",
         "auto_play_recommend": "おすすめ動画の自動再生",
-        "video_format": "Video format"
+        "video_format": "動画の形式"
       },
       "image": {
         "header": "画像",
@@ -24,7 +24,7 @@
       },
       "others": {
         "header": "その他",
-        "vibration": "Gamepad vibration",
+        "vibration": "ゲームパッドの振動",
         "hide_bottom": "下のヒントバーを隠す",
         "fullscreen": "フルスクリーン",
         "theme": {
@@ -33,7 +33,7 @@
           "2": "ライト",
           "3": "ダーク"
         },
-        "opencc": "Automatically convert Simplified Chinese (restart required)"
+        "opencc": "簡体字中国語を自動的に変換（再起動が必要です）"
       }
     },
     "tools": {
@@ -47,9 +47,9 @@
         "hot_key": "ホットキー"
       },
       "test": {
-        "header": "Diagnostics",
-        "net": "Network Diagnostics",
-        "vibration": "Vibration Test"
+        "header": "診断情報",
+        "net": "ネットワークの診断",
+        "vibration": "振動テスト"
       },
       "others": {
         "header": "その他",
@@ -118,8 +118,8 @@
       "last": "ラスト",
       "next": "次",
       "filter": "フィルター",
-      "save": "Save",
-      "no_login": "You are not logged in yet"
+      "save": "保存",
+      "no_login": "まだログインしていません"
     },
     "live": {
       "tab": "ライブ",
@@ -180,7 +180,7 @@
     "private": "プライベート",
     "num": " コンテンツ",
     "pub": "で作成 ",
-    "creator": "Creator",
+    "creator": "作成者",
     "done": "終了しました",
     "article": "ブラウザで開く：",
     "refresh_history": "履歴をリフレッシュ"
@@ -194,22 +194,22 @@
     "comment": "コメント",
     "current": " みんなが見ている",
     "share": "シェア",
-    "rights": "Reprint prohibited",
+    "rights": "再配布禁止",
     "fs": "フルスクリーン",
     "quality": "品質",
-    "not_follow": "Cancel following?",
+    "not_follow": "フォローをキャンセルしますか？",
     "coin": {
-      "title": "Coin",
-      "hint": "Choose your coin num",
-      "like": "Like at the same time ",
-      "own": "You can't give yourself a coin",
-      "run_out": "The number of coins for this video has been used up",
-      "exp": "Experience + {}（Today {}/50）",
-      "exp_full": "The experience gained today is full (50/50)  ！",
-      "pcs": "{} pcs"
+      "title": "コイン",
+      "hint": "コインの数値を選択してください",
+      "like": "同じ時間の",
+      "own": "あなた自身にコインを与えることはできません",
+      "run_out": "このビデオのコインの枚数が使用されています",
+      "exp": "経験 + {}(今日 {}/50)",
+      "exp_full": "今日得られた経験はいっぱいです(50/50)  ！",
+      "pcs": "{} 個"
     },
     "collection": {
-      "title": "Select Favorites"
+      "title": "お気に入りを選択"
     }
   }
 }

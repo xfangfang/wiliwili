@@ -15,7 +15,7 @@
         "hwdec": "ハードウェアデコード",
         "auto_play_next_part": "次ぬパート自動再生",
         "auto_play_recommend": "うすすみ動画ぬ自動再生",
-        "video_format": "Video format"
+        "video_format": "動画ぬ形式"
       },
       "image": {
         "header": "画像",
@@ -24,7 +24,7 @@
       },
       "others": {
         "header": "すぬ他",
-        "vibration": "Gamepad vibration",
+        "vibration": "ゲームパッドぬ振動",
         "hide_bottom": "しちゃぬヒントバーくゎっくゎすん",
         "fullscreen": "フルスクリーン",
         "theme": {
@@ -33,7 +33,7 @@
           "2": "ライト",
           "3": "ダーク"
         },
-        "opencc": "Automatically convert Simplified Chinese (restart required)"
+        "opencc": "簡体字中国語自動的に変換（再起動ぬいりゆーやいびーん）"
       }
     },
     "tools": {
@@ -47,9 +47,9 @@
         "hot_key": "ホットキー"
       },
       "test": {
-        "header": "Diagnostics",
-        "net": "Network Diagnostics",
-        "vibration": "Vibration Test"
+        "header": "診断情報",
+        "net": "ネットワークぬ診断",
+        "vibration": "振動テスト"
       },
       "others": {
         "header": "すぬ他",
@@ -118,8 +118,8 @@
       "last": "ラスト",
       "next": "次",
       "filter": "フィルター",
-      "save": "Save",
-      "no_login": "You are not logged in yet"
+      "save": "保存",
+      "no_login": "なーらログインさびらん"
     },
     "live": {
       "tab": "ライブ",
@@ -180,7 +180,7 @@
     "private": "プライベート",
     "num": " コンテンツ",
     "pub": "でぃ作成 ",
-    "creator": "Creator",
+    "creator": "作成者",
     "done": "終了さびたん",
     "article": "ブラウザっしふぃらちゅん：",
     "refresh_history": "履歴リフレッシュ"
@@ -194,22 +194,22 @@
     "comment": "コメント",
     "current": " むるがんーちょーん",
     "share": "シェア",
-    "rights": "Reprint prohibited",
+    "rights": "再配布禁止",
     "fs": "フルスクリーン",
     "quality": "品質",
-    "not_follow": "Cancel following?",
+    "not_follow": "フォローキャンセルさびーが？",
     "coin": {
-      "title": "Coin",
-      "hint": "Choose your coin num",
-      "like": "Like at the same time ",
-      "own": "You can't give yourself a coin",
-      "run_out": "The number of coins for this video has been used up",
-      "exp": "Experience + {}（Today {}/50）",
-      "exp_full": "The experience gained today is full (50/50)  ！",
-      "pcs": "{} pcs"
+      "title": "コイン",
+      "hint": "コインぬ数値選択しみそーれー",
+      "like": "いぬ時間ぬ",
+      "own": "うんじゅ自身んかいコインとぅらすしぇーなやびらん",
+      "run_out": "くぬビデオぬコインぬ枚数ぬ使用さりとーいびーん",
+      "exp": "経験 + {}(ちゅー {}/50)",
+      "exp_full": "ちゅー得らったる経験ーみっちゃかーんやいびーん(50/50)  ！",
+      "pcs": "{} 個"
     },
     "collection": {
-      "title": "Select Favorites"
+      "title": "う気に入り選択"
     }
   }
 }
