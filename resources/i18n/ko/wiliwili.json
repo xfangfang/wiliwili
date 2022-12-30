@@ -15,7 +15,7 @@
         "hwdec": "하드웨어 디코드",
         "auto_play_next_part": "자동으로 다음 동영상 재생",
         "auto_play_recommend": "추천 동영상 자동 재생",
-        "video_format": "Video format"
+        "video_format": "비디오 형식"
       },
       "image": {
         "header": "이미지",
@@ -24,7 +24,7 @@
       },
       "others": {
         "header": "기타",
-        "vibration": "Gamepad vibration",
+        "vibration": "게임패드 진동",
         "hide_bottom": "아래 힌트 바 숨기기",
         "fullscreen": "전체화면",
         "theme": {
@@ -33,7 +33,7 @@
           "2": "밝음",
           "3": "어두움"
         },
-        "opencc": "Automatically convert Simplified Chinese (restart required)"
+        "opencc": "중국어 간체 자동 변환 (재시작 필요)"
       }
     },
     "tools": {
@@ -47,9 +47,9 @@
         "hot_key": "단축키"
       },
       "test": {
-        "header": "Diagnostics",
-        "net": "Network Diagnostics",
-        "vibration": "Vibration Test"
+        "header": "진단",
+        "net": "네트워크 진단",
+        "vibration": "진동 테스트"
       },
       "others": {
         "header": "기타",
@@ -118,8 +118,8 @@
       "last": "마지막",
       "next": "다음",
       "filter": "필터",
-      "save": "Save",
-      "no_login": "You are not logged in yet"
+      "save": "저장",
+      "no_login": "아직 로그인하지 않았습니다."
     },
     "live": {
       "tab": "라이브",
@@ -180,7 +180,7 @@
     "private": "사적",
     "num": " 내용",
     "pub": "생성 ",
-    "creator": "Creator",
+    "creator": "제작자",
     "done": "완료",
     "article": "탐색기로 열기:",
     "refresh_history": "이력 새로 고침"
@@ -194,22 +194,22 @@
     "comment": "덧글",
     "current": " 사람들이 보고 있습니다",
     "share": "공유",
-    "rights": "Reprint prohibited",
+    "rights": "복제 불허",
     "fs": "전체화면",
     "quality": "품질",
-    "not_follow": "Cancel following?",
+    "not_follow": "팔로우를 취소하겠습니까?",
     "coin": {
-      "title": "Coin",
-      "hint": "Choose your coin num",
-      "like": "Like at the same time ",
-      "own": "You can't give yourself a coin",
-      "run_out": "The number of coins for this video has been used up",
-      "exp": "Experience + {}（Today {}/50）",
-      "exp_full": "The experience gained today is full (50/50)  ！",
-      "pcs": "{} pcs"
+      "title": "코인",
+      "hint": "코인 번호를 선택하세요.",
+      "like": "동시에 좋아요 ",
+      "own": "본인에게 코인을 줄 수 없습니다.",
+      "run_out": "이 영상의 코인 개수가 소진되었습니다.",
+      "exp": "경험치 + {} ( 오늘 {}/50 )",
+      "exp_full": "오늘 획득한 경험치가 최고점에 도달했습니다 (50/50)  !",
+      "pcs": "{} 개"
     },
     "collection": {
-      "title": "Select Favorites"
+      "title": "즐겨찾기 선택"
     }
   }
 }
