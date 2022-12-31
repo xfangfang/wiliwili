@@ -556,7 +556,7 @@ void PlayerActivity::onContentAvailable() {
     this->videoUserInfo->registerClickAction([this](...) {
         if (this->userDetailResult.following) {
             auto dialog = new brls::Dialog("wiliwili/player/not_follow"_i18n);
-            dialog->addButton("hints/cancel"_i18n, [this]() {});
+            dialog->addButton("hints/cancel"_i18n, []() {});
             dialog->addButton("hints/ok"_i18n, [this]() {
                 this->followUp(this->userDetailResult.card.mid,
                                !this->userDetailResult.following);
@@ -726,6 +726,14 @@ void PlayerActivity::onRelatedVideoList(
         grid->setDataSource(
             new DataSourceRelatedVideoList(result, changeVideoEvent));
         return container;
+    });
+}
+
+void PlayerActivity::onRedirectToEp(const std::string& epid) {
+    brls::Logger::debug("redirect to ep: {}", epid);
+    brls::Application::popActivity(brls::TransitionAnimation::NONE, [epid]() {
+        brls::Application::pushActivity(
+            new PlayerSeasonActivity(std::stoi(epid), PGC_ID_TYPE::EP_ID));
     });
 }
 

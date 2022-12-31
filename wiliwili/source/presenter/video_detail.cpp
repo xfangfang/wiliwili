@@ -74,8 +74,6 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID) {
 void VideoDetail::requestVideoInfo(const std::string bvid) {
     // 重置MPV
     MPVCore::instance().reset();
-    // 请求视频点赞情况
-    this->requestVideoRelationInfo(bvid);
 
     ASYNC_RETAIN
     brls::Logger::debug("请求视频信息: {}", bvid);
@@ -88,6 +86,20 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                 this->videoDetailResult = result.View;
                 this->userDetailResult  = result.Card;
                 this->videDetailRelated = result.Related;
+
+                if (!this->videoDetailResult.redirect_url.empty()) {
+                    // eg: https://www.bilibili.com/bangumi/play/ep568278
+                    auto items = pystring::split(
+                        this->videoDetailResult.redirect_url, "/");
+                    std::string epid = items[items.size() - 1];
+                    if (pystring::startswith(epid, "ep")) {
+                        this->onRedirectToEp(pystring::slice(epid, 2));
+                        return;
+                    } else {
+                        brls::Logger::error("unknown redirect url: {}",
+                                            videoDetailResult.redirect_url);
+                    }
+                }
 
                 // 如果请求前就设定了指定分P，那么尝试打开指定的分P，两种情况会预设cid
                 // 1. 从历史记录打开视频
@@ -154,6 +166,9 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
             brls::Logger::error("ERROR:请求视频信息 {}", error);
             this->onError(error);
         });
+
+    // 请求视频点赞情况
+    this->requestVideoRelationInfo(bvid);
 }
 
 /// 获取视频地址

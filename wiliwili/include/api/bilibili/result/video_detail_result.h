@@ -59,6 +59,7 @@ public:
     int pubdate;        //发布时间
     int ctime;          //修改时间？
     int duration = 0;   //时长
+    std::string redirect_url;
     VideoDetailRights rights;
     UserSimpleResult owner;
     VideoDetailPageListResult pages;
@@ -74,6 +75,12 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     }
     if (nlohmann_json_j.contains("duration")) {
         nlohmann_json_j.at("duration").get_to(nlohmann_json_t.duration);
+    }
+    if (nlohmann_json_j.contains("redirect_url") &&
+        nlohmann_json_j.at("redirect_url").is_string()) {
+        nlohmann_json_j.at("redirect_url").get_to(nlohmann_json_t.redirect_url);
+    } else {
+        nlohmann_json_t.redirect_url = "";
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, bvid, aid,
                                              owner, title, pic, desc, pubdate,

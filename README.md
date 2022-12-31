@@ -269,6 +269,7 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 
 # Special thanks
 
-Thanks to JetBrains for providing [Open Source development licenses](https://jb.gg/OpenSourceSupport).
+- Thanks to Crowdin for supporting [open-source projects](https://crowdin.com/page/open-source-project-setup-request).
+- Thanks to JetBrains for providing [Open Source development licenses](https://jb.gg/OpenSourceSupport).
 
-<img style="width: 70px;" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains Logo (Main) logo.">
+    <img style="width: 70px;" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains Logo (Main) logo.">

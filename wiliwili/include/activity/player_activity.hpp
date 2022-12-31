@@ -118,6 +118,7 @@ public:
         const bilibili::UserUploadedVideoResultWrapper& result) override;
     void onRelatedVideoList(
         const bilibili::VideoDetailListResult& result) override;
+    void onRedirectToEp(const std::string& url) override;
 
     void onContentAvailable() override;
 
