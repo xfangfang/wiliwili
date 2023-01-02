@@ -16,6 +16,8 @@ enum class PGC_ID_TYPE {
 
 class VideoDetail : public Presenter {
 public:
+    VideoDetail();
+
     virtual void onVideoInfo(const bilibili::VideoDetailResult& result) {}
     virtual void onSeasonVideoInfo(
         const bilibili::SeasonResultWrapper& result) {}
@@ -117,8 +119,14 @@ protected:
     bilibili::SeasonEpisodeResult episodeResult;  // 番剧/综艺/影视 单集数据
     bilibili::VideoRelation videoRelation;  // 视频点赞投币收藏情况
 
+    // 番剧/综艺/影视 剧集列表（包括非正片）
+    bilibili::SeasonEpisodeListResult episodeList;
+
     static inline int defaultQuality = 116;
 
     int commentRequestIndex                    = 1;
     unsigned int userUploadedVideoRequestIndex = 1;
+
+    // 触发此事件，传入 SeasonEpisodeResult， 会播放对应epid的内容
+    brls::Event<bilibili::SeasonEpisodeResult> changeEpisodeEvent;
 };

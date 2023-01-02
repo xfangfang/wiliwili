@@ -40,7 +40,7 @@ public:
                              size_t defaultIndex = 0)
         : data(result), currentIndex(defaultIndex) {
         for (auto& i : data) {
-            brls::Logger::error("{} {} {}", i.title, i.id, i.fav_state);
+            brls::Logger::debug("{} {} {}", i.title, i.id, i.fav_state);
         }
         for (size_t i = 0; i < data.size(); i++)
             selectionData.emplace_back(data[i].fav_state);

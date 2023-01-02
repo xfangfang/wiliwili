@@ -113,6 +113,8 @@ public:
     ///（注意，因为是循环使用列表项的，所以此指针只能在获取时刻在主线程内使用）
     RecyclingGridItem* getGridItemByIndex(size_t index);
 
+    std::vector<RecyclingGridItem*>& getGridItems();
+
     void clearData();
 
     void setEmpty(std::string msg = "");

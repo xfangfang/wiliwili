@@ -10,7 +10,6 @@
 #pragma once
 
 #include <borealis.hpp>
-#include "activity/player_activity.hpp"
 #include "presenter/user_home.hpp"
 #include "view/auto_tab_frame.hpp"
 

@@ -340,6 +340,10 @@ RecyclingGridItem* RecyclingGrid::getGridItemByIndex(size_t index) {
     return nullptr;
 }
 
+std::vector<RecyclingGridItem*>& RecyclingGrid::getGridItems() {
+    return (std::vector<RecyclingGridItem*>&)contentBox->getChildren();
+}
+
 void RecyclingGrid::clearData() {
     if (dataSource) {
         dataSource->clearData();

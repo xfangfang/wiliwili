@@ -1,0 +1,34 @@
+<brls:Box
+        width="auto"
+        height="@style/brls/sidebar/item_height"
+        focusable="true"
+        paddingTop="12.5"
+        paddingBottom="12.5"
+        cornerRadius="4"
+        lineColor="@theme/brls/sidebar/separator"
+        alignItems="center">
+
+    <brls:Label
+            id="player/tab/cell/title"
+            width="auto"
+            height="auto"
+            grow="1"
+            fontSize="20"
+            marginLeft="@style/brls/listitem/descriptionIndent"
+            marginRight="@style/brls/listitem/descriptionIndent"/>
+
+    <brls:Box
+            id="player/tab/cell/badgeBox"
+            cornerRadius="4"
+            padding="4"
+            marginRight="@style/brls/listitem/descriptionIndent">
+        <brls:Label
+                id="player/tab/cell/badge"
+                width="auto"
+                textColor="#FFFFFF"
+                height="16"
+                horizontalAlign="center"
+                fontSize="16"/>
+    </brls:Box>
+
+</brls:Box>

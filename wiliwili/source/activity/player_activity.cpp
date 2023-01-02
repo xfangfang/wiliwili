@@ -16,6 +16,8 @@
 #include "utils/dialog_helper.hpp"
 #include "fragment/player_coin.hpp"
 #include "fragment/player_collection.hpp"
+#include "fragment/player_fragments.hpp"
+#include "bilibili/result/home_pgc_season_result.h"
 
 using namespace brls::literals;
 
@@ -817,12 +819,16 @@ void PlayerSeasonActivity::reportCurrentProgress(size_t progress,
 }
 
 void PlayerSeasonActivity::onIndexChange(size_t index) {
-    if (index >= seasonInfo.episodes.size()) {
+    if (index >= episodeList.size()) {
         brls::Logger::error("unaccepted index: {}, accepted range 0 - {}",
-                            index, seasonInfo.episodes.size() - 1);
+                            index, episodeList.size() - 1);
         return;
     }
-    this->changeEpisode(seasonInfo.episodes[index]);
+    // 如果遇到id为0，说明是标题，那么就停止播放
+    // 也就是说目前的设定是自动连播不会跨越section播放
+    if (episodeList[index].id == 0) return;
+    this->changeEpisode(episodeList[index]);
+    this->changeEpisodeIDEvent.fire(index);
 }
 
 void PlayerSeasonActivity::onIndexChangeToNext() {
@@ -848,12 +854,21 @@ void PlayerSeasonActivity::onContentAvailable() {
             this->requestVideoComment(this->episodeResult.aid);
     });
 
-    //切换分集
-    changeEpisodeEvent.subscribe([this](int i) { this->onIndexChange(i); });
-
     // 二维码按钮
     this->btnQR->getParent()->registerClickAction([this](...) {
         this->showShareDialog(this->episodeResult.link);
+        return true;
+    });
+
+    this->btnAgree->getParent()->registerClickAction([this](...) {
+        if (!checkLogin()) return true;
+        this->beAgree(episodeResult.aid);
+        return true;
+    });
+
+    // 收藏按钮
+    this->btnFavorite->getParent()->registerClickAction([this](...) {
+        this->showCollectionDialog(episodeResult.id, (int)VideoType::Episode);
         return true;
     });
 
@@ -862,11 +877,7 @@ void PlayerSeasonActivity::onContentAvailable() {
 
 void PlayerSeasonActivity::onSeasonEpisodeInfo(
     const bilibili::SeasonEpisodeResult& result) {
-    auto title = result.long_title;
-    if (title.empty()) {
-        title = result.title;
-    }
-    this->video->setTitle(this->seasonInfo.season_title + " - " + title);
+    this->video->setTitle(this->seasonInfo.season_title + " - " + result.title);
     this->videoBVIDLabel->setText(result.bvid);
 }
 
@@ -886,9 +897,6 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
     this->videoUserInfo->setUserInfo(avatar, result.up_info.uname, desc);
     this->boxFavorites->setVisibility(brls::Visibility::VISIBLE);
 
-    // videoView osd
-    this->video->setTitle(result.season_title);
-
     // video title
     this->videoTitleLabel->setText(result.season_title);
 
@@ -904,32 +912,86 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
     this->labelFavorite->setText(wiliwili::num2w(result.stat.favorite));
     this->labelQR->setText("wiliwili/player/share"_i18n);
 
+    // 设置分集信息
     AutoSidebarItem* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
     item->setLabel("wiliwili/player/p"_i18n);
     this->tabFrame->addTab(item, [this, result, item]() {
-        auto container = new AttachedView();
-        container->setMarginTop(12);
-        auto grid = new RecyclingGrid();
-        grid->setPadding(0, 40, 0, 20);
-        grid->setGrow(1);
-        grid->applyXMLAttribute("spanCount", "1");
-        grid->applyXMLAttribute("itemSpace", "0");
-        grid->applyXMLAttribute("itemHeight", "50");
-        grid->registerCell("Cell", []() { return GridRadioCell::create(); });
+        // 设置分集页面
+        auto container =
+            new BasePlayerTabFragment<bilibili::SeasonEpisodeResult>(
+                // 列表数据
+                episodeList,
+                // 分集标题设置回调
+                [](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
+                    if (!d.id) {
+                        // 显示项为标题
+                        PlayerTabHeader* item =
+                            (PlayerTabHeader*)recycler->dequeueReusableCell(
+                                "Header");
+                        item->title->setText(d.title);
+                        return item;
+                    }
 
-        std::vector<std::string> items;
-        for (unsigned int i = 0; i < result.episodes.size(); ++i) {
-            auto title = result.episodes[i].long_title;
-            if (title.empty()) {
-                title = result.episodes[i].title;
-            }
-            items.push_back(fmt::format("PV{} {}", i + 1, title));
-        }
-        container->addView(grid);
-        grid->setDataSource(new DataSourceList(items, changeEpisodeEvent));
-        item->setSubtitle(wiliwili::num2w(result.episodes.size()));
+                    // 显示分集项
+                    PlayerTabCell* item =
+                        (PlayerTabCell*)recycler->dequeueReusableCell("Cell");
+                    item->title->setText(d.title);
+                    item->setSelected(ds->getCurrentIndex() == d.index);
+                    item->setBadge(d.badge_info.text, d.badge_info.bg_color);
+                    return item;
+                },
+                // container的构造函数
+                [this](auto recycler, auto ds) {
+                    changeEpisodeIDEvent.subscribe(
+                        [ds, recycler](size_t index) {
+                            ds->setCurrentIndex(index);
+
+                            // 更新ui
+                            PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                                recycler->getGridItemByIndex(index));
+                            if (!item) return;
+                            std::vector<RecyclingGridItem*>& items =
+                                recycler->getGridItems();
+                            for (auto& i : items) {
+                                PlayerTabCell* cell =
+                                    dynamic_cast<PlayerTabCell*>(i);
+                                if (cell) cell->setSelected(false);
+                            }
+                            item->setSelected(true);
+                            recycler->selectRowAt(index, false);
+                        });
+                },
+                // 默认的选中索引
+                episodeResult.index);
+
+        // 分集点击回调
+        container->getSelectEvent()->subscribe(
+            [this](auto recycler, auto ds, size_t index, const auto& r) {
+                if (r.id == 0 || r.cid == 0 || r.aid == 0) return;
+                // 触发播放对应的剧集
+                changeEpisodeEvent.fire(r);
+
+                // 更新ui
+                PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                    recycler->getGridItemByIndex(index));
+                if (!item) return;
+                std::vector<RecyclingGridItem*>& items =
+                    recycler->getGridItems();
+                for (auto& i : items) {
+                    PlayerTabCell* cell = dynamic_cast<PlayerTabCell*>(i);
+                    if (cell) cell->setSelected(false);
+                }
+                item->setSelected(true);
+                ds->setCurrentIndex(index);
+            });
+
+        // 设置标题上方的数字
+        size_t whole = result.episodes.size();
+        for (auto& s : result.section) whole += s.episodes.size();
+        item->setSubtitle(wiliwili::num2w(whole));
+
         return container;
     });
 }

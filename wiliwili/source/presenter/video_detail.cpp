@@ -9,6 +9,10 @@
 #include "view/mpv_core.hpp"
 #include "bilibili/result/mine_collection_result.h"
 
+VideoDetail::VideoDetail() {
+    changeEpisodeEvent.subscribe([this](auto t) { changeEpisode(t); });
+}
+
 /// 请求视频数据
 void VideoDetail::requestData(const bilibili::VideoDetailResult& video) {
     this->requestVideoInfo(video.bvid);
@@ -35,33 +39,75 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID) {
                 ASYNC_RELEASE
                 brls::Logger::debug("BILI::get_season_detail");
                 seasonInfo = result;
-                this->onSeasonVideoInfo(result);
 
-                // Try load episode: epID
-                // todo: 番剧中除了正片之外的视频也可能被调用
+                // 合并数据，将所有分集合并成一个列表
+                // 1. 若存在额外分区, 切正片不为空则在正片分集前添加分区标题 "正片"
+                // 2. 将分区标题设置为仅有 title，id为0的分集项，显示时根据id来正确显示样式
+                // 3. 修改标题
+                episodeList.clear();
+                episodeList = seasonInfo.episodes;
+
+                for (auto& e : episodeList) {
+                    size_t index = e.index + 1;
+                    switch (result.show_season_type) {
+                        case 1:  // 日漫 ？
+                        case 4:  // 国漫 ？
+                            e.title =
+                                fmt::format("第{}话 {}", index, e.long_title);
+                            break;
+                        case 3:  // 纪录片
+                        case 5:  // 电视剧
+                            e.title =
+                                fmt::format("第{}集 {}", index, e.long_title);
+                            break;
+                        case 2:  // 电影
+                        case 7:  // 综艺
+                        default:
+                            break;
+                    }
+                }
+                if (!result.section.empty() && episodeList.size() > 0)
+                    episodeList.insert(episodeList.begin(),
+                                       bilibili::SeasonEpisodeResult{"正片"});
+
+                for (auto& s : seasonInfo.section) {
+                    episodeList.emplace_back(
+                        bilibili::SeasonEpisodeResult{s.title});
+                    for (auto& e : s.episodes) {
+                        e.title = e.title + " " + e.long_title;
+                        pystring::strip(e.title);
+                    }
+                    episodeList.insert(episodeList.end(), s.episodes.begin(),
+                                       s.episodes.end());
+                }
+
+                for (size_t i = 0; i < episodeList.size(); i++)
+                    episodeList[i].index = i;
+
+                // 加载指定epid的视频
                 if (epID != 0) {
-                    for (auto i : result.episodes) {
+                    for (auto& i : episodeList) {
                         if (i.id == (unsigned int)epID) {
-                            brls::Logger::debug("P{} {} epid: {}", i.title,
-                                                i.long_title, i.id);
-                            int progress  = episodeResult.progress;
-                            episodeResult = i;
-                            // 用于从历史记录加载数据
-                            episodeResult.progress = progress;
-                            this->changeEpisode(episodeResult);
+                            brls::Logger::debug(
+                                "Load episode {} from "
+                                "epid: {}",
+                                i.long_title, i.id);
+                            i.progress = episodeResult.progress;
+                            this->changeEpisode(i);
+                            this->onSeasonVideoInfo(result);
                             return;
                         }
                     }
                 }
-
-                // Default: load first episode
-                // todo: load from history
-                for (auto i : result.episodes) {
-                    brls::Logger::debug("P{} {} epid: {}", i.title,
+                // 若未指定epid，则按照列表顺序加载
+                for (auto& i : episodeList) {
+                    if (i.id == 0 || i.cid == 0 || i.aid == 0) continue;
+                    brls::Logger::debug("Load episode {} epid: {}",
                                         i.long_title, i.id);
                     this->changeEpisode(i);
-                    break;
+                    break ;
                 }
+                this->onSeasonVideoInfo(result);
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
@@ -239,6 +285,7 @@ int VideoDetail::getQualityIndex() {
 
 /// 切换番剧分集
 void VideoDetail::changeEpisode(const bilibili::SeasonEpisodeResult& i) {
+    if (i.id == 0 || i.cid == 0 || i.aid == 0) return;
     episodeResult = i;
 
     //上报历史记录

@@ -17,6 +17,7 @@
                 height="100%"
                 marginLeft="20"
                 marginRight="20"
+                singleLine="true"
                 textColor="#FFFFFF"/>
         <brls:Box
                 wireframe="false"

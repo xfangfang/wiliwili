@@ -161,7 +161,10 @@ public:
 private:
     unsigned int pgc_id;
     PGC_ID_TYPE pgcIdType;
-    ChangeIndexEvent changeEpisodeEvent;
+
+    // 在软件自动切换分集时，传递当前跳转的索引值给列表用于更新ui
+    brls::Event<size_t> changeEpisodeIDEvent;
+
     BRLS_BIND(brls::Box, boxFavorites, "video/favorites/box");
     BRLS_BIND(brls::Label, videoFavoritesLabel, "video/favorites");
 };
