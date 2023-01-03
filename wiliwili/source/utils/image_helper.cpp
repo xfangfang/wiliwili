@@ -18,7 +18,7 @@ public:
         this->Start();
     }
 
-    ~ImageThreadPool() { this->Stop(); }
+    ~ImageThreadPool() override { this->Stop(); }
 };
 
 ImageHelper::ImageHelper(brls::Image* view) : imageView(view) {}
@@ -174,7 +174,8 @@ void ImageHelper::cancel() {
 }
 
 void ImageHelper::setRequestThreads(size_t num) {
-    ImageThreadPool::instance().min_thread_num = num;
+    REQUEST_THREADS                            = num;
+    ImageThreadPool::instance().min_thread_num = 1;
     ImageThreadPool::instance().max_thread_num = num;
 }
 

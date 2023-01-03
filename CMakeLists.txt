@@ -177,6 +177,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         -D__VERSION_REVISION__=${VERSION_REVISION}
         -ffunction-sections
         -fdata-sections
+        -Wunused-variable
         ${PLATFORM_OPTION}
         )
 target_link_libraries(${PROJECT_NAME} PRIVATE

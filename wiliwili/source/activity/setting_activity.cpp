@@ -280,7 +280,7 @@ void SettingActivity::onContentAvailable() {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::IMAGE_REQUEST_THREADS,
                 threadOption.rawOptionList[data]);
-            ImageHelper::REQUEST_THREADS = threadOption.rawOptionList[data];
+            ImageHelper::setRequestThreads(threadOption.rawOptionList[data]);
         });
 
     // todo: 从config_helper中实现一个可通用的选项选择方式

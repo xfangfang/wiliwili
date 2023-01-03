@@ -23,6 +23,7 @@ add_subdirectory(lunasvg EXCLUDE_FROM_ALL)
 
 # add libopencc
 add_subdirectory(OpenCC EXCLUDE_FROM_ALL)
+target_compile_options(libopencc PRIVATE -w)
 
 # add QR-Code-generator
 add_library(qrcode STATIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp/QrCode.cpp)
