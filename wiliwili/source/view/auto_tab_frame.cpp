@@ -182,11 +182,14 @@ void AutoTabFrame::focusTab(int position) {
 }
 
 void AutoTabFrame::focus2NextTab() {
+    size_t sideBarNum = this->sidebar->getChildren().size();
+    if (sideBarNum == 0) return;
+
     int currentIndex = this->group.getActiveIndex();
     if (currentIndex < 0) {
         // not found
-        if (this->sidebar->getChildren().size() > 0) this->focusTab(0);
-    } else if (currentIndex + 1 >= (int)this->sidebar->getChildren().size()) {
+        this->focusTab(0);
+    } else if (sideBarNum == 1) {
         // shake highlight
         if (this->isHorizontal)
             brls::Application::getCurrentFocus()->shakeHighlight(
@@ -194,17 +197,23 @@ void AutoTabFrame::focus2NextTab() {
         else
             brls::Application::getCurrentFocus()->shakeHighlight(
                 brls::FocusDirection::DOWN);
+    } else if (currentIndex + 1 >= (int)sideBarNum) {
+        // loop
+        this->focusTab(0);
     } else {
         this->focusTab(currentIndex + 1);
     }
 }
 
 void AutoTabFrame::focus2LastTab() {
+    size_t sideBarNum = this->sidebar->getChildren().size();
+    if (sideBarNum == 0) return;
+
     int currentIndex = this->group.getActiveIndex();
     if (currentIndex < 0) {
         // not found
-        if (this->sidebar->getChildren().size() > 0) this->focusTab(0);
-    } else if (currentIndex <= 0) {
+        this->focusTab(0);
+    } else if (sideBarNum == 1) {
         // shake highlight
         if (this->isHorizontal)
             brls::Application::getCurrentFocus()->shakeHighlight(
@@ -212,6 +221,9 @@ void AutoTabFrame::focus2LastTab() {
         else
             brls::Application::getCurrentFocus()->shakeHighlight(
                 brls::FocusDirection::UP);
+    } else if (currentIndex == 0) {
+        // loop
+        this->focusTab(sideBarNum - 1);
     } else {
         this->focusTab(currentIndex - 1);
     }
