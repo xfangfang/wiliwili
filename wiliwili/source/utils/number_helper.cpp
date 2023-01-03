@@ -52,6 +52,10 @@ std::string wiliwili::sec2Time(size_t t) {
            wiliwili::pre0(sec, 2);
 }
 
+std::string wiliwili::sec2MinSec(size_t t) {
+    return wiliwili::pre0(t / 60, 2) + ":" + wiliwili::pre0(t % 60, 2);
+}
+
 // eg1: 1102 => 1102
 // eg2: 11022 => 1.1万
 // eg3: 10022 => 1万

@@ -15,42 +15,9 @@
 #include "utils/dialog_helper.hpp"
 #include "fragment/player_coin.hpp"
 #include "fragment/player_collection.hpp"
+#include "fragment/player_fragments.hpp"
 
 using namespace brls::literals;
-
-class DataSourceList : public RecyclingGridDataSource {
-public:
-    DataSourceList(std::vector<std::string> result, ChangeIndexEvent cb,
-                   size_t defaultIndex = 0)
-        : data(result), changeIndexEvent(cb), currentIndex(defaultIndex) {}
-
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
-        GridRadioCell* item =
-            (GridRadioCell*)recycler->dequeueReusableCell("Cell");
-
-        auto r = this->data[index];
-        item->title->setText(this->data[index]);
-        //todo: 实现选中标识
-        //        item->setSelected(index == defaultIndex);
-
-        return item;
-    }
-
-    size_t getItemCount() override { return data.size(); }
-
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        changeIndexEvent.fire(index);
-        currentIndex = index;
-    }
-
-    void clearData() override { this->data.clear(); }
-
-private:
-    std::vector<std::string> data;
-    ChangeIndexEvent changeIndexEvent;
-    size_t currentIndex;
-};
 
 class DataSourceUserUploadedVideoList : public RecyclingGridDataSource {
 public:
@@ -134,9 +101,6 @@ PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid,
     this->setProgress(progress);
     brls::Logger::debug("create PlayerActivity: bvid: {} cid: {} progress: {}",
                         bvid, cid, progress);
-
-    // 切换视频分P
-    changePEvent.subscribe([this](int index) { this->onIndexChange(index); });
 
     // 切换到其他视频
     changeVideoEvent.subscribe([this](bilibili::Video videoData) {
@@ -310,28 +274,71 @@ void PlayerActivity::onVideoPageListInfo(
         return;
     }
 
+    changeIndexEvent.clear();
     AutoSidebarItem* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
     item->setLabel("wiliwili/player/p"_i18n);
     this->tabFrame->addTab(item, [this, result, item]() {
-        auto container = new AttachedView();
-        container->setMarginTop(12);
-        auto grid = new RecyclingGrid();
-        grid->setPadding(0, 40, 0, 20);
-        grid->setGrow(1);
-        grid->applyXMLAttribute("spanCount", "1");
-        grid->applyXMLAttribute("itemSpace", "0");
-        grid->applyXMLAttribute("itemHeight", "50");
-        grid->registerCell("Cell", []() { return GridRadioCell::create(); });
+        // 设置分集页面
+        auto container = new BasePlayerTabFragment<bilibili::VideoDetailPage>(
+            // 列表数据
+            result,
+            // 分集标题设置回调
+            [](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
+                PlayerTabCell* item =
+                    (PlayerTabCell*)recycler->dequeueReusableCell("Cell");
+                item->title->setText(fmt::format("P{} {}", d.page, d.part));
+                item->setSelected(ds->getCurrentIndex() == (d.page - 1));
+                item->setBadge(
+                    wiliwili::sec2MinSec(d.duration), nvgRGBA(0, 0, 0, 0),
+                    brls::Application::getTheme().getColor("font/grey"));
+                return item;
+            },
+            // container的构造函数
+            [this](auto recycler, auto ds) {
+                changeIndexEvent.subscribe([ds, recycler](size_t index) {
+                    ds->setCurrentIndex(index);
 
-        std::vector<std::string> items;
-        for (unsigned int i = 0; i < result.size(); ++i) {
-            auto title = result[i].part;
-            items.push_back(fmt::format("PV{} {}", i + 1, title));
-        }
-        container->addView(grid);
-        grid->setDataSource(new DataSourceList(items, changePEvent));
+                    // 更新ui
+                    PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                        recycler->getGridItemByIndex(index));
+                    if (!item) return;
+                    std::vector<RecyclingGridItem*>& items =
+                        recycler->getGridItems();
+                    for (auto& i : items) {
+                        PlayerTabCell* cell = dynamic_cast<PlayerTabCell*>(i);
+                        if (cell) cell->setSelected(false);
+                    }
+                    item->setSelected(true);
+                    recycler->selectRowAt(index, false);
+                });
+            },
+            // 默认的选中索引
+            videoDetailPage.page - 1);
+
+        // 分集点击回调
+        container->getSelectEvent()->subscribe(
+            [this](auto recycler, auto ds, size_t index, const auto& r) {
+                if (r.cid == 0) return;
+                // 触发播放对应的分集
+                this->onIndexChange(r.page - 1);
+
+                // 更新ui
+                PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                    recycler->getGridItemByIndex(index));
+                if (!item) return;
+                std::vector<RecyclingGridItem*>& items =
+                    recycler->getGridItems();
+                for (auto& i : items) {
+                    PlayerTabCell* cell = dynamic_cast<PlayerTabCell*>(i);
+                    if (cell) cell->setSelected(false);
+                }
+                item->setSelected(true);
+                ds->setCurrentIndex(index);
+            });
+
+        // 设置标题上方的数字
         item->setSubtitle(wiliwili::num2w(result.size()));
         return container;
     });
@@ -454,6 +461,7 @@ void PlayerActivity::onIndexChange(size_t index) {
 void PlayerActivity::onIndexChangeToNext() {
     // videoDetailPage.page 是从1开始计数的单调递增序号，所以这里是尝试加载下一分P
     if (videoDetailPage.page < videoDetailResult.pages.size()) {
+        changeIndexEvent.fire(videoDetailPage.page);
         this->onIndexChange(videoDetailPage.page);
     } else if (AUTO_NEXT_RCMD) {
         // 分集播放结束，判断是否要播放推荐视频

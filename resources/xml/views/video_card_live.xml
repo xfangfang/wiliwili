@@ -68,6 +68,7 @@
                     id="video/card/hint"
                     height="18"
                     marginTop="2"
+                    shrink="0"
                     backgroundColor="@theme/color/yellow_1"
                     cornerRadius="4"
                     justifyContent="center"

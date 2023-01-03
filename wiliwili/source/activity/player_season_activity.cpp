@@ -51,7 +51,7 @@ void PlayerSeasonActivity::onIndexChange(size_t index) {
     // 也就是说目前的设定是自动连播不会跨越section播放
     if (episodeList[index].id == 0) return;
     this->changeEpisode(episodeList[index]);
-    this->changeEpisodeIDEvent.fire(index);
+    this->changeIndexEvent.fire(index);
 }
 
 void PlayerSeasonActivity::onIndexChangeToNext() {
@@ -136,6 +136,7 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
     this->labelQR->setText("wiliwili/player/share"_i18n);
 
     // 设置分集信息
+    changeIndexEvent.clear();
     AutoSidebarItem* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
@@ -167,24 +168,23 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
                 },
                 // container的构造函数
                 [this](auto recycler, auto ds) {
-                    changeEpisodeIDEvent.subscribe(
-                        [ds, recycler](size_t index) {
-                            ds->setCurrentIndex(index);
+                    changeIndexEvent.subscribe([ds, recycler](size_t index) {
+                        ds->setCurrentIndex(index);
 
-                            // 更新ui
-                            PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
-                                recycler->getGridItemByIndex(index));
-                            if (!item) return;
-                            std::vector<RecyclingGridItem*>& items =
-                                recycler->getGridItems();
-                            for (auto& i : items) {
-                                PlayerTabCell* cell =
-                                    dynamic_cast<PlayerTabCell*>(i);
-                                if (cell) cell->setSelected(false);
-                            }
-                            item->setSelected(true);
-                            recycler->selectRowAt(index, false);
-                        });
+                        // 更新ui
+                        PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                            recycler->getGridItemByIndex(index));
+                        if (!item) return;
+                        std::vector<RecyclingGridItem*>& items =
+                            recycler->getGridItems();
+                        for (auto& i : items) {
+                            PlayerTabCell* cell =
+                                dynamic_cast<PlayerTabCell*>(i);
+                            if (cell) cell->setSelected(false);
+                        }
+                        item->setSelected(true);
+                        recycler->selectRowAt(index, false);
+                    });
                 },
                 // 默认的选中索引
                 episodeResult.index);

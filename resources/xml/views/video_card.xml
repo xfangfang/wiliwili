@@ -76,6 +76,7 @@
                     backgroundColor="@theme/color/yellow_1"
                     cornerRadius="4"
                     marginTop="2"
+                    shrink="0"
                     justifyContent="center"
                     alignItems="center">
                 <brls:Label

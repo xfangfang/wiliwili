@@ -21,6 +21,7 @@
             id="player/tab/cell/badgeBox"
             cornerRadius="4"
             padding="4"
+            shrink="0"
             marginRight="@style/brls/listitem/descriptionIndent">
         <brls:Label
                 id="player/tab/cell/badge"

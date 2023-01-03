@@ -42,22 +42,38 @@ void PlayerTabCell::setBadge(std::string value, std::string color) {
     }
 }
 
+void PlayerTabCell::setBadge(std::string value, NVGcolor color, NVGcolor textColor) {
+    if (value.empty()) {
+        this->badgeBox->setVisibility(brls::Visibility::GONE);
+        return;
+    }
+
+    this->badge->setText(value);
+    this->badge->setTextColor(textColor);
+    this->badgeBox->setVisibility(brls::Visibility::VISIBLE);
+    this->badgeBox->setBackgroundColor(color);
+}
+
 RecyclingGridItem* PlayerTabCell::create() { return new PlayerTabCell(); }
 void PlayerTabCell::draw(NVGcontext* vg, float x, float y, float width,
                          float height, brls::Style style,
                          brls::FrameContext* ctx) {
     Box::draw(vg, x, y, width, height, style, ctx);
     if (this->selected) {
-        brls::Time t = brls::getCPUTimeUsec() / 1000;
-        // 半高
-        int h1 = 20 * fabs((t % 700) / 700.0f - 0.5) + 4;
-        int h2 = 20 * fabs(((t + 300) % 700) / 700.0f - 0.5) + 4;
-        int h3 = 20 * fabs(((t + 500) % 700) / 700.0f - 0.5) + 4;
+        // h1-3 周期 666ms，最大幅度 666*0.015 ≈ 10
+        int h1 = ((brls::getCPUTimeUsec() >> 10) % 666) * 0.015;
+        int h2 = (h1 + 3) % 10;
+        int h3 = (h1 + 7) % 10;
+        if (h1 > 5) h1 = 10 - h1;
+        if (h2 > 5) h2 = 10 - h2;
+        if (h3 > 5) h3 = 10 - h3;
+
+        float base_y = y + height / 2 - 2;
         nvgBeginPath(vg);
         nvgFillColor(vg, a(ctx->theme.getColor("color/bilibili")));
-        nvgRect(vg, x + 20, y + (height - h1) / 2, 2, h1);
-        nvgRect(vg, x + 25, y + (height - h2) / 2, 2, h2);
-        nvgRect(vg, x + 30, y + (height - h3) / 2, 2, h3);
+        nvgRect(vg, x + 20, base_y - h1, 2, h1 + h1 + 4);
+        nvgRect(vg, x + 25, base_y - h2, 2, h2 + h2 + 4);
+        nvgRect(vg, x + 30, base_y - h3, 2, h3 + h3 + 4);
         nvgFill(vg);
     }
 }

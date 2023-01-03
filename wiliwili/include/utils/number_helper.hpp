@@ -25,7 +25,11 @@ static inline time_t unix_time() {
 std::string getRandomText(int length = 16);
 
 //100 => 01:40
+//4180 => 01:09:40
 std::string sec2Time(size_t t);
+
+//4180 => 69:40
+std::string sec2MinSec(size_t t);
 
 // eg1: 1102 => 1102
 // eg2: 11022 => 1.1万

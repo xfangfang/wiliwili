@@ -16,7 +16,20 @@ public:
 
     bool getSelected();
 
+    /**
+     * 右侧的标识，一般用来展示会员信息
+     * @param value     标识内容，为空则隐藏
+     * @param color     标识背景色，为空则设为透明色
+     */
     void setBadge(std::string value, std::string color);
+
+    /**
+     * 右侧的标识，一般用来展示会员信息
+     * @param value     标识内容，为空则隐藏
+     * @param color     标识背景色
+     * @param textColor 标识颜色
+     */
+    void setBadge(std::string value, NVGcolor color, NVGcolor textColor);
 
     static RecyclingGridItem* create();
 
@@ -26,7 +39,6 @@ public:
     BRLS_BIND(brls::Label, title, "player/tab/cell/title");
     BRLS_BIND(brls::Box, badgeBox, "player/tab/cell/badgeBox");
     BRLS_BIND(brls::Label, badge, "player/tab/cell/badge");
-
 
 private:
     bool selected = false;

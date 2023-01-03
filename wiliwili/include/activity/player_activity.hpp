@@ -16,7 +16,7 @@ class VideoView;
 class UserInfoView;
 class SVGImage;
 
-typedef brls::Event<int> ChangeIndexEvent;
+typedef brls::Event<size_t> ChangeIndexEvent;
 typedef brls::Event<bilibili::Video> ChangeVideoEvent;
 
 using namespace brls::literals;
@@ -98,6 +98,9 @@ protected:
 
     // 监控mpv事件
     MPVEvent::Subscription eventSubscribeID;
+
+    // 在软件自动切换分集时，传递当前跳转的索引值给列表用于更新ui
+    ChangeIndexEvent changeIndexEvent;
 };
 
 class PlayerActivity : public BasePlayerActivity {
@@ -125,9 +128,6 @@ public:
     ~PlayerActivity();
 
 private:
-    // 切换视频分P
-    ChangeIndexEvent changePEvent;
-
     // 切换UP视频
     ChangeVideoEvent changeVideoEvent;
 };
@@ -161,9 +161,6 @@ public:
 private:
     unsigned int pgc_id;
     PGC_ID_TYPE pgcIdType;
-
-    // 在软件自动切换分集时，传递当前跳转的索引值给列表用于更新ui
-    brls::Event<size_t> changeEpisodeIDEvent;
 
     BRLS_BIND(brls::Box, boxFavorites, "video/favorites/box");
     BRLS_BIND(brls::Label, videoFavoritesLabel, "video/favorites");
