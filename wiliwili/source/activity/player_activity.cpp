@@ -13,7 +13,6 @@
 #include "utils/number_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
-#include "fragment/player_coin.hpp"
 #include "fragment/player_collection.hpp"
 #include "fragment/player_fragments.hpp"
 
@@ -161,28 +160,7 @@ void PlayerActivity::onContentAvailable() {
 
     // 投币按钮
     this->btnCoin->getParent()->registerClickAction([this](...) {
-        if (!checkLogin()) return true;
-
-        if (std::to_string(videoDetailResult.owner.mid) ==
-            ProgramConfig::instance().getUserID()) {
-            showDialog("wiliwili/player/coin/own"_i18n);
-            return true;
-        }
-
-        int coins = getCoinTolerate();
-        if (coins <= 0) {
-            showDialog("wiliwili/player/coin/run_out"_i18n);
-            return true;
-        }
-
-        auto playerCoin = new PlayerCoin();
-        if (coins == 1) playerCoin->hideTwoCoin();
-        playerCoin->getSelectEvent()->subscribe([this, playerCoin](int value) {
-            this->addCoin((unsigned int)this->videoDetailResult.aid, value,
-                          playerCoin->likeAtTheSameTime());
-        });
-        auto dialog = new brls::Dialog(playerCoin);
-        dialog->open();
+        showCoinDialog(this->videoDetailResult.aid);
         return true;
     });
 

@@ -152,12 +152,21 @@ void BilibiliClient::get_video_online(
                                            callback, error);
 }
 
-/// 视频页 获取点赞/收藏/投屏情况
+/// 视频页 获取点赞/收藏/投币情况
 void BilibiliClient::get_video_relation(
     const std::string& bvid, const std::function<void(VideoRelation)>& callback,
     const ErrorCallback& error) {
     HTTP::getResultAsync<VideoRelation>(Api::VideoRelation, {{"bvid", bvid}},
                                         callback, error);
+}
+
+/// 视频页 获取番剧点赞/收藏/投币情况
+void BilibiliClient::get_video_relation(
+    size_t epid, const std::function<void(VideoEpisodeRelation)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<VideoEpisodeRelation>(
+        Api::VideoEpisodeRelation, {{"ep_id", std::to_string(epid)}}, callback,
+        error);
 }
 
 void BilibiliClient::get_danmaku(

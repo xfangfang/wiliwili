@@ -78,6 +78,9 @@ public:
     /// 获取视频的 点赞、投币、收藏情况
     void requestVideoRelationInfo(const std::string& bvid);
 
+    /// 获取番剧分集的 点赞、投币、收藏情况
+    void requestVideoRelationInfo(size_t epid);
+
     /// 获取视频弹幕
     void requestVideoDanmaku(const unsigned int cid);
 

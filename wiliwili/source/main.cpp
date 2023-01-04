@@ -73,6 +73,7 @@ int main(int argc, char* argv[]) {
         //        brls::Application::pushActivity(new PlayerActivity("BV1dx411c7Av"));  // flv拼接视频
         //        brls::Application::pushActivity(new PlayerActivity("BV15z4y1Z734"));  // 4K HDR 视频
         //        brls::Application::pushActivity(new PlayerActivity("BV1PN4y1G7u2"));  // up主视频自动跳转番剧
+        //        brls::Application::pushActivity(new PlayerActivity("BV1sK411s7zq"));  // 多P视频测试
         //        brls::Application::pushActivity(new PlayerActivity("BV1A44y1u7PF"), brls::TransitionAnimation::NONE); // 测试FFMPEG在switch上的bug（加载时间过长）
         //        brls::Application::pushActivity(new PlayerActivity("BV1U3411c7Qx"), brls::TransitionAnimation::NONE); // 测试长标题
         //        brls::Application::pushActivity(new PlayerActivity("BV1fG411W7Px"), brls::TransitionAnimation::NONE); // 测试弹幕

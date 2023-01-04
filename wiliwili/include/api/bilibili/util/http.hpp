@@ -35,35 +35,6 @@ public:
                              const cpr::Parameters& parameters = {},
                              int timeout                       = 10000);
 
-    //    template <typename ReturnType>
-    //    static void getResult(
-    //        const std::string& url,
-    //        const std::initializer_list<cpr::Parameter>& parameters = {},
-    //        const std::function<void(ReturnType)>& callback         = nullptr,
-    //        const ErrorCallback& error                              = nullptr) {
-    //        cpr::Parameters param(parameters);
-    //        cpr::Response r = HTTP::get(url, param);
-    //        if (r.status_code != 200) {
-    //            ERROR_MSG("Network error. [Status code: " +
-    //                          std::to_string(r.status_code) + " ]",
-    //                      -404);
-    //            return;
-    //        }
-    //        try {
-    //            nlohmann::json res = nlohmann::json::parse(r.text);
-    //            int code           = res.at("code");
-    //            if (code == 0) {
-    //                if (callback) callback(res.at("data").get<ReturnType>());
-    //                return;
-    //            } else {
-    //                ERROR_MSG("Param error", code);
-    //            }
-    //        } catch (const std::exception& e) {
-    //            ERROR_MSG("API error");
-    //            printf("ERROR: %s\n", e.what());
-    //        }
-    //    }
-
     static void __cpr_post(
         const std::string& url, cpr::Parameters parameters = {},
         cpr::Payload payload                                      = {},

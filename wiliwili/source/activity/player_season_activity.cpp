@@ -83,6 +83,13 @@ void PlayerSeasonActivity::onContentAvailable() {
         return true;
     });
 
+    // 投币按钮
+    this->btnCoin->getParent()->registerClickAction([this](...) {
+        showCoinDialog(this->episodeResult.aid);
+        return true;
+    });
+
+    // 点赞按钮
     this->btnAgree->getParent()->registerClickAction([this](...) {
         if (!checkLogin()) return true;
         this->beAgree(episodeResult.aid);

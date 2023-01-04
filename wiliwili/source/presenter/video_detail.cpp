@@ -105,7 +105,7 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID) {
                     brls::Logger::debug("Load episode {} epid: {}",
                                         i.long_title, i.id);
                     this->changeEpisode(i);
-                    break ;
+                    break;
                 }
                 this->onSeasonVideoInfo(result);
             });
@@ -298,8 +298,9 @@ void VideoDetail::changeEpisode(const bilibili::SeasonEpisodeResult& i) {
     MPVCore::instance().reset();
 
     this->onSeasonEpisodeInfo(i);
-    this->requestVideoComment(i.aid, 1);
     this->requestSeasonVideoUrl(i.bvid, i.cid);
+    this->requestVideoComment(i.aid, 1);
+    this->requestVideoRelationInfo(i.id);
 }
 
 /// 获取视频评论
@@ -382,6 +383,27 @@ void VideoDetail::requestVideoRelationInfo(const std::string& bvid) {
                 ASYNC_RELEASE
                 videoRelation = result;
                 this->onVideoRelationInfo(result);
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
+            brls::Logger::error(error);
+        });
+}
+
+/// 获取番剧分集的 点赞、投币、收藏情况
+void VideoDetail::requestVideoRelationInfo(size_t epid) {
+    ASYNC_RETAIN
+    BILI::get_video_relation(
+        epid,
+        [ASYNC_TOKEN](const bilibili::VideoEpisodeRelation& result) {
+            brls::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                videoDetailResult.copyright = result.user_community.is_original;
+                videoRelation.like          = result.user_community.like;
+                videoRelation.coin          = result.user_community.coin_number;
+                videoRelation.favorite      = result.user_community.favorite;
+                this->onVideoRelationInfo(videoRelation);
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {

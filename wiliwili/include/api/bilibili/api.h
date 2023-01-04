@@ -77,6 +77,9 @@ static const std::string Stat = _apiBase + "/x/web-interface/archive/stat";
 /// 获取视频点赞收藏情况
 static const std::string VideoRelation =
     _apiBase + "/x/web-interface/archive/relation";
+/// 获取番剧视频点赞收藏情况
+static const std::string VideoEpisodeRelation =
+    _apiBase + "/pgc/season/episode/web/info";
 /// 获取视频弹幕
 static const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
 

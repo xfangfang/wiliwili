@@ -112,13 +112,28 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDetailResultWrapper, like_num, follower,
                                    article_count, archive_count, following,
                                    card);
 
+class VideoDetailReplyPageResult {
+public:
+    int acount, count, num, size;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailReplyPageResult, acount, count,
+                                   num, size);
+
+class VideoDetailReplyResult {
+public:
+    VideoDetailReplyPageResult page;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailReplyResult, page);
+
 class VideoDetailAllResult {
 public:
     VideoDetailResult View;
     UserDetailResultWrapper Card;
     VideoDetailListResult Related;
+    VideoDetailReplyResult Reply;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailAllResult, View, Card, Related);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailAllResult, View, Card, Related,
+                                   Reply);
 
 class VideoDUrl {
 public:
@@ -264,6 +279,27 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoRelation, attention, favorite,
                                    season_fav, like, dislike, coin);
+
+class VideoEpisodeRelationStat {
+public:
+    size_t coin, dm, like, reply, view;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoEpisodeRelationStat, coin, dm, like,
+                                   reply, view);
+
+class VideoEpisodeRelationUser {
+public:
+    size_t coin_number, favorite, is_original, like;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoEpisodeRelationUser, coin_number,
+                                   favorite, is_original, like);
+
+class VideoEpisodeRelation {
+public:
+    VideoEpisodeRelationStat stat;
+    VideoEpisodeRelationUser user_community;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoEpisodeRelation, stat, user_community);
 
 /// 三连返回的数据
 class VideoTriple {

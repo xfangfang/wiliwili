@@ -8,6 +8,7 @@
 #include "view/video_view.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
+#include "fragment/player_coin.hpp"
 
 class DataSourceCommentList : public RecyclingGridDataSource {
 public:
@@ -198,6 +199,31 @@ void BasePlayerActivity::showCollectionDialog(int64_t id, int videoType) {
             return true;
         },
         true);
+    dialog->open();
+}
+
+void BasePlayerActivity::showCoinDialog(size_t aid){
+    if (!checkLogin()) return;
+
+    if (std::to_string(videoDetailResult.owner.mid) ==
+        ProgramConfig::instance().getUserID()) {
+        showDialog("wiliwili/player/coin/own"_i18n);
+        return;
+    }
+
+    int coins = getCoinTolerate();
+    if (coins <= 0) {
+        showDialog("wiliwili/player/coin/run_out"_i18n);
+        return;
+    }
+
+    auto playerCoin = new PlayerCoin();
+    if (coins == 1) playerCoin->hideTwoCoin();
+    playerCoin->getSelectEvent()->subscribe([this, playerCoin, aid](int value) {
+        this->addCoin(aid, value,
+                      playerCoin->likeAtTheSameTime());
+    });
+    auto dialog = new brls::Dialog(playerCoin);
     dialog->open();
 }
 
