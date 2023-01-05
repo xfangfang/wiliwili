@@ -63,7 +63,7 @@
       },
       "others": {
         "header": "其他",
-        "up2date": "應用程式為最新版本。",
+        "up2date": "應用程式為最新版本",
         "release": "檢查更新"
       }
     },
@@ -222,5 +222,8 @@
     "collection": {
       "title": "選擇收藏夾"
     }
+  },
+  "dialog": {
+    "quit_hint": "正在退出軟體..."
   }
 }

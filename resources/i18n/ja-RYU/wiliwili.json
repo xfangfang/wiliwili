@@ -222,5 +222,8 @@
     "collection": {
       "title": "う気に入り選択"
     }
+  },
+  "dialog": {
+    "quit_hint": "Exiting app..."
   }
 }

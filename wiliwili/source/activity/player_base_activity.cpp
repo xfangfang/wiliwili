@@ -177,7 +177,7 @@ void BasePlayerActivity::showShareDialog(const std::string link) {
 }
 
 void BasePlayerActivity::showCollectionDialog(int64_t id, int videoType) {
-    if (!checkLogin()) return;
+    if (!DialogHelper::checkLogin()) return;
     auto playerCollection = new PlayerCollection(id, videoType);
     auto dialog           = new brls::Dialog(playerCollection);
     dialog->addButton("wiliwili/home/common/save"_i18n, [this, id, videoType,
@@ -200,17 +200,17 @@ void BasePlayerActivity::showCollectionDialog(int64_t id, int videoType) {
 }
 
 void BasePlayerActivity::showCoinDialog(size_t aid) {
-    if (!checkLogin()) return;
+    if (!DialogHelper::checkLogin()) return;
 
     if (std::to_string(videoDetailResult.owner.mid) ==
         ProgramConfig::instance().getUserID()) {
-        showDialog("wiliwili/player/coin/own"_i18n);
+        DialogHelper::showDialog("wiliwili/player/coin/own"_i18n);
         return;
     }
 
     int coins = getCoinTolerate();
     if (coins <= 0) {
-        showDialog("wiliwili/player/coin/run_out"_i18n);
+        DialogHelper::showDialog("wiliwili/player/coin/run_out"_i18n);
         return;
     }
 

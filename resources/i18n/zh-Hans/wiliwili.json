@@ -222,5 +222,8 @@
     "collection": {
       "title": "选择收藏夹"
     }
+  },
+  "dialog": {
+    "quit_hint": "正在退出应用..."
   }
 }

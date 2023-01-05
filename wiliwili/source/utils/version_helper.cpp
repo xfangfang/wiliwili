@@ -57,8 +57,10 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
                     if (!APPVersion::instance().needUpdate(latestVersion)) {
                         brls::Logger::info("App is up to date");
                         if (showUpToDateDialog) {
-                            brls::sync(
-                                []() { showDialog("App is up to date"); });
+                            brls::sync([]() {
+                                DialogHelper::showDialog(
+                                    "wiliwili/setting/tools/others/up2date"_i18n);
+                            });
                         }
                         return;
                     }

@@ -10,6 +10,7 @@
 #include "view/text_box.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/vibration_helper.hpp"
+#include "utils/dialog_helper.hpp"
 #include "borealis/core/cache_helper.hpp"
 #include "borealis/views/applet_frame.hpp"
 
@@ -212,18 +213,11 @@ void SettingActivity::onContentAvailable() {
          "wiliwili/setting/app/others/theme/3"_i18n},
         themeData, [themeData](int data) {
             if (themeData == data) return false;
-            auto dialog = new brls::Dialog("wiliwili/setting/quit_hint"_i18n);
-            dialog->addButton("hints/ok"_i18n, [data]() {
-                auto optionData = ProgramConfig::instance().getOptionData(
-                    SettingItem::APP_THEME);
-                ProgramConfig::instance().setSettingItem(
-                    SettingItem::APP_THEME, optionData.optionList[data]);
-                // switch 在此模式下会重启app
-                brls::Application::getPlatform()->exitToHomeMode(false);
-                brls::Application::quit();
-            });
-            dialog->setCancelable(false);
-            dialog->open();
+            auto optionData =
+                ProgramConfig::instance().getOptionData(SettingItem::APP_THEME);
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::APP_THEME, optionData.optionList[data]);
+            DialogHelper::quitApp();
             return true;
         });
 
@@ -244,18 +238,11 @@ void SettingActivity::onContentAvailable() {
         },
         langIndex, [langIndex](int data) {
             if (langIndex == data) return false;
-            auto dialog = new brls::Dialog("wiliwili/setting/quit_hint"_i18n);
-            dialog->addButton("hints/ok"_i18n, [data]() {
-                auto optionData = ProgramConfig::instance().getOptionData(
-                    SettingItem::APP_LANG);
-                ProgramConfig::instance().setSettingItem(
-                    SettingItem::APP_LANG, optionData.optionList[data]);
-                // switch 在此模式下会重启app
-                brls::Application::getPlatform()->exitToHomeMode(false);
-                brls::Application::quit();
-            });
-            dialog->setCancelable(false);
-            dialog->open();
+            auto optionData =
+                ProgramConfig::instance().getOptionData(SettingItem::APP_LANG);
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::APP_LANG, optionData.optionList[data]);
+            DialogHelper::quitApp();
             return true;
         });
 
@@ -276,20 +263,13 @@ void SettingActivity::onContentAvailable() {
     /// Opencc
     if (brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
         brls::Application::getLocale() == brls::LOCALE_ZH_TW) {
-        btnOpencc->init(
-            "wiliwili/setting/app/others/opencc"_i18n,
-            conf.getBoolOption(SettingItem::OPENCC_ON), [](bool value) {
-                auto dialog =
-                    new brls::Dialog("wiliwili/setting/quit_hint"_i18n);
-                dialog->addButton("hints/ok"_i18n, [value]() {
-                    ProgramConfig::instance().setSettingItem(
-                        SettingItem::OPENCC_ON, value);
-                    brls::Application::getPlatform()->exitToHomeMode(false);
-                    brls::Application::quit();
-                });
-                dialog->setCancelable(false);
-                dialog->open();
-            });
+        btnOpencc->init("wiliwili/setting/app/others/opencc"_i18n,
+                        conf.getBoolOption(SettingItem::OPENCC_ON),
+                        [](bool value) {
+                            ProgramConfig::instance().setSettingItem(
+                                SettingItem::OPENCC_ON, value);
+                            DialogHelper::quitApp();
+                        });
     } else {
         btnOpencc->setVisibility(brls::Visibility::GONE);
     }

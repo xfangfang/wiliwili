@@ -222,5 +222,8 @@
     "collection": {
       "title": "Select Favorites"
     }
+  },
+  "dialog": {
+    "quit_hint": "Exiting app..."
   }
 }

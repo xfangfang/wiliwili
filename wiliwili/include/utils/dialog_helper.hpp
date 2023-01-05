@@ -5,22 +5,15 @@
 #pragma once
 
 #include <string>
-#include <borealis/views/dialog.hpp>
 
-using namespace brls::literals;
+class DialogHelper {
+public:
+    /// 展示普通对话框
+    static void showDialog(const std::string& msg);
 
-static void showDialog(const std::string& msg) {
-    auto dialog = new brls::Dialog(msg);
-    dialog->addButton("hints/ok"_i18n, []() {});
-    dialog->open();
-}
+    /// 检查本地是否存在登录信息，非联网检查
+    static bool checkLogin();
 
-/// 非联网检查
-static bool checkLogin() {
-    if (ProgramConfig::instance().getUserID().empty() ||
-        ProgramConfig::instance().getCSRF().empty()) {
-        showDialog("wiliwili/home/common/no_login"_i18n);
-        return false;
-    }
-    return true;
-}
+    /// 退出应用提示
+    static void quitApp(bool restart = true);
+};

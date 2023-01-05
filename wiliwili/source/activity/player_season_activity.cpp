@@ -91,7 +91,7 @@ void PlayerSeasonActivity::onContentAvailable() {
 
     // 点赞按钮
     this->btnAgree->getParent()->registerClickAction([this](...) {
-        if (!checkLogin()) return true;
+        if (!DialogHelper::checkLogin()) return true;
         this->beAgree(episodeResult.aid);
         return true;
     });

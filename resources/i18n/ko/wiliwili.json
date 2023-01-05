@@ -222,5 +222,8 @@
     "collection": {
       "title": "즐겨찾기 선택"
     }
+  },
+  "dialog": {
+    "quit_hint": "Exiting app..."
   }
 }
