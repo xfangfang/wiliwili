@@ -2,7 +2,7 @@
 
 一个专为手柄用户设计的 [B站](https://www.bilibili.com)客户端
 
-<img src="resources/icon/bilibili.png" alt="icon" height="128" width="128" align="left">
+<img src="resources/svg/cn.xfangfang.wiliwili.svg" alt="icon" height="128" width="128" align="left">
 
 wiliwili 拥有非常接近官方PC客户端的B站浏览体验，  
 同时支持**触屏**与**手柄**操控，  

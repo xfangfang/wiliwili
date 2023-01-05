@@ -10,6 +10,122 @@
 
 namespace bilibili {
 
+/// Video Comment
+
+// todo：up主精选评论
+
+typedef std::unordered_map<std::string, std::string> VideoCommentEmoteMap;
+
+class VideoCommentContent {
+public:
+    // 未初始化貌似会导致VideoCommentContent释放时候在switch上报错
+    //    VideoCommentEmoteMap emote;
+    std::string message;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoCommentContent, message);
+
+class VideoCommentControl {
+    /** eg
+    {   "sub_reply_entry_text": "共192条回复",
+        "sub_reply_title_text": "相关回复共192条",
+        "time_desc": "22天前发布",
+        "location": "IP属地：湖南" }
+     */
+public:
+    std::string sub_reply_entry_text;
+    std::string sub_reply_title_text;
+    std::string time_desc;
+    std::string location;
+    bool up_like;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoCommentControl& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("location") &&
+        !nlohmann_json_j.at("location").is_null()) {
+        nlohmann_json_j.at("location").get_to(nlohmann_json_t.location);
+    }
+}
+
+class LevelInfo {
+public:
+    int current_level;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelInfo, current_level);
+
+class CommentUserResult {
+public:
+    std::string mid, uname, avatar;
+    int is_senior_member;
+    LevelInfo level_info;
+    bool is_uploader;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CommentUserResult, mid, uname, avatar,
+                                   is_senior_member, level_info);
+
+class VideoCommentResult {
+public:
+    int ctime;
+    CommentUserResult member;
+    VideoCommentContent content;
+    std::vector<VideoCommentResult> replies;
+    VideoCommentControl reply_control;
+    size_t rcount, like;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoCommentResult& nlohmann_json_t) {
+    if (!nlohmann_json_j.at("replies").is_null()) {
+        nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
+    }
+    if (nlohmann_json_j.contains("member")) {
+        nlohmann_json_j.at("member").get_to(nlohmann_json_t.member);
+    }
+    if (nlohmann_json_j.contains("reply_control") &&
+        !nlohmann_json_j.at("reply_control").is_null()) {
+        nlohmann_json_j.at("reply_control")
+            .get_to(nlohmann_json_t.reply_control);
+    }
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, ctime, content, rcount, like));
+}
+typedef std::vector<VideoCommentResult> VideoCommentListResult;
+
+class VideoCommentCursor {
+public:
+    int all_count = 0;
+    int mode;  // 3: 热门评论
+    int next;
+    int prev;
+    bool is_end;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoCommentCursor& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("all_count")) {
+        nlohmann_json_j.at("all_count").get_to(nlohmann_json_t.all_count);
+    }
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, mode, next, is_end, prev));
+}
+
+class VideoCommentResultWrapper {
+public:
+    VideoCommentCursor cursor;
+    VideoCommentListResult replies;
+    VideoCommentListResult top_replies;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoCommentResultWrapper& nlohmann_json_t) {
+    if (!nlohmann_json_j.at("top_replies").is_null()) {
+        nlohmann_json_j.at("top_replies").get_to(nlohmann_json_t.top_replies);
+    }
+    if (!nlohmann_json_j.at("replies").is_null()) {
+        nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor));
+}
+
+/// Video Page
+
 class VideoDetailPage {
 public:
     int cid = 0;
@@ -122,8 +238,13 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailReplyPageResult, acount, count,
 class VideoDetailReplyResult {
 public:
     VideoDetailReplyPageResult page;
+    VideoCommentListResult replies;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailReplyResult, page);
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoDetailReplyResult& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, page, replies));
+}
 
 class VideoDetailAllResult {
 public:
@@ -132,8 +253,11 @@ public:
     VideoDetailListResult Related;
     VideoDetailReplyResult Reply;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailAllResult, View, Card, Related,
-                                   Reply);
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoDetailAllResult& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, View, Card, Related, Reply));
+}
 
 class VideoDUrl {
 public:
@@ -206,70 +330,6 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, quality,
                                              timelength, accept_description,
                                              accept_quality));
-}
-
-// todo：up主精选评论
-
-typedef std::unordered_map<std::string, std::string> VideoCommentEmoteMap;
-
-class VideoCommentContent {
-public:
-    // 未初始化貌似会导致VideoCommentContent释放时候在switch上报错
-    //    VideoCommentEmoteMap emote;
-    std::string message;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoCommentContent, message);
-
-class VideoCommentResult {
-public:
-    int ctime;
-    UserSimpleResult2 member;
-    VideoCommentContent content;
-    std::vector<VideoCommentResult> replies;
-};
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoCommentResult& nlohmann_json_t) {
-    if (!nlohmann_json_j.at("replies").is_null()) {
-        nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
-    }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, ctime, member, content));
-}
-
-class VideoCommentCursor {
-public:
-    int all_count = 0;
-    int mode;  // 3: 热门评论
-    int next;
-    int prev;
-    bool is_end;
-};
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoCommentCursor& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("all_count")) {
-        nlohmann_json_j.at("all_count").get_to(nlohmann_json_t.all_count);
-    }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, mode, next, is_end, prev));
-}
-
-typedef std::vector<VideoCommentResult> VideoCommentListResult;
-
-class VideoCommentResultWrapper {
-public:
-    VideoCommentCursor cursor;
-    std::vector<VideoCommentResult> replies;
-    std::vector<VideoCommentResult> top_replies;
-};
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoCommentResultWrapper& nlohmann_json_t) {
-    if (!nlohmann_json_j.at("top_replies").is_null()) {
-        nlohmann_json_j.at("top_replies").get_to(nlohmann_json_t.top_replies);
-    }
-    if (!nlohmann_json_j.at("replies").is_null()) {
-        nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
-    }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor));
 }
 
 class VideoRelation {

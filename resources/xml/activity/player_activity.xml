@@ -178,7 +178,8 @@
                                     id="video/btn/qr"
                                     positionTop="4"
                                     width="40"
-                                    height="40"/>
+                                    height="40"
+                                    SVG="@res/svg/bpx-svg-sprite-share.svg"/>
                             <brls:Label
                                     id="video/label/qr"
                                     positionType="absolute"

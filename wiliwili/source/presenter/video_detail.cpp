@@ -308,7 +308,7 @@ void VideoDetail::requestVideoComment(int aid, int next, int mode) {
     if (next != 0) {
         this->commentRequestIndex = next;
     }
-    brls::Logger::debug("请求视频评论: {}", aid);
+    brls::Logger::debug("请求视频评论: {} {}", aid, next);
     ASYNC_RETAIN
     BILI::get_comment(
         aid, commentRequestIndex, mode,
@@ -319,7 +319,13 @@ void VideoDetail::requestVideoComment(int aid, int next, int mode) {
                 if (!result.cursor.is_end) {
                     this->commentRequestIndex = result.cursor.next;
                 }
-                this->onCommentInfo(result);
+                bilibili::VideoCommentResultWrapper res = result;
+                std::string& video_uploader = userDetailResult.card.mid;
+                for (auto& i : res.top_replies)
+                    i.member.is_uploader = i.member.mid == video_uploader;
+                for (auto& i : res.replies)
+                    i.member.is_uploader = i.member.mid == video_uploader;
+                this->onCommentInfo(res);
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {

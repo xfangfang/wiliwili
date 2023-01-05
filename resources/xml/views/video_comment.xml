@@ -12,6 +12,12 @@
             marginTop="10"
             marginBottom="10"
             height="60"/>
+    <SVGImage
+            id="comment/user/level"
+            detachedX="45"
+            detachedY="45"
+            width="30"
+            height="30"/>
     <brls:Box
             wireframe="false"
             axis="column"
@@ -26,8 +32,38 @@
                 height="auto"
                 grow="1"
                 wireframe="false"
-                id="video/comment/label/content"
-                text="123"/>
+                id="comment/label/content"/>
+    </brls:Box>
+
+    <brls:Box
+            margin="8"
+            marginLeft="40"
+            shrink="0"
+            width="auto"
+            alignItems="center"
+            height="32">
+        <SVGImage
+                width="24"
+                height="24"
+                SVG="@res/svg/comment-agree-grey.svg"/>
+        <brls:Label
+                id="comment/label/like"
+                marginLeft="4"
+                marginRight="10"
+                textColor="@theme/font/grey"
+                fontSize="16"
+                text="29"/>
+        <SVGImage
+                width="24"
+                height="24"
+                SVG="@res/svg/comment-replay-grey.svg"/>
+        <brls:Label
+                id="comment/label/reply"
+                marginLeft="4"
+                marginRight="10"
+                textColor="@theme/font/grey"
+                fontSize="16"
+                text="29"/>
     </brls:Box>
 
 </brls:Box>

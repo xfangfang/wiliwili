@@ -14,6 +14,8 @@
 #include "view/user_info.hpp"
 #include "bilibili/result/video_detail_result.h"
 
+class SVGImage;
+class TextBox;
 class VideoComment : public RecyclingGridItem {
 public:
     VideoComment();
@@ -29,7 +31,10 @@ public:
     void cacheForReuse() override;
 
 private:
-    BRLS_BIND(brls::Label, label, "video/comment/label/content");
+    BRLS_BIND(TextBox, commentContent, "comment/label/content");
+    BRLS_BIND(brls::Label, labelLike, "comment/label/like");
+    BRLS_BIND(brls::Label, labelReply, "comment/label/reply");
     BRLS_BIND(UserInfoView, userInfo, "comment/userinfo");
+    BRLS_BIND(SVGImage, userLevel, "comment/user/level");
     bilibili::VideoCommentResult comment_data;
 };

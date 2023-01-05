@@ -38,7 +38,6 @@ private:
     bilibili::VideoCommentListResult dataList;
 };
 
-
 /// BasePlayerActivity
 
 void BasePlayerActivity::onContentAvailable() { this->setCommonData(); }
@@ -105,8 +104,6 @@ void BasePlayerActivity::setCommonData() {
 
             return true;
         });
-
-    this->btnQR->setImageFromSVGRes("svg/bpx-svg-sprite-share.svg");
 
     this->btnQR->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnQR->getParent()));
@@ -202,7 +199,7 @@ void BasePlayerActivity::showCollectionDialog(int64_t id, int videoType) {
     dialog->open();
 }
 
-void BasePlayerActivity::showCoinDialog(size_t aid){
+void BasePlayerActivity::showCoinDialog(size_t aid) {
     if (!checkLogin()) return;
 
     if (std::to_string(videoDetailResult.owner.mid) ==
@@ -220,8 +217,7 @@ void BasePlayerActivity::showCoinDialog(size_t aid){
     auto playerCoin = new PlayerCoin();
     if (coins == 1) playerCoin->hideTwoCoin();
     playerCoin->getSelectEvent()->subscribe([this, playerCoin, aid](int value) {
-        this->addCoin(aid, value,
-                      playerCoin->likeAtTheSameTime());
+        this->addCoin(aid, value, playerCoin->likeAtTheSameTime());
     });
     auto dialog = new brls::Dialog(playerCoin);
     dialog->open();
