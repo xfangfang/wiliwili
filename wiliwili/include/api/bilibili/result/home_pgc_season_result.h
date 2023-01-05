@@ -9,6 +9,23 @@
 
 namespace bilibili {
 
+class SeasonStatusResult {
+public:
+    size_t last_ep_id;
+    size_t last_time;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      SeasonStatusResult& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("progress")) {
+        auto& p = nlohmann_json_j.at("progress");
+        p.at("last_ep_id").get_to(nlohmann_json_t.last_ep_id);
+        p.at("last_time").get_to(nlohmann_json_t.last_time);
+    } else {
+        nlohmann_json_t.last_ep_id = 0;
+        nlohmann_json_t.last_time  = 0;
+    }
+}
+
 class EpisodesBadge {
 public:
     std::string text, bg_color, bg_color_night;
@@ -126,7 +143,8 @@ public:
     SeasonDetailStat stat;
     SeasonPublishStat publish;
     SeasonSections section;
-    size_t show_season_type;  //1,4: 第*话; 3: 第*集, 2:电影 不显示前缀;
+    size_t type;
+    SeasonStatusResult user_status;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       SeasonResultWrapper& nlohmann_json_t) {
@@ -156,9 +174,11 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     if (nlohmann_json_j.contains("section")) {
         nlohmann_json_j.at("section").get_to(nlohmann_json_t.section);
     }
-    if (nlohmann_json_j.contains("show_season_type")) {
-        nlohmann_json_j.at("show_season_type")
-            .get_to(nlohmann_json_t.show_season_type);
+    if (nlohmann_json_j.contains("type")) {
+        nlohmann_json_j.at("type").get_to(nlohmann_json_t.type);
+    }
+    if (nlohmann_json_j.contains("user_status")) {
+        nlohmann_json_j.at("user_status").get_to(nlohmann_json_t.user_status);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, season_id,
                                              season_title, evaluate));

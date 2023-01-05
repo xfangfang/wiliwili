@@ -104,6 +104,16 @@ void BilibiliClient::get_season_detail(
                                               callback, error);
 }
 
+void BilibiliClient::get_season_status(
+    size_t seasonID, const std::function<void(SeasonStatusResult)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<SeasonStatusResult>(
+        Api::SeasonStatus,
+        cpr::Parameters{{"season_id", std::to_string(seasonID)},
+                        {"ts", std::to_string(wiliwili::getUnixTime() * 1000)}},
+        callback, error);
+}
+
 void BilibiliClient::get_season_url(
     const int cid, const int qn,
     const std::function<void(VideoUrlResult)>& callback,

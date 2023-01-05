@@ -47,10 +47,13 @@ public:
     void requestData(const bilibili::VideoDetailResult& video);
 
     /// 请求番剧数据
-    void requestData(int id, PGC_ID_TYPE type = PGC_ID_TYPE::SEASON_ID);
+    void requestData(size_t id, PGC_ID_TYPE type = PGC_ID_TYPE::SEASON_ID);
 
     /// 获取番剧信息
-    void requestSeasonInfo(const int seasonID, const int epID = 0);
+    void requestSeasonInfo(size_t seasonID, size_t epID = 0);
+
+    /// 获取番剧播放进度
+    void requestSeasonStatue(size_t seasonID);
 
     /// 获取视频信息：标题、作者、简介、分P等
     void requestVideoInfo(const std::string bvid);

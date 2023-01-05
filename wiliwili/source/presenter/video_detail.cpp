@@ -19,7 +19,7 @@ void VideoDetail::requestData(const bilibili::VideoDetailResult& video) {
 }
 
 /// 请求番剧数据
-void VideoDetail::requestData(int id, PGC_ID_TYPE type) {
+void VideoDetail::requestData(size_t id, PGC_ID_TYPE type) {
     if (type == PGC_ID_TYPE::SEASON_ID)
         this->requestSeasonInfo(id, 0);
     else if (type == PGC_ID_TYPE::EP_ID)
@@ -27,7 +27,7 @@ void VideoDetail::requestData(int id, PGC_ID_TYPE type) {
 }
 
 /// 获取番剧信息
-void VideoDetail::requestSeasonInfo(const int seasonID, const int epID) {
+void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
     // 重置MPV
     MPVCore::instance().reset();
 
@@ -35,7 +35,7 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID) {
     BILI::get_season_detail(
         seasonID, epID,
         [ASYNC_TOKEN, epID](const bilibili::SeasonResultWrapper& result) {
-            brls::sync([ASYNC_TOKEN, result, epID]() {
+            brls::sync([ASYNC_TOKEN, result, epID]() mutable {
                 ASYNC_RELEASE
                 brls::Logger::debug("BILI::get_season_detail");
                 seasonInfo = result;
@@ -49,7 +49,7 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID) {
 
                 for (auto& e : episodeList) {
                     size_t index = e.index + 1;
-                    switch (result.show_season_type) {
+                    switch (result.type) {
                         case 1:  // 日漫 ？
                         case 4:  // 国漫 ？
                             e.title =
@@ -84,15 +84,21 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID) {
                 for (size_t i = 0; i < episodeList.size(); i++)
                     episodeList[i].index = i;
 
+                if (epID == 0) {
+                    epID                   = result.user_status.last_ep_id;
+                    episodeResult.progress = result.user_status.last_time;
+                }
+
                 // 加载指定epid的视频
                 if (epID != 0) {
                     for (auto& i : episodeList) {
                         if (i.id == (unsigned int)epID) {
-                            brls::Logger::debug(
-                                "Load episode {} from "
-                                "epid: {}",
-                                i.long_title, i.id);
-                            i.progress = episodeResult.progress;
+                            brls::Logger::debug("Load episode {} from epid: {}",
+                                                i.long_title, i.id);
+                            if (epID == result.user_status.last_ep_id)
+                                i.progress = result.user_status.last_time;
+                            else
+                                i.progress = episodeResult.progress;
                             this->changeEpisode(i);
                             this->onSeasonVideoInfo(result);
                             return;
@@ -104,10 +110,45 @@ void VideoDetail::requestSeasonInfo(const int seasonID, const int epID) {
                     if (i.id == 0 || i.cid == 0 || i.aid == 0) continue;
                     brls::Logger::debug("Load episode {} epid: {}",
                                         i.long_title, i.id);
+                    episodeResult.progress = 0;
                     this->changeEpisode(i);
                     break;
                 }
                 this->onSeasonVideoInfo(result);
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
+            brls::Logger::error(error);
+        });
+}
+
+void VideoDetail::requestSeasonStatue(size_t seasonID) {
+    ASYNC_RETAIN
+    BILI::get_season_status(
+        seasonID,
+        [ASYNC_TOKEN](const bilibili::SeasonStatusResult& result) {
+            brls::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                if (result.last_ep_id != 0)
+                    for (auto& i : episodeList) {
+                        if (i.id == result.last_ep_id) {
+                            brls::Logger::debug("Load episode {} from epid: {}",
+                                                i.long_title, i.id);
+                            i.progress = result.last_time;
+                            this->changeEpisode(i);
+                            return;
+                        }
+                    }
+                // 若未搜索到对应的epid，加载第一项
+                for (auto& i : episodeList) {
+                    if (i.id == 0 || i.cid == 0 || i.aid == 0) continue;
+                    brls::Logger::debug("Load episode {} epid: {}",
+                                        i.long_title, i.id);
+                    episodeResult.progress = 0;
+                    this->changeEpisode(i);
+                    break;
+                }
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {

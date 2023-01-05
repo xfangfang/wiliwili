@@ -131,6 +131,12 @@ public:
         const std::function<void(SeasonResultWrapper)>& callback = nullptr,
         const ErrorCallback& error                               = nullptr);
 
+    /// 获取番剧的播放进度
+    static void get_season_status(
+        size_t seasonID,
+        const std::function<void(SeasonStatusResult)>& callback,
+        const ErrorCallback& error);
+
     /// get video detail by aid
     static void get_video_detail(
         const int aid,
