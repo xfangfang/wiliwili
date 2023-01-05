@@ -117,6 +117,8 @@ public:
 
     std::string getConfigDir();
 
+    void checkRestart(char* argv[]);
+
     Cookie cookie = {{"DedeUserID", "0"}};
     nlohmann::json setting;
     std::string client = "";

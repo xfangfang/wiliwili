@@ -101,6 +101,10 @@ int main(int argc, char* argv[]) {
 #ifdef DISK_LOG
     logFile.close();
 #endif
+
+    // Check whether restart is required
+    ProgramConfig::instance().checkRestart(argv);
+
     // Exit
     return EXIT_SUCCESS;
 }

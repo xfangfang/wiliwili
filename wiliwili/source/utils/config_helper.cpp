@@ -2,6 +2,11 @@
 // Created by fang on 2022/7/10.
 //
 
+#if defined(__APPLE__) || defined(__linux__)
+#include <unistd.h>
+#include <borealis/platforms/desktop/desktop_platform.hpp>
+#endif
+
 #include <borealis.hpp>
 
 #include "bilibili.h"
@@ -370,4 +375,16 @@ std::string ProgramConfig::getConfigDir() {
 #endif
 #endif /* _DEBUG */
 #endif /* __SWITCH__ */
+}
+
+void ProgramConfig::checkRestart(char* argv[]) {
+#if defined(__APPLE__) || defined(__linux__)
+    if (!brls::DesktopPlatform::RESTART_APP) return;
+    
+    brls::Logger::info("Restart app {}", argv[0]);
+    char* newArgv[2];
+    newArgv[0] = argv[0];
+    newArgv[1] = NULL;
+    execve(argv[0], newArgv, NULL);
+#endif
 }

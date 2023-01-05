@@ -4,15 +4,9 @@
 
 #include "view/gallery_view.hpp"
 
-const std::string galleryViewXML = R"xml(
-    <brls:Box
-            focusable="true">
-    </brls:Box>
-)xml";
-
 GalleryView::GalleryView() {
-    this->inflateFromXMLString(galleryViewXML);
     brls::Logger::debug("View GalleryView: create");
+    this->setFocusable(true);
     this->registerAction("Prev", brls::ControllerButton::BUTTON_LB,
                          [this](brls::View* view) -> bool {
                              prev();
