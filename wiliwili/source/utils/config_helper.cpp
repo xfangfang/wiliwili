@@ -20,6 +20,20 @@ using namespace brls::literals;
 std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     /// string
     {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
+    {SettingItem::APP_LANG,
+     {"app_lang",
+      {
+          brls::LOCALE_AUTO,
+          brls::LOCALE_EN_US,
+          brls::LOCALE_JA,
+          brls::LOCALE_RYU,
+          brls::LOCALE_ZH_HANT,
+          brls::LOCALE_ZH_HANS,
+          brls::LOCALE_Ko,
+      },
+      {},
+      0}},
+    {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -33,8 +47,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
 
-    /// select
-    {SettingItem::APP_THEME, {"app_theme", {}, {}, 0}},
+    /// number
     {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
     {SettingItem::IMAGE_REQUEST_THREADS,
@@ -46,6 +59,19 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     /// string
     {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
+    {SettingItem::APP_LANG,
+     {"app_lang",
+      {
+          brls::LOCALE_EN_US,
+          brls::LOCALE_JA,
+          brls::LOCALE_RYU,
+          brls::LOCALE_ZH_HANT,
+          brls::LOCALE_ZH_HANS,
+          brls::LOCALE_Ko,
+      },
+      {},
+      4}},
+    {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -59,8 +85,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
 
-    /// select
-    {SettingItem::APP_THEME, {"app_theme", {}, {}, 0}},
+    /// number
     {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
     {SettingItem::IMAGE_REQUEST_THREADS,
@@ -183,14 +208,32 @@ void ProgramConfig::load() {
     // 是否使用低质量解码
     MPVCore::LOW_QUALITY = getBoolOption(SettingItem::PLAYER_LOW_QUALITY);
 
+    // 初始化系统字体
+    std::set<std::string> i18nData{
+        brls::LOCALE_AUTO, brls::LOCALE_EN_US,   brls::LOCALE_JA,
+        brls::LOCALE_RYU,  brls::LOCALE_ZH_HANS, brls::LOCALE_ZH_HANT,
+        brls::LOCALE_Ko,
+    };
+    std::string langData =
+        getSettingItem(SettingItem::APP_LANG, brls::LOCALE_AUTO);
+
+    if (langData != brls::LOCALE_AUTO && i18nData.count(langData)) {
+        brls::Platform::APP_LOCALE_DEFAULT = langData;
+    } else {
+#ifndef __SWITCH__
+        brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_ZH_HANS;
+#endif
+    }
+
     // 初始化一些在创建窗口之后才能初始化的内容
     brls::Application::getWindowCreationDoneEvent()->subscribe([this]() {
         // 初始化主题
-        int themeData = getSettingItem(SettingItem::APP_THEME, 0);
-        if (themeData == 1) {
+        std::string themeData =
+            getSettingItem(SettingItem::APP_THEME, std::string{"auto"});
+        if (themeData == "light") {
             brls::Application::getPlatform()->setThemeVariant(
                 brls::ThemeVariant::LIGHT);
-        } else if (themeData == 2) {
+        } else if (themeData == "dark") {
             brls::Application::getPlatform()->setThemeVariant(
                 brls::ThemeVariant::DARK);
         }
@@ -199,6 +242,72 @@ void ProgramConfig::load() {
         brls::TextureCache::instance().cache.setCapacity(
             getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
     });
+}
+
+ProgramOption ProgramConfig::getOptionData(SettingItem item) {
+    return SETTING_MAP[item];
+}
+
+size_t ProgramConfig::getIntOptionIndex(SettingItem item) {
+    auto optionData = getOptionData(item);
+    if (setting.contains(optionData.key)) {
+        try {
+            int option = this->setting.at(optionData.key).get<int>();
+            for (size_t i = 0; i < optionData.rawOptionList.size(); i++) {
+                if (optionData.rawOptionList[i] == option) return i;
+            }
+        } catch (const std::exception& e) {
+            brls::Logger::error("Damaged config found: {}/{}", optionData.key,
+                                e.what());
+            return optionData.defaultOption;
+        }
+    }
+    return optionData.defaultOption;
+}
+
+int ProgramConfig::getIntOption(SettingItem item) {
+    auto optionData = getOptionData(item);
+    if (setting.contains(optionData.key)) {
+        try {
+            return this->setting.at(optionData.key).get<int>();
+        } catch (const std::exception& e) {
+            brls::Logger::error("Damaged config found: {}/{}", optionData.key,
+                                e.what());
+            return optionData.defaultOption;
+        }
+    }
+    return optionData.rawOptionList[optionData.defaultOption];
+}
+
+bool ProgramConfig::getBoolOption(SettingItem item) {
+    auto optionData = getOptionData(item);
+    if (setting.contains(optionData.key)) {
+        try {
+            return this->setting.at(optionData.key).get<bool>();
+        } catch (const std::exception& e) {
+            brls::Logger::error("Damaged config found: {}/{}", optionData.key,
+                                e.what());
+            return optionData.defaultOption;
+        }
+    }
+    return optionData.defaultOption;
+}
+
+int ProgramConfig::getStringOptionIndex(SettingItem item) {
+    auto optionData = getOptionData(item);
+    if (setting.contains(optionData.key)) {
+        try {
+            std::string option =
+                this->setting.at(optionData.key).get<std::string>();
+            for (int i = 0; i < optionData.optionList.size(); ++i)
+                if (optionData.optionList[i] == option) return i;
+        } catch (const std::exception& e) {
+            brls::Logger::error("Damaged config found: {}/{}", optionData.key,
+                                e.what());
+            return optionData.defaultOption;
+        }
+    }
+    return optionData.defaultOption;
 }
 
 void ProgramConfig::save() {

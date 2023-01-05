@@ -23,10 +23,10 @@
                     lineHeight="1"
                     text="wiliwili"/>
             <brls:Label
+                    id="setting/about/version"
                     marginRight="20"
                     lineHeight="1"
-                    textColor="@theme/font/grey"
-                    text="@i18n/version/version"/>
+                    textColor="@theme/font/grey"/>
         </brls:Box>
 
 

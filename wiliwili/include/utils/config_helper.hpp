@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <cpr/cpr.h>
 #include "borealis/core/singleton.hpp"
+#include "borealis/core/logger.hpp"
 
 typedef std::map<std::string, std::string> Cookie;
 
@@ -19,6 +20,7 @@ enum class SettingItem {
     HIDE_BOTTOM_BAR,
     FULLSCREEN,
     APP_THEME,
+    APP_LANG,
     HISTORY_REPORT,
     AUTO_NEXT_PART,
     AUTO_NEXT_RCMD,
@@ -48,15 +50,15 @@ public:
 
     bool needUpdate(std::string latestVersion);
 
-    void checkUpdate(int delay = 2000);
+    void checkUpdate(int delay = 2000, bool showUpToDateDialog = false);
 };
 
 typedef struct ProgramOption {
     /// 保存在配置文件中的选项明
     std::string key;
-    /// 显示在屏幕上的选项内容
+    /// 字符串类型的选项
     std::vector<std::string> optionList;
-    /// 保存在配置文件中的选项内容
+    /// 数字类型的选项
     std::vector<int> rawOptionList;
     /// 默认的选项，范围为 [0 - optionList.size()-1]
     size_t defaultOption;
@@ -77,7 +79,12 @@ public:
     T getSettingItem(SettingItem item, T defaultValue) {
         auto& key = SETTING_MAP[item].key;
         if (!setting.contains(key)) return defaultValue;
-        return this->setting.at(key).get<T>();
+        try {
+            return this->setting.at(key).get<T>();
+        } catch (const std::exception& e) {
+            brls::Logger::error("Damaged config found: {}/{}", key, e.what());
+            return defaultValue;
+        }
     }
 
     template <typename T>
@@ -86,40 +93,21 @@ public:
         this->save();
     }
 
-    ProgramOption getOptionData(SettingItem item) { return SETTING_MAP[item]; }
+    ProgramOption getOptionData(SettingItem item);
 
     /**
      * 获取 int 类型选项的当前设定值的索引
      */
-    size_t getIntOptionIndex(SettingItem item) {
-        auto optionData = getOptionData(item);
-        if (setting.contains(optionData.key)) {
-            int option = this->setting.at(optionData.key).get<int>();
-            for (size_t i = 0; i < optionData.rawOptionList.size(); i++) {
-                if (optionData.rawOptionList[i] == option) return i;
-            }
-        }
-        return optionData.defaultOption;
-    }
+    size_t getIntOptionIndex(SettingItem item);
 
     /**
      * 获取 int 类型选项的当前设定值
      */
-    int getIntOption(SettingItem item) {
-        auto optionData = getOptionData(item);
-        if (setting.contains(optionData.key)) {
-            return this->setting.at(optionData.key).get<int>();
-        }
-        return optionData.rawOptionList[optionData.defaultOption];
-    }
+    int getIntOption(SettingItem item);
 
-    bool getBoolOption(SettingItem item) {
-        auto optionData = getOptionData(item);
-        if (setting.contains(optionData.key)) {
-            return this->setting.at(optionData.key).get<int>();
-        }
-        return optionData.defaultOption;
-    }
+    bool getBoolOption(SettingItem item);
+
+    int getStringOptionIndex(SettingItem item);
 
     void load();
 

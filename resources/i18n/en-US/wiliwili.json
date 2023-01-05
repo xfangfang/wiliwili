@@ -33,6 +33,16 @@
           "2": "Light",
           "3": "Dark"
         },
+        "language": {
+          "header": "Language (restart required)",
+          "auto": "Auto",
+          "chinese_s": "简体中文",
+          "chinese_t": "繁體中文",
+          "english": "English",
+          "japanese": "日本語",
+          "ryukyuan": "島言葉",
+          "korean": "한국어"
+        },
         "opencc": "Automatically convert Simplified Chinese (restart required)"
       }
     },
@@ -53,6 +63,7 @@
       },
       "others": {
         "header": "Others",
+        "up2date": "App is up to date",
         "release": "Check for updates"
       }
     },

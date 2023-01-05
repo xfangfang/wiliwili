@@ -108,6 +108,9 @@
 
                         <brls:SelectorCell
                                 id="setting/ui/theme"/>
+
+                        <brls:SelectorCell
+                                id="setting/language"/>
                     </brls:Box>
                 </brls:Box>
             </brls:ScrollingFrame>

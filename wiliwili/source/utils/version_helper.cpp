@@ -8,6 +8,7 @@
 #include "cpr/cpr.h"
 #include "pystring.h"
 #include "utils/config_helper.hpp"
+#include "utils/dialog_helper.hpp"
 #include "fragment/latest_update.hpp"
 
 using namespace brls::literals;
@@ -42,19 +43,23 @@ bool APPVersion::needUpdate(std::string latestVersion) {
     return false;
 }
 
-void APPVersion::checkUpdate(int delay) {
-    brls::Threading::delay(delay, []() {
+void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
+    brls::Threading::delay(delay, [showUpToDateDialog]() {
         std::string url = ProgramConfig::instance().getSettingItem(
             SettingItem::CUSTOM_UPDATE_API, APPVersion::RELEASE_API);
 
         cpr::GetCallback(
-            [](cpr::Response r) {
+            [showUpToDateDialog](cpr::Response r) {
                 try {
                     nlohmann::json res = nlohmann::json::parse(r.text);
                     std::string latestVersion =
                         res.at("tag_name").get<std::string>();
                     if (!APPVersion::instance().needUpdate(latestVersion)) {
                         brls::Logger::info("App is up to date");
+                        if (showUpToDateDialog) {
+                            brls::sync(
+                                []() { showDialog("App is up to date"); });
+                        }
                         return;
                     }
 

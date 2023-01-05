@@ -144,11 +144,11 @@ void SettingActivity::onContentAvailable() {
         "wiliwili/setting/tools/others/release"_i18n + " (" +
         "hints/current"_i18n + ": " + version + ")");
     btnReleaseChecker->registerClickAction([](...) -> bool {
-        brls::Application::getPlatform()->openBrowser(
-            "https://github.com/xfangfang/wiliwili/releases/latest");
+        // todo: 弹出一个提示提醒用户正在检查更新
+        APPVersion::instance().checkUpdate(0, true);
         return true;
     });
-
+    labelAboutVersion->setText(version);
     labelOpensource->setText(OPENSOURCE);
 
     auto& conf = ProgramConfig::instance();
@@ -204,7 +204,7 @@ void SettingActivity::onContentAvailable() {
 #endif
 
     /// App theme
-    int themeData = conf.getSettingItem(SettingItem::APP_THEME, 0);
+    int themeData = conf.getStringOptionIndex(SettingItem::APP_THEME);
     selectorTheme->init(
         "wiliwili/setting/app/others/theme/header"_i18n,
         {"wiliwili/setting/app/others/theme/1"_i18n,
@@ -214,8 +214,42 @@ void SettingActivity::onContentAvailable() {
             if (themeData == data) return false;
             auto dialog = new brls::Dialog("wiliwili/setting/quit_hint"_i18n);
             dialog->addButton("hints/ok"_i18n, [data]() {
-                ProgramConfig::instance().setSettingItem(SettingItem::APP_THEME,
-                                                         data);
+                auto optionData = ProgramConfig::instance().getOptionData(
+                    SettingItem::APP_THEME);
+                ProgramConfig::instance().setSettingItem(
+                    SettingItem::APP_THEME, optionData.optionList[data]);
+                // switch 在此模式下会重启app
+                brls::Application::getPlatform()->exitToHomeMode(false);
+                brls::Application::quit();
+            });
+            dialog->setCancelable(false);
+            dialog->open();
+            return true;
+        });
+
+    /// App language
+    int langIndex = conf.getStringOptionIndex(SettingItem::APP_LANG);
+    selectorLang->init(
+        "wiliwili/setting/app/others/language/header"_i18n,
+        {
+#ifdef __SWITCH__
+            "wiliwili/setting/app/others/language/auto"_i18n,
+#endif
+            "wiliwili/setting/app/others/language/english"_i18n,
+            "wiliwili/setting/app/others/language/japanese"_i18n,
+            "wiliwili/setting/app/others/language/ryukyuan"_i18n,
+            "wiliwili/setting/app/others/language/chinese_t"_i18n,
+            "wiliwili/setting/app/others/language/chinese_s"_i18n,
+            "wiliwili/setting/app/others/language/korean"_i18n,
+        },
+        langIndex, [langIndex](int data) {
+            if (langIndex == data) return false;
+            auto dialog = new brls::Dialog("wiliwili/setting/quit_hint"_i18n);
+            dialog->addButton("hints/ok"_i18n, [data]() {
+                auto optionData = ProgramConfig::instance().getOptionData(
+                    SettingItem::APP_LANG);
+                ProgramConfig::instance().setSettingItem(
+                    SettingItem::APP_LANG, optionData.optionList[data]);
                 // switch 在此模式下会重启app
                 brls::Application::getPlatform()->exitToHomeMode(false);
                 brls::Application::quit();
