@@ -105,9 +105,13 @@ public:
                         ERROR_MSG("Param error");
                     }
                 } catch (const std::exception& e) {
-                    ERROR_MSG("Network error. [Status code: " +
-                                  std::to_string(r.status_code) + " ]",
-                              -404);
+                    if (r.status_code == 200) {
+                        ERROR_MSG("Api error. \n" + std::string{e.what()}, 200);
+                    } else {
+                        ERROR_MSG("Network error. \nStatus code: " +
+                                      std::to_string(r.status_code),
+                                  -404);
+                    }
                     printf("data: %s\n", r.text.c_str());
                     printf("ERROR: %s\n", e.what());
                 }

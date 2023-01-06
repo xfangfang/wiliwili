@@ -81,6 +81,7 @@ RecyclingGrid::RecyclingGrid() {
     this->hintLabel = new brls::Label();
     this->hintLabel->detach();
     this->hintLabel->setFontSize(14);
+    this->hintLabel->setHorizontalAlign(brls::HorizontalAlign::CENTER);
 
     this->setFocusable(false);
 

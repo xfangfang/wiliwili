@@ -279,6 +279,7 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error(error);
+            this->onError("请求视频地址失败\n" + error);
         });
     // 请求当前视频在线人数
     this->requestVideoOnline(bvid, cid);
@@ -306,6 +307,7 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error(error);
+            this->onError("请求视频地址失败\n" + error);
         });
 
     // 请求当前视频在线人数

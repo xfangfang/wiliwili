@@ -242,8 +242,10 @@ public:
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoDetailReplyResult& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, page, replies));
+    if (!nlohmann_json_j.at("replies").is_null()) {
+        nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, page));
 }
 
 class VideoDetailAllResult {
