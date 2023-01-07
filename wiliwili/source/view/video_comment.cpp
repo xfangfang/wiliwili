@@ -47,15 +47,65 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
         }
     }
 
+    if (data.action) {
+        this->svgLike->setImageFromSVGRes("svg/comment-agree-active.svg");
+    } else {
+        this->svgLike->setImageFromSVGRes("svg/comment-agree-grey.svg");
+    }
+
     this->labelLike->setText(wiliwili::num2w(data.like));
     this->labelReply->setText(wiliwili::num2w(data.rcount));
-
 }
 
 void VideoComment::prepareForReuse() {
     this->userInfo->getAvatar()->setImageFromRes("pictures/default_avatar.png");
 }
 
+void VideoComment::hideReplyIcon(bool hide) {
+    if (hide) {
+        this->labelReply->setVisibility(brls::Visibility::GONE);
+        this->svgReply->setVisibility(brls::Visibility::GONE);
+    } else {
+        this->svgReply->setVisibility(brls::Visibility::VISIBLE);
+        this->labelReply->setVisibility(brls::Visibility::VISIBLE);
+    }
+}
+
 void VideoComment::cacheForReuse() {
     ImageHelper::clear(this->userInfo->getAvatar());
+}
+
+/// GridHintView
+
+GridHintView::GridHintView() {
+    this->setFocusable(false);
+    hintLabel = new brls::Label();
+    hintLabel->setFontSize(16);
+    hintLabel->setMarginLeft(8);
+    hintLabel->setTextColor(
+        brls::Application::getTheme().getColor("font/grey"));
+    this->addView(hintLabel);
+}
+
+RecyclingGridItem* GridHintView::create() { return new GridHintView(); }
+
+/// VideoCommentReply
+
+VideoCommentReply::VideoCommentReply() {
+    auto theme = brls::Application::getTheme();
+    this->setFocusable(true);
+    this->setHeight(40);
+    this->setJustifyContent(brls::JustifyContent::FLEX_START);
+    this->setCornerRadius(8);
+    this->setBackgroundColor(theme.getColor("color/grey_2"));
+    hintLabel = new brls::Label();
+    this->hintLabel->setMarginLeft(20);
+    this->hintLabel->setFontSize(18);
+    this->hintLabel->setText("发一条友善的评论");
+    this->hintLabel->setTextColor(theme.getColor("font/grey"));
+    this->addView(hintLabel);
+}
+
+RecyclingGridItem* VideoCommentReply::create() {
+    return new VideoCommentReply();
 }

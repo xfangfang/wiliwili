@@ -35,6 +35,8 @@ class VideoDetailPage;
 typedef std::vector<VideoDetailPage>
     VideoDetailPageListResult;  // 视频分P列表 （视频详情API可以直接过去分P列表）
 class VideoCommentResultWrapper;  // 视频评论
+class VideoSingleCommentDetail;   //单条评论的相关回复
+class VideoCommentAddResult;      // 发布评论的返回
 class VideoDetailResult;          // 视频详情
 class VideoDetailAllResult;  // 更详细的视频详情，包括 分P、合集、推荐、评论
 class UserRelationStat;  // 用户关注/粉丝/黑名单 数量
@@ -281,6 +283,41 @@ public:
         const std::function<void(VideoCommentResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
+
+    /// 获取单条视频的相关回复
+    static void get_comment_detail(
+        const std::string& access_key, size_t oid, int64_t rpid,
+        size_t next                                                   = 0,
+        const std::function<void(VideoSingleCommentDetail)>& callback = nullptr,
+        const ErrorCallback& error = nullptr);
+
+    /// 点赞评论
+    static void be_agree_comment(
+        const std::string& access_key, size_t oid, int64_t rpid, bool is_like,
+        const std::function<void()>& callback = nullptr,
+        const ErrorCallback& error            = nullptr);
+
+    /**
+     * 回复评论
+     * @param access_key csrf key
+     * @param message 消息内容
+     * @param oid 视频的aid
+     * @param parent 回复评论的id，若评论视频则无此参数
+     * @param root 评论所在楼层的id，若评论视频则无此参数
+     * @param callback
+     * @param error
+     */
+    static void add_comment(
+        const std::string& access_key, const std::string& message, size_t oid,
+        int64_t parent = 0, int64_t root = 0,
+        const std::function<void(VideoCommentAddResult)>& callback = nullptr,
+        const ErrorCallback& error                                 = nullptr);
+
+    /// 删除评论
+    static void delete_comment(
+        const std::string& access_key, size_t oid, int64_t rpid,
+        const std::function<void()>& callback = nullptr,
+        const ErrorCallback& error            = nullptr);
 
     /// 视频页 获取单个视频播放人数
     static void get_video_online(

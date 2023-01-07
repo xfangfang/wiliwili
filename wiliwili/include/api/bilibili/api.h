@@ -85,7 +85,6 @@ static const std::string VideoEpisodeRelation =
     _apiBase + "/pgc/season/episode/web/info";
 /// 获取视频弹幕
 static const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
-
 /// 直播API
 static const std::string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
 /// 直播历史记录
@@ -126,9 +125,16 @@ static const std::string PGCIndex = _apiBase + "/pgc/page/index/result";
 /// 主页 追番/影视 分类检索过滤器列表
 static const std::string PGCIndexFilter =
     _apiBase + "/pgc/page/index/condition";
-
 /// 视频 评论
 static const std::string Comment = _apiBase + "/x/v2/reply/main";
+/// 单条评论详情
+static const std::string CommentDetail = _apiBase + "/x/v2/reply/detail";
+/// 点赞评论
+static const std::string CommentLike = _apiBase + "/x/v2/reply/action";
+/// 发布评论
+static const std::string CommentAdd = _apiBase + "/x/v2/reply/add";
+/// 删除评论
+static const std::string CommentDel = _apiBase + "/x/v2/reply/del";
 /// 热门 - gRPC.
 static const std::string PopularGRPC =
     _grpcBase + "/bilibili.app.show.v1.Popular/Index";

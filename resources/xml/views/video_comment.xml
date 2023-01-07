@@ -43,6 +43,7 @@
             alignItems="center"
             height="32">
         <SVGImage
+                id="comment/svg/like"
                 width="24"
                 height="24"
                 SVG="@res/svg/comment-agree-grey.svg"/>
@@ -54,6 +55,7 @@
                 fontSize="16"
                 text="29"/>
         <SVGImage
+                id="comment/svg/reply"
                 width="24"
                 height="24"
                 SVG="@res/svg/comment-replay-grey.svg"/>

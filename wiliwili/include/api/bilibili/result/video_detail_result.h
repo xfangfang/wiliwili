@@ -65,12 +65,14 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CommentUserResult, mid, uname, avatar,
 
 class VideoCommentResult {
 public:
-    int ctime;
+    size_t ctime;
+    int64_t rpid, parent, root;
+    size_t oid;
     CommentUserResult member;
     VideoCommentContent content;
     std::vector<VideoCommentResult> replies;
     VideoCommentControl reply_control;
-    size_t rcount, like;
+    size_t rcount, like, action;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoCommentResult& nlohmann_json_t) {
@@ -85,26 +87,28 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("reply_control")
             .get_to(nlohmann_json_t.reply_control);
     }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, ctime, content, rcount, like));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, ctime, content,
+                                             rcount, like, rpid, parent, root,
+                                             oid, action));
 }
 typedef std::vector<VideoCommentResult> VideoCommentListResult;
 
 class VideoCommentCursor {
 public:
     int all_count = 0;
-    int mode;  // 3: 热门评论
+    int mode;  // 3: 热门评论 2: 按时间排序
     int next;
     int prev;
     bool is_end;
+    bool is_begin;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoCommentCursor& nlohmann_json_t) {
     if (nlohmann_json_j.contains("all_count")) {
         nlohmann_json_j.at("all_count").get_to(nlohmann_json_t.all_count);
     }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, mode, next, is_end, prev));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, mode, next,
+                                             is_end, is_begin, prev));
 }
 
 class VideoCommentResultWrapper {
@@ -122,6 +126,34 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor));
+}
+
+class VideoSingleCommentDetail {
+public:
+    VideoCommentCursor cursor;
+    VideoCommentResult root;
+    int64_t upper;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoSingleCommentDetail& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("upper") &&
+        !nlohmann_json_j.at("upper").is_null()) {
+        nlohmann_json_j.at("upper").at("mid").get_to(nlohmann_json_t.upper);
+    } else {
+        nlohmann_json_t.upper = 0;
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor, root));
+}
+
+class VideoCommentAddResult {
+public:
+    int success_action;
+    VideoCommentResult reply;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoCommentAddResult& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, success_action, reply));
 }
 
 /// Video Page

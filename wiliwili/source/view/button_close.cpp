@@ -8,9 +8,11 @@ ButtonClose::ButtonClose() {
     this->inflateFromXMLRes("xml/views/button_close.xml");
     brls::Logger::debug("View ButtonClose: create");
 
-    this->addGestureRecognizer(new brls::TapGestureRecognizer(this, [this](){
+    this->registerClickAction([this](...) {
         this->dismiss();
-    }));
+        return true;
+    });
+    this->addGestureRecognizer(new brls::TapGestureRecognizer(this));
 }
 
 ButtonClose::~ButtonClose() { brls::Logger::debug("View ButtonClose: delete"); }

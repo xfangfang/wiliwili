@@ -1,0 +1,45 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        justifyContent="flexEnd"
+        backgroundColor="@theme/brls/backdrop">
+
+    <brls:Box
+            width="460"
+            height="100%"
+            axis="column"
+            justifyContent="flexStart"
+            alignItems="center"
+            backgroundColor="@theme/brls/background">
+
+        <ButtonClose
+                id="button/close"
+                focusable="true"
+                positionType="absolute"
+                positionTop="10"
+                positionRight="10"/>
+
+        <brls:Label
+                fontSize="24"
+                text="详情"
+                positionType="absolute"
+                positionTop="20"
+                positionLeft="20"/>
+
+        <RecyclingGrid
+                id="player/single/comment/recyclingGrid"
+                focusable="true"
+                marginTop="60"
+                paddingLeft="20"
+                paddingRight="20"
+                width="460"
+                grow="1"
+                preFetchLine="2"
+                spanCount="1"
+                flowMode="true"
+                itemHeight="650"
+                wireframe="false"/>
+
+    </brls:Box>
+
+</brls:Box>

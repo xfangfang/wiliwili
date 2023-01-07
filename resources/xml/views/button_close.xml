@@ -2,6 +2,7 @@
         justifyContent="center"
         alignItems="center"
         cornerRadius="50"
+        highlightCornerRadius="50"
         axis="column"
         width="50"
         height="50">

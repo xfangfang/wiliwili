@@ -89,6 +89,20 @@ void BilibiliClient::get_comment(
         callback, error);
 }
 
+void BilibiliClient::get_comment_detail(
+    const std::string& access_key, size_t oid, int64_t rpid, size_t next,
+    const std::function<void(VideoSingleCommentDetail)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<VideoSingleCommentDetail>(
+        Api::CommentDetail,
+        {{"csrf", access_key},
+         {"next", std::to_string(next)},
+         {"oid", std::to_string(oid)},
+         {"root", std::to_string(rpid)},
+         {"type", "1"}},
+        callback, error);
+}
+
 void BilibiliClient::get_season_detail(
     const int seasonID, const int epID,
     const std::function<void(SeasonResultWrapper)>& callback,
@@ -252,6 +266,61 @@ void BilibiliClient::be_agree(const std::string& access_key, int aid,
         {"csrf", access_key},
     };
     HTTP::postResultAsync(Api::LikeWeb, {}, payload, callback, error);
+}
+
+void BilibiliClient::be_agree_comment(const std::string& access_key, size_t oid,
+                                      int64_t rpid, bool is_like,
+                                      const std::function<void()>& callback,
+                                      const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"oid", std::to_string(oid)},
+        {"rpid", std::to_string(rpid)},
+        {"action", is_like ? "1" : "0"},
+        {"csrf", access_key},
+        {"type", "1"},
+        {"ordering", "heat"},
+    };
+    HTTP::postResultAsync(Api::CommentLike, {}, payload, callback, error);
+}
+
+void BilibiliClient::delete_comment(const std::string& access_key, size_t oid,
+                                    int64_t rpid,
+                                    const std::function<void()>& callback,
+                                    const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"oid", std::to_string(oid)},
+        {"rpid", std::to_string(rpid)},
+        {"csrf", access_key},
+        {"type", "1"},
+    };
+    HTTP::postResultAsync(Api::CommentDel, {}, payload, callback, error);
+}
+
+void BilibiliClient::add_comment(
+    const std::string& access_key, const std::string& message, size_t oid,
+    int64_t parent, int64_t root,
+    const std::function<void(VideoCommentAddResult)>& callback,
+    const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"oid", std::to_string(oid)},
+        {"csrf", access_key},
+        {"message", message},
+        {"type", "1"},
+        {"plat", "1"},
+    };
+    if (parent) payload.Add({"parent", std::to_string(parent)});
+    if (root) payload.Add({"root", std::to_string(root)});
+
+    HTTP::postResultAsync<VideoCommentAddResult>(
+        Api::CommentAdd, {}, payload,
+        [callback, error](const VideoCommentAddResult& result) {
+            if (result.success_action != 0) {
+                ERROR_MSG("cannot add comment");
+            } else {
+                CALLBACK(result);
+            }
+        },
+        error);
 }
 
 void BilibiliClient::add_coin(const std::string& access_key, int aid,

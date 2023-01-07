@@ -1,0 +1,70 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        justifyContent="flexEnd"
+        alignItems="center"
+        backgroundColor="@theme/brls/backdrop">
+
+    <brls:Box
+            id="comment/action/box"
+            positionType="absolute"
+            positionTop="0"
+            positionRight="460"
+            cornerRadius="3"
+            height="80"
+            axis="column"
+            justifyContent="center"
+            alignItems="center"
+            backgroundColor="@theme/brls/background">
+
+        <brls:Box>
+
+            <SVGImage
+                    focusable="true"
+                    id="comment/action/svg/delete"
+                    margin="14"
+                    width="48"
+                    height="48"
+                    cornerRadius="48"
+                    highlightCornerRadius="48"
+                    visibility="gone"
+                    SVG="@res/svg/bpx-svg-sprite-delete.svg"/>
+
+            <SVGImage
+                    focusable="true"
+                    id="comment/action/svg/reply"
+                    margin="14"
+                    width="48"
+                    height="48"
+                    cornerRadius="48"
+                    highlightCornerRadius="48"
+                    SVG="@res/svg/bpx-svg-sprite-reply.svg"/>
+
+            <SVGImage
+                    focusable="true"
+                    id="comment/action/svg/like"
+                    margin="14"
+                    width="48"
+                    height="48"
+                    cornerRadius="48"
+                    highlightCornerRadius="48"
+                    SVG="@res/svg/bpx-svg-sprite-liked.svg"/>
+
+        </brls:Box>
+
+    </brls:Box>
+
+    <VideoComment
+            id="comment/action/comment"
+            focusable="false"
+            width="400"
+            positionType="absolute"
+            positionRight="24"/>
+
+    <ButtonClose
+            id="button/close"
+            positionType="absolute"
+            positionTop="10"
+            positionRight="10"/>
+
+</brls:Box>

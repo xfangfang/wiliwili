@@ -4,38 +4,112 @@
 
 #include "activity/player_activity.hpp"
 #include "fragment/player_collection.hpp"
+#include "fragment/player_coin.hpp"
+#include "fragment/player_single_comment.hpp"
 #include "view/qr_image.hpp"
 #include "view/video_view.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
-#include "fragment/player_coin.hpp"
+#include "presenter/comment_related.hpp"
+#include <borealis/platforms/switch/swkbd.hpp>
 
-class DataSourceCommentList : public RecyclingGridDataSource {
+class DataSourceCommentList : public RecyclingGridDataSource,
+                              public CommentRequest {
 public:
-    DataSourceCommentList(bilibili::VideoCommentListResult result)
-        : dataList(result) {}
+    DataSourceCommentList(bilibili::VideoCommentListResult result, size_t aid)
+        : dataList(result), aid(aid) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
+        if (index == 0) {
+            VideoCommentReply* item =
+                (VideoCommentReply*)recycler->dequeueReusableCell("Reply");
+            item->setHeight(40);
+            item->setFocusable(true);
+            return item;
+        }
+
         //从缓存列表中取出 或者 新生成一个表单项
         VideoComment* item =
             (VideoComment*)recycler->dequeueReusableCell("Cell");
 
-        item->setData(this->dataList[index]);
+        item->setData(this->dataList[index - 1]);
         return item;
     }
 
-    size_t getItemCount() override { return dataList.size(); }
+    size_t getItemCount() override { return dataList.size() + 1; }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override {}
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
+        if (index == 0) {
+            if (!DialogHelper::checkLogin()) return;
+            // 回复评论
+            brls::Swkbd::openForText(
+                [this, recycler](std::string text) {
+                    this->commentReply(
+                        text, aid, 0, 0,
+                        [this, recycler](
+                            const bilibili::VideoCommentAddResult& result) {
+                            this->dataList.insert(dataList.begin(),
+                                                  result.reply);
+                            recycler->reloadData();
+                        });
+                },
+                "", "", 500, "", 0);
+            return;
+        }
+
+        PlayerSingleComment* view = new PlayerSingleComment();
+        view->setCommentData(dataList[index - 1]);
+        auto container = new brls::AppletFrame(view);
+        container->setHeaderVisibility(brls::Visibility::GONE);
+        container->setFooterVisibility(brls::Visibility::GONE);
+        container->setInFadeAnimation(true);
+        brls::Application::pushActivity(new brls::Activity(container));
+
+        VideoComment* item =
+            dynamic_cast<VideoComment*>(recycler->getGridItemByIndex(index));
+        if (!item) return;
+
+        view->likeStateEvent.subscribe([this, item, index](bool value) {
+            auto& itemData  = dataList[index - 1];
+            itemData.action = value;
+            item->setData(itemData);
+        });
+        view->likeNumEvent.subscribe([this, item, index](size_t value) {
+            auto& itemData = dataList[index - 1];
+            itemData.like  = value;
+            item->setData(itemData);
+        });
+        view->replyNumEvent.subscribe([this, item, index](size_t value) {
+            auto& itemData  = dataList[index - 1];
+            itemData.rcount = value;
+            item->setData(itemData);
+        });
+        view->deleteEvent.subscribe([this, recycler, index]() {
+            dataList.erase(dataList.begin() + index - 1);
+            recycler->setDefaultCellFocus(0);
+            recycler->reloadData();
+        });
+    }
 
     void appendData(const bilibili::VideoCommentListResult& data) {
-        this->dataList.insert(this->dataList.end(), data.begin(), data.end());
+        bool skip = false;
+        for (auto& i : data) {
+            skip = false;
+            for (auto& j : this->dataList) {
+                if (j.rpid == i.rpid) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip) this->dataList.push_back(i);
+        }
     }
 
     void clearData() override { this->dataList.clear(); }
 
 private:
     bilibili::VideoCommentListResult dataList;
+    size_t aid;
 };
 
 /// BasePlayerActivity
@@ -46,6 +120,9 @@ void BasePlayerActivity::setCommonData() {
     // 视频评论
     recyclingGrid->registerCell("Cell",
                                 []() { return VideoComment::create(); });
+
+    recyclingGrid->registerCell("Reply",
+                                []() { return VideoCommentReply::create(); });
 
     // 切换右侧Tab
     this->registerAction(
@@ -277,7 +354,9 @@ void BasePlayerActivity::onCommentInfo(
                         result.replies.end());
         // 为了加载骨架屏美观，设置为了100，在加载评论时手动修改回来
         this->recyclingGrid->estimatedRowHeight = 416;
-        this->recyclingGrid->setDataSource(new DataSourceCommentList(comments));
+        this->recyclingGrid->setDataSource(
+            new DataSourceCommentList(comments, videoDetailResult.aid));
+        if (comments.size() > 1) this->recyclingGrid->selectRowAt(1, false);
         // 设置评论数量提示
         auto item = this->tabFrame->getTab("wiliwili/player/comment"_i18n);
         if (item) item->setSubtitle(wiliwili::num2w(result.cursor.all_count));
