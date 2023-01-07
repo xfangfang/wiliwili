@@ -12,6 +12,8 @@
 #include "bilibili.h"
 #include <borealis/platforms/switch/swkbd.hpp>
 
+using namespace brls::literals;
+
 /// GridRelatedView
 class GridRelatedView : public RecyclingGridItem {
 public:
@@ -69,7 +71,6 @@ public:
                 (GridHintView*)recycler->dequeueReusableCell("Hint");
             bottom->setJustifyContent(brls::JustifyContent::CENTER);
             bottom->hintLabel->setText("没有更多评论");
-            bottom->setMarginBottom(100);
             return bottom;
         }
 
@@ -153,19 +154,26 @@ public:
         });
 
         view->deleteClickEvent.subscribe([this, recycler, index]() {
-            //            auto& itemData = dataList[index];
-            //            this->commentDelete(itemData.oid, itemData.rpid);
+            DialogHelper::showCancelableDialog(
+                "删除评论后，评论下所有回复都会被删除\n是否继续?",
+                [this, recycler, index]() {
+                    auto& itemData = dataList[index];
+                    this->commentDelete(itemData.oid, itemData.rpid);
 
-            if (index == 0) {
-                // 删除一整层
-                deleteReply->fire();
-            } else {
-                // 删除单条回复
-                dataList.erase(dataList.begin() + index);
-                recycler->reloadData();
-                // 更新评论数量
-                this->updateCommentLabelNum(recycler, dataList[0].rcount - 1);
-            }
+                    brls::Logger::error("current reply: {}",
+                                        dataList[0].rcount - 1);
+                    if (index == 0) {
+                        // 删除一整层
+                        deleteReply->fire();
+                    } else {
+                        // 删除单条回复
+                        dataList.erase(dataList.begin() + index);
+                        recycler->reloadData();
+                        // 更新评论数量
+                        this->updateCommentLabelNum(recycler,
+                                                    dataList[0].rcount - 1);
+                    }
+                });
         });
     }
 
@@ -234,7 +242,16 @@ PlayerSingleComment::PlayerSingleComment() {
         return true;
     });
 
-    deleteEvent.subscribe([this]() { this->dismiss(); });
+    this->deleteEvent.subscribe([this]() { this->dismiss(); });
+
+    this->registerAction("wiliwili/home/common/refresh"_i18n,
+                         brls::ControllerButton::BUTTON_X,
+                         [this](brls::View* view) {
+                             brls::Application::giveFocus(this->closeBtn);
+                             this->recyclingGrid->forceRequestNextPage();
+                             this->setCommentData(this->root);
+                             return true;
+                         });
 }
 
 void PlayerSingleComment::setCommentData(
@@ -278,19 +295,16 @@ void PlayerSingleComment::requestData() {
 
                 std::string uploader_mid = std::to_string(result.upper);
 
+                DataSourceSingleCommentList* ds =
+                    dynamic_cast<DataSourceSingleCommentList*>(
+                        recyclingGrid->getDataSource());
+                if (!ds) return;
+
                 // 更新层主评论状态
                 if (result.cursor.is_begin) {
-                    VideoComment* item = dynamic_cast<VideoComment*>(
-                        recyclingGrid->getGridItemByIndex(0));
-                    if (item) {
-                        result.root.member.is_uploader =
-                            result.root.member.mid == uploader_mid;
-                        item->setData(result.root);
-                    }
-                    GridRelatedView* relatedView =
-                        dynamic_cast<GridRelatedView*>(
-                            recyclingGrid->getGridItemByIndex(1));
-                    if (relatedView) relatedView->setNum(result.root.rcount);
+                    ds->updateCommentLabelNum(recyclingGrid,
+                                              result.root.rcount);
+                    this->root = result.root;
                     likeNumEvent.fire(result.root.like);
                     likeStateEvent.fire(result.root.action);
                     replyNumEvent.fire(result.root.rcount);
@@ -299,11 +313,6 @@ void PlayerSingleComment::requestData() {
                 // 设置是否为up主
                 for (auto& i : result.root.replies)
                     i.member.is_uploader = i.member.mid == uploader_mid;
-
-                DataSourceSingleCommentList* ds =
-                    dynamic_cast<DataSourceSingleCommentList*>(
-                        recyclingGrid->getDataSource());
-                if (!ds) return;
 
                 // 根据元素的数量来检查是否加载结束，2为楼主与回复数提示
                 if (ds->getItemCount() - 2 + result.root.replies.size() >=
@@ -351,18 +360,18 @@ PlayerCommentAction::PlayerCommentAction() {
         true);
 
     this->svgLike->registerClickAction([this](...) {
-        this->likeClickEvent.fire();
         this->dismiss();
+        this->likeClickEvent.fire();
         return true;
     });
     this->svgReply->registerClickAction([this](...) {
-        this->replyClickEvent.fire();
         this->dismiss();
+        this->replyClickEvent.fire();
         return true;
     });
     this->svgDelete->registerClickAction([this](...) {
-        this->deleteClickEvent.fire();
         this->dismiss();
+        this->deleteClickEvent.fire();
         return true;
     });
 

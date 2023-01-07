@@ -20,7 +20,12 @@ enum class InfoHintType {
 
 class UserInfoView : public brls::Box {
 public:
-    UserInfoView() { this->inflateFromXMLRes("xml/views/user_info.xml"); }
+    UserInfoView() {
+        this->inflateFromXMLRes("xml/views/user_info.xml");
+        this->registerColorXMLAttribute(
+            "mainTextColor",
+            [this](NVGcolor value) { this->setMainTextColor(value); });
+    }
 
     ~UserInfoView() { ImageHelper::clear(this->avatarView); }
 
@@ -37,6 +42,10 @@ public:
                 brls::Visibility::VISIBLE);
             ImageHelper::with(this->avatarView)->load(avatar);
         }
+    }
+
+    void setMainTextColor(NVGcolor color) {
+        this->labelUsername->setTextColor(color);
     }
 
     static brls::View* create() { return new UserInfoView(); }

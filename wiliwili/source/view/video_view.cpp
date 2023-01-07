@@ -182,14 +182,6 @@ VideoView::VideoView() {
                              }
                              return true;
                          });
-
-#ifdef __SWITCH__
-    // switch平台指明弹幕字体为中文简体
-    danmakuFont = brls::Application::getFont(brls::FONT_CHINESE_SIMPLIFIED);
-#else
-    // 其他平台使用通用字体
-    danmakuFont = brls::Application::getFont(brls::FONT_REGULAR);
-#endif
 }
 
 VideoView::~VideoView() {

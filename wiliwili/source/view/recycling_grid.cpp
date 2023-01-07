@@ -521,7 +521,7 @@ void RecyclingGrid::selectRowAt(size_t index, bool animated) {
 }
 
 float RecyclingGrid::getHeightByCellIndex(size_t index, size_t start) {
-    if (index < start) return 0;
+    if (index <= start) return 0;
     if (!isFlowMode)
         return (estimatedRowHeight + estimatedRowSpace) *
                (size_t)((index - start) / spanCount);
@@ -546,6 +546,8 @@ float RecyclingGrid::getHeightByCellIndex(size_t index, size_t start) {
     }
     return res;
 }
+
+void RecyclingGrid::forceRequestNextPage() { this->requestNextPage = false; }
 
 brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction,
                                             brls::View* currentView) {

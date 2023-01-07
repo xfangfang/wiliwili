@@ -11,6 +11,10 @@
 VideoComment::VideoComment() {
     brls::Logger::debug("View VideoComment: create");
     this->inflateFromXMLRes("xml/views/video_comment.xml");
+
+    this->registerColorXMLAttribute("mainTextColor", [this](NVGcolor value) {
+        this->setMainTextColor(value);
+    });
 }
 
 VideoComment::~VideoComment() {
@@ -18,6 +22,11 @@ VideoComment::~VideoComment() {
 }
 
 RecyclingGridItem* VideoComment::create() { return new VideoComment(); }
+
+void VideoComment::setMainTextColor(NVGcolor color) {
+    this->commentContent->setTextColor(color);
+    this->userInfo->setMainTextColor(color);
+}
 
 void VideoComment::setData(bilibili::VideoCommentResult data) {
     this->comment_data = data;

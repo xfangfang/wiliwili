@@ -15,10 +15,12 @@ class ButtonClose : public brls::Box {
 public:
     ButtonClose();
 
+    void setTextColor(NVGcolor color);
+
     ~ButtonClose();
 
     static View* create();
 
 private:
-    // BRLS_BIND(brls::Label, label, "ButtonClose/label");
+    BRLS_BIND(brls::Label, label, "close/button/text");
 };

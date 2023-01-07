@@ -448,6 +448,8 @@ void PlayerActivity::onIndexChangeToNext() {
     }
 }
 
+size_t PlayerActivity::getAid() { return videoDetailResult.aid; }
+
 PlayerActivity::~PlayerActivity() {
     brls::Logger::debug("del PlayerActivity");
     //上报历史记录

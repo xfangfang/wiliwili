@@ -225,3 +225,5 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
         return container;
     });
 }
+
+size_t PlayerSeasonActivity::getAid() { return episodeResult.aid; }

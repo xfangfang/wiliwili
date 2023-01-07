@@ -355,7 +355,7 @@ void BasePlayerActivity::onCommentInfo(
         // 为了加载骨架屏美观，设置为了100，在加载评论时手动修改回来
         this->recyclingGrid->estimatedRowHeight = 416;
         this->recyclingGrid->setDataSource(
-            new DataSourceCommentList(comments, videoDetailResult.aid));
+            new DataSourceCommentList(comments, this->getAid()));
         if (comments.size() > 1) this->recyclingGrid->selectRowAt(1, false);
         // 设置评论数量提示
         auto item = this->tabFrame->getTab("wiliwili/player/comment"_i18n);

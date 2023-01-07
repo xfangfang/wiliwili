@@ -2,15 +2,14 @@
         width="auto"
         height="auto"
         justifyContent="flexEnd"
-        alignItems="center"
-        backgroundColor="@theme/brls/backdrop">
+        alignItems="center">
 
     <brls:Box
             id="comment/action/box"
             positionType="absolute"
             positionTop="0"
             positionRight="460"
-            cornerRadius="3"
+            cornerRadius="40"
             height="80"
             axis="column"
             justifyContent="center"
@@ -54,15 +53,23 @@
 
     </brls:Box>
 
+    <brls:Box
+            width="460"
+            height="100%"
+            backgroundColor="@theme/brls/backdrop">
+    </brls:Box>
+
     <VideoComment
             id="comment/action/comment"
             focusable="false"
             width="400"
             positionType="absolute"
+            mainTextColor="#FFFFFF"
             positionRight="24"/>
 
     <ButtonClose
             id="button/close"
+            textColor="#FFFFFF"
             positionType="absolute"
             positionTop="10"
             positionRight="10"/>

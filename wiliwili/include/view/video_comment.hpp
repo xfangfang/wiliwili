@@ -46,6 +46,8 @@ public:
 
     void setData(bilibili::VideoCommentResult data);
 
+    void setMainTextColor(NVGcolor color);
+
     void hideReplyIcon(bool hide);
 
     void prepareForReuse() override;
