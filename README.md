@@ -151,7 +151,7 @@ cd wiliwili
 
 ```shell
 # macOS: install dependencies
-brew install glfw mpv
+brew install mpv
 
 cmake -B build -DPLATFORM_DESKTOP=ON
 make -C build wiliwili -j$(sysctl -n hw.ncpu)
@@ -160,8 +160,8 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 #### Linux
 
 ```shell
-# Ubuntu: install dependencies (glfw3.3 or later)
-sudo apt install libcurl4-openssl-dev libglfw3-dev libmpv-dev
+# Ubuntu: install dependencies
+sudo apt install libcurl4-openssl-dev libmpv-dev
 
 cmake -B build -DPLATFORM_DESKTOP=ON
 make -C build wiliwili -j$(nproc)
@@ -182,7 +182,7 @@ sudo xargs -a build/install_manifest.txt rm
 ```shell
 # Windows: install dependencies (MSYS2 MinGW64)
 pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-make \
-  git mingw-w64-x86_64-glfw mingw-w64-x86_64-mpv
+  git mingw-w64-x86_64-mpv
 
 cmake -B build -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON
 mingw32-make -C build wiliwili -j$(nproc)
@@ -190,7 +190,7 @@ mingw32-make -C build wiliwili -j$(nproc)
 
 #### SDL2 （测试支持）
 
-由于 SDL2 支持的平台比GLFW更多，考虑到未来向其他平台移植，所以wiliwili目前也支持切换到SDL2环境构建，目前只在switch和macOS上进行了测试。
+由于 SDL2 支持的平台更多，考虑到未来向其他平台移植，所以wiliwili目前也支持切换到SDL2环境构建，目前只在switch和macOS上进行了测试。
 
 ```shell
 # macOS

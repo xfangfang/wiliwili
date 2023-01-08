@@ -3,7 +3,6 @@
 //
 
 #include <borealis.hpp>
-#include <borealis/platforms/switch/swkbd.hpp>
 #include "fragment/home_tab.hpp"
 #include "activity/search_activity.hpp"
 
@@ -18,7 +17,7 @@ void HomeTab::onCreate() {
     this->registerTabAction(
         "wiliwili/search/tab"_i18n, brls::ControllerButton::BUTTON_Y,
         [](brls::View* view) -> bool {
-            brls::Swkbd::openForText(
+            brls::Application::getImeManager()->openForText(
                 [](std::string text) {
                     brls::Application::pushActivity(new SearchActivity(text));
                 },
@@ -45,7 +44,7 @@ void HomeTab::onCreate() {
 
     this->search->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->search, []() {
-            brls::Swkbd::openForText(
+            brls::Application::getImeManager()->openForText(
                 [](std::string text) {
                     brls::Application::pushActivity(new SearchActivity(text));
                 },

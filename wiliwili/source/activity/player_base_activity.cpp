@@ -11,7 +11,6 @@
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "presenter/comment_related.hpp"
-#include <borealis/platforms/switch/swkbd.hpp>
 
 class DataSourceCommentList : public RecyclingGridDataSource,
                               public CommentRequest {
@@ -42,7 +41,7 @@ public:
         if (index == 0) {
             if (!DialogHelper::checkLogin()) return;
             // 回复评论
-            brls::Swkbd::openForText(
+            brls::Application::getImeManager()->openForText(
                 [this, recycler](std::string text) {
                     this->commentReply(
                         text, aid, 0, 0,

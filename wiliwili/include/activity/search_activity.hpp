@@ -30,5 +30,6 @@ public:
 private:
     BRLS_BIND(brls::Label, labelSearchKey, "search/label/key");
     BRLS_BIND(SearchTab, searchTab, "search/tab");
+    BRLS_BIND(brls::Box, searchBox, "search/box");
     UpdateSearchEvent updateSearchEvent;
 };

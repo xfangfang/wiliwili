@@ -20,27 +20,11 @@ modules:
       - '-DPLATFORM_DESKTOP=ON'
       - '-DINSTALL=ON'
       - '-DCMAKE_BUILD_TYPE=Release'
-    builddir: true 
+    builddir: true
     sources:
       - type: dir
         path: '.'
     modules:
-      - name: glfw
-        buildsystem: cmake-ninja
-        config-opts:
-          - -DCMAKE_BUILD_TYPE=RelWithDebInfo
-          - -DBUILD_SHARED_LIBS:BOOL=ON
-          - -DBUILD_GLFW_EXAMPLES:BOOL=OFF
-          - -DBUILD_GLFW_DOCS:BOOL=OFF
-        sources:
-          - type: archive
-            url: https://github.com/glfw/glfw/releases/download/3.3.8/glfw-3.3.8.zip
-            sha256: 4d025083cc4a3dd1f91ab9b9ba4f5807193823e565a5bcf4be202669d9911ea6
-        cleanup:
-          - /include
-          - /lib/cmake
-          - /lib/pkgconfig
-
       - name: libmpv
         cleanup:
           - /include

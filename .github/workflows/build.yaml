@@ -116,8 +116,6 @@ jobs:
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-make
-            mingw-w64-x86_64-glfw
-            mingw-w64-x86_64-glm
             mingw-w64-x86_64-mpv
             git
             p7zip
@@ -135,7 +133,7 @@ jobs:
           mingw32-make wiliwili -j4
           strip wiliwili.exe
           mkdir wiliwili && mv wiliwili.exe wiliwili && mv resources wiliwili
-          for i in {libwinpthread-1,libgcc_s_seh-1,zlib1,libssh2-1,glfw3,libstdc++-6,libcrypto-1_1-x64}; do
+          for i in {libwinpthread-1,libgcc_s_seh-1,zlib1,libssh2-1,libstdc++-6,libcrypto-1_1-x64}; do
           cp /mingw64/bin/${i}.dll wiliwili
           done
           wget https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/mpv-dev-x86_64-20221204-git-4574dd5.7z -O mpv.7z
@@ -194,7 +192,7 @@ jobs:
 
       - name: install deps
         run: |
-          brew install create-dmg dylibbundler glfw glm
+          brew install create-dmg dylibbundler
           brew tap xfangfang/wiliwili
           brew install -v mpv-wiliwili
 

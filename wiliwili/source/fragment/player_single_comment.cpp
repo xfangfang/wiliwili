@@ -10,7 +10,6 @@
 #include "utils/config_helper.hpp"
 #include "presenter/comment_related.hpp"
 #include "bilibili.h"
-#include <borealis/platforms/switch/swkbd.hpp>
 
 using namespace brls::literals;
 
@@ -127,7 +126,7 @@ public:
         });
 
         view->replyClickEvent.subscribe([this, index, recycler]() {
-            brls::Swkbd::openForText(
+            brls::Application::getImeManager()->openForText(
                 [this, index, recycler](std::string text) {
                     // 更新显示的评论数量
                     this->updateCommentLabelNum(recycler,

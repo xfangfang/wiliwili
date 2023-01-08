@@ -22,6 +22,9 @@ const std::string BILIBILI_BUILD      = "1001005000";
 using ErrorCallback = std::function<void(const std::string&)>;
 #define ERROR_MSG(msg, ...) \
     if (error) error(msg)
+#ifdef CALLBACK
+#undef CALLBACK
+#endif
 #define CALLBACK(data) \
     if (callback) callback(data)
 
@@ -60,6 +63,7 @@ public:
 #ifndef VERIFY_SSL
             cpr::VerifySsl{false},
 #endif
+            cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS},
             cpr::Timeout{HTTP::TIMEOUT});
     }
 
@@ -126,6 +130,7 @@ public:
 #ifndef VERIFY_SSL
             cpr::VerifySsl{false},
 #endif
+            cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS},
             cpr::Timeout{HTTP::TIMEOUT});
     }
 

@@ -2,7 +2,7 @@
 // Created by fang on 2022/7/10.
 //
 
-#if defined(__APPLE__) || defined(__linux__)
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
 #include <unistd.h>
 #include <borealis/platforms/desktop/desktop_platform.hpp>
 #endif
@@ -304,7 +304,7 @@ int ProgramConfig::getStringOptionIndex(SettingItem item) {
         try {
             std::string option =
                 this->setting.at(optionData.key).get<std::string>();
-            for (int i = 0; i < optionData.optionList.size(); ++i)
+            for (size_t i = 0; i < optionData.optionList.size(); ++i)
                 if (optionData.optionList[i] == option) return i;
         } catch (const std::exception& e) {
             brls::Logger::error("Damaged config found: {}/{}", optionData.key,
@@ -378,9 +378,9 @@ std::string ProgramConfig::getConfigDir() {
 }
 
 void ProgramConfig::checkRestart(char* argv[]) {
-#if defined(__APPLE__) || defined(__linux__)
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     if (!brls::DesktopPlatform::RESTART_APP) return;
-    
+
     brls::Logger::info("Restart app {}", argv[0]);
     char* newArgv[2];
     newArgv[0] = argv[0];

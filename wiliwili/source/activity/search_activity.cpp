@@ -3,7 +3,6 @@
  */
 
 #include "activity/search_activity.hpp"
-#include "borealis/platforms/switch/swkbd.hpp"
 #include "fragment/search_tab.hpp"
 
 SearchActivity::SearchActivity(const std::string& key) {
@@ -20,12 +19,20 @@ void SearchActivity::onContentAvailable() {
     this->registerAction("wiliwili/search/tab"_i18n,
                          brls::ControllerButton::BUTTON_Y,
                          [this](brls::View* view) -> bool {
-                             brls::Swkbd::openForText(
+                             brls::Application::getImeManager()->openForText(
                                  [&](std::string text) { this->search(text); },
                                  "wiliwili/home/common/search"_i18n, "", 32,
                                  SearchActivity::currentKey, 0);
                              return true;
                          });
+
+    this->searchBox->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->searchBox, [this]() {
+            brls::Application::getImeManager()->openForText(
+                [&](std::string text) { this->search(text); },
+                "wiliwili/home/common/search"_i18n, "", 32,
+                SearchActivity::currentKey, 0);
+        }));
 
     this->getUpdateSearchEvent()->subscribe(
         [this](const std::string& s) { this->search(s); });

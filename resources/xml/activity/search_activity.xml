@@ -5,15 +5,19 @@
     <brls:Box
             axis="column"
             grow="1">
+        <SearchTab
+                id="search/tab"
+                grow="1"/>
+
         <brls:Box
                 positionType="absolute"
                 positionRight="0"
                 positionTop="0"
                 width="340"
                 height="65"
-                alignItems="center"
-                wireframe="false">
+                alignItems="center">
             <brls:Box
+                    id="search/box"
                     width="300"
                     height="35"
                     backgroundColor="#E3E5E7"
@@ -34,8 +38,5 @@
             </brls:Box>
         </brls:Box>
 
-        <SearchTab
-                id="search/tab"
-                grow="1"/>
     </brls:Box>
 </brls:AppletFrame>
