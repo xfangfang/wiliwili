@@ -35,7 +35,7 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
     BILI::get_season_detail(
         seasonID, epID,
         [ASYNC_TOKEN, epID](const bilibili::SeasonResultWrapper& result) {
-            brls::sync([ASYNC_TOKEN, result, epID]() mutable {
+            brls::sync([ASYNC_TOKEN, result, epID]() {
                 ASYNC_RELEASE
                 brls::Logger::debug("BILI::get_season_detail");
                 seasonInfo = result;
@@ -84,18 +84,19 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
                 for (size_t i = 0; i < episodeList.size(); i++)
                     episodeList[i].index = i;
 
-                if (epID == 0) {
-                    epID                   = result.user_status.last_ep_id;
+                size_t ep_id = epID;
+                if (ep_id == 0) {
+                    ep_id                   = result.user_status.last_ep_id;
                     episodeResult.progress = result.user_status.last_time;
                 }
 
                 // 加载指定epid的视频
-                if (epID != 0) {
+                if (ep_id != 0) {
                     for (auto& i : episodeList) {
-                        if (i.id == (unsigned int)epID) {
+                        if (i.id == (unsigned int)ep_id) {
                             brls::Logger::debug("Load episode {} from epid: {}",
                                                 i.long_title, i.id);
-                            if (epID == result.user_status.last_ep_id)
+                            if (ep_id == result.user_status.last_ep_id)
                                 i.progress = result.user_status.last_time;
                             else
                                 i.progress = episodeResult.progress;

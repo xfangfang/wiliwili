@@ -382,9 +382,7 @@ void ProgramConfig::checkRestart(char* argv[]) {
     if (!brls::DesktopPlatform::RESTART_APP) return;
 
     brls::Logger::info("Restart app {}", argv[0]);
-    char* newArgv[2];
-    newArgv[0] = argv[0];
-    newArgv[1] = NULL;
-    execve(argv[0], newArgv, NULL);
+    extern char** environ;
+    execve(argv[0], argv, environ);
 #endif
 }
