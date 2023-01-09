@@ -40,7 +40,7 @@ public:
         float progress       = -1;
         if (r.duration >= 0 && r.progress >= 0 &&
             (r.history.business == "pgc" || r.history.business == "archive")) {
-            duration = wiliwili::sec2Time(r.progress) + " / " +
+            duration = wiliwili::sec2Time(r.progress) + "/" +
                        wiliwili::sec2Time(r.duration);
             progress = r.progress * 1.0 / r.duration;
         } else if (r.progress < 0) {
