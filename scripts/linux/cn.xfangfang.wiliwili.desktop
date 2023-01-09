@@ -1,5 +1,4 @@
 [Desktop Entry]
-Version=0.5.0
 Name=wiliwili
 Comment=A 3rd party bilibili client
 Exec=wiliwili %U

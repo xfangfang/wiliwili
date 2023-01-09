@@ -381,8 +381,18 @@ void ProgramConfig::checkRestart(char* argv[]) {
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     if (!brls::DesktopPlatform::RESTART_APP) return;
 
-    brls::Logger::info("Restart app {}", argv[0]);
-    extern char** environ;
-    execve(argv[0], argv, environ);
+    #ifdef __linux__
+        char filePath[PATH_MAX+1];
+        ssize_t count = readlink("/proc/self/exe", filePath, PATH_MAX);
+        if(count <= 0) strcpy(filePath, argv[0]);
+        else filePath[count] = 0;
+    #else
+        char* filePath = argv[0];
+    #endif
+
+    brls::Logger::info("Restart app {}", filePath);
+    brls::Logger::info("Current work dir {}", getcwd(NULL,0));
+
+    execv(filePath, argv);
 #endif
 }
