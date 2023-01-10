@@ -138,7 +138,7 @@ jobs:
           done
           wget https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/mpv-dev-x86_64-20221204-git-4574dd5.7z -O mpv.7z
           7z e mpv.7z -ompv
-          cp mpv/mpv-2.dll wiliwili/mpv-1.dll
+          cp mpv/mpv-2.dll wiliwili/libmpv-2.dll
           tar -czvf ../${DIST_EXE}.tar.gz wiliwili
           echo "status=success" >> $GITHUB_OUTPUT
 
