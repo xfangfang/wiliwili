@@ -6,6 +6,7 @@
 
 #include <borealis.hpp>
 #include "view/mpv_core.hpp"
+#include "view/danmaku_core.hpp"
 
 class VideoProgressSlider;
 
@@ -18,6 +19,12 @@ public:
     float length = -1;  // second
 
     EDLUrl(std::string url, float length = -1) : url(url), length(length) {}
+};
+
+enum class OSDState {
+    HIDDEN    = 0,
+    SHOWN     = 1,
+    ALWAYS_ON = 2,
 };
 
 class VideoView : public brls::Box {
@@ -39,12 +46,20 @@ public:
 
     void togglePlay();
 
+    void setSpeed(float speed);
+
     /// OSD
     void showOSD(bool temp = true);
 
     void hideOSD();
 
     bool isOSDShown();
+
+    void onOSDStateChanged(bool state);
+
+    void toggleDanmaku();
+
+    void toggleOSD();
 
     void showLoading();
 
@@ -93,14 +108,14 @@ public:
 
     View* getDefaultFocus() override;
 
+    void onChildFocusGained(View* directChild, View* focusedView) override;
+
     View* getNextFocus(brls::FocusDirection direction,
                        View* currentView) override;
 
     void registerMpvEvent();
 
     void unRegisterMpvEvent();
-
-    void resetDanmakuPosition();
 
     void buttonProcessing();
 
@@ -125,13 +140,16 @@ private:
     BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
     BRLS_BIND(SVGImage, btnFullscreenIcon, "video/osd/fullscreen/icon");
     BRLS_BIND(SVGImage, btnDanmakuIcon, "video/osd/danmaku/icon");
+    BRLS_BIND(SVGImage, btnDanmakuSettingIcon, "video/osd/danmaku/setting");
 
+    // OSD
     time_t osdLastShowTime     = 0;
     const time_t OSD_SHOW_TIME = 5;  //默认显示五秒
+    OSDState osd_state         = OSDState::HIDDEN;
+    bool is_osd_shown          = false;
+
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
-    int danmakuFont    = brls::Application::getDefaultFont();
-    std::vector<DanmakuItem> danmakuData;
 
     bool closeOnEndOfFile = true;  // 全屏时 播放结束自动取消全屏
 

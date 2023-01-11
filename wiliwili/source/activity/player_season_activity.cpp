@@ -70,6 +70,8 @@ void PlayerSeasonActivity::onContentAvailable() {
             dialog->open();
             return true;
         });
+    this->videoTitleBox->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->videoTitleBox));
 
     //评论加载下一页
     recyclingGrid->onNextPage([this]() {

@@ -32,7 +32,8 @@ public:
             this->hintLabel->setText("");
         } else {
             this->hintLabel->setText(
-                fmt::format("相关回复共{}条", wiliwili::num2w(num)));
+                fmt::format("wiliwili/player/single_comment/related"_i18n,
+                            wiliwili::num2w(num)));
         }
     }
 
@@ -69,7 +70,8 @@ public:
             GridHintView* bottom =
                 (GridHintView*)recycler->dequeueReusableCell("Hint");
             bottom->setJustifyContent(brls::JustifyContent::CENTER);
-            bottom->hintLabel->setText("没有更多评论");
+            bottom->hintLabel->setText(
+                "wiliwili/player/single_comment/end"_i18n);
             return bottom;
         }
 
@@ -154,7 +156,7 @@ public:
 
         view->deleteClickEvent.subscribe([this, recycler, index]() {
             DialogHelper::showCancelableDialog(
-                "删除评论后，评论下所有回复都会被删除\n是否继续?",
+                "wiliwili/player/single_comment/delete"_i18n,
                 [this, recycler, index]() {
                     auto& itemData = dataList[index];
                     this->commentDelete(itemData.oid, itemData.rpid);

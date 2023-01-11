@@ -41,41 +41,6 @@ typedef enum MpvEventEnum {
 
 typedef brls::Event<MpvEventEnum> MPVEvent;
 
-class DanmakuItem {
-public:
-    DanmakuItem(const std::string &content, const char *attributes);
-
-    std::string msg;  // 弹幕内容
-    float time;       // 弹幕出现的时间
-    int type;         // 弹幕类型 1/2/3: 普通; 4: 底部; 5: 顶部;
-    int fontSize;     // 弹幕字号 18/25/36
-    int fontColor;    // 弹幕颜色
-
-    bool isShown         = false;
-    bool showing         = false;
-    bool canShow         = true;
-    float length         = 0;
-    int line             = 0;  // 弹幕在屏幕上的行数
-    float speed          = 0;
-    int64_t startTime    = 0;
-    NVGcolor color       = nvgRGBA(255, 255, 255, 160);
-    NVGcolor borderColor = nvgRGBA(0, 0, 0, 160);
-    //    int pubDate; // 弹幕发送时间
-    //    int pool; // 弹幕池类型
-    //    char hash[9] = {0};
-    //    uint64_t dmid; // 弹幕ID
-    //    int level; // 弹幕等级 0-10
-
-    inline static std::vector<std::pair<float, float>> lines =
-        std::vector<std::pair<float, float>>(20, {0, 0});
-
-    inline static std::vector<float> centerLines = std::vector<float>(20, {0});
-
-    bool operator<(const DanmakuItem &item) const {
-        return this->time < item.time;
-    }
-};
-
 class MPVCore : public brls::Singleton<MPVCore> {
 public:
     MPVCore();
@@ -120,6 +85,12 @@ public:
         return ret == 1;
     }
 
+    double getSpeed() {
+        double ret = 1;
+        get_property("speed", MPV_FORMAT_DOUBLE, &ret);
+        return ret;
+    }
+
     double getPlaybackTime() {
         get_property("pause", MPV_FORMAT_DOUBLE, &this->playback_time);
         return this->playback_time;
@@ -153,13 +124,7 @@ public:
 
     MPVEvent *getEvent();
 
-    void loadDanmakuData(const std::vector<DanmakuItem> &data);
-
     void reset();
-
-    void resetDanmakuPosition();
-
-    std::vector<DanmakuItem> getDanmakuData();
 
     // core states
     int core_idle          = 0;
@@ -168,11 +133,6 @@ public:
     double playback_time   = 0;
     double percent_pos     = 0;
     int64_t video_progress = 0;
-    std::mutex danmakuMutex;
-    bool showDanmaku    = false;
-    bool danmakuLoaded  = false;
-    size_t danmakuIndex = 0;  // 当前显示的第一条弹幕序号
-    std::vector<DanmakuItem> danmakuData;
 
     // Bottom progress bar
     inline static bool BOTTOM_BAR    = true;

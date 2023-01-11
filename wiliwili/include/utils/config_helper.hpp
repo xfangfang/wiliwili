@@ -34,6 +34,16 @@ enum class SettingItem {
     IMAGE_REQUEST_THREADS,
     VIDEO_FORMAT,
     GAMEPAD_VIBRATION,
+    DANMAKU_ON,
+    DANMAKU_FILTER_LEVEL,
+    DANMAKU_FILTER_SCROLL,
+    DANMAKU_FILTER_TOP,
+    DANMAKU_FILTER_BOTTOM,
+    DANMAKU_FILTER_COLOR,
+    DANMAKU_STYLE_AREA,
+    DANMAKU_STYLE_ALPHA,
+    DANMAKU_STYLE_FONTSIZE,
+    DANMAKU_STYLE_SPEED,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -88,9 +98,9 @@ public:
     }
 
     template <typename T>
-    void setSettingItem(SettingItem item, T data) {
+    void setSettingItem(SettingItem item, T data, bool save = true) {
         setting[SETTING_MAP[item].key] = data;
-        this->save();
+        if (save) this->save();
     }
 
     ProgramOption getOptionData(SettingItem item);

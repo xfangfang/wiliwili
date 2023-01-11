@@ -221,6 +221,41 @@
     },
     "collection": {
       "title": "选择收藏夹"
+    },
+    "danmaku": {
+      "header": "弹幕设置",
+      "filter": {
+        "header": "弹幕过滤",
+        "top": "顶部弹幕",
+        "scroll": "滚动弹幕",
+        "bottom": "底部弹幕",
+        "color": "彩色弹幕",
+        "level": "过滤等级",
+        "level_n": "{}级"
+      },
+      "style": {
+        "header": "弹幕样式",
+        "area": "显示区域",
+        "area_1_4": "1/4 屏幕",
+        "area_2_4": "1/2 屏幕",
+        "area_3_4": "3/4 屏幕",
+        "area_4_4": "全屏幕",
+        "alpha": "不透明度",
+        "fontsize": "弹幕字号",
+        "speed": "弹幕速度",
+        "speed_slow_plus": "极慢",
+        "speed_slow": "较慢",
+        "speed_fast_plus": "极快",
+        "speed_fast": "较快",
+        "speed_moderate": "适中"
+      }
+    },
+    "single_comment": {
+      "detail": "详情",
+      "hint": "发一条友善的评论",
+      "related": "相关回复共{}条",
+      "end": "没有更多评论",
+      "delete": "删除评论后，评论下所有回复都会被删除\n是否继续?"
     }
   },
   "dialog": {

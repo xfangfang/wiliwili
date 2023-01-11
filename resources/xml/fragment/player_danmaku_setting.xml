@@ -1,0 +1,97 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        justifyContent="flexEnd"
+        backgroundColor="@theme/brls/backdrop">
+
+    <brls:Box
+            width="460"
+            height="100%"
+            axis="column"
+            backgroundColor="@theme/brls/background">
+
+        <brls:Label
+                height="24"
+                margin="20"
+                fontSize="24"
+                text="@i18n/wiliwili/player/danmaku/header"/>
+
+        <ButtonClose
+                id="button/close"
+                focusable="true"
+                positionType="absolute"
+                positionTop="10"
+                positionRight="10"/>
+
+        <brls:ScrollingFrame
+                id="danmaku/settings"
+                width="100%"
+                grow="1"
+                scrollingBehavior="centered">
+
+            <brls:Box
+                    width="auto"
+                    height="auto"
+                    axis="column"
+                    paddingLeft="40"
+                    paddingRight="@style/brls/tab_frame/content_padding_sides"
+                    paddingBottom="@style/brls/tab_frame/content_padding_top_bottom"
+                    alignItems="stretch">
+                <brls:Header
+                        width="auto"
+                        height="auto"
+                        title="@i18n/wiliwili/player/danmaku/style/header"
+                        marginBottom="0px"/>
+                <brls:Box
+                        width="100%"
+                        height="auto"
+                        axis="column"
+                        marginBottom="30px">
+
+                    <brls:SelectorCell
+                            id="player/danmaku/style/area"/>
+
+                    <brls:SelectorCell
+                            id="player/danmaku/style/alpha"/>
+
+                    <brls:SelectorCell
+                            id="player/danmaku/style/fontsize"/>
+
+                    <brls:SelectorCell
+                            id="player/danmaku/style/speed"/>
+
+                </brls:Box>
+                <brls:Header
+                        width="auto"
+                        height="auto"
+                        title="@i18n/wiliwili/player/danmaku/filter/header"
+                        marginBottom="0px"/>
+                <brls:Box
+                        width="100%"
+                        height="auto"
+                        axis="column"
+                        marginBottom="30px">
+
+                    <brls:SelectorCell
+                            id="player/danmaku/filter/level"/>
+
+                    <brls:BooleanCell
+                            id="player/danmaku/filter/scroll"/>
+
+                    <brls:BooleanCell
+                            id="player/danmaku/filter/top"/>
+
+                    <brls:BooleanCell
+                            id="player/danmaku/filter/bottom"/>
+
+                    <brls:BooleanCell
+                            id="player/danmaku/filter/color"/>
+
+                </brls:Box>
+            </brls:Box>
+
+        </brls:ScrollingFrame>
+
+    </brls:Box>
+
+</brls:Box>

@@ -7,6 +7,7 @@
 #include "presenter/video_detail.hpp"
 #include "utils/config_helper.hpp"
 #include "view/mpv_core.hpp"
+#include "view/danmaku_core.hpp"
 #include "bilibili/result/mine_collection_result.h"
 
 VideoDetail::VideoDetail() {
@@ -86,7 +87,7 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
 
                 size_t ep_id = epID;
                 if (ep_id == 0) {
-                    ep_id                   = result.user_status.last_ep_id;
+                    ep_id                  = result.user_status.last_ep_id;
                     episodeResult.progress = result.user_status.last_time;
                 }
 
@@ -502,7 +503,7 @@ void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
             }
 
             brls::sync(
-                [items]() { MPVCore::instance().loadDanmakuData(items); });
+                [items]() { DanmakuCore::instance().loadDanmakuData(items); });
 
             brls::Logger::debug("DANMAKU: decode done: {}", items.size());
         },

@@ -11,8 +11,8 @@
 #include "view/video_progress_slider.hpp"
 #include "view/svg_image.hpp"
 #include "utils/number_helper.hpp"
-#include <fmt/core.h>
 #include "activity/player_activity.hpp"
+#include "fragment/player_danmaku_setting.hpp"
 
 using namespace brls;
 
@@ -64,11 +64,7 @@ VideoView::VideoView() {
     this->registerAction(
         "toggleOSD", brls::ControllerButton::BUTTON_Y,
         [this](brls::View* view) -> bool {
-            if (isOSDShown()) {
-                this->hideOSD();
-            } else {
-                this->showOSD(true);
-            }
+            this->toggleOSD();
             return true;
         },
         true);
@@ -76,15 +72,7 @@ VideoView::VideoView() {
     this->registerAction(
         "toggleDanmaku", brls::ControllerButton::BUTTON_X,
         [this](brls::View* view) -> bool {
-            if (mpvCore->showDanmaku) {
-                mpvCore->showDanmaku = false;
-                this->btnDanmakuIcon->setImageFromSVGRes(
-                    "svg/bpx-svg-sprite-danmu-switch-off.svg");
-            } else {
-                mpvCore->showDanmaku = true;
-                this->btnDanmakuIcon->setImageFromSVGRes(
-                    "svg/bpx-svg-sprite-danmu-switch-on.svg");
-            }
+            this->toggleDanmaku();
             return true;
         },
         true);
@@ -104,14 +92,11 @@ VideoView::VideoView() {
             wiliwili::sec2Time(mpvCore->duration * progress));
     });
 
-    this->addGestureRecognizer(new brls::TapGestureRecognizer(this, [this]() {
-        if (isOSDShown()) {
-            this->hideOSD();
-        } else {
-            this->showOSD(true);
-        }
-    }));
+    /// 点击屏幕其他位置切换OSD
+    this->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this, [this]() { this->toggleOSD(); }));
 
+    /// 播放/暂停 按钮
     this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
         this->btnToggle,
         [this]() {
@@ -124,36 +109,37 @@ VideoView::VideoView() {
         brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
                                brls::SOUND_NONE)));
 
-    /// 默认允许设置全屏按钮
+    /// 全屏按钮
+    this->btnFullscreenIcon->getParent()->registerClickAction([this](...) {
+        if (this->isFullscreen()) {
+            this->setFullScreen(false);
+        } else {
+            this->setFullScreen(true);
+        }
+        return true;
+    });
     this->btnFullscreenIcon->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(
-            this->btnFullscreenIcon->getParent(),
-            [this]() {
-                if (this->isFullscreen()) {
-                    this->setFullScreen(false);
-                } else {
-                    this->setFullScreen(true);
-                }
-            },
-            brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
-                                   brls::SOUND_NONE)));
+        new brls::TapGestureRecognizer(this->btnFullscreenIcon->getParent()));
 
+    /// 弹幕切换按钮
+    this->btnDanmakuIcon->getParent()->registerClickAction([this](...) {
+        this->toggleDanmaku();
+        return true;
+    });
     this->btnDanmakuIcon->getParent()->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->btnDanmakuIcon->getParent()));
+
+    /// 弹幕设置按钮
+    this->btnDanmakuSettingIcon->getParent()->registerClickAction([](...) {
+        auto setting = new PlayerDanmakuSetting();
+        brls::Application::pushActivity(new Activity(setting));
+        // 手动将焦点赋给设置页面
+        brls::sync([setting]() { brls::Application::giveFocus(setting); });
+        return true;
+    });
+    this->btnDanmakuSettingIcon->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(
-            this->btnDanmakuIcon->getParent(),
-            [this]() {
-                if (mpvCore->showDanmaku) {
-                    mpvCore->showDanmaku = false;
-                    this->btnDanmakuIcon->setImageFromSVGRes(
-                        "svg/bpx-svg-sprite-danmu-switch-off.svg");
-                } else {
-                    mpvCore->showDanmaku = true;
-                    this->btnDanmakuIcon->setImageFromSVGRes(
-                        "svg/bpx-svg-sprite-danmu-switch-on.svg");
-                }
-            },
-            brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
-                                   brls::SOUND_NONE)));
+            this->btnDanmakuSettingIcon->getParent()));
 
     this->refreshDanmakuIcon();
 
@@ -197,154 +183,21 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
     mpvCore->openglDraw(this->getFrame(), this->getAlpha());
 
     // draw danmaku
-    if (mpvCore->danmakuLoaded && mpvCore->showDanmaku) {
-        static float SECOND        = 8.0;
-        static float CENTER_SECOND = 8.0;
-        static float FONT_SIZE     = 30;
-        static float LINE_HEIGHT   = FONT_SIZE + 10;
-        if (danmakuData.size() == 0) {
-            mpvCore->resetDanmakuPosition();
-            danmakuData = mpvCore->getDanmakuData();
-        }
-
-        // Enable scissoring
-        nvgSave(vg);
-        nvgIntersectScissor(vg, x, y, width, height);
-
-        nvgFontSize(vg, FONT_SIZE);
-        nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-        nvgFontFaceId(vg, this->danmakuFont);
-        nvgTextLineHeight(vg, 1);
-
-        int LINES = height / LINE_HEIGHT;
-        if (LINES > 20) LINES = 20;
-
-        //取出需要的弹幕
-        int64_t currentTime = getCPUTimeUsec();
-        float bounds[4];
-        for (size_t j = mpvCore->danmakuIndex; j < this->danmakuData.size();
-             j++) {
-            auto& i = this->danmakuData[j];
-            if (!i.canShow) continue;  // 溢出屏幕外
-            if (i.showing) {           // 正在展示中
-                if (i.type == 4 || i.type == 5) {
-                    //居中弹幕
-                    // 根据时间判断是否显示弹幕
-                    if (i.time > mpvCore->playback_time ||
-                        i.time + CENTER_SECOND < mpvCore->playback_time) {
-                        i.canShow = false;
-                        continue;
-                    }
-
-                    // 画弹幕文字包边
-                    nvgFillColor(vg, a(i.borderColor));
-                    nvgText(vg, x + width / 2 - i.length / 2 + 1,
-                            y + i.line * LINE_HEIGHT + 6, i.msg.c_str(),
-                            nullptr);
-
-                    // 画弹幕文字
-                    nvgFillColor(vg, a(i.color));
-                    nvgText(vg, x + width / 2 - i.length / 2,
-                            y + i.line * LINE_HEIGHT + 5, i.msg.c_str(),
-                            nullptr);
-
-                    continue;
-                }
-                //滑动弹幕
-                float position = 0;
-                if (mpvCore->core_idle) {
-                    // 暂停状态弹幕也要暂停
-                    position = i.speed * (mpvCore->playback_time - i.time);
-                    i.startTime =
-                        currentTime - (mpvCore->playback_time - i.time) * 1e6;
-                } else {
-                    position = i.speed * (currentTime - i.startTime) / 1e6;
-                }
-
-                // 根据时间或位置判断是否显示弹幕
-                if (position > width + i.length ||
-                    i.time + SECOND < mpvCore->playback_time) {
-                    i.showing             = false;
-                    mpvCore->danmakuIndex = j + 1;
-                    continue;
-                }
-
-                // 画弹幕文字包边
-                nvgFillColor(vg, a(i.borderColor));
-                nvgText(vg, x + width - position + 1,
-                        y + i.line * LINE_HEIGHT + 6, i.msg.c_str(), nullptr);
-
-                // 画弹幕文字
-                nvgFillColor(vg, a(i.color));
-                nvgText(vg, x + width - position, y + i.line * LINE_HEIGHT + 5,
-                        i.msg.c_str(), nullptr);
-                continue;
-            }
-            if (i.time < mpvCore->playback_time) {
-                // 排除已经应该暂停显示的弹幕
-                if (i.type == 4 || i.type == 5) {
-                    if (i.time + CENTER_SECOND < mpvCore->playback_time) {
-                        continue;
-                    }
-                } else if (i.time + SECOND < mpvCore->playback_time) {
-                    mpvCore->danmakuIndex = j + 1;
-                    continue;
-                }
-                i.showing = true;
-                nvgTextBounds(vg, 0, 0, i.msg.c_str(), nullptr, bounds);
-                i.length  = bounds[2] - bounds[0];
-                i.speed   = (width + i.length) / SECOND;
-                i.canShow = false;
-                for (int k = 0; k < LINES; k++) {
-                    if (i.type == 4) {
-                        //底部
-                        if (i.time < DanmakuItem::centerLines[LINES - k - 1])
-                            continue;
-
-                        i.line = LINES - k - 1;
-                        DanmakuItem::centerLines[LINES - k - 1] =
-                            i.time + CENTER_SECOND;
-                        i.canShow = true;
-                        break;
-
-                    } else if (i.type == 5) {
-                        //顶部
-                        if (i.time < DanmakuItem::centerLines[k]) continue;
-
-                        i.line                      = k;
-                        DanmakuItem::centerLines[k] = i.time + CENTER_SECOND;
-                        i.canShow                   = true;
-                        break;
-                    } else {
-                        //滚动
-                        if (i.time < DanmakuItem::lines[k].first ||
-                            i.time + width / i.speed <
-                                DanmakuItem::lines[k].second)
-                            continue;
-                        i.line = k;
-                        DanmakuItem::lines[k].first =
-                            i.time + i.length / i.speed;
-                        DanmakuItem::lines[k].second = i.time + SECOND;
-                        i.canShow                    = true;
-                        i.startTime                  = getCPUTimeUsec();
-                        if (mpvCore->playback_time - i.time > 0.2)
-                            i.startTime -=
-                                (mpvCore->playback_time - i.time) * 1e6;
-                        break;
-                    }
-                }
-            } else {
-                break;
-            }
-        }
-
-        nvgRestore(vg);
-    }
+    DanmakuCore::instance().drawDanmaku(vg, x, y, width, height, getAlpha());
 
     // draw osd
     if (wiliwili::unix_time() < this->osdLastShowTime) {
+        if (!is_osd_shown) {
+            is_osd_shown = true;
+            this->onOSDStateChanged(true);
+        }
         osdBottomBox->frame(ctx);
         osdTopBox->frame(ctx);
+    } else {
+        if (is_osd_shown) {
+            is_osd_shown = false;
+            this->onOSDStateChanged(false);
+        }
     }
 
     // hot key
@@ -366,8 +219,8 @@ void VideoView::onLayout() {
     }
 
     if (!(rect == oldRect)) {
-        brls::Logger::debug("Video view size: {} / {} scale: {}",
-                            rect.getWidth(), rect.getHeight(),
+        brls::Logger::debug("Video view: {} size: {} / {} scale: {}",
+                            (int64_t)this, rect.getWidth(), rect.getHeight(),
                             Application::windowScale);
         this->mpvCore->setFrameSize(rect);
     }
@@ -434,19 +287,56 @@ void VideoView::togglePlay() {
     }
 }
 
-/// OSD
-void VideoView::showOSD(bool temp) {
-    if (temp)
-        this->osdLastShowTime =
-            wiliwili::unix_time() + VideoView::OSD_SHOW_TIME;
-    else
-        this->osdLastShowTime = 0xffffffff;
+void VideoView::setSpeed(float speed) {
+    mpvCore->command_str(fmt::format("set speed {}", speed).c_str());
+    DanmakuCore::instance().refresh();
 }
 
-void VideoView::hideOSD() { this->osdLastShowTime = 0; }
+/// OSD
+void VideoView::showOSD(bool temp) {
+    if (temp) {
+        this->osdLastShowTime =
+            wiliwili::unix_time() + VideoView::OSD_SHOW_TIME;
+        this->osd_state = OSDState::SHOWN;
+    } else {
+        this->osdLastShowTime = 0xffffffff;
+        this->osd_state       = OSDState::ALWAYS_ON;
+    }
+}
 
-bool VideoView::isOSDShown() {
-    return wiliwili::unix_time() < this->osdLastShowTime;
+void VideoView::hideOSD() {
+    this->osdLastShowTime = 0;
+    this->osd_state       = OSDState::HIDDEN;
+}
+
+bool VideoView::isOSDShown() { return this->is_osd_shown; }
+
+void VideoView::onOSDStateChanged(bool state) {
+    // 当焦点位于video组件内部重新赋予焦点，用来隐藏屏幕上的高亮框
+    if (!state && isChildFocused()) {
+        brls::Application::giveFocus(this);
+    }
+}
+
+void VideoView::toggleDanmaku() {
+    if (DanmakuCore::DANMAKU_ON) {
+        DanmakuCore::DANMAKU_ON = false;
+        this->btnDanmakuIcon->setImageFromSVGRes(
+            "svg/bpx-svg-sprite-danmu-switch-off.svg");
+    } else {
+        DanmakuCore::DANMAKU_ON = true;
+        this->btnDanmakuIcon->setImageFromSVGRes(
+            "svg/bpx-svg-sprite-danmu-switch-on.svg");
+    }
+    DanmakuCore::save();
+}
+
+void VideoView::toggleOSD() {
+    if (isOSDShown()) {
+        this->hideOSD();
+    } else {
+        this->showOSD(true);
+    }
 }
 
 // Loading
@@ -461,6 +351,7 @@ void VideoView::hideLoading() {
 
 void VideoView::hideDanmakuButton() {
     btnDanmakuIcon->getParent()->setVisibility(brls::Visibility::GONE);
+    btnDanmakuSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
 }
 
 void VideoView::setTitle(std::string title) {
@@ -502,7 +393,7 @@ void VideoView::setFullscreenIcon(bool fs) {
 }
 
 void VideoView::refreshDanmakuIcon() {
-    if (mpvCore->showDanmaku) {
+    if (DanmakuCore::DANMAKU_ON) {
         this->btnDanmakuIcon->setImageFromSVGRes(
             "svg/bpx-svg-sprite-danmu-switch-on.svg");
     } else {
@@ -561,10 +452,11 @@ void VideoView::setFullScreen(bool fs) {
         video->setDuration(this->rightStatusLabel->getFullText());
         video->setPlaybackTime(this->leftStatusLabel->getFullText());
         video->setProgress(this->getProgress());
-        video->showOSD(this->osdLastShowTime != 0xffffffff);
+        video->showOSD(this->osd_state != OSDState::ALWAYS_ON);
         video->setFullscreenIcon(true);
         video->setHideHighlight(true);
         video->refreshToggleIcon();
+        DanmakuCore::instance().refresh();
         video->setOnlineCount(this->videoOnlineCountLabel->getFullText());
         if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
             video->hideLoading();
@@ -573,13 +465,8 @@ void VideoView::setFullScreen(bool fs) {
         brls::Application::pushActivity(new brls::Activity(container),
                                         brls::TransitionAnimation::NONE);
 
-        // 将焦点 赋给新的video
-        // 已修复：触摸点击全屏，按键返回，会导致焦点丢失
-        ASYNC_RETAIN
-        brls::sync([ASYNC_TOKEN, video]() {
-            ASYNC_RELEASE
-            brls::Application::giveFocus(video);
-        });
+        // 手动将焦点 赋给新的video组件
+        brls::sync([video]() { brls::Application::giveFocus(video); });
     } else {
         ASYNC_RETAIN
         brls::sync([ASYNC_TOKEN]() {
@@ -593,14 +480,14 @@ void VideoView::setFullScreen(bool fs) {
                     last->getView("video/detail/video"));
                 if (video) {
                     video->setProgress(this->getProgress());
-                    video->showOSD(this->osdLastShowTime != 0xffffffff);
+                    video->showOSD(this->osd_state != OSDState::ALWAYS_ON);
                     video->setDuration(this->rightStatusLabel->getFullText());
                     video->setPlaybackTime(
                         this->leftStatusLabel->getFullText());
                     video->registerMpvEvent();
                     video->refreshToggleIcon();
                     video->refreshDanmakuIcon();
-                    video->resetDanmakuPosition();
+                    DanmakuCore::instance().refresh();
                     if (osdCenterBox->getVisibility() ==
                         brls::Visibility::GONE) {
                         video->hideLoading();
@@ -621,7 +508,12 @@ void VideoView::setCloseOnEndOfFile(bool value) {
     this->closeOnEndOfFile = value;
 }
 
-View* VideoView::getDefaultFocus() { return this; }
+View* VideoView::getDefaultFocus() {
+    if (isFullscreen() && isOSDShown())
+        return this->btnToggle;
+    else
+        return this;
+}
 
 View* VideoView::getNextFocus(brls::FocusDirection direction,
                               View* currentView) {
@@ -638,24 +530,23 @@ enum ClickState {
 };
 
 void VideoView::buttonProcessing() {
-    ControllerState state;
+    ControllerState state{};
     input->updateUnifiedControllerState(&state);
     static int64_t rsb_press_time = 0;
     int CHECK_TIME                = 200000;
 
-    // todo: 从框架层面实现点击、双击、长按事件
     static int click_state = ClickState::IDLE;
     switch (click_state) {
         case ClickState::IDLE:
             if (state.buttons[BUTTON_RSB]) {
-                mpvCore->command_str("set speed 2.0");
+                setSpeed(2.0f);
                 rsb_press_time = getCPUTimeUsec();
                 click_state    = ClickState::PRESS;
             }
             break;
         case ClickState::PRESS:
             if (!state.buttons[BUTTON_RSB]) {
-                mpvCore->command_str("set speed 1.0");
+                setSpeed(1.0f);
                 int64_t current_time = getCPUTimeUsec();
                 if (current_time - rsb_press_time < CHECK_TIME) {
                     // 点击事件
@@ -669,7 +560,7 @@ void VideoView::buttonProcessing() {
             break;
         case ClickState::FAST_RELEASE:
             if (state.buttons[BUTTON_RSB]) {
-                mpvCore->command_str("set speed 2.0");
+                setSpeed(2.0f);
                 int64_t current_time = getCPUTimeUsec();
                 if (current_time - rsb_press_time < CHECK_TIME) {
                     rsb_press_time = current_time;
@@ -686,10 +577,10 @@ void VideoView::buttonProcessing() {
                 if (current_time - rsb_press_time < CHECK_TIME) {
                     rsb_press_time = current_time;
                     // 双击事件
-                    mpvCore->command_str("set speed 2.0");
+                    setSpeed(2.0f);
                     click_state = ClickState::CLICK_DOUBLE;
                 } else {
-                    mpvCore->command_str("set speed 1.0");
+                    setSpeed(1.0f);
                     click_state = ClickState::IDLE;
                 }
             }
@@ -698,6 +589,12 @@ void VideoView::buttonProcessing() {
             brls::Logger::debug("speed lock: 2.0");
             click_state = ClickState::IDLE;
             break;
+    }
+
+    // 当OSD显示时左右切换选择按钮，持续显示OSD
+    if (isOSDShown() &&
+        (state.buttons[BUTTON_NAV_RIGHT] || state.buttons[BUTTON_NAV_LEFT])) {
+        if (this->osd_state == OSDState::SHOWN) this->showOSD(true);
     }
 }
 
@@ -728,7 +625,6 @@ void VideoView::registerMpvEvent() {
                     break;
                 case MpvEventEnum::LOADING_END:
                     this->hideLoading();
-                    this->resetDanmakuPosition();
                     break;
                 case MpvEventEnum::MPV_STOP:
                     // todo: 当前播放结束，尝试播放下一个视频
@@ -749,11 +645,6 @@ void VideoView::registerMpvEvent() {
                         wiliwili::sec2Time(this->mpvCore->video_progress));
                     this->setProgress(this->mpvCore->playback_time /
                                       this->mpvCore->duration);
-                    break;
-                case MpvEventEnum::DANMAKU_LOADED:
-                    mpvCore->danmakuMutex.lock();
-                    danmakuData = mpvCore->danmakuData;
-                    mpvCore->danmakuMutex.unlock();
                     break;
                 case MpvEventEnum::END_OF_FILE:
                     // 播放结束自动取消全屏
@@ -786,7 +677,9 @@ void VideoView::unRegisterMpvEvent() {
     registerMPVEvent = false;
 }
 
-void VideoView::resetDanmakuPosition() {
-    mpvCore->resetDanmakuPosition();
-    this->danmakuData = mpvCore->danmakuData;
+void VideoView::onChildFocusGained(View* directChild, View* focusedView) {
+    Box::onChildFocusGained(directChild, focusedView);
+    // 只有在全屏显示OSD时允许OSD组件获取焦点
+    if (this->isFullscreen() && isOSDShown()) return;
+    brls::Application::giveFocus(this);
 }

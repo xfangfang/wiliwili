@@ -8,6 +8,8 @@
 #include "utils/number_helper.hpp"
 #include "bilibili.h"
 
+using namespace brls::literals;
+
 VideoComment::VideoComment() {
     brls::Logger::debug("View VideoComment: create");
     this->inflateFromXMLRes("xml/views/video_comment.xml");
@@ -110,7 +112,7 @@ VideoCommentReply::VideoCommentReply() {
     hintLabel = new brls::Label();
     this->hintLabel->setMarginLeft(20);
     this->hintLabel->setFontSize(18);
-    this->hintLabel->setText("发一条友善的评论");
+    this->hintLabel->setText("wiliwili/player/single_comment/hint"_i18n);
     this->hintLabel->setTextColor(theme.getColor("font/grey"));
     this->addView(hintLabel);
 }

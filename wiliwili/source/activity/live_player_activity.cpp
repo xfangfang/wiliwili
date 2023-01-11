@@ -5,6 +5,7 @@
 #include "activity/live_player_activity.hpp"
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
+#include "view/danmaku_core.hpp"
 #include "bilibili.h"
 
 using namespace brls::literals;
@@ -13,20 +14,20 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
 
-    globalShowDanmaku               = MPVCore::instance().showDanmaku;
-    globalBottomBar                 = MPVCore::instance().BOTTOM_BAR;
-    MPVCore::instance().showDanmaku = false;
-    MPVCore::instance().BOTTOM_BAR  = false;
+    globalShowDanmaku       = DanmakuCore::DANMAKU_ON;
+    globalBottomBar         = MPVCore::BOTTOM_BAR;
+    DanmakuCore::DANMAKU_ON = false;
+    MPVCore::BOTTOM_BAR     = false;
 }
 
 LiveActivity::LiveActivity(int roomid) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
     this->liveData.roomid = roomid;
 
-    globalShowDanmaku               = MPVCore::instance().showDanmaku;
-    globalBottomBar                 = MPVCore::instance().BOTTOM_BAR;
-    MPVCore::instance().showDanmaku = false;
-    MPVCore::instance().BOTTOM_BAR  = false;
+    globalShowDanmaku       = DanmakuCore::DANMAKU_ON;
+    globalBottomBar         = MPVCore::BOTTOM_BAR;
+    DanmakuCore::DANMAKU_ON = false;
+    MPVCore::BOTTOM_BAR     = false;
 }
 
 void LiveActivity::onContentAvailable() {
@@ -105,6 +106,6 @@ void LiveActivity::onError(const std::string& error) {
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     this->video->stop();
-    MPVCore::instance().showDanmaku = globalShowDanmaku;
-    MPVCore::instance().BOTTOM_BAR  = globalBottomBar;
+    DanmakuCore::DANMAKU_ON = globalShowDanmaku;
+    MPVCore::BOTTOM_BAR     = globalBottomBar;
 }

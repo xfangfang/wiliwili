@@ -21,7 +21,7 @@
 
         <brls:Label
                 fontSize="24"
-                text="详情"
+                text="@i18n/wiliwili/player/single_comment/detail"
                 positionType="absolute"
                 positionTop="20"
                 positionLeft="20"/>

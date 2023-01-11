@@ -223,8 +223,7 @@ void BasePlayerActivity::setCommonData() {
                     {
                         auto stack    = brls::Application::getActivitiesStack();
                         Activity* top = stack[stack.size() - 1];
-                        if (dynamic_cast<brls::Dialog*>(top->getContentView()))
-                            return;
+                        if (!dynamic_cast<BasePlayerActivity*>(top)) return;
                         if (AUTO_NEXT_PART) this->onIndexChangeToNext();
                     }
                     break;
@@ -352,7 +351,7 @@ void BasePlayerActivity::onCommentInfo(
         comments.insert(comments.end(), result.replies.begin(),
                         result.replies.end());
         // 为了加载骨架屏美观，设置为了100，在加载评论时手动修改回来
-        this->recyclingGrid->estimatedRowHeight = 416;
+        this->recyclingGrid->estimatedRowHeight = 420;
         this->recyclingGrid->setDataSource(
             new DataSourceCommentList(comments, this->getAid()));
         if (comments.size() > 1) this->recyclingGrid->selectRowAt(1, false);

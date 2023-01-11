@@ -58,7 +58,6 @@
                 verticalAlign="center"/>
     </brls:Box>
 
-
     <brls:Box
             id="video/osd/bottom/box"
             width="100%"
@@ -68,11 +67,18 @@
             background="vertical_linear">
         <brls:Box
                 wireframe="false"
+                focusable="true"
+                focusLeft="video/osd/fullscreen/icon"
+                focusRight="video/osd/danmaku/box/setting"
+                hideHighlightBackground="true"
+                highlightCornerRadius="100"
                 id="video/osd/toggle"
                 alignItems="center"
                 justifyContent="center"
-                height="120"
-                width="120">
+                marginLeft="20"
+                marginBottom="20"
+                height="100"
+                width="100">
             <SVGImage
                     id="video/osd/toggle/icon"
                     wireframe="false"
@@ -119,7 +125,28 @@
                         text="00:00"/>
                 <brls:Box
                         wireframe="false"
-                        id="video/osd/danmaku"
+                        id="video/osd/danmaku/box/setting"
+                        hideClickAnimation="true"
+                        positionType="absolute"
+                        positionRight="180"
+                        alignItems="center"
+                        justifyContent="center"
+                        height="60"
+                        width="60">
+                    <SVGImage
+                            id="video/osd/danmaku/setting"
+                            focusable="true"
+                            hideHighlightBackground="true"
+                            highlightCornerRadius="30"
+                            wireframe="false"
+                            height="30"
+                            width="30"
+                            SVG="@res/svg/bpx-svg-sprite-danmu-setting.svg"/>
+                </brls:Box>
+                <brls:Box
+                        wireframe="false"
+                        id="video/osd/danmaku/box/toggle"
+                        hideClickAnimation="true"
                         positionType="absolute"
                         positionRight="100"
                         alignItems="center"
@@ -128,6 +155,9 @@
                         width="60">
                     <SVGImage
                             id="video/osd/danmaku/icon"
+                            focusable="true"
+                            hideHighlightBackground="true"
+                            highlightCornerRadius="30"
                             wireframe="false"
                             height="30"
                             width="30"
@@ -145,6 +175,9 @@
                     <SVGImage
                             id="video/osd/fullscreen/icon"
                             wireframe="false"
+                            focusable="true"
+                            hideHighlightBackground="true"
+                            highlightCornerRadius="30"
                             height="30"
                             width="30"
                             SVG="@res/svg/bpx-svg-sprite-fullscreen.svg"/>

@@ -43,7 +43,13 @@
           "ryukyuan": "島言葉",
           "korean": "한국어"
         },
-        "opencc": "Automatically convert Simplified Chinese (restart required)"
+        "opencc": "Automatically convert Simplified Chinese (restart required)",
+        "keymap": {
+          "header": "Keymap style",
+          "xbox": "Xbox",
+          "ps": "PlayStation",
+          "keyboard": "Keyboard"
+        }
       }
     },
     "tools": {
@@ -64,7 +70,8 @@
       "others": {
         "header": "Others",
         "up2date": "App is up to date",
-        "release": "Check for updates"
+        "release": "Check for updates",
+        "config": "Open config directory"
       }
     },
     "about": {
@@ -221,6 +228,41 @@
     },
     "collection": {
       "title": "Select Favorites"
+    },
+    "danmaku": {
+      "header": "Danmaku setting",
+      "filter": {
+        "header": "Danmaku filter",
+        "top": "Top",
+        "scroll": "Scroll",
+        "bottom": "Bottom",
+        "color": "Color",
+        "level": "Filter level",
+        "level_n": "Level {}"
+      },
+      "style": {
+        "header": "Danmaku style",
+        "area": "Display area",
+        "area_1_4": "1/4 Screen",
+        "area_2_4": "1/2 Screen",
+        "area_3_4": "3/4 Screen",
+        "area_4_4": "Fullscreen",
+        "alpha": "Alpha",
+        "fontsize": "Fontsize",
+        "speed": "Speed",
+        "speed_slow_plus": "Extremely slow",
+        "speed_slow": "Slow",
+        "speed_fast_plus": "Extremely fast",
+        "speed_fast": "Fast",
+        "speed_moderate": "Moderate"
+      }
+    },
+    "single_comment": {
+      "detail": "Details",
+      "hint": "Say something nice",
+      "related": "{} replies in total",
+      "end": "No more comments",
+      "delete": "After deleting the comment, all replies under the comment will be deleted\n\nDo you want to continue?"
     }
   },
   "dialog": {

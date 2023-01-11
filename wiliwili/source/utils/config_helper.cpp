@@ -17,6 +17,7 @@
 #include "utils/vibration_helper.hpp"
 #include "presenter/video_detail.hpp"
 #include "view/mpv_core.hpp"
+#include "view/danmaku_core.hpp"
 #include "activity/player_activity.hpp"
 
 using namespace brls::literals;
@@ -51,6 +52,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
+    {SettingItem::DANMAKU_ON, {"danmaku", {}, {}, 1}},
+    {SettingItem::DANMAKU_FILTER_BOTTOM, {"danmaku_filter_bottom", {}, {}, 1}},
+    {SettingItem::DANMAKU_FILTER_TOP, {"danmaku_filter_top", {}, {}, 1}},
+    {SettingItem::DANMAKU_FILTER_SCROLL, {"danmaku_filter_scroll", {}, {}, 1}},
+    {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
 
     /// number
     {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
@@ -59,6 +65,28 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
      {"image_request_threads", {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
     {SettingItem::VIDEO_FORMAT,
      {"video_format", {"dash", "flv/mp4"}, {1744, 0}, 0}},
+    {SettingItem::DANMAKU_FILTER_LEVEL,
+     {"danmaku_filter_level",
+      {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
+      {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+      0}},
+    {SettingItem::DANMAKU_STYLE_AREA,
+     {"danmaku_style_area", {"1/4", "1/2", "3/4", "1"}, {25, 50, 75, 100}, 3}},
+    {SettingItem::DANMAKU_STYLE_ALPHA,
+     {"danmaku_style_alpha",
+      {"10%", "25%", "50%", "60%", "70%", "80%", "90%", "100%"},
+      {10, 25, 50, 60, 70, 80, 90, 100},
+      5}},
+    {SettingItem::DANMAKU_STYLE_FONTSIZE,
+     {"danmaku_style_fontsize",
+      {"50%", "75%", "100%", "125%", "150%", "175%"},
+      {15, 22, 30, 37, 45, 50},
+      2}},
+    {SettingItem::DANMAKU_STYLE_SPEED,
+     {"danmaku_style_speed",
+      {"0.5", "0.75", "1.0", "1.25", "1.5"},
+      {150, 125, 100, 75, 50},
+      2}},
 };
 #else
 std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
@@ -89,6 +117,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
+    {SettingItem::DANMAKU_ON, {"danmaku", {}, {}, 1}},
+    {SettingItem::DANMAKU_FILTER_BOTTOM, {"danmaku_filter_bottom", {}, {}, 1}},
+    {SettingItem::DANMAKU_FILTER_TOP, {"danmaku_filter_top", {}, {}, 1}},
+    {SettingItem::DANMAKU_FILTER_SCROLL, {"danmaku_filter_scroll", {}, {}, 1}},
+    {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
 
     /// number
     {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
@@ -100,10 +133,32 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       3}},
     {SettingItem::VIDEO_FORMAT,
      {"video_format", {"dash", "flv/mp4"}, {1744, 0}, 0}},
+    {SettingItem::DANMAKU_FILTER_LEVEL,
+     {"danmaku_filter_level",
+      {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
+      {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+      0}},
+    {SettingItem::DANMAKU_STYLE_AREA,
+     {"danmaku_style_area", {"1/4", "1/2", "3/4", "1"}, {25, 50, 75, 100}, 3}},
+    {SettingItem::DANMAKU_STYLE_ALPHA,
+     {"danmaku_style_alpha",
+      {"10%", "25%", "50%", "60%", "70%", "80%", "90%", "100%"},
+      {10, 25, 50, 60, 70, 80, 90, 100},
+      5}},
+    {SettingItem::DANMAKU_STYLE_FONTSIZE,
+     {"danmaku_style_fontsize",
+      {"50%", "75%", "100%", "125%", "150%", "175%"},
+      {15, 22, 30, 37, 45, 50},
+      2}},
+    {SettingItem::DANMAKU_STYLE_SPEED,
+     {"danmaku_style_speed",
+      {"0.5", "0.75", "1.0", "1.25", "1.5"},
+      {150, 125, 100, 75, 50},
+      2}},
 };
 #endif
 
-ProgramConfig::ProgramConfig() {}
+ProgramConfig::ProgramConfig() = default;
 
 ProgramConfig::ProgramConfig(const ProgramConfig& conf) {
     this->cookie  = conf.cookie;
@@ -116,14 +171,14 @@ void ProgramConfig::setProgramConfig(const ProgramConfig& conf) {
     this->client  = conf.client;
     brls::Logger::info("ProgramConfig::setProgramConfig:");
     brls::Logger::info("client: {}", conf.client);
-    for (auto c : conf.cookie) {
+    for (const auto& c : conf.cookie) {
         brls::Logger::info("cookie: {}:{}", c.first, c.second);
     }
     brls::Logger::info("setting: {}", conf.setting.dump());
 }
 
 void ProgramConfig::setCookie(Cookie data) {
-    this->cookie = data;
+    this->cookie = std::move(data);
     this->save();
 }
 
@@ -166,6 +221,27 @@ void ProgramConfig::load() {
         brls::Logger::error("ProgramConfig::load: {}", e.what());
     }
     brls::Logger::info("Load config from: {}", path);
+
+    // 初始化弹幕相关内容
+    DanmakuCore::DANMAKU_ON = getBoolOption(SettingItem::DANMAKU_ON);
+    DanmakuCore::DANMAKU_FILTER_SHOW_TOP =
+        getBoolOption(SettingItem::DANMAKU_FILTER_TOP);
+    DanmakuCore::DANMAKU_FILTER_SHOW_BOTTOM =
+        getBoolOption(SettingItem::DANMAKU_FILTER_BOTTOM);
+    DanmakuCore::DANMAKU_FILTER_SHOW_SCROLL =
+        getBoolOption(SettingItem::DANMAKU_FILTER_SCROLL);
+    DanmakuCore::DANMAKU_FILTER_SHOW_COLOR =
+        getBoolOption(SettingItem::DANMAKU_FILTER_COLOR);
+    DanmakuCore::DANMAKU_FILTER_LEVEL =
+        getIntOption(SettingItem::DANMAKU_FILTER_LEVEL);
+    DanmakuCore::DANMAKU_STYLE_AREA =
+        getIntOption(SettingItem::DANMAKU_STYLE_AREA);
+    DanmakuCore::DANMAKU_STYLE_ALPHA =
+        getIntOption(SettingItem::DANMAKU_STYLE_ALPHA);
+    DanmakuCore::DANMAKU_STYLE_FONTSIZE =
+        getIntOption(SettingItem::DANMAKU_STYLE_FONTSIZE);
+    DanmakuCore::DANMAKU_STYLE_SPEED =
+        getIntOption(SettingItem::DANMAKU_STYLE_SPEED);
 
     // 初始化是否支持手柄振动
     VibrationHelper::GAMEPAD_VIBRATION =
@@ -381,17 +457,19 @@ void ProgramConfig::checkRestart(char* argv[]) {
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     if (!brls::DesktopPlatform::RESTART_APP) return;
 
-    #ifdef __linux__
-        char filePath[PATH_MAX+1];
-        ssize_t count = readlink("/proc/self/exe", filePath, PATH_MAX);
-        if(count <= 0) strcpy(filePath, argv[0]);
-        else filePath[count] = 0;
-    #else
-        char* filePath = argv[0];
-    #endif
+#ifdef __linux__
+    char filePath[PATH_MAX + 1];
+    ssize_t count = readlink("/proc/self/exe", filePath, PATH_MAX);
+    if (count <= 0)
+        strcpy(filePath, argv[0]);
+    else
+        filePath[count] = 0;
+#else
+    char* filePath = argv[0];
+#endif
 
     brls::Logger::info("Restart app {}", filePath);
-    brls::Logger::info("Current work dir {}", getcwd(NULL,0));
+    brls::Logger::info("Current work dir {}", getcwd(nullptr, 0));
 
     execv(filePath, argv);
 #endif

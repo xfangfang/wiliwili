@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <clocale>
 #include "view/mpv_core.hpp"
+#include "view/danmaku_core.hpp"
 #include "pystring.h"
 #include "utils/config_helper.hpp"
 
@@ -111,6 +112,7 @@ void MPVCore::init() {
 
     // Making the loading process faster
 #ifdef __SWITCH__
+    mpv_set_option_string(mpv, "vd-lavc-dr", "no");
     mpv_set_option_string(mpv, "vd-lavc-threads", "4");
 #endif
     mpv_set_option_string(mpv, "demuxer-lavf-analyzeduration", "0.1");
@@ -479,6 +481,7 @@ void MPVCore::eventMainLoop() {
                 // event 21: 开始播放文件（一般是播放或调整进度结束之后触发）
                 brls::Logger::info("========> MPV_EVENT_PLAYBACK_RESTART");
                 mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
+                DanmakuCore::instance().refresh();
                 if (AUTO_PLAY)
                     this->resume();
                 else
@@ -603,73 +606,13 @@ void MPVCore::eventMainLoop() {
     }
 }
 
-void MPVCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
-    danmakuMutex.lock();
-    this->danmakuData.clear();
-    this->danmakuData = std::move(data);
-    if (data.size() != 0) danmakuLoaded = true;
-    std::sort(danmakuData.begin(), danmakuData.end());
-    danmakuMutex.unlock();
-    mpvCoreEvent.fire(MpvEventEnum::DANMAKU_LOADED);
-}
-
 void MPVCore::reset() {
-    danmakuMutex.lock();
-    DanmakuItem::lines       = std::vector<std::pair<float, float>>(20, {0, 0});
-    DanmakuItem::centerLines = std::vector<float>(20, {0});
-    this->danmakuData.clear();
-    //    this->showDanmaku = true; // todo: 根据配置文件修改
-    this->danmakuLoaded = false;
-    danmakuIndex        = 0;
-    danmakuMutex.unlock();
+    brls::Logger::debug("MPVCore::reset");
+    DanmakuCore::instance().reset();
     this->core_idle      = 0;
     this->percent_pos    = 0;
     this->duration       = 0;  // second
     this->cache_speed    = 0;  // Bps
     this->playback_time  = 0;
     this->video_progress = 0;
-}
-
-void MPVCore::resetDanmakuPosition() {
-    danmakuMutex.lock();
-    danmakuIndex = 0;
-    for (auto &i : danmakuData) {
-        i.showing = false;
-        i.canShow = true;
-    }
-    danmakuMutex.unlock();
-    for (int k = 0; k < 20; k++) {
-        DanmakuItem::lines[k].first  = 0;
-        DanmakuItem::lines[k].second = 0;
-        DanmakuItem::centerLines[k]  = 0;
-    }
-}
-
-std::vector<DanmakuItem> MPVCore::getDanmakuData() {
-    danmakuMutex.lock();
-    std::vector<DanmakuItem> data = danmakuData;
-    danmakuMutex.unlock();
-    return data;
-}
-
-/// Danmaku
-
-DanmakuItem::DanmakuItem(const std::string &content, const char *attributes)
-    : msg(std::move(content)) {
-#ifdef OPENCC
-    static bool ZH_T = brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
-                       brls::Application::getLocale() == brls::LOCALE_ZH_TW;
-    if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
-#endif
-    auto attrs = pystring::split(attributes, ",", 3);
-    time       = atof(attrs[0].c_str());
-    type       = atoi(attrs[1].c_str());
-    fontSize   = atoi(attrs[2].c_str());
-    fontColor  = atoi(attrs[3].c_str());
-    int r = (fontColor >> 16) & 0xff, g = (fontColor >> 8) & 0xff,
-        b = fontColor & 0xff;
-    color = nvgRGBA(r, g, b, 200);
-    if ((r * 299 + g * 587 + b * 114) < 60000) {
-        borderColor = nvgRGBA(255, 255, 255, 160);
-    }
 }

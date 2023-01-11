@@ -144,6 +144,8 @@ void PlayerActivity::onContentAvailable() {
             dialog->open();
             return true;
         });
+    this->videoTitleBox->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->videoTitleBox));
 
     // 自动加载下一页评论
     this->recyclingGrid->onNextPage(
