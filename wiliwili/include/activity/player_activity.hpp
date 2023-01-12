@@ -53,7 +53,7 @@ public:
     void showCoinDialog(size_t aid);
 
     // 设置清晰度
-    void setVideoQuality(int code);
+    void setVideoQuality();
 
     // 设定当前的播放进度，获取视频链接后会自动跳转到该进度
     // 目前有两个使用场景：

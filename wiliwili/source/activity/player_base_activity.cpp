@@ -213,26 +213,12 @@ void BasePlayerActivity::setCommonData() {
         true);
 
     // 调整清晰度
-    this->registerAction(
-        "wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
-        [this](brls::View* view) -> bool {
-            if (this->videoUrlResult.accept_description.empty()) return true;
-
-            auto* dropdown = new BaseDropdown(
-                "wiliwili/player/quality"_i18n,
-                [this](int selected) {
-                    this->setVideoQuality(
-                        this->videoUrlResult.accept_quality[selected]);
-                },
-                getQualityIndex());
-            auto* recycler = dropdown->getRecyclingList();
-            recycler->registerCell("Cell", []() { return new QualityCell(); });
-            dropdown->setDataSource(
-                new QualityDataSource(this->videoUrlResult, dropdown));
-            brls::Application::pushActivity(new brls::Activity(dropdown));
-
-            return true;
-        });
+    this->registerAction("wiliwili/player/quality"_i18n,
+                         brls::ControllerButton::BUTTON_START,
+                         [this](brls::View* view) -> bool {
+                             this->setVideoQuality();
+                             return true;
+                         });
 
     this->btnQR->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnQR->getParent()));
@@ -279,6 +265,9 @@ void BasePlayerActivity::setCommonData() {
                         if (!dynamic_cast<BasePlayerActivity*>(top)) return;
                         if (AUTO_NEXT_PART) this->onIndexChangeToNext();
                     }
+                    break;
+                case MpvEventEnum::QUALITY_CHANGE_REQUEST:
+                    this->setVideoQuality();
                     break;
                 default:
                     break;
@@ -351,43 +340,73 @@ void BasePlayerActivity::showCoinDialog(size_t aid) {
     dialog->open();
 }
 
-void BasePlayerActivity::setVideoQuality(int code) {
-    BasePlayerActivity::defaultQuality = code;
-    ProgramConfig::instance().setSettingItem(SettingItem::VIDEO_QUALITY, code);
+void BasePlayerActivity::setVideoQuality() {
+    if (this->videoUrlResult.accept_description.empty()) return;
 
-    // 如果未登录选择了大于480P清晰度的视频
-    if (ProgramConfig::instance().getCSRF().empty() && defaultQuality > 32) {
-        brls::sync([]() {
-            DialogHelper::showDialog("wiliwili/home/common/no_login"_i18n);
-        });
-        return;
-    }
+    auto* dropdown = new BaseDropdown(
+        "wiliwili/player/quality"_i18n,
+        [this](int selected) {
+            int code = this->videoUrlResult.accept_quality[selected];
+            BasePlayerActivity::defaultQuality = code;
+            ProgramConfig::instance().setSettingItem(SettingItem::VIDEO_QUALITY,
+                                                     code);
 
-    // 在加载视频时，若设置了进度，会自动向前跳转5秒，
-    // 这里提前加上5s用来抵消播放视频时的进度问题。
-    setProgress(MPVCore::instance().video_progress + 5);
+            // 如果未登录选择了大于480P清晰度的视频
+            if (ProgramConfig::instance().getCSRF().empty() &&
+                defaultQuality > 32) {
+                brls::sync([]() {
+                    DialogHelper::showDialog(
+                        "wiliwili/home/common/no_login"_i18n);
+                });
+                return;
+            }
 
-    // dash
-    if (!this->videoUrlResult.dash.video.empty()) {
-        // dash格式的视频无需重复请求视频链接，这里简单的设置清晰度即可
-        videoUrlResult.quality = BasePlayerActivity::defaultQuality;
-        this->onVideoPlayUrl(videoUrlResult);
-        return;
-    }
+            // 在加载视频时，若设置了进度，会自动向前跳转5秒，
+            // 这里提前加上5s用来抵消播放视频时的进度问题。
+            setProgress(MPVCore::instance().video_progress + 5);
 
-    // flv
-    auto self = dynamic_cast<PlayerSeasonActivity*>(this);
-    if (self) {
-        this->requestSeasonVideoUrl(episodeResult.bvid, episodeResult.cid);
-    } else {
-        this->requestVideoUrl(videoDetailResult.bvid, videoDetailPage.cid);
-    }
+            // dash
+            if (!this->videoUrlResult.dash.video.empty()) {
+                // dash格式的视频无需重复请求视频链接，这里简单的设置清晰度即可
+                videoUrlResult.quality = BasePlayerActivity::defaultQuality;
+                this->onVideoPlayUrl(videoUrlResult);
+                return;
+            }
+
+            // flv
+            auto self = dynamic_cast<PlayerSeasonActivity*>(this);
+            if (self) {
+                this->requestSeasonVideoUrl(episodeResult.bvid,
+                                            episodeResult.cid);
+            } else {
+                this->requestVideoUrl(videoDetailResult.bvid,
+                                      videoDetailPage.cid);
+            }
+        },
+        getQualityIndex());
+    auto* recycler = dropdown->getRecyclingList();
+    recycler->registerCell("Cell", []() { return new QualityCell(); });
+    dropdown->setDataSource(
+        new QualityDataSource(this->videoUrlResult, dropdown));
+
+    // 因为触摸的问题 视频组件上开启新的 activity 需要同步执行
+    // 不然在某些情况下焦点会错乱
+    ASYNC_RETAIN
+    brls::sync([ASYNC_TOKEN, dropdown]() {
+        ASYNC_RELEASE
+        brls::Application::pushActivity(new brls::Activity(dropdown));
+    });
 }
 
 void BasePlayerActivity::onVideoPlayUrl(
     const bilibili::VideoUrlResult& result) {
     brls::Logger::debug("onVideoPlayUrl quality: {}", result.quality);
     //todo: 播放失败时可以尝试备用播放链接
+
+    // 设置mpv事件，更新清晰度
+    MPVCore::instance().qualityStr =
+        videoUrlResult.accept_description[getQualityIndex()];
+    MPVCore::instance().getEvent()->fire(MpvEventEnum::QUALITY_CHANGED);
 
     // 进度向前回退5秒，避免当前进度过于接近结尾出现一加载就结束的情况
     int progress = this->getProgress() - 5;

@@ -6,6 +6,7 @@
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
+#include "view/grid_dropdown.hpp"
 #include "bilibili.h"
 
 using namespace brls::literals;
@@ -13,21 +14,44 @@ using namespace brls::literals;
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
-
-    globalShowDanmaku       = DanmakuCore::DANMAKU_ON;
-    globalBottomBar         = MPVCore::BOTTOM_BAR;
-    DanmakuCore::DANMAKU_ON = false;
-    MPVCore::BOTTOM_BAR     = false;
+    this->setCommonData();
 }
 
 LiveActivity::LiveActivity(int roomid) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
     this->liveData.roomid = roomid;
+    this->setCommonData();
+}
 
+void LiveActivity::setCommonData() {
     globalShowDanmaku       = DanmakuCore::DANMAKU_ON;
     globalBottomBar         = MPVCore::BOTTOM_BAR;
     DanmakuCore::DANMAKU_ON = false;
     MPVCore::BOTTOM_BAR     = false;
+    eventSubscribeID =
+        MPVCore::instance().getEvent()->subscribe([this](MpvEventEnum event) {
+            switch (event) {
+                case MpvEventEnum::QUALITY_CHANGE_REQUEST:
+                    this->setVideoQuality();
+                    break;
+                default:
+                    break;
+            }
+        });
+}
+
+void LiveActivity::setVideoQuality() {
+    if (this->liveUrl.quality_description.empty()) return;
+
+    brls::sync([this]() {
+        BaseDropdown::text(
+            "wiliwili/player/quality"_i18n, this->getQualityDescriptionList(),
+            [this](int selected) {
+                defaultQuality = liveUrl.quality_description[selected].qn;
+                this->requestData(this->liveData.roomid);
+            },
+            this->getCurrentQualityIndex());
+    });
 }
 
 void LiveActivity::onContentAvailable() {
@@ -49,23 +73,12 @@ void LiveActivity::onContentAvailable() {
     this->video->setCloseOnEndOfFile(false);
 
     // 调整清晰度
-    this->registerAction(
-        "wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
-        [this](brls::View* view) -> bool {
-            if (this->liveUrl.quality_description.empty()) return true;
-            brls::Application::pushActivity(
-                new brls::Activity(new brls::Dropdown(
-                    "wiliwili/player/quality"_i18n,
-                    this->getQualityDescriptionList(),
-                    [this](int _selected) {
-                        defaultQuality =
-                            liveUrl.quality_description[_selected].qn;
-                        this->requestData(this->liveData.roomid);
-                    },
-                    this->getCurrentQualityIndex())));
-
-            return true;
-        });
+    this->registerAction("wiliwili/player/quality"_i18n,
+                         brls::ControllerButton::BUTTON_START,
+                         [this](brls::View* view) -> bool {
+                             this->setVideoQuality();
+                             return true;
+                         });
 
     // 根据房间号重新获取高清播放链接
     this->requestData(liveData.roomid);
@@ -91,8 +104,12 @@ void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result) {
     brls::Logger::debug("current quality: {}", result.current_qn);
     for (auto& i : result.quality_description) {
         brls::Logger::debug("quality: {}/{}", i.desc, i.qn);
+        if (result.current_qn == i.qn) {
+            MPVCore::instance().qualityStr = i.desc + " \uE0EF";
+            MPVCore::instance().getEvent()->fire(MpvEventEnum::QUALITY_CHANGED);
+        }
     }
-    for (auto i : result.durl) {
+    for (const auto& i : result.durl) {
         brls::Logger::debug("Live stream url: {}", i.url);
         this->video->setUrl(i.url);
         break;
@@ -108,4 +125,6 @@ LiveActivity::~LiveActivity() {
     this->video->stop();
     DanmakuCore::DANMAKU_ON = globalShowDanmaku;
     MPVCore::BOTTOM_BAR     = globalBottomBar;
+    // 取消监控mpv
+    MPVCore::instance().getEvent()->unsubscribe(eventSubscribeID);
 }

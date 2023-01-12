@@ -71,6 +71,10 @@ public:
 
     std::string getTitle();
 
+    void setQuality(std::string str);
+
+    std::string getQuality();
+
     void setOnlineCount(std::string count);
 
     void setDuration(std::string value);
@@ -136,6 +140,7 @@ private:
     BRLS_BIND(brls::Label, centerLabel, "video/osd/center/label");
     BRLS_BIND(brls::Label, leftStatusLabel, "video/left/status");
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
+    BRLS_BIND(brls::Label, videoQuality, "video/quality");
     BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
     BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
     BRLS_BIND(SVGImage, btnFullscreenIcon, "video/osd/fullscreen/icon");

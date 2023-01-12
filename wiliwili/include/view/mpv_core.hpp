@@ -37,6 +37,8 @@ typedef enum MpvEventEnum {
     END_OF_FILE,
     DANMAKU_LOADED,
     CACHE_SPEED_CHANGE,
+    QUALITY_CHANGED,
+    QUALITY_CHANGE_REQUEST,
 } MpvEventEnum;
 
 typedef brls::Event<MpvEventEnum> MPVEvent;
@@ -134,6 +136,9 @@ public:
     double percent_pos     = 0;
     int64_t video_progress = 0;
 
+    // 当前播放的清晰度
+    std::string qualityStr;
+
     // Bottom progress bar
     inline static bool BOTTOM_BAR    = true;
     inline static bool LOW_QUALITY   = false;
@@ -166,6 +171,7 @@ private:
                           0.0f, 1.0f,  0.0f, -1.0f, -1.0f, 0.0f, 0.0f,
                           0.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f};
 
+    // 当前软件是否在前台的回调
     brls::Event<bool>::Subscription focusSubscription;
 
     /// Will be called in main thread to get events from mpv core

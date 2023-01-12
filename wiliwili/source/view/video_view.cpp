@@ -109,6 +109,14 @@ VideoView::VideoView() {
         brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
                                brls::SOUND_NONE)));
 
+    /// 清晰度按钮
+    this->videoQuality->registerClickAction([this](...) {
+        mpvCore->getEvent()->fire(MpvEventEnum::QUALITY_CHANGE_REQUEST);
+        return true;
+    });
+    this->videoQuality->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->videoQuality));
+
     /// 全屏按钮
     this->btnFullscreenIcon->getParent()->registerClickAction([this](...) {
         if (this->isFullscreen()) {
@@ -374,6 +382,18 @@ std::string VideoView::getTitle() {
     return this->videoTitleLabel->getFullText();
 }
 
+void VideoView::setQuality(std::string str) {
+    ASYNC_RETAIN
+    brls::Threading::sync([ASYNC_TOKEN, str]() {
+        ASYNC_RELEASE
+        this->videoQuality->setText(str);
+    });
+}
+
+std::string VideoView::getQuality() {
+    return this->videoQuality->getFullText();
+}
+
 void VideoView::setDuration(std::string value) {
     this->rightStatusLabel->setText(value);
 }
@@ -449,6 +469,7 @@ void VideoView::setFullScreen(bool fs) {
         video->setHeightPercentage(100);
 
         video->setTitle(this->getTitle());
+        video->setQuality(this->getQuality());
         video->setDuration(this->rightStatusLabel->getFullText());
         video->setPlaybackTime(this->leftStatusLabel->getFullText());
         video->setProgress(this->getProgress());
@@ -487,6 +508,7 @@ void VideoView::setFullScreen(bool fs) {
                     video->registerMpvEvent();
                     video->refreshToggleIcon();
                     video->refreshDanmakuIcon();
+                    video->setQuality(this->getQuality());
                     DanmakuCore::instance().refresh();
                     if (osdCenterBox->getVisibility() ==
                         brls::Visibility::GONE) {
@@ -664,6 +686,9 @@ void VideoView::registerMpvEvent() {
                         this->centerLabel->setText(mpvCore->getCacheSpeed());
                     }
                     break;
+                case MpvEventEnum::QUALITY_CHANGED:
+                    videoQuality->setText(mpvCore->qualityStr);
+                    break;
                 default:
                     break;
             }
@@ -680,6 +705,13 @@ void VideoView::unRegisterMpvEvent() {
 void VideoView::onChildFocusGained(View* directChild, View* focusedView) {
     Box::onChildFocusGained(directChild, focusedView);
     // 只有在全屏显示OSD时允许OSD组件获取焦点
-    if (this->isFullscreen() && isOSDShown()) return;
+    if (this->isFullscreen() && isOSDShown()) {
+        // 当弹幕按钮隐藏时不可获取焦点
+        if (focusedView->getParent()->getVisibility() ==
+            brls::Visibility::GONE) {
+            brls::Application::giveFocus(this);
+        }
+        return;
+    }
     brls::Application::giveFocus(this);
 }

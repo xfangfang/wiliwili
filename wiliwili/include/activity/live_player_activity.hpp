@@ -5,6 +5,7 @@
 #pragma once
 
 #include <borealis.hpp>
+#include "view/mpv_core.hpp"
 #include "presenter/live_data.hpp"
 
 class VideoView;
@@ -16,6 +17,10 @@ public:
 
     LiveActivity(const bilibili::LiveVideoResult& live);
     LiveActivity(int roomid);
+
+    void setCommonData();
+
+    void setVideoQuality();
 
     void onContentAvailable() override;
 
@@ -32,7 +37,10 @@ private:
 
     bilibili::LiveVideoResult liveData;
 
+    // 监控mpv事件
+    MPVEvent::Subscription eventSubscribeID;
+
     // 用于缓存全局状态，进入直播时关闭弹幕与底部进度条，退出时恢复
     bool globalShowDanmaku = false;
-    bool globalBottomBar = false;
+    bool globalBottomBar   = false;
 };

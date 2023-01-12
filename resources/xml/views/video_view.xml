@@ -128,7 +128,7 @@
                         id="video/osd/danmaku/box/setting"
                         hideClickAnimation="true"
                         positionType="absolute"
-                        positionRight="180"
+                        positionRight="300"
                         alignItems="center"
                         justifyContent="center"
                         height="60"
@@ -148,7 +148,7 @@
                         id="video/osd/danmaku/box/toggle"
                         hideClickAnimation="true"
                         positionType="absolute"
-                        positionRight="100"
+                        positionRight="240"
                         alignItems="center"
                         justifyContent="center"
                         height="60"
@@ -163,6 +163,14 @@
                             width="30"
                             SVG="@res/svg/bpx-svg-sprite-danmu-switch-on.svg"/>
                 </brls:Box>
+                <brls:Label
+                        id="video/quality"
+                        textColor="#FFFFFF"
+                        focusable="true"
+                        hideHighlightBackground="true"
+                        highlightCornerRadius="8"
+                        positionType="absolute"
+                        positionRight="100"/>
                 <brls:Box
                         wireframe="false"
                         id="video/osd/fullscreen"
