@@ -37,8 +37,8 @@
 
         <ButtonClose
                 positionType="absolute"
-                positionTop="10"
-                positionRight="10"/>
+                positionTop="20"
+                positionRight="20"/>
 
     </brls:Box>
 </brls:AppletFrame>

@@ -62,6 +62,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     /// number
     {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
+    {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads", {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
     {SettingItem::VIDEO_FORMAT,
@@ -128,6 +129,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     /// number
     {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
+    {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads",
       {"1", "2", "3", "4", "8", "12", "16"},
@@ -223,6 +225,10 @@ void ProgramConfig::load() {
         brls::Logger::error("ProgramConfig::load: {}", e.what());
     }
     brls::Logger::info("Load config from: {}", path);
+
+    // 初始化视频清晰度
+    VideoDetail::defaultQuality =
+        getSettingItem(SettingItem::VIDEO_QUALITY, 116);
 
     // 初始化弹幕相关内容
     DanmakuCore::DANMAKU_ON = getBoolOption(SettingItem::DANMAKU_ON);

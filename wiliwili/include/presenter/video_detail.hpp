@@ -115,6 +115,8 @@ public:
 
     void followUp(const std::string& mid, bool follow);
 
+    static inline int defaultQuality = 116;
+
 protected:
     bilibili::VideoDetailResult videoDetailResult;       //  视频数据
     bilibili::VideoDetailPage videoDetailPage;           // 视频分P数据
@@ -127,8 +129,6 @@ protected:
 
     // 番剧/综艺/影视 剧集列表（包括非正片）
     bilibili::SeasonEpisodeListResult episodeList;
-
-    static inline int defaultQuality = 116;
 
     int commentRequestIndex                    = 1;
     unsigned int userUploadedVideoRequestIndex = 1;

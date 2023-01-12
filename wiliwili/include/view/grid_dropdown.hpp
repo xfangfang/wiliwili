@@ -12,35 +12,26 @@
 #include <cmath>
 #include <borealis.hpp>
 #include <borealis/views/cells/cell_radio.hpp>
+#include <utility>
 #include "view/recycling_grid.hpp"
 
 typedef brls::Event<int> ValueSelectedEvent;
 
-class GridDropdown;
+//class GridDropdown;
+class BaseDropdown;
 
 class GridRadioCell : public RecyclingGridItem {
 public:
-    GridRadioCell() {
-        this->inflateFromXMLRes("xml/views/grid_radio_cell.xml");
-    }
+    GridRadioCell();
 
-    void setSelected(bool selected) {
-        brls::Theme theme = brls::Application::getTheme();
+    void setSelected(bool selected);
 
-        this->selected = selected;
-        this->checkbox->setVisibility(selected ? brls::Visibility::VISIBLE
-                                               : brls::Visibility::GONE);
-        this->title->setTextColor(selected
-                                      ? theme["brls/list/listItem_value_color"]
-                                      : theme["brls/text"]);
-    }
-
-    bool getSelected() { return this->selected; }
+    bool getSelected();
 
     BRLS_BIND(brls::Label, title, "brls/rediocell/title");
     BRLS_BIND(brls::CheckBox, checkbox, "brls/rediocell/checkbox");
 
-    static RecyclingGridItem* create() { return new GridRadioCell(); }
+    static RecyclingGridItem* create();
 
 private:
     bool selected = false;
@@ -48,139 +39,67 @@ private:
 
 class DataSourceDropdown : public RecyclingGridDataSource {
 public:
-    DataSourceDropdown(std::vector<std::string> result, GridDropdown* view)
-        : data(result), dropdown(view) {}
+    DataSourceDropdown(BaseDropdown* view) : dropdown(view) {}
+
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override;
+
+protected:
+    BaseDropdown* dropdown;
+};
+
+class TextDataSourceDropdown : public DataSourceDropdown {
+public:
+    TextDataSourceDropdown(std::vector<std::string> result, BaseDropdown* view)
+        : DataSourceDropdown(view), data(std::move(result)) {}
 
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override;
 
     size_t getItemCount() override;
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override;
-
-    void clearData() override{
-        data.clear();
-    }
+    void clearData() override;
 
 private:
     std::vector<std::string> data;
-    GridDropdown* dropdown;
 };
 
-class GridDropdown : public brls::Box {
+class BaseDropdown : public brls::Box {
 public:
-    GridDropdown(std::string title, std::vector<std::string> values,
-                 ValueSelectedEvent::Callback cb, int selected = 0)
-        : values(values), cb(cb), selected(selected) {
-        this->inflateFromXMLRes("xml/views/grid_dropdown.xml");
-        this->title->setText(title);
+    BaseDropdown(const std::string& title, ValueSelectedEvent::Callback cb,
+                 int selected = 0);
 
-        recycler->registerCell("Cell", []() {
-            GridRadioCell* cell = new GridRadioCell();
-            cell->setHeight(
-                brls::Application::getStyle()["brls/dropdown/listItemHeight"]);
-            cell->title->setFontSize(brls::Application::getStyle()
-                                         ["brls/dropdown/listItemTextSize"]);
-            return cell;
-        });
+    RecyclingGrid* getRecyclingList();
 
-        DataSourceDropdown* dataSource = new DataSourceDropdown(values, this);
-        recycler->setDefaultCellFocus(selected);
-        recycler->setDataSource(dataSource);
-
-        brls::Style style = brls::Application::getStyle();
-
-        float height =
-            dataSource->getItemCount() * style["brls/dropdown/listItemHeight"] +
-            header->getHeight() + style["brls/dropdown/listPadding"]  // top
-            + style["brls/dropdown/listPadding"]                      // bottom
-            ;
-
-        content->setHeight(
-            fmin(height, brls::Application::contentHeight * 0.73f));
-    }
+    void setDataSource(DataSourceDropdown* dataSource);
 
     void show(std::function<void(void)> cb, bool animate,
-              float animationDuration) override {
-        if (animate) {
-            content->setTranslationY(30.0f);
+              float animationDuration) override;
 
-            showOffset.stop();
-            showOffset.reset(30.0f);
-            showOffset.addStep(0, animationDuration,
-                               brls::EasingFunction::quadraticOut);
-            showOffset.setTickCallback([this] { this->offsetTick(); });
-            showOffset.start();
-        }
-
-        Box::show(cb, animate, animationDuration);
-
-        if (animate) {
-            alpha.stop();
-            alpha.reset(1);
-
-            applet->alpha.stop();
-            applet->alpha.reset(0);
-            applet->alpha.addStep(1, animationDuration,
-                                  brls::EasingFunction::quadraticOut);
-            applet->alpha.start();
-        }
-    }
     void hide(std::function<void(void)> cb, bool animated,
-              float animationDuration) override {
-        if (animated) {
-            alpha.stop();
-            alpha.reset(0);
-
-            applet->alpha.stop();
-            applet->alpha.reset(1);
-            applet->alpha.addStep(0, animationDuration,
-                                  brls::EasingFunction::quadraticOut);
-            applet->alpha.start();
-        }
-
-        Box::hide(cb, animated, animationDuration);
-    }
+              float animationDuration) override;
 
     virtual View* getParentNavigationDecision(
-        View* from, View* newFocus, brls::FocusDirection direction) override {
-        View* result =
-            Box::getParentNavigationDecision(from, newFocus, direction);
+        View* from, View* newFocus, brls::FocusDirection direction) override;
 
-        RecyclingGridItem* cell = dynamic_cast<RecyclingGridItem*>(result);
-        if (cell && cell != from) {
-            cellFocusDidChangeEvent.fire(cell);
-        }
+    brls::Event<RecyclingGridItem*>* getCellFocusDidChangeEvent();
 
-        return result;
-    }
+    bool isTranslucent() override;
 
-    brls::Event<RecyclingGridItem*>* getCellFocusDidChangeEvent() {
-        return &cellFocusDidChangeEvent;
-    }
+    size_t getSelected() const;
 
-    bool isTranslucent() override {
-        return true || brls::View::isTranslucent();
-    }
+    ValueSelectedEvent::Callback getSelectCallback();
 
-    size_t getSelected() { return this->selected; }
-
-    ValueSelectedEvent::Callback getSelectCallback() { return this->cb; }
+    static void text(const std::string& title,
+                     const std::vector<std::string>& values,
+                     ValueSelectedEvent::Callback cb, int selected = 0);
 
 protected:
-    float getShowAnimationDuration(
-        brls::TransitionAnimation animation) override {
-        return View::getShowAnimationDuration(animation) / 2;
-    }
-
-private:
     BRLS_BIND(RecyclingGrid, recycler, "grid_dropdown/recycler");
     BRLS_BIND(brls::Box, header, "grid_dropdown/header");
     BRLS_BIND(brls::Label, title, "grid_dropdown/title_label");
     BRLS_BIND(brls::Box, content, "grid_dropdown/content");
     BRLS_BIND(brls::AppletFrame, applet, "grid_dropdown/applet");
 
-    std::vector<std::string> values;
     ValueSelectedEvent::Callback cb;
     size_t selected;
     brls::Animatable showOffset = 0;

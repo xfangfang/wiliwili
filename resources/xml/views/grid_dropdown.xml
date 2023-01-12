@@ -14,7 +14,6 @@
             backgroundColor="@theme/brls/backdrop">
 
         <brls:Box
-                wireframe="true"
                 width="100%"
                 height="auto"
                 grow="1"
@@ -49,7 +48,7 @@
                             width="auto"
                             height="auto"
                             marginTop="@style/brls/applet_frame/header_title_top_offset"
-                            fontSize="@style/brls/dropdown/header_title_font_size" />
+                            fontSize="@style/brls/dropdown/header_title_font_size"/>
 
                 </brls:Box>
 
@@ -68,11 +67,13 @@
                         paddingBottom="@style/brls/dropdown/listPadding"
                         paddingLeft="@style/brls/dropdown/listPaddingSides"/>
 
+                <ButtonClose
+                        positionType="absolute"
+                        positionTop="10"
+                        positionRight="10"/>
+
             </brls:Box>
 
-            <brls:BottomBar
-                    width="100%"
-                    backgroundColor="@theme/brls/background"/>
         </brls:Box>
 
     </brls:AppletFrame>

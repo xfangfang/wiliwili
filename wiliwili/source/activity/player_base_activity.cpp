@@ -8,6 +8,7 @@
 #include "fragment/player_single_comment.hpp"
 #include "view/qr_image.hpp"
 #include "view/video_view.hpp"
+#include "view/grid_dropdown.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "presenter/comment_related.hpp"
@@ -111,6 +112,77 @@ private:
     size_t aid;
 };
 
+class QualityCell : public RecyclingGridItem {
+public:
+    QualityCell() {
+        this->inflateFromXMLRes("xml/views/player_quality_cell.xml");
+    }
+
+    void setSelected(bool selected) {
+        brls::Theme theme = brls::Application::getTheme();
+
+        this->selected = selected;
+        this->checkbox->setVisibility(selected ? brls::Visibility::VISIBLE
+                                               : brls::Visibility::GONE);
+        this->title->setTextColor(selected
+                                      ? theme["brls/list/listItem_value_color"]
+                                      : theme["brls/text"]);
+    }
+
+    bool getSelected() { return this->selected; }
+
+    BRLS_BIND(brls::Label, title, "cell/title");
+    BRLS_BIND(brls::Box, loginLabel, "cell/login");
+    BRLS_BIND(brls::Box, vipLabel, "cell/vip");
+    BRLS_BIND(brls::CheckBox, checkbox, "cell/checkbox");
+
+    static RecyclingGridItem* create() { return new GridRadioCell(); }
+
+private:
+    bool selected = false;
+};
+
+class QualityDataSource : public DataSourceDropdown {
+public:
+    QualityDataSource(bilibili::VideoUrlResult result, BaseDropdown* view)
+        : DataSourceDropdown(view), data(std::move(result)) {
+        login = !ProgramConfig::instance().getCSRF().empty();
+    }
+
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
+                                  size_t index) override {
+        QualityCell* item = (QualityCell*)recycler->dequeueReusableCell("Cell");
+
+        int quality = data.accept_quality[index];
+
+        item->loginLabel->setVisibility(brls::Visibility::GONE);
+        item->vipLabel->setVisibility(brls::Visibility::GONE);
+
+        if (quality > 80) {
+            item->vipLabel->setVisibility(brls::Visibility::VISIBLE);
+        } else if (quality > 32) {
+            if (!login)
+                item->loginLabel->setVisibility(brls::Visibility::VISIBLE);
+        }
+
+        auto r = this->data.accept_description[index];
+        item->title->setText(this->data.accept_description[index]);
+        item->setSelected(index == dropdown->getSelected());
+        return item;
+    }
+
+    size_t getItemCount() override {
+        return std::min(data.accept_quality.size(),
+                        data.accept_description.size());
+    }
+
+    void clearData() override {}
+
+private:
+    bilibili::VideoUrlResult data;
+    bool login;
+};
+
 /// BasePlayerActivity
 
 void BasePlayerActivity::onContentAvailable() { this->setCommonData(); }
@@ -145,38 +217,19 @@ void BasePlayerActivity::setCommonData() {
         "wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
         [this](brls::View* view) -> bool {
             if (this->videoUrlResult.accept_description.empty()) return true;
-            brls::Application::pushActivity(
-                new brls::Activity(new brls::Dropdown(
-                    "wiliwili/player/quality"_i18n,
-                    this->videoUrlResult.accept_description,
-                    [this](int _selected) {
-                        BasePlayerActivity::defaultQuality =
-                            this->videoUrlResult.accept_quality[_selected];
 
-                        // 在加载视频时，若设置了进度，会自动向前跳转5秒，
-                        // 这里提前加上5s用来抵消播放视频时的进度问题。
-                        setProgress(MPVCore::instance().video_progress + 5);
-
-                        // dash
-                        if (!this->videoUrlResult.dash.video.empty()) {
-                            // dash格式的视频无需重复请求视频链接，这里简单的设置清晰度即可
-                            videoUrlResult.quality =
-                                BasePlayerActivity::defaultQuality;
-                            this->onVideoPlayUrl(videoUrlResult);
-                            return;
-                        }
-
-                        // flv
-                        auto self = dynamic_cast<PlayerSeasonActivity*>(this);
-                        if (self) {
-                            this->requestSeasonVideoUrl(episodeResult.bvid,
-                                                        episodeResult.cid);
-                        } else {
-                            this->requestVideoUrl(videoDetailResult.bvid,
-                                                  videoDetailPage.cid);
-                        }
-                    },
-                    getQualityIndex())));
+            auto* dropdown = new BaseDropdown(
+                "wiliwili/player/quality"_i18n,
+                [this](int selected) {
+                    this->setVideoQuality(
+                        this->videoUrlResult.accept_quality[selected]);
+                },
+                getQualityIndex());
+            auto* recycler = dropdown->getRecyclingList();
+            recycler->registerCell("Cell", []() { return new QualityCell(); });
+            dropdown->setDataSource(
+                new QualityDataSource(this->videoUrlResult, dropdown));
+            brls::Application::pushActivity(new brls::Activity(dropdown));
 
             return true;
         });
@@ -296,6 +349,39 @@ void BasePlayerActivity::showCoinDialog(size_t aid) {
     });
     auto dialog = new brls::Dialog(playerCoin);
     dialog->open();
+}
+
+void BasePlayerActivity::setVideoQuality(int code) {
+    BasePlayerActivity::defaultQuality = code;
+    ProgramConfig::instance().setSettingItem(SettingItem::VIDEO_QUALITY, code);
+
+    // 如果未登录选择了大于480P清晰度的视频
+    if (ProgramConfig::instance().getCSRF().empty() && defaultQuality > 32) {
+        brls::sync([]() {
+            DialogHelper::showDialog("wiliwili/home/common/no_login"_i18n);
+        });
+        return;
+    }
+
+    // 在加载视频时，若设置了进度，会自动向前跳转5秒，
+    // 这里提前加上5s用来抵消播放视频时的进度问题。
+    setProgress(MPVCore::instance().video_progress + 5);
+
+    // dash
+    if (!this->videoUrlResult.dash.video.empty()) {
+        // dash格式的视频无需重复请求视频链接，这里简单的设置清晰度即可
+        videoUrlResult.quality = BasePlayerActivity::defaultQuality;
+        this->onVideoPlayUrl(videoUrlResult);
+        return;
+    }
+
+    // flv
+    auto self = dynamic_cast<PlayerSeasonActivity*>(this);
+    if (self) {
+        this->requestSeasonVideoUrl(episodeResult.bvid, episodeResult.cid);
+    } else {
+        this->requestVideoUrl(videoDetailResult.bvid, videoDetailPage.cid);
+    }
 }
 
 void BasePlayerActivity::onVideoPlayUrl(

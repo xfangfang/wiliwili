@@ -4,21 +4,153 @@
 
 #include "view/grid_dropdown.hpp"
 
-RecyclingGridItem* DataSourceDropdown::cellForRow(RecyclingGrid* recycler,
-                                                  size_t index) {
-    //从缓存列表中取出 或者 新生成一个表单项
+/// GridRadioCell
+GridRadioCell::GridRadioCell() {
+    this->inflateFromXMLRes("xml/views/grid_radio_cell.xml");
+}
+
+void GridRadioCell::setSelected(bool selected) {
+    brls::Theme theme = brls::Application::getTheme();
+
+    this->selected = selected;
+    this->checkbox->setVisibility(selected ? brls::Visibility::VISIBLE
+                                           : brls::Visibility::GONE);
+    this->title->setTextColor(selected ? theme["brls/list/listItem_value_color"]
+                                       : theme["brls/text"]);
+}
+
+bool GridRadioCell::getSelected() { return this->selected; }
+
+RecyclingGridItem* GridRadioCell::create() { return new GridRadioCell(); }
+
+/// DataSourceDropdown
+
+void DataSourceDropdown::onItemSelected(RecyclingGrid* recycler, size_t index) {
+    this->dropdown->getSelectCallback()(index);
+    brls::Application::popActivity(brls::TransitionAnimation::FADE);
+}
+
+/// TextDropdown
+
+RecyclingGridItem* TextDataSourceDropdown::cellForRow(RecyclingGrid* recycler,
+                                                      size_t index) {
     GridRadioCell* item = (GridRadioCell*)recycler->dequeueReusableCell("Cell");
 
     auto r = this->data[index];
     item->title->setText(this->data[index]);
     item->setSelected(index == dropdown->getSelected());
-
     return item;
 }
 
-size_t DataSourceDropdown::getItemCount() { return this->data.size(); }
+size_t TextDataSourceDropdown::getItemCount() { return this->data.size(); }
 
-void DataSourceDropdown::onItemSelected(RecyclingGrid* recycler, size_t index) {
-    this->dropdown->getSelectCallback()(index);
-    brls::Application::popActivity(brls::TransitionAnimation::FADE);
+void TextDataSourceDropdown::clearData() { this->data.clear(); }
+
+/// BaseDropdown
+
+BaseDropdown::BaseDropdown(const std::string& title,
+                           ValueSelectedEvent::Callback cb, int selected)
+    : cb(std::move(cb)), selected(selected) {
+    this->inflateFromXMLRes("xml/views/grid_dropdown.xml");
+    this->title->setText(title);
+}
+
+RecyclingGrid* BaseDropdown::getRecyclingList() { return recycler; }
+
+void BaseDropdown::setDataSource(DataSourceDropdown* dataSource) {
+    recycler->setDefaultCellFocus(selected);
+    recycler->setDataSource(dataSource);
+
+    brls::Style style = brls::Application::getStyle();
+
+    float height =
+        dataSource->getItemCount() * style["brls/dropdown/listItemHeight"] +
+        header->getHeight() + style["brls/dropdown/listPadding"]  // top
+        + style["brls/dropdown/listPadding"]                      // bottom
+        ;
+
+    content->setHeight(fmin(height, brls::Application::contentHeight * 0.73f));
+}
+
+void BaseDropdown::show(std::function<void(void)> cb, bool animate,
+                        float animationDuration) {
+    if (animate) {
+        content->setTranslationY(30.0f);
+
+        showOffset.stop();
+        showOffset.reset(30.0f);
+        showOffset.addStep(0, animationDuration,
+                           brls::EasingFunction::quadraticOut);
+        showOffset.setTickCallback([this] { this->offsetTick(); });
+        showOffset.start();
+    }
+
+    Box::show(cb, animate, animationDuration);
+
+    if (animate) {
+        alpha.stop();
+        alpha.reset(1);
+
+        applet->alpha.stop();
+        applet->alpha.reset(0);
+        applet->alpha.addStep(1, animationDuration,
+                              brls::EasingFunction::quadraticOut);
+        applet->alpha.start();
+    }
+}
+
+void BaseDropdown::hide(std::function<void(void)> cb, bool animated,
+                        float animationDuration) {
+    if (animated) {
+        alpha.stop();
+        alpha.reset(0);
+
+        applet->alpha.stop();
+        applet->alpha.reset(1);
+        applet->alpha.addStep(0, animationDuration,
+                              brls::EasingFunction::quadraticOut);
+        applet->alpha.start();
+    }
+
+    Box::hide(cb, animated, animationDuration);
+}
+
+brls::View* BaseDropdown::getParentNavigationDecision(
+    View* from, View* newFocus, brls::FocusDirection direction) {
+    View* result = Box::getParentNavigationDecision(from, newFocus, direction);
+
+    auto* cell = dynamic_cast<RecyclingGridItem*>(result);
+    if (cell && cell != from) {
+        cellFocusDidChangeEvent.fire(cell);
+    }
+
+    return result;
+}
+
+brls::Event<RecyclingGridItem*>* BaseDropdown::getCellFocusDidChangeEvent() {
+    return &cellFocusDidChangeEvent;
+}
+
+bool BaseDropdown::isTranslucent() { return true; }
+
+size_t BaseDropdown::getSelected() const { return this->selected; }
+
+ValueSelectedEvent::Callback BaseDropdown::getSelectCallback() {
+    return this->cb;
+}
+
+void BaseDropdown::text(const std::string& title,
+                        const std::vector<std::string>& values,
+                        ValueSelectedEvent::Callback cb, int selected) {
+    auto* dropdown = new BaseDropdown(title, std::move(cb), selected);
+    dropdown->getRecyclingList()->registerCell("Cell", []() {
+        auto* cell = new GridRadioCell();
+        cell->setHeight(
+            brls::Application::getStyle()["brls/dropdown/listItemHeight"]);
+        cell->title->setFontSize(
+            brls::Application::getStyle()["brls/dropdown/listItemTextSize"]);
+        return cell;
+    });
+    dropdown->setDataSource(new TextDataSourceDropdown(values, dropdown));
+    brls::Application::pushActivity(new brls::Activity(dropdown));
 }

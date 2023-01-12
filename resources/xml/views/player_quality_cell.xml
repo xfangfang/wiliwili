@@ -1,0 +1,55 @@
+<brls:Box
+        width="auto"
+        height="@style/brls/sidebar/item_height"
+        focusable="true"
+        paddingTop="12.5"
+        paddingBottom="12.5"
+        lineColor="@theme/brls/sidebar/separator"
+        lineTop="1"
+        lineBottom="1"
+        alignItems="center">
+
+    <brls:Label
+            id="cell/title"
+            grow="1"
+            marginLeft="@style/brls/listitem/descriptionIndent"
+            marginRight="@style/brls/listitem/descriptionIndent"
+            fontSize="@style/brls/sidebar/item_font_size"/>
+
+    <brls:CheckBox
+            id="cell/checkbox"
+            visibility="gone"
+            marginRight="@style/brls/listitem/descriptionIndent"/>
+
+    <brls:Box
+            id="cell/login"
+            visibility="gone"
+            borderColor="@theme/color/bilibili"
+            marginRight="10"
+            borderThickness="2"
+            cornerRadius="8"
+            padding="4">
+        <brls:Label
+                fontSize="16"
+                height="16"
+                horizontalAlign="center"
+                textColor="@theme/color/bilibili"
+                text="登录即享"/>
+    </brls:Box>
+
+    <brls:Box
+            id="cell/vip"
+            visibility="gone"
+            backgroundColor="@theme/color/bilibili"
+            marginRight="10"
+            cornerRadius="8"
+            padding="4">
+        <brls:Label
+                fontSize="16"
+                height="16"
+                horizontalAlign="center"
+                textColor="#FFFFFF"
+                text="大会员"/>
+    </brls:Box>
+
+</brls:Box>
