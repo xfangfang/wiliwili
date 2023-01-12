@@ -107,6 +107,9 @@
                                 id="setting/opencc"/>
 
                         <brls:SelectorCell
+                                id="setting/keymap"/>
+
+                        <brls:SelectorCell
                                 id="setting/ui/theme"/>
 
                         <brls:SelectorCell
@@ -157,6 +160,10 @@
                                 title="@i18n/wiliwili/setting/tools/tutorial/error"/>
 
                         <brls:RadioCell
+                                id="tools/tutorial_font"
+                                title="@i18n/wiliwili/setting/tools/tutorial/font"/>
+
+                        <brls:RadioCell
                                 id="tools/hot_key"
                                 title="@i18n/wiliwili/setting/tools/tutorial/hot_key"/>
 
@@ -186,6 +193,10 @@
                             height="auto"
                             title="@i18n/wiliwili/setting/tools/others/header"
                             marginBottom="0px"/>
+
+                    <brls:RadioCell
+                            id="tools/config_dir"
+                            title="@i18n/wiliwili/setting/tools/others/config"/>
 
                     <brls:RadioCell
                             id="tools/release_checker"/>

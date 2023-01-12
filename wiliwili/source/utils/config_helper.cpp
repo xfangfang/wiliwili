@@ -40,6 +40,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {},
       0}},
     {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
+    {SettingItem::KEYMAP, {"keymap", {"xbox", "ps", "keyboard"}, {}, 0}},
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -105,6 +106,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {},
       4}},
     {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
+    {SettingItem::KEYMAP, {"keymap", {"xbox", "ps", "keyboard"}, {}, 0}},
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -413,13 +415,28 @@ void ProgramConfig::init() {
     brls::FontLoader::USER_FONT_PATH = getConfigDir() + "/font.ttf";
     brls::FontLoader::USER_ICON_PATH = getConfigDir() + "/icon.ttf";
 
+    if (access(brls::FontLoader::USER_ICON_PATH.c_str(), F_OK) == -1) {
+        // 自定义字体不存在，使用内置字体
+        std::string icon =
+            getSettingItem(SettingItem::KEYMAP, std::string{"xbox"});
+        if (icon == "xbox") {
+            brls::FontLoader::USER_ICON_PATH =
+                BRLS_ASSET("font/keymap_xbox.ttf");
+        } else if (icon == "ps") {
+            brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
+        } else {
+            brls::FontLoader::USER_ICON_PATH =
+                BRLS_ASSET("font/keymap_keyboard.ttf");
+        }
+    }
+
     // set bilibili cookie and cookie update callback
     Cookie diskCookie = this->getCookie();
     bilibili::BilibiliClient::init(
         diskCookie,
-        [](Cookie newCookie) {
+        [](const Cookie& newCookie) {
             brls::Logger::info("======== write cookies to disk");
-            for (auto c : newCookie) {
+            for (const auto& c : newCookie) {
                 brls::Logger::info("cookie: {}:{}", c.first, c.second);
             }
             ProgramConfig::instance().setCookie(newCookie);

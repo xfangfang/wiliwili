@@ -44,6 +44,7 @@ enum class SettingItem {
     DANMAKU_STYLE_ALPHA,
     DANMAKU_STYLE_FONTSIZE,
     DANMAKU_STYLE_SPEED,
+    KEYMAP,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {

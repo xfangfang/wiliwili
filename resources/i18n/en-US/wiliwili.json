@@ -61,7 +61,8 @@
         "intro_bvid": "BV18W4y1q72C",
         "open": "How to install desktop icon",
         "error": "If you encounter a bug",
-        "hot_key": "Hot keys"
+        "hot_key": "Hot keys",
+        "font": "Set custom font"
       },
       "test": {
         "header": "Diagnostics",
@@ -91,7 +92,11 @@
       "error_q1": "Unable to access the network",
       "error_a1": "1. Ensure the atmosphere and system firmware are up to date\n2. Confirm that the system time is correct\n3. Restore the default network settings, including IP, DNS, etc\n4.Using in China",
       "error_q2": "Exits with random error",
-      "error_a2": "1. Using a Fat32 format memory card\n2. Ensure the atmosphere and system firmware are up to date\n3. Waiting for developers to repair"
+      "error_a2": "1. Using a Fat32 format memory card\n2. Ensure the atmosphere and system firmware are up to date\n3. Waiting for developers to repair",
+      "font_q1": "How to set custom font or keymap icon",
+      "font_a1": "1. Download the font or icon font you want\n2. Rename font to: font.ttf; Rename icon to: icon.ttf\n3. Place font files in the config directory\n4. Restart the application",
+      "font_q2": "FAQ",
+      "font_a2": "1. wiliwili prioritizes the display of custom fonts, with built-in fonts as a fallback\n2. \"Settings - Tools - Others\" provides a menu item to quickly open the config directory\n3. On Linux, wiliwili uses xdg-open to open the directory. If the configuration directory cannot be opened correctly, you can consider installing this tool"
     },
     "hot_keys": {
       "common_header": "Common",

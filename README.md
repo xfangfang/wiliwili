@@ -15,7 +15,7 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 
 # 支持特性
 
-主题色：自动切换深浅主题
+主题色：自动切换深浅主题  
 多语言：简、繁、日、韩、英 ...   
 播放页：视频 番剧 影视 综艺，支持弹幕  
 个人页：扫码登录 历史记录 个人收藏  
@@ -46,7 +46,7 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
     - Windows `Win7 SP1 and later; x86_64`
     - macOS `11.7 and later; intel`
     - Linux `flatpak x86_64 id:cn.xfangfang.wiliwili`
-3. 【必看】缺少图标的解决办法见：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
+3. 如何自定义字体或图标？：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
 
 补充信息：
 
@@ -54,6 +54,7 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 2. 显卡驱动需要支持 `OpenGL 3.2` 以运行此程序
 3. Windows用户可以通过下载 [debug版](https://github.com/xfangfang/DIY/actions/workflows/wiliwili_win_debug.yml) 来查看log
 4. 目前支持的键盘映射见：[#47](https://github.com/xfangfang/wiliwili/discussions/47)
+5. Steam Deck 安装教程：[#41](https://github.com/xfangfang/wiliwili/discussions/41)
 
 <br>
 

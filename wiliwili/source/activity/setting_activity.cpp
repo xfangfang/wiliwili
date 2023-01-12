@@ -14,6 +14,10 @@
 #include "borealis/core/cache_helper.hpp"
 #include "borealis/views/applet_frame.hpp"
 
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#include "borealis/platforms/desktop/desktop_platform.hpp"
+#endif
+
 using namespace brls::literals;
 
 const std::string OPENSOURCE =
@@ -91,10 +95,14 @@ SettingActivity::SettingActivity() {
 void SettingActivity::onContentAvailable() {
     brls::Logger::debug("SettingActivity: onContentAvailable");
 
+#ifdef __SWITCH__
     btnTutorialOpenApp->registerClickAction([](...) -> bool {
         brls::Application::pushActivity(new HintActivity());
         return true;
     });
+#else
+    btnTutorialOpenApp->setVisibility(brls::Visibility::GONE);
+#endif
 
     btnTutorialOpenVideoIntro->registerClickAction([](...) -> bool {
         brls::Application::pushActivity(new PlayerActivity(
@@ -102,6 +110,7 @@ void SettingActivity::onContentAvailable() {
         return true;
     });
 
+#ifdef __SWITCH__
     btnTutorialError->registerClickAction([](...) -> bool {
         auto dialog =
             new brls::Dialog((brls::Box*)brls::View::createFromXMLResource(
@@ -110,6 +119,28 @@ void SettingActivity::onContentAvailable() {
         dialog->open();
         return true;
     });
+#else
+    btnTutorialError->setVisibility(brls::Visibility::GONE);
+#endif
+
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    btnOpenConfig->registerClickAction([](...) -> bool {
+        auto* p = (brls::DesktopPlatform*)brls::Application::getPlatform();
+        p->openBrowser(ProgramConfig::instance().getConfigDir());
+        return true;
+    });
+    btnTutorialFont->registerClickAction([](...) -> bool {
+        auto dialog =
+            new brls::Dialog((brls::Box*)brls::View::createFromXMLResource(
+                "fragment/settings_tutorial_font.xml"));
+        dialog->addButton("hints/ok"_i18n, []() {});
+        dialog->open();
+        return true;
+    });
+#else
+    btnOpenConfig->setVisibility(brls::Visibility::GONE);
+    btnTutorialFont->setVisibility(brls::Visibility::GONE);
+#endif
 
     btnHotKey->registerClickAction([](...) -> bool {
         auto dialog =
@@ -174,7 +205,7 @@ void SettingActivity::onContentAvailable() {
             }
         });
 
-    /// Gamepad vibration
+/// Gamepad vibration
 #ifdef __SWITCH__
     cellVibration->init("wiliwili/setting/app/others/vibration"_i18n,
                         conf.getBoolOption(SettingItem::GAMEPAD_VIBRATION),
@@ -187,7 +218,7 @@ void SettingActivity::onContentAvailable() {
     cellVibration->setVisibility(brls::Visibility::GONE);
 #endif
 
-    /// Fullscreen
+/// Fullscreen
 #if defined(__linux__) || defined(_WIN32)
     cellFullscreen->init(
         "wiliwili/setting/app/others/fullscreen"_i18n,
@@ -220,6 +251,29 @@ void SettingActivity::onContentAvailable() {
             DialogHelper::quitApp();
             return true;
         });
+
+    /// App Keymap
+    int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    selectorKeymap->init(
+        "wiliwili/setting/app/others/keymap/header"_i18n,
+        {
+            "wiliwili/setting/app/others/keymap/xbox"_i18n,
+            "wiliwili/setting/app/others/keymap/ps"_i18n,
+            "wiliwili/setting/app/others/keymap/keyboard"_i18n,
+        },
+        keyIndex, [keyIndex](int data) {
+            if (keyIndex == data) return false;
+            auto optionData =
+                ProgramConfig::instance().getOptionData(SettingItem::KEYMAP);
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::KEYMAP, optionData.optionList[data]);
+            DialogHelper::quitApp();
+            return true;
+        });
+#else
+    selectorKeymap->setVisibility(brls::Visibility::GONE);
+#endif
 
     /// App language
     int langIndex = conf.getStringOptionIndex(SettingItem::APP_LANG);
@@ -363,7 +417,7 @@ void SettingActivity::onContentAvailable() {
                           MPVCore::BOTTOM_BAR = value;
                       });
 
-    /// Hardware decode
+/// Hardware decode
 #ifdef __SWITCH__
     btnHWDEC->setVisibility(brls::Visibility::GONE);
 #else
