@@ -26,8 +26,9 @@ RecyclingGridItem* GridRadioCell::create() { return new GridRadioCell(); }
 /// DataSourceDropdown
 
 void DataSourceDropdown::onItemSelected(RecyclingGrid* recycler, size_t index) {
-    this->dropdown->getSelectCallback()(index);
-    brls::Application::popActivity(brls::TransitionAnimation::FADE);
+    brls::Application::popActivity(
+        brls::TransitionAnimation::FADE,
+        [this, index]() { this->dropdown->getSelectCallback()(index); });
 }
 
 /// TextDropdown

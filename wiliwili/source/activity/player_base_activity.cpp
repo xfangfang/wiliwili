@@ -354,10 +354,7 @@ void BasePlayerActivity::setVideoQuality() {
             // 如果未登录选择了大于480P清晰度的视频
             if (ProgramConfig::instance().getCSRF().empty() &&
                 defaultQuality > 32) {
-                brls::sync([]() {
-                    DialogHelper::showDialog(
-                        "wiliwili/home/common/no_login"_i18n);
-                });
+                DialogHelper::showDialog("wiliwili/home/common/no_login"_i18n);
                 return;
             }
 
@@ -403,11 +400,6 @@ void BasePlayerActivity::onVideoPlayUrl(
     brls::Logger::debug("onVideoPlayUrl quality: {}", result.quality);
     //todo: 播放失败时可以尝试备用播放链接
 
-    // 设置mpv事件，更新清晰度
-    MPVCore::instance().qualityStr =
-        videoUrlResult.accept_description[getQualityIndex()];
-    MPVCore::instance().getEvent()->fire(MpvEventEnum::QUALITY_CHANGED);
-
     // 进度向前回退5秒，避免当前进度过于接近结尾出现一加载就结束的情况
     int progress = this->getProgress() - 5;
 
@@ -441,6 +433,11 @@ void BasePlayerActivity::onVideoPlayUrl(
             this->video->setUrl(urls, progress);
         }
     }
+
+    // 设置mpv事件，更新清晰度
+    MPVCore::instance().qualityStr =
+        videoUrlResult.accept_description[getQualityIndex()];
+    MPVCore::instance().getEvent()->fire(MpvEventEnum::QUALITY_CHANGED);
 
     brls::Logger::debug("BasePlayerActivity::onVideoPlayUrl done");
 }
