@@ -2,242 +2,250 @@
         iconInterpolation="linear"
         headerHidden="true"
         footerHidden="false">
-    <AutoTabFrame
-            id="setting/tabFrame"
-            grow="1"
-            tabBackgroundColor="@theme/color/grey_1"
-            tabItemActiveTextColor="@theme/color/bilibili"
-            defaultTab="0"
-            demandMode="false"
-            sidebarWidth="200"
-            sidebarPosition="left">
 
-        <Tab label="@i18n/wiliwili/setting/app/tab"
-             fontSize="22">
-            <brls:ScrollingFrame
-                    width="auto"
-                    height="auto"
-                    marginTop="10"
-                    grow="1.0">
+    <brls:Box>
+        <AutoTabFrame
+                id="setting/tabFrame"
+                grow="1"
+                tabBackgroundColor="@theme/color/grey_1"
+                tabItemActiveTextColor="@theme/color/bilibili"
+                defaultTab="0"
+                demandMode="false"
+                sidebarWidth="200"
+                sidebarPosition="left">
 
-                <brls:Box
+            <Tab label="@i18n/wiliwili/setting/app/tab"
+                 fontSize="22">
+                <brls:ScrollingFrame
                         width="auto"
                         height="auto"
-                        axis="column"
-                        alignItems="stretch"
-                        paddingLeft="@style/brls/tab_frame/content_padding_sides"
-                        paddingRight="@style/brls/tab_frame/content_padding_sides"
-                        paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
-                        paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
-                    <brls:Header
+                        marginTop="10"
+                        grow="1.0">
+
+                    <brls:Box
                             width="auto"
                             height="auto"
-                            title="@i18n/wiliwili/setting/app/playback/header"
-                            marginBottom="0px"/>
-                    <brls:Box
-                            width="100%"
-                            height="auto"
                             axis="column"
-                            marginBottom="30px">
+                            alignItems="stretch"
+                            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+                            paddingRight="@style/brls/tab_frame/content_padding_sides"
+                            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+                            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/app/playback/header"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
 
-                        <brls:BooleanCell
-                                id="setting/video/progress"/>
+                            <brls:BooleanCell
+                                    id="setting/video/progress"/>
 
-                        <brls:BooleanCell
-                                id="setting/video/quality"/>
+                            <brls:BooleanCell
+                                    id="setting/video/quality"/>
 
-                        <brls:BooleanCell
-                                id="setting/video/hwdec"/>
+                            <brls:BooleanCell
+                                    id="setting/video/hwdec"/>
 
-                        <brls:SelectorCell
-                                id="setting/video/inmemory"/>
+                            <brls:SelectorCell
+                                    id="setting/video/inmemory"/>
 
-                        <brls:BooleanCell
-                                id="setting/history/log"/>
+                            <brls:BooleanCell
+                                    id="setting/history/log"/>
 
-                        <brls:BooleanCell
-                                id="setting/auto/nextPart"/>
+                            <brls:BooleanCell
+                                    id="setting/auto/nextPart"/>
 
-                        <brls:BooleanCell
-                                id="setting/auto/nextRcmd"/>
+                            <brls:BooleanCell
+                                    id="setting/auto/nextRcmd"/>
 
-                        <brls:SelectorCell
-                                id="setting/video/format"/>
+                            <brls:SelectorCell
+                                    id="setting/video/format"/>
 
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/app/image/header"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
+
+                            <brls:SelectorCell
+                                    id="setting/image/texture"/>
+
+                            <brls:SelectorCell
+                                    id="setting/image/threads"/>
+
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/app/others/header"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="0px">
+
+                            <brls:BooleanCell
+                                    id="cell/fullscreen"/>
+
+                            <brls:BooleanCell
+                                    id="cell/hideBottomBar"/>
+
+                            <brls:BooleanCell
+                                    id="cell/gamepadVibration"/>
+
+                            <brls:BooleanCell
+                                    id="setting/opencc"/>
+
+                            <brls:SelectorCell
+                                    id="setting/keymap"/>
+
+                            <brls:SelectorCell
+                                    id="setting/ui/theme"/>
+
+                            <brls:SelectorCell
+                                    id="setting/language"/>
+                        </brls:Box>
                     </brls:Box>
-                    <brls:Header
-                            width="auto"
-                            height="auto"
-                            title="@i18n/wiliwili/setting/app/image/header"
-                            marginBottom="0px"/>
-                    <brls:Box
-                            width="100%"
-                            height="auto"
-                            axis="column"
-                            marginBottom="30px">
+                </brls:ScrollingFrame>
+            </Tab>
 
-                        <brls:SelectorCell
-                                id="setting/image/texture"/>
-
-                        <brls:SelectorCell
-                                id="setting/image/threads"/>
-
-                    </brls:Box>
-                    <brls:Header
-                            width="auto"
-                            height="auto"
-                            title="@i18n/wiliwili/setting/app/others/header"
-                            marginBottom="0px"/>
-                    <brls:Box
-                            width="100%"
-                            height="auto"
-                            axis="column"
-                            marginBottom="0px">
-
-                        <brls:BooleanCell
-                                id="cell/fullscreen"/>
-
-                        <brls:BooleanCell
-                                id="cell/hideBottomBar"/>
-
-                        <brls:BooleanCell
-                                id="cell/gamepadVibration"/>
-
-                        <brls:BooleanCell
-                                id="setting/opencc"/>
-
-                        <brls:SelectorCell
-                                id="setting/keymap"/>
-
-                        <brls:SelectorCell
-                                id="setting/ui/theme"/>
-
-                        <brls:SelectorCell
-                                id="setting/language"/>
-                    </brls:Box>
-                </brls:Box>
-            </brls:ScrollingFrame>
-        </Tab>
-
-        <Tab label="@i18n/wiliwili/setting/tools/tab"
-             fontSize="22">
-            <brls:ScrollingFrame
-                    width="auto"
-                    height="auto"
-                    marginTop="10"
-                    grow="1.0">
-
-                <brls:Box
+            <Tab label="@i18n/wiliwili/setting/tools/tab"
+                 fontSize="22">
+                <brls:ScrollingFrame
                         width="auto"
                         height="auto"
-                        axis="column"
-                        alignItems="stretch"
-                        paddingLeft="@style/brls/tab_frame/content_padding_sides"
-                        paddingRight="@style/brls/tab_frame/content_padding_sides"
-                        paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
-                        paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
-                    <brls:Header
-                            width="auto"
-                            height="auto"
-                            title="@i18n/wiliwili/setting/tools/tutorial/header"
-                            marginBottom="0px"/>
+                        marginTop="10"
+                        grow="1.0">
+
                     <brls:Box
-                            width="100%"
+                            width="auto"
                             height="auto"
                             axis="column"
-                            marginBottom="30px">
+                            alignItems="stretch"
+                            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+                            paddingRight="@style/brls/tab_frame/content_padding_sides"
+                            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+                            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/tools/tutorial/header"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
+
+                            <brls:RadioCell
+                                    id="tools/tutorial_video_intro"
+                                    title="@i18n/wiliwili/setting/tools/tutorial/intro"/>
+
+                            <brls:RadioCell
+                                    id="tools/tutorial_open"
+                                    title="@i18n/wiliwili/setting/tools/tutorial/open"/>
+
+                            <brls:RadioCell
+                                    id="tools/tutorial_error"
+                                    title="@i18n/wiliwili/setting/tools/tutorial/error"/>
+
+                            <brls:RadioCell
+                                    id="tools/tutorial_font"
+                                    title="@i18n/wiliwili/setting/tools/tutorial/font"/>
+
+                            <brls:RadioCell
+                                    id="tools/hot_key"
+                                    title="@i18n/wiliwili/setting/tools/tutorial/hot_key"/>
+
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/tools/test/header"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
+
+                            <brls:RadioCell
+                                    id="tools/network_checker"
+                                    title="@i18n/wiliwili/setting/tools/test/net"/>
+
+                            <brls:RadioCell
+                                    id="tools/vibration_test"
+                                    title="@i18n/wiliwili/setting/tools/test/vibration"/>
+
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/tools/others/header"
+                                marginBottom="0px"/>
 
                         <brls:RadioCell
-                                id="tools/tutorial_video_intro"
-                                title="@i18n/wiliwili/setting/tools/tutorial/intro"/>
+                                id="tools/config_dir"
+                                title="@i18n/wiliwili/setting/tools/others/config"/>
 
                         <brls:RadioCell
-                                id="tools/tutorial_open"
-                                title="@i18n/wiliwili/setting/tools/tutorial/open"/>
-
-                        <brls:RadioCell
-                                id="tools/tutorial_error"
-                                title="@i18n/wiliwili/setting/tools/tutorial/error"/>
-
-                        <brls:RadioCell
-                                id="tools/tutorial_font"
-                                title="@i18n/wiliwili/setting/tools/tutorial/font"/>
-
-                        <brls:RadioCell
-                                id="tools/hot_key"
-                                title="@i18n/wiliwili/setting/tools/tutorial/hot_key"/>
-
+                                id="tools/release_checker"/>
                     </brls:Box>
-                    <brls:Header
-                            width="auto"
-                            height="auto"
-                            title="@i18n/wiliwili/setting/tools/test/header"
-                            marginBottom="0px"/>
-                    <brls:Box
-                            width="100%"
-                            height="auto"
-                            axis="column"
-                            marginBottom="30px">
+                </brls:ScrollingFrame>
+            </Tab>
 
-                        <brls:RadioCell
-                                id="tools/network_checker"
-                                title="@i18n/wiliwili/setting/tools/test/net"/>
+            <Tab label="@i18n/wiliwili/setting/about/tab"
+                 fontSize="22">
+                <brls:View xml="@res/xml/fragment/settings_about.xml"/>
+            </Tab>
 
-                        <brls:RadioCell
-                                id="tools/vibration_test"
-                                title="@i18n/wiliwili/setting/tools/test/vibration"/>
-
-                    </brls:Box>
-                    <brls:Header
-                            width="auto"
-                            height="auto"
-                            title="@i18n/wiliwili/setting/tools/others/header"
-                            marginBottom="0px"/>
-
-                    <brls:RadioCell
-                            id="tools/config_dir"
-                            title="@i18n/wiliwili/setting/tools/others/config"/>
-
-                    <brls:RadioCell
-                            id="tools/release_checker"/>
-                </brls:Box>
-            </brls:ScrollingFrame>
-        </Tab>
-
-        <Tab label="@i18n/wiliwili/setting/about/tab"
-             fontSize="22">
-            <brls:View xml="@res/xml/fragment/settings_about.xml"/>
-        </Tab>
-
-        <Tab label="@i18n/wiliwili/setting/opensource/tab"
-             fontSize="22">
-            <brls:ScrollingFrame
-                    width="auto"
-                    height="auto"
-                    marginTop="10"
-                    grow="1.0">
-
-                <brls:Box
+            <Tab label="@i18n/wiliwili/setting/opensource/tab"
+                 fontSize="22">
+                <brls:ScrollingFrame
                         width="auto"
                         height="auto"
-                        axis="column"
-                        wireframe="false"
-                        paddingLeft="@style/brls/tab_frame/content_padding_sides"
-                        paddingRight="@style/brls/tab_frame/content_padding_sides"
-                        paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
-                        paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+                        marginTop="10"
+                        grow="1.0">
 
-                    <TextBox
-                            id="setting/label/opensource"
+                    <brls:Box
                             width="auto"
                             height="auto"
-                            lineHeight="1.2"
-                            marginBottom="10px"/>
+                            axis="column"
+                            wireframe="false"
+                            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+                            paddingRight="@style/brls/tab_frame/content_padding_sides"
+                            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+                            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
 
-                </brls:Box>
+                        <TextBox
+                                id="setting/label/opensource"
+                                width="auto"
+                                height="auto"
+                                lineHeight="1.2"
+                                marginBottom="10px"/>
 
-            </brls:ScrollingFrame>
-        </Tab>
+                    </brls:Box>
 
-    </AutoTabFrame>
+                </brls:ScrollingFrame>
+            </Tab>
+
+        </AutoTabFrame>
+        <ButtonClose
+                positionType="absolute"
+                positionTop="10"
+                positionRight="10"/>
+    </brls:Box>
+
 </brls:AppletFrame>

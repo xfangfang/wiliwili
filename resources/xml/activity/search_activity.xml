@@ -11,7 +11,7 @@
 
         <brls:Box
                 positionType="absolute"
-                positionRight="0"
+                positionRight="50"
                 positionTop="0"
                 width="340"
                 height="65"
@@ -37,6 +37,11 @@
                         text=""/>
             </brls:Box>
         </brls:Box>
+
+        <ButtonClose
+                positionType="absolute"
+                positionTop="6"
+                positionRight="30"/>
 
     </brls:Box>
 </brls:AppletFrame>

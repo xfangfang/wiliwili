@@ -57,6 +57,11 @@
                     spanCount="4"
                     wireframe="false"
                     id="collection/recyclingGrid"/>
+
+            <ButtonClose
+                    positionType="absolute"
+                    positionTop="-6"
+                    positionRight="10"/>
         </brls:Box>
     </brls:AppletFrame>
 </brls:Box>

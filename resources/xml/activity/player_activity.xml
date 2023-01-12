@@ -337,6 +337,11 @@
 
         </brls:Box>
 
+        <ButtonClose
+                positionType="absolute"
+                positionTop="2"
+                positionRight="2"/>
+
     </brls:Box>
 
 </brls:AppletFrame>
