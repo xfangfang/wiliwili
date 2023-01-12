@@ -51,6 +51,7 @@ void DanmakuCore::reset() {
     this->danmakuLoaded = false;
     danmakuIndex        = 0;
     videoSpeed          = MPVCore::instance().getSpeed();
+    lineHeight          = DANMAKU_STYLE_FONTSIZE * 1.2;
     danmakuMutex.unlock();
 }
 

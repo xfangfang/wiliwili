@@ -149,9 +149,9 @@ public:
         tabFrame->setItemActiveBackgroundColor(theme.getColor("color/pink_1"));
         tabFrame->setItemDefaultBackgroundColor(theme.getColor("color/grey_1"));
 
-        for (auto index_type : INDEX_TYPE_VECTOR) {
-            auto& tab = PGCIndexRequest::INDEX_FILTERS.at(index_type);
-            AutoSidebarItem* item = new AutoSidebarItem();
+        for (const auto& indexType : INDEX_TYPE_VECTOR) {
+            auto& tab  = PGCIndexRequest::INDEX_FILTERS.at(indexType);
+            auto* item = new AutoSidebarItem();
             item->setTabStyle(AutoTabBarStyle::PLAIN);
             item->setFontSize(20);
             item->setLabel(tab.index_name);
@@ -176,7 +176,7 @@ public:
                                  });
         tabFrame->registerClickAction([this](...) {
             auto data = this->getData();
-            for (auto i : data) {
+            for (const auto& i : data) {
                 brls::Logger::debug("Got request params: {} / {}", i.first,
                                     i.second);
             }
@@ -207,7 +207,7 @@ public:
         this->open();
     }
 
-    ~IndexView() { this->contentOffsetY.stop(); }
+    ~IndexView() override { this->contentOffsetY.stop(); }
 
     void open(std::function<void()> cb = nullptr) {
         contentOffsetY.reset(-720.0f);
@@ -223,18 +223,18 @@ public:
     UserRequestData getData() {
         UserRequestData res = {{"type", "2"}};
 
-        for (auto& row : getChildren()) {
-            const auto& data = row->getData();
+        for (brls::View* row : getIndexRows()) {
+            auto* indexRow = dynamic_cast<IndexRow*>(row);
+            if (!indexRow) continue;
+            const auto& data = indexRow->getData();
             res[data.first]  = data.second;
         }
         res["index_type"] = INDEX_TYPE_VECTOR[tabFrame->getActiveIndex()];
         return res;
     }
 
-    std::vector<IndexRow*>& getChildren() {
-        return (std::vector<IndexRow*>&)((IndexRow*)this->tabFrame
-                                             ->getActiveTab())
-            ->getChildren();
+    std::vector<View*>& getIndexRows() const {
+        return ((AttachedView*)this->tabFrame->getActiveTab())->getChildren();
     }
 
     // 打开检索表单时设置默认的tab与选项
@@ -254,16 +254,23 @@ public:
                               .filter;  // index_type 分类下的数据
 
             // 设置默认数据，从后向前遍历保证最后一个选中的是最上面的一行
+            auto& rows = this->getIndexRows();
+            if (rows.size() != items.size()) {
+                brls::Logger::error("错误的检索数据，页面行数: {} 数据行数: {}",
+                                    rows.size(), items.size());
+                return;
+            }
+            // 这里一定用int，不要再改回size_t了
             for (int j = items.size() - 1; j >= 0; j--) {
-                auto& key = items[j].field;
+                auto& key      = items[j].field;
+                auto* indexRow = dynamic_cast<IndexRow*>(rows[j]);
+                if (!indexRow) continue;
                 if (data.count(key) != 0) {
-                    this->getChildren()[j]->setSelectedIndex(data.at(key));
+                    indexRow->setSelectedIndex(data.at(key));
                 } else {
-                    this->getChildren()[j]->setSelectedIndex(0);
+                    indexRow->setSelectedIndex(0);
                 }
             }
-
-            this->tabFrame->focusTab(index);
         });
     }
 
@@ -300,7 +307,7 @@ public:
 class DataSourcePGCIndexVideoList : public RecyclingGridDataSource {
 public:
     DataSourcePGCIndexVideoList(bilibili::PGCIndexListResult result)
-        : list(result) {}
+        : list(std::move(result)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
@@ -385,9 +392,8 @@ PGCIndexActivity::~PGCIndexActivity() {
 void PGCIndexActivity::onPGCIndex(
     const bilibili::PGCIndexResultWrapper& result) {
     brls::sync([this, result]() {
-        DataSourcePGCIndexVideoList* datasource =
-            dynamic_cast<DataSourcePGCIndexVideoList*>(
-                recyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourcePGCIndexVideoList*>(
+            recyclingGrid->getDataSource());
         if (datasource && result.num != 1) {
             datasource->appendData(result.list);
             recyclingGrid->notifyDataChanged();
@@ -436,13 +442,12 @@ std::vector<std::string> PGCIndexActivity::parseData(
     std::vector<std::string> res = {data.index_name};
 
     for (auto& q : query) {
-        for (size_t j = 0; j < data.filter.size(); j++) {
-            if (q.first == data.filter[j].field) {
-                for (size_t k = 0; k < data.filter[j].values.size(); k++) {
-                    if (q.second == data.filter[j].values[k].keyword &&
-                        k != 0) {
+        for (auto& filter : data.filter) {
+            if (q.first == filter.field) {
+                for (size_t k = 0; k < filter.values.size(); k++) {
+                    if (q.second == filter.values[k].keyword && k != 0) {
                         // 不添加选项
-                        res.push_back(data.filter[j].values[k].name);
+                        res.push_back(filter.values[k].name);
                         break;
                     }
                 }
@@ -473,7 +478,7 @@ void PGCIndexActivity::parseParam(const std::string& url) {
 void PGCIndexActivity::updateTitleBox() {
     auto list = this->parseData(requestParam);
     this->titleBox->clearViews();
-    for (auto i : list) {
+    for (const auto& i : list) {
         if (i == "skeleton") {
             auto item = new SkeletonCell();
             item->setWidth(80);

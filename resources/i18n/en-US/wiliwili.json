@@ -26,6 +26,7 @@
         "header": "Others",
         "vibration": "Gamepad vibration",
         "hide_bottom": "Hide the hint bar below",
+        "hide_fps": "Hide FPS",
         "fullscreen": "Fullscreen",
         "theme": {
           "header": "Theme (restart required)",
