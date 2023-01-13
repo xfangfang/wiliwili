@@ -173,7 +173,6 @@ void ProgramConfig::setProgramConfig(const ProgramConfig& conf) {
     this->cookie  = conf.cookie;
     this->setting = conf.setting;
     this->client  = conf.client;
-    brls::Logger::info("ProgramConfig::setProgramConfig:");
     brls::Logger::info("client: {}", conf.client);
     for (const auto& c : conf.cookie) {
         brls::Logger::info("cookie: {}:{}", c.first, c.second);
@@ -414,6 +413,7 @@ void ProgramConfig::save() {
 }
 
 void ProgramConfig::init() {
+    brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
     // load config from disk
     this->load();
 
