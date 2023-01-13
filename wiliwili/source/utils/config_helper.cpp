@@ -460,8 +460,14 @@ std::string ProgramConfig::getConfigDir() {
     return "/config/wiliwili";
 #else
 #ifdef _DEBUG
-    return "./config/wiliwili";
+    char currentPathBuffer[PATH_MAX];
+    std::string currentPath = getcwd(currentPathBuffer, sizeof(currentPathBuffer));
+#ifdef _WIN32
+    return currentPath + "\\config\\wiliwili";
 #else
+    return currentPath + "/config/wiliwili";
+#endif /* _WIN32 */
+#else /* _DEBUG */
 #ifdef __APPLE__
     return std::string(getenv("HOME")) +
            "/Library/Application Support/wiliwili";
@@ -475,7 +481,7 @@ std::string ProgramConfig::getConfigDir() {
 #endif
 #ifdef _WIN32
     return std::string(getenv("HOMEPATH")) +
-           "/AppData/Local/xfangfang/wiliwili";
+           "\\AppData\\Local\\xfangfang\\wiliwili";
 #endif
 #endif /* _DEBUG */
 #endif /* __SWITCH__ */
@@ -497,7 +503,6 @@ void ProgramConfig::checkRestart(char* argv[]) {
 #endif
 
     brls::Logger::info("Restart app {}", filePath);
-    brls::Logger::info("Current work dir {}", getcwd(nullptr, 0));
 
     execv(filePath, argv);
 #endif
