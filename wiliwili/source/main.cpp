@@ -5,7 +5,7 @@
 #include <string>
 #include <borealis.hpp>
 
-//#define NO_GA
+#define NO_GA
 #include "analytics.h"
 
 #include "utils/config_helper.hpp"
@@ -31,8 +31,6 @@ int main(int argc, char* argv[]) {
 
     // Set log level
     brls::Logger::setLogLevel(brls::LogLevel::LOG_INFO);
-    brls::Logger::debug("std::thread::hardware_concurrency(): {}",
-                        std::thread::hardware_concurrency());
 
 #ifdef DISK_LOG
     std::filesystem::create_directories(
@@ -43,7 +41,7 @@ int main(int argc, char* argv[]) {
         [&logFile](std::string log) { logFile << log << std::endl; });
 #endif
 
-    // Load cookies and settings from disk
+    // Load cookies and settings
     ProgramConfig::instance().init();
 
     // Init the app and i18n
@@ -51,14 +49,11 @@ int main(int argc, char* argv[]) {
         brls::Logger::error("Unable to init application");
         return EXIT_FAILURE;
     }
-    //    brls::Application::getPlatform()->forceEnableGamePlayRecording();
+
+    // Return directly to the desktop when closing the application (only for NX)
     brls::Application::getPlatform()->exitToHomeMode(true);
 
     brls::Application::createWindow("wiliwili");
-
-    // Have the application register an action on every activity that will quit when you press BUTTON_START
-    brls::Application::setGlobalQuit(false);
-
     brls::Logger::info("createWindow done");
 
     // Register custom view\theme\style

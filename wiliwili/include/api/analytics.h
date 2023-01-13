@@ -44,7 +44,8 @@ class Analytics : public brls::Singleton<Analytics> {
 public:
     std::vector<Event> events;
     std::mutex events_mutex;
-    std::string app_version = "";
+    std::string app_version;
+    std::string platform;
 
     void report(Event event);
 
