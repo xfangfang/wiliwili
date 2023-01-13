@@ -127,6 +127,8 @@ jobs:
           VERSION="${{ needs.version.outputs.version }}"
           DIST_EXE="${{ needs.version.outputs.DIST_EXE }}"
           echo ${VERSION} ${DIST_EXE}
+          
+          cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
 
           mkdir -p build && pushd build
           cmake .. -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON -DWIN32_TERMINAL=OFF -DCMAKE_BUILD_TYPE=Release
@@ -222,6 +224,7 @@ jobs:
           DIST_INTEL_DMG: ${{ needs.version.outputs.DIST_INTEL_DMG }}
         run: |
           echo $VERSION $DIST_INTEL_DMG
+          cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
           cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release
           make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
           mv build/wiliwili.app dist/
@@ -262,6 +265,8 @@ jobs:
       - name: Install deps
         run: |
           dnf -y install docker
+          cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
+
       # - name: Set up QEMU
       #   id: qemu
       #   uses: docker/setup-qemu-action@v2

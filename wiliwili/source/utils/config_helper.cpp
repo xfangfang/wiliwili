@@ -225,6 +225,11 @@ void ProgramConfig::load() {
     }
     brls::Logger::info("Load config from: {}", path);
 
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    brls::DesktopPlatform::GAMEPAD_DB =
+        getConfigDir() + "/gamecontrollerdb.txt";
+#endif
+
     // 初始化视频清晰度
     VideoDetail::defaultQuality =
         getSettingItem(SettingItem::VIDEO_QUALITY, 116);

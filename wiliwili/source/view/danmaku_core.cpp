@@ -107,7 +107,7 @@ void DanmakuCore::refresh() {
     }
 
     // 重置弹幕每行的时间信息
-    for (int k = 0; k < lineNum; k++) {
+    for (size_t k = 0; k < lineNum; k++) {
         scrollLines[k].first  = 0;
         scrollLines[k].second = 0;
         centerLines[k]        = 0;
