@@ -26,6 +26,7 @@
         "header": "其他",
         "vibration": "手柄振動",
         "hide_bottom": "隱藏下方提示欄",
+        "hide_fps": "隱藏 FPS",
         "fullscreen": "全荧幕顯示",
         "theme": {
           "header": "主題配色 (需要重啟)",
@@ -43,7 +44,13 @@
           "ryukyuan": "島言葉",
           "korean": "한국어"
         },
-        "opencc": "自動轉換簡體中文 (需要重啓)"
+        "opencc": "自動轉換簡體中文 (需要重啓)",
+        "keymap": {
+          "header": "鍵位風格",
+          "xbox": "Xbox",
+          "ps": "PlayStation",
+          "keyboard": "鍵盤"
+        }
       }
     },
     "tools": {
@@ -54,7 +61,8 @@
         "intro_bvid": "BV18W4y1q72C",
         "open": "應用開啟方式與安裝桌面圖示",
         "error": "軟體內報錯或部份功能不可用",
-        "hot_key": "隱藏的快速鍵說明"
+        "hot_key": "隱藏的快速鍵說明",
+        "font": "設置自訂字型"
       },
       "test": {
         "header": "診斷訊息",
@@ -63,8 +71,9 @@
       },
       "others": {
         "header": "其他",
-        "up2date": "應用程式為最新版本",
-        "release": "檢查更新"
+        "up2date": "應用程式為最新版本。",
+        "release": "檢查更新",
+        "config": "開啟設定檔目錄"
       }
     },
     "about": {
@@ -83,7 +92,11 @@
       "error_q1": "無法訪問網路",
       "error_a1": "1. 確保大氣層、系統韌體最新\n2. 確認系統時間（包括日期）是正確的\n3. 恢復預設網路設定，包括IP、DNS等",
       "error_q2": "軟體隨機報錯退出",
-      "error_a2": "1. 使用Fat32格式記憶卡\n2. 確保大氣層、系統韌體最新\n3. 等待開發者們修復"
+      "error_a2": "1. 使用Fat32格式記憶卡\n2. 確保大氣層、系統韌體最新\n3. 等待開發者們修復",
+      "font_q1": "如何設定自定義字體或鍵位圖標",
+      "font_a1": "1. 下載所需的字體或圖標字體\n2. 將字體重命名為：font.ttf； 將圖標重命名為：icon.ttf\n3. 將字體放在設定檔目錄中\n4. 重新啟動應用程序",
+      "font_q2": "常見問題",
+      "font_a2": "1. wiliwili 優先顯示自定義字體，內寘字體作為備用。\n2. “設定-工具-其他”提供了一個功能表項目，可以快速打開配寘目錄。\n3. 在 Linux 上，wiliwili 使用 xdg-open 打開目錄。 如果無法正確打開設定檔目錄，可以考慮安裝此工具。"
     },
     "hot_keys": {
       "common_header": "通用快速鍵",
@@ -221,6 +234,41 @@
     },
     "collection": {
       "title": "選擇收藏夾"
+    },
+    "danmaku": {
+      "header": "彈幕設定",
+      "filter": {
+        "header": "彈幕篩選",
+        "top": "頂部",
+        "scroll": "滾動",
+        "bottom": "底部",
+        "color": "彩色",
+        "level": "按等級篩選",
+        "level_n": "等級 {}"
+      },
+      "style": {
+        "header": "彈幕風格",
+        "area": "彈幕區域",
+        "area_1_4": "1/4 荧幕",
+        "area_2_4": "1/2 荧幕",
+        "area_3_4": "3/4 荧幕",
+        "area_4_4": "全荧幕",
+        "alpha": "透明度",
+        "fontsize": "字體大小",
+        "speed": "速度",
+        "speed_slow_plus": "極慢",
+        "speed_slow": "慢速",
+        "speed_fast_plus": "極速",
+        "speed_fast": "快速",
+        "speed_moderate": "適當"
+      }
+    },
+    "single_comment": {
+      "detail": "詳情",
+      "hint": "發一條友善的評論",
+      "related": "總共｛｝個答覆",
+      "end": "沒有更多的評論",
+      "delete": "删除評論後，將删除評論下的所有回復\n\n是否要繼續？"
     }
   },
   "dialog": {

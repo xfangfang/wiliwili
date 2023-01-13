@@ -213,7 +213,7 @@ void ProgramConfig::load() {
     const std::string path = this->getConfigDir() + "/wiliwili_config.json";
 
     std::ifstream readFile(path);
-    if (readFile){
+    if (readFile) {
         try {
             nlohmann::json content;
             readFile >> content;
@@ -461,13 +461,14 @@ std::string ProgramConfig::getConfigDir() {
 #else
 #ifdef _DEBUG
     char currentPathBuffer[PATH_MAX];
-    std::string currentPath = getcwd(currentPathBuffer, sizeof(currentPathBuffer));
+    std::string currentPath =
+        getcwd(currentPathBuffer, sizeof(currentPathBuffer));
 #ifdef _WIN32
     return currentPath + "\\config\\wiliwili";
 #else
     return currentPath + "/config/wiliwili";
 #endif /* _WIN32 */
-#else /* _DEBUG */
+#else
 #ifdef __APPLE__
     return std::string(getenv("HOME")) +
            "/Library/Application Support/wiliwili";
