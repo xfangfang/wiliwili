@@ -213,17 +213,17 @@ void ProgramConfig::load() {
     const std::string path = this->getConfigDir() + "/wiliwili_config.json";
 
     std::ifstream readFile(path);
-    if (!readFile) return;
-
-    try {
-        nlohmann::json content;
-        readFile >> content;
-        readFile.close();
-        this->setProgramConfig(content.get<ProgramConfig>());
-    } catch (const std::exception& e) {
-        brls::Logger::error("ProgramConfig::load: {}", e.what());
+    if (readFile){
+        try {
+            nlohmann::json content;
+            readFile >> content;
+            readFile.close();
+            this->setProgramConfig(content.get<ProgramConfig>());
+        } catch (const std::exception& e) {
+            brls::Logger::error("ProgramConfig::load: {}", e.what());
+        }
+        brls::Logger::info("Load config from: {}", path);
     }
-    brls::Logger::info("Load config from: {}", path);
 
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     brls::DesktopPlatform::GAMEPAD_DB =
@@ -301,7 +301,7 @@ void ProgramConfig::load() {
     // 是否使用低质量解码
     MPVCore::LOW_QUALITY = getBoolOption(SettingItem::PLAYER_LOW_QUALITY);
 
-    // 初始化系统字体
+    // 初始化i18n
     std::set<std::string> i18nData{
         brls::LOCALE_AUTO, brls::LOCALE_EN_US,   brls::LOCALE_JA,
         brls::LOCALE_RYU,  brls::LOCALE_ZH_HANS, brls::LOCALE_ZH_HANT,
