@@ -90,6 +90,7 @@ const std::string OPENSOURCE =
 
 SettingActivity::SettingActivity() {
     brls::Logger::debug("SettingActivity: create");
+    GA("open_setting")
 }
 
 void SettingActivity::onContentAvailable() {

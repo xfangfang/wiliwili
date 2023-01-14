@@ -9,6 +9,7 @@
 #include <vector>
 #include <mutex>
 
+#include "borealis/core/timer.hpp"
 #include "borealis/core/singleton.hpp"
 #include "bilibili/result/analytics_result.h"
 
@@ -18,42 +19,46 @@ namespace analytics {
 #define STR(x) STR_IMPL(x)
 
 #ifdef ANALYTICS
+// custom Google Analytics id/key
 const std::string GA_ID  = STR(ANALYTICS_ID);
 const std::string GA_KEY = STR(ANALYTICS_KEY);
 const std::string GA_URL = "https://www.google-analytics.com/mp/collect";
 #else
-const std::string GA_ID  = "";
-const std::string GA_KEY = "";
-const std::string GA_URL = "http://httpbin.org/post";
+// default Google Analytics id/key
+const std::string GA_ID  = "G-YE1PE9VDBY";
+const std::string GA_KEY = "fmMCjnX1Sam815PDdrOPQA";
+const std::string GA_URL = "https://www.google-analytics.com/mp/collect";
 #endif
 
-#ifdef ANALYTICS
 #ifdef NO_GA
 #define GA(a) void(a);
 #else
-#define GA(a) analytics::Analytics::instance().report(a);
+#define GA(a, ...) analytics::Analytics::instance().report(a, ##__VA_ARGS__);
 #endif /* NO_GA */
-#else
-#define GA(a) void(a);
-#endif /* ANALYTICS */
 
 class Event;
 class Package;
 
 class Analytics : public brls::Singleton<Analytics> {
 public:
+    const int REPORT_MAX_NUM = 25;
     std::vector<Event> events;
     std::mutex events_mutex;
+    brls::RepeatingTimer reportTimer;
     std::string app_version;
+    std::string client_id;
     std::string platform;
 
-    void report(Event event);
+    void report(const Event& event);
 
     void report(std::string event);
+
+    void report(std::string event, Params params);
 
     void send();
 
     Analytics();
+    ~Analytics();
 };
 
 }  // namespace analytics

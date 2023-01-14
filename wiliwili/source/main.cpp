@@ -5,8 +5,7 @@
 #include <string>
 #include <borealis.hpp>
 
-#define NO_GA
-#include "analytics.h"
+//#define NO_GA
 
 #include "utils/config_helper.hpp"
 #include "utils/thread_helper.hpp"

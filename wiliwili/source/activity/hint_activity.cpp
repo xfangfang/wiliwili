@@ -4,6 +4,7 @@
 
 #include "activity/hint_activity.hpp"
 #include "view/gallery_view.hpp"
+#include "analytics.h"
 
 #ifdef BUILTIN_NSP
 #include "nspmini.hpp"
@@ -70,6 +71,7 @@ private:
 
 HintActivity::HintActivity() {
     brls::Logger::debug("HintActivityActivity: create");
+    GA("open_hint")
 }
 
 void HintActivity::onContentAvailable() {

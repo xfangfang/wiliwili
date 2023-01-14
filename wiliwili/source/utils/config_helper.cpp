@@ -203,7 +203,8 @@ std::string ProgramConfig::getUserID() {
 
 std::string ProgramConfig::getClientID() {
     if (this->client.empty()) {
-        this->client = wiliwili::getRandomText();
+        this->client = fmt::format("{}.{}", wiliwili::getRandomNumber(),
+                                   wiliwili::getUnixTime());
         this->save();
     }
     return this->client;

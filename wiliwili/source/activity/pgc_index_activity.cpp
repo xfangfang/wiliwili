@@ -8,6 +8,7 @@
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "view/auto_tab_frame.hpp"
+#include "analytics.h"
 
 using namespace brls::literals;
 
@@ -343,6 +344,7 @@ private:
 PGCIndexActivity::PGCIndexActivity(const std::string& url) {
     brls::Logger::debug("PGCIndexActivity: create");
     this->parseParam(url);
+    GA("open_pgc_filter")
 }
 
 void PGCIndexActivity::onContentAvailable() {

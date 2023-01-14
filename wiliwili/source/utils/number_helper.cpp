@@ -33,7 +33,19 @@ std::string wiliwili::getRandomText(int length) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     static std::uniform_int_distribution<> dis(0, 61);
-    std::string text = "";
+    std::string text;
+    for (int n = 0; n < length; ++n) {
+        int val = dis(gen);
+        text += seed[val];
+    }
+    return text;
+}
+
+std::string wiliwili::getRandomNumber(int length) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(1, 9);
+    std::string text;
     for (int n = 0; n < length; ++n) {
         int val = dis(gen);
         text += seed[val];

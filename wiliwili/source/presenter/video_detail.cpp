@@ -258,6 +258,7 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
 
     // 请求视频点赞情况
     this->requestVideoRelationInfo(bvid);
+    GA("plain_video", {{"bvid", bvid}})
 }
 
 /// 获取视频地址
@@ -346,6 +347,7 @@ void VideoDetail::changeEpisode(const bilibili::SeasonEpisodeResult& i) {
     this->requestSeasonVideoUrl(i.bvid, i.cid);
     this->requestVideoComment(i.aid, 1);
     this->requestVideoRelationInfo(i.id);
+    GA("season_video", {{"bvid", i.bvid}})
 }
 
 /// 获取视频评论

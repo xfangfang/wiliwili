@@ -4,10 +4,12 @@
 
 #include "activity/search_activity.hpp"
 #include "fragment/search_tab.hpp"
+#include "analytics.h"
 
 SearchActivity::SearchActivity(const std::string& key) {
     SearchActivity::currentKey = key;
     brls::Logger::debug("SearchActivity: create {}", key);
+    GA("open_search")
 }
 
 void SearchActivity::onContentAvailable() {

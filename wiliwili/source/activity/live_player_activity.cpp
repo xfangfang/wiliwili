@@ -15,6 +15,7 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
     this->setCommonData();
+    GA("open_live")
 }
 
 LiveActivity::LiveActivity(int roomid) {
