@@ -262,7 +262,12 @@ void BasePlayerActivity::setCommonData() {
                     {
                         auto stack    = brls::Application::getActivitiesStack();
                         Activity* top = stack[stack.size() - 1];
-                        if (!dynamic_cast<BasePlayerActivity*>(top)) return;
+                        if (!dynamic_cast<BasePlayerActivity*>(top)) {
+                            // 判断最顶层是否为video
+                            if (!dynamic_cast<VideoView*>(
+                                    top->getContentView()->getView("video")))
+                                return;
+                        }
                         if (AUTO_NEXT_PART) this->onIndexChangeToNext();
                     }
                     break;

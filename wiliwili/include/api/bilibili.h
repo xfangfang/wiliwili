@@ -314,10 +314,10 @@ public:
         const ErrorCallback& error                                 = nullptr);
 
     /// 删除评论
-    static void delete_comment(
-        const std::string& access_key, size_t oid, int64_t rpid,
-        const std::function<void()>& callback = nullptr,
-        const ErrorCallback& error            = nullptr);
+    static void delete_comment(const std::string& access_key, size_t oid,
+                               int64_t rpid,
+                               const std::function<void()>& callback = nullptr,
+                               const ErrorCallback& error            = nullptr);
 
     /// 视频页 获取单个视频播放人数
     static void get_video_online(
@@ -383,6 +383,12 @@ public:
                           bool follow                           = true,
                           const std::function<void()>& callback = nullptr,
                           const ErrorCallback& error            = nullptr);
+
+    /// 追剧或取消追剧
+    static void follow_season(const std::string& access_key, size_t season,
+                              bool follow                           = true,
+                              const std::function<void()>& callback = nullptr,
+                              const ErrorCallback& error            = nullptr);
 
     /**
      * 收藏视频

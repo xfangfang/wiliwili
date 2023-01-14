@@ -104,6 +104,13 @@ void PlayerSeasonActivity::onContentAvailable() {
         return true;
     });
 
+    this->videoUserInfo->registerClickAction([this](...) {
+        if (!DialogHelper::checkLogin()) return true;
+        this->followSeason(this->seasonInfo.season_id,
+                           !this->seasonStatus.follow);
+        return true;
+    });
+
     this->requestData(this->pgc_id, this->pgcIdType);
 }
 
@@ -111,6 +118,24 @@ void PlayerSeasonActivity::onSeasonEpisodeInfo(
     const bilibili::SeasonEpisodeResult& result) {
     this->video->setTitle(this->seasonInfo.season_title + " - " + result.title);
     this->videoBVIDLabel->setText(result.bvid);
+}
+
+void PlayerSeasonActivity::onSeasonStatus(
+    const bilibili::SeasonStatusResult& result) {
+    if (seasonInfo.type == 1 || seasonInfo.type == 4) {
+        if (result.follow) {
+            this->videoUserInfo->setHintType(InfoHintType::BANGUMI_FOLLOWING);
+        } else {
+            this->videoUserInfo->setHintType(
+                InfoHintType::BANGUMI_NOT_FOLLOWED);
+        }
+    } else {
+        if (result.follow) {
+            this->videoUserInfo->setHintType(InfoHintType::CINEMA_FOLLOWING);
+        } else {
+            this->videoUserInfo->setHintType(InfoHintType::CINEMA_NOT_FOLLOWED);
+        }
+    }
 }
 
 void PlayerSeasonActivity::onSeasonVideoInfo(

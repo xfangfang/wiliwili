@@ -159,6 +159,8 @@ public:
     void onSeasonVideoInfo(
         const bilibili::SeasonResultWrapper& result) override;
 
+    void onSeasonStatus(const bilibili::SeasonStatusResult& result) override;
+
     void onSeasonEpisodeInfo(
         const bilibili::SeasonEpisodeResult& result) override;
 

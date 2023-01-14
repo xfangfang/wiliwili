@@ -52,10 +52,6 @@ void Analytics::send() {
     package.user_id   = ProgramConfig::instance().getUserID();
     package.timestamp_micros =
         std::to_string(wiliwili::getUnixTime() * 1000000);
-    package.user_properties.insert(
-        {std::make_pair("version", Property(app_version)),
-         std::make_pair("platform", Property(platform)),
-         std::make_pair("git", Property(APPVersion::instance().git_commit))});
     nlohmann::json content(package);
     brls::Logger::verbose("report event: {}", content.dump());
 
@@ -82,17 +78,6 @@ Analytics::Analytics() {
     brls::Logger::debug("Analytics url: {}", GA_URL);
     this->app_version = APPVersion::instance().getVersionStr();
     this->client_id   = "GA1.3." + ProgramConfig::instance().getClientID();
-#if defined(__SWITCH__)
-    this->platform = "switch";
-#elif defined(__APPLE__)
-    this->platform = "mac";
-#elif defined(_WIN32)
-    this->platform = "windows";
-#elif defined(__linux__)
-    this->platform = "linux";
-#endif
-    report(this->platform);
-    report(this->app_version);
 
     reportTimer.setCallback([]() {
         brls::Threading::async([]() { Analytics::instance().send(); });

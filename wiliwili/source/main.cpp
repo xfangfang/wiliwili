@@ -81,7 +81,9 @@ int main(int argc, char* argv[]) {
         brls::Application::pushActivity(new HintActivity());
     }
 
-    GA("open_app")
+    GA("open_app", {{"version", APPVersion::instance().getVersionStr()},
+                    {"platform", APPVersion::instance().getPlatform()}})
+    GA_SEND
     APPVersion::instance().checkUpdate();
 
     // Run the app

@@ -21,6 +21,7 @@ public:
     virtual void onVideoInfo(const bilibili::VideoDetailResult& result) {}
     virtual void onSeasonVideoInfo(
         const bilibili::SeasonResultWrapper& result) {}
+    virtual void onSeasonStatus(const bilibili::SeasonStatusResult& result) {}
     virtual void onSeasonEpisodeInfo(
         const bilibili::SeasonEpisodeResult& result) {}
     virtual void onVideoPageListInfo(
@@ -52,7 +53,7 @@ public:
     /// 获取番剧信息
     void requestSeasonInfo(size_t seasonID, size_t epID = 0);
 
-    /// 获取番剧播放进度
+    /// 获取番剧播放进度，追剧情况
     void requestSeasonStatue(size_t seasonID);
 
     /// 获取视频信息：标题、作者、简介、分P等
@@ -115,6 +116,8 @@ public:
 
     void followUp(const std::string& mid, bool follow);
 
+    void followSeason(size_t season, bool follow);
+
     static inline int defaultQuality = 116;
 
 protected:
@@ -122,6 +125,7 @@ protected:
     bilibili::VideoDetailPage videoDetailPage;           // 视频分P数据
     bilibili::VideoDetailListResult videDetailRelated;   // 推荐视频
     bilibili::UserDetailResultWrapper userDetailResult;  // 作者数据
+    bilibili::SeasonStatusResult seasonStatus;           // 番剧关注状态
     bilibili::VideoUrlResult videoUrlResult;
     bilibili::SeasonResultWrapper seasonInfo;  // 番剧/综艺/影视 数据
     bilibili::SeasonEpisodeResult episodeResult;  // 番剧/综艺/影视 单集数据

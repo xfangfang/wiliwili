@@ -182,6 +182,7 @@ void PlayerActivity::onContentAvailable() {
 
     // 用户头像框
     this->videoUserInfo->registerClickAction([this](...) {
+        if (!DialogHelper::checkLogin()) return true;
         if (this->userDetailResult.following) {
             auto dialog = new brls::Dialog("wiliwili/player/not_follow"_i18n);
             dialog->addButton("hints/cancel"_i18n, []() {});

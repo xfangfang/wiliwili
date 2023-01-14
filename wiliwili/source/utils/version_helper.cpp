@@ -28,6 +28,21 @@ std::string APPVersion::getVersionStr() {
     return fmt::format("{}.{}.{}", major, minor, revision);
 }
 
+std::string APPVersion::getPlatform() {
+#ifdef __APPLE__
+    return "macOS";
+#endif
+#ifdef __linux__
+    return "Linux";
+#endif
+#ifdef _WIN32
+    return "Windows";
+#endif
+#ifdef __SWITCH__
+    return "NX";
+#endif
+}
+
 bool APPVersion::needUpdate(std::string latestVersion) {
     if (latestVersion.length() < 5) brls::Application::quit();
     if (latestVersion[0] == 'v')

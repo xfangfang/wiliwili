@@ -69,6 +69,9 @@ static const std::string TripleWeb =
     _apiBase + "x/web-interface/archive/like/triple";
 /// 关注 取关
 static const std::string Follow = _apiBase + "/x/relation/modify";
+/// 番剧 追剧/取消追剧
+static const std::string FollowSeason     = _apiBase + "/pgc/app/follow/add";
+static const std::string UndoFollowSeason = _apiBase + "/pgc/app/follow/del";
 /// 发送弹幕.
 static const std::string SendDanmaku = _apiBase + "/x/v2/dm/post";
 /// 获取视频字幕.

@@ -61,6 +61,8 @@ public:
 
     std::string getVersionStr();
 
+    std::string getPlatform();
+
     bool needUpdate(std::string latestVersion);
 
     void checkUpdate(int delay = 2000, bool showUpToDateDialog = false);

@@ -40,6 +40,7 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
                 ASYNC_RELEASE
                 brls::Logger::debug("BILI::get_season_detail");
                 seasonInfo = result;
+                this->requestSeasonStatue(result.season_id);
 
                 // 合并数据，将所有分集合并成一个列表
                 // 1. 若存在额外分区, 切正片不为空则在正片分集前添加分区标题 "正片"
@@ -132,25 +133,8 @@ void VideoDetail::requestSeasonStatue(size_t seasonID) {
         [ASYNC_TOKEN](const bilibili::SeasonStatusResult& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
-                if (result.last_ep_id != 0)
-                    for (auto& i : episodeList) {
-                        if (i.id == result.last_ep_id) {
-                            brls::Logger::debug("Load episode {} from epid: {}",
-                                                i.long_title, i.id);
-                            i.progress = result.last_time;
-                            this->changeEpisode(i);
-                            return;
-                        }
-                    }
-                // 若未搜索到对应的epid，加载第一项
-                for (auto& i : episodeList) {
-                    if (i.id == 0 || i.cid == 0 || i.aid == 0) continue;
-                    brls::Logger::debug("Load episode {} epid: {}",
-                                        i.long_title, i.id);
-                    episodeResult.progress = 0;
-                    this->changeEpisode(i);
-                    break;
-                }
+                seasonStatus = result;
+                this->onSeasonStatus(result);
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
@@ -547,7 +531,7 @@ int VideoDetail::getCoinTolerate() {
 /// 点赞
 void VideoDetail::beAgree(int aid) {
     std::string csrf = ProgramConfig::instance().getCSRF();
-    if (csrf == "") return;
+    if (csrf.empty()) return;
 
     // 在返回前预先设置状态
     bool like                    = !videoRelation.like;
@@ -575,7 +559,7 @@ void VideoDetail::beAgree(int aid) {
 /// 投币
 void VideoDetail::addCoin(int aid, int num, bool like) {
     std::string csrf = ProgramConfig::instance().getCSRF();
-    if (csrf == "") return;
+    if (csrf.empty()) return;
     if (num < 1 || num > 2) return;
 
     // 在返回前预先设置状态
@@ -610,7 +594,7 @@ void VideoDetail::addCoin(int aid, int num, bool like) {
 void VideoDetail::addResource(int aid, int type, bool isFavorite,
                               std::string add, std::string del) {
     std::string csrf = ProgramConfig::instance().getCSRF();
-    if (csrf == "") return;
+    if (csrf.empty()) return;
 
     if (add.empty() && del.empty()) return;
 
@@ -639,7 +623,7 @@ void VideoDetail::addResource(int aid, int type, bool isFavorite,
 
 void VideoDetail::followUp(const std::string& mid, bool follow) {
     std::string csrf = ProgramConfig::instance().getCSRF();
-    if (csrf == "") return;
+    if (csrf.empty()) return;
 
     // 返回前预先设置状态
     bilibili::UserDetailResultWrapper temp = this->userDetailResult;
@@ -659,6 +643,32 @@ void VideoDetail::followUp(const std::string& mid, bool follow) {
             brls::sync([ASYNC_TOKEN]() {
                 ASYNC_RELEASE
                 this->onUpInfo(this->userDetailResult);
+            });
+        });
+}
+
+void VideoDetail::followSeason(size_t season, bool follow) {
+    std::string csrf = ProgramConfig::instance().getCSRF();
+    if (csrf.empty()) return;
+
+    // 返回前预先设置状态
+    bilibili::SeasonStatusResult temp = this->seasonStatus;
+    temp.follow                       = follow;
+    this->onSeasonStatus(temp);
+
+    ASYNC_RETAIN
+    BILI::follow_season(
+        csrf, season, follow,
+        [ASYNC_TOKEN, follow]() {
+            ASYNC_RELEASE
+            seasonStatus.follow = follow;
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            // 请求失败 恢复默认状态
+            brls::Logger::error("{}", error);
+            brls::sync([ASYNC_TOKEN]() {
+                ASYNC_RELEASE
+                this->onSeasonStatus(this->seasonStatus);
             });
         });
 }

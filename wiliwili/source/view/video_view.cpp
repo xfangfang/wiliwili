@@ -467,7 +467,7 @@ void VideoView::setFullScreen(bool fs) {
         video->setDimensions(width, height);
         video->setWidthPercentage(100);
         video->setHeightPercentage(100);
-
+        video->setId("video");
         video->setTitle(this->getTitle());
         video->setQuality(this->getQuality());
         video->setDuration(this->rightStatusLabel->getFullText());

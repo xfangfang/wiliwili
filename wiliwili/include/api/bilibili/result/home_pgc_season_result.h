@@ -13,6 +13,7 @@ class SeasonStatusResult {
 public:
     size_t last_ep_id;
     size_t last_time;
+    int follow;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       SeasonStatusResult& nlohmann_json_t) {
@@ -24,6 +25,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_t.last_ep_id = 0;
         nlohmann_json_t.last_time  = 0;
     }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, follow));
 }
 
 class EpisodesBadge {

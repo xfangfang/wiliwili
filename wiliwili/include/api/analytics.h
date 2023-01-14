@@ -32,8 +32,10 @@ const std::string GA_URL = "https://www.google-analytics.com/mp/collect";
 
 #ifdef NO_GA
 #define GA(a) void(a);
+#define GA_SEND void();
 #else
 #define GA(a, ...) analytics::Analytics::instance().report(a, ##__VA_ARGS__);
+#define GA_SEND analytics::Analytics::instance().send();
 #endif /* NO_GA */
 
 class Event;
@@ -47,7 +49,6 @@ public:
     brls::RepeatingTimer reportTimer;
     std::string app_version;
     std::string client_id;
-    std::string platform;
 
     void report(const Event& event);
 

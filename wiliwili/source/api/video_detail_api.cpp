@@ -380,4 +380,19 @@ void BilibiliClient::follow_up(const std::string& access_key,
     HTTP::postResultAsync(Api::Follow, {}, payload, callback, error);
 }
 
+void BilibiliClient::follow_season(const std::string& access_key, size_t season,
+                                   bool follow,
+                                   const std::function<void()>& callback,
+                                   const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"season_id", std::to_string(season)},
+        {"csrf", access_key},
+    };
+    if (follow)
+        HTTP::postResultAsync(Api::FollowSeason, {}, payload, callback, error);
+    else
+        HTTP::postResultAsync(Api::UndoFollowSeason, {}, payload, callback,
+                              error);
+}
+
 }  // namespace bilibili
