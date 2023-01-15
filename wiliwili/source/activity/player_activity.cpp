@@ -15,6 +15,7 @@
 #include "utils/dialog_helper.hpp"
 #include "fragment/player_collection.hpp"
 #include "fragment/player_fragments.hpp"
+#include "fragment/player_evaluate.hpp"
 
 using namespace brls::literals;
 
@@ -139,8 +140,9 @@ void PlayerActivity::onContentAvailable() {
     this->videoTitleBox->registerAction(
         "wiliwili/player/intro"_i18n, brls::ControllerButton::BUTTON_A,
         [this](brls::View* view) -> bool {
-            auto dialog = new brls::Dialog(this->videoDetailResult.desc);
-            dialog->addButton("hints/ok"_i18n, []() {});
+            auto* evaluate = new PlayerEvaluate();
+            evaluate->setContent(this->videoDetailResult.desc);
+            auto dialog = new brls::Dialog(evaluate);
             dialog->open();
             return true;
         });

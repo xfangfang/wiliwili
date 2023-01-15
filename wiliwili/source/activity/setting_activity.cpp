@@ -127,8 +127,7 @@ void SettingActivity::onContentAvailable() {
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     btnOpenConfig->registerClickAction([](...) -> bool {
         auto* p = (brls::DesktopPlatform*)brls::Application::getPlatform();
-        p->openBrowser(pystring::replace(
-            ProgramConfig::instance().getConfigDir(), " ", "\\ "));
+        p->openBrowser(ProgramConfig::instance().getConfigDir());
         return true;
     });
     btnTutorialFont->registerClickAction([](...) -> bool {

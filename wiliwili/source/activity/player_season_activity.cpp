@@ -5,6 +5,7 @@
 #include "activity/player_activity.hpp"
 #include "fragment/player_collection.hpp"
 #include "fragment/player_fragments.hpp"
+#include "fragment/season_evaluate.hpp"
 #include "view/video_view.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
@@ -65,8 +66,10 @@ void PlayerSeasonActivity::onContentAvailable() {
     this->videoTitleBox->registerAction(
         "wiliwili/player/intro"_i18n, brls::ControllerButton::BUTTON_A,
         [this](brls::View* view) -> bool {
-            auto dialog = new brls::Dialog(this->seasonInfo.evaluate);
-            dialog->addButton("hints/ok"_i18n, []() {});
+            auto* evaluate = new SeasonEvaluate();
+            evaluate->setKeyword(this->seasonInfo.season_title);
+            evaluate->setContent(this->seasonInfo.evaluate);
+            auto dialog = new brls::Dialog(evaluate);
             dialog->open();
             return true;
         });

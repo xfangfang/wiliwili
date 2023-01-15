@@ -1,0 +1,24 @@
+<brls:Box
+        axis="column"
+        width="auto"
+        height="auto">
+    <brls:ScrollingFrame
+            focusable="true"
+            marginTop="60"
+            marginBottom="10"
+            marginLeft="40"
+            height="300">
+        <brls:Box>
+            <brls:Label
+                    focusable="true"
+                    hideHighlight="true"
+                    marginRight="40"
+                    id="evaluate/content"/>
+        </brls:Box>
+    </brls:ScrollingFrame>
+
+    <ButtonClose
+            positionType="absolute"
+            positionTop="10"
+            positionRight="10"/>
+</brls:Box>

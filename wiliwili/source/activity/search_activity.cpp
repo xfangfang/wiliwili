@@ -9,7 +9,7 @@
 SearchActivity::SearchActivity(const std::string& key) {
     SearchActivity::currentKey = key;
     brls::Logger::debug("SearchActivity: create {}", key);
-    GA("open_search")
+    GA("open_search", {{"key", key}})
 }
 
 void SearchActivity::onContentAvailable() {

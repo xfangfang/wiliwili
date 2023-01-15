@@ -1,0 +1,50 @@
+<brls:Box
+        axis="column"
+        minHeight="200"
+        width="auto"
+        height="auto">
+
+    <brls:Label
+            id="evaluate/content"
+            margin="40"
+            marginTop="60"/>
+
+    <brls:Box
+            marginBottom="20"
+            justifyContent="spaceEvenly">
+
+        <brls:Button
+                id="evaluate/douban"
+                width="auto"
+                height="auto"
+                style="borderless"
+                text="前往豆瓣"/>
+
+        <brls:Button
+                id="evaluate/zhihu"
+                width="auto"
+                height="auto"
+                style="borderless"
+                text="前往知乎"/>
+
+        <brls:Button
+                id="evaluate/baidu"
+                width="auto"
+                height="auto"
+                style="borderless"
+                text="前往百度"/>
+
+        <brls:Button
+                id="evaluate/bing"
+                width="auto"
+                height="auto"
+                style="borderless"
+                text="前往必应"/>
+    </brls:Box>
+
+    <ButtonClose
+            positionType="absolute"
+            positionTop="10"
+            positionRight="10"/>
+
+</brls:Box>
