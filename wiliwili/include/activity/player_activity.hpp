@@ -159,6 +159,11 @@ public:
     void onSeasonVideoInfo(
         const bilibili::SeasonResultWrapper& result) override;
 
+    void onSeasonSeriesInfo(const bilibili::SeasonSeries& result) override;
+
+    void onSeasonRecommend(
+        const bilibili::SeasonRecommendWrapper& result) override;
+
     void onSeasonStatus(const bilibili::SeasonStatusResult& result) override;
 
     void onSeasonEpisodeInfo(
@@ -169,6 +174,9 @@ public:
     void onIndexChangeToNext() override;
 
     void reportCurrentProgress(size_t progress, size_t duration) override;
+
+    // 正在播放的情况下切换到新的番剧
+    void playSeason(size_t season_id);
 
     size_t getAid() override;
 

@@ -24,6 +24,9 @@ public:
     virtual void onSeasonStatus(const bilibili::SeasonStatusResult& result) {}
     virtual void onSeasonEpisodeInfo(
         const bilibili::SeasonEpisodeResult& result) {}
+    virtual void onSeasonSeriesInfo(const bilibili::SeasonSeries& result) {}
+    virtual void onSeasonRecommend(
+        const bilibili::SeasonRecommendWrapper& result) {}
     virtual void onVideoPageListInfo(
         const bilibili::VideoDetailPageListResult& result) {}
     virtual void onVideoPlayUrl(const bilibili::VideoUrlResult& result) {}
@@ -52,6 +55,9 @@ public:
 
     /// 获取番剧信息
     void requestSeasonInfo(size_t seasonID, size_t epID = 0);
+
+    /// 获取番剧相关推荐
+    void requestSeasonRecommend(size_t seasonID);
 
     /// 获取番剧播放进度，追剧情况
     void requestSeasonStatue(size_t seasonID);

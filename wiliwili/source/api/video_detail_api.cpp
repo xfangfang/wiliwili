@@ -118,6 +118,15 @@ void BilibiliClient::get_season_detail(
                                               callback, error);
 }
 
+void BilibiliClient::get_season_recommend(
+    size_t seasonID,
+    const std::function<void(SeasonRecommendWrapper)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<SeasonRecommendWrapper>(
+        Api::SeasonRCMD, {{"season_id", std::to_string(seasonID)}}, callback,
+        error);
+}
+
 void BilibiliClient::get_season_status(
     size_t seasonID, const std::function<void(SeasonStatusResult)>& callback,
     const ErrorCallback& error) {

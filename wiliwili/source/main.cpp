@@ -68,9 +68,10 @@ int main(int argc, char* argv[]) {
         //        brls::Application::pushActivity(new PlayerActivity("BV15z4y1Z734"));  // 4K HDR 视频
         //        brls::Application::pushActivity(new PlayerActivity("BV1PN4y1G7u2"));  // up主视频自动跳转番剧
         //        brls::Application::pushActivity(new PlayerActivity("BV1sK411s7zq"));  // 多P视频测试
-        //        brls::Application::pushActivity(new PlayerActivity("BV1A44y1u7PF"), brls::TransitionAnimation::NONE); // 测试FFMPEG在switch上的bug（加载时间过长）
-        //        brls::Application::pushActivity(new PlayerActivity("BV1U3411c7Qx"), brls::TransitionAnimation::NONE); // 测试长标题
-        //        brls::Application::pushActivity(new PlayerActivity("BV1fG411W7Px"), brls::TransitionAnimation::NONE); // 测试弹幕
+        //        brls::Application::pushActivity(new PlayerActivity("BV1A44y1u7PF")); // 测试FFMPEG在switch上的bug（加载时间过长）
+        //        brls::Application::pushActivity(new PlayerActivity("BV1U3411c7Qx")); // 测试长标题
+        //        brls::Application::pushActivity(new PlayerActivity("BV1fG411W7Px")); // 测试弹幕
+        //        brls::Application::pushActivity(new PlayerSeasonActivity(280975, PGC_ID_TYPE::EP_ID)); // 测试电影
         //        brls::Application::pushActivity(new SearchActivity("哈利波特")); // 测试搜索影片
         //        brls::Application::pushActivity(new SplashActivity()); // 首屏页面（暂时未使用）
         //        brls::Application::pushActivity(new HintActivity());   // 应用开启教程页面

@@ -28,6 +28,9 @@ static const std::string Detail    = _apiBase + "/x/web-interface/view";
 static const std::string DetailAll = _apiBase + "/x/web-interface/view/detail";
 /// 番剧详情.
 static const std::string SeasonDetail = _apiBase + "/pgc/view/pc/season";
+/// 番剧推荐.
+static const std::string SeasonRCMD =
+    _apiBase + "/pgc/season/web/related/recommend";
 /// 番剧播放进度
 static const std::string SeasonStatus =
     _apiBase + "/pgc/view/web/season/user/status";

@@ -7,6 +7,7 @@
 #include "fragment/player_fragments.hpp"
 #include "fragment/season_evaluate.hpp"
 #include "view/video_view.hpp"
+#include "view/video_card.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "bilibili/result/home_pgc_season_result.h"
@@ -174,7 +175,7 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
 
     // 设置分集信息
     changeIndexEvent.clear();
-    AutoSidebarItem* item = new AutoSidebarItem();
+    auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
     item->setLabel("wiliwili/player/p"_i18n);
@@ -188,7 +189,7 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
                 [](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
                     if (!d.id) {
                         // 显示项为标题
-                        PlayerTabHeader* item =
+                        auto* item =
                             (PlayerTabHeader*)recycler->dequeueReusableCell(
                                 "Header");
                         item->title->setText(d.title);
@@ -196,7 +197,7 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
                     }
 
                     // 显示分集项
-                    PlayerTabCell* item =
+                    auto* item =
                         (PlayerTabCell*)recycler->dequeueReusableCell("Cell");
                     item->title->setText(d.title);
                     item->setSelected(ds->getCurrentIndex() == d.index);
@@ -209,14 +210,13 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
                         ds->setCurrentIndex(index);
 
                         // 更新ui
-                        PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                        auto* item = dynamic_cast<PlayerTabCell*>(
                             recycler->getGridItemByIndex(index));
                         if (!item) return;
                         std::vector<RecyclingGridItem*>& items =
                             recycler->getGridItems();
                         for (auto& i : items) {
-                            PlayerTabCell* cell =
-                                dynamic_cast<PlayerTabCell*>(i);
+                            auto* cell = dynamic_cast<PlayerTabCell*>(i);
                             if (cell) cell->setSelected(false);
                         }
                         item->setSelected(true);
@@ -234,13 +234,13 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
                 changeEpisodeEvent.fire(r);
 
                 // 更新ui
-                PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                auto* item = dynamic_cast<PlayerTabCell*>(
                     recycler->getGridItemByIndex(index));
                 if (!item) return;
                 std::vector<RecyclingGridItem*>& items =
                     recycler->getGridItems();
                 for (auto& i : items) {
-                    PlayerTabCell* cell = dynamic_cast<PlayerTabCell*>(i);
+                    auto* cell = dynamic_cast<PlayerTabCell*>(i);
                     if (cell) cell->setSelected(false);
                 }
                 item->setSelected(true);
@@ -254,6 +254,134 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
 
         return container;
     });
+}
+
+void PlayerSeasonActivity::onSeasonSeriesInfo(
+    const bilibili::SeasonSeries& result) {
+    if (result.size() <= 1) return;
+
+    auto* item = new AutoSidebarItem();
+    item->setTabStyle(AutoTabBarStyle::ACCENT);
+    item->setFontSize(18);
+    item->setLabel("wiliwili/player/series"_i18n);
+    this->tabFrame->addTab(item, [this, result, item]() {
+        // 设置分集页面
+        auto container = new BasePlayerTabFragment<bilibili::SeasonSeriesItem>(
+            // 列表数据
+            result,
+            // 分集标题设置回调
+            [](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
+                // 显示分集项
+                auto* item = (RecyclingGridItemSeasonSeriesVideoCard*)
+                                 recycler->dequeueReusableCell("Card");
+                auto cover =
+                    d.cover.empty() ? "" : d.cover + ImageHelper::h_ext;
+                item->setCard(cover, d.season_title, d.subtitle,
+                              wiliwili::num2w(d.stat.views),
+                              wiliwili::num2w(d.stat.series_follow),
+                              d.badge_info.text, d.badge_info.bg_color);
+                return item;
+            },
+            // container的构造函数
+            [](auto recycler, auto ds) {
+                recycler->estimatedRowHeight = 100;
+                recycler->estimatedRowSpace  = 15;
+                recycler->registerCell("Card", []() {
+                    return RecyclingGridItemSeasonSeriesVideoCard::create();
+                });
+            });
+
+        // 分集点击回调
+        container->getSelectEvent()->subscribe(
+            [this](auto recycler, auto ds, size_t index, const auto& r) {
+                this->playSeason(r.season_id);
+            });
+
+        // 设置标题上方的数字
+        item->setSubtitle(wiliwili::num2w(result.size()));
+
+        return container;
+    });
+}
+
+void PlayerSeasonActivity::onSeasonRecommend(
+    const bilibili::SeasonRecommendWrapper& result) {
+    if (result.season.empty()) return;
+
+    auto* item = new AutoSidebarItem();
+    item->setTabStyle(AutoTabBarStyle::ACCENT);
+    item->setFontSize(18);
+    item->setLabel("wiliwili/player/recommend"_i18n);
+    this->tabFrame->addTab(item, [this, result, item]() {
+        // 设置分集页面
+        auto container =
+            new BasePlayerTabFragment<bilibili::SeasonRecommendItem>(
+                // 列表数据
+                result.season,
+                // 分集标题设置回调
+                [](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
+                    // 显示分集项
+                    auto* item = (RecyclingGridItemSeasonSeriesVideoCard*)
+                                     recycler->dequeueReusableCell("Card");
+                    std::string score =
+                        d.score > 0 ? fmt::format("{}分", d.score) : "暂无评分";
+                    auto cover =
+                        d.cover.empty() ? "" : d.cover + ImageHelper::h_ext;
+                    item->setCard(cover, d.title, d.subtitle,
+                                  wiliwili::num2w(d.stat.view),
+                                  wiliwili::num2w(d.stat.follow), score,
+                                  "#D97607");
+                    return item;
+                },
+                // container的构造函数
+                [](auto recycler, auto ds) {
+                    recycler->estimatedRowHeight = 100;
+                    recycler->estimatedRowSpace  = 15;
+                    recycler->registerCell("Card", []() {
+                        return RecyclingGridItemSeasonSeriesVideoCard::create();
+                    });
+                });
+
+        // 分集点击回调
+        container->getSelectEvent()->subscribe(
+            [this](auto recycler, auto ds, size_t index, const auto& r) {
+                this->playSeason(r.season_id);
+            });
+
+        // 设置标题上方的数字
+        item->setSubtitle(wiliwili::num2w(result.season.size()));
+
+        return container;
+    });
+}
+
+void PlayerSeasonActivity::playSeason(size_t season_id) {
+    //上报历史记录
+    this->reportCurrentProgress(MPVCore::instance().video_progress,
+                                MPVCore::instance().duration);
+
+    // 停止播放视频
+    this->video->stop();
+
+    // 先重置一下tabFrame的焦点，避免空指针问题
+    // 第0个tab是评论页面，这个tab固定存在，所以不会产生空指针的问题
+    this->tabFrame->focusTab(0);
+
+    // 焦点放在video上
+    brls::Application::giveFocus(this->video);
+
+    // 清空无用的tab
+    this->tabFrame->clearTab("wiliwili/player/p"_i18n);
+    this->tabFrame->clearTab("wiliwili/player/series"_i18n);
+    this->tabFrame->clearTab("wiliwili/player/recommend"_i18n);
+
+    // 清空评论
+    // 强制设置高度100，提升骨架屏显示效果
+    this->recyclingGrid->estimatedRowHeight = 100;
+    this->recyclingGrid->showSkeleton(6);
+
+    this->setProgress(0);
+    this->requestData(season_id, PGC_ID_TYPE::SEASON_ID);
 }
 
 size_t PlayerSeasonActivity::getAid() { return episodeResult.aid; }

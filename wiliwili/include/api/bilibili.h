@@ -133,6 +133,12 @@ public:
         const std::function<void(SeasonResultWrapper)>& callback = nullptr,
         const ErrorCallback& error                               = nullptr);
 
+    /// 获取番剧相关推荐
+    static void get_season_recommend(
+        size_t seasonID,
+        const std::function<void(SeasonRecommendWrapper)>& callback = nullptr,
+        const ErrorCallback& error                                  = nullptr);
+
     /// 获取番剧的播放进度
     static void get_season_status(
         size_t seasonID,

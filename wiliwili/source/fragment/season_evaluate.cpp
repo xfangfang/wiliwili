@@ -4,6 +4,7 @@
 
 #include "fragment/season_evaluate.hpp"
 #include "view/mpv_core.hpp"
+#include "utils/string_helper.hpp"
 
 SeasonEvaluate::SeasonEvaluate() {
     this->inflateFromXMLRes("xml/fragment/season_evaluate.xml");
@@ -12,28 +13,31 @@ SeasonEvaluate::SeasonEvaluate() {
         MPVCore::instance().pause();
         brls::Application::getPlatform()->openBrowser(
             "https://search.douban.com/movie/subject_search?search_text=" +
-            this->keyword);
+            wiliwili::urlEncode(this->keyword));
         return true;
     });
 
     btnZhihu->registerClickAction([this](...) {
         MPVCore::instance().pause();
         brls::Application::getPlatform()->openBrowser(
-            "https://www.zhihu.com/search?type=content&q=" + this->keyword);
+            "https://www.zhihu.com/search?type=content&q=" +
+            wiliwili::urlEncode(this->keyword));
         return true;
     });
 
     btnBaidu->registerClickAction([this](...) {
         MPVCore::instance().pause();
         brls::Application::getPlatform()->openBrowser(
-            "https://www.baidu.com/s?wd=" + this->keyword);
+            "https://www.baidu.com/s?wd=" + wiliwili::urlEncode(this->keyword));
         return true;
     });
 
     btnBing->registerClickAction([this](...) {
         MPVCore::instance().pause();
         brls::Application::getPlatform()->openBrowser(
-            "https://cn.bing.com/search?q=" + this->keyword);
+            "https://cn.bing.com/search?q=" +
+            wiliwili::urlEncode(this->keyword));
+
         return true;
     });
 }

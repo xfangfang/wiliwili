@@ -104,6 +104,8 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
                                 i.progress = episodeResult.progress;
                             this->changeEpisode(i);
                             this->onSeasonVideoInfo(result);
+                            this->onSeasonSeriesInfo(result.seasons);
+                            this->requestSeasonRecommend(result.season_id);
                             return;
                         }
                     }
@@ -118,6 +120,24 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
                     break;
                 }
                 this->onSeasonVideoInfo(result);
+                this->onSeasonSeriesInfo(result.seasons);
+                this->requestSeasonRecommend(result.season_id);
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
+            brls::Logger::error(error);
+        });
+}
+
+void VideoDetail::requestSeasonRecommend(size_t seasonID) {
+    ASYNC_RETAIN
+    BILI::get_season_recommend(
+        seasonID,
+        [ASYNC_TOKEN](const bilibili::SeasonRecommendWrapper& result) {
+            brls::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                this->onSeasonRecommend(result);
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {

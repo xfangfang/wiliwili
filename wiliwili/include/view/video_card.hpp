@@ -12,9 +12,9 @@ class SVGImage;
 
 class BaseVideoCard : public RecyclingGridItem {
 public:
-    void prepareForReuse();
+    void prepareForReuse() override;
 
-    void cacheForReuse();
+    void cacheForReuse() override;
 
 protected:
     BRLS_BIND(brls::Image, picture, "video/card/picture");
@@ -24,7 +24,7 @@ class RecyclingGridItemVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemVideoCard();
 
-    ~RecyclingGridItemVideoCard();
+    ~RecyclingGridItemVideoCard() override;
 
     void setCard(std::string pic, std::string title, std::string username,
                  int pubdate = 0, int view_count = 0, int danmaku = 0,
@@ -64,10 +64,10 @@ private:
 
 class RecyclingGridItemRankVideoCard : public BaseVideoCard {
 public:
-    RecyclingGridItemRankVideoCard(
+    explicit RecyclingGridItemRankVideoCard(
         std::string res = "xml/views/video_card_rank.xml");
 
-    ~RecyclingGridItemRankVideoCard();
+    ~RecyclingGridItemRankVideoCard() override;
 
     void setCard(std::string pic, std::string title, std::string username,
                  int pubdate = 0, int view_count = 0, int danmaku = 0,
@@ -91,7 +91,7 @@ class RecyclingGridItemLiveVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemLiveVideoCard();
 
-    ~RecyclingGridItemLiveVideoCard();
+    ~RecyclingGridItemLiveVideoCard() override;
 
     void setCard(std::string pic, std::string title, std::string username,
                  std::string area, int view_count = 0, bool following = false);
@@ -110,9 +110,9 @@ private:
 
 class RecyclingGridItemPGCVideoCard : public BaseVideoCard {
 public:
-    RecyclingGridItemPGCVideoCard(bool vertical_cover = true);
+    explicit RecyclingGridItemPGCVideoCard(bool vertical_cover = true);
 
-    ~RecyclingGridItemPGCVideoCard();
+    ~RecyclingGridItemPGCVideoCard() override;
 
     bool isVertical();
 
@@ -120,7 +120,7 @@ public:
                  std::string badge_top, std::string badge_bottom_left,
                  std::string badge_bottom_right);
 
-    void cacheForReuse();
+    void cacheForReuse() override;
 
     static RecyclingGridItemPGCVideoCard* create(bool vertical_cover = true);
 
@@ -140,7 +140,7 @@ class RecyclingGridItemSearchPGCVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemSearchPGCVideoCard();
 
-    ~RecyclingGridItemSearchPGCVideoCard();
+    ~RecyclingGridItemSearchPGCVideoCard() override;
 
     void setCard(std::string pic, std::string title, std::string subtitle,
                  std::string actor, std::string desc, std::string badge_top,
@@ -165,15 +165,15 @@ private:
 
 class RecyclingGridItemViewMoreCard : public RecyclingGridItem {
 public:
-    RecyclingGridItemViewMoreCard(bool vertical_cover = true);
+    explicit RecyclingGridItemViewMoreCard(bool vertical_cover = true);
 
-    ~RecyclingGridItemViewMoreCard();
+    ~RecyclingGridItemViewMoreCard() override;
 
     bool isVertical();
 
-    void prepareForReuse();
+    void prepareForReuse() override;
 
-    void cacheForReuse();
+    void cacheForReuse() override;
 
     static RecyclingGridItem* create(bool vertical_cover = true);
 
@@ -185,7 +185,7 @@ class RecyclingGridItemHistoryVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemHistoryVideoCard();
 
-    ~RecyclingGridItemHistoryVideoCard();
+    ~RecyclingGridItemHistoryVideoCard() override;
 
     void setCard(std::string pic, std::string title, std::string username,
                  std::string leftBottomBadge  = "",
@@ -212,7 +212,7 @@ class RecyclingGridItemCollectionVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemCollectionVideoCard();
 
-    ~RecyclingGridItemCollectionVideoCard();
+    ~RecyclingGridItemCollectionVideoCard() override;
 
     void setCard(std::string pic, std::string title, std::string username,
                  std::string leftBottomBadge  = "",
@@ -232,7 +232,7 @@ class RecyclingGridItemRelatedVideoCard : public BaseVideoCard {
 public:
     RecyclingGridItemRelatedVideoCard();
 
-    ~RecyclingGridItemRelatedVideoCard();
+    ~RecyclingGridItemRelatedVideoCard() override;
 
     void setCard(std::string pic, std::string title, std::string username,
                  std::string playCount, std::string danmakuCount,
@@ -246,5 +246,28 @@ private:
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
     BRLS_BIND(brls::Label, labelDanmaku, "video/card/label/danmaku");
     BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
+    BRLS_BIND(brls::Box, boxPic, "video/card/pic_box");
+};
+
+class RecyclingGridItemSeasonSeriesVideoCard : public BaseVideoCard {
+public:
+    RecyclingGridItemSeasonSeriesVideoCard();
+
+    ~RecyclingGridItemSeasonSeriesVideoCard() override;
+
+    void setCard(const std::string& pic, const std::string& title,
+                 const std::string& username, const std::string& playCount,
+                 const std::string& likeCount, const std::string& badge,
+                 const std::string& badge_color);
+
+    static RecyclingGridItem* create();
+
+private:
+    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
+    BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
+    BRLS_BIND(brls::Label, labelLike, "video/card/label/like");
+    BRLS_BIND(brls::Box, boxTop, "video/card/badge/boxTop");
+    BRLS_BIND(brls::Label, badgeTop, "video/card/badge/top");
     BRLS_BIND(brls::Box, boxPic, "video/card/pic_box");
 };

@@ -131,7 +131,90 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, title, type, attr));
 }
 
+class SeasonSeriesItemStat {
+public:
+    size_t series_follow, views;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonSeriesItemStat, views, series_follow);
+
+class SeasonSeriesItem {
+public:
+    SeasonSeriesItem() : season_id(0) {}
+
+    EpisodesBadge badge_info;
+    std::string season_title, cover, subtitle;
+    size_t season_id;
+    SeasonSeriesItemStat stat;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      SeasonSeriesItem& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("new_ep")) {
+        auto& ep = nlohmann_json_j.at("new_ep");
+        ep.at("index_show").get_to(nlohmann_json_t.subtitle);
+    }
+
+    if (nlohmann_json_j.contains("horizontal_cover_1610")) {
+        nlohmann_json_j.at("horizontal_cover_1610")
+            .get_to(nlohmann_json_t.cover);
+    } else if (nlohmann_json_j.contains("horizontal_cover_169")) {
+        nlohmann_json_j.at("horizontal_cover_169")
+            .get_to(nlohmann_json_t.cover);
+    } else if (nlohmann_json_j.contains("cover")) {
+        nlohmann_json_j.at("cover").get_to(nlohmann_json_t.cover);
+    }
+
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, badge_info,
+                                             season_id, season_title, stat));
+}
+
+class SeasonSeriesTitle {
+public:
+    std::string series_title;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonSeriesTitle, series_title);
+
+class SeasonRecommendItemStat {
+public:
+    size_t follow, view;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonRecommendItemStat, view, follow);
+
+class SeasonRecommendItem {
+public:
+    std::string cover, title, subtitle;
+    float score;
+    SeasonRecommendItemStat stat;
+    size_t season_id;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      SeasonRecommendItem& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("new_ep")) {
+        auto& ep = nlohmann_json_j.at("new_ep");
+        ep.at("cover").get_to(nlohmann_json_t.cover);
+        ep.at("index_show").get_to(nlohmann_json_t.subtitle);
+    }
+    if (nlohmann_json_j.contains("rating")) {
+        auto& rating = nlohmann_json_j.at("rating");
+        rating.at("score").get_to(nlohmann_json_t.score);
+    } else {
+        nlohmann_json_t.score = -1;
+    }
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, season_id, title, stat));
+}
+
 typedef std::vector<SeasonSection> SeasonSections;
+typedef std::vector<SeasonSeriesItem> SeasonSeries;
+typedef std::vector<SeasonRecommendItem> SeasonRecommend;
+
+class SeasonRecommendWrapper {
+public:
+    SeasonRecommend season;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      SeasonRecommendWrapper& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, season));
+}
 
 class SeasonResultWrapper {
 public:
@@ -147,6 +230,8 @@ public:
     SeasonSections section;
     size_t type;
     SeasonStatusResult user_status;
+    SeasonSeries seasons;
+    //    SeasonSeriesTitle series;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       SeasonResultWrapper& nlohmann_json_t) {
@@ -176,6 +261,12 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     if (nlohmann_json_j.contains("section")) {
         nlohmann_json_j.at("section").get_to(nlohmann_json_t.section);
     }
+    if (nlohmann_json_j.contains("seasons")) {
+        nlohmann_json_j.at("seasons").get_to(nlohmann_json_t.seasons);
+    }
+    //    if (nlohmann_json_j.contains("series")) {
+    //        nlohmann_json_j.at("series").get_to(nlohmann_json_t.series);
+    //    }
     if (nlohmann_json_j.contains("type")) {
         nlohmann_json_j.at("type").get_to(nlohmann_json_t.type);
     }

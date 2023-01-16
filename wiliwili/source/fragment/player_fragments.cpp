@@ -42,7 +42,8 @@ void PlayerTabCell::setBadge(std::string value, std::string color) {
     }
 }
 
-void PlayerTabCell::setBadge(std::string value, NVGcolor color, NVGcolor textColor) {
+void PlayerTabCell::setBadge(std::string value, NVGcolor color,
+                             NVGcolor textColor) {
     if (value.empty()) {
         this->badgeBox->setVisibility(brls::Visibility::GONE);
         return;
@@ -82,6 +83,7 @@ void PlayerTabCell::draw(NVGcontext* vg, float x, float y, float width,
 
 PlayerTabHeader::PlayerTabHeader() {
     this->inflateFromXMLRes("xml/views/season_header_cell.xml");
+    this->setFocusable(false);
 }
 
 RecyclingGridItem* PlayerTabHeader::create() { return new PlayerTabHeader(); }

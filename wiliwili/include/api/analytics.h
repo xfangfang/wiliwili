@@ -43,7 +43,7 @@ class Package;
 
 class Analytics : public brls::Singleton<Analytics> {
 public:
-    const int REPORT_MAX_NUM = 25;
+    const size_t REPORT_MAX_NUM = 25;
     std::vector<Event> events;
     std::mutex events_mutex;
     brls::RepeatingTimer reportTimer;

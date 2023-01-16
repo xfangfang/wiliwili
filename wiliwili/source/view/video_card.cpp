@@ -455,3 +455,43 @@ void RecyclingGridItemRelatedVideoCard::setCard(std::string pic,
     this->labelDanmaku->setText(danmakuCount);
     this->labelDuration->setText(rightBottomBadge);
 }
+
+/// 相关番剧卡片
+
+RecyclingGridItemSeasonSeriesVideoCard::
+    RecyclingGridItemSeasonSeriesVideoCard() {
+    this->inflateFromXMLRes("xml/views/video_card_series.xml");
+}
+
+RecyclingGridItemSeasonSeriesVideoCard::
+    ~RecyclingGridItemSeasonSeriesVideoCard() {
+    // 优先清空正在进行的图片请求
+    ImageHelper::clear(this->picture);
+}
+
+RecyclingGridItem* RecyclingGridItemSeasonSeriesVideoCard::create() {
+    return new RecyclingGridItemSeasonSeriesVideoCard();
+}
+
+void RecyclingGridItemSeasonSeriesVideoCard::setCard(
+    const std::string& pic, const std::string& title,
+    const std::string& username, const std::string& playCount,
+    const std::string& likeCount, const std::string& badge,
+    const std::string& badge_color) {
+    this->labelUsername->setText(username);
+    this->labelTitle->setIsWrapping(true);
+    this->labelTitle->setText(title);
+    ImageHelper::with(this->picture)->load(pic);
+    this->labelCount->setText(playCount);
+    this->labelLike->setText(likeCount);
+    this->badgeTop->setText(badge);
+
+    unsigned char r, g, b;
+    int result = sscanf(badge_color.c_str(), "#%02hhx%02hhx%02hhx", &r, &g, &b);
+    if (result == 3 && !badge.empty()) {
+        this->boxTop->setVisibility(brls::Visibility::VISIBLE);
+        this->boxTop->setBackgroundColor(nvgRGB(r, g, b));
+    } else {
+        this->boxTop->setVisibility(brls::Visibility::GONE);
+    }
+}

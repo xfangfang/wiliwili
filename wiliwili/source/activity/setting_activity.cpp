@@ -254,8 +254,8 @@ void SettingActivity::onContentAvailable() {
         });
 
     /// App Keymap
-    int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
     selectorKeymap->init(
         "wiliwili/setting/app/others/keymap/header"_i18n,
         {
