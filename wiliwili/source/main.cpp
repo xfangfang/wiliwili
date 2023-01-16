@@ -83,8 +83,8 @@ int main(int argc, char* argv[]) {
     }
 
     GA("open_app", {{"version", APPVersion::instance().getVersionStr()},
+                    {"git", APPVersion::instance().git_tag},
                     {"platform", APPVersion::instance().getPlatform()}})
-    GA_SEND
     APPVersion::instance().checkUpdate();
 
     // Run the app

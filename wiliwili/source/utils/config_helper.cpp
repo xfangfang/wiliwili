@@ -60,7 +60,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
 
     /// number
-    {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
+    {SettingItem::PLAYER_INMEMORY_CACHE,
+     {"player_inmemory_cache",
+      {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
+      {0, 10, 20, 50, 100, 200, 500},
+      0}},
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
     {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
@@ -127,7 +131,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
 
     /// number
-    {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {}, {}, 0}},
+    {SettingItem::PLAYER_INMEMORY_CACHE,
+     {"player_inmemory_cache",
+      {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
+      {0, 10, 20, 50, 100, 200, 500},
+      2}},
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
     {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
@@ -293,8 +301,7 @@ void ProgramConfig::load() {
     MPVCore::HARDWARE_DEC = getBoolOption(SettingItem::PLAYER_HWDEC);
 
     // 初始化内存缓存大小
-    MPVCore::INMEMORY_CACHE =
-        getSettingItem(SettingItem::PLAYER_INMEMORY_CACHE, 10);
+    MPVCore::INMEMORY_CACHE = getIntOption(SettingItem::PLAYER_INMEMORY_CACHE);
 
     // 初始化是否使用opencc自动转换简体
     brls::Label::OPENCC_ON = getBoolOption(SettingItem::OPENCC_ON);
@@ -367,7 +374,7 @@ int ProgramConfig::getIntOption(SettingItem item) {
         } catch (const std::exception& e) {
             brls::Logger::error("Damaged config found: {}/{}", optionData.key,
                                 e.what());
-            return optionData.defaultOption;
+            return optionData.rawOptionList[optionData.defaultOption];
         }
     }
     return optionData.rawOptionList[optionData.defaultOption];

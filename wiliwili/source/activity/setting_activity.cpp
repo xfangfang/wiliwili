@@ -352,23 +352,20 @@ void SettingActivity::onContentAvailable() {
             ImageHelper::setRequestThreads(threadOption.rawOptionList[data]);
         });
 
-    // todo: 从config_helper中实现一个可通用的选项选择方式
-    std::vector<int> inmemoryData = {0, 10, 20, 50, 100, 200, 500};
-    int inmemory = conf.getSettingItem(SettingItem::PLAYER_INMEMORY_CACHE, 10);
-    size_t inmemorySelect = 1;
-    for (size_t i = 0; i < inmemoryData.size(); i++) {
-        inmemorySelect = i;
-        if (inmemory <= inmemoryData[i]) break;
-    }
     selectorInmemory->init(
         "wiliwili/setting/app/playback/in_memory_cache"_i18n,
-        {"0MB (" + "hints/off"_i18n + ")", "10MB (" + "hints/preset"_i18n + ")",
-         "20MB", "50MB", "100MB", "200MB", "500MB"},
-        inmemorySelect, [inmemoryData](int data) {
+        {"0MB (" + "hints/off"_i18n + ")", "10MB", "20MB", "50MB", "100MB",
+         "200MB", "500MB"},
+        conf.getIntOptionIndex(SettingItem::PLAYER_INMEMORY_CACHE),
+        [](int data) {
+            auto inmemoryOption = ProgramConfig::instance().getOptionData(
+                SettingItem::PLAYER_INMEMORY_CACHE);
             ProgramConfig::instance().setSettingItem(
-                SettingItem::PLAYER_INMEMORY_CACHE, inmemoryData[data]);
-            if (MPVCore::INMEMORY_CACHE == inmemoryData[data]) return;
-            MPVCore::INMEMORY_CACHE = inmemoryData[data];
+                SettingItem::PLAYER_INMEMORY_CACHE,
+                inmemoryOption.rawOptionList[data]);
+            if (MPVCore::INMEMORY_CACHE == inmemoryOption.rawOptionList[data])
+                return;
+            MPVCore::INMEMORY_CACHE = inmemoryOption.rawOptionList[data];
             MPVCore::instance().restart();
         });
 

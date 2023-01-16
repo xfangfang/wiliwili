@@ -22,7 +22,6 @@ std::string urlEncode(const std::string &in) {
     const char *input = in.c_str();
 
     std::string working;
-    size_t index = 0;
 
     while (*input) {
         const unsigned char c = *input++;
