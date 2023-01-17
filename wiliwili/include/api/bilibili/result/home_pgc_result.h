@@ -26,13 +26,15 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("bottom_right_badge")
             .at("text")
             .get_to(nlohmann_json_t.bottom_right_badge);
-    } else if (nlohmann_json_j.contains("new_ep")) {
+    } else if (nlohmann_json_j.contains("new_ep") &&
+               nlohmann_json_j.at("new_ep").contains("index_show")) {
         nlohmann_json_j.at("new_ep")
             .at("index_show")
             .get_to(nlohmann_json_t.bottom_right_badge);
     }
 
-    if (nlohmann_json_j.contains("badge_info")) {
+    if (nlohmann_json_j.contains("badge_info") &&
+        nlohmann_json_j.at("badge_info").contains("img")) {
         nlohmann_json_j.at("badge_info")
             .at("img")
             .get_to(nlohmann_json_t.badge_info);
@@ -44,8 +46,14 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
             .get_to(nlohmann_json_t.bottom_left_badge);
     }
 
+    if (nlohmann_json_j.contains("progress")) {
+        nlohmann_json_j.at("progress").get_to(nlohmann_json_t.desc);
+    } else if (nlohmann_json_j.contains("desc")) {
+        nlohmann_json_j.at("desc").get_to(nlohmann_json_t.desc);
+    }
+
     NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, desc, cover, season_id));
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, cover, season_id));
 }
 
 typedef std::vector<PGCItemResult> PGCItemListResult;

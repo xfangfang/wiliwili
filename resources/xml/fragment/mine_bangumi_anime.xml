@@ -1,0 +1,35 @@
+<brls:Box
+        axis="column"
+        width="auto"
+        height="auto">
+    <brls:AppletFrame
+            iconInterpolation="linear"
+            headerHidden="true"
+            footerHidden="false"
+            grow="1">
+        <brls:Box
+                axis="column"
+                grow="1">
+            <brls:Label
+                    fontSize="24"
+                    marginTop="20"
+                    marginLeft="50"
+                    singleLine="true"
+                    focusable="true"
+                    text="@i18n/wiliwili/mine/anime"
+                    width="1170"/>
+            <MineBangumi
+                    id="mine/series"
+                    marginTop="20"
+                    marginLeft="30"
+                    itemHeight="335.4"
+                    itemSpace="40"
+                    grow="1"
+                    type="1"/>
+            <ButtonClose
+                    positionType="absolute"
+                    positionTop="10"
+                    positionRight="10"/>
+        </brls:Box>
+    </brls:AppletFrame>
+</brls:Box>

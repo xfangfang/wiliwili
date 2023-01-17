@@ -6,8 +6,11 @@
 #include "utils/config_helper.hpp"
 #include "borealis/core/logger.hpp"
 #include "bilibili.h"
+#include "borealis/core/i18n.hpp"
 
-MineCollectionRequest::MineCollectionRequest() {}
+using namespace brls::literals;
+
+MineCollectionRequest::MineCollectionRequest() = default;
 
 void MineCollectionRequest::onCollectionList(
     const bilibili::CollectionListResultWrapper &result) {}
@@ -22,8 +25,12 @@ void MineCollectionRequest::requestData(bool refresh) {
     }
 
     if (hasMore) {
-        auto userID = ProgramConfig::instance().getUserID();
-        this->requestCollectionList(userID, index);
+        auto mid = ProgramConfig::instance().getUserID();
+        if (mid.empty() || mid == "0") {
+            this->onError("wiliwili/home/common/no_login"_i18n);
+            return;
+        }
+        this->requestCollectionList(mid, index);
     }
 }
 

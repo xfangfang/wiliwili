@@ -34,6 +34,7 @@
 #include "fragment/home_cinema.hpp"
 #include "fragment/mine_history.hpp"
 #include "fragment/mine_collection.hpp"
+#include "fragment/mine_bangumi.hpp"
 #include "fragment/search_tab.hpp"
 #include "fragment/search_video.hpp"
 #include "fragment/search_cinema.hpp"
@@ -83,14 +84,12 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("MineHistory", MineHistory::create);
     brls::Application::registerXMLView("MineCollection",
                                        MineCollection::create);
+    brls::Application::registerXMLView("MineBangumi", MineBangumi::create);
     brls::Application::registerXMLView("SearchTab", SearchTab::create);
     brls::Application::registerXMLView("SearchVideo", SearchVideo::create);
     brls::Application::registerXMLView("SearchCinema", SearchCinema::create);
     brls::Application::registerXMLView("SearchBangumi", SearchBangumi::create);
     brls::Application::registerXMLView("SearchHots", SearchHots::create);
-
-    //    brls::Application::registerXMLView("RawVideoView", RawVideoView::create);
-    //    MPVCore::instance();
 }
 
 void Register::initCustomTheme() {

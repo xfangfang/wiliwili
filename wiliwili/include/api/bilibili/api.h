@@ -170,6 +170,9 @@ static const std::string UserUploadedVideo = _apiBase + "/x/space/arc/search";
 static const std::string UserRelationStat  = _apiBase + "/x/relation/stat";
 static const std::string UserDynamicStat =
     _vcBase + "/dynamic_svr/v1/dynamic_svr/space_num_ex";
+/// 用户追番/追剧
+static const std::string UserBangumiCollection =
+    _apiBase + "/x/space/bangumi/follow/list";
 
 /// ===
 /// 搜索页API

@@ -10,6 +10,7 @@
 #include "bilibili/result/home_result.h"
 #include "bilibili/result/setting.h"
 #include "bilibili/result/mine_collection_result.h"
+#include "bilibili/result/mine_bangumi_result.h"
 
 namespace bilibili {
 
@@ -177,6 +178,23 @@ void BilibiliClient::get_collection_video_list(
             callback(data);
         },
         error);
+}
+
+void BilibiliClient::get_my_bangumi(
+    const std::string& mid, size_t type, size_t pn, size_t ps,
+    const std::function<void(BangumiCollectionWrapper)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<BangumiCollectionWrapper>(
+        Api::UserBangumiCollection,
+        {
+            {"vmid", mid},
+            {"ps", std::to_string(ps)},
+            {"pn", std::to_string(pn)},
+            {"type", std::to_string(type)},
+            {"platform", "web"},
+            {"follow_status", "0"},
+        },
+        callback, error);
 }
 
 /// get user's upload videos

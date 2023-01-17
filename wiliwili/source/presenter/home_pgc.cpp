@@ -113,8 +113,14 @@ void DataSourcePGCVideoList::onItemSelected(RecyclingGrid* recycler,
     if (index == videoList.items.size()) {
         if (this->videoList.module_id == 1741) {
             // 我的追番
+            brls::Application::pushActivity(
+                new brls::Activity(brls::Box::createFromXMLResource(
+                    "fragment/mine_bangumi_anime.xml")));
         } else if (this->videoList.module_id == 1745) {
             // 我的追剧
+            brls::Application::pushActivity(
+                new brls::Activity(brls::Box::createFromXMLResource(
+                    "fragment/mine_bangumi_series.xml")));
         } else {
             brls::Application::pushActivity(
                 new PGCIndexActivity(this->videoList.url));

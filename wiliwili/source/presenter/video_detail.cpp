@@ -127,6 +127,7 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             brls::Logger::error(error);
+            this->onError(error);
         });
 }
 

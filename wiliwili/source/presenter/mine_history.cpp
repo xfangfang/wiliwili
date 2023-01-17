@@ -4,6 +4,10 @@
 
 #include "bilibili.h"
 #include "presenter/mine_history.hpp"
+#include "borealis/core/i18n.hpp"
+#include "utils/config_helper.hpp"
+
+using namespace brls::literals;
 
 void MineHistoryRequest::onHistoryList(
     const bilibili::HistoryVideoResultWrapper &result) {}
@@ -17,6 +21,11 @@ void MineHistoryRequest::requestData(bool refresh) {
 }
 
 void MineHistoryRequest::requestHistoryVideoList() {
+    std::string mid = ProgramConfig::instance().getUserID();
+    if (mid.empty() || mid == "0") {
+        this->onError("wiliwili/home/common/no_login"_i18n);
+        return;
+    }
     CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_my_history(
         cursor,

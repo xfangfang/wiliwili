@@ -152,5 +152,19 @@
             <MineCollection id="mine/collection"/>
         </Tab>
 
+        <Tab label="@i18n/wiliwili/mine/anime"
+             fontSize="18">
+            <MineBangumi
+                    id="mine/anime"
+                    type="1"/>
+        </Tab>
+
+        <Tab label="@i18n/wiliwili/mine/series"
+             fontSize="18">
+            <MineBangumi
+                    id="mine/series"
+                    type="2"/>
+        </Tab>
+
     </AutoTabFrame>
 </brls:Box>

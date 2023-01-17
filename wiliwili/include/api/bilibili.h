@@ -45,6 +45,7 @@ class UnixTimeResult;
 class CollectionListResultWrapper;       // 用户收藏列表
 class CollectionVideoListResultWrapper;  // 收藏夹 视频列表
 class SimpleCollectionListResultWrapper;  // 单个视频在所有收藏夹中的收藏情况
+class BangumiCollectionWrapper;  // 用户追番/追剧
 
 using Cookies = std::map<std::string, std::string>;
 
@@ -111,6 +112,18 @@ public:
         int64_t media_id, const int index = 1, const int num = 20,
         const std::function<void(CollectionVideoListResultWrapper)>& callback =
             nullptr,
+        const ErrorCallback& error = nullptr);
+
+    /**
+     * 获取用户追番/追剧
+     * @param mid 用户id
+     * @param type 1: 追番 2: 追剧
+     * @param pn 第几页
+     * @param ps 一页多少个内容，默认20
+     */
+    static void get_my_bangumi(
+        const std::string& mid, size_t type, size_t pn, size_t ps = 20,
+        const std::function<void(BangumiCollectionWrapper)>& callback = nullptr,
         const ErrorCallback& error = nullptr);
 
     /// get user's upload videos

@@ -6,6 +6,9 @@
 
 #include "bilibili.h"
 #include "presenter/dynamic_video.hpp"
+#include "utils/config_helper.hpp"
+
+using namespace brls::literals;
 
 void DynamicVideoRequest::onDynamicVideoList(
     const bilibili::DynamicVideoListResult &result, unsigned int index) {}
@@ -31,6 +34,11 @@ void DynamicVideoRequest::requestData(bool refresh) {
 
 void DynamicVideoRequest::requestDynamicVideoList(unsigned int page,
                                                   const std::string &offset) {
+    auto mid = ProgramConfig::instance().getUserID();
+    if (mid.empty() || mid == "0") {
+        this->onError("wiliwili/home/common/no_login"_i18n);
+        return;
+    }
     CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::dynamic_video(
         page, offset,

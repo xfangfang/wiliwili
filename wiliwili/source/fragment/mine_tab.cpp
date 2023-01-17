@@ -10,6 +10,7 @@
 
 #include "fragment/mine_collection.hpp"
 #include "fragment/mine_history.hpp"
+#include "fragment/mine_bangumi.hpp"
 #include "fragment/dynamic_tab.hpp"
 
 using namespace brls;
@@ -32,10 +33,17 @@ MineTab::MineTab() {
             } catch (...) {
             }
             try {
+                this->mineAnime->requestData(true);
+            } catch (...) {
+            }
+            try {
+                this->mineSeries->requestData(true);
+            } catch (...) {
+            }
+            try {
                 //动态页刷新
                 auto mainTab = dynamic_cast<AutoTabFrame*>(this->getParent());
-                DynamicTab* tab =
-                    (DynamicTab*)mainTab->getTab(1)->getAttachedView();
+                auto* tab = (DynamicTab*)mainTab->getTab(1)->getAttachedView();
                 if (!tab) {
                     brls::sync([mainTab]() {
                         auto tab = dynamic_cast<DynamicTab*>(
@@ -58,6 +66,8 @@ MineTab::MineTab() {
     // 在用户登录的情况获取到之前先清空点击事件
     boxGotoUserSpace->registerClickAction([](...) -> bool { return true; });
     this->requestData();
+
+    GA("user", {{"id", ProgramConfig::instance().getUserID()}})
 }
 
 void MineTab::onCreate() {
