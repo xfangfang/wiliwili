@@ -15,13 +15,14 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
     this->setCommonData();
-    GA("open_live")
+    GA("open_live", {{"id", std::to_string(live.roomid)}})
 }
 
 LiveActivity::LiveActivity(int roomid) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
     this->liveData.roomid = roomid;
     this->setCommonData();
+    GA("open_live", {{"id", std::to_string(roomid)}})
 }
 
 void LiveActivity::setCommonData() {

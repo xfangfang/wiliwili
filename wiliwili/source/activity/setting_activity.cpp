@@ -206,6 +206,15 @@ void SettingActivity::onContentAvailable() {
             }
         });
 
+    /// Hide FPS
+    cellHideFPS->init(
+        "wiliwili/setting/app/others/hide_fps"_i18n,
+        conf.getBoolOption(SettingItem::HIDE_FPS), [](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::HIDE_FPS, value);
+            brls::Application::setFPSStatus(value);
+        });
+
 /// Gamepad vibration
 #ifdef __SWITCH__
     cellVibration->init("wiliwili/setting/app/others/vibration"_i18n,

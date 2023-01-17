@@ -17,7 +17,7 @@ public:
 
     void onContentAvailable() override;
 
-    ~SettingActivity();
+    ~SettingActivity() override;
 
 private:
     BRLS_BIND(brls::RadioCell, btnTutorialOpenApp, "tools/tutorial_open");
@@ -46,6 +46,7 @@ private:
     BRLS_BIND(brls::SelectorCell, selectorFormat, "setting/video/format");
     BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
     BRLS_BIND(brls::BooleanCell, cellHideBar, "cell/hideBottomBar");
+    BRLS_BIND(brls::BooleanCell, cellHideFPS, "cell/hideFPS");
     BRLS_BIND(brls::BooleanCell, cellFullscreen, "cell/fullscreen");
     BRLS_BIND(brls::BooleanCell, cellVibration, "cell/gamepadVibration");
     BRLS_BIND(brls::Label, labelAboutVersion, "setting/about/version");

@@ -103,6 +103,9 @@
                                     id="cell/hideBottomBar"/>
 
                             <brls:BooleanCell
+                                    id="cell/hideFPS"/>
+
+                            <brls:BooleanCell
                                     id="cell/gamepadVibration"/>
 
                             <brls:BooleanCell

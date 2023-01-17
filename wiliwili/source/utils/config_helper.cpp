@@ -45,6 +45,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
+    {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 1}},
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
@@ -116,6 +117,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
+    {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 1}},
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
@@ -280,6 +282,9 @@ void ProgramConfig::load() {
     brls::AppletFrame::HIDE_BOTTOM_BAR =
         getBoolOption(SettingItem::HIDE_BOTTOM_BAR);
 
+    // 初始化FPS
+    brls::Application::setFPSStatus(getBoolOption(SettingItem::HIDE_FPS));
+    
     // 初始化是否全屏，必须在创建窗口前设置此值
     VideoContext::FULLSCREEN = getBoolOption(SettingItem::FULLSCREEN);
 

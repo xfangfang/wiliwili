@@ -19,6 +19,7 @@ typedef std::map<std::string, std::string> Cookie;
 
 enum class SettingItem {
     HIDE_BOTTOM_BAR,
+    HIDE_FPS,
     FULLSCREEN,
     APP_THEME,
     APP_LANG,
