@@ -58,6 +58,9 @@
                             id="player/danmaku/style/fontsize"/>
 
                     <brls:SelectorCell
+                            id="player/danmaku/style/lineHeight"/>
+
+                    <brls:SelectorCell
                             id="player/danmaku/style/speed"/>
 
                 </brls:Box>

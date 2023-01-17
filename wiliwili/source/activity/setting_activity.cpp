@@ -198,7 +198,7 @@ void SettingActivity::onContentAvailable() {
             // 修改所有正在显示的activity的底栏
             auto stack = brls::Application::getActivitiesStack();
             for (auto& activity : stack) {
-                brls::AppletFrame* frame = dynamic_cast<brls::AppletFrame*>(
+                auto* frame = dynamic_cast<brls::AppletFrame*>(
                     activity->getContentView());
                 if (!frame) continue;
                 frame->setFooterVisibility(value ? brls::Visibility::GONE
@@ -207,13 +207,13 @@ void SettingActivity::onContentAvailable() {
         });
 
     /// Hide FPS
-    cellHideFPS->init(
-        "wiliwili/setting/app/others/hide_fps"_i18n,
-        conf.getBoolOption(SettingItem::HIDE_FPS), [](bool value) {
-            ProgramConfig::instance().setSettingItem(
-                SettingItem::HIDE_FPS, value);
-            brls::Application::setFPSStatus(value);
-        });
+    cellHideFPS->init("wiliwili/setting/app/others/hide_fps"_i18n,
+                      conf.getBoolOption(SettingItem::HIDE_FPS),
+                      [](bool value) {
+                          ProgramConfig::instance().setSettingItem(
+                              SettingItem::HIDE_FPS, value);
+                          brls::Application::setFPSStatus(!value);
+                      });
 
 /// Gamepad vibration
 #ifdef __SWITCH__

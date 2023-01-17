@@ -79,6 +79,7 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
          "wiliwili/player/danmaku/style/area_4_4"_i18n},
         conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_AREA), [](int data) {
             DanmakuCore::DANMAKU_STYLE_AREA = 25 + data * 25;
+            DanmakuCore::save();
             DanmakuCore::instance().refresh();
             return true;
         });
@@ -102,6 +103,18 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
         conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_FONTSIZE),
         [font](int data) {
             DanmakuCore::DANMAKU_STYLE_FONTSIZE = font.rawOptionList[data];
+            DanmakuCore::save();
+            DanmakuCore::instance().refresh();
+            return true;
+        });
+
+    auto height = ProgramConfig::instance().getOptionData(
+        SettingItem::DANMAKU_STYLE_LINE_HEIGHT);
+    this->cellLineHeight->init(
+        "wiliwili/player/danmaku/style/line_height"_i18n, height.optionList,
+        conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_LINE_HEIGHT),
+        [height](int data) {
+            DanmakuCore::DANMAKU_STYLE_LINE_HEIGHT = height.rawOptionList[data];
             DanmakuCore::save();
             DanmakuCore::instance().refresh();
             return true;

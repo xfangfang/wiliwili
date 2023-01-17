@@ -51,7 +51,8 @@ void DanmakuCore::reset() {
     this->danmakuLoaded = false;
     danmakuIndex        = 0;
     videoSpeed          = MPVCore::instance().getSpeed();
-    lineHeight          = DANMAKU_STYLE_FONTSIZE * 1.2;
+    lineHeight     = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
+    lineNumCurrent = 0;
     danmakuMutex.unlock();
 }
 
@@ -98,7 +99,8 @@ void DanmakuCore::refresh() {
     }
 
     // 重新设置行高
-    lineHeight = DANMAKU_STYLE_FONTSIZE * 1.2;
+    lineHeight     = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
+    lineNumCurrent = 0;
 
     // 更新弹幕透明度
     for (auto &d : danmakuData) {
@@ -132,6 +134,9 @@ void DanmakuCore::save() {
                                              DANMAKU_STYLE_AREA, false);
     ProgramConfig::instance().setSettingItem(
         SettingItem::DANMAKU_STYLE_FONTSIZE, DANMAKU_STYLE_FONTSIZE, false);
+    ProgramConfig::instance().setSettingItem(
+        SettingItem::DANMAKU_STYLE_LINE_HEIGHT, DANMAKU_STYLE_LINE_HEIGHT,
+        false);
     ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_SPEED,
                                              DANMAKU_STYLE_SPEED, false);
     ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_ALPHA,
@@ -172,8 +177,10 @@ void DanmakuCore::drawDanmaku(NVGcontext *vg, float x, float y, float width,
     nvgFontFaceId(vg, this->danmakuFont);
     nvgTextLineHeight(vg, 1);
 
-    int LINES = height / lineHeight;
-    LINES *= DANMAKU_STYLE_AREA * 0.01;
+    int LINES = lineNumCurrent;
+    if (LINES == 0) {
+        LINES = height / lineHeight * DANMAKU_STYLE_AREA * 0.01;
+    }
 
     //取出需要的弹幕
     int64_t currentTime = brls::getCPUTimeUsec();

@@ -107,6 +107,9 @@ public:
     /// [15, 22, 30, 37, 45, 50]
     static inline int DANMAKU_STYLE_FONTSIZE = 30;
 
+    /// [100, 120, 140, 160, 180, 200]
+    static inline int DANMAKU_STYLE_LINE_HEIGHT = 120;
+
     /// [50 75 100 125 150]
     static inline int DANMAKU_STYLE_SPEED = 100;
 
@@ -130,6 +133,9 @@ private:
 
     // 弹幕显示的最大行数
     size_t lineNum;
+
+    // 当前弹幕显示的行数
+    size_t lineNumCurrent;
 
     // 当前视频播放速度
     double videoSpeed;

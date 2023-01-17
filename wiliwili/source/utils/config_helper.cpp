@@ -45,7 +45,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
-    {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 1}},
+    {SettingItem::HIDE_FPS, {"hide_fps", {}, {}, 1}},
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
@@ -89,6 +89,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"50%", "75%", "100%", "125%", "150%", "175%"},
       {15, 22, 30, 37, 45, 50},
       2}},
+    {SettingItem::DANMAKU_STYLE_LINE_HEIGHT,
+     {"danmaku_style_line_height",
+      {"100%", "120%", "140%", "160%", "180%", "200%"},
+      {100, 120, 140, 160, 180, 200},
+      1}},
     {SettingItem::DANMAKU_STYLE_SPEED,
      {"danmaku_style_speed",
       {"0.5", "0.75", "1.0", "1.25", "1.5"},
@@ -117,7 +122,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
-    {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 1}},
+    {SettingItem::HIDE_FPS, {"hide_fps", {}, {}, 1}},
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
@@ -164,6 +169,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"50%", "75%", "100%", "125%", "150%", "175%"},
       {15, 22, 30, 37, 45, 50},
       2}},
+    {SettingItem::DANMAKU_STYLE_LINE_HEIGHT,
+     {"danmaku_style_line_height",
+      {"100%", "120%", "140%", "160%", "180%", "200%"},
+      {100, 120, 140, 160, 180, 200},
+      1}},
     {SettingItem::DANMAKU_STYLE_SPEED,
      {"danmaku_style_speed",
       {"0.5", "0.75", "1.0", "1.25", "1.5"},
@@ -263,6 +273,8 @@ void ProgramConfig::load() {
         getIntOption(SettingItem::DANMAKU_STYLE_ALPHA);
     DanmakuCore::DANMAKU_STYLE_FONTSIZE =
         getIntOption(SettingItem::DANMAKU_STYLE_FONTSIZE);
+    DanmakuCore::DANMAKU_STYLE_LINE_HEIGHT =
+        getIntOption(SettingItem::DANMAKU_STYLE_LINE_HEIGHT);
     DanmakuCore::DANMAKU_STYLE_SPEED =
         getIntOption(SettingItem::DANMAKU_STYLE_SPEED);
 
@@ -283,8 +295,8 @@ void ProgramConfig::load() {
         getBoolOption(SettingItem::HIDE_BOTTOM_BAR);
 
     // 初始化FPS
-    brls::Application::setFPSStatus(getBoolOption(SettingItem::HIDE_FPS));
-    
+    brls::Application::setFPSStatus(!getBoolOption(SettingItem::HIDE_FPS));
+
     // 初始化是否全屏，必须在创建窗口前设置此值
     VideoContext::FULLSCREEN = getBoolOption(SettingItem::FULLSCREEN);
 
