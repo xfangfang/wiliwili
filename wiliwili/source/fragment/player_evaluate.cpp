@@ -9,7 +9,11 @@ PlayerEvaluate::PlayerEvaluate() {
 }
 
 void PlayerEvaluate::setContent(const std::string& value) {
-    this->label->setText(value);
+    if (value.empty()) {
+        empty->setVisibility(brls::Visibility::VISIBLE);
+    } else {
+        this->label->setText(value);
+    }
 }
 
 PlayerEvaluate::~PlayerEvaluate() {

@@ -17,6 +17,15 @@
         </brls:Box>
     </brls:ScrollingFrame>
 
+    <brls:Image
+            id="img/empty"
+            height="300"
+            positionType="absolute"
+            positionTop="50"
+            positionLeft="100"
+            visibility="gone"
+            image="@res/pictures/empty.png"/>
+
     <ButtonClose
             positionType="absolute"
             positionTop="10"

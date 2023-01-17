@@ -23,4 +23,5 @@ public:
 
 private:
     BRLS_BIND(brls::Label, label, "evaluate/content");
+    BRLS_BIND(brls::Image, empty, "img/empty");
 };
