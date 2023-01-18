@@ -2,8 +2,8 @@
 // Created by fang on 2023/1/18.
 //
 
-#include "bilibili.h"
 #include "borealis.hpp"
+#include "bilibili.h"
 #include "presenter/mine_bangumi.hpp"
 #include "utils/config_helper.hpp"
 

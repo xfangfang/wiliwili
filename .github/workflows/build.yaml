@@ -108,6 +108,10 @@ jobs:
           submodules: 'recursive'
           fetch-depth: 0
 
+      - name: Update gamepad db
+        run: |
+          cmake -P library/borealis/library/lib/extern/glfw//CMake/GenerateMappings.cmake library/borealis/library/lib/extern/glfw//src/mappings.h.in library/borealis/library/lib/extern/glfw//src/mappings.h
+
       - name: Install dependency
         uses: msys2/setup-msys2@v2
         with:
@@ -127,9 +131,6 @@ jobs:
           VERSION="${{ needs.version.outputs.version }}"
           DIST_EXE="${{ needs.version.outputs.DIST_EXE }}"
           echo ${VERSION} ${DIST_EXE}
-
-          BRLS_GLFW="library/borealis/library/lib/extern/glfw/"
-          cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
 
           mkdir -p build && pushd build
           cmake .. -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON -DWIN32_TERMINAL=OFF -DCMAKE_BUILD_TYPE=Release
