@@ -26,6 +26,7 @@
         "header": "その他",
         "vibration": "ゲームパッドの振動",
         "hide_bottom": "下のヒントバーを隠す",
+        "hide_fps": "FPSを非表示",
         "fullscreen": "フルスクリーン",
         "theme": {
           "header": "テーマ (再起動が必要です)",
@@ -34,7 +35,7 @@
           "3": "ダーク"
         },
         "language": {
-          "header": "Language (restart required)",
+          "header": "言語 (再起動が必要です)",
           "auto": "自動",
           "chinese_s": "简体中文",
           "chinese_t": "繁體中文",
@@ -43,7 +44,13 @@
           "ryukyuan": "島言葉",
           "korean": "한국어"
         },
-        "opencc": "簡体字中国語を自動的に変換（再起動が必要です）"
+        "opencc": "簡体字中国語を自動的に変換（再起動が必要です）",
+        "keymap": {
+          "header": "キーマップのスタイル",
+          "xbox": "Xbox",
+          "ps": "PlayStation",
+          "keyboard": "キーボード"
+        }
       }
     },
     "tools": {
@@ -54,7 +61,8 @@
         "intro_bvid": "BV18W4y1q72C",
         "open": "デスクトップアイコンのインストール方法",
         "error": "バグに遭遇した場合",
-        "hot_key": "ホットキー"
+        "hot_key": "ホットキー",
+        "font": "カスタムフォントを設定"
       },
       "test": {
         "header": "診断情報",
@@ -63,8 +71,9 @@
       },
       "others": {
         "header": "その他",
-        "up2date": "App is up to date",
-        "release": "更新を確認"
+        "up2date": "アプリは最新です",
+        "release": "更新を確認",
+        "config": "設定ディレクトリを開く"
       }
     },
     "about": {
@@ -83,7 +92,11 @@
       "error_q1": "ネットワークにアクセスできません",
       "error_a1": "1. 環境とシステムファームウェアが最新であることを確認してください\n2. システム時刻が正しいことを確認してください\n3. IP、DNSなどを含むデフォルトのネットワーク設定を復元します\n4.中国での使用",
       "error_q2": "ランダムエラーで終了",
-      "error_a2": "1. Fat32フォーマットのメモリーカードを使用\n2. 環境とシステムファームウェアが最新であることを確認してください\n3. 開発者が修正するのを待ちます"
+      "error_a2": "1. Fat32フォーマットのメモリーカードを使用\n2. 環境とシステムファームウェアが最新であることを確認してください\n3. 開発者が修正するのを待ちます",
+      "font_q1": "カスタムフォントまたはキーマップアイコンを設定する方法",
+      "font_a1": "1.必要なフォントまたはアイコンフォントをダウンロードします\n2.フォントの名前を：font.ttf; アイコンの変更：icon.ttf\n3. configディレクトリにフォントファイルを配置します\n4.アプリケーションを再起動します",
+      "font_q2": "よくある質問",
+      "font_a2": "1. Wiliwiliは、フィルムインフォントをフォールバックとして、カスタムフォントの表示に優先順位を付けます\n2.「設定 - ツール - その他」は、構成ディレクトリをすばやく開くためのメニュー項目を提供します\n3. Linuxでは、WiliwiliはXDG-Openを使用してディレクトリを開きます。 構成ディレクトリを正しく開くことができない場合は、このツールのインストールを検討できます"
     },
     "hot_keys": {
       "common_header": "一般",
@@ -182,24 +195,30 @@
     },
     "history": "履歴",
     "collection": "お気に入り",
+    "anime": "アニメ",
+    "series": "シリーズ",
+    "refresh_history": "履歴をリフレッシュ",
+    "refresh_collection": "お気に入りをリフレッシュ",
+    "refresh_anime": "アニメを更新",
+    "refresh_series": "シリーズを更新",
     "coin": "コイン",
     "following": "支援者",
     "follower": "フォロワー",
     "activity": "活動",
-    "refresh_collection": "お気に入りをリフレッシュ",
     "public": "パブリック",
     "private": "プライベート",
     "num": " コンテンツ",
     "pub": "で作成 ",
     "creator": "作成者",
     "done": "終了しました",
-    "article": "ブラウザで開く：",
-    "refresh_history": "履歴をリフレッシュ"
+    "article": "ブラウザで開く："
   },
   "player": {
     "intro": "序章",
     "p": "パート",
     "related": "関連",
+    "series": "シリーズ",
+    "recommend": "おすすめ",
     "uploaded": "その他",
     "qr": "QRコードを読み取って視聴/共有",
     "comment": "コメント",
@@ -221,9 +240,45 @@
     },
     "collection": {
       "title": "お気に入りを選択"
+    },
+    "danmaku": {
+      "header": "弾幕の設定",
+      "filter": {
+        "header": "弾幕フィルター",
+        "top": "トップ",
+        "scroll": "スクロール",
+        "bottom": "下",
+        "color": "カラー",
+        "level": "フィルターレベル",
+        "level_n": "レベル {}"
+      },
+      "style": {
+        "header": "弾幕のスタイル",
+        "area": "表示範囲",
+        "area_1_4": "1/4 スクリーン",
+        "area_2_4": "1/2 スクリーン",
+        "area_3_4": "3/4 スクリーン",
+        "area_4_4": "フルスクリーン",
+        "alpha": "アルファ",
+        "fontsize": "フォントサイズ",
+        "line_height": "行の高さ",
+        "speed": "速度",
+        "speed_slow_plus": "非常に遅い",
+        "speed_slow": "スロー",
+        "speed_fast_plus": "非常に速い",
+        "speed_fast": "速い",
+        "speed_moderate": "モデレート"
+      }
+    },
+    "single_comment": {
+      "detail": "詳細",
+      "hint": "何か素敵なことを言いましょう",
+      "related": "{} 件の返信",
+      "end": "コメントはありません",
+      "delete": "コメントを削除すると、コメントの下の全ての返信が削除されます\n\n続けますか？"
     }
   },
   "dialog": {
-    "quit_hint": "Exiting app..."
+    "quit_hint": "アプリを終了しています..."
   }
 }
