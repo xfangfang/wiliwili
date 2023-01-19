@@ -145,8 +145,6 @@ cd wiliwili
 
 <details>
 
-构建出来的客户端某些图标缺失，请参考：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
-
 #### macOS
 
 ```shell
@@ -230,7 +228,7 @@ sudo dkp-pacman -U \
   https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-libmpv-0.34.1-1-any.pkg.tar.xz
 
 # 4. 可选：安装依赖库 nspmini：https://github.com/StarDustCFW/nspmini
-# (1). 在resources 目录下放置：nsp_forwarder.nsp
+# (1). 在resources 目录下放置：nsp_forwarder.nsp (如何生成nsp见: scripts/switch-forwarder)
 # (2). cmake 构建参数添加 -DBUILTIN_NSP=ON
 # 按上述配置后，从相册打开wiliwili时会增加一个安装NSP Forwarder的按钮
 
@@ -246,8 +244,8 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 # 应用截图
 
 <p align="center">
-<img src="docs/images/screenshot-2.png" alt="screenshot-2">
-<img src="docs/images/screenshot-1.png" alt="screenshot-1">
+<img src="docs/images/screenshot-3.jpg" alt="screenshot">
+<img src="docs/images/screenshot-4.jpg" alt="screenshot">
 </p>
 
 # Acknowledgement
