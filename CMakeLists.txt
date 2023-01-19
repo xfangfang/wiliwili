@@ -243,7 +243,7 @@ if (PLATFORM_DESKTOP)
                     )
 
             add_custom_target(${PROJECT_NAME}.install
-                    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/bilibili.png
+                    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/icon.png
                     ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/${PACKAGE_NAME}.png
                     )
             add_dependencies(${PROJECT_NAME}.install ${PROJECT_NAME}.data)

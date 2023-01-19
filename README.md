@@ -1,35 +1,34 @@
 # wiliwili
 
-一个专为手柄用户设计的 [B站](https://www.bilibili.com)客户端
+一个专为手柄用户设计的第三方 [B站](https://www.bilibili.com)客户端
 
 <img src="resources/svg/cn.xfangfang.wiliwili.svg" alt="icon" height="128" width="128" align="left">
 
-wiliwili 拥有非常接近官方PC客户端的B站浏览体验，  
-同时支持**触屏**与**手柄**操控，  
-让你的switch瞬间变身机顶盒与掌上平板。
+wiliwili 拥有非常接近官方PC客户端的B站浏览体验  
+同时支持**触屏**、**鼠标**、**键盘** 与 **手柄**操控  
+无论是电脑还是游戏掌机都能获得全新的使用体验
 <br>
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/xfangfang/wiliwili)](https://github.com/xfangfang/wiliwili/releases) ![GitHub All Releases](https://img.shields.io/github/downloads/xfangfang/wiliwili/total) ![GitHub stars](https://img.shields.io/github/stars/xfangfang/wiliwili?style=flat) ![GitHub forks](https://img.shields.io/github/forks/xfangfang/wiliwili) [![Crowdin](https://badges.crowdin.net/wiliwili/localized.svg)](https://crowdin.com/project/wiliwili) ![NS](https://img.shields.io/badge/-Nintendo%20Switch-e4000f?style=flat&logo=Nintendo%20Switch) ![MS](https://img.shields.io/badge/-Windows-357ec7?style=flat&logo=Windows) ![mac](https://img.shields.io/badge/-macOS-black?style=flat&logo=Apple) ![Linux](https://img.shields.io/badge/-Linux-lightgrey?style=flat&logo=Linux)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/xfangfang/wiliwili)](https://github.com/xfangfang/wiliwili/releases) ![GitHub All Releases](https://img.shields.io/github/downloads/xfangfang/wiliwili/total) ![GitHub stars](https://img.shields.io/github/stars/xfangfang/wiliwili?style=flat) ![GitHub forks](https://img.shields.io/github/forks/xfangfang/wiliwili) [![Crowdin](https://badges.crowdin.net/wiliwili/localized.svg)](https://crowdin.com/project/wiliwili) ![NS](https://img.shields.io/badge/-Nintendo%20Switch-e4000f?style=flat&logo=Nintendo%20Switch) ![MS](https://img.shields.io/badge/-Windows%207-357ec7?style=flat&logo=Windows) ![mac](https://img.shields.io/badge/-macOS%2010.15-black?style=flat&logo=Apple) ![Linux](https://img.shields.io/badge/-Linux-lightgrey?style=flat&logo=Linux)
 
 <br>
 
 # 支持特性
 
-主题色：自动切换深浅主题  
 多语言：简、繁、日、韩、英 ...   
-播放页：视频 番剧 影视 综艺，支持弹幕  
-个人页：扫码登录 历史记录 个人收藏  
 搜索页：热搜 视频 番剧 影视  
-动态页：关注的UP主最近更新的视频  
-直播页：支持观看关注的主播与其他系统推荐  
-分类检索：快速找到想看的电影和番剧  
-首页推荐：完美复制原版pc端布局
+筛选页：快速找到想看的影视内容  
+动态页：关注的UP主最近视频动态  
+直播页：关注的主播与其他系统推荐  
+播放页：视频 番剧 电影 纪录片 综艺，支持弹幕与评论  
+个人页：扫码登录 历史记录 个人收藏 我的追番 我的追剧  
+主题色：拥有深浅两色主题，跟随系统自动切换
 
 <br>
 
 # 安装流程 (Nintendo Switch)
 
-1. 下载安装包：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
+1. 下载 `wiliwili-NintendoSwitch.zip`：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 2. 将 wiliwili.nro 放置在内存卡路径： switch/wiliwili.nro
 3. 在主页 `按住` R键打开任意游戏进入 hbmenu，在列表中选择 wiliwili 点击打开即可。
 4. [可选] 在应用内安装桌面图标，入口：设置/实用工具/使用教程
@@ -40,21 +39,27 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验，
 
 PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标操控（左键点击 右键返回）
 
-1. 可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions/workflows/build.yaml) 下载自动构建的测试版客户端
-2. 此页面同时提供了如下客户端:
-    - 测试版switch客户端
-    - Windows `Win7 SP1 and later; x86_64`
-    - macOS `11.7 and later; intel`
-    - Linux `flatpak x86_64 id:cn.xfangfang.wiliwili`
-3. 如何自定义字体或图标？：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
+下载对应系统的安装包运行即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
+
+<details>
+
+注意：
+
+1. 显卡驱动需要支持 `OpenGL 3.2` 以运行此程序
+2. Linux: 对于 Linux 系统只提供 Flatpak 安装包供 Steam Deck安装，如有其他打包需求只欢迎提交完善的打包脚本
+3. macOS: Apple Silicon 设备请从源码自行编译，同时欢迎 macOS 用户提交 Homebrew 安装方式到官方仓库
+4. Windows: 不提供 x86 安装包，如有需求可以自行编译。
 
 补充信息：
 
-1. 如果不知道如何从 Github-Actions 下载软件，这里是 [教程](https://xfangfang.github.io/036)
-2. 显卡驱动需要支持 `OpenGL 3.2` 以运行此程序
+1. 可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions/workflows/build.yaml) 下载自动构建的测试版客户端
+2. 如果不知道如何从 Github-Actions 下载软件，这里是 [教程](https://xfangfang.github.io/036)
 3. Windows用户可以通过下载 [debug版](https://github.com/xfangfang/DIY/actions/workflows/wiliwili_win_debug.yml) 来查看log
-4. 目前支持的键盘映射见：[#47](https://github.com/xfangfang/wiliwili/discussions/47)
-5. Steam Deck 安装教程：[#41](https://github.com/xfangfang/wiliwili/discussions/41)
+4. 自定义字体或按键图标：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
+5. 目前支持的键盘映射见：[#47](https://github.com/xfangfang/wiliwili/discussions/47)
+6. Steam Deck 安装教程：[#41](https://github.com/xfangfang/wiliwili/discussions/41)
+
+</details>
 
 <br>
 
