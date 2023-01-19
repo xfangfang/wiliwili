@@ -65,7 +65,7 @@ endif ()
 # project info
 project(wiliwili)
 set(VERSION_MAJOR "0")
-set(VERSION_MINOR "5")
+set(VERSION_MINOR "6")
 set(VERSION_REVISION "0")
 set(PROJECT_TITLEID "0x010FF000FFFF0001")
 set(PROJECT_AUTHOR "xfangfang")
