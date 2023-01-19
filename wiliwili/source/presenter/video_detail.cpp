@@ -1,6 +1,7 @@
 //
 // Created by fang on 2022/8/9.
 //
+#include <cstdlib>
 #include <tinyxml2.h>
 #include "pystring.h"
 #include "borealis.hpp"
@@ -50,17 +51,29 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
                 episodeList = seasonInfo.episodes;
 
                 for (auto& e : episodeList) {
-                    size_t index = e.index + 1;
+                    char* stop = nullptr;
+                    auto index = strtol(e.title.c_str(), &stop, 10);
+                    bool isNum = strlen(stop) == 0;
                     switch (result.type) {
                         case 1:  // 日漫 ？
                         case 4:  // 国漫 ？
-                            e.title =
-                                fmt::format("第{}话 {}", index, e.long_title);
+                            if (isNum) {
+                                e.title = fmt::format("第{}话 {}", index,
+                                                      e.long_title);
+                            } else {
+                                e.title =
+                                    fmt::format("{} {}", e.title, e.long_title);
+                            }
                             break;
                         case 3:  // 纪录片
                         case 5:  // 电视剧
-                            e.title =
-                                fmt::format("第{}集 {}", index, e.long_title);
+                            if (isNum) {
+                                e.title = fmt::format("第{}集 {}", index,
+                                                      e.long_title);
+                            } else {
+                                e.title =
+                                    fmt::format("{} {}", e.title, e.long_title);
+                            }
                             break;
                         case 2:  // 电影
                         case 7:  // 综艺
