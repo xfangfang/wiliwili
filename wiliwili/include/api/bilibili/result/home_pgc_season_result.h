@@ -153,10 +153,18 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         ep.at("index_show").get_to(nlohmann_json_t.subtitle);
     }
 
-    if (nlohmann_json_j.contains("horizontal_cover_1610")) {
+    if (nlohmann_json_j.contains("horizontal_cover_1610") &&
+        !nlohmann_json_j.at("horizontal_cover_1610").is_null() &&
+        !nlohmann_json_j.at("horizontal_cover_1610")
+             .get<std::string>()
+             .empty()) {
         nlohmann_json_j.at("horizontal_cover_1610")
             .get_to(nlohmann_json_t.cover);
-    } else if (nlohmann_json_j.contains("horizontal_cover_169")) {
+    } else if (nlohmann_json_j.contains("horizontal_cover_169") &&
+               !nlohmann_json_j.at("horizontal_cover_169").is_null() &&
+               !nlohmann_json_j.at("horizontal_cover_169")
+                    .get<std::string>()
+                    .empty()) {
         nlohmann_json_j.at("horizontal_cover_169")
             .get_to(nlohmann_json_t.cover);
     } else if (nlohmann_json_j.contains("cover")) {
