@@ -118,6 +118,9 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       4}},
     {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
     {SettingItem::KEYMAP, {"keymap", {"xbox", "ps", "keyboard"}, {}, 0}},
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    {SettingItem::HOME_WINDOW_STATE, {"home_window_state", {windowStateDefault}, {}, 0}},
+#endif
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -229,6 +232,45 @@ std::string ProgramConfig::getClientID() {
     }
     return this->client;
 }
+
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+void ProgramConfig::loadHomeWindowState() {
+    std::string homeWindowStateData = 
+        getSettingItem(SettingItem::HOME_WINDOW_STATE, windowStateDefault);
+    uint32_t& hWidth = this->homeWindowState.width;
+    uint32_t& hHeight = this->homeWindowState.height;
+    int& hXPos = this->homeWindowState.xPos;
+    int& hYPos = this->homeWindowState.yPos;
+    sscanf(homeWindowStateData.c_str(), "%ux%u,%dx%d", &hWidth, &hHeight, &hXPos, &hYPos);
+    brls::Logger::info("Load window state: {}x{},{}x{}", hWidth, hHeight, hXPos, hYPos);
+}
+
+void ProgramConfig::saveHomeWindowState() {
+    if (!VideoContext::FULLSCREEN) {
+        uint32_t width = brls::Application::windowWidth;
+        uint32_t height = brls::Application::windowHeight;
+        int xPos = brls::Application::windowXPos;
+        int yPos = brls::Application::windowYPos;
+        brls::Logger::info("Save window state: {}x{},{}x{}",width, height, xPos, yPos);
+        setSettingItem(SettingItem::HOME_WINDOW_STATE,
+            fmt::format("{}x{},{}x{}", width, height, xPos, yPos)
+        );
+    }
+}
+
+WindowState ProgramConfig::getHomeWindowState() {
+    loadHomeWindowState();
+    return this->homeWindowState;
+}
+
+bool ProgramConfig::getHomeWindowInitFullscreen() {
+    return this->homeWindowState.initFullscreen;
+}
+
+void ProgramConfig::setHomeWindowInitFullscreen(bool state) {
+    this->homeWindowState.initFullscreen = state;
+}
+#endif
 
 void ProgramConfig::load() {
     const std::string path = this->getConfigDir() + "/wiliwili_config.json";
@@ -343,6 +385,21 @@ void ProgramConfig::load() {
 #endif
     }
 
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    // 初始化上一次窗口位置
+    // 如果窗口初始化为全屏，则退出全屏时用来判断是否恢复窗口状态
+    setHomeWindowInitFullscreen(VideoContext::FULLSCREEN);
+    WindowState hws = getHomeWindowState();
+    if(!VideoContext::FULLSCREEN) {
+        if (hws.width > 0 || hws.height > 0) {
+            brls::Application::windowWidth = hws.width;
+            brls::Application::windowHeight = hws.height;
+            brls::Application::windowXPos = hws.xPos;
+            brls::Application::windowYPos = hws.yPos;
+        }
+    }
+#endif
+
     // 初始化一些在创建窗口之后才能初始化的内容
     brls::Application::getWindowCreationDoneEvent()->subscribe([this]() {
         // 初始化主题
@@ -359,7 +416,19 @@ void ProgramConfig::load() {
         // 初始化纹理缓存数量
         brls::TextureCache::instance().cache.setCapacity(
             getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
+
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+        // 设置窗口最小尺寸
+        brls::Application::getPlatform()->setWindowSizeLimits(MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT, 0, 0);
+#endif
     });
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+        // 窗口将要关闭时
+    brls::Application::getExitEvent()->subscribe([this]() {
+        //保存窗口状态配置
+        saveHomeWindowState();
+    });
+#endif
 }
 
 ProgramOption ProgramConfig::getOptionData(SettingItem item) {
