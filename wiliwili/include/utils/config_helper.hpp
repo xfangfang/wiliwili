@@ -16,6 +16,19 @@
 #include "borealis/core/logger.hpp"
 
 typedef std::map<std::string, std::string> Cookie;
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+struct WindowState
+{
+    uint32_t width;
+    uint32_t height;
+    int xPos;
+    int yPos;
+    bool initFullscreen;
+};
+constexpr uint32_t MINIMUM_WINDOW_WIDTH  = 640;
+constexpr uint32_t MINIMUM_WINDOW_HEIGHT = 360;
+inline static std::string windowStateDefault = "0x0,0x0";
+#endif
 
 enum class SettingItem {
     HIDE_BOTTOM_BAR,
@@ -49,6 +62,9 @@ enum class SettingItem {
     DANMAKU_STYLE_LINE_HEIGHT,
     DANMAKU_STYLE_SPEED,
     KEYMAP,
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    HOME_WINDOW_STATE,
+#endif
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -91,6 +107,13 @@ public:
     std::string getCSRF();
     std::string getUserID();
     std::string getClientID();
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    void loadHomeWindowState();
+    void saveHomeWindowState();
+    WindowState getHomeWindowState();
+    bool getHomeWindowInitFullscreen();
+    void setHomeWindowInitFullscreen(bool state);
+#endif
 
     template <typename T>
     T getSettingItem(SettingItem item, T defaultValue) {
@@ -139,6 +162,9 @@ public:
     Cookie cookie = {{"DedeUserID", "0"}};
     nlohmann::json setting;
     std::string client = "";
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    WindowState homeWindowState = {0};
+#endif
 
     static std::unordered_map<SettingItem, ProgramOption> SETTING_MAP;
 };

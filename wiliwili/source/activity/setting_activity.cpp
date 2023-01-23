@@ -235,11 +235,31 @@ void SettingActivity::onContentAvailable() {
         conf.getBoolOption(SettingItem::FULLSCREEN), [this](bool value) {
             ProgramConfig::instance().setSettingItem(SettingItem::FULLSCREEN,
                                                      value);
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+            // 全屏之前保存窗口状态
+            ProgramConfig::instance().saveHomeWindowState();
+#endif
             // 更新设置
             VideoContext::FULLSCREEN = value;
             // 设置当前状态
             brls::Application::getPlatform()->getVideoContext()->fullScreen(
                 value);
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+            // 窗口启动时如果为全屏则退出全屏时需要恢复窗口状态。
+            if (ProgramConfig::instance().getHomeWindowInitFullscreen() && !value) {
+                WindowState hws = ProgramConfig::instance().getHomeWindowState();
+                if (hws.width > 0 && hws.height > 0) {
+                    brls::Application::getPlatform()->setWindowState(
+                        hws.width, hws.height,
+                        hws.xPos, hws.yPos
+                    );
+                    ProgramConfig::instance().setHomeWindowInitFullscreen(false);
+                    brls::Logger::info("Exit fullscreen, restore window state: {}x{},{}x{}",
+                        hws.width, hws.height, hws.xPos, hws.yPos
+                    );
+                 }
+            }
+#endif
         });
 #else
     cellFullscreen->setVisibility(brls::Visibility::GONE);
