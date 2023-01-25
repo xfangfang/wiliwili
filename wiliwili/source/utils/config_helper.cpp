@@ -262,12 +262,13 @@ void ProgramConfig::loadHomeWindowState() {
 }
 
 void ProgramConfig::saveHomeWindowState() {
+    if(isnan(VideoContext::posX) || isnan(VideoContext::posY)) return;
     auto videoContext = brls::Application::getPlatform()->getVideoContext();
 
     uint32_t width  = VideoContext::sizeW;
     uint32_t height = VideoContext::sizeH;
-    int xPos        = brls::Application::windowXPos;
-    int yPos        = brls::Application::windowYPos;
+    int xPos        = VideoContext::posX;
+    int yPos        = VideoContext::posY;
     int monitor     = videoContext->getCurrentMonitorIndex();
     if (width == 0) width = brls::ORIGINAL_WINDOW_WIDTH;
     if (height == 0) height = brls::ORIGINAL_WINDOW_HEIGHT;
