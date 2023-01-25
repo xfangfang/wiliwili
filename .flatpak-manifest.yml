@@ -18,6 +18,7 @@ modules:
     buildsystem: cmake-ninja
     config-opts:
       - '-DPLATFORM_DESKTOP=ON'
+      - '-DUSE_SYSTEM_CURL=ON'
       - '-DINSTALL=ON'
       - '-DCMAKE_BUILD_TYPE=Release'
     builddir: true

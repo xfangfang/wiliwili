@@ -5,6 +5,7 @@ set(PLATFORM_DESKTOP OFF CACHE BOOL "build for desktop, ON for desktop; OFF for 
 set(BUILTIN_NSP OFF CACHE BOOL "Built in NSP forwarder")
 set(WIN32_TERMINAL ON CACHE BOOL "Show terminal when run on Windows")
 set(VERIFY_SSL ON CACHE BOOL "Whether to verify ssl")
+set(USE_SYSTEM_CURL OFF CACHE BOOL "Whether to use the curl in your system libs")
 
 # analytics
 set(ANALYTICS OFF CACHE BOOL "Using Google Analytics")
@@ -97,6 +98,12 @@ if (INSTALL)
     set(BRLS_RESOURCES_DIR ${RESOURCES_INSTALL_DIR})
 else ()
     set(BRLS_RESOURCES_DIR ".")
+endif ()
+
+if (USE_SYSTEM_CURL)
+    set(CPR_USE_SYSTEM_CURL ON)
+else ()
+    set(CPR_USE_SYSTEM_CURL OFF)
 endif ()
 
 # build borealis qrcode and other third party libraries

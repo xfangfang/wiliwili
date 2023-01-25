@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 
 # add cpr
-set(CPR_USE_SYSTEM_CURL ON)
 if (PLATFORM_DESKTOP)
     if (APPLE)
+        set(CPR_USE_SYSTEM_CURL ON)
         set(CPR_FORCE_DARWINSSL_BACKEND ON)
     endif ()
     if (WIN32)
@@ -11,6 +11,7 @@ if (PLATFORM_DESKTOP)
         set(CPR_FORCE_WINSSL_BACKEND ON)
     endif ()
 else ()
+    set(CPR_USE_SYSTEM_CURL ON)
     set(CPR_FORCE_MBEDTLS_BACKEND ON)
 endif ()
 set(BUILD_SHARED_LIBS OFF)
