@@ -338,8 +338,12 @@ public:
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       Dash& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("audio") &&
+        !nlohmann_json_j.at("audio").is_null()) {
+        nlohmann_json_j.at("audio").get_to(nlohmann_json_t.audio);
+    }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, duration,
-                                             video, audio, min_buffer_time));
+                                             video, min_buffer_time));
 }
 
 class VideoUrlResult {

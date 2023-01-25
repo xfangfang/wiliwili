@@ -416,9 +416,11 @@ void BasePlayerActivity::onVideoPlayUrl(
             if (result.quality >= i.id) {
                 // 手动设置当前选择的清晰度
                 videoUrlResult.quality = i.id;
-                for (const auto& j : result.dash.audio) {
-                    this->video->setUrl(i.base_url, progress, j.base_url);
-                    break;
+                if (result.dash.audio.empty()) {
+                    this->video->setUrl(i.base_url, progress);
+                } else {
+                    this->video->setUrl(i.base_url, progress,
+                                        result.dash.audio[0].base_url);
                 }
                 break;
             }
@@ -426,7 +428,7 @@ void BasePlayerActivity::onVideoPlayUrl(
     } else {
         // flv
         brls::Logger::debug("Video type: flv");
-        if (result.durl.size() == 0) {
+        if (result.durl.empty()) {
             brls::Logger::error("No media");
         } else if (result.durl.size() == 1) {
             this->video->setUrl(result.durl[0].url, progress);
