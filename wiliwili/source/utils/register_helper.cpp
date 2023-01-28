@@ -135,6 +135,12 @@ void Register::initCustomTheme() {
     brls::Theme::getDarkTheme().addColor("color/bilibili",
                                          nvgRGB(255, 102, 153));
 
+    // 蓝色文字，用于链接文字颜色
+    brls::Theme::getLightTheme().addColor("color/link",
+                                          nvgRGB(102, 147, 182));
+    brls::Theme::getDarkTheme().addColor("color/link",
+                                         nvgRGB(102, 147, 182));
+
     // 分割线颜色
     brls::Theme::getLightTheme().addColor("color/line", nvgRGB(208, 208, 208));
     brls::Theme::getDarkTheme().addColor("color/line", nvgRGB(208, 208, 208));

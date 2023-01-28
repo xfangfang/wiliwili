@@ -40,7 +40,7 @@ class VideoComment : public RecyclingGridItem {
 public:
     VideoComment();
 
-    ~VideoComment();
+    ~VideoComment() override;
 
     static RecyclingGridItem* create();
 

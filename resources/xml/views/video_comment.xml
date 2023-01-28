@@ -3,7 +3,6 @@
         wireframe="false"
         axis="column"
         width="auto"
-        margin="8"
         height="auto">
     <UserInfoView
             id="comment/userinfo"
@@ -32,12 +31,15 @@
                 height="auto"
                 grow="1"
                 wireframe="false"
+                maxRows="6"
+                showMore="true"
                 id="comment/label/content"/>
     </brls:Box>
 
     <brls:Box
-            margin="8"
             marginLeft="40"
+            marginRight="8"
+            marginBottom="8"
             shrink="0"
             width="auto"
             alignItems="center"

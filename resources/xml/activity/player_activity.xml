@@ -325,9 +325,10 @@
                         <RecyclingGrid
                                 id="video/comment/recyclingGrid"
                                 paddingLeft="20"
-                                paddingRight="20"
+                                paddingRight="30"
                                 grow="1"
                                 spanCount="1"
+                                itemSpace="10"
                                 flowMode="true"
                                 itemHeight="100"
                                 wireframe="false"/>

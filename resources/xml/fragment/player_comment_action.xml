@@ -7,8 +7,8 @@
     <brls:Box
             id="comment/action/box"
             positionType="absolute"
-            positionTop="0"
-            positionRight="460"
+            positionTop="60"
+            positionRight="470"
             cornerRadius="40"
             height="80"
             axis="column"
@@ -56,20 +56,39 @@
     <brls:Box
             width="460"
             height="100%"
-            backgroundColor="@theme/brls/backdrop">
+            backgroundColor="@theme/brls/background">
+        <brls:Label
+                fontSize="24"
+                text="@i18n/wiliwili/player/single_comment/detail"
+                positionType="absolute"
+                positionTop="20"
+                positionLeft="20"/>
     </brls:Box>
 
-    <VideoComment
-            id="comment/action/comment"
-            focusable="false"
-            width="400"
+    <brls:ScrollingFrame
+            width="440"
+            height="650"
+            focusable="true"
+            positionTop="60"
             positionType="absolute"
-            mainTextColor="#FFFFFF"
-            positionRight="24"/>
+            grow="1.0">
+
+        <brls:Box
+                axis="column"
+                grow="1.0"
+                width="410">
+            <VideoComment
+                    id="comment/action/comment"
+                    focusable="false"
+                    hideClickAnimation="true"
+                    maxRows="-1"
+                    width="410"/>
+        </brls:Box>
+
+    </brls:ScrollingFrame>
 
     <ButtonClose
             id="button/close"
-            textColor="#FFFFFF"
             positionType="absolute"
             positionTop="10"
             positionRight="10"/>

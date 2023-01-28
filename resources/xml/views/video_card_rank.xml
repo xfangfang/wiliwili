@@ -83,6 +83,7 @@
                 id="video/card/label/title"
                 fontSize="20"
                 lineHeight="1.5"
+                maxRows="2"
                 width="100%"
                 height="60"/>
         <brls:Box

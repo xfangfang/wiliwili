@@ -258,7 +258,7 @@ PlayerSingleComment::PlayerSingleComment() {
 void PlayerSingleComment::setCommentData(
     const bilibili::VideoCommentResult& result) {
     GA("single_comment", {{"id", std::to_string(result.rpid)}})
-    
+
     this->root = result;
     // 将楼主的root id设置为评论id，方便点击时一视同仁地判断
     this->root.root     = root.rpid;
@@ -354,14 +354,6 @@ brls::View* PlayerSingleComment::getDefaultFocus() {
 PlayerCommentAction::PlayerCommentAction() {
     this->inflateFromXMLRes("xml/fragment/player_comment_action.xml");
 
-    this->svgLike->registerAction(
-        "", brls::ControllerButton::BUTTON_NAV_RIGHT,
-        [this](...) {
-            this->dismiss();
-            return true;
-        },
-        true);
-
     this->svgLike->registerClickAction([this](...) {
         this->dismiss();
         this->likeClickEvent.fire();
@@ -393,14 +385,8 @@ PlayerCommentAction::PlayerCommentAction() {
 
 void PlayerCommentAction::setActionData(
     const bilibili::VideoCommentResult& data, float y) {
-    this->comment->setPositionTop(y - 8);
     this->comment->setData(data);
-
     if (data.rpid != data.root) this->comment->hideReplyIcon(true);
-
-    if (y < 20) y = 20;
-    if (y > 620) y = 620;
-    this->actionBox->setPositionTop(y);
 }
 
 void PlayerCommentAction::showDelete() {

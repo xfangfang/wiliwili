@@ -10,8 +10,7 @@
 RecyclingGridItem::RecyclingGridItem() {
     this->setFocusable(true);
     this->registerClickAction([this](View* view) {
-        RecyclingGrid* recycler =
-            dynamic_cast<RecyclingGrid*>(getParent()->getParent());
+        auto* recycler = dynamic_cast<RecyclingGrid*>(getParent()->getParent());
         if (recycler)
             recycler->getDataSource()->onItemSelected(recycler, index);
         return true;
@@ -23,7 +22,7 @@ size_t RecyclingGridItem::getIndex() const { return this->index; }
 
 void RecyclingGridItem::setIndex(size_t value) { this->index = value; }
 
-RecyclingGridItem::~RecyclingGridItem() {}
+RecyclingGridItem::~RecyclingGridItem() = default;
 
 /// Skeleton cell
 
@@ -129,8 +128,8 @@ RecyclingGrid::~RecyclingGrid() {
     this->hintImage = nullptr;
     if (this->hintLabel) this->hintLabel->freeView();
     this->hintLabel = nullptr;
-    if (this->dataSource) delete this->dataSource;
-    for (auto it : queueMap) {
+    delete this->dataSource;
+    for (const auto& it : queueMap) {
         for (auto item : *it.second) {
             item->setParent(nullptr);
             if (item->isPtrLocked())
@@ -176,20 +175,20 @@ void RecyclingGrid::addCellAt(size_t index, int downSide) {
     RecyclingGridItem* cell;
     //获取到一个填充好数据的cell
     cell = dataSource->cellForRow(this, index);
-    cell->setWidth((renderedFrame.getWidth() - paddingLeft - paddingRight) /
-                       spanCount -
-                   estimatedRowSpace);
-    cell->setDetachedPositionX(
-        renderedFrame.getMinX() + paddingLeft +
-        (renderedFrame.getWidth() - paddingLeft - paddingRight) / spanCount *
-            (index % spanCount));
 
     float cellHeight = estimatedRowHeight;
+    float cellWidth =
+        (renderedFrame.getWidth() - paddingLeft - paddingRight) / spanCount -
+        cell->getMarginLeft() - cell->getMarginRight();
+    float cellX = renderedFrame.getMinX() + paddingLeft;
 
     if (isFlowMode) {
+        // 必须在 getHeight 前设置宽度，否则会影响到cell自定义高度的判定
+        cell->setWidth(cellWidth);
         if (cellHeightCache[index] == -1) {
             // 没有预定义cell的高度，使用cell默认的高度
             cellHeight = cell->getHeight();
+
             if (cellHeight > estimatedRowHeight) {
                 cellHeight = estimatedRowHeight;
             }
@@ -198,17 +197,18 @@ void RecyclingGrid::addCellAt(size_t index, int downSide) {
             // dataSource 中指定了cell的高度，使用预定义的值
             cellHeight = cellHeightCache[index];
         }
-        cell->setHeight(cellHeight);
-
-        // getHeightByCellIndex：获取当前cell的相对Y坐标 （相对于renderedFrame的顶部）
-        cell->setDetachedPositionY(getHeightByCellIndex(index) + paddingTop);
 
         brls::Logger::debug("Add cell at: y {} height {}",
                             getHeightByCellIndex(index) + paddingTop,
                             cellHeight);
+    } else {
+        cell->setWidth(cellWidth - estimatedRowSpace);
+        cellX += (renderedFrame.getWidth() - paddingLeft - paddingRight) /
+                 spanCount * (index % spanCount);
     }
 
     cell->setHeight(cellHeight);
+    cell->setDetachedPositionX(cellX);
     cell->setDetachedPositionY(getHeightByCellIndex(index) + paddingTop);
     cell->setIndex(index);
 

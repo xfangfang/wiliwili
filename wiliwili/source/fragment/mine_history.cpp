@@ -87,7 +87,8 @@ public:
             l1->setText("wiliwili/mine/article"_i18n);
             auto l2 = new brls::Label();
             l2->setMarginTop(10);
-            l2->setTextColor(nvgRGB(102, 147, 182));
+            l2->setTextColor(
+                brls::Application::getTheme().getColor("color/link"));
             l2->setText(url);
             container->setHeight(200);
             container->addView(l1);

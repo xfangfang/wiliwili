@@ -17,6 +17,10 @@ VideoComment::VideoComment() {
     this->registerColorXMLAttribute("mainTextColor", [this](NVGcolor value) {
         this->setMainTextColor(value);
     });
+
+    this->registerFloatXMLAttribute("maxRows", [this](float value) {
+        this->commentContent->setMaxRows((int)value);
+    });
 }
 
 VideoComment::~VideoComment() {

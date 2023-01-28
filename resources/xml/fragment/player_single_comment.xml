@@ -31,7 +31,7 @@
                 focusable="true"
                 marginTop="60"
                 paddingLeft="20"
-                paddingRight="20"
+                paddingRight="30"
                 width="460"
                 grow="1"
                 preFetchLine="2"
