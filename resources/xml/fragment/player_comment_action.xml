@@ -63,29 +63,29 @@
                 positionType="absolute"
                 positionTop="20"
                 positionLeft="20"/>
+
+        <brls:ScrollingFrame
+                width="440"
+                height="auto"
+                focusable="true"
+                marginTop="60"
+                marginLeft="20"
+                grow="1.0">
+
+            <brls:Box
+                    axis="column"
+                    grow="1.0"
+                    width="410">
+                <VideoComment
+                        id="comment/action/comment"
+                        focusable="false"
+                        hideClickAnimation="true"
+                        maxRows="-1"
+                        width="410"/>
+            </brls:Box>
+
+        </brls:ScrollingFrame>
     </brls:Box>
-
-    <brls:ScrollingFrame
-            width="440"
-            height="650"
-            focusable="true"
-            positionTop="60"
-            positionType="absolute"
-            grow="1.0">
-
-        <brls:Box
-                axis="column"
-                grow="1.0"
-                width="410">
-            <VideoComment
-                    id="comment/action/comment"
-                    focusable="false"
-                    hideClickAnimation="true"
-                    maxRows="-1"
-                    width="410"/>
-        </brls:Box>
-
-    </brls:ScrollingFrame>
 
     <ButtonClose
             id="button/close"

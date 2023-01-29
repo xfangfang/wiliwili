@@ -74,13 +74,19 @@ void TextBox::draw(NVGcontext* vg, float x, float y, float width, float height,
         return;
     }
 
-    NVGtextRow rows[maxRows + 1];
+    NVGtextRow rows[maxRows + 2];
     const char* end  = nullptr;
     int numberOfRows = nvgTextBreakLines(vg, fullText.c_str(), nullptr, width,
-                                         rows, maxRows + 1);
+                                         rows, maxRows + 2);
 
     // 显示全部文字
     if (numberOfRows <= maxRows) {
+        nvgTextBox(vg, x, y, width, fullText.c_str(), nullptr);
+        return;
+    }
+
+    // 当显示 "更多" 提示 且只超出一行时，可以借用提示所在的行
+    if (numberOfRows == maxRows + 1 && showMoreText) {
         nvgTextBox(vg, x, y, width, fullText.c_str(), nullptr);
         return;
     }
