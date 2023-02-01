@@ -262,7 +262,7 @@ void ProgramConfig::loadHomeWindowState() {
 }
 
 void ProgramConfig::saveHomeWindowState() {
-    if(isnan(VideoContext::posX) || isnan(VideoContext::posY)) return;
+    if (isnan(VideoContext::posX) || isnan(VideoContext::posY)) return;
     auto videoContext = brls::Application::getPlatform()->getVideoContext();
 
     uint32_t width  = VideoContext::sizeW;
@@ -572,8 +572,7 @@ std::string ProgramConfig::getConfigDir() {
     return config + "/wiliwili";
 #endif
 #ifdef _WIN32
-    return std::string(getenv("HOMEPATH")) +
-           "\\AppData\\Local\\xfangfang\\wiliwili";
+    return std::string(getenv("LOCALAPPDATA")) + "\\xfangfang\\wiliwili";
 #endif
 #endif /* _DEBUG */
 #endif /* __SWITCH__ */
