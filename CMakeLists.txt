@@ -18,6 +18,7 @@ set(MAC_UNIVERSAL OFF CACHE BOOL "Support x86_64;arm64 at the same time")
 
 option(USE_GLFW "using glfw for input and create window" ON)
 option(USE_SDL2 "using sdl2 for input and create window" OFF)
+option(USE_GL2 "using OpenGL 2.1" OFF)
 
 option(INSTALL "Install to system. only use this option with Linux." OFF)
 
@@ -29,6 +30,11 @@ else ()
     message("GLFW")
     set(USE_GLFW ON)
     set(USE_SDL2 OFF)
+endif ()
+
+if (USE_GL2)
+    set(USE_GL2 ON)
+    add_definitions(-DUSE_GL2)
 endif ()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)
