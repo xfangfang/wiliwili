@@ -76,13 +76,15 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "referrer", "https://www.bilibili.com/");
     mpv_set_option_string(mpv, "idle", "yes");
     mpv_set_option_string(mpv, "opengl-pbo", "yes");
-    mpv_set_option_string(mpv, "fbo-format", "rgba8");
     mpv_set_option_string(mpv, "reset-on-next-file", "all");
     mpv_set_option_string(mpv, "loop-file", "no");
     mpv_set_option_string(mpv, "osd-level", "0");
     mpv_set_option_string(mpv, "video-timing-offset", "0");  // 60fps
     mpv_set_option_string(mpv, "keep-open", "yes");
     mpv_set_option_string(mpv, "hr-seek", "yes");
+#ifndef USE_GL2
+    mpv_set_option_string(mpv, "fbo-format", "rgba8");
+#endif
 
     if (MPVCore::LOW_QUALITY) {
         // Less cpu cost
@@ -244,6 +246,10 @@ void MPVCore::deleteShader() {
 }
 
 void MPVCore::initializeGL() {
+#ifdef USE_GL2
+    // Using default framebuffer
+    return;
+#endif
     if (media_framebuffer != 0) return;
     brls::Logger::debug("initializeGL");
 
@@ -360,6 +366,22 @@ void MPVCore::command_async(const char **args) {
 }
 
 void MPVCore::setFrameSize(brls::Rect rect) {
+#ifdef USE_GL2
+    // hardcode workaround for OpenGL2
+    this->mpv_fbo.w = brls::Application::windowWidth;
+    this->mpv_fbo.h = brls::Application::windowHeight;
+    if (rect.getWidth() < brls::Application::contentWidth) {
+        mpv_set_option_string(mpv, "video-zoom", "-0.6781");
+        mpv_set_option_string(mpv, "video-align-x", "-0.953");
+        mpv_set_option_string(mpv, "video-align-y", "-0.92");
+    } else {
+        mpv_set_option_string(mpv, "video-zoom", "0");
+        mpv_set_option_string(mpv, "video-align-x", "0");
+        mpv_set_option_string(mpv, "video-align-y", "0");
+    }
+    return;
+#endif
+
     if (this->media_texture == 0) return;
     int drawWidth  = rect.getWidth() * brls::Application::windowScale;
     int drawHeight = rect.getHeight() * brls::Application::windowScale;
@@ -404,6 +426,19 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     glViewport(0, 0, brls::Application::windowWidth,
                brls::Application::windowHeight);
 
+#ifdef USE_GL2
+    // hardcode workaround for OpenGL2
+    if (rect.getWidth() < brls::Application::contentWidth) {
+        auto *vg = brls::Application::getNVGContext();
+        nvgBeginPath(vg);
+        nvgFillColor(vg,
+                     brls::Application::getTheme().getColor("brls/background"));
+        nvgRect(vg, 820, 0, 460, brls::Application::windowHeight);
+        nvgRect(vg, 0, rect.getHeight() + 20, 821,
+                brls::Application::windowHeight - rect.getHeight());
+        nvgFill(vg);
+    }
+#else
     // shader draw
     glUseProgram(shader.prog);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
@@ -416,6 +451,7 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     glUniform1f(alphaID, alpha);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+#endif
 
     mpv_render_context_report_swap(this->mpv_context);
 
@@ -596,6 +632,46 @@ void MPVCore::eventMainLoop() {
                                      ->data;
                         }
                         break;
+                        //                    case 7:
+                        //                        break;
+                        //                    case 8:
+                        //                        // 缓存时间
+                        //                        if (((mpv_event_property *)event->data)->data) {
+                        //                            //                            brls::Logger::verbose(
+                        //                            //                                "demuxer-cache-time: {}",
+                        //                            //                                *(double *)((mpv_event_property *)event->data)
+                        //                            //                                     ->data);
+                        //                        }
+                        //                        break;
+                        //                    case 9:
+                        //                        // 缓存信息
+                        //                        if (((mpv_event_property *)event->data)->data) {
+                        //                            mpv_node *node =
+                        //                                (mpv_node *)((mpv_event_property *)event->data)
+                        //                                    ->data;
+                        //                            std::unordered_map<std::string, mpv_node> node_map;
+                        //                            for (int i = 0; i < node->u.list->num; i++) {
+                        //                                node_map.insert(std::make_pair(
+                        //                                    std::string(node->u.list->keys[i]),
+                        //                                    node->u.list->values[i]));
+                        //                            }
+                        //                            brls::Logger::debug(
+                        //                                "total-bytes: {:.2f}MB; cache-duration: "
+                        //                                "{:.2f}; "
+                        //                                "underrun: {}; fw-bytes: {:.2f}MB; bof-cached: "
+                        //                                "{}; eof-cached: {}; file-cache-bytes: {}; "
+                        //                                "raw-input-rate: {:.2f};",
+                        //                                node_map["total-bytes"].u.int64 / 1048576.0,
+                        //                                node_map["cache-duration"].u.double_,
+                        //                                node_map["underrun"].u.flag,
+                        //                                node_map["fw-bytes"].u.int64 / 1048576.0,
+                        //                                node_map["bof-cached"].u.flag,
+                        //                                node_map["eof-cached"].u.flag,
+                        //                                node_map["file-cache-bytes"].u.int64 /
+                        //                                    1048576.0,
+                        //                                node_map["raw-input-rate"].u.int64 / 1048576.0);
+                        //                        }
+                        //                        break;
                     default:
                         break;
                 }

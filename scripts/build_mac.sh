@@ -39,7 +39,8 @@ cp ${BUILD_DIR}/wiliwili ${APP_PATH}/Contents/MacOS/wiliwili
 cp -r ./resources ${APP_PATH}/Contents/Resources/
 
 if ! command -v dylibbundler >/dev/null 2>&1; then
-    echo -e "\033[31m\"dylibbundle\" is not installed. The application you built can only be used locally\033[0m"
+    echo -e "\033[31m\"dylibbundler\" is not installed. The application you built can only be used locally\033[0m"
+    echo -e "For more information, please refer to: \033[36mhttps://github.com/xfangfang/wiliwili/issues/83#issuecomment-1415858949\033[0m"
 else
   dylibbundler -cd -b -x ${APP_PATH}/Contents/MacOS/wiliwili \
     -d ${APP_PATH}/Contents/MacOS/lib/ -p @executable_path/lib/

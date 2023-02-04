@@ -239,7 +239,7 @@ void VideoView::setUrl(std::string url, int progress, std::string audio) {
     brls::Logger::debug("set video url: {}", url);
 
     if (progress < 0) progress = 0;
-    std::string extra = "referrer=https://www.bilibili.com";
+    std::string extra = "referrer=\"https://www.bilibili.com\"";
     if (progress > 0) {
         extra += fmt::format(",start={}", progress);
         brls::Logger::debug("set video progress: {}", progress);
