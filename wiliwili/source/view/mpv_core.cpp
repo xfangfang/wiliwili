@@ -370,15 +370,24 @@ void MPVCore::setFrameSize(brls::Rect rect) {
     // hardcode workaround for OpenGL2
     this->mpv_fbo.w = brls::Application::windowWidth;
     this->mpv_fbo.h = brls::Application::windowHeight;
-    if (rect.getWidth() < brls::Application::contentWidth) {
-        mpv_set_option_string(mpv, "video-zoom", "-0.6781");
-        mpv_set_option_string(mpv, "video-align-x", "-0.953");
-        mpv_set_option_string(mpv, "video-align-y", "-0.92");
-    } else {
-        mpv_set_option_string(mpv, "video-zoom", "0");
-        mpv_set_option_string(mpv, "video-align-x", "0");
-        mpv_set_option_string(mpv, "video-align-y", "0");
-    }
+    mpv_set_option_string(
+        mpv, "video-margin-ratio-left",
+        fmt::format("{}", rect.getMinX() / brls::Application::contentWidth)
+            .c_str());
+    mpv_set_option_string(
+        mpv, "video-margin-ratio-right",
+        fmt::format("{}", (brls::Application::contentWidth - rect.getMaxX()) /
+                              brls::Application::contentWidth)
+            .c_str());
+    mpv_set_option_string(
+        mpv, "video-margin-ratio-top",
+        fmt::format("{}", rect.getMinY() / brls::Application::contentHeight)
+            .c_str());
+    mpv_set_option_string(
+        mpv, "video-margin-ratio-bottom",
+        fmt::format("{}", (brls::Application::contentHeight - rect.getMaxY()) /
+                              brls::Application::contentHeight)
+            .c_str());
     return;
 #endif
 
@@ -427,17 +436,17 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
                brls::Application::windowHeight);
 
 #ifdef USE_GL2
-    // hardcode workaround for OpenGL2
-    if (rect.getWidth() < brls::Application::contentWidth) {
-        auto *vg = brls::Application::getNVGContext();
-        nvgBeginPath(vg);
-        nvgFillColor(vg,
-                     brls::Application::getTheme().getColor("brls/background"));
-        nvgRect(vg, 820, 0, 460, brls::Application::windowHeight);
-        nvgRect(vg, 0, rect.getHeight() + 20, 821,
-                brls::Application::windowHeight - rect.getHeight());
-        nvgFill(vg);
-    }
+    auto *vg = brls::Application::getNVGContext();
+    nvgBeginPath(vg);
+    nvgFillColor(vg, brls::Application::getTheme().getColor("brls/background"));
+    nvgRect(vg, 0, 0, rect.getMinX(), brls::Application::contentHeight);
+    nvgRect(vg, rect.getMaxX(), 0,
+            brls::Application::contentWidth - rect.getMinX(),
+            brls::Application::contentHeight);
+    nvgRect(vg, rect.getMinX() - 1, 0, rect.getWidth() + 2, rect.getMinY());
+    nvgRect(vg, rect.getMinX() - 1, rect.getMaxY(), rect.getWidth() + 2,
+            brls::Application::contentHeight - rect.getMaxY());
+    nvgFill(vg);
 #else
     // shader draw
     glUseProgram(shader.prog);
