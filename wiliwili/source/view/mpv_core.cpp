@@ -441,7 +441,7 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     nvgFillColor(vg, brls::Application::getTheme().getColor("brls/background"));
     nvgRect(vg, 0, 0, rect.getMinX(), brls::Application::contentHeight);
     nvgRect(vg, rect.getMaxX(), 0,
-            brls::Application::contentWidth - rect.getMinX(),
+            brls::Application::contentWidth - rect.getMaxX(),
             brls::Application::contentHeight);
     nvgRect(vg, rect.getMinX() - 1, 0, rect.getWidth() + 2, rect.getMinY());
     nvgRect(vg, rect.getMinX() - 1, rect.getMaxY(), rect.getWidth() + 2,
