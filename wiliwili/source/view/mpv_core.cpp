@@ -2,7 +2,7 @@
 // Created by fang on 2022/8/12.
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <clocale>
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
@@ -76,14 +76,16 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "referrer", "https://www.bilibili.com/");
     mpv_set_option_string(mpv, "idle", "yes");
     mpv_set_option_string(mpv, "opengl-pbo", "yes");
-    mpv_set_option_string(mpv, "reset-on-next-file", "all");
     mpv_set_option_string(mpv, "loop-file", "no");
     mpv_set_option_string(mpv, "osd-level", "0");
     mpv_set_option_string(mpv, "video-timing-offset", "0");  // 60fps
     mpv_set_option_string(mpv, "keep-open", "yes");
     mpv_set_option_string(mpv, "hr-seek", "yes");
-#ifndef USE_GL2
+#ifdef USE_GL2
+    mpv_set_option_string(mpv, "reset-on-next-file", "speed,pause");
+#else
     mpv_set_option_string(mpv, "fbo-format", "rgba8");
+    mpv_set_option_string(mpv, "reset-on-next-file", "all");
 #endif
 
     if (MPVCore::LOW_QUALITY) {
@@ -108,8 +110,10 @@ void MPVCore::init() {
 
     // hardware decoding
 #ifndef __SWITCH__
-    mpv_set_option_string(mpv, "hwdec", HARDWARE_DEC ? "auto-safe" : "no");
-    brls::Logger::info("MPV hardware decode: {}", HARDWARE_DEC);
+    mpv_set_option_string(mpv, "hwdec",
+                          HARDWARE_DEC ? PLAYER_HWDEC_METHOD.c_str() : "no");
+    brls::Logger::info("MPV hardware decode: {}/{}", HARDWARE_DEC,
+                       PLAYER_HWDEC_METHOD);
 #endif
 
     // Making the loading process faster
@@ -436,10 +440,11 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
                brls::Application::windowHeight);
 
 #ifdef USE_GL2
-    if (rect.getWidth() < brls::Application::contentWidth){
+    if (rect.getWidth() < brls::Application::contentWidth) {
         auto *vg = brls::Application::getNVGContext();
         nvgBeginPath(vg);
-        nvgFillColor(vg, brls::Application::getTheme().getColor("brls/background"));
+        nvgFillColor(vg,
+                     brls::Application::getTheme().getColor("brls/background"));
         nvgRect(vg, 0, 0, rect.getMinX(), brls::Application::contentHeight);
         nvgRect(vg, rect.getMaxX(), 0,
                 brls::Application::contentWidth - rect.getMaxX(),

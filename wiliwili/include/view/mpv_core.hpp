@@ -143,7 +143,9 @@ public:
     inline static bool BOTTOM_BAR    = true;
     inline static bool LOW_QUALITY   = false;
     inline static int INMEMORY_CACHE = 0;
-    inline static bool HARDWARE_DEC  = false;
+
+    inline static bool HARDWARE_DEC               = false;
+    inline static std::string PLAYER_HWDEC_METHOD = "auto-safe";
 
     // 此变量为真时，加载结束后自动播放视频
     inline static bool AUTO_PLAY = true;

@@ -50,7 +50,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
-    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 1}},
+    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
+    {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
     {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
@@ -133,7 +134,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
-    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 1}},
+    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
+    {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
     {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
@@ -365,6 +367,10 @@ void ProgramConfig::load() {
 
     // 初始化是否使用硬件加速 （仅限非switch设备）
     MPVCore::HARDWARE_DEC = getBoolOption(SettingItem::PLAYER_HWDEC);
+
+    // 初始化自定义的硬件加速方案
+    MPVCore::PLAYER_HWDEC_METHOD = getSettingItem(
+        SettingItem::PLAYER_HWDEC_CUSTOM, MPVCore::PLAYER_HWDEC_METHOD);
 
     // 初始化内存缓存大小
     MPVCore::INMEMORY_CACHE = getIntOption(SettingItem::PLAYER_INMEMORY_CACHE);

@@ -116,6 +116,12 @@ VideoView::VideoView() {
     });
     this->videoQuality->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->videoQuality));
+    this->registerAction(
+        "wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
+        [this](brls::View* view) -> bool {
+            mpvCore->getEvent()->fire(MpvEventEnum::QUALITY_CHANGE_REQUEST);
+            return true;
+        });
 
     /// 全屏按钮
     this->btnFullscreenIcon->getParent()->registerClickAction([this](...) {
