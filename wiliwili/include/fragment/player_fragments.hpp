@@ -121,7 +121,7 @@ public:
         grid->registerCell("Header",
                            []() { return PlayerTabHeader::create(); });
         grid->setDefaultCellFocus(defaultIndex);
-        ds = new PlayerTabDataSource(result, &callback, fun, defaultIndex);
+        ds = new PlayerTabDataSource<T>(result, &callback, fun, defaultIndex);
         grid->setDataSource(ds);
         this->addView(grid);
 

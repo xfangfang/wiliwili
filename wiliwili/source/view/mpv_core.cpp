@@ -75,7 +75,6 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "audio-channels", "stereo");
     mpv_set_option_string(mpv, "referrer", "https://www.bilibili.com/");
     mpv_set_option_string(mpv, "idle", "yes");
-    mpv_set_option_string(mpv, "opengl-pbo", "yes");
     mpv_set_option_string(mpv, "loop-file", "no");
     mpv_set_option_string(mpv, "osd-level", "0");
     mpv_set_option_string(mpv, "video-timing-offset", "0");  // 60fps
@@ -86,6 +85,7 @@ void MPVCore::init() {
 #else
     mpv_set_option_string(mpv, "fbo-format", "rgba8");
     mpv_set_option_string(mpv, "reset-on-next-file", "all");
+    mpv_set_option_string(mpv, "opengl-pbo", "yes");
 #endif
 
     if (MPVCore::LOW_QUALITY) {
