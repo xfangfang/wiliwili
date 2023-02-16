@@ -434,27 +434,38 @@ bool MPVCore::isValid() { return mpv_context != nullptr; }
 void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     if (mpv_context == nullptr) return;
 
-    mpv_render_context_render(this->mpv_context, mpv_params);
-
-    glViewport(0, 0, brls::Application::windowWidth,
-               brls::Application::windowHeight);
-
 #ifdef USE_GL2
-    if (rect.getWidth() < brls::Application::contentWidth) {
-        auto *vg = brls::Application::getNVGContext();
-        nvgBeginPath(vg);
-        nvgFillColor(vg,
-                     brls::Application::getTheme().getColor("brls/background"));
-        nvgRect(vg, 0, 0, rect.getMinX(), brls::Application::contentHeight);
-        nvgRect(vg, rect.getMaxX(), 0,
-                brls::Application::contentWidth - rect.getMaxX(),
-                brls::Application::contentHeight);
-        nvgRect(vg, rect.getMinX() - 1, 0, rect.getWidth() + 2, rect.getMinY());
-        nvgRect(vg, rect.getMinX() - 1, rect.getMaxY(), rect.getWidth() + 2,
-                brls::Application::contentHeight - rect.getMaxY());
-        nvgFill(vg);
+    // 只在非透明时绘制视频，可以避免退出页面时视频画面残留
+    if (alpha >= 1) {
+        // 绘制视频
+        mpv_render_context_render(this->mpv_context, mpv_params);
+        glViewport(0, 0, brls::Application::windowWidth,
+                   brls::Application::windowHeight);
+        mpv_render_context_report_swap(this->mpv_context);
+
+        // 画背景来覆盖mpv的黑色边框
+        if (rect.getWidth() < brls::Application::contentWidth) {
+            auto *vg = brls::Application::getNVGContext();
+            nvgBeginPath(vg);
+            nvgFillColor(
+                vg, brls::Application::getTheme().getColor("brls/background"));
+            nvgRect(vg, 0, 0, rect.getMinX(), brls::Application::contentHeight);
+            nvgRect(vg, rect.getMaxX(), 0,
+                    brls::Application::contentWidth - rect.getMaxX(),
+                    brls::Application::contentHeight);
+            nvgRect(vg, rect.getMinX() - 1, 0, rect.getWidth() + 2,
+                    rect.getMinY());
+            nvgRect(vg, rect.getMinX() - 1, rect.getMaxY(), rect.getWidth() + 2,
+                    brls::Application::contentHeight - rect.getMaxY());
+            nvgFill(vg);
+        }
     }
 #else
+    mpv_render_context_render(this->mpv_context, mpv_params);
+    glViewport(0, 0, brls::Application::windowWidth,
+               brls::Application::windowHeight);
+    mpv_render_context_report_swap(this->mpv_context);
+
     // shader draw
     glUseProgram(shader.prog);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
@@ -468,8 +479,6 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 #endif
-
-    mpv_render_context_report_swap(this->mpv_context);
 
     if (BOTTOM_BAR) {
         NVGcontext *vg   = brls::Application::getNVGContext();
