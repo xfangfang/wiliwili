@@ -708,3 +708,50 @@ void MPVCore::reset() {
     this->playback_time  = 0;
     this->video_progress = 0;
 }
+
+void MPVCore::setUrl(const std::string &url, const std::string &extra) {
+    if (extra.empty()) {
+        const char *cmd[] = {"loadfile", url.c_str(), nullptr};
+        command_async(cmd);
+    } else {
+        const char *cmd[] = {"loadfile", url.c_str(), "replace", extra.c_str(),
+                             nullptr};
+        command_async(cmd);
+    }
+}
+
+void MPVCore::resume() { command_str("set pause no"); }
+
+void MPVCore::pause() { command_str("set pause yes"); }
+
+void MPVCore::stop() {
+    const char *cmd[] = {"stop", nullptr};
+    command_async(cmd);
+}
+
+int MPVCore::get_property(const char *name, mpv_format format, void *data) {
+    return mpv_get_property(mpv, name, format, data);
+}
+
+bool MPVCore::isStopped() {
+    int ret = 1;
+    get_property("playback-abort", MPV_FORMAT_FLAG, &ret);
+    return ret == 1;
+}
+
+bool MPVCore::isPaused() {
+    int ret = -1;
+    get_property("pause", MPV_FORMAT_FLAG, &ret);
+    return ret == 1;
+}
+
+double MPVCore::getSpeed() {
+    double ret = 1;
+    get_property("speed", MPV_FORMAT_DOUBLE, &ret);
+    return ret;
+}
+
+double MPVCore::getPlaybackTime() {
+    get_property("pause", MPV_FORMAT_DOUBLE, &this->playback_time);
+    return this->playback_time;
+}

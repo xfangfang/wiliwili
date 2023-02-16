@@ -46,8 +46,8 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 注意：
 
 1. 显卡驱动需要支持 `OpenGL 3.2` 以运行此程序
-2. Linux: 对于 Linux 系统只提供 Flatpak 安装包供 Steam Deck安装，如有其他打包需求只欢迎提交完善的打包脚本
-3. macOS: Apple Silicon 设备请从源码自行编译，同时欢迎 macOS 用户提交 Homebrew 安装方式到官方仓库
+2. Linux: 对于 Linux 系统只提供 Flatpak 安装包供 Steam Deck安装，如有其他打包需求欢迎提交完善的打包脚本
+3. macOS: Apple Silicon 设备可以从源码自行编译以获得原生支持，同时欢迎 macOS 用户提交 Homebrew 安装方式到官方仓库
 4. Windows: 不提供 x86 安装包，如有需求可以自行编译。
 
 补充信息：
@@ -58,6 +58,7 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 4. 自定义字体或按键图标：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
 5. 目前支持的键盘映射见：[#47](https://github.com/xfangfang/wiliwili/discussions/47)
 6. Steam Deck 安装教程：[#41](https://github.com/xfangfang/wiliwili/discussions/41)
+7. 从包管理安装 wiliwili: [#92](https://github.com/xfangfang/wiliwili/discussions/92)
 
 </details>
 
@@ -167,6 +168,10 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 
 #### Linux
 
+不同 Linux 的编译过程或依赖可能不同，这里是一份总结：[#89](https://github.com/xfangfang/wiliwili/discussions/89)
+
+欢迎在上面的链接中写出你所使用系统的编译过程供大家参考。
+
 ```shell
 # Ubuntu: install dependencies
 sudo apt install libcurl4-openssl-dev libmpv-dev
@@ -198,7 +203,9 @@ mingw32-make -C build wiliwili -j$(nproc)
 
 #### SDL2 （测试支持）
 
-由于 SDL2 支持的平台更多，考虑到未来向其他平台移植，所以wiliwili目前也支持切换到SDL2环境构建，目前只在switch和macOS上进行了测试。
+由于 SDL2 支持的平台更多，考虑到未来向其他平台移植，所以 wiliwili 也支持切换到 SDL2 环境构建。
+
+⚠️：PC 平台非测试所需请不要使用此方式构建，没有经过太多的测试，且不支持 PC 系统输入法。
 
 ```shell
 # macOS

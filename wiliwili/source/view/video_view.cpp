@@ -256,9 +256,7 @@ void VideoView::setUrl(std::string url, int progress, std::string audio) {
     }
     brls::Logger::debug("Extra options: {}", extra);
 
-    const char* cmd[] = {"loadfile", url.c_str(), "replace", extra.c_str(),
-                         NULL};
-    mpvCore->command_async(cmd);
+    mpvCore->setUrl(url, extra);
 }
 
 void VideoView::setUrl(const std::vector<EDLUrl>& edl_urls, int progress) {
@@ -284,14 +282,11 @@ void VideoView::setUrl(const std::vector<EDLUrl>& edl_urls, int progress) {
     this->setUrl(url, progress);
 }
 
-void VideoView::resume() { mpvCore->command_str("set pause no"); }
+void VideoView::resume() { mpvCore->resume(); }
 
-void VideoView::pause() { mpvCore->command_str("set pause yes"); }
+void VideoView::pause() { mpvCore->pause(); }
 
-void VideoView::stop() {
-    const char* cmd[] = {"stop", NULL};
-    mpvCore->command_async(cmd);
-}
+void VideoView::stop() { mpvCore->stop(); }
 
 void VideoView::togglePlay() {
     if (this->mpvCore->isPaused()) {

@@ -71,48 +71,25 @@ public:
 
     void command_async(const char **args);
 
-    int get_property(const char *name, mpv_format format, void *data) {
-        return mpv_get_property(mpv, name, format, data);
-    }
+    int get_property(const char *name, mpv_format format, void *data);
 
-    bool isStopped() {
-        int ret = 1;
-        get_property("playback-abort", MPV_FORMAT_FLAG, &ret);
-        return ret == 1;
-    }
+    bool isStopped();
 
-    bool isPaused() {
-        int ret = -1;
-        get_property("pause", MPV_FORMAT_FLAG, &ret);
-        return ret == 1;
-    }
+    bool isPaused();
 
-    double getSpeed() {
-        double ret = 1;
-        get_property("speed", MPV_FORMAT_DOUBLE, &ret);
-        return ret;
-    }
+    double getSpeed();
 
-    double getPlaybackTime() {
-        get_property("pause", MPV_FORMAT_DOUBLE, &this->playback_time);
-        return this->playback_time;
-    }
+    double getPlaybackTime();
 
     std::string getCacheSpeed();
 
-    void setUrl(std::string url) {
-        const char *cmd[] = {"loadfile", url.c_str(), NULL};
-        command_async(cmd);
-    }
+    void setUrl(const std::string &url, const std::string &extra = "");
 
-    void resume() { command_str("set pause no"); }
+    void resume();
 
-    void pause() { command_str("set pause yes"); }
+    void pause();
 
-    void stop() {
-        const char *cmd[] = {"stop", NULL};
-        command_async(cmd);
-    }
+    void stop();
 
     void setFrameSize(brls::Rect rect);
 
