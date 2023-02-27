@@ -182,7 +182,7 @@ make -C build wiliwili -j$(nproc)
 
 ```shell
 # 如果你想安装在系统路径，并生成一个桌面图标，请使用如下内容编译
-cmake -B build -DPLATFORM_DESKTOP=ON -DINSTALL=ON -DCMAKE_BUILD_TYPE=Release
+cmake -B build -DPLATFORM_DESKTOP=ON -DINSTALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr
 make -C build wiliwili -j$(nproc)
 sudo make -C build install
 
