@@ -77,7 +77,6 @@ set(VERSION_REVISION "0")
 set(PROJECT_TITLEID "0x010FF000FFFF0001")
 set(PROJECT_AUTHOR "xfangfang")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.jpg)
-set(PROJECT_ICON_PNG ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.png)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set(PACKAGE_NAME cn.xfangfang.wiliwili)
 set(PROJECT_DESKTOP ${CMAKE_CURRENT_SOURCE_DIR}/scripts/linux/${PACKAGE_NAME}.desktop)
@@ -227,40 +226,40 @@ if (PLATFORM_DESKTOP)
     elseif (UNIX)
         if (INSTALL)
             message("install prefix: ${CMAKE_INSTALL_PREFIX}")
+            # bin
             install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+            # resources
             install(DIRECTORY ${PROJECT_RESOURCES}
                     DESTINATION ${RESOURCES_INSTALL_DIR}
                     FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
                     )
 
+            # svg icon
             install(FILES ${PROJECT_ICON_SVG}
                     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps
                     PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
                     )
 
-            set(icon_dirs 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256)
+            # png icon
+            set(icon_dirs 16x16 24x24 32x32 48x48 64x64 128x128 256x256)
             foreach (icon_dir ${icon_dirs})
-                install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/${PACKAGE_NAME}.png
+                install(FILES ${CMAKE_SOURCE_DIR}/scripts/linux/icons/${icon_dir}/${PACKAGE_NAME}.png
                         DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/${icon_dir}/apps
                         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
                         )
             endforeach ()
 
+            # appdata
             install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/scripts/linux/${PACKAGE_NAME}.appdata.xml
                     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/metainfo
                     PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
                     )
 
+            # desktop
             install(FILES ${PROJECT_DESKTOP}
                     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications
                     )
-
-            add_custom_target(${PROJECT_NAME}.install
-                    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/icon.png
-                    ${CMAKE_CURRENT_BINARY_DIR}/resources/icon/${PACKAGE_NAME}.png
-                    )
-            add_dependencies(${PROJECT_NAME}.install ${PROJECT_NAME}.data)
-            add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.install)
         endif ()
     endif ()
 else ()

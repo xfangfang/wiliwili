@@ -12,6 +12,8 @@ finish-args:
   - --share=network
   - --socket=pulseaudio
   - --filesystem=home/.var/app/cn.xfangfang.wiliwili/config:create
+  - --filesystem=xdg-run/pipewire-0:ro
+  - --talk-name=org.freedesktop.ScreenSaver
   - --env=LC_NUMERIC=C
 modules:
   - name: wiliwili
@@ -38,8 +40,8 @@ modules:
           - python3 waf install
         sources:
           - type: archive
-            url: 'https://github.com/mpv-player/mpv/archive/refs/tags/v0.35.0.tar.gz'
-            sha256: 'dc411c899a64548250c142bf1fa1aa7528f1b4398a24c86b816093999049ec00'
+            url: https://github.com/mpv-player/mpv/archive/v0.35.1.tar.gz
+            sha256: 41df981b7b84e33a2ef4478aaf81d6f4f5c8b9cd2c0d337ac142fc20b387d1a9
           - type: file
             url: 'https://waf.io/waf-2.0.24'
             sha256: '93909bca823a675f9f40af7c65b24887c3a3c0efdf411ff1978ba827194bdeb0'
@@ -72,8 +74,8 @@ modules:
               - PREFIX=/app
             sources:
               - type: archive
-                url: 'https://github.com/FFmpeg/nv-codec-headers/releases/download/n11.1.5.1/nv-codec-headers-11.1.5.1.tar.gz'
-                sha256: 'a28cdde3ac0e9e02c2dde7a1b4de5333b4ac6148a8332ca712da243a3361a0d9'
+                url: 'https://github.com/FFmpeg/nv-codec-headers/releases/download/n11.1.5.2/nv-codec-headers-11.1.5.2.tar.gz'
+                sha256: '1442e3159e7311dd71f8fca86e615f51609998939b6a6d405d6683d8eb3af6ee'
 
           - name: ffmpeg
             cleanup:
@@ -101,8 +103,8 @@ modules:
               - '--enable-libwebp'
             sources:
               - type: archive
-                url: 'https://ffmpeg.org/releases/ffmpeg-5.1.tar.gz'
-                sha256: 'c0b2ec290abd5ad31b5e0a8c455c34f90306ecd2ede6ace5db5ca3a07f3b842f'
+                url: 'https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.gz'
+                sha256: '87fe8defa37ce5f7449e36047171fed5e4c3f4bb73eaccea8c954ee81393581c'
 
           - name: libass
             cleanup:
@@ -113,8 +115,8 @@ modules:
               - '--disable-static'
             sources:
               - type: archive
-                url: 'https://github.com/libass/libass/releases/download/0.16.0/libass-0.16.0.tar.gz'
-                sha256: 'fea8019b1887cab9ab00c1e58614b4ec2b1cee339b3f7e446f5fab01b032d430'
+                url: 'https://github.com/libass/libass/releases/download/0.17.0/libass-0.17.0.tar.gz'
+                sha256: '72b9ba5d9dd1ac6d30b5962f38cbe7aefb180174f71d8b65c5e3c3060dbc403f'
 
           - name: uchardet
             buildsystem: cmake-ninja
@@ -128,5 +130,5 @@ modules:
               - /share/man
             sources:
               - type: archive
-                url: 'https://gitlab.freedesktop.org/uchardet/uchardet/-/archive/v0.0.7/uchardet-v0.0.7.tar.gz'
-                sha256: 'f3635d1d10e1470452bc42c1bf509451a9926b399a11740a9949e86069d69f58'
+                url: 'https://gitlab.freedesktop.org/uchardet/uchardet/-/archive/v0.0.8/uchardet-v0.0.8.tar.gz'
+                sha256: '5aa402a1b5b1dbb8d81096f141ff1224e079f4d3a1db0f79ecca782756d3a416'

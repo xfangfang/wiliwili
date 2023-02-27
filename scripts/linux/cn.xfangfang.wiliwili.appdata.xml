@@ -2,12 +2,19 @@
 <component type="desktop">
     <id>cn.xfangfang.wiliwili</id>
     <metadata_license>CC0-1.0</metadata_license>
-    <project_license>GPL-3.0</project_license>
+    <project_license>GPL-3.0-only</project_license>
     <name>wiliwili</name>
+    <developer_name>xfangfang and the wiliwili contributors</developer_name>
     <summary>A 3rd party bilibili client</summary>
     <launchable type="desktop-id">cn.xfangfang.wiliwili.desktop</launchable>
     <translation type="gettext">wiliwili</translation>
     <content_rating type="oars-1.1"/>
+    <supports>
+        <control>pointing</control>
+        <control>keyboard</control>
+        <control>touch</control>
+        <control>gamepad</control>
+    </supports>
     <description>
         <p>
             Yet another Bilibili client.
@@ -35,11 +42,11 @@
     </releases>
     <screenshots>
         <screenshot type="default">
-            <image>https://xfangfang.github.io/wiliwili/docs/images/screenshot-3.jpg</image>
+            <image>https://xfangfang.github.io/wiliwili/docs/images/screenshot-4.jpg</image>
             <caption>Light theme</caption>
         </screenshot>
-        <screenshot type="default">
-            <image>https://xfangfang.github.io/wiliwili/docs/images/screenshot-4.jpg</image>
+        <screenshot>
+            <image>https://xfangfang.github.io/wiliwili/docs/images/screenshot-3.jpg</image>
             <caption>Dark theme</caption>
         </screenshot>
     </screenshots>

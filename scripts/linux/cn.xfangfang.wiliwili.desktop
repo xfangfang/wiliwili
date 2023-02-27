@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=wiliwili
 Comment=A 3rd party bilibili client
-Exec=wiliwili %U
+Exec=wiliwili
 Icon=cn.xfangfang.wiliwili
 Terminal=false
 Type=Application
