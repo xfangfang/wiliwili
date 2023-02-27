@@ -16,6 +16,9 @@ set(ANALYTICS_KEY "" CACHE STRING "Google Analytics key")
 set(MAC_10_15 OFF CACHE BOOL "Set the Minimum OS X deployment version to 10.15")
 set(MAC_UNIVERSAL OFF CACHE BOOL "Support x86_64;arm64 at the same time")
 
+# mpv related
+set(MPV_SW_RENDER OFF CACHE BOOL "Using CPU to draw videos")
+
 option(USE_GLFW "using glfw for input and create window" ON)
 option(USE_SDL2 "using sdl2 for input and create window" OFF)
 option(USE_GL2 "using OpenGL 2.1" OFF)
@@ -35,6 +38,11 @@ endif ()
 if (USE_GL2)
     set(USE_GL2 ON)
     add_definitions(-DUSE_GL2)
+    add_definitions(-DMPV_NO_FB)
+endif ()
+
+if (MPV_SW_RENDER)
+    add_definitions(-DMPV_SW_RENDER)
 endif ()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)

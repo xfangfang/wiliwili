@@ -7,6 +7,8 @@
 #include "borealis.hpp"
 #include "borealis/core/singleton.hpp"
 #include <mpv/client.h>
+#include <mpv/render.h>
+#ifndef MPV_SW_RENDER
 #include <mpv/render_gl.h>
 #include <glad/glad.h>
 #ifdef __SDL2__
@@ -16,13 +18,13 @@
 #include <GLFW/glfw3.h>
 #endif
 #include <nanovg_gl.h>
-
 struct GLShader {
     GLuint prog;
     GLuint vao;
     GLuint vbo;
     GLuint ebo;
 };
+#endif
 
 typedef enum MpvEventEnum {
     MPV_LOADED,
@@ -134,21 +136,42 @@ private:
     mpv_handle *mpv                 = nullptr;
     mpv_render_context *mpv_context = nullptr;
 
+#ifdef MPV_SW_RENDER
+    const int PIXCEL_SIZE          = 4;
+    int nvg_image                  = 0;
+    const char *sw_format          = "rgba";
+    int sw_size[2]                 = {1920, 1080};
+    size_t pitch                   = PIXCEL_SIZE * sw_size[0];
+    void *pixels                   = nullptr;
+    mpv_render_param mpv_params[5] = {
+        {MPV_RENDER_PARAM_SW_SIZE, &sw_size[0]},
+        {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
+        {MPV_RENDER_PARAM_SW_STRIDE, &pitch},
+        {MPV_RENDER_PARAM_SW_POINTER, pixels},
+        { MPV_RENDER_PARAM_INVALID,
+          nullptr }};
+#elif defined(MPV_NO_FB)
+    mpv_opengl_fbo mpv_fbo{0, 1920, 1080};
+    int flip_y{1};
+    mpv_render_param mpv_params[3] = {{MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
+                                      {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
+                                      { MPV_RENDER_PARAM_INVALID,
+                                        nullptr }};
+#else
     GLuint media_framebuffer = 0;
     GLuint media_texture     = 0;
-
     GLShader shader{0};
     mpv_opengl_fbo mpv_fbo{0, 1920, 1080};
     int flip_y{1};
     mpv_render_param mpv_params[3] = {{MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
                                       {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
-                                      {MPV_RENDER_PARAM_INVALID, 0}};
-
-    MPVEvent mpvCoreEvent;
-
+                                      {MPV_RENDER_PARAM_INVALID, nullptr}};
     float vertices[20] = {1.0f, 1.0f,  0.0f, 1.0f,  1.0f,  1.0f, -1.0f,
                           0.0f, 1.0f,  0.0f, -1.0f, -1.0f, 0.0f, 0.0f,
                           0.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f};
+#endif
+
+    MPVEvent mpvCoreEvent;
 
     // 当前软件是否在前台的回调
     brls::Event<bool>::Subscription focusSubscription;

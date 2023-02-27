@@ -41,6 +41,7 @@ static inline void check_error(int status) {
     }
 }
 
+#ifndef MPV_SW_RENDER
 static void *get_proc_address(void *unused, const char *name) {
 #ifdef __SDL2__
     SDL_GL_GetCurrentContext();
@@ -50,6 +51,7 @@ static void *get_proc_address(void *unused, const char *name) {
     return (void *)glfwGetProcAddress(name);
 #endif
 }
+#endif
 
 void MPVCore::on_update(void *self) {
     brls::sync(
@@ -80,7 +82,7 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "video-timing-offset", "0");  // 60fps
     mpv_set_option_string(mpv, "keep-open", "yes");
     mpv_set_option_string(mpv, "hr-seek", "yes");
-#ifdef USE_GL2
+#ifdef MPV_NO_FB
     mpv_set_option_string(mpv, "reset-on-next-file", "speed,pause");
 #else
     mpv_set_option_string(mpv, "fbo-format", "rgba8");
@@ -151,12 +153,18 @@ void MPVCore::init() {
     //    check_error(mpv_observe_property(mpv, 9, "demuxer-cache-state", MPV_FORMAT_NODE));
 
     // init renderer params
+#ifdef MPV_SW_RENDER
+    mpv_render_param params[]{
+        {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_SW)},
+        {MPV_RENDER_PARAM_INVALID, nullptr}};
+#else
     mpv_opengl_init_params gl_init_params{get_proc_address, nullptr};
     mpv_render_param params[]{
         {MPV_RENDER_PARAM_API_TYPE,
          const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
         {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
         {MPV_RENDER_PARAM_INVALID, nullptr}};
+#endif
 
     if (mpv_render_context_create(&mpv_context, mpv, params) < 0) {
         mpv_terminate_destroy(mpv);
@@ -198,7 +206,16 @@ void MPVCore::init() {
             });
 }
 
-MPVCore::~MPVCore() { this->clean(); }
+MPVCore::~MPVCore() {
+    this->clean();
+#ifdef MPV_SW_RENDER
+    if (pixels) {
+        free(pixels);
+        pixels             = nullptr;
+        mpv_params[3].data = nullptr;
+    }
+#endif
+}
 
 void MPVCore::clean() {
     check_error(mpv_command_string(this->mpv, "quit"));
@@ -232,6 +249,8 @@ void MPVCore::restart() {
 }
 
 void MPVCore::deleteFrameBuffer() {
+#if defined(MPV_NO_FB) || defined(MPV_SW_RENDER)
+#else
     if (this->media_framebuffer != 0) {
         glDeleteFramebuffers(1, &this->media_framebuffer);
         this->media_framebuffer = 0;
@@ -240,20 +259,22 @@ void MPVCore::deleteFrameBuffer() {
         glDeleteTextures(1, &this->media_texture);
         this->media_texture = 0;
     }
+#endif
 }
 
 void MPVCore::deleteShader() {
+#if defined(MPV_NO_FB) || defined(MPV_SW_RENDER)
+#else
     if (shader.vao != 0) glDeleteVertexArrays(1, &shader.vao);
     if (shader.vbo != 0) glDeleteBuffers(1, &shader.vbo);
     if (shader.ebo != 0) glDeleteBuffers(1, &shader.ebo);
     if (shader.prog != 0) glDeleteProgram(shader.prog);
+#endif
 }
 
 void MPVCore::initializeGL() {
-#ifdef USE_GL2
-    // Using default framebuffer
-    return;
-#endif
+#if defined(MPV_NO_FB) || defined(MPV_SW_RENDER)
+#else
     if (media_framebuffer != 0) return;
     brls::Logger::debug("initializeGL");
 
@@ -355,6 +376,7 @@ void MPVCore::initializeGL() {
     glBindVertexArray(0);
 
     brls::Logger::debug("initializeGL done");
+#endif
 }
 
 void MPVCore::command_str(const char *args) {
@@ -370,8 +392,31 @@ void MPVCore::command_async(const char **args) {
 }
 
 void MPVCore::setFrameSize(brls::Rect rect) {
-#ifdef USE_GL2
-    // hardcode workaround for OpenGL2
+#ifdef MPV_SW_RENDER
+    int drawWidth  = rect.getWidth() * brls::Application::windowScale;
+    int drawHeight = rect.getHeight() * brls::Application::windowScale;
+    if (drawWidth == 0 || drawHeight == 0) return;
+    int frameSize = drawWidth * drawHeight;
+
+    if (pixels != nullptr && frameSize > sw_size[0] * sw_size[1]) {
+        brls::Logger::debug("Enlarge video surface buffer");
+        free(pixels);
+        pixels = nullptr;
+        nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
+    }
+
+    if (pixels == nullptr) {
+        pixels             = malloc(frameSize * PIXCEL_SIZE);
+        mpv_params[3].data = pixels;
+        sw_size[0]         = drawWidth;
+        sw_size[1]         = drawHeight;
+        pitch              = PIXCEL_SIZE * sw_size[0];
+        nvg_image =
+            nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth,
+                               drawHeight, 0, (const unsigned char *)pixels);
+    }
+#elif defined(MPV_NO_FB)
+    // Using default framebuffer
     this->mpv_fbo.w = brls::Application::windowWidth;
     this->mpv_fbo.h = brls::Application::windowHeight;
     mpv_set_option_string(
@@ -392,18 +437,12 @@ void MPVCore::setFrameSize(brls::Rect rect) {
         fmt::format("{}", (brls::Application::contentHeight - rect.getMaxY()) /
                               brls::Application::contentHeight)
             .c_str());
-    return;
-#endif
-
+#else
     if (this->media_texture == 0) return;
     int drawWidth  = rect.getWidth() * brls::Application::windowScale;
     int drawHeight = rect.getHeight() * brls::Application::windowScale;
 
     if (drawWidth == 0 || drawHeight == 0) return;
-        // 在没有用到更小的视频时减少对texture的申请
-#ifdef __SWITCH__
-    if (rect.getWidth() < 400 || rect.getHeight() < 400) return;
-#endif
     brls::Logger::debug("MPVCore::setFrameSize: {}/{}", drawWidth, drawHeight);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, drawWidth, drawHeight, 0, GL_RGBA,
@@ -427,6 +466,7 @@ void MPVCore::setFrameSize(brls::Rect rect) {
 
     glBindBuffer(GL_ARRAY_BUFFER, this->shader.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+#endif
 }
 
 bool MPVCore::isValid() { return mpv_context != nullptr; }
@@ -434,7 +474,30 @@ bool MPVCore::isValid() { return mpv_context != nullptr; }
 void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     if (mpv_context == nullptr) return;
 
-#ifdef USE_GL2
+#ifdef MPV_SW_RENDER
+    if (!pixels) return;
+    mpv_render_context_render(this->mpv_context, mpv_params);
+    mpv_render_context_report_swap(this->mpv_context);
+
+    auto *vg = brls::Application::getNVGContext();
+    nvgUpdateImage(vg, nvg_image, (const unsigned char *)pixels);
+
+    // draw black background
+    nvgBeginPath(vg);
+    nvgFillColor(vg, NVGcolor{0, 0, 0, alpha});
+    nvgRect(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(),
+            rect.getHeight());
+    nvgFill(vg);
+
+    // draw video
+    nvgBeginPath(vg);
+    nvgRect(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(),
+            rect.getHeight());
+    nvgFillPaint(vg, nvgImagePattern(vg, 0, 0, rect.getWidth(),
+                                     rect.getHeight(), 0, nvg_image, alpha));
+    nvgFill(vg);
+
+#elif defined(MPV_NO_FB)
     // 只在非透明时绘制视频，可以避免退出页面时视频画面残留
     if (alpha >= 1) {
         // 绘制视频
