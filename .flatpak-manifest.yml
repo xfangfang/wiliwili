@@ -14,6 +14,9 @@ finish-args:
   - --filesystem=home/.var/app/cn.xfangfang.wiliwili/config:create
   - --filesystem=xdg-run/pipewire-0:ro
   - --talk-name=org.freedesktop.ScreenSaver
+  - --talk-name=org.freedesktop.PowerManagement
+  - --talk-name=org.gnome.SessionManager
+  - --talk-name=org.mate.SessionManager
   - --env=LC_NUMERIC=C
 modules:
   - name: wiliwili

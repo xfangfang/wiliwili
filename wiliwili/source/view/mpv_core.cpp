@@ -9,10 +9,6 @@
 #include "pystring.h"
 #include "utils/config_helper.hpp"
 
-#ifdef __SWITCH__
-#include <switch.h>
-#endif
-
 const char *vertexShaderSource =
     "#version 150 core\n"
     "in vec3 aPos;\n"
@@ -72,7 +68,7 @@ void MPVCore::init() {
 
     // misc
     mpv_set_option_string(mpv, "no-config", "yes");
-    mpv_set_option_string(mpv, "no-ytdl", "yes");
+    mpv_set_option_string(mpv, "ytdl", "no");
     mpv_set_option_string(mpv, "terminal", "yes");
     mpv_set_option_string(mpv, "audio-channels", "stereo");
     mpv_set_option_string(mpv, "referrer", "https://www.bilibili.com/");
@@ -175,6 +171,9 @@ void MPVCore::init() {
                        mpv_get_property_string(mpv, "mpv-version"));
     brls::Logger::info("FFMPEG Version: {}",
                        mpv_get_property_string(mpv, "ffmpeg-version"));
+    command_str(
+        fmt::format("set audio-client-name {}", APPVersion::getPackageName())
+            .c_str());
 
     // set event callback
     mpv_set_wakeup_callback(mpv, on_wakeup, this);
@@ -573,15 +572,12 @@ std::string MPVCore::getCacheSpeed() {
 void MPVCore::eventMainLoop() {
     while (true) {
         auto event = mpv_wait_event(this->mpv, 0);
-        //            brls::Logger::error("event: {} / {}", event->event_id, event->reply_userdata);
         switch (event->event_id) {
             case MPV_EVENT_NONE:
                 return;
             case MPV_EVENT_SHUTDOWN:
                 brls::Logger::debug("========> MPV_EVENT_SHUTDOWN");
-#ifdef __SWITCH__
-                appletSetMediaPlaybackState(false);
-#endif
+                disableDimming(false);
                 return;
             case MPV_EVENT_FILE_LOADED:
                 brls::Logger::info("========> MPV_EVENT_FILE_LOADED");
@@ -592,9 +588,7 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_START_FILE:
                 // event 6: 开始加载文件
                 brls::Logger::info("========> MPV_EVENT_START_FILE");
-#ifdef __SWITCH__
-                appletSetMediaPlaybackState(true);
-#endif
+                disableDimming(true);
 
                 // show osd for a really long time
                 mpvCoreEvent.fire(MpvEventEnum::START_FILE);
@@ -612,10 +606,8 @@ void MPVCore::eventMainLoop() {
                     this->pause();
                 break;
             case MPV_EVENT_END_FILE:
-// event 7: 文件播放结束
-#ifdef __SWITCH__
-                appletSetMediaPlaybackState(false);
-#endif
+                // event 7: 文件播放结束
+                disableDimming(false);
                 brls::Logger::info("========> MPV_STOP");
                 mpvCoreEvent.fire(MpvEventEnum::MPV_STOP);
                 break;
@@ -642,9 +634,7 @@ void MPVCore::eventMainLoop() {
                                 brls::Logger::info("========> PAUSE");
                                 mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
                             }
-#ifdef __SWITCH__
-                            appletSetMediaPlaybackState(false);
-#endif
+                            disableDimming(false);
                         } else {
                             if (core_idle) {
                                 if (playback_time > duration - 1 &&
@@ -658,16 +648,12 @@ void MPVCore::eventMainLoop() {
                                     mpvCoreEvent.fire(
                                         MpvEventEnum::LOADING_START);
                                 }
-#ifdef __SWITCH__
-                                appletSetMediaPlaybackState(false);
-#endif
+                                disableDimming(false);
                             } else {
                                 // video is playing
                                 brls::Logger::info("========> RESUME");
                                 mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);
-#ifdef __SWITCH__
-                                appletSetMediaPlaybackState(true);
-#endif
+                                disableDimming(true);
                             }
                         }
                         break;
@@ -826,4 +812,8 @@ double MPVCore::getSpeed() {
 double MPVCore::getPlaybackTime() {
     get_property("pause", MPV_FORMAT_DOUBLE, &this->playback_time);
     return this->playback_time;
+}
+void MPVCore::disableDimming(bool disable) {
+    brls::Application::getPlatform()->disableScreenDimming(
+        disable, "Playing video", APPVersion::getPackageName());
 }

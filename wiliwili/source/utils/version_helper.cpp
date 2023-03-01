@@ -43,6 +43,10 @@ std::string APPVersion::getPlatform() {
 #endif
 }
 
+std::string APPVersion::getPackageName() {
+    return std::string{STR(BUILD_PACKAGE_NAME)};
+}
+
 bool APPVersion::needUpdate(std::string latestVersion) {
     if (latestVersion.length() < 5) brls::Application::quit();
     if (latestVersion[0] == 'v')

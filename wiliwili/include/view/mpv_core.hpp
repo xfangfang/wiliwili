@@ -97,6 +97,8 @@ public:
 
     bool isValid();
 
+    static void disableDimming(bool disable);
+
     void openglDraw(brls::Rect rect, float alpha = 1.0);
 
     mpv_render_context *getContext();

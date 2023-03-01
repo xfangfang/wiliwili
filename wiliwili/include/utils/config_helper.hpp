@@ -61,13 +61,15 @@ class APPVersion : public brls::Singleton<APPVersion> {
 
 public:
     int major, minor, revision;
-    std::string git_commit = "", git_tag = "";
+    std::string git_commit, git_tag;
 
     APPVersion();
 
     std::string getVersionStr();
 
     std::string getPlatform();
+
+    static std::string getPackageName();
 
     bool needUpdate(std::string latestVersion);
 
