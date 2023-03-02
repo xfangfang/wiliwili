@@ -172,7 +172,7 @@ public:
     }
 
     size_t getItemCount() override {
-        return std::min(data.accept_quality.size(),
+        return (std::min)(data.accept_quality.size(),
                         data.accept_description.size());
     }
 

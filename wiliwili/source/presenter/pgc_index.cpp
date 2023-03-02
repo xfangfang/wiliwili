@@ -4,7 +4,7 @@
 
 #include "bilibili.h"
 #include "presenter/pgc_index.hpp"
-#include "pystring.h"
+#include <pystring/pystring.h>
 #include "borealis/core/logger.hpp"
 
 void PGCIndexRequest::onPGCIndex(

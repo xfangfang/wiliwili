@@ -76,7 +76,7 @@ void PlayerCoin::getCoinExp() {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
         });
 }
 
@@ -87,7 +87,7 @@ void PlayerCoin::updateHintLabel() {
         labelHint->setText("wiliwili/player/coin/exp_full"_i18n);
     } else {
         labelHint->setText(
-            fmt::format("wiliwili/player/coin/exp"_i18n, this->coin * 10, exp));
+            fmt::format(fmt::runtime("wiliwili/player/coin/exp"_i18n), this->coin * 10, exp));
     }
 }
 
@@ -108,11 +108,11 @@ void PlayerCoin::onChildFocusGained(brls::View* directChild,
     Box::onChildFocusGained(directChild, focusedView);
     if (focusedView == this->img2.getView()) {
         this->labelNum->setText(
-            fmt::format("wiliwili/player/coin/pcs"_i18n, 2));
+            fmt::format(fmt::runtime("wiliwili/player/coin/pcs"_i18n), 2));
         this->coin = 2;
     } else if (focusedView == this->img1.getView()) {
         this->labelNum->setText(
-            fmt::format("wiliwili/player/coin/pcs"_i18n, 1));
+            fmt::format(fmt::runtime("wiliwili/player/coin/pcs"_i18n), 1));
         this->coin = 1;
     } else {
         return;

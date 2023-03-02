@@ -6,7 +6,7 @@
 #include <clocale>
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
-#include "pystring.h"
+#include <pystring/pystring.h>
 #include "utils/config_helper.hpp"
 
 #ifdef __SWITCH__

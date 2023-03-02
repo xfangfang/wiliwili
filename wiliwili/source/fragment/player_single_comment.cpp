@@ -32,7 +32,7 @@ public:
             this->hintLabel->setText("");
         } else {
             this->hintLabel->setText(
-                fmt::format("wiliwili/player/single_comment/related"_i18n,
+                fmt::format(fmt::runtime("wiliwili/player/single_comment/related"_i18n),
                             wiliwili::num2w(num)));
         }
     }
@@ -334,7 +334,7 @@ void PlayerSingleComment::requestData() {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
                 DialogHelper::showDialog(error);

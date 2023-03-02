@@ -242,7 +242,7 @@ void RecyclingGrid::addCellAt(size_t index, int downSide) {
             getHeightByCellIndex(this->dataSource->getItemCount()) +
             paddingTop + paddingBottom);
 
-    brls::Logger::verbose("Cell #" + std::to_string(index) + " - added");
+    brls::Logger::verbose("Cell #{} - added", index);
 }
 
 void RecyclingGrid::setDataSource(RecyclingGridDataSource* source) {
@@ -419,8 +419,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
         queueReusableCell(minCell);
         this->contentBox->removeView(minCell, false);
 
-        brls::Logger::debug("Cell #" + std::to_string(visibleMin) +
-                            " - destroyed");
+        brls::Logger::debug("Cell #{} - destroyed", visibleMin);
 
         visibleMin++;
     }
@@ -451,8 +450,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
         queueReusableCell(maxCell);
         this->contentBox->removeView(maxCell, false);
 
-        brls::Logger::debug("Cell #" + std::to_string(visibleMax) +
-                            " - destroyed");
+        brls::Logger::debug("Cell #{} - destroyed", visibleMax);
 
         visibleMax--;
     }

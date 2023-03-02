@@ -67,8 +67,7 @@ public:
                 brls::Logger::debug("Comment delete success: {} {}", oid, rpid);
             },
             [ASYNC_TOKEN, oid, rpid](BILI_ERR) {
-                brls::Logger::error("Comment action error: {} {} {}", oid,
-                                    rpid);
+                brls::Logger::error("Comment action error: {} {}", oid, rpid);
                 brls::sync([ASYNC_TOKEN, error]() {
                     ASYNC_RELEASE
                     this->onError(error);

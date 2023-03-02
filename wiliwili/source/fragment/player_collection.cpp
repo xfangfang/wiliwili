@@ -8,7 +8,7 @@
 #include "utils/config_helper.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/check_box.hpp"
-#include "pystring.h"
+#include <pystring/pystring.h>
 
 using namespace brls::literals;
 
