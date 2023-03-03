@@ -129,7 +129,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     // mac使用原生全屏按钮效果更好，不通过软件来控制
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 0}},
 #else
-    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
+    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 0}},
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
@@ -247,9 +247,10 @@ void ProgramConfig::loadHomeWindowState() {
     uint32_t hWidth, hHeight;
     int hXPos, hYPos;
     int monitor;
+    float sizeScale;
 
-    sscanf(homeWindowStateData.c_str(), "%d,%ux%u,%dx%d", &monitor, &hWidth,
-           &hHeight, &hXPos, &hYPos);
+    sscanf(homeWindowStateData.c_str(), "%d,%ux%u,%dx%d,%f", &monitor, &hWidth,
+           &hHeight, &hXPos, &hYPos, &sizeScale);
 
     if (hWidth == 0 || hHeight == 0) return;
 
@@ -258,6 +259,7 @@ void ProgramConfig::loadHomeWindowState() {
     VideoContext::posX         = (float)hXPos;
     VideoContext::posY         = (float)hYPos;
     VideoContext::monitorIndex = monitor;
+    VideoContext::sizeScale    = sizeScale;
 
     brls::Logger::info("Load window state: {}x{},{}x{}", hWidth, hHeight, hXPos,
                        hYPos);
@@ -269,16 +271,17 @@ void ProgramConfig::saveHomeWindowState() {
 
     uint32_t width  = VideoContext::sizeW;
     uint32_t height = VideoContext::sizeH;
+    float sizeScale = VideoContext::sizeScale;
     int xPos        = VideoContext::posX;
     int yPos        = VideoContext::posY;
     int monitor     = videoContext->getCurrentMonitorIndex();
     if (width == 0) width = brls::ORIGINAL_WINDOW_WIDTH;
     if (height == 0) height = brls::ORIGINAL_WINDOW_HEIGHT;
-    brls::Logger::info("Save window state: {},{}x{},{}x{}", monitor, width,
-                       height, xPos, yPos);
+    brls::Logger::info("Save window state: {},{}x{},{}x{},{}", monitor, width,
+                       height, xPos, yPos, sizeScale);
     setSettingItem(
         SettingItem::HOME_WINDOW_STATE,
-        fmt::format("{},{}x{},{}x{}", monitor, width, height, xPos, yPos));
+        fmt::format("{},{}x{},{}x{},{}", monitor, width, height, xPos, yPos, sizeScale));
 }
 
 void ProgramConfig::load() {

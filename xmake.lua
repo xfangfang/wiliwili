@@ -46,6 +46,7 @@ package("mpv")
         os.cp("*.a", package:installdir("lib").."/")
         os.cp("*.dll", package:installdir("bin").."/")
 
+        -- 从 dll 里导出函数为 lib 文件，预编译自带 def 文件格式不正确，没法导出 lib
         if os.isfile("mpv.def") then
             local def_context = io.readfile("mpv.def")
             if not def_context:startswith("EXPORTS") then
@@ -70,7 +71,7 @@ package("mpv")
     end)
 package_end()
 
-add_requires("borealis")
+add_requires("borealis", {debug=true})
 add_requires("mpv", {configs={shared=true}})
 add_requires("cpr")
 add_requires("lunasvg")
