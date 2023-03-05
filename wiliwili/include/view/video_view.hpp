@@ -145,7 +145,9 @@ private:
     BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
     BRLS_BIND(SVGImage, btnFullscreenIcon, "video/osd/fullscreen/icon");
     BRLS_BIND(SVGImage, btnDanmakuIcon, "video/osd/danmaku/icon");
-    BRLS_BIND(SVGImage, btnDanmakuSettingIcon, "video/osd/danmaku/setting");
+    BRLS_BIND(SVGImage, btnDanmakuSettingIcon,
+              "video/osd/danmaku/setting/icon");
+    BRLS_BIND(SVGImage, btnSettingIcon, "video/osd/setting/icon");
 
     // OSD
     time_t osdLastShowTime     = 0;

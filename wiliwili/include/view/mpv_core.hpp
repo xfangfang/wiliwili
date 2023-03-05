@@ -109,6 +109,10 @@ public:
 
     void reset();
 
+    void setShader(const std::string& profile, const std::string& shader);
+
+    void clearShader();
+
     // core states
     int core_idle          = 0;
     int64_t duration       = 0;  // second

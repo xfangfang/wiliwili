@@ -372,6 +372,75 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
                                              accept_quality));
 }
 
+class SubtitleLine {
+public:
+    float from, to;
+    int location;
+    std::string content;
+    float length = -1;  // 字幕在屏幕上渲染的宽度
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SubtitleLine, from, to, location, content);
+
+typedef std::vector<SubtitleLine> SubtitleBody;
+
+class SubtitleData {
+public:
+    std::string type, lang;
+    bool genByAI;
+    SubtitleBody body;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      SubtitleData& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("type") &&
+        nlohmann_json_j.at("type").is_string()) {
+        nlohmann_json_j.at("type").get_to(nlohmann_json_t.type);
+    }
+    nlohmann_json_t.genByAI = nlohmann_json_t.type == "AIsubtitle";
+    if (nlohmann_json_j.contains("lang") &&
+        nlohmann_json_j.at("lang").is_string()) {
+        nlohmann_json_j.at("lang").get_to(nlohmann_json_t.lang);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, body));
+}
+
+class VideoPageSubtitle {
+public:
+    std::string id_str;
+    std::string lan;
+    std::string lan_doc;
+    std::string subtitle_url;
+    SubtitleData data;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoPageSubtitle& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id_str, lan,
+                                             lan_doc, subtitle_url));
+}
+
+typedef std::vector<VideoPageSubtitle> VideoPageSubtitleList;
+
+class VideoPageResult {
+public:
+    int online_count;
+    int64_t last_play_time;
+    int last_play_cid;
+    VideoPageSubtitleList subtitles;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoPageResult& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("subtitle")) {
+        auto& sub = nlohmann_json_j.at("subtitle");
+        if (sub.is_object() && sub.contains("subtitles")) {
+            auto& subs = sub.at("subtitles");
+            if (subs.is_array()) {
+                subs.get_to(nlohmann_json_t.subtitles);
+            }
+        }
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, online_count,
+                                             last_play_time, last_play_cid));
+}
+
 class VideoRelation {
 public:
     bool attention, favorite, season_fav, like, dislike;

@@ -5,12 +5,13 @@
 #include "bilibili/util/http.hpp"
 
 namespace bilibili {
+cpr::Proxies HTTP::PROXIES;
 cpr::Cookies HTTP::COOKIES = cpr::Cookies(false);
 int HTTP::TIMEOUT          = 10000;
 cpr::Header HTTP::HEADERS  = {
-     {"User-Agent", "NintendoSwitch"},
-     {"Referer", "https://www.bilibili.com/"},
-     {"Origin", "https://www.bilibili.com"},
+    {"User-Agent", "NintendoSwitch"},
+    {"Referer", "https://www.bilibili.com/"},
+    {"Origin", "https://www.bilibili.com"},
 };
 
 cpr::Response HTTP::get(const std::string& url,
@@ -20,9 +21,9 @@ cpr::Response HTTP::get(const std::string& url,
                         {"User-Agent", "NintendoSwitch"},
                         {"Referer", "https://www.bilibili.com/client"},
                     },
-                    parameters, HTTP::COOKIES,
+                    parameters, HTTP::COOKIES, HTTP::PROXIES,
 #ifndef VERIFY_SSL
-            cpr::VerifySsl{false},
+                    cpr::VerifySsl{false},
 #endif
                     cpr::Timeout{timeout});
 }

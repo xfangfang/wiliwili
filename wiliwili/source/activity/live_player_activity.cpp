@@ -6,7 +6,9 @@
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
+#include "view/subtitle_core.hpp"
 #include "view/grid_dropdown.hpp"
+#include "utils/shader_helper.hpp"
 #include "bilibili.h"
 
 using namespace brls::literals;
@@ -26,10 +28,18 @@ LiveActivity::LiveActivity(int roomid) {
 }
 
 void LiveActivity::setCommonData() {
+    // 临时关闭底部进度条与弹幕
     globalShowDanmaku       = DanmakuCore::DANMAKU_ON;
     globalBottomBar         = MPVCore::BOTTOM_BAR;
     DanmakuCore::DANMAKU_ON = false;
     MPVCore::BOTTOM_BAR     = false;
+
+    // 清空字幕
+    SubtitleCore::instance().reset();
+
+    // 清空自定义着色器
+    ShaderHelper::instance().clearShader();
+
     eventSubscribeID =
         MPVCore::instance().getEvent()->subscribe([this](MpvEventEnum event) {
             switch (event) {

@@ -33,6 +33,7 @@ public:
     static cpr::Cookies COOKIES;
     static cpr::Header HEADERS;
     static int TIMEOUT;
+    static cpr::Proxies PROXIES;
 
     static cpr::Response get(const std::string& url,
                              const cpr::Parameters& parameters = {},
@@ -59,7 +60,7 @@ public:
                 {"Referer", "https://www.bilibili.com/"},
                 {"Origin", "https://www.bilibili.com"},
             },
-            parameters, payload, HTTP::COOKIES,
+            parameters, payload, HTTP::COOKIES, HTTP::PROXIES,
 #ifndef VERIFY_SSL
             cpr::VerifySsl{false},
 #endif
@@ -126,7 +127,7 @@ public:
                 {"Referer", "https://www.bilibili.com/"},
                 {"Origin", "https://www.bilibili.com"},
             },
-            parameters, HTTP::COOKIES,
+            parameters, HTTP::COOKIES, HTTP::PROXIES,
 #ifndef VERIFY_SSL
             cpr::VerifySsl{false},
 #endif

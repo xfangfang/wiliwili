@@ -9,6 +9,7 @@
 #include "utils/config_helper.hpp"
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
+#include "view/subtitle_core.hpp"
 #include "bilibili/result/mine_collection_result.h"
 
 VideoDetail::VideoDetail() {
@@ -306,6 +307,8 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
     this->requestVideoOnline(bvid, cid);
     // 请求弹幕
     this->requestVideoDanmaku(cid);
+    // 请求分P详情 （字幕链接/历史播放记录）
+    this->requestVideoPageDetail(bvid, cid);
 }
 
 /// 获取番剧地址
@@ -335,6 +338,8 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
     this->requestVideoOnline(bvid, cid);
     // 请求弹幕
     this->requestVideoDanmaku(cid);
+    // 请求分P详情 （字幕链接/历史播放记录）
+    this->requestVideoPageDetail(bvid, cid);
 }
 
 /// 获取当前清晰度的序号，默认为0，从最高清开始排起
@@ -484,7 +489,7 @@ void VideoDetail::requestVideoRelationInfo(size_t epid) {
 }
 
 /// 获取视频弹幕
-void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
+void VideoDetail::requestVideoDanmaku(int cid) {
     brls::Logger::debug("请求弹幕：cid: {}", cid);
     ASYNC_RETAIN
     BILI::get_danmaku(
@@ -533,6 +538,29 @@ void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
         });
 }
 
+/// 获取视频分P详情
+void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid) {
+    brls::Logger::debug("请求字幕：bvid: {} cid: {}", bvid, cid);
+    ASYNC_RETAIN
+    BILI::get_page_detail(
+        bvid, cid,
+        [ASYNC_TOKEN](const bilibili::VideoPageResult& result) {
+            ASYNC_RELEASE
+            brls::sync([result]() {
+                SubtitleCore::instance().setSubtitleList(result);
+                // 存在UP主设置的字幕
+                if (!result.subtitles.empty() &&
+                    pystring::count(result.subtitles[0].lan, "ai") <= 0) {
+                    SubtitleCore::instance().selectSubtitle(0);
+                }
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
+            brls::Logger::error(error);
+        });
+}
+
 /// 上报历史记录
 void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
                                 unsigned int progress, unsigned int duration,
@@ -543,7 +571,7 @@ void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
                         cid, progress, duration);
     std::string mid   = ProgramConfig::instance().getUserID();
     std::string token = ProgramConfig::instance().getCSRF();
-    if (mid == "" || token == "") return;
+    if (mid.empty() || token.empty()) return;
     unsigned int sid = 0, epid = 0;
     if (type == 4) {
         sid  = seasonInfo.season_id;

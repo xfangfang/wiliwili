@@ -241,6 +241,17 @@
     "collection": {
       "title": "Select Favorites"
     },
+    "setting": {
+      "subtitle": {
+        "header": "Subtitle"
+      },
+      "common": {
+        "header": "Common"
+      },
+      "shader": {
+        "header": "Shader"
+      }
+    },
     "danmaku": {
       "header": "Danmaku setting",
       "filter": {

@@ -33,7 +33,9 @@ class VideoEpisodeRelation;     // 番剧的某一集的点赞收藏情况
 class VideoUrlResult;           // 视频播放地址
 class VideoDetailPage;
 typedef std::vector<VideoDetailPage>
-    VideoDetailPageListResult;  // 视频分P列表 （视频详情API可以直接过去分P列表）
+    VideoDetailPageListResult;  // 视频分P列表 （视频详情API可以直接获取分P列表）
+class VideoPageResult;  // 视频分P详情 （主要用来获取cc字幕）
+class SubtitleData;     // 字幕数据
 class VideoCommentResultWrapper;  // 视频评论
 class VideoSingleCommentDetail;   //单条评论的相关回复
 class VideoCommentAddResult;      // 发布评论的返回
@@ -174,6 +176,17 @@ public:
         const std::string& bvid,
         const std::function<void(VideoDetailAllResult)>& callback = nullptr,
         const ErrorCallback& error                                = nullptr);
+
+    /// 获取分P详情 （主要内容为cc字幕）
+    static void get_page_detail(
+        int aid, int cid,
+        const std::function<void(VideoPageResult)>& callback = nullptr,
+        const ErrorCallback& error                           = nullptr);
+
+    static void get_page_detail(
+        const std::string& bvid, int cid,
+        const std::function<void(VideoPageResult)>& callback = nullptr,
+        const ErrorCallback& error                           = nullptr);
 
     /// get video pagelist by aid
     static void get_video_pagelist(
@@ -362,9 +375,15 @@ public:
 
     /// 视频页 获取弹幕的xml文件
     static void get_danmaku(
-        const unsigned int cid,
+        unsigned int cid,
         const std::function<void(std::string)>& callback = nullptr,
         const ErrorCallback& error                       = nullptr);
+
+    /// 视频页 获取字幕
+    static void get_subtitle(
+        const std::string& link,
+        const std::function<void(SubtitleData)>& callback = nullptr,
+        const ErrorCallback& error                        = nullptr);
 
     /// 视频页 上报历史记录
     static void report_history(const std::string& mid,
@@ -477,6 +496,7 @@ public:
     /// 初始化设置Cookie
     static void init(Cookies& cookies,
                      std::function<void(Cookies)> writeCookiesCallback,
-                     int timeout = 10000);
+                     int timeout = 10000, const std::string& httpProxy = "",
+                     const std::string& httpsProxy = "");
 };
 }  // namespace bilibili

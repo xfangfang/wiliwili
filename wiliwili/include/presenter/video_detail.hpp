@@ -92,7 +92,10 @@ public:
     void requestVideoRelationInfo(size_t epid);
 
     /// 获取视频弹幕
-    void requestVideoDanmaku(const unsigned int cid);
+    void requestVideoDanmaku(int cid);
+
+    /// 获取视频分P详情
+    void requestVideoPageDetail(const std::string& bvid, int cid);
 
     /// 上报播放进度
     void reportHistory(unsigned int aid, unsigned int cid,

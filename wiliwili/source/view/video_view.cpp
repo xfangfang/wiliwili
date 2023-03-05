@@ -2,17 +2,15 @@
 // Created by fang on 2022/4/23.
 //
 
-#ifdef __SWITCH__
-#include <switch.h>
-#endif
-
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
+#include "view/subtitle_core.hpp"
 #include "view/video_progress_slider.hpp"
 #include "view/svg_image.hpp"
 #include "utils/number_helper.hpp"
 #include "activity/player_activity.hpp"
 #include "fragment/player_danmaku_setting.hpp"
+#include "fragment/player_setting.hpp"
 
 using namespace brls;
 
@@ -155,6 +153,17 @@ VideoView::VideoView() {
         new brls::TapGestureRecognizer(
             this->btnDanmakuSettingIcon->getParent()));
 
+    /// 播放器设置按钮
+    this->btnSettingIcon->getParent()->registerClickAction([](...) {
+        auto setting = new PlayerSetting();
+        brls::Application::pushActivity(new Activity(setting));
+        // 手动将焦点赋给设置页面
+        brls::sync([setting]() { brls::Application::giveFocus(setting); });
+        return true;
+    });
+    this->btnSettingIcon->getParent()->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->btnSettingIcon->getParent()));
+
     this->refreshDanmakuIcon();
 
     this->registerAction(
@@ -194,6 +203,7 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
                      float height, Style style, FrameContext* ctx) {
     if (!mpvCore->isValid()) return;
 
+    // draw video
     mpvCore->openglDraw(this->getFrame(), this->getAlpha());
 
     // draw danmaku
@@ -207,16 +217,25 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         }
         osdBottomBox->frame(ctx);
         osdTopBox->frame(ctx);
+
+        // draw subtitle (upon osd)
+        SubtitleCore::instance().drawSubtitle(vg, x, y, width, height - 120,
+                                              getAlpha());
     } else {
         if (is_osd_shown) {
             is_osd_shown = false;
             this->onOSDStateChanged(false);
         }
+
+        // draw subtitle (without osd)
+        SubtitleCore::instance().drawSubtitle(vg, x, y, width, height,
+                                              getAlpha());
     }
 
     // hot key
     this->buttonProcessing();
 
+    // cache info
     osdCenterBox->frame(ctx);
 }
 
@@ -361,6 +380,7 @@ void VideoView::hideLoading() {
 void VideoView::hideDanmakuButton() {
     btnDanmakuIcon->getParent()->setVisibility(brls::Visibility::GONE);
     btnDanmakuSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
+    btnSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
 }
 
 void VideoView::setTitle(std::string title) {
@@ -432,6 +452,7 @@ void VideoView::refreshToggleIcon() {
 }
 
 void VideoView::setProgress(float value) {
+    if (isnan(value)) return;
     this->osdSlider->setProgress(value);
 }
 
@@ -614,9 +635,10 @@ void VideoView::buttonProcessing() {
             break;
     }
 
-    // 当OSD显示时左右切换选择按钮，持续显示OSD
+    // 当OSD显示时上下左右切换选择按钮，持续显示OSD
     if (isOSDShown() &&
-        (state.buttons[BUTTON_NAV_RIGHT] || state.buttons[BUTTON_NAV_LEFT])) {
+        (state.buttons[BUTTON_NAV_RIGHT] || state.buttons[BUTTON_NAV_LEFT] ||
+         state.buttons[BUTTON_NAV_UP] || state.buttons[BUTTON_NAV_DOWN])) {
         if (this->osd_state == OSDState::SHOWN) this->showOSD(true);
     }
 }

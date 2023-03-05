@@ -241,6 +241,17 @@
     "collection": {
       "title": "选择收藏夹"
     },
+    "setting": {
+      "subtitle": {
+        "header": "字幕"
+      },
+      "common": {
+        "header": "通用"
+      },
+      "shader": {
+        "header": "着色器"
+      }
+    },
     "danmaku": {
       "header": "弹幕设置",
       "filter": {

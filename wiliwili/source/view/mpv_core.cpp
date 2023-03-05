@@ -6,6 +6,7 @@
 #include <clocale>
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
+#include "view/subtitle_core.hpp"
 #include "pystring.h"
 #include "utils/config_helper.hpp"
 
@@ -67,7 +68,9 @@ void MPVCore::init() {
     }
 
     // misc
-    mpv_set_option_string(mpv, "no-config", "yes");
+    mpv_set_option_string(mpv, "config", "yes");
+    mpv_set_option_string(mpv, "config-dir",
+                          ProgramConfig::instance().getConfigDir().c_str());
     mpv_set_option_string(mpv, "ytdl", "no");
     mpv_set_option_string(mpv, "terminal", "yes");
     mpv_set_option_string(mpv, "audio-channels", "stereo");
@@ -78,13 +81,7 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "video-timing-offset", "0");  // 60fps
     mpv_set_option_string(mpv, "keep-open", "yes");
     mpv_set_option_string(mpv, "hr-seek", "yes");
-#ifdef MPV_NO_FB
     mpv_set_option_string(mpv, "reset-on-next-file", "speed,pause");
-#else
-    mpv_set_option_string(mpv, "fbo-format", "rgba8");
-    mpv_set_option_string(mpv, "reset-on-next-file", "all");
-    mpv_set_option_string(mpv, "opengl-pbo", "yes");
-#endif
 
     if (MPVCore::LOW_QUALITY) {
         // Less cpu cost
@@ -759,6 +756,7 @@ void MPVCore::eventMainLoop() {
 void MPVCore::reset() {
     brls::Logger::debug("MPVCore::reset");
     DanmakuCore::instance().reset();
+    SubtitleCore::instance().reset();
     this->core_idle      = 0;
     this->percent_pos    = 0;
     this->duration       = 0;  // second
@@ -816,4 +814,20 @@ double MPVCore::getPlaybackTime() {
 void MPVCore::disableDimming(bool disable) {
     brls::Application::getPlatform()->disableScreenDimming(
         disable, "Playing video", APPVersion::getPackageName());
+}
+
+void MPVCore::setShader(const std::string &profile, const std::string &shader) {
+    brls::Logger::info("Set shader [{}]: {}", profile, shader);
+    if (shader.empty()) return;
+    mpv_command_string(
+        mpv, fmt::format("no-osd change-list glsl-shaders set \"{}\"", shader)
+                 .c_str());
+    mpv_command_string(mpv,
+                       fmt::format("show-text \"{}\" 2000", profile).c_str());
+}
+
+void MPVCore::clearShader() {
+    brls::Logger::info("Clear shader");
+    mpv_command_string(mpv, "no-osd change-list glsl-shaders clr \"\"");
+    mpv_command_string(mpv, "show-text \"Clear shader\" 2000");
 }

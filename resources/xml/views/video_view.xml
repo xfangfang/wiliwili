@@ -16,7 +16,7 @@
                 id="video/osd/title"
                 height="100%"
                 marginLeft="20"
-                marginRight="20"
+                marginRight="80"
                 singleLine="true"
                 textColor="#FFFFFF"/>
         <brls:Box
@@ -35,6 +35,29 @@
                     id="video/view/label/people"
                     fontSize="13"
                     text="N人正在看"/>
+        </brls:Box>
+        <brls:Box
+                wireframe="false"
+                id="video/osd/setting"
+                hideClickAnimation="true"
+                positionType="absolute"
+                positionRight="10"
+                positionTop="10"
+                alignItems="center"
+                justifyContent="center"
+                height="60"
+                width="60">
+            <SVGImage
+                    id="video/osd/setting/icon"
+                    focusable="true"
+                    focusUp="video/osd/setting/icon"
+                    focusLeft="video/osd/setting"
+                    focusRight="video/osd/setting"
+                    hideHighlightBackground="true"
+                    highlightCornerRadius="30"
+                    height="30"
+                    width="30"
+                    SVG="@res/svg/bpx-svg-sprite-setting.svg"/>
         </brls:Box>
     </brls:Box>
 
@@ -66,13 +89,14 @@
             axis="row"
             background="vertical_linear">
         <brls:Box
+                id="video/osd/toggle"
                 wireframe="false"
                 focusable="true"
-                focusLeft="video/osd/fullscreen/icon"
+                focusUp="video/osd/setting"
+                focusLeft="video/osd/toggle"
                 focusRight="video/osd/danmaku/box/setting"
                 hideHighlightBackground="true"
                 highlightCornerRadius="100"
-                id="video/osd/toggle"
                 alignItems="center"
                 justifyContent="center"
                 marginLeft="20"
@@ -134,8 +158,10 @@
                         height="60"
                         width="60">
                     <SVGImage
-                            id="video/osd/danmaku/setting"
+                            id="video/osd/danmaku/setting/icon"
                             focusable="true"
+                            focusUp="video/osd/setting"
+                            focusDown="video/osd/danmaku/setting/icon"
                             hideHighlightBackground="true"
                             highlightCornerRadius="30"
                             wireframe="false"
@@ -156,6 +182,8 @@
                     <SVGImage
                             id="video/osd/danmaku/icon"
                             focusable="true"
+                            focusUp="video/osd/setting"
+                            focusDown="video/osd/danmaku/icon"
                             hideHighlightBackground="true"
                             highlightCornerRadius="30"
                             wireframe="false"
@@ -167,6 +195,8 @@
                         id="video/quality"
                         textColor="#FFFFFF"
                         focusable="true"
+                        focusUp="video/osd/setting"
+                        focusDown="video/quality"
                         hideHighlightBackground="true"
                         highlightCornerRadius="8"
                         positionType="absolute"
@@ -184,6 +214,9 @@
                             id="video/osd/fullscreen/icon"
                             wireframe="false"
                             focusable="true"
+                            focusUp="video/osd/setting"
+                            focusDown="video/osd/fullscreen/icon"
+                            focusRight="video/osd/fullscreen/icon"
                             hideHighlightBackground="true"
                             highlightCornerRadius="30"
                             height="30"

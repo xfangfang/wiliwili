@@ -26,6 +26,8 @@ static const std::string DetailGRPC =
 /// 视频详情.
 static const std::string Detail    = _apiBase + "/x/web-interface/view";
 static const std::string DetailAll = _apiBase + "/x/web-interface/view/detail";
+/// 视频分P详情
+static const std::string PageDetail = _apiBase + "/x/player/v2";
 /// 番剧详情.
 static const std::string SeasonDetail = _apiBase + "/pgc/view/pc/season";
 /// 番剧推荐.
