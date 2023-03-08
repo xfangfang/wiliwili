@@ -6,6 +6,16 @@ option("sw")
     set_showmenu(true)
 option_end()
 
+option("winrt")
+    set_default(false)
+    set_showmenu(true)
+option_end()
+
+option("driver")
+    set_default("opengl")
+    set_showmenu(true)
+option_end()
+
 if is_plat("windows") then
     add_cxflags("/utf-8")
     set_languages("c++20")
@@ -41,7 +51,7 @@ package("borealis")
         if window == "glfw" then
             package:add("deps", "xfangfang_glfw")
         elseif window == "sdl" then
-            -- package:add("deps", "sdl2")
+            package:add("deps", "sdl2")
         end
         if driver == "opengl" then
             package:add("deps", "glad")
@@ -102,8 +112,12 @@ package("mpv")
     end)
 package_end()
 
-add_requires("borealis", {debug=true, configs={window="sdl",driver="d3d11",winrt=true}})
-add_requires("sdl2", {configs={shared=true,winrt=true}})
+if get_config("winrt") then
+    add_requireconfs("**.sdl2", {configs={shared=true,winrt=true}})
+    add_requires("borealis", {debug=true, configs={window="sdl",driver=get_config("driver"),winrt=true}})
+else
+    add_requires("borealis", {debug=true, configs={window="sdl",driver=get_config("driver")}})
+end
 add_requires("mpv", {configs={shared=true}})
 add_requires("cpr")
 add_requires("lunasvg")
@@ -116,7 +130,9 @@ target("wiliwili")
     add_files("wiliwili/source/**.cpp")
     add_defines("BRLS_RESOURCES=\"./resources/\"")
     add_defines("__SDL2__=1")
-    add_defines("__WINRT__=1")
+    if get_config("winrt") then
+        add_defines("__WINRT__=1")
+    end
     if get_config("sw") then
         add_defines("MPV_SW_RENDER=1")
     end
@@ -134,16 +150,30 @@ target("wiliwili")
         add_files("app_win32.rc")
         add_files("wiliwili/source/resource.manifest")
         after_build(function (target) 
-            for _, pkg in pairs(target:pkgs()) do
-                if pkg:has_shared() then
-                    for _, f in ipairs(pkg:libraryfiles()) do
-                        if f:endswith(".dll") or f:endswith(".so") then
-                            os.cp(f, target:targetdir().."/")
+            if get_config("winrt") then
+                import("uwp")(target)
+            else
+                for _, pkg in pairs(target:pkgs()) do
+                    if pkg:has_shared() then
+                        for _, f in ipairs(pkg:libraryfiles()) do
+                            if f:endswith(".dll") or f:endswith(".so") then
+                                os.cp(f, target:targetdir().."/")
+                            end
                         end
                     end
                 end
+                os.cp("resources", target:targetdir().."/")
             end
-            os.cp("resources", target:targetdir().."/")
-            import("uwp")(target)
         end)
     end
+
+target("demo/sw")
+    add_packages(
+        "mpv",
+        "sdl2"
+    )
+    if is_plat("windows", "mingw") then
+        add_files("app_win32.rc")
+        add_files("wiliwili/source/resource.manifest")
+    end
+    add_files("demo/sw.c")

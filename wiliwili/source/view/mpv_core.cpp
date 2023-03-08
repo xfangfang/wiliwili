@@ -413,7 +413,7 @@ void MPVCore::setFrameSize(brls::Rect rect) {
         pitch              = PIXCEL_SIZE * sw_size[0];
         nvg_image =
             nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth,
-                               drawHeight, 0, (const unsigned char *)pixels);
+                               drawHeight, NVG_IMAGE_STREAMING, (const unsigned char *)pixels);
     }
 #elif defined(MPV_NO_FB)
     // Using default framebuffer
