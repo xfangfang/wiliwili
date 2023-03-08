@@ -1,5 +1,11 @@
 add_rules("mode.debug", "mode.release")
 
+
+option("sw")
+    set_default(false)
+    set_showmenu(true)
+option_end()
+
 if is_plat("windows") then
     add_cxflags("/utf-8")
     set_languages("c++20")
@@ -12,23 +18,48 @@ end
 
 package("borealis")
     set_sourcedir("../borealis")
+    add_configs("window", {description = "use window lib", default = "glfw", type = "string"})
+    add_configs("driver", {description = "use driver lib", default = "opengl", type = "string"})
+    add_configs("winrt", {description = "use winrt api", default = false, type = "boolean"})
     add_deps(
         "nanovg",
         "yoga",
         "nlohmann_json",
-        "glad",
         "fmt",
         "tweeny",
         "stb",
-        "tinyxml2",
-        "xfangfang_glfw"
+        "tinyxml2"
     )
     add_includedirs("include")
     if is_plat("windows") then
         add_includedirs("include/compat")
     end
+    on_load(function (package)
+        local window = package:config("window")
+        local driver = package:config("driver")
+        local winrt = package:config("winrt")
+        if window == "glfw" then
+            package:add("deps", "xfangfang_glfw")
+        elseif window == "sdl" then
+            -- package:add("deps", "sdl2")
+        end
+        if driver == "opengl" then
+            package:add("deps", "glad")
+        elseif driver == "d3d11" then
+            package:add("syslinks", "d3d11")
+        end
+        if winrt then
+            package:add("syslinks", "windowsapp")
+        end
+    end)
     on_install(function (package)
         local configs = {}
+        local window = package:config("window")
+        local driver = package:config("driver")
+        configs["window"] = window
+        configs["driver"] = driver
+        local winrt = package:config("winrt")
+        configs["winrt"] = winrt and "y" or "n"
         import("package.tools.xmake").install(package, configs)
         os.cp("library/include/*", package:installdir("include").."/")
     end)
@@ -71,7 +102,8 @@ package("mpv")
     end)
 package_end()
 
-add_requires("borealis", {debug=true})
+add_requires("borealis", {debug=true, configs={window="sdl",driver="d3d11",winrt=true}})
+add_requires("sdl2", {configs={shared=true,winrt=true}})
 add_requires("mpv", {configs={shared=true}})
 add_requires("cpr")
 add_requires("lunasvg")
@@ -83,6 +115,11 @@ target("wiliwili")
     add_includedirs("wiliwili/include", "wiliwili/include/api")
     add_files("wiliwili/source/**.cpp")
     add_defines("BRLS_RESOURCES=\"./resources/\"")
+    add_defines("__SDL2__=1")
+    add_defines("__WINRT__=1")
+    if get_config("sw") then
+        add_defines("MPV_SW_RENDER=1")
+    end
     add_packages(
         "borealis",
         "mpv",
@@ -90,7 +127,8 @@ target("wiliwili")
         "qr-code-generator",
         "lunasvg",
         "opencc",
-        "pystring"
+        "pystring",
+        "sdl2"
     )
     if is_plat("windows", "mingw") then
         add_files("app_win32.rc")
@@ -106,5 +144,6 @@ target("wiliwili")
                 end
             end
             os.cp("resources", target:targetdir().."/")
+            import("uwp")(target)
         end)
     end
