@@ -393,8 +393,11 @@ void MPVCore::command_async(const char **args) {
 
 void MPVCore::setFrameSize(brls::Rect rect) {
 #ifdef MPV_SW_RENDER
-    int drawWidth  = rect.getWidth() * brls::Application::windowScale;
-    int drawHeight = rect.getHeight() * brls::Application::windowScale;
+    // 使用 dx11 的拷贝交换，否则视频渲染异常
+    const static int mpvImageFlags = NVG_IMAGE_STREAMING|NVG_IMAGE_COPY_SWAP;
+    // Todo dx11 的纹理拷贝无法在非整数缩放的情况下对齐，先强行向上取整
+    int drawWidth  = rect.getWidth() * ::ceil(brls::Application::windowScale);
+    int drawHeight = rect.getHeight() * ::ceil(brls::Application::windowScale);
     if (drawWidth == 0 || drawHeight == 0) return;
     int frameSize = drawWidth * drawHeight;
 
@@ -411,9 +414,12 @@ void MPVCore::setFrameSize(brls::Rect rect) {
         sw_size[0]         = drawWidth;
         sw_size[1]         = drawHeight;
         pitch              = PIXCEL_SIZE * sw_size[0];
-        nvg_image =
-            nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth,
-                               drawHeight, NVG_IMAGE_STREAMING, (const unsigned char *)pixels);
+        nvg_image = nvgCreateImageRGBA(
+            brls::Application::getNVGContext(),
+            drawWidth,
+            drawHeight,
+            mpvImageFlags,
+            (const unsigned char *)pixels);
     }
 #elif defined(MPV_NO_FB)
     // Using default framebuffer
