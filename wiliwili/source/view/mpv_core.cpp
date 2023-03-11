@@ -273,6 +273,9 @@ void MPVCore::deleteShader() {
 }
 
 void MPVCore::initializeGL() {
+    reportTimer.setCallback([&]() {
+        this->setFrameSizeInline();
+    });
 #if defined(MPV_NO_FB) || defined(MPV_SW_RENDER)
 #else
     if (media_framebuffer != 0) return;
@@ -391,7 +394,15 @@ void MPVCore::command_async(const char **args) {
     check_error(mpv_command_async(mpv, 0, args));
 }
 
+
 void MPVCore::setFrameSize(brls::Rect rect) {
+    this->reportRect = rect;
+    reportTimer.stop();
+    reportTimer.start(150);
+}
+
+void MPVCore::setFrameSizeInline() {
+    brls::Rect rect = this->reportRect;
 #ifdef MPV_SW_RENDER
     // 使用 dx11 的拷贝交换，否则视频渲染异常
     const static int mpvImageFlags = NVG_IMAGE_STREAMING|NVG_IMAGE_COPY_SWAP;
@@ -413,7 +424,7 @@ void MPVCore::setFrameSize(brls::Rect rect) {
         mpv_params[3].data = pixels;
         sw_size[0]         = drawWidth;
         sw_size[1]         = drawHeight;
-        pitch              = PIXCEL_SIZE * sw_size[0];
+        pitch              = PIXCEL_SIZE * drawWidth;
         nvg_image = nvgCreateImageRGBA(
             brls::Application::getNVGContext(),
             drawWidth,
