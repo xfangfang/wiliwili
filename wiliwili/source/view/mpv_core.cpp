@@ -401,7 +401,7 @@ void MPVCore::setFrameSize(brls::Rect rect) {
     if (drawWidth == 0 || drawHeight == 0) return;
     int frameSize = drawWidth * drawHeight;
 
-    if (pixels != nullptr && frameSize > sw_size[0] * sw_size[1]) {
+    if (pixels != nullptr && frameSize != sw_size[0] * sw_size[1]) {
         brls::Logger::debug("Enlarge video surface buffer");
         free(pixels);
         pixels = nullptr;
