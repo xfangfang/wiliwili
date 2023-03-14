@@ -109,7 +109,7 @@ public:
 
     void reset();
 
-    void setShader(const std::string& profile, const std::string& shader);
+    void setShader(const std::string &profile, const std::string &shader);
 
     void clearShader();
 

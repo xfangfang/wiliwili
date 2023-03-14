@@ -10,6 +10,7 @@
 #include "pystring.h"
 #include "utils/config_helper.hpp"
 
+#if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER)
 const char *vertexShaderSource =
     "#version 150 core\n"
     "in vec3 aPos;\n"
@@ -31,6 +32,7 @@ const char *fragmentShaderSource =
     "   FragColor = texture(ourTexture, TexCoord);\n"
     "   FragColor.a = Alpha;\n"
     "}\n\0";
+#endif
 
 static inline void check_error(int status) {
     if (status < 0) {
@@ -398,19 +400,24 @@ void MPVCore::setFrameSize(brls::Rect rect) {
         brls::Logger::debug("Enlarge video surface buffer");
         free(pixels);
         pixels = nullptr;
-        nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
     }
 
     if (pixels == nullptr) {
         pixels             = malloc(frameSize * PIXCEL_SIZE);
         mpv_params[3].data = pixels;
-        sw_size[0]         = drawWidth;
-        sw_size[1]         = drawHeight;
-        pitch              = PIXCEL_SIZE * sw_size[0];
-        nvg_image =
-            nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth,
-                               drawHeight, 0, (const unsigned char *)pixels);
     }
+
+    if (nvg_image)
+        nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
+    nvg_image =
+        nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth,
+                           drawHeight, 0, (const unsigned char *)pixels);
+
+    brls::Logger::error("=======> {}/{}", drawWidth, drawHeight);
+
+    sw_size[0] = drawWidth;
+    sw_size[1] = drawHeight;
+    pitch      = PIXCEL_SIZE * drawWidth;
 #elif defined(MPV_NO_FB)
     // Using default framebuffer
     this->mpv_fbo.w = brls::Application::windowWidth;
