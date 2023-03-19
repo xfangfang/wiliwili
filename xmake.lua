@@ -115,6 +115,7 @@ package_end()
 if get_config("winrt") then
     add_requireconfs("**.sdl2", {configs={shared=true,winrt=true}})
     add_requires("borealis", {debug=true, configs={window="sdl",driver=get_config("driver"),winrt=true}})
+    add_requireconfs("**.curl", {configs={winrt=true}})
 else
     add_requires("borealis", {debug=true, configs={window="sdl",driver=get_config("driver")}})
 end
