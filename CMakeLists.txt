@@ -147,7 +147,7 @@ else ()
             EGL glapi drm_nouveau
             # needed by mpv
             mpv swscale swresample avformat avfilter avcodec avutil ass freetype fribidi png bz2 z SDL2
-            mbedx509 mbedtls mbedcrypto mbedx509 mbedtls
+            mbedx509 mbedtls mbedcrypto
             # needed by cpr
             curl z
             # base lib

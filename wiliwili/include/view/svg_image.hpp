@@ -6,7 +6,7 @@
 #include <cstring>
 #include <borealis.hpp>
 #include <cpr/cpr.h>
-#include <QrCode.hpp>
+#include <qrcodegen.hpp>
 #include <lunasvg.h>
 
 class SVGImage : public brls::Image {

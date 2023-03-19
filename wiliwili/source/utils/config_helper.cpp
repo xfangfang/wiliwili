@@ -129,7 +129,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     // mac使用原生全屏按钮效果更好，不通过软件来控制
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 0}},
 #else
-    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
+    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 0}},
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
@@ -271,6 +271,7 @@ void ProgramConfig::saveHomeWindowState() {
     uint32_t height = VideoContext::sizeH;
     int xPos        = VideoContext::posX;
     int yPos        = VideoContext::posY;
+
     int monitor     = videoContext->getCurrentMonitorIndex();
     if (width == 0) width = brls::ORIGINAL_WINDOW_WIDTH;
     if (height == 0) height = brls::ORIGINAL_WINDOW_HEIGHT;

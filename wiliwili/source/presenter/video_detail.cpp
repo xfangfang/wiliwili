@@ -3,7 +3,7 @@
 //
 #include <cstdlib>
 #include <tinyxml2.h>
-#include "pystring.h"
+#include <pystring/pystring.h>
 #include "borealis.hpp"
 #include "presenter/video_detail.hpp"
 #include "utils/config_helper.hpp"
@@ -139,7 +139,7 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
             this->onError(error);
         });
 }
@@ -156,7 +156,7 @@ void VideoDetail::requestSeasonRecommend(size_t seasonID) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
         });
 }
 
@@ -173,7 +173,7 @@ void VideoDetail::requestSeasonStatue(size_t seasonID) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
         });
 }
 
@@ -196,8 +196,9 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
 
                 if (!this->videoDetailResult.redirect_url.empty()) {
                     // eg: https://www.bilibili.com/bangumi/play/ep568278
-                    auto items = pystring::split(
-                        this->videoDetailResult.redirect_url, "/");
+                    std::vector<std::string> items;
+                    pystring::split(
+                        this->videoDetailResult.redirect_url, items, "/");
                     std::string epid = items[items.size() - 1];
                     if (pystring::startswith(epid, "ep")) {
                         this->onRedirectToEp(pystring::slice(epid, 2));
@@ -299,7 +300,7 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
             this->onError("请求视频地址失败\n" + error);
         });
     // 请求当前视频在线人数
@@ -327,7 +328,7 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
             this->onError("请求视频地址失败\n" + error);
         });
 
@@ -422,7 +423,7 @@ void VideoDetail::requestUploadedVideos(int64_t mid, int pn, int ps) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
         });
 }
 
@@ -440,7 +441,7 @@ void VideoDetail::requestVideoOnline(const std::string& bvid, int cid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
         });
 }
 
@@ -458,7 +459,7 @@ void VideoDetail::requestVideoRelationInfo(const std::string& bvid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
         });
 }
 
@@ -479,7 +480,7 @@ void VideoDetail::requestVideoRelationInfo(size_t epid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
         });
 }
 
@@ -529,7 +530,7 @@ void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(error);
+            brls::Logger::error(fmt::runtime(error));
         });
 }
 
@@ -553,7 +554,7 @@ void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
     BILI::report_history(
         mid, token, aid, cid, type, progress, duration, sid, epid,
         []() { brls::Logger::debug("reportHistory: success"); },
-        [](const std::string& err) { brls::Logger::error(err); });
+        [](const std::string& err) { brls::Logger::error(fmt::runtime(err)); });
 }
 
 int VideoDetail::getCoinTolerate() {

@@ -12,7 +12,7 @@
 #include <mpv/render_gl.h>
 #include <glad/glad.h>
 #ifdef __SDL2__
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #else
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -135,7 +135,6 @@ public:
 private:
     mpv_handle *mpv                 = nullptr;
     mpv_render_context *mpv_context = nullptr;
-
 #ifdef MPV_SW_RENDER
     const int PIXCEL_SIZE          = 4;
     int nvg_image                  = 0;

@@ -2,7 +2,7 @@
 // Created by fang on 2023/1/11.
 //
 
-#include <pystring.h>
+#include <pystring/pystring.h>
 
 #include "view/danmaku_core.hpp"
 #include "view/mpv_core.hpp"
@@ -15,7 +15,8 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
                        brls::Application::getLocale() == brls::LOCALE_ZH_TW;
     if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
 #endif
-    auto attrs = pystring::split(attributes, ",");
+    std::vector<std::string> attrs;
+    pystring::split(attributes, attrs, ",");
     if (attrs.size() < 9) {
         brls::Logger::error("error decode danmaku: {} {}", msg, attributes);
         type = -1;

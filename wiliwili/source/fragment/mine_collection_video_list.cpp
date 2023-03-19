@@ -119,5 +119,5 @@ void MineCollectionVideoList::requestCollectionList() {
                 }
             });
         },
-        [](const std::string& error) { brls::Logger::error(error); });
+        [](const std::string& error) { brls::Logger::error(fmt::runtime(error)); });
 }

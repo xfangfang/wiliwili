@@ -6,7 +6,7 @@
 #include "borealis.hpp"
 #include "fmt/format.h"
 #include "cpr/cpr.h"
-#include "pystring.h"
+#include <pystring/pystring.h>
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "fragment/latest_update.hpp"
@@ -47,7 +47,8 @@ bool APPVersion::needUpdate(std::string latestVersion) {
     if (latestVersion.length() < 5) brls::Application::quit();
     if (latestVersion[0] == 'v')
         latestVersion = latestVersion.substr(1, latestVersion.length() - 1);
-    std::vector<std::string> v = pystring::split(latestVersion, ".");
+    std::vector<std::string> v;
+    pystring::split(latestVersion, v, ".");
     if (v.size() < 3) {
         brls::Logger::error("Cannot parse version info");
         return false;

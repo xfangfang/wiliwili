@@ -4,7 +4,7 @@
 
 #include "activity/pgc_index_activity.hpp"
 #include "activity/player_activity.hpp"
-#include "pystring.h"
+#include <pystring/pystring.h>
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "view/auto_tab_frame.hpp"
@@ -463,12 +463,14 @@ std::vector<std::string> PGCIndexActivity::parseData(
 void PGCIndexActivity::parseParam(const std::string& url) {
     // parse request params
     try {
-        auto data = pystring::split(
-            url, "?");  // url eg: "/page/home/pgc/more?type=2&index_type=2"
+        std::vector<std::string> data;
+        pystring::split(url, data, "?");  // url eg: "/page/home/pgc/more?type=2&index_type=2"
         this->originParam = data[1];
-        auto params       = pystring::split(data[1], "&");
+        std::vector<std::string> params;
+        pystring::split(data[1], params, "&");
         for (auto p : params) {
-            auto d = pystring::split(p, "=");
+            std::vector<std::string> d;
+            pystring::split(p, d, "=");
             brls::Logger::debug("PGCIndexActivity url: {}/{}", d[0], d[1]);
             this->requestParam[d[0]] = d[1];
         }

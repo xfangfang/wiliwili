@@ -60,7 +60,7 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
     std::vector<std::string> levels;
     for (size_t i = 1; i <= 10; i++)
         levels.emplace_back(
-            fmt::format("wiliwili/player/danmaku/filter/level_n"_i18n, i));
+            fmt::format(fmt::runtime("wiliwili/player/danmaku/filter/level_n"_i18n), i));
     this->cellLevel->init(
         "wiliwili/player/danmaku/filter/level"_i18n, levels,
         conf.getIntOptionIndex(SettingItem::DANMAKU_FILTER_LEVEL),

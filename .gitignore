@@ -15,3 +15,5 @@ config/
 pack/
 repo/
 *.flatpak
+.vscode
+.xmake

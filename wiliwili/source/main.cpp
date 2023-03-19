@@ -105,3 +105,7 @@ int main(int argc, char* argv[]) {
     // Exit
     return EXIT_SUCCESS;
 }
+
+#ifdef __WINRT__
+#include <borealis/core/main.hpp>
+#endif

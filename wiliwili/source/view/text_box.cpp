@@ -33,9 +33,9 @@ static YGSize textBoxMeasureFunc(YGNodeRef node, float width,
         return size;
     }
 
-    NVGtextRow rows[maxRows + 1];
+    std::unique_ptr<NVGtextRow, std::function<void(NVGtextRow*)>> rows(new NVGtextRow[maxRows + 1], [](NVGtextRow* p){delete []p;});
     int numberOfRows = nvgTextBreakLines(vg, fullText.c_str(), nullptr, width,
-                                         rows, maxRows + 1);
+                                         rows.get(), maxRows + 1);
     if (numberOfRows > maxRows && !textBox->isShowMoreText()) {
         numberOfRows = maxRows;
     }
@@ -74,10 +74,10 @@ void TextBox::draw(NVGcontext* vg, float x, float y, float width, float height,
         return;
     }
 
-    NVGtextRow rows[maxRows + 2];
+    std::unique_ptr<NVGtextRow, std::function<void(NVGtextRow*)>> rows(new NVGtextRow[maxRows + 2], [](NVGtextRow* p){delete []p;});
     const char* end  = nullptr;
     int numberOfRows = nvgTextBreakLines(vg, fullText.c_str(), nullptr, width,
-                                         rows, maxRows + 2);
+                                         rows.get(), maxRows + 2);
 
     // 显示全部文字
     if (numberOfRows <= maxRows) {
@@ -92,7 +92,7 @@ void TextBox::draw(NVGcontext* vg, float x, float y, float width, float height,
     }
 
     // 行数过多，只显示部分内容
-    end = rows[maxRows - 1].end;
+    end = rows.get()[maxRows - 1].end;
     nvgTextBox(vg, x, y, width, fullText.c_str(), end);
     if (!showMoreText) return;
 
