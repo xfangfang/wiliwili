@@ -241,6 +241,17 @@
     "collection": {
       "title": "즐겨찾기 선택"
     },
+    "setting": {
+      "subtitle": {
+        "header": "자막"
+      },
+      "common": {
+        "header": "공통"
+      },
+      "shader": {
+        "header": "셰이더"
+      }
+    },
     "danmaku": {
       "header": "탄막 설정",
       "filter": {
