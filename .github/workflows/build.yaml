@@ -69,10 +69,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
-        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
 
       - name: Version
-        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
         run: |
           echo "DIST_EXE=${{ needs.version.outputs.DIST_EXE }}" >> $GITHUB_ENV
           echo "DIST_NRO=${{ needs.version.outputs.DIST_NRO }}" >> $GITHUB_ENV
@@ -81,8 +79,8 @@ jobs:
           echo $GITHUB_ENV
           ls -lah
 
-      - name: Upload
-        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
+      - name: Upload Release
+        if: github.event.inputs.release == 'true' && !cancelled()
         uses: ncipollo/release-action@v1
         with:
           name: wiliwili ${{  github.event.inputs.version }}
@@ -97,6 +95,16 @@ jobs:
             ${{ env.DIST_INTEL_DMG }}/${{ env.DIST_INTEL_DMG }}.dmg
             ${{ env.DIST_FLATPAK_x86_64 }} / ${{ env.DIST_FLATPAK_x86_64 }}.zip
 
+      - name: Upload WeTransfer
+        if: github.event.inputs.release != 'true' && !cancelled()
+        run: |
+          curl -fsSL git.io/file-transfer | sh
+          ./transfer wet -s -p 16 --no-progress \
+            ${{ env.DIST_EXE }}/${{ env.DIST_EXE }}.tar.gz \
+            ${{ env.DIST_NRO }}/${{ env.DIST_NRO }}.tar.gz \
+            ${{ env.DIST_INTEL_DMG }}/${{ env.DIST_INTEL_DMG }}.dmg \
+            ${{ env.DIST_FLATPAK_x86_64 }} / ${{ env.DIST_FLATPAK_x86_64 }}.zip 2>&1 | tee wetransfer.log
+          echo "::warning title=访问下方链接免登录下载测试版::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
 
   build-win-x64:
     needs: [ version ]
