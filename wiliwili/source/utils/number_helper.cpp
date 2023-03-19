@@ -3,6 +3,7 @@
 //
 
 #include "utils/number_helper.hpp"
+#include <pystring.h>
 #include <chrono>
 #include <random>
 
@@ -29,10 +30,10 @@ char seed[64] = {'0', '1', '2', '3', '4', '5', '6', '7',  '8', '9', 'A',
                  'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',  'q', 'r', 's',
                  't', 'u', 'v', 'w', 'x', 'y', 'z', '\0', '\0'};
 
-std::string wiliwili::getRandomText(int length) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> dis(0, 61);
+std::string getRandom(int length, int rangeStart, int rangeEnd) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(rangeStart, rangeEnd);
     std::string text;
     for (int n = 0; n < length; ++n) {
         int val = dis(gen);
@@ -41,16 +42,19 @@ std::string wiliwili::getRandomText(int length) {
     return text;
 }
 
+std::string wiliwili::getRandomText(int length) {
+    return getRandom(length, 0, 61);
+}
+
 std::string wiliwili::getRandomNumber(int length) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> dis(1, 9);
-    std::string text;
-    for (int n = 0; n < length; ++n) {
-        int val = dis(gen);
-        text += seed[val];
+    return getRandom(length, 1, 9);
+}
+
+std::string wiliwili::getRandomHex(int length, bool lowerCase) {
+    if (lowerCase) {
+        return pystring::lower(getRandom(length, 0, 15));
     }
-    return text;
+    return getRandom(length, 0, 15);
 }
 
 std::string wiliwili::sec2Time(size_t t) {

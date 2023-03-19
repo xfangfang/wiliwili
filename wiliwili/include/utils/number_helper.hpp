@@ -26,6 +26,8 @@ std::string getRandomText(int length = 16);
 
 std::string getRandomNumber(int length = 8);
 
+std::string getRandomHex(int length, bool lowerCase = true);
+
 //100 => 01:40
 //4180 => 01:09:40
 std::string sec2Time(size_t t);

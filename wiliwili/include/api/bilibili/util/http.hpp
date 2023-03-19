@@ -17,7 +17,7 @@ using Cookies = std::map<std::string, std::string>;
 
 const std::string BILIBILI_APP_KEY    = "aa1e74ee4874176e";
 const std::string BILIBILI_APP_SECRET = "54e6a9a31b911cd5fc0daa66ebf94bc4";
-const std::string BILIBILI_BUILD      = "1001005000";
+const std::string BILIBILI_BUILD      = "1001009001";
 
 using ErrorCallback = std::function<void(const std::string&)>;
 #define ERROR_MSG(msg, ...) \
@@ -30,22 +30,26 @@ using ErrorCallback = std::function<void(const std::string&)>;
 
 class HTTP {
 public:
-    static cpr::Cookies COOKIES;
-    static cpr::Header HEADERS;
-    static int TIMEOUT;
-    static cpr::Proxies PROXIES;
+    static inline cpr::Cookies COOKIES = {false};
+    static inline cpr::Header HEADERS  = {
+        {"User-Agent", "wiliwili"},
+        {"Referer", "https://www.bilibili.com/client"},
+        {"Origin", "https://www.bilibili.com"},
+    };
+    static inline int TIMEOUT = 10000;
+    static inline cpr::Proxies PROXIES;
 
     static cpr::Response get(const std::string& url,
                              const cpr::Parameters& parameters = {},
                              int timeout                       = 10000);
 
     static void __cpr_post(
-        const std::string& url, cpr::Parameters parameters = {},
-        cpr::Payload payload                                      = {},
+        const std::string& url, const cpr::Parameters& parameters = {},
+        const cpr::Payload& payload                               = {},
         const std::function<void(const cpr::Response&)>& callback = nullptr,
         const ErrorCallback& error                                = nullptr) {
         cpr::PostCallback(
-            [callback, error](cpr::Response r) {
+            [callback, error](const cpr::Response& r) {
                 if (r.status_code != 200) {
                     ERROR_MSG("Network error. [Status code: " +
                                   std::to_string(r.status_code) + " ]",
@@ -54,13 +58,31 @@ public:
                 }
                 callback(r);
             },
-            cpr::Url{url},
-            cpr::Header{
-                {"User-Agent", "NintendoSwitch"},
-                {"Referer", "https://www.bilibili.com/"},
-                {"Origin", "https://www.bilibili.com"},
+            cpr::Url{url}, parameters, payload, HTTP::HEADERS, HTTP::COOKIES,
+            HTTP::PROXIES,
+#ifndef VERIFY_SSL
+            cpr::VerifySsl{false},
+#endif
+            cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS},
+            cpr::Timeout{HTTP::TIMEOUT});
+    }
+
+    static void __cpr_get(
+        const std::string& url, const cpr::Parameters& parameters = {},
+        const std::function<void(const cpr::Response&)>& callback = nullptr,
+        const ErrorCallback& error                                = nullptr) {
+        cpr::GetCallback(
+            [callback, error](const cpr::Response& r) {
+                if (r.status_code != 200) {
+                    ERROR_MSG("Network error. [Status code: " +
+                                  std::to_string(r.status_code) + " ]",
+                              -404);
+                    return;
+                }
+                callback(r);
             },
-            parameters, payload, HTTP::COOKIES, HTTP::PROXIES,
+            cpr::Url{url}, parameters, HTTP::HEADERS, HTTP::COOKIES,
+            HTTP::PROXIES,
 #ifndef VERIFY_SSL
             cpr::VerifySsl{false},
 #endif
@@ -85,8 +107,9 @@ public:
                 {{"sign", websocketpp::md5::md5_hash_hex(
                               pystring::join("&", kv) + BILIBILI_APP_SECRET)}});
         }
-        cpr::GetCallback(
-            [callback, error](cpr::Response r) {
+        __cpr_get(
+            url, parameters,
+            [callback, error](const cpr::Response& r) {
                 try {
                     nlohmann::json res = nlohmann::json::parse(r.text);
                     int code           = res.at("code").get<int>();
@@ -121,18 +144,7 @@ public:
                     printf("ERROR: %s\n", e.what());
                 }
             },
-            cpr::Url{url},
-            cpr::Header{
-                {"User-Agent", "NintendoSwitch"},
-                {"Referer", "https://www.bilibili.com/"},
-                {"Origin", "https://www.bilibili.com"},
-            },
-            parameters, HTTP::COOKIES, HTTP::PROXIES,
-#ifndef VERIFY_SSL
-            cpr::VerifySsl{false},
-#endif
-            cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS},
-            cpr::Timeout{HTTP::TIMEOUT});
+            error);
     }
 
     template <typename ReturnType>

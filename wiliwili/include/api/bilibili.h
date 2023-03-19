@@ -55,7 +55,8 @@ using Cookies = std::map<std::string, std::string>;
 #define BILI_ERR const std::string& error
 
 class BilibiliClient {
-    inline static std::function<void(Cookies)> writeCookiesCallback = nullptr;
+    inline static std::function<void(Cookies, std::string)>
+        writeCookiesCallback = nullptr;
 
 public:
     static Cookies cookies;
@@ -66,9 +67,19 @@ public:
         const std::function<void(std::string, std::string)>& callback = nullptr,
         const ErrorCallback& error = nullptr);
 
+    static void get_login_url_v2(
+        const std::function<void(std::string, std::string)>& callback = nullptr,
+        const ErrorCallback& error = nullptr);
+
     /// check if qrcode has been scanned
     static void get_login_info(
-        const std::string oauthKey,
+        const std::string& oauthKey,
+        const std::function<void(enum LoginInfo)>& callback = nullptr,
+        const ErrorCallback& error                          = nullptr);
+
+    static void get_login_info_v2(
+        const std::string& qrcodeKey, const std::string& deviceName,
+        const std::string& deviceID,
         const std::function<void(enum LoginInfo)>& callback = nullptr,
         const ErrorCallback& error                          = nullptr);
 
@@ -494,9 +505,12 @@ public:
         const ErrorCallback& error                          = nullptr);
 
     /// 初始化设置Cookie
-    static void init(Cookies& cookies,
-                     std::function<void(Cookies)> writeCookiesCallback,
-                     int timeout = 10000, const std::string& httpProxy = "",
-                     const std::string& httpsProxy = "");
+    static void init(
+        Cookies& cookies,
+        std::function<void(Cookies, std::string)> writeCookiesCallback,
+        int timeout = 10000, const std::string& httpProxy = "",
+        const std::string& httpsProxy = "");
+
+    static std::string genRandomBuvid3();
 };
 }  // namespace bilibili

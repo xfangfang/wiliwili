@@ -24,9 +24,18 @@ void BilibiliClient::get_login_url(
         error);
 }
 
+void BilibiliClient::get_login_url_v2(
+    const std::function<void(std::string, std::string)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<QrLoginTokenResultV2>(
+        Api::QrLoginUrlV2, {{"source", "main_electron_pc"}},
+        [callback](auto wrapper) { callback(wrapper.url, wrapper.qrcode_key); },
+        error);
+}
+
 /// check if qrcode has been scanned
 void BilibiliClient::get_login_info(
-    const std::string oauthKey,
+    const std::string& oauthKey,
     const std::function<void(enum LoginInfo)>& callback,
     const ErrorCallback& error) {
     HTTP::__cpr_post(
@@ -45,7 +54,53 @@ void BilibiliClient::get_login_info(
                             {it->GetName(), it->GetValue()});
                     }
                     if (BilibiliClient::writeCookiesCallback) {
-                        BilibiliClient::writeCookiesCallback(cookies);
+                        BilibiliClient::writeCookiesCallback(cookies, "");
+                    }
+                }
+
+                if (callback) callback(data.data);
+                return;
+            } catch (const std::exception& e) {
+                ERROR_MSG("API error");
+                printf("data: %s\n", r.text.c_str());
+                printf("ERROR: %s\n", e.what());
+            }
+        },
+        error);
+}
+
+void BilibiliClient::get_login_info_v2(
+    const std::string& qrcodeKey, const std::string& deviceName,
+    const std::string& deviceID,
+    const std::function<void(enum LoginInfo)>& callback,
+    const ErrorCallback& error) {
+    HTTP::COOKIES = {{{"appkey", BILIBILI_APP_KEY},
+                      {"mobi_app", "pc_electron"},
+                      {"device", "mac"},
+                      {"innersign", "0"},
+                      {"buvid3", BilibiliClient::genRandomBuvid3()},
+                      {"device_id", deviceID},
+                      {"device_name", deviceName}},
+                     false};
+
+    HTTP::__cpr_get(
+        Api::QrLoginInfoV2,
+        {{"qrcode_key", qrcodeKey}, {"source", "main_electron_pc"}},
+        [callback, error](const cpr::Response& r) {
+            try {
+                HTTP::COOKIES      = {false};
+                nlohmann::json res = nlohmann::json::parse(r.text);
+                auto data          = res.at("data").get<QrLoginInfoResultV2>();
+                if (data.status) {
+                    std::map<std::string, std::string> cookies;
+                    for (const auto& cookie : r.cookies) {
+                        cookies[cookie.GetName()] = cookie.GetValue();
+                        HTTP::COOKIES.emplace_back(
+                            {cookie.GetName(), cookie.GetValue()});
+                    }
+                    if (BilibiliClient::writeCookiesCallback) {
+                        BilibiliClient::writeCookiesCallback(
+                            cookies, data.refresh_token);
                     }
                 }
 

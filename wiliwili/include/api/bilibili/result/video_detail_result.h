@@ -48,15 +48,21 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
 
 class LevelInfo {
 public:
+    LevelInfo() { current_level = 0; }
     int current_level;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelInfo, current_level);
 
 class CommentUserResult {
 public:
+    CommentUserResult() {
+        is_uploader      = false;
+        is_senior_member = 0;
+    }
+
     std::string mid, uname, avatar;
     int is_senior_member;
-    LevelInfo level_info;
+    LevelInfo level_info{};
     bool is_uploader;
 };
 
@@ -443,8 +449,16 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
 
 class VideoRelation {
 public:
+    VideoRelation() {
+        attention  = false;
+        favorite   = false;
+        season_fav = false;
+        like       = false;
+        dislike    = false;
+        coin       = 0;
+    }
     bool attention, favorite, season_fav, like, dislike;
-    int coin = 0;
+    int coin;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoRelation, attention, favorite,
                                    season_fav, like, dislike, coin);

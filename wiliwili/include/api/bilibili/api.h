@@ -157,7 +157,13 @@ static const std::string RankingGRPC =
 /// ===
 static const std::string QrLoginUrl  = _passBase + "/qrcode/getLoginUrl";
 static const std::string QrLoginInfo = _passBase + "/qrcode/getLoginInfo";
-static const std::string MyInfo      = _apiBase + "/x/space/myinfo";
+static const std::string QrLoginUrlV2 =
+    _passBase + "/x/passport-login/web/qrcode/generate";
+static const std::string QrLoginInfoV2 =
+    _passBase + "/x/passport-login/web/qrcode/poll";
+static const std::string CheckRefreshToken =
+    _passBase + "/x/passport-login/web/cookie/info";
+static const std::string MyInfo = _apiBase + "/x/space/myinfo";
 static const std::string HistoryVideo =
     _apiBase + "/x/web-interface/history/cursor";
 static const std::string CollectionList =

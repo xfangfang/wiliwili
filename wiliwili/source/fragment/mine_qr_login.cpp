@@ -3,6 +3,7 @@
 //
 
 #include "fragment/mine_qr_login.hpp"
+#include "utils/config_helper.hpp"
 
 MineQrLogin::MineQrLogin(loginStatusEvent cb) : loginCb(cb) {
     this->inflateFromXMLRes("xml/fragment/mine_qr_login.xml");
@@ -60,7 +61,7 @@ void MineQrLogin::onLoginError() {
 
 void MineQrLogin::getLoginUrl() {
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_login_url(
+    bilibili::BilibiliClient::get_login_url_v2(
         [ASYNC_TOKEN](const std::string& url, const std::string& key) {
             ASYNC_RELEASE
             this->oauthKey  = key;
@@ -78,8 +79,10 @@ void MineQrLogin::checkLogin() {
     }
     brls::Logger::debug("check login");
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_login_info(
-        this->oauthKey, [ASYNC_TOKEN](bilibili::LoginInfo info) {
+    bilibili::BilibiliClient::get_login_info_v2(
+        this->oauthKey, "wiliwili - " + APPVersion::instance().getPlatform(),
+        ProgramConfig::instance().getDeviceID(),
+        [ASYNC_TOKEN](bilibili::LoginInfo info) {
             this->loginCb.fire(info);
             brls::Logger::debug("return code:{}", info);
             ASYNC_RELEASE

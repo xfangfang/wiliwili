@@ -193,27 +193,43 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 ProgramConfig::ProgramConfig() = default;
 
 ProgramConfig::ProgramConfig(const ProgramConfig& conf) {
-    this->cookie  = conf.cookie;
-    this->setting = conf.setting;
+    this->cookie       = conf.cookie;
+    this->setting      = conf.setting;
+    this->device       = conf.device;
+    this->client       = conf.client;
+    this->refreshToken = conf.refreshToken;
 }
 
 void ProgramConfig::setProgramConfig(const ProgramConfig& conf) {
-    this->cookie  = conf.cookie;
-    this->setting = conf.setting;
-    this->client  = conf.client;
-    brls::Logger::info("client: {}", conf.client);
+    this->cookie       = conf.cookie;
+    this->setting      = conf.setting;
+    this->client       = conf.client;
+    this->device       = conf.device;
+    this->refreshToken = conf.refreshToken;
+    brls::Logger::info("client: {}/{}", conf.client, conf.device);
     for (const auto& c : conf.cookie) {
         brls::Logger::info("cookie: {}:{}", c.first, c.second);
     }
+    brls::Logger::info("refreshToken: {}", conf.refreshToken);
     brls::Logger::info("setting: {}", conf.setting.dump());
 }
 
-void ProgramConfig::setCookie(Cookie data) {
-    this->cookie = std::move(data);
+void ProgramConfig::setCookie(const Cookie& data) {
+    this->cookie = data;
+    if (data.empty()) this->refreshToken.clear();
     this->save();
 }
 
-Cookie ProgramConfig::getCookie() { return this->cookie; }
+Cookie ProgramConfig::getCookie() const { return this->cookie; }
+
+void ProgramConfig::setRefreshToken(const std::string& token) {
+    this->refreshToken = token;
+    this->save();
+}
+
+std::string ProgramConfig::getRefreshToken() const {
+    return this->refreshToken;
+}
 
 std::string ProgramConfig::getCSRF() {
     if (this->cookie.count("bili_jct") == 0) {
@@ -236,6 +252,17 @@ std::string ProgramConfig::getClientID() {
         this->save();
     }
     return this->client;
+}
+
+std::string ProgramConfig::getDeviceID() {
+    if (this->device.empty()) {
+        this->device =
+            fmt::format("{}-{}-{}-{}-{}", wiliwili::getRandomHex(8),
+                        wiliwili::getRandomHex(4), wiliwili::getRandomHex(4),
+                        wiliwili::getRandomHex(4), wiliwili::getRandomHex(12));
+        this->save();
+    }
+    return this->device;
 }
 
 void ProgramConfig::loadHomeWindowState() {
@@ -542,12 +569,14 @@ void ProgramConfig::init() {
     Cookie diskCookie = this->getCookie();
     bilibili::BilibiliClient::init(
         diskCookie,
-        [](const Cookie& newCookie) {
+        [](const Cookie& newCookie, const std::string& token) {
             brls::Logger::info("======== write cookies to disk");
             for (const auto& c : newCookie) {
                 brls::Logger::info("cookie: {}:{}", c.first, c.second);
             }
+            brls::Logger::info("refreshToken: {}", token);
             ProgramConfig::instance().setCookie(newCookie);
+            ProgramConfig::instance().setRefreshToken(token);
         },
         5000);
 }

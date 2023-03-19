@@ -16,6 +16,13 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(QrLoginTokenResult, url, oauthKey);
 
+class QrLoginTokenResultV2 {
+public:
+    std::string url;
+    std::string qrcode_key;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(QrLoginTokenResultV2, url, qrcode_key);
+
 enum LoginInfo {
     SUCCESS           = 1,
     OAUTH_KEY_ERROR   = -1,
@@ -40,6 +47,36 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_t.data = LoginInfo::SUCCESS;
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, status));
+}
+
+class QrLoginInfoResultV2 {
+public:
+    bool status = false;
+    LoginInfo data;
+    std::string refresh_token;
+};
+
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      QrLoginInfoResultV2& nlohmann_json_t) {
+    switch (nlohmann_json_j.at("code").get<int>()) {
+        case 0:
+            nlohmann_json_t.status = true;
+            nlohmann_json_t.data   = LoginInfo::SUCCESS;
+            break;
+        case 86101:
+            nlohmann_json_t.data = LoginInfo::NEED_SCAN;
+            break;
+        case 86090:
+            nlohmann_json_t.data = LoginInfo::NEED_CONFIRM;
+            break;
+        case 86038:
+            nlohmann_json_t.data = LoginInfo::OAUTH_KEY_TIMEOUT;
+            break;
+        default:
+            nlohmann_json_t.data = LoginInfo::OAUTH_KEY_ERROR;
+    }
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, refresh_token));
 }
 
 class UserUploadedVideoResult {
