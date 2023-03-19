@@ -135,9 +135,6 @@ public:
 private:
     mpv_handle *mpv                 = nullptr;
     mpv_render_context *mpv_context = nullptr;
-    brls::Rect reportRect;
-    brls::RepeatingTimer reportTimer;
-    void setFrameSizeInline();
 #ifdef MPV_SW_RENDER
     const int PIXCEL_SIZE          = 4;
     int nvg_image                  = 0;
