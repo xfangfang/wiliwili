@@ -11,7 +11,6 @@
 
 #include "bilibili.h"
 #include "borealis/core/cache_helper.hpp"
-#include <borealis/core/geometry.hpp>
 #include "utils/number_helper.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/config_helper.hpp"
@@ -253,12 +252,11 @@ void ProgramConfig::loadHomeWindowState() {
            &hHeight, &hXPos, &hYPos);
 
     if (hWidth == 0 || hHeight == 0) return;
-    struct brls::Rect rect;
-    rect.size.width       = hWidth;
-    rect.size.height      = hHeight;
-    rect.origin.x         = (float)hXPos;
-    rect.origin.y         = (float)hYPos;
-    VideoContext::setWindowState(rect);
+
+    VideoContext::sizeH        = hHeight;
+    VideoContext::sizeW        = hWidth;
+    VideoContext::posX         = (float)hXPos;
+    VideoContext::posY         = (float)hYPos;
     VideoContext::monitorIndex = monitor;
 
     brls::Logger::info("Load window state: {}x{},{}x{}", hWidth, hHeight, hXPos,
@@ -266,14 +264,13 @@ void ProgramConfig::loadHomeWindowState() {
 }
 
 void ProgramConfig::saveHomeWindowState() {
-    struct brls::Rect rect;
-    VideoContext::getWindowState(&rect);
-    if (isnan(rect.origin.x) || isnan(rect.origin.y)) return;
+    if (isnan(VideoContext::posX) || isnan(VideoContext::posY)) return;
     auto videoContext = brls::Application::getPlatform()->getVideoContext();
-    uint32_t width  = rect.size.width;
-    uint32_t height = rect.size.height;
-    int xPos        = rect.origin.x;
-    int yPos        = rect.origin.y;
+
+    uint32_t width  = VideoContext::sizeW;
+    uint32_t height = VideoContext::sizeH;
+    int xPos        = VideoContext::posX;
+    int yPos        = VideoContext::posY;
 
     int monitor     = videoContext->getCurrentMonitorIndex();
     if (width == 0) width = brls::ORIGINAL_WINDOW_WIDTH;
