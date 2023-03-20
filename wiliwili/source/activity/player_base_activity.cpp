@@ -57,17 +57,18 @@ public:
             return;
         }
 
-        PlayerSingleComment* view = new PlayerSingleComment();
-        view->setCommentData(dataList[index - 1]);
+        auto* item =
+            dynamic_cast<VideoComment*>(recycler->getGridItemByIndex(index));
+        if (!item) return;
+
+        auto* view = new PlayerSingleComment();
+        view->setCommentData(dataList[index - 1], item->getY());
         auto container = new brls::AppletFrame(view);
         container->setHeaderVisibility(brls::Visibility::GONE);
         container->setFooterVisibility(brls::Visibility::GONE);
         container->setInFadeAnimation(true);
         brls::Application::pushActivity(new brls::Activity(container));
 
-        VideoComment* item =
-            dynamic_cast<VideoComment*>(recycler->getGridItemByIndex(index));
-        if (!item) return;
 
         view->likeStateEvent.subscribe([this, item, index](bool value) {
             auto& itemData  = dataList[index - 1];

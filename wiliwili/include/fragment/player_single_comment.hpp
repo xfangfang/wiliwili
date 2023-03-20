@@ -22,7 +22,7 @@ class PlayerSingleComment : public brls::Box {
 public:
     PlayerSingleComment();
 
-    void setCommentData(const bilibili::VideoCommentResult& result);
+    void setCommentData(const bilibili::VideoCommentResult& result, float y);
 
     void requestData();
 
@@ -30,7 +30,11 @@ public:
 
     void dismiss(std::function<void(void)> cb = nullptr) override;
 
-    ~PlayerSingleComment();
+    ~PlayerSingleComment() override;
+
+    void showStartAnimation(float y);
+
+    void showDismissAnimation();
 
     brls::Event<bool> likeStateEvent;
     brls::Event<size_t> likeNumEvent;
@@ -43,6 +47,9 @@ private:
     BRLS_BIND(RecyclingGrid, recyclingGrid,
               "player/single/comment/recyclingGrid");
     BRLS_BIND(ButtonClose, closeBtn, "button/close");
+    BRLS_BIND(brls::Box, backgroundBox, "box/background");
+
+    brls::Animatable position = 0.0f;
 };
 
 /// 选择对单条评论的行为：点赞、回复、删除
@@ -60,6 +67,10 @@ public:
 
     brls::Event<> likeClickEvent, replyClickEvent, deleteClickEvent;
 
+    void showStartAnimation();
+
+    void showDismissAnimation();
+
 private:
     BRLS_BIND(SVGImage, svgReply, "comment/action/svg/reply");
     BRLS_BIND(SVGImage, svgLike, "comment/action/svg/like");
@@ -67,4 +78,8 @@ private:
     BRLS_BIND(brls::Box, actionBox, "comment/action/box");
     BRLS_BIND(VideoComment, comment, "comment/action/comment");
     BRLS_BIND(ButtonClose, closeBtn, "button/close");
+    BRLS_BIND(brls::Box, backgroundBox, "box/background");
+
+    brls::Animatable position     = 0.0f;
+    float commentOriginalPosition = 0.0f;
 };

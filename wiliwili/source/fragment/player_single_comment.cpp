@@ -3,6 +3,8 @@
 //
 
 #include "fragment/player_single_comment.hpp"
+
+#include <utility>
 #include "view/video_comment.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/button_close.hpp"
@@ -27,7 +29,7 @@ public:
         this->addView(hintLabel);
     }
 
-    void setNum(size_t num) {
+    void setNum(size_t num) const {
         if (num <= 0) {
             this->hintLabel->setText("");
         } else {
@@ -52,7 +54,7 @@ public:
                                 brls::Event<size_t>* likeNum,
                                 brls::Event<size_t>* replyNum,
                                 brls::Event<>* deleteReply)
-        : dataList(result),
+        : dataList(std::move(result)),
           likeState(likeState),
           likeNum(likeNum),
           replyNum(replyNum),
@@ -99,11 +101,11 @@ public:
         }
         if (!DialogHelper::checkLogin()) return;
 
-        VideoComment* item =
+        auto* item =
             dynamic_cast<VideoComment*>(recycler->getGridItemByIndex(index));
         if (!item) return;
 
-        PlayerCommentAction* view = new PlayerCommentAction();
+        auto* view = new PlayerCommentAction();
         view->setActionData(dataList[index], item->getY());
         if (user_mid == dataList[index].member.mid) view->showDelete();
         auto container = new brls::AppletFrame(view);
@@ -186,12 +188,12 @@ public:
         replyNum->fire(wholeNum);
 
         // 层主显示的数量
-        VideoComment* topItem =
+        auto* topItem =
             dynamic_cast<VideoComment*>(recycler->getGridItemByIndex(0));
         if (topItem) topItem->setData(dataList[0]);
 
         // 相关回复
-        GridRelatedView* relatedItem =
+        auto* relatedItem =
             dynamic_cast<GridRelatedView*>(recycler->getGridItemByIndex(1));
         if (relatedItem) relatedItem->setNum(wholeNum);
     }
@@ -250,13 +252,13 @@ PlayerSingleComment::PlayerSingleComment() {
                          [this](brls::View* view) {
                              brls::Application::giveFocus(this->closeBtn);
                              this->recyclingGrid->forceRequestNextPage();
-                             this->setCommentData(this->root);
+                             this->setCommentData(this->root, NAN);
                              return true;
                          });
 }
 
 void PlayerSingleComment::setCommentData(
-    const bilibili::VideoCommentResult& result) {
+    const bilibili::VideoCommentResult& result, float y) {
     GA("single_comment", {{"id", std::to_string(result.rpid)}})
 
     this->root = result;
@@ -273,10 +275,48 @@ void PlayerSingleComment::setCommentData(
     recyclingGrid->setDataSource(new DataSourceSingleCommentList(
         defaultData, &likeStateEvent, &likeNumEvent, &replyNumEvent,
         &deleteEvent));
+
+    this->showStartAnimation(y);
+}
+
+void PlayerSingleComment::showStartAnimation(float y) {
+    if (isnan(y)) return;
+
+    brls::Application::blockInputs();
+    this->position.stop();
+    this->position.reset(y);
+    this->position.addStep(60, 300, brls::EasingFunction::quadraticOut);
+    this->position.setTickCallback([this] {
+        this->backgroundBox->setPositionTop(this->position - 60);
+        float alpha = 1 - (this->position - 60) / 720;
+        this->backgroundBox->setAlpha(alpha);
+        this->setAlpha(alpha);
+    });
+    this->position.setEndCallback(
+        [](bool finished) { brls::Application::unblockInputs(); });
+    this->position.start();
+}
+
+void PlayerSingleComment::showDismissAnimation() {
+    brls::Application::blockInputs();
+    this->position.stop();
+    this->position.reset(0);
+    this->position.addStep(720, 300, brls::EasingFunction::quadraticIn);
+    this->position.setTickCallback([this] {
+        this->backgroundBox->setPositionTop(this->position);
+        float alpha = 1 - this->position / 720;
+        this->backgroundBox->setAlpha(alpha);
+        this->setAlpha(alpha);
+    });
+    this->position.setEndCallback([](bool finished) {
+        brls::Application::unblockInputs();
+        brls::Application::popActivity(brls::TransitionAnimation::NONE);
+    });
+    this->position.start();
 }
 
 void PlayerSingleComment::dismiss(std::function<void(void)> cb) {
-    brls::Application::popActivity(brls::TransitionAnimation::NONE);
+    this->showDismissAnimation();
 }
 
 void PlayerSingleComment::requestData() {
@@ -298,9 +338,8 @@ void PlayerSingleComment::requestData() {
 
                 std::string uploader_mid = std::to_string(result.upper);
 
-                DataSourceSingleCommentList* ds =
-                    dynamic_cast<DataSourceSingleCommentList*>(
-                        recyclingGrid->getDataSource());
+                auto* ds = dynamic_cast<DataSourceSingleCommentList*>(
+                    recyclingGrid->getDataSource());
                 if (!ds) return;
 
                 // 更新层主评论状态
@@ -381,12 +420,45 @@ PlayerCommentAction::PlayerCommentAction() {
         this->dismiss();
         return true;
     });
+
+    this->position.setTickCallback([this] {
+        this->actionBox->setPositionTop(this->position);
+        this->comment->getParent()->setPositionTop(this->position - 60);
+        float alpha = 1 - (this->position - 60) / 720;
+        this->backgroundBox->setAlpha(alpha);
+        this->actionBox->setAlpha(alpha);
+    });
 }
 
 void PlayerCommentAction::setActionData(
     const bilibili::VideoCommentResult& data, float y) {
     this->comment->setData(data);
     if (data.rpid != data.root) this->comment->hideReplyIcon(true);
+    commentOriginalPosition = y;
+    this->showStartAnimation();
+}
+
+void PlayerCommentAction::showStartAnimation() {
+    brls::Application::blockInputs();
+    this->position.stop();
+    this->position.reset(commentOriginalPosition);
+    this->position.addStep(60, 200, brls::EasingFunction::quadraticOut);
+    this->position.setEndCallback(
+        [](bool finished) { brls::Application::unblockInputs(); });
+    this->position.start();
+}
+
+void PlayerCommentAction::showDismissAnimation() {
+    brls::Application::blockInputs();
+    this->position.stop();
+    this->position.reset(60);
+    this->position.addStep(commentOriginalPosition, 200,
+                           brls::EasingFunction::quadraticIn);
+    this->position.setEndCallback([](bool finished) {
+        brls::Application::unblockInputs();
+        brls::Application::popActivity(brls::TransitionAnimation::NONE);
+    });
+    this->position.start();
 }
 
 void PlayerCommentAction::showDelete() {
@@ -396,5 +468,5 @@ void PlayerCommentAction::showDelete() {
 brls::View* PlayerCommentAction::getDefaultFocus() { return this->svgLike; }
 
 void PlayerCommentAction::dismiss(std::function<void(void)> cb) {
-    brls::Application::popActivity(brls::TransitionAnimation::NONE);
+    this->showDismissAnimation();
 }
