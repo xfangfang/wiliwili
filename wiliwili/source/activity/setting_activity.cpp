@@ -189,7 +189,7 @@ void SettingActivity::onContentAvailable() {
     /// Hide bottom bar
     cellHideBar->init(
         "wiliwili/setting/app/others/hide_bottom"_i18n,
-        conf.getBoolOption(SettingItem::HIDE_BOTTOM_BAR), [](bool value) {
+        conf.getBoolOption(SettingItem::HIDE_BOTTOM_BAR), [this](bool value) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::HIDE_BOTTOM_BAR, value);
             // 更新设置
@@ -204,6 +204,13 @@ void SettingActivity::onContentAvailable() {
                 frame->setFooterVisibility(value ? brls::Visibility::GONE
                                                  : brls::Visibility::VISIBLE);
             }
+
+            if (value) {
+                ProgramConfig::instance().setSettingItem(SettingItem::HIDE_FPS,
+                                                         true);
+                brls::Application::setFPSStatus(false);
+            }
+            this->cellHideFPS->setOn(true);
         });
 
     /// Hide FPS
@@ -377,52 +384,6 @@ void SettingActivity::onContentAvailable() {
             MPVCore::INMEMORY_CACHE = inmemoryOption.rawOptionList[data];
             MPVCore::instance().restart();
         });
-
-    /// Upload history record
-    btnHistory->init("wiliwili/setting/app/playback/report"_i18n,
-                     conf.getSettingItem(SettingItem::HISTORY_REPORT, true),
-                     [](bool value) {
-                         ProgramConfig::instance().setSettingItem(
-                             SettingItem::HISTORY_REPORT, value);
-                         VideoDetail::REPORT_HISTORY = value;
-                     });
-
-    btnAutoNextPart->init(
-        "wiliwili/setting/app/playback/auto_play_next_part"_i18n,
-        conf.getBoolOption(SettingItem::AUTO_NEXT_PART), [this](bool value) {
-            ProgramConfig::instance().setSettingItem(
-                SettingItem::AUTO_NEXT_PART, value);
-            BasePlayerActivity::AUTO_NEXT_PART = value;
-            if (!value) {
-                ProgramConfig::instance().setSettingItem(
-                    SettingItem::AUTO_NEXT_RCMD, false);
-                BasePlayerActivity::AUTO_NEXT_RCMD = false;
-                btnAutoNextRcmd->setOn(false, btnAutoNextRcmd->isOn());
-            }
-        });
-
-    btnAutoNextRcmd->init(
-        "wiliwili/setting/app/playback/auto_play_recommend"_i18n,
-        conf.getBoolOption(SettingItem::AUTO_NEXT_RCMD), [this](bool value) {
-            ProgramConfig::instance().setSettingItem(
-                SettingItem::AUTO_NEXT_RCMD, value);
-            BasePlayerActivity::AUTO_NEXT_RCMD = value;
-            if (value) {
-                ProgramConfig::instance().setSettingItem(
-                    SettingItem::AUTO_NEXT_PART, true);
-                BasePlayerActivity::AUTO_NEXT_PART = true;
-                btnAutoNextPart->setOn(true, !btnAutoNextPart->isOn());
-            }
-        });
-
-    /// Player bottom bar
-    btnProgress->init("wiliwili/setting/app/playback/player_bar"_i18n,
-                      conf.getBoolOption(SettingItem::PLAYER_BOTTOM_BAR),
-                      [](bool value) {
-                          ProgramConfig::instance().setSettingItem(
-                              SettingItem::PLAYER_BOTTOM_BAR, value);
-                          MPVCore::BOTTOM_BAR = value;
-                      });
 
 /// Hardware decode
 #ifdef __SWITCH__

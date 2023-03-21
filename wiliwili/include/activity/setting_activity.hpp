@@ -35,11 +35,7 @@ private:
     BRLS_BIND(brls::SelectorCell, selectorTexture, "setting/image/texture");
     BRLS_BIND(brls::SelectorCell, selectorThreads, "setting/image/threads");
     BRLS_BIND(brls::SelectorCell, selectorKeymap, "setting/keymap");
-    BRLS_BIND(brls::BooleanCell, btnHistory, "setting/history/log");
-    BRLS_BIND(brls::BooleanCell, btnAutoNextPart, "setting/auto/nextPart");
-    BRLS_BIND(brls::BooleanCell, btnAutoNextRcmd, "setting/auto/nextRcmd");
     BRLS_BIND(brls::BooleanCell, btnOpencc, "setting/opencc");
-    BRLS_BIND(brls::BooleanCell, btnProgress, "setting/video/progress");
     BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/quality");
     BRLS_BIND(brls::BooleanCell, btnHWDEC, "setting/video/hwdec");
     BRLS_BIND(brls::SelectorCell, selectorInmemory, "setting/video/inmemory");
