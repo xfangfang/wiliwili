@@ -379,7 +379,7 @@ void PlayerSeasonActivity::playSeason(size_t season_id) {
     // 清空评论
     // 强制设置高度100，提升骨架屏显示效果
     this->recyclingGrid->estimatedRowHeight = 100;
-    this->recyclingGrid->showSkeleton(6);
+    this->recyclingGrid->showSkeleton();
 
     this->setProgress(0);
     this->requestData(season_id, PGC_ID_TYPE::SEASON_ID);

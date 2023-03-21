@@ -66,7 +66,7 @@ private:
 class DataSourceSearchPGCList : public RecyclingGridDataSource {
 public:
     DataSourceSearchPGCList(bilibili::VideoItemSearchListResult result)
-        : list(result) {}
+        : list(std::move(result)) {}
 
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
@@ -77,7 +77,7 @@ public:
 
         bilibili::VideoItemSearchResult& r = this->list[index];
 
-        std::string score = "", score_count = "", cv = "", subtitle = "";
+        std::string score, score_count, cv, subtitle;
         if (r.media_score.score > 0) {
             score_count = fmt::format(
                 "{}人评分", wiliwili::num2w(r.media_score.user_count));
@@ -86,9 +86,13 @@ public:
         if (!r.cv.empty()) {
             cv = "演员: " + r.cv;
         }
-        subtitle =
-            fmt::format("{} · {}", r.styles, wiliwili::sec2TimeDate(r.pubdate));
-        if (!r.index_show.empty()) subtitle += " · " + r.index_show;
+
+        std::vector<std::string> subtitles;
+        if (!r.styles.empty()) subtitles.emplace_back(r.styles);
+        if (r.pubdate > 0)
+            subtitles.emplace_back(wiliwili::sec2dateV2(r.pubdate));
+        if (!r.index_show.empty()) subtitles.emplace_back(r.index_show);
+        subtitle = pystring::join(" · ", subtitles);
 
         item->setCard(r.cover + ImageHelper::v_ext, r.title, subtitle, cv,
                       "简介: " + r.desc, r.badge.text, r.badge.bg_color,
@@ -118,13 +122,13 @@ class SearchTab : public brls::Box {
 public:
     SearchTab();
 
-    ~SearchTab();
+    ~SearchTab() override;
 
     static View* create();
 
     void requestData(const std::string& key);
 
-    inline static std::string keyWord = "";
+    inline static std::string keyWord;
 
     void passEventToSearchHots(UpdateSearchEvent* updateSearchEvent);
 

@@ -125,7 +125,7 @@ PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid,
         // 清空评论
         // 强制设置高度100，提升骨架屏显示效果
         this->recyclingGrid->estimatedRowHeight = 100;
-        this->recyclingGrid->showSkeleton(6);
+        this->recyclingGrid->showSkeleton();
 
         // 请求新视频的数据
         videoDetailPage.cid = 0;  // cid 设置为0，新视频默认打开PV1

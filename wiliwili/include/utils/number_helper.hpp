@@ -48,6 +48,13 @@ std::string num2w(size_t t);
 // else => YYYY-M-D
 std::string sec2date(time_t sec);
 
+/**
+ * 生成年月日: 2023-01-01
+ * @param sec unix 时间戳
+ * @return 年-月-日
+ */
+std::string sec2dateV2(time_t sec);
+
 std::string sec2FullDate(time_t sec);
 
 std::string sec2TimeDate(time_t sec);

@@ -121,6 +121,12 @@ std::string wiliwili::sec2date(time_t sec) {
     return "刚刚";
 }
 
+std::string wiliwili::sec2dateV2(time_t sec) {
+    GET_TIME
+    return std::to_string(tm.tm_year + 1900) + "-" + pre0(tm.tm_mon + 1, 2) +
+           "-" + pre0(tm.tm_mday, 2);
+}
+
 // 准确的时间: 2022-01-01 23:00:00
 std::string wiliwili::sec2FullDate(time_t sec) {
     GET_TIME

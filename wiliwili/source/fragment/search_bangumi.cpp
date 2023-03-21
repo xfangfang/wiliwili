@@ -34,17 +34,16 @@ void SearchBangumi::requestSearch(const std::string& key) {
 
 void SearchBangumi::_requestSearch(const std::string& key) {
     ASYNC_RETAIN
-    bilibili::BilibiliClient::search_video(
+    BILI::search_video(
         key, "media_bangumi", requestIndex, "",
         [ASYNC_TOKEN](const bilibili::SearchResult& result) {
-            for (auto i : result.result) {
+            for (const auto& i : result.result) {
                 brls::Logger::debug("search: {}", i.title);
             }
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
-                DataSourceSearchPGCList* datasource =
-                    dynamic_cast<DataSourceSearchPGCList*>(
-                        recyclingGrid->getDataSource());
+                auto* datasource = dynamic_cast<DataSourceSearchPGCList*>(
+                    recyclingGrid->getDataSource());
                 if (result.page != this->requestIndex) {
                     // 请求的顺序和当前需要的顺序不符
                     brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}",
@@ -67,7 +66,7 @@ void SearchBangumi::_requestSearch(const std::string& key) {
                 this->requestIndex = result.page + 1;
             });
         },
-        [ASYNC_TOKEN](const std::string error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             brls::Logger::error("SearchBangumi: {}", error);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
