@@ -30,7 +30,7 @@ public:
     std::vector<std::string> getQualityDescriptionList();
     int getCurrentQualityIndex();
 
-    ~LiveActivity();
+    ~LiveActivity() override;
 
 private:
     BRLS_BIND(VideoView, video, "live/video");
@@ -38,7 +38,7 @@ private:
     bilibili::LiveVideoResult liveData;
 
     // 监控mpv事件
-    MPVEvent::Subscription eventSubscribeID;
+    MPVCustomEvent::Subscription eventSubscribeID;
 
     // 用于缓存全局状态，进入直播时关闭弹幕与底部进度条，退出时恢复
     bool globalShowDanmaku = false;

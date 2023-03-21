@@ -107,6 +107,7 @@ protected:
 
     // 监控mpv事件
     MPVEvent::Subscription eventSubscribeID;
+    MPVCustomEvent::Subscription customEventSubscribeID;
 
     // 在软件自动切换分集时，传递当前跳转的索引值给列表用于更新ui
     ChangeIndexEvent changeIndexEvent;

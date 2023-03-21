@@ -41,13 +41,9 @@ void LiveActivity::setCommonData() {
     ShaderHelper::instance().clearShader();
 
     eventSubscribeID =
-        MPVCore::instance().getEvent()->subscribe([this](MpvEventEnum event) {
-            switch (event) {
-                case MpvEventEnum::QUALITY_CHANGE_REQUEST:
-                    this->setVideoQuality();
-                    break;
-                default:
-                    break;
+        MPV_CE->subscribe([this](const std::string& event, void* data) {
+            if (event == VideoView::QUALITY_CHANGE) {
+                this->setVideoQuality();
             }
         });
 }
@@ -117,8 +113,8 @@ void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result) {
     for (auto& i : result.quality_description) {
         brls::Logger::debug("quality: {}/{}", i.desc, i.qn);
         if (result.current_qn == i.qn) {
-            MPVCore::instance().qualityStr = i.desc + " \uE0EF";
-            MPVCore::instance().getEvent()->fire(MpvEventEnum::QUALITY_CHANGED);
+            std::string quality = i.desc + " \uE0EF";
+            MPV_CE->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
         }
     }
     for (const auto& i : result.durl) {
@@ -138,5 +134,5 @@ LiveActivity::~LiveActivity() {
     DanmakuCore::DANMAKU_ON = globalShowDanmaku;
     MPVCore::BOTTOM_BAR     = globalBottomBar;
     // 取消监控mpv
-    MPVCore::instance().getEvent()->unsubscribe(eventSubscribeID);
+    MPV_CE->unsubscribe(eventSubscribeID);
 }

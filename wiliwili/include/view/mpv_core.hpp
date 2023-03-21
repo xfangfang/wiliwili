@@ -37,13 +37,13 @@ typedef enum MpvEventEnum {
     UPDATE_PROGRESS,
     START_FILE,
     END_OF_FILE,
-    DANMAKU_LOADED,
     CACHE_SPEED_CHANGE,
-    QUALITY_CHANGED,
-    QUALITY_CHANGE_REQUEST,
 } MpvEventEnum;
 
 typedef brls::Event<MpvEventEnum> MPVEvent;
+typedef brls::Event<std::string, void *> MPVCustomEvent;
+#define MPV_E MPVCore::instance().getEvent()
+#define MPV_CE MPVCore::instance().getCustomEvent()
 
 class MPVCore : public brls::Singleton<MPVCore> {
 public:
@@ -105,7 +105,17 @@ public:
 
     mpv_handle *getHandle();
 
+    /**
+     * 播放器内部事件
+     * 传递内容为: 事件类型
+     */
     MPVEvent *getEvent();
+
+    /**
+     * 可以用于共享自定义事件
+     * 传递内容为: string类型的事件名与一个任意类型的指针
+     */
+    MPVCustomEvent *getCustomEvent();
 
     void reset();
 
@@ -121,14 +131,16 @@ public:
     double percent_pos     = 0;
     int64_t video_progress = 0;
 
-    // 当前播放的清晰度
-    std::string qualityStr;
-
     // Bottom progress bar
-    inline static bool BOTTOM_BAR    = true;
-    inline static bool LOW_QUALITY   = false;
+    inline static bool BOTTOM_BAR = true;
+
+    // 低画质解码，剔除解码过程中的部分步骤，可以用来节省cpu
+    inline static bool LOW_QUALITY = false;
+
+    // 视频缓存（是否使用内存缓存视频，值为缓存的大小，单位MB）
     inline static int INMEMORY_CACHE = 0;
 
+    // 硬件解码
     inline static bool HARDWARE_DEC               = false;
     inline static std::string PLAYER_HWDEC_METHOD = "auto-safe";
 
@@ -177,7 +189,11 @@ private:
                           0.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f};
 #endif
 
+    // MPV 内部事件，传递内容为: 事件类型
     MPVEvent mpvCoreEvent;
+
+    // 自定义的事件，传递内容为: string类型的事件名与一个任意类型的指针
+    MPVCustomEvent mpvCoreCustomEvent;
 
     // 当前软件是否在前台的回调
     brls::Event<bool>::Subscription focusSubscription;

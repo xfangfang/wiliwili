@@ -34,7 +34,8 @@ public:
     ~VideoView() override;
 
     /// Video control
-    void setUrl(std::string url, int progress = 0, std::string audio = "");
+    void setUrl(const std::string& url, int progress = 0,
+                const std::string& audio = "");
 
     void setUrl(const std::vector<EDLUrl>& edl_urls, int progress = 0);
 
@@ -67,19 +68,19 @@ public:
 
     void hideDanmakuButton();
 
-    void setTitle(std::string title);
+    void setTitle(const std::string& title);
 
     std::string getTitle();
 
-    void setQuality(std::string str);
+    void setQuality(const std::string& str);
 
     std::string getQuality();
 
-    void setOnlineCount(std::string count);
+    void setOnlineCount(const std::string& count);
 
-    void setDuration(std::string value);
+    void setDuration(const std::string& value);
 
-    void setPlaybackTime(std::string value);
+    void setPlaybackTime(const std::string& value);
 
     // 手动设置osd右下角的全屏图标
     void setFullscreenIcon(bool fs);
@@ -123,10 +124,16 @@ public:
 
     void buttonProcessing();
 
+    inline static const std::string QUALITY_CHANGE = "QUALITY_CHANGE";
+    inline static const std::string SET_ONLINE_NUM = "SET_ONLINE_NUM";
+    inline static const std::string SET_TITLE      = "SET_TITLE";
+    inline static const std::string SET_QUALITY    = "SET_QUALITY";
+
 private:
     bool allowFullscreen  = true;
     bool registerMPVEvent = false;
     MPVEvent::Subscription eventSubscribeID;
+    MPVCustomEvent::Subscription customEventSubscribeID;
     brls::InputManager* input;
 
     ///OSD

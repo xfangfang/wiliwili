@@ -108,18 +108,18 @@ VideoView::VideoView() {
                                brls::SOUND_NONE)));
 
     /// 清晰度按钮
-    this->videoQuality->registerClickAction([this](...) {
-        mpvCore->getEvent()->fire(MpvEventEnum::QUALITY_CHANGE_REQUEST);
+    this->videoQuality->registerClickAction([](...) {
+        MPV_CE->fire(VideoView::QUALITY_CHANGE, nullptr);
         return true;
     });
     this->videoQuality->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->videoQuality));
-    this->registerAction(
-        "wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
-        [this](brls::View* view) -> bool {
-            mpvCore->getEvent()->fire(MpvEventEnum::QUALITY_CHANGE_REQUEST);
-            return true;
-        });
+    this->registerAction("wiliwili/player/quality"_i18n,
+                         brls::ControllerButton::BUTTON_START,
+                         [](brls::View* view) -> bool {
+                             MPV_CE->fire(VideoView::QUALITY_CHANGE, nullptr);
+                             return true;
+                         });
 
     /// 全屏按钮
     this->btnFullscreenIcon->getParent()->registerClickAction([this](...) {
@@ -191,11 +191,24 @@ VideoView::VideoView() {
                              }
                              return true;
                          });
+
+    // 自定义的mpv事件
+    customEventSubscribeID =
+        MPV_CE->subscribe([this](const std::string& event, void* data) {
+            if (event == VideoView::SET_TITLE) {
+                this->setTitle((const char*)data);
+            } else if (event == VideoView::SET_ONLINE_NUM) {
+                this->setOnlineCount((const char*)data);
+            } else if (event == VideoView::SET_QUALITY) {
+                this->setQuality((const char*)data);
+            }
+        });
 }
 
 VideoView::~VideoView() {
     brls::Logger::debug("trying delete VideoView...");
     this->unRegisterMpvEvent();
+    MPV_CE->unsubscribe(customEventSubscribeID);
     brls::Logger::debug("Delete VideoView done");
 }
 
@@ -260,7 +273,8 @@ void VideoView::onLayout() {
     oldRect = rect;
 }
 
-void VideoView::setUrl(std::string url, int progress, std::string audio) {
+void VideoView::setUrl(const std::string& url, int progress,
+                       const std::string& audio) {
     brls::Logger::debug("set video url: {}", url);
 
     if (progress < 0) progress = 0;
@@ -383,43 +397,31 @@ void VideoView::hideDanmakuButton() {
     btnSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
 }
 
-void VideoView::setTitle(std::string title) {
-    ASYNC_RETAIN
-    brls::Threading::sync([ASYNC_TOKEN, title]() {
-        ASYNC_RELEASE
-        this->videoTitleLabel->setText(title);
-    });
+void VideoView::setTitle(const std::string& title) {
+    this->videoTitleLabel->setText(title);
 }
 
-void VideoView::setOnlineCount(std::string count) {
-    ASYNC_RETAIN
-    brls::Threading::sync([ASYNC_TOKEN, count]() {
-        ASYNC_RELEASE
-        this->videoOnlineCountLabel->setText(count);
-    });
+void VideoView::setOnlineCount(const std::string& count) {
+    this->videoOnlineCountLabel->setText(count);
 }
 
 std::string VideoView::getTitle() {
     return this->videoTitleLabel->getFullText();
 }
 
-void VideoView::setQuality(std::string str) {
-    ASYNC_RETAIN
-    brls::Threading::sync([ASYNC_TOKEN, str]() {
-        ASYNC_RELEASE
-        this->videoQuality->setText(str);
-    });
+void VideoView::setQuality(const std::string& str) {
+    this->videoQuality->setText(str);
 }
 
 std::string VideoView::getQuality() {
     return this->videoQuality->getFullText();
 }
 
-void VideoView::setDuration(std::string value) {
+void VideoView::setDuration(const std::string& value) {
     this->rightStatusLabel->setText(value);
 }
 
-void VideoView::setPlaybackTime(std::string value) {
+void VideoView::setPlaybackTime(const std::string& value) {
     this->leftStatusLabel->setText(value);
 }
 
@@ -708,9 +710,6 @@ void VideoView::registerMpvEvent() {
                                 brls::Visibility::VISIBLE);
                         this->centerLabel->setText(mpvCore->getCacheSpeed());
                     }
-                    break;
-                case MpvEventEnum::QUALITY_CHANGED:
-                    videoQuality->setText(mpvCore->qualityStr);
                     break;
                 default:
                     break;

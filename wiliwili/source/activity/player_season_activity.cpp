@@ -120,7 +120,8 @@ void PlayerSeasonActivity::onContentAvailable() {
 
 void PlayerSeasonActivity::onSeasonEpisodeInfo(
     const bilibili::SeasonEpisodeResult& result) {
-    this->video->setTitle(this->seasonInfo.season_title + " - " + result.title);
+    std::string title = this->seasonInfo.season_title + " - " + result.title;
+    MPV_CE->fire(VideoView::SET_TITLE, (void*)title.c_str());
     this->videoBVIDLabel->setText(result.bvid);
 }
 

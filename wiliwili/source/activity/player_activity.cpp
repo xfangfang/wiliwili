@@ -209,7 +209,8 @@ void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
         result.pages.size() > 1 ? " - " + videoDetailPage.part : "";
 
     // videoView osd
-    this->video->setTitle(result.title + subtitle);
+    std::string title = result.title + subtitle;
+    MPV_CE->fire(VideoView::SET_TITLE, (void*)title.c_str());
 
     // video title
     this->videoTitleLabel->setText(result.title);
@@ -433,8 +434,9 @@ void PlayerActivity::onIndexChange(size_t index) {
     // 设置当前分P数据
     videoDetailPage = videoDetailResult.pages[index];
     // 设置播放器标题
-    this->video->setTitle(
-        fmt::format("{} - {}", videoDetailResult.title, videoDetailPage.part));
+    std::string title =
+        fmt::format("{} - {}", videoDetailResult.title, videoDetailPage.part);
+    MPV_CE->fire(VideoView::SET_TITLE, (void*)title.c_str());
     // 请求视频链接
     this->requestVideoUrl(videoDetailResult.bvid, videoDetailPage.cid);
     // 上报历史记录

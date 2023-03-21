@@ -563,6 +563,8 @@ mpv_handle *MPVCore::getHandle() { return this->mpv; }
 
 MPVEvent *MPVCore::getEvent() { return &this->mpvCoreEvent; }
 
+MPVCustomEvent *MPVCore::getCustomEvent() { return &this->mpvCoreCustomEvent; }
+
 std::string MPVCore::getCacheSpeed() {
     if (cache_speed >> 20 > 0) {
         return fmt::format("{:.2f} MB/s", (cache_speed >> 10) / 1024.0f);

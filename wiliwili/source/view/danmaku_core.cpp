@@ -64,7 +64,7 @@ void DanmakuCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
     danmakuMutex.unlock();
 
     // 通过mpv来通知弹幕加载完成
-    MPVCore::instance().getEvent()->fire(MpvEventEnum::DANMAKU_LOADED);
+    MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
 }
 
 void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
@@ -73,7 +73,7 @@ void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
     danmakuMutex.unlock();
 
     // 通过mpv来通知弹幕加载完成
-    MPVCore::instance().getEvent()->fire(MpvEventEnum::DANMAKU_LOADED);
+    MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
 }
 
 void DanmakuCore::refresh() {
