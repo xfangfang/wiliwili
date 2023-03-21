@@ -281,14 +281,15 @@ void PlayerSingleComment::setCommentData(
 
 void PlayerSingleComment::showStartAnimation(float y) {
     if (isnan(y)) return;
+    commentOriginalPosition = y;
 
     brls::Application::blockInputs();
     this->position.stop();
-    this->position.reset(y);
+    this->position.reset(commentOriginalPosition);
     this->position.addStep(60, 300, brls::EasingFunction::quadraticOut);
     this->position.setTickCallback([this] {
         this->backgroundBox->setPositionTop(this->position - 60);
-        float alpha = 1 - (this->position - 60) / 720;
+        float alpha = 1 - fabs((this->position - 60) / commentOriginalPosition);
         this->backgroundBox->setAlpha(alpha);
         this->setAlpha(alpha);
     });
@@ -298,13 +299,22 @@ void PlayerSingleComment::showStartAnimation(float y) {
 }
 
 void PlayerSingleComment::showDismissAnimation() {
+    auto* item =
+        dynamic_cast<VideoComment*>(recyclingGrid->getGridItemByIndex(0));
+    float animationLength = 720.0f;
+    if (brls::Application::getCurrentFocus() == item) {
+        // 当焦点在第一个元素时，下滑到原本的评论的位置而不是屏幕底部，这样观感更好
+        animationLength = commentOriginalPosition - 60;
+    }
+
     brls::Application::blockInputs();
     this->position.stop();
     this->position.reset(0);
-    this->position.addStep(720, 300, brls::EasingFunction::quadraticIn);
-    this->position.setTickCallback([this] {
+    this->position.addStep(animationLength, 300,
+                           brls::EasingFunction::quadraticIn);
+    this->position.setTickCallback([this, animationLength] {
         this->backgroundBox->setPositionTop(this->position);
-        float alpha = 1 - this->position / 720;
+        float alpha = 1 - fabs(this->position / animationLength);
         this->backgroundBox->setAlpha(alpha);
         this->setAlpha(alpha);
     });
@@ -424,7 +434,7 @@ PlayerCommentAction::PlayerCommentAction() {
     this->position.setTickCallback([this] {
         this->actionBox->setPositionTop(this->position);
         this->comment->getParent()->setPositionTop(this->position - 60);
-        float alpha = 1 - (this->position - 60) / 720;
+        float alpha = 1 - fabs((this->position - 60) / commentOriginalPosition);
         this->backgroundBox->setAlpha(alpha);
         this->actionBox->setAlpha(alpha);
     });
@@ -439,6 +449,8 @@ void PlayerCommentAction::setActionData(
 }
 
 void PlayerCommentAction::showStartAnimation() {
+    if (commentOriginalPosition == 60) return;
+
     brls::Application::blockInputs();
     this->position.stop();
     this->position.reset(commentOriginalPosition);
@@ -449,6 +461,11 @@ void PlayerCommentAction::showStartAnimation() {
 }
 
 void PlayerCommentAction::showDismissAnimation() {
+    if (commentOriginalPosition == 60) {
+        brls::Application::popActivity(brls::TransitionAnimation::NONE);
+        return;
+    }
+
     brls::Application::blockInputs();
     this->position.stop();
     this->position.reset(60);

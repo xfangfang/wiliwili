@@ -49,7 +49,8 @@ private:
     BRLS_BIND(ButtonClose, closeBtn, "button/close");
     BRLS_BIND(brls::Box, backgroundBox, "box/background");
 
-    brls::Animatable position = 0.0f;
+    brls::Animatable position     = 0.0f;
+    float commentOriginalPosition = 0.0f;
 };
 
 /// 选择对单条评论的行为：点赞、回复、删除
@@ -81,5 +82,5 @@ private:
     BRLS_BIND(brls::Box, backgroundBox, "box/background");
 
     brls::Animatable position     = 0.0f;
-    float commentOriginalPosition = 0.0f;
+    float commentOriginalPosition = 1.0f;
 };
