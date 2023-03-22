@@ -361,6 +361,8 @@ void PlayerSeasonActivity::playSeason(size_t season_id) {
     this->reportCurrentProgress(MPVCore::instance().video_progress,
                                 MPVCore::instance().duration);
 
+    brls::View* currentFocus = brls::Application::getCurrentFocus();
+
     // 停止播放视频
     this->video->stop();
 
@@ -369,7 +371,10 @@ void PlayerSeasonActivity::playSeason(size_t season_id) {
     this->tabFrame->focusTab(0);
 
     // 焦点放在video上
-    brls::Application::giveFocus(this->video);
+    if (currentFocus->getParentActivity() == this)
+        brls::Application::giveFocus(this->video);
+    else
+        brls::Application::giveFocus(currentFocus);
 
     // 清空无用的tab
     this->tabFrame->clearTab("wiliwili/player/p"_i18n);

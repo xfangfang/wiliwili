@@ -3,6 +3,7 @@
 //
 
 #include <borealis.hpp>
+#include <utility>
 #include "view/video_view.hpp"
 #include "view/video_card.hpp"
 #include "view/user_info.hpp"
@@ -23,7 +24,7 @@ class DataSourceUserUploadedVideoList : public RecyclingGridDataSource {
 public:
     DataSourceUserUploadedVideoList(
         bilibili::UserUploadedVideoListResult result, ChangeVideoEvent cb)
-        : list(result), changeVideoEvent(cb) {}
+        : list(std::move(result)), changeVideoEvent(std::move(cb)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
@@ -60,7 +61,7 @@ class DataSourceRelatedVideoList : public RecyclingGridDataSource {
 public:
     DataSourceRelatedVideoList(bilibili::VideoDetailListResult result,
                                ChangeVideoEvent cb)
-        : list(result), changeVideoEvent(cb) {}
+        : list(std::move(result)), changeVideoEvent(std::move(cb)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         RecyclingGridItemRelatedVideoCard* item =
@@ -94,7 +95,7 @@ private:
 
 /// PlayerActivity
 
-PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid,
+PlayerActivity::PlayerActivity(const std::string& bvid, unsigned int cid,
                                int progress) {
     videoDetailResult.bvid = bvid;
     videoDetailPage.cid    = cid;
@@ -103,7 +104,7 @@ PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid,
                         bvid, cid, progress);
 
     // 切换到其他视频
-    changeVideoEvent.subscribe([this](bilibili::Video videoData) {
+    changeVideoEvent.subscribe([this](const bilibili::Video& videoData) {
         //上报历史记录
         this->reportCurrentProgress(MPVCore::instance().video_progress,
                                     MPVCore::instance().duration);
@@ -114,11 +115,16 @@ PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid,
         this->setProgress(0);
         this->video->setLastPlayedPosition(VideoView::POSITION_UNDEFINED);
 
+        brls::View* currentFocus = brls::Application::getCurrentFocus();
+
         // 先重置一下tabFrame的焦点，避免空指针问题
         // 第0个tab是评论页面，这个tab固定存在，所以不会产生空指针的问题
         this->tabFrame->focusTab(0);
         // 焦点放在video上
-        brls::Application::giveFocus(this->video);
+        if (currentFocus->getParentActivity() == this)
+            brls::Application::giveFocus(this->video);
+        else
+            brls::Application::giveFocus(currentFocus);
 
         // 清空无用的tab
         this->tabFrame->clearTab("wiliwili/player/p"_i18n);
@@ -262,7 +268,7 @@ void PlayerActivity::onVideoPageListInfo(
     }
 
     changeIndexEvent.clear();
-    AutoSidebarItem* item = new AutoSidebarItem();
+    auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
     item->setLabel("wiliwili/player/p"_i18n);
@@ -273,7 +279,7 @@ void PlayerActivity::onVideoPageListInfo(
             result,
             // 分集标题设置回调
             [](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
-                PlayerTabCell* item =
+                auto* item =
                     (PlayerTabCell*)recycler->dequeueReusableCell("Cell");
                 item->title->setText(fmt::format("P{} {}", d.page, d.part));
                 item->setSelected(ds->getCurrentIndex() == (d.page - 1));
@@ -288,13 +294,13 @@ void PlayerActivity::onVideoPageListInfo(
                     ds->setCurrentIndex(index);
 
                     // 更新ui
-                    PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                    auto* item = dynamic_cast<PlayerTabCell*>(
                         recycler->getGridItemByIndex(index));
                     if (!item) return;
                     std::vector<RecyclingGridItem*>& items =
                         recycler->getGridItems();
                     for (auto& i : items) {
-                        PlayerTabCell* cell = dynamic_cast<PlayerTabCell*>(i);
+                        auto* cell = dynamic_cast<PlayerTabCell*>(i);
                         if (cell) cell->setSelected(false);
                     }
                     item->setSelected(true);
@@ -312,13 +318,13 @@ void PlayerActivity::onVideoPageListInfo(
                 this->onIndexChange(r.page - 1);
 
                 // 更新ui
-                PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                auto* item = dynamic_cast<PlayerTabCell*>(
                     recycler->getGridItemByIndex(index));
                 if (!item) return;
                 std::vector<RecyclingGridItem*>& items =
                     recycler->getGridItems();
                 for (auto& i : items) {
-                    PlayerTabCell* cell = dynamic_cast<PlayerTabCell*>(i);
+                    auto* cell = dynamic_cast<PlayerTabCell*>(i);
                     if (cell) cell->setSelected(false);
                 }
                 item->setSelected(true);
@@ -339,7 +345,7 @@ void PlayerActivity::onUploadedVideos(
 
     if (result.page.pn == 1) {
         // 加载第一页，添加tab
-        AutoSidebarItem* item = new AutoSidebarItem();
+        auto* item = new AutoSidebarItem();
         item->setTabStyle(AutoTabBarStyle::ACCENT);
         item->setFontSize(18);
         item->setLabel("wiliwili/player/uploaded"_i18n);
@@ -371,7 +377,7 @@ void PlayerActivity::onUploadedVideos(
         auto view = (AttachedView*)tab->getAttachedView();
         if (!view) return;
         auto grid = (RecyclingGrid*)view->getChildren()[0];
-        DataSourceUserUploadedVideoList* datasource =
+        auto* datasource =
             (DataSourceUserUploadedVideoList*)grid->getDataSource();
         datasource->appendData(result.list);
         grid->notifyDataChanged();
@@ -383,7 +389,7 @@ void PlayerActivity::onRelatedVideoList(
     if (result.size() <= 1) {
         return;
     }
-    AutoSidebarItem* item = new AutoSidebarItem();
+    auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
     item->setLabel("wiliwili/player/related"_i18n);
@@ -409,6 +415,12 @@ void PlayerActivity::onRelatedVideoList(
 
 void PlayerActivity::onRedirectToEp(const std::string& epid) {
     brls::Logger::debug("redirect to ep: {}", epid);
+    // 一般来说这种情况对应播放器全屏状态，将全屏的播放器先取消全屏
+    auto* view = brls::Application::getCurrentFocus();
+    if (view->getParentActivity() != this) {
+        brls::Application::popActivity(brls::TransitionAnimation::NONE);
+    }
+    // 跳转到番剧播放页
     brls::Application::popActivity(brls::TransitionAnimation::NONE, [epid]() {
         brls::Application::pushActivity(
             new PlayerSeasonActivity(std::stoi(epid), PGC_ID_TYPE::EP_ID));
@@ -436,7 +448,8 @@ void PlayerActivity::onIndexChange(size_t index) {
     this->reportCurrentProgress(MPVCore::instance().video_progress,
                                 MPVCore::instance().duration);
     // 焦点放在video上
-    brls::Application::giveFocus(this->video);
+    if (brls::Application::getCurrentFocus()->getParentActivity() == this)
+        brls::Application::giveFocus(this->video);
     // 设置当前分P数据
     videoDetailPage = videoDetailResult.pages[index];
     // 设置播放器标题

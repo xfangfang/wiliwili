@@ -115,7 +115,8 @@ protected:
 
 class PlayerActivity : public BasePlayerActivity {
 public:
-    PlayerActivity(std::string bvid, unsigned int cid = 0, int progress = -1);
+    PlayerActivity(const std::string& bvid, unsigned int cid = 0,
+                   int progress = -1);
 
     void setProgress(int p) override;
     int getProgress() override;
