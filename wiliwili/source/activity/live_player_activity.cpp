@@ -29,10 +29,12 @@ LiveActivity::LiveActivity(int roomid) {
 
 void LiveActivity::setCommonData() {
     // 临时关闭底部进度条与弹幕
-    globalShowDanmaku       = DanmakuCore::DANMAKU_ON;
-    globalBottomBar         = MPVCore::BOTTOM_BAR;
-    DanmakuCore::DANMAKU_ON = false;
-    MPVCore::BOTTOM_BAR     = false;
+    globalShowDanmaku                 = DanmakuCore::DANMAKU_ON;
+    globalBottomBar                   = MPVCore::BOTTOM_BAR;
+    globalExitFullscreen              = VideoView::EXIT_FULLSCREEN_ON_END;
+    DanmakuCore::DANMAKU_ON           = false;
+    MPVCore::BOTTOM_BAR               = false;
+    VideoView::EXIT_FULLSCREEN_ON_END = false;
 
     // 清空字幕
     SubtitleCore::instance().reset();
@@ -78,7 +80,6 @@ void LiveActivity::onContentAvailable() {
     this->video->setFullscreenIcon(true);
     this->video->setTitle(liveData.title);
     this->video->setOnlineCount(liveData.watched_show.text_large);
-    this->video->setCloseOnEndOfFile(false);
 
     // 调整清晰度
     this->registerAction("wiliwili/player/quality"_i18n,
@@ -131,8 +132,9 @@ void LiveActivity::onError(const std::string& error) {
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     this->video->stop();
-    DanmakuCore::DANMAKU_ON = globalShowDanmaku;
-    MPVCore::BOTTOM_BAR     = globalBottomBar;
+    DanmakuCore::DANMAKU_ON           = globalShowDanmaku;
+    MPVCore::BOTTOM_BAR               = globalBottomBar;
+    VideoView::EXIT_FULLSCREEN_ON_END = globalExitFullscreen;
     // 取消监控mpv
     MPV_CE->unsubscribe(eventSubscribeID);
 }

@@ -47,4 +47,5 @@ private:
     BRLS_BIND(brls::BooleanCell, btnHistory, "setting/history/log");
     BRLS_BIND(brls::BooleanCell, btnAutoNextPart, "setting/auto/nextPart");
     BRLS_BIND(brls::BooleanCell, btnAutoNextRcmd, "setting/auto/nextRcmd");
+    BRLS_BIND(brls::BooleanCell, btnExitFullscreen, "setting/auto/exit");
 };

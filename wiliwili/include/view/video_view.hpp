@@ -52,7 +52,7 @@ public:
     // 视频加载前重置此变量
     // 视频加载结束后，获取此值，若大于0则跳转进度
     void setLastPlayedPosition(int64_t p);
-    int64_t getLastPlayedPosition() const;
+    [[nodiscard]] int64_t getLastPlayedPosition() const;
 
     /// OSD
     void showOSD(bool temp = true);
@@ -116,8 +116,6 @@ public:
 
     void setFullScreen(bool fs);
 
-    void setCloseOnEndOfFile(bool value);
-
     void draw(NVGcontext* vg, float x, float y, float width, float height,
               brls::Style style, brls::FrameContext* ctx) override;
 
@@ -146,6 +144,8 @@ public:
     // 若无历史记录，则为 -1，若不使用历史记录的值，则为 -2
     inline static const int64_t POSITION_UNDEFINED = -1;
     inline static const int64_t POSITION_DISCARD   = -2;
+
+    inline static bool EXIT_FULLSCREEN_ON_END = true;
 
 private:
     bool allowFullscreen  = true;
@@ -186,8 +186,6 @@ private:
 
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
-
-    bool closeOnEndOfFile = true;  // 全屏时 播放结束自动取消全屏
 
     //DEBUG
     BRLS_BIND(brls::Box, videoLayerDebug, "video/layer/debug");

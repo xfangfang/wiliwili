@@ -7,6 +7,7 @@
 #include "view/button_close.hpp"
 #include "view/mpv_core.hpp"
 #include "view/subtitle_core.hpp"
+#include "view/video_view.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/shader_helper.hpp"
 #include "activity/player_activity.hpp"
@@ -120,6 +121,15 @@ void PlayerSetting::setupCommonSetting() {
                 BasePlayerActivity::AUTO_NEXT_PART = true;
                 btnAutoNextPart->setOn(true, !btnAutoNextPart->isOn());
             }
+        });
+
+    btnExitFullscreen->init(
+        "wiliwili/setting/app/playback/exit_fullscreen"_i18n,
+        conf.getBoolOption(SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END),
+        [](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END, value);
+            VideoView::EXIT_FULLSCREEN_ON_END = value;
         });
 
     /// Player bottom bar

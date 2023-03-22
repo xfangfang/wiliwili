@@ -63,16 +63,19 @@
                         marginBottom="30px">
 
                     <brls:BooleanCell
-                            id="setting/video/progress"/>
-
-                    <brls:BooleanCell
-                            id="setting/history/log"/>
-
-                    <brls:BooleanCell
                             id="setting/auto/nextPart"/>
 
                     <brls:BooleanCell
                             id="setting/auto/nextRcmd"/>
+
+                    <brls:BooleanCell
+                            id="setting/auto/exit"/>
+                    
+                    <brls:BooleanCell
+                            id="setting/video/progress"/>
+
+                    <brls:BooleanCell
+                            id="setting/history/log"/>
 
                 </brls:Box>
                 <brls:Header

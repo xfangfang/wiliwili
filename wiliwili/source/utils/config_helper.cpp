@@ -18,6 +18,7 @@
 #include "presenter/video_detail.hpp"
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
+#include "view/video_view.hpp"
 #include "activity/player_activity.hpp"
 
 using namespace brls::literals;
@@ -52,6 +53,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
     {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
+    {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END,
+     {"player_exit_fullscreen_on_end", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
@@ -136,6 +139,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
     {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
+    {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END,
+     {"player_exit_fullscreen_on_end", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
@@ -398,6 +403,10 @@ void ProgramConfig::load() {
     // 初始化自定义的硬件加速方案
     MPVCore::PLAYER_HWDEC_METHOD = getSettingItem(
         SettingItem::PLAYER_HWDEC_CUSTOM, MPVCore::PLAYER_HWDEC_METHOD);
+
+    // 播放结束时自动退出全屏
+    VideoView::EXIT_FULLSCREEN_ON_END =
+        getBoolOption(SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END);
 
     // 初始化内存缓存大小
     MPVCore::INMEMORY_CACHE = getIntOption(SettingItem::PLAYER_INMEMORY_CACHE);

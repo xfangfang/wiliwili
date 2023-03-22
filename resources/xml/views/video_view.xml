@@ -237,6 +237,7 @@
                     positionTop="-20"
                     positionLeft="30"
                     visibility="gone"
+                    height="32"
                     id="video/osd/hint/box">
                 <brls:Label
                         id="video/osd/hint/label"
@@ -244,6 +245,7 @@
                         marginRight="10"
                         marginTop="4"
                         marginBottom="4"
+                        maxWidth="600"
                         textColor="#FFFFFF"/>
             </brls:Box>
         </brls:Box>

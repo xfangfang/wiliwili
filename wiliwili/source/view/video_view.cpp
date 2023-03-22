@@ -578,10 +578,6 @@ void VideoView::setFullScreen(bool fs) {
     }
 }
 
-void VideoView::setCloseOnEndOfFile(bool value) {
-    this->closeOnEndOfFile = value;
-}
-
 View* VideoView::getDefaultFocus() {
     if (isFullscreen() && isOSDShown())
         return this->btnToggle;
@@ -731,7 +727,7 @@ void VideoView::registerMpvEvent() {
                 case MpvEventEnum::END_OF_FILE:
                     // 播放结束自动取消全屏
                     this->showOSD(false);
-                    if (this->closeOnEndOfFile && this->isFullscreen()) {
+                    if (EXIT_FULLSCREEN_ON_END && this->isFullscreen()) {
                         this->setFullScreen(false);
                     }
                     break;

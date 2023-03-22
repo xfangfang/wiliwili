@@ -413,7 +413,8 @@ void BasePlayerActivity::onVideoPlayUrl(
     // 针对用户上传的视频，尝试加载上一次播放的进度
     if (videoDetailPage.cid && progress <= 0) {
         auto data = SubtitleCore::instance().getSubtitleList();
-        if (data.last_play_cid == videoDetailPage.cid && data.last_play_time) {
+        if (data.last_play_cid == videoDetailPage.cid &&
+            data.last_play_time > 0) {
             this->video->setLastPlayedPosition(data.last_play_time / 1000);
         }
     } else {
