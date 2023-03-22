@@ -727,6 +727,8 @@ void VideoView::registerMpvEvent() {
                 case MpvEventEnum::END_OF_FILE:
                     // 播放结束自动取消全屏
                     this->showOSD(false);
+                    this->btnToggleIcon->setImageFromSVGRes(
+                        "svg/bpx-svg-sprite-play.svg");
                     if (EXIT_FULLSCREEN_ON_END && this->isFullscreen()) {
                         this->setFullScreen(false);
                     }

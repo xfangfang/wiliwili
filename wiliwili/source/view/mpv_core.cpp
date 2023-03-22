@@ -84,7 +84,8 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "video-timing-offset", "0");  // 60fps
     mpv_set_option_string(mpv, "keep-open", "yes");
     mpv_set_option_string(mpv, "hr-seek", "yes");
-    mpv_set_option_string(mpv, "reset-on-next-file", "speed,pause");
+    mpv_set_option_string(mpv, "reset-on-next-file",
+                          "speed,pause,loop-playlist");
 
     if (MPVCore::LOW_QUALITY) {
         // Less cpu cost
@@ -647,7 +648,6 @@ void MPVCore::eventMainLoop() {
                                 if (playback_time > duration - 1 &&
                                     duration > 0) {
                                     brls::Logger::info("========> END OF FILE");
-                                    this->pause();
                                     mpvCoreEvent.fire(
                                         MpvEventEnum::END_OF_FILE);
                                 } else {

@@ -120,6 +120,7 @@ void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result) {
     }
     for (const auto& i : result.durl) {
         brls::Logger::debug("Live stream url: {}", i.url);
+        MPVCore::instance().command_str("set loop-playlist force");
         this->video->setUrl(i.url);
         break;
     }
