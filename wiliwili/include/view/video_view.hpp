@@ -49,6 +49,11 @@ public:
 
     void setSpeed(float speed);
 
+    // 视频加载前重置此变量
+    // 视频加载结束后，获取此值，若大于0则跳转进度
+    void setLastPlayedPosition(int64_t p);
+    int64_t getLastPlayedPosition() const;
+
     /// OSD
     void showOSD(bool temp = true);
 
@@ -95,6 +100,11 @@ public:
 
     float getProgress();
 
+    // 进度条上方显示提示文字
+    void showHint(const std::string& value);
+
+    void clearHint();
+
     /// Misc
     static View* create();
 
@@ -124,10 +134,18 @@ public:
 
     void buttonProcessing();
 
+    // 用于 VideoView 可以接收的自定义事件
     inline static const std::string QUALITY_CHANGE = "QUALITY_CHANGE";
     inline static const std::string SET_ONLINE_NUM = "SET_ONLINE_NUM";
     inline static const std::string SET_TITLE      = "SET_TITLE";
     inline static const std::string SET_QUALITY    = "SET_QUALITY";
+    inline static const std::string HINT           = "HINT";
+    inline static const std::string LAST_TIME      = "LAST_TIME";
+
+    // 用于指定 lastPlayedPosition 的值
+    // 若无历史记录，则为 -1，若不使用历史记录的值，则为 -2
+    inline static const int64_t POSITION_UNDEFINED = -1;
+    inline static const int64_t POSITION_DISCARD   = -2;
 
 private:
     bool allowFullscreen  = true;
@@ -155,12 +173,16 @@ private:
     BRLS_BIND(SVGImage, btnDanmakuSettingIcon,
               "video/osd/danmaku/setting/icon");
     BRLS_BIND(SVGImage, btnSettingIcon, "video/osd/setting/icon");
+    BRLS_BIND(brls::Label, hintLabel, "video/osd/hint/label");
+    BRLS_BIND(brls::Box, hintBox, "video/osd/hint/box");
 
     // OSD
     time_t osdLastShowTime     = 0;
     const time_t OSD_SHOW_TIME = 5;  //默认显示五秒
     OSDState osd_state         = OSDState::HIDDEN;
     bool is_osd_shown          = false;
+    time_t hintLastShowTime    = 0;
+    int64_t lastPlayedPosition = POSITION_UNDEFINED;
 
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);

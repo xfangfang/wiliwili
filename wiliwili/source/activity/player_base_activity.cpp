@@ -9,6 +9,7 @@
 #include "view/qr_image.hpp"
 #include "view/video_view.hpp"
 #include "view/grid_dropdown.hpp"
+#include "view/subtitle_core.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "presenter/comment_related.hpp"
@@ -408,6 +409,23 @@ void BasePlayerActivity::onVideoPlayUrl(
 
     // 进度向前回退5秒，避免当前进度过于接近结尾出现一加载就结束的情况
     int progress = this->getProgress() - 5;
+
+    // 针对用户上传的视频，尝试加载上一次播放的进度
+    if (videoDetailPage.cid && progress <= 0) {
+        auto data = SubtitleCore::instance().getSubtitleList();
+        if (data.last_play_cid == videoDetailPage.cid && data.last_play_time) {
+            this->video->setLastPlayedPosition(data.last_play_time / 1000);
+        }
+    } else {
+        // 设置为 POSITION_DISCARD 后，不会加载网络历史记录，而是直接使用 setProgress 指定的位置
+        // 一般来说 setProgress 是打开播放页面时指定的播放时间，通常是从历史记录页面进入时设置的
+        this->video->setLastPlayedPosition(VideoView::POSITION_DISCARD);
+        if (progress > 0)
+            MPV_CE->fire(VideoView::HINT,
+                         (void*)fmt::format("已为您定位至: {}",
+                                            wiliwili::sec2Time(progress))
+                             .c_str());
+    }
 
     if (!result.dash.video.empty()) {
         // dash

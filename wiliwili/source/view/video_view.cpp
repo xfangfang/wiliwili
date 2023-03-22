@@ -108,12 +108,12 @@ VideoView::VideoView() {
                                brls::SOUND_NONE)));
 
     /// 清晰度按钮
-    this->videoQuality->registerClickAction([](...) {
+    this->videoQuality->getParent()->registerClickAction([](...) {
         MPV_CE->fire(VideoView::QUALITY_CHANGE, nullptr);
         return true;
     });
-    this->videoQuality->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->videoQuality));
+    this->videoQuality->getParent()->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->videoQuality->getParent()));
     this->registerAction("wiliwili/player/quality"_i18n,
                          brls::ControllerButton::BUTTON_START,
                          [](brls::View* view) -> bool {
@@ -193,16 +193,21 @@ VideoView::VideoView() {
                          });
 
     // 自定义的mpv事件
-    customEventSubscribeID =
-        MPV_CE->subscribe([this](const std::string& event, void* data) {
-            if (event == VideoView::SET_TITLE) {
-                this->setTitle((const char*)data);
-            } else if (event == VideoView::SET_ONLINE_NUM) {
-                this->setOnlineCount((const char*)data);
-            } else if (event == VideoView::SET_QUALITY) {
-                this->setQuality((const char*)data);
-            }
-        });
+    customEventSubscribeID = MPV_CE->subscribe([this](const std::string& event,
+                                                      void* data) {
+        if (event == VideoView::SET_TITLE) {
+            this->setTitle((const char*)data);
+        } else if (event == VideoView::SET_ONLINE_NUM) {
+            this->setOnlineCount((const char*)data);
+        } else if (event == VideoView::SET_QUALITY) {
+            this->setQuality((const char*)data);
+        } else if (event == VideoView::LAST_TIME) {
+            if (this->getLastPlayedPosition() != VideoView::POSITION_DISCARD)
+                this->setLastPlayedPosition(*(int64_t*)data / 1000);
+        } else if (event == VideoView::HINT) {
+            this->showHint((const char*)data);
+        }
+    });
 }
 
 VideoView::~VideoView() {
@@ -223,7 +228,8 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
     DanmakuCore::instance().drawDanmaku(vg, x, y, width, height, getAlpha());
 
     // draw osd
-    if (wiliwili::unix_time() < this->osdLastShowTime) {
+    time_t current = wiliwili::unix_time();
+    if (current < this->osdLastShowTime) {
         if (!is_osd_shown) {
             is_osd_shown = true;
             this->onOSDStateChanged(true);
@@ -243,6 +249,10 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         // draw subtitle (without osd)
         SubtitleCore::instance().drawSubtitle(vg, x, y, width, height,
                                               getAlpha());
+    }
+    if (current > this->hintLastShowTime &&
+        this->hintBox->getVisibility() == brls::Visibility::VISIBLE) {
+        this->clearHint();
     }
 
     // hot key
@@ -333,6 +343,10 @@ void VideoView::setSpeed(float speed) {
     mpvCore->command_str(fmt::format("set speed {}", speed).c_str());
     DanmakuCore::instance().refresh();
 }
+
+void VideoView::setLastPlayedPosition(int64_t p) { lastPlayedPosition = p; }
+
+int64_t VideoView::getLastPlayedPosition() const { return lastPlayedPosition; }
 
 /// OSD
 void VideoView::showOSD(bool temp) {
@@ -460,6 +474,18 @@ void VideoView::setProgress(float value) {
 
 float VideoView::getProgress() { return this->osdSlider->getProgress(); }
 
+void VideoView::showHint(const std::string& value) {
+    brls::Logger::debug("Video hint: {}", value);
+    this->hintLabel->setText(value);
+    this->hintBox->setVisibility(brls::Visibility::VISIBLE);
+    this->hintLastShowTime = wiliwili::unix_time() + VideoView::OSD_SHOW_TIME;
+    this->showOSD();
+}
+
+void VideoView::clearHint() {
+    this->hintBox->setVisibility(brls::Visibility::GONE);
+}
+
 View* VideoView::create() { return new VideoView(); }
 
 bool VideoView::isFullscreen() {
@@ -497,6 +523,8 @@ void VideoView::setFullScreen(bool fs) {
         video->setDuration(this->rightStatusLabel->getFullText());
         video->setPlaybackTime(this->leftStatusLabel->getFullText());
         video->setProgress(this->getProgress());
+        if (this->hintBox->getVisibility() == brls::Visibility::VISIBLE)
+            video->showHint(this->hintLabel->getFullText());
         video->showOSD(this->osd_state != OSDState::ALWAYS_ON);
         video->setFullscreenIcon(true);
         video->setHideHighlight(true);
@@ -674,13 +702,20 @@ void VideoView::registerMpvEvent() {
                     this->hideLoading();
                     break;
                 case MpvEventEnum::MPV_STOP:
-                    // todo: 当前播放结束，尝试播放下一个视频
                     this->hideLoading();
                     this->showOSD(false);
                     break;
                 case MpvEventEnum::MPV_LOADED:
                     this->setPlaybackTime(
                         wiliwili::sec2Time(this->mpvCore->video_progress));
+                    if (lastPlayedPosition > 0) {
+                        this->showHint(fmt::format(
+                            "已为您定位至: {}",
+                            wiliwili::sec2Time(lastPlayedPosition)));
+                        mpvCore->seek(lastPlayedPosition);
+                        brls::Logger::info("Restore video position: {}",
+                                           lastPlayedPosition);
+                    }
                     break;
                 case MpvEventEnum::UPDATE_DURATION:
                     this->setDuration(wiliwili::sec2Time(mpvCore->duration));

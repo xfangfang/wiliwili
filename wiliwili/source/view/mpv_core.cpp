@@ -794,6 +794,10 @@ void MPVCore::stop() {
     command_async(cmd);
 }
 
+void MPVCore::seek(int64_t p) {
+    command_str(fmt::format("seek {} absolute", p).c_str());
+}
+
 int MPVCore::get_property(const char *name, mpv_format format, void *data) {
     return mpv_get_property(mpv, name, format, data);
 }

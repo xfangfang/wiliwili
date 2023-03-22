@@ -110,6 +110,9 @@ PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid,
 
         // 停止播放视频
         this->video->stop();
+        // 允许加载历史记录
+        this->setProgress(0);
+        this->video->setLastPlayedPosition(VideoView::POSITION_UNDEFINED);
 
         // 先重置一下tabFrame的焦点，避免空指针问题
         // 第0个tab是评论页面，这个tab固定存在，所以不会产生空指针的问题
@@ -429,6 +432,9 @@ void PlayerActivity::onIndexChange(size_t index) {
     }
 
     brls::Logger::debug("切换分区: {}", index);
+    // 上报历史记录
+    this->reportCurrentProgress(MPVCore::instance().video_progress,
+                                MPVCore::instance().duration);
     // 焦点放在video上
     brls::Application::giveFocus(this->video);
     // 设置当前分P数据
@@ -437,10 +443,11 @@ void PlayerActivity::onIndexChange(size_t index) {
     std::string title =
         fmt::format("{} - {}", videoDetailResult.title, videoDetailPage.part);
     MPV_CE->fire(VideoView::SET_TITLE, (void*)title.c_str());
+    // 允许加载历史记录
+    this->setProgress(0);
+    this->video->setLastPlayedPosition(VideoView::POSITION_UNDEFINED);
     // 请求视频链接
     this->requestVideoUrl(videoDetailResult.bvid, videoDetailPage.cid);
-    // 上报历史记录
-    this->reportCurrentProgress(0, 0);
 }
 
 void PlayerActivity::onIndexChangeToNext() {

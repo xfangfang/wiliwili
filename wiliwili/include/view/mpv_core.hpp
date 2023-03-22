@@ -93,6 +93,8 @@ public:
 
     void stop();
 
+    void seek(int64_t p);
+
     void setFrameSize(brls::Rect rect);
 
     bool isValid();

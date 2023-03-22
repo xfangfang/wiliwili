@@ -10,6 +10,7 @@
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
 #include "view/subtitle_core.hpp"
+#include "view/video_view.hpp"
 #include "bilibili/result/mine_collection_result.h"
 
 VideoDetail::VideoDetail() {
@@ -224,8 +225,6 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
 
                             //上报历史记录
                             if (progress < 0) progress = 0;
-                            this->reportHistory(this->videoDetailResult.aid,
-                                                videoDetailPage.cid, progress);
                             break;
                         }
                     }
@@ -236,9 +235,6 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                     for (const auto& i : this->videoDetailResult.pages) {
                         brls::Logger::debug("获取视频分P列表: PV1 {}", i.cid);
                         videoDetailPage = i;
-                        //上报历史记录
-                        this->reportHistory(this->videoDetailResult.aid,
-                                            videoDetailPage.cid, 0);
                         break;
                     }
                 }
@@ -545,13 +541,37 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid) {
     BILI::get_page_detail(
         bvid, cid,
         [ASYNC_TOKEN](const bilibili::VideoPageResult& result) {
-            ASYNC_RELEASE
-            brls::sync([result]() {
+            brls::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
                 SubtitleCore::instance().setSubtitleList(result);
                 // 存在UP主设置的字幕
                 if (!result.subtitles.empty() &&
                     pystring::count(result.subtitles[0].lan, "ai") <= 0) {
                     SubtitleCore::instance().selectSubtitle(0);
+                }
+
+                brls::Logger::debug("历史播放进度：{}/{}", result.last_play_cid,
+                                    result.last_play_time);
+                // 之前播放过此视频，或其他视频分集
+                if (videoDetailPage.cid && result.last_play_cid) {
+                    if (result.last_play_cid == videoDetailPage.cid) {
+                        if (result.last_play_time <= 0) return;
+                        // 之前播放过此视频
+                        MPV_CE->fire(VideoView::LAST_TIME,
+                                     (void*)&(result.last_play_time));
+                    } else {
+                        // 之前播放过同一合集的其他视频
+                        for (auto& p : videoDetailResult.pages) {
+                            if (p.cid != result.last_play_cid) continue;
+                            std::string hint = fmt::format(
+                                "上次看到第 {} 个: {}", p.page, p.part);
+                            if (result.last_play_time)
+                                hint += " " + wiliwili::sec2Time(
+                                                  result.last_play_time / 1000);
+                            MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
+                            break;
+                        }
+                    }
                 }
             });
         },
