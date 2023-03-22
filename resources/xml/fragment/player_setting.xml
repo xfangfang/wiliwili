@@ -70,12 +70,15 @@
 
                     <brls:BooleanCell
                             id="setting/auto/exit"/>
-                    
+
                     <brls:BooleanCell
                             id="setting/video/progress"/>
 
                     <brls:BooleanCell
                             id="setting/history/log"/>
+
+                    <brls:SelectorCell
+                            id="setting/sleep"/>
 
                 </brls:Box>
                 <brls:Header

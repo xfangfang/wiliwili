@@ -16,6 +16,7 @@
         "exit_fullscreen": "Exit full screen at the end of playback",
         "auto_play_next_part": "Automatically playing next part",
         "auto_play_recommend": "Automatically playing recommend video",
+        "sleep": "Timing Off",
         "video_format": "Video format"
       },
       "image": {
@@ -144,6 +145,7 @@
       "next": "Next",
       "filter": "Filter",
       "save": "Save",
+      "min": "Minutes",
       "no_login": "You are not logged in yet"
     },
     "live": {

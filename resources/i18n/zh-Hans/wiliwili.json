@@ -16,6 +16,7 @@
         "exit_fullscreen": "播放结束时自动退出全屏",
         "auto_play_next_part": "自动播放下一分集",
         "auto_play_recommend": "自动播放推荐视频",
+        "sleep": "定时关闭",
         "video_format": "视频格式"
       },
       "image": {
@@ -144,6 +145,7 @@
       "next": "下一项",
       "filter": "筛选",
       "save": "保存",
+      "min": "分钟",
       "no_login": "用户未登录"
     },
     "live": {

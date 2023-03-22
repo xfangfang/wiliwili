@@ -9,6 +9,7 @@
 #include "view/subtitle_core.hpp"
 #include "pystring.h"
 #include "utils/config_helper.hpp"
+#include "utils/number_helper.hpp"
 
 #if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER)
 const char *vertexShaderSource =
@@ -688,6 +689,12 @@ void MPVCore::eventMainLoop() {
                                 video_progress = (int64_t)playback_time;
                                 mpvCoreEvent.fire(
                                     MpvEventEnum::UPDATE_PROGRESS);
+                                // 判断是否需要暂停播放
+                                if (CLOSE_TIME > 0 &&
+                                    wiliwili::getUnixTime() > CLOSE_TIME) {
+                                    CLOSE_TIME = -1;
+                                    this->pause();
+                                }
                             }
                         }
 

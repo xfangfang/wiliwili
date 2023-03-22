@@ -19,6 +19,9 @@ public:
 
     View* getDefaultFocus() override;
 
+    void draw(NVGcontext* vg, float x, float y, float width, float height,
+              brls::Style style, brls::FrameContext* ctx) override;
+
     ~PlayerSetting() override;
 
     static View* create();
@@ -48,4 +51,5 @@ private:
     BRLS_BIND(brls::BooleanCell, btnAutoNextPart, "setting/auto/nextPart");
     BRLS_BIND(brls::BooleanCell, btnAutoNextRcmd, "setting/auto/nextRcmd");
     BRLS_BIND(brls::BooleanCell, btnExitFullscreen, "setting/auto/exit");
+    BRLS_BIND(brls::SelectorCell, btnSleep, "setting/sleep");
 };
