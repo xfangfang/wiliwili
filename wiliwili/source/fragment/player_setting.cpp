@@ -149,6 +149,7 @@ void PlayerSetting::setupCommonSetting() {
     btnSleep->init("wiliwili/setting/app/playback/sleep"_i18n, optionList, 0,
                    [](int data) {
                        std::vector<int> time = {-1, 15, 30, 60, 90, 120};
+                       if (data >= time.size()) return false;
                        if (data == 0)
                            MPVCore::CLOSE_TIME = -1;
                        else
