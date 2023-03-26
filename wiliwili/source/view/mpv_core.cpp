@@ -395,7 +395,6 @@ void MPVCore::setFrameSize(brls::Rect rect) {
 #ifdef MPV_SW_RENDER
     // 使用 dx11 的拷贝交换，否则视频渲染异常
     const static int mpvImageFlags = NVG_IMAGE_STREAMING|NVG_IMAGE_COPY_SWAP;
-    // Todo dx11 的纹理拷贝无法在非整数缩放的情况下对齐，先强行向上取整
     int drawWidth  = rect.getWidth() * brls::Application::windowScale;
     int drawHeight = rect.getHeight() * brls::Application::windowScale;
     if (drawWidth == 0 || drawHeight == 0) return;

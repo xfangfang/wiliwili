@@ -125,11 +125,14 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
     {SettingItem::HIDE_FPS, {"hide_fps", {}, {}, 1}},
-#ifdef __APPLE__
+#if defined(__APPLE__) || !defined(NDEBUG)
     // mac使用原生全屏按钮效果更好，不通过软件来控制
+    // win32 debug 模式不全屏，调试时会挡住 vs
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 0}},
 #else
-    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 0}},
+    // release 下默认全屏
+    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
+#endif
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
