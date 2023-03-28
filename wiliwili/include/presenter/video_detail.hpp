@@ -44,6 +44,7 @@ public:
         const bilibili::VideoDetailListResult& result) {}
     virtual void onUpInfo(const bilibili::UserDetailResultWrapper& result) {}
     virtual void onRedirectToEp(const std::string& url) {}
+    virtual void onUGCSeasonInfo(const bilibili::UGCSeason& result) {}
 
     // todo: 获取视频合集
 

@@ -128,6 +128,7 @@ public:
     void onUpInfo(const bilibili::UserDetailResultWrapper& result) override;
     void onVideoPageListInfo(
         const bilibili::VideoDetailPageListResult& result) override;
+    void onUGCSeasonInfo(const bilibili::UGCSeason& result) override;
     void onUploadedVideos(
         const bilibili::UserUploadedVideoResultWrapper& result) override;
     void onRelatedVideoList(

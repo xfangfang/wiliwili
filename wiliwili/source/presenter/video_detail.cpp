@@ -255,6 +255,10 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                 // 展示分P数据
                 this->onVideoPageListInfo(this->videoDetailResult.pages);
 
+                // 展示合集数据
+                if (!videoDetailResult.ugc_season.sections.empty())
+                    this->onUGCSeasonInfo(videoDetailResult.ugc_season);
+
                 // 请求视频评论
                 this->requestVideoComment(this->videoDetailResult.aid, 1);
 

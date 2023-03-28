@@ -198,6 +198,7 @@
     },
     "history": "History",
     "collection": "Favorite",
+    "subscription": "Subscription",
     "anime": "Anime",
     "series": "Series",
     "refresh_history": "Refresh history",
@@ -219,6 +220,7 @@
   "player": {
     "intro": "Introduction",
     "p": "Parts",
+    "ugc_season": "Playlist",
     "related": "Related",
     "series": "Series",
     "recommend": "Recommend",

@@ -128,6 +128,7 @@ PlayerActivity::PlayerActivity(const std::string& bvid, unsigned int cid,
 
         // 清空无用的tab
         this->tabFrame->clearTab("wiliwili/player/p"_i18n);
+        this->tabFrame->clearTab("wiliwili/player/ugc_season"_i18n);
         this->tabFrame->clearTab("wiliwili/player/related"_i18n);
         this->tabFrame->clearTab("wiliwili/player/uploaded"_i18n);
 
@@ -337,6 +338,79 @@ void PlayerActivity::onVideoPageListInfo(
     });
 }
 
+void PlayerActivity::onUGCSeasonInfo(const bilibili::UGCSeason& result) {
+    brls::Logger::debug("UGC Season: {}/{}", result.title, result.id);
+
+    auto* item = new AutoSidebarItem();
+    item->setTabStyle(AutoTabBarStyle::ACCENT);
+    item->setFontSize(18);
+    item->setLabel("wiliwili/player/ugc_season"_i18n);
+    this->tabFrame->addTab(item, [this, result, item]() {
+        //暂时没有看到有多个 section 的合集
+        auto& section = result.sections[0];
+
+        // 在开头插入一项，用来当作标题
+        auto eps = section.episodes;
+        auto ep  = bilibili::UGCSeasonEpisode{};
+        ep.title = result.title;
+        eps.insert(eps.begin(), ep);
+
+        // 设置分集页面
+        auto container = new BasePlayerTabFragment<bilibili::UGCSeasonEpisode>(
+            // 列表数据
+            eps,
+            // 分集标题设置回调
+            [](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
+                if (!d.id) {
+                    // 显示项为标题
+                    auto* item =
+                        (PlayerTabHeader*)recycler->dequeueReusableCell(
+                            "Header");
+                    item->title->setText(d.title);
+                    item->setFocusable(true);
+                    return item;
+                }
+
+                auto* item =
+                    (PlayerTabCell*)recycler->dequeueReusableCell("Cell");
+                item->title->setText(d.title);
+                item->setSelected(ds->getCurrentIndex() - 1 == d.index);
+                item->setBadge(
+                    wiliwili::sec2MinSec(d.page.duration), nvgRGBA(0, 0, 0, 0),
+                    brls::Application::getTheme().getColor("font/grey"));
+                return item;
+            },
+            // container的构造函数
+            [](...) {},
+            // 默认的选中索引
+            result.currentIndex + 1);
+
+        // 分集点击回调
+        container->getSelectEvent()->subscribe(
+            [this, result](auto recycler, auto ds, size_t index,
+                           const auto& r) {
+                if (index == 0) {
+                    auto* evaluate = new PlayerEvaluate();
+                    evaluate->setContent(result.intro);
+                    auto dialog = new brls::Dialog(evaluate);
+                    dialog->open();
+                    return;
+                }
+
+                if (r.bvid.empty()) return;
+                bilibili::Video video;
+                video.bvid = r.bvid;
+                this->changeVideoEvent.fire(video);
+            });
+
+        // 设置标题上方的数字
+        item->setSubtitle(
+            fmt::format("{}/{}", result.currentIndex + 1,
+                        wiliwili::num2w(section.episodes.size())));
+        return container;
+    });
+}
+
 void PlayerActivity::onUploadedVideos(
     const bilibili::UserUploadedVideoResultWrapper& result) {
     for (const auto& i : result.list) {
@@ -443,7 +517,7 @@ void PlayerActivity::onIndexChange(size_t index) {
         return;
     }
 
-    brls::Logger::debug("切换分区: {}", index);
+    brls::Logger::debug("切换分P: {}", index);
     // 上报历史记录
     this->reportCurrentProgress(MPVCore::instance().video_progress,
                                 MPVCore::instance().duration);
@@ -468,10 +542,22 @@ void PlayerActivity::onIndexChangeToNext() {
     if (videoDetailPage.page < videoDetailResult.pages.size()) {
         changeIndexEvent.fire(videoDetailPage.page);
         this->onIndexChange(videoDetailPage.page);
-    } else if (AUTO_NEXT_RCMD) {
-        // 分集播放结束，判断是否要播放推荐视频
-        if (videDetailRelated.size() > 0)
-            changeVideoEvent.fire(videDetailRelated[0]);
+        return;
+    }
+
+    // 分集播放结束，判断是否要播放合集视频
+    auto& ugc = videoDetailResult.ugc_season;
+    if (ugc.currentIndex >= 0 &&
+        ugc.currentIndex + 1 < ugc.sections[0].episodes.size()) {
+        bilibili::Video video;
+        video.bvid = ugc.sections[0].episodes[ugc.currentIndex + 1].bvid;
+        this->changeVideoEvent.fire(video);
+        return;
+    }
+
+    // 合集播放结束，判断是否要播放推荐视频
+    if (AUTO_NEXT_RCMD && !videDetailRelated.empty()) {
+        changeVideoEvent.fire(videDetailRelated[0]);
     }
 }
 

@@ -112,7 +112,7 @@ public:
         this->setMarginBottom(12);
 
         grid = new RecyclingGrid();
-        grid->setPadding(0, 40, 0, 20);
+        grid->setPadding(0, 30, 0, 20);
         grid->setGrow(1);
         grid->applyXMLAttribute("spanCount", "1");
         grid->applyXMLAttribute("itemSpace", "0");

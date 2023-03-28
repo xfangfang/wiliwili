@@ -199,6 +199,65 @@ public:
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailRights, download, no_reprint,
                                    is_cooperation);
 
+class UGCSeasonState {
+public:
+    int view;  // 播放量
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeasonState, view);
+
+class UGCSeasonEpisodePage {
+public:
+    int cid, duration, page;
+    std::string part;  // 原视频标题
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeasonEpisodePage, cid, duration, part,
+                                   page);
+
+class UGCSeasonEpisode {
+public:
+    int season_id = 0, section_id = 0, id = 0, aid = 0, cid = 0;
+    int index = -1;
+    std::string bvid, title;  // 合集视频标题
+    UGCSeasonEpisodePage page;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeasonEpisode, season_id, section_id, id,
+                                   aid, cid, title, bvid, page);
+
+class UGCSeasonSection {
+public:
+    int season_id;
+    int id;  // section id
+    std::string title;
+    int type;
+    std::vector<UGCSeasonEpisode> episodes;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      UGCSeasonSection& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, season_id, id,
+                                             type, title, episodes));
+    for (int i = 0; i < nlohmann_json_t.episodes.size(); i++) {
+        nlohmann_json_t.episodes[i].index = i;
+    }
+}
+inline void to_json(nlohmann::json& nlohmann_json_j,
+                    const UGCSeasonSection& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, season_id, id,
+                                             type, title, episodes))
+}
+
+class UGCSeason {
+public:
+    int id;
+    int64_t mid;
+    std::string title, cover, intro;
+    UGCSeasonState stat;
+    bool is_pay_season;
+    std::vector<UGCSeasonSection> sections;
+    int currentIndex = -1;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeason, sections, id, mid, title, cover,
+                                   intro, stat);
+
 class VideoDetailResult {
 public:
     std::string bvid;
@@ -218,6 +277,7 @@ public:
     UserSimpleResult owner;
     VideoDetailPageListResult pages;
     VideoDetailStat stat;
+    UGCSeason ugc_season;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoDetailResult& nlohmann_json_t) {
@@ -226,6 +286,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     }
     if (nlohmann_json_j.contains("pages")) {
         nlohmann_json_j.at("pages").get_to(nlohmann_json_t.pages);
+    }
+    if (nlohmann_json_j.contains("ugc_season")) {
+        nlohmann_json_j.at("ugc_season").get_to(nlohmann_json_t.ugc_season);
     }
     if (nlohmann_json_j.contains("duration")) {
         nlohmann_json_j.at("duration").get_to(nlohmann_json_t.duration);
@@ -239,6 +302,18 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, bvid, aid,
                                              owner, title, pic, desc, pubdate,
                                              stat, rights, copyright));
+
+    // 计算当前播放的视频在合集中的索引
+    // 默认只考虑一个分区的情况，因为暂时还没有发现个人合集有多个分区
+    if (nlohmann_json_t.ugc_season.sections.empty()) return;
+
+    auto& section = nlohmann_json_t.ugc_season.sections[0];
+    for (size_t i = 0; i < section.episodes.size(); i++) {
+        if (section.episodes[i].aid == nlohmann_json_t.aid) {
+            nlohmann_json_t.ugc_season.currentIndex = (int)i;
+            break;
+        }
+    }
 }
 inline void to_json(nlohmann::json& nlohmann_json_j,
                     const VideoDetailResult& nlohmann_json_t) {

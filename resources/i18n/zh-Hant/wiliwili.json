@@ -198,6 +198,7 @@
     },
     "history": "歷史記錄",
     "collection": "我的收藏",
+    "subscription": "我的訂閱",
     "anime": "我的追番",
     "series": "我的追劇",
     "refresh_history": "重新整理歷史記錄",
@@ -219,6 +220,7 @@
   "player": {
     "intro": "查看簡介",
     "p": "分集",
+    "ugc_season": "合集",
     "related": "推薦",
     "series": "系列",
     "recommend": "推薦",
