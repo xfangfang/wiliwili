@@ -150,7 +150,7 @@ public:
     inline static bool AUTO_PLAY = true;
 
     // 若值大于0 则当前时间大于 CLOSE_TIME 时，自动暂停播放
-    inline static int64_t CLOSE_TIME = -1;
+    inline static size_t CLOSE_TIME = 0;
 
     NVGcolor bottomBarColor =
         brls::Application::getTheme().getColor("color/bilibili");

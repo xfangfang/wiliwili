@@ -692,7 +692,7 @@ void MPVCore::eventMainLoop() {
                                 // 判断是否需要暂停播放
                                 if (CLOSE_TIME > 0 &&
                                     wiliwili::getUnixTime() > CLOSE_TIME) {
-                                    CLOSE_TIME = -1;
+                                    CLOSE_TIME = 0;
                                     this->pause();
                                 }
                             }

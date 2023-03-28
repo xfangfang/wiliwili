@@ -53,7 +53,7 @@ std::shared_ptr<ImageHelper> ImageHelper::with(brls::Image* view) {
     // 设置图片组件不处理纹理的销毁，由缓存统一管理纹理销毁
     item->imageView->setFreeTexture(false);
 
-    brls::Logger::debug("with view: {} {} {}", (size_t)view, (size_t)item.get(),
+    brls::Logger::verbose("with view: {} {} {}", (size_t)view, (size_t)item.get(),
                         (size_t)(*iter).get());
 
     return item;
@@ -62,7 +62,7 @@ std::shared_ptr<ImageHelper> ImageHelper::with(brls::Image* view) {
 void ImageHelper::load(std::string url) {
     this->imageUrl = url;
 
-    brls::Logger::debug("load view: {} {}", (size_t)this->imageView,
+    brls::Logger::verbose("load view: {} {}", (size_t)this->imageView,
                         (size_t)this);
 
     //    std::unique_lock<std::mutex> lock(this->loadingMutex);
@@ -82,7 +82,7 @@ void ImageHelper::load(std::string url) {
     brls::Logger::verbose("request Image 1: {} {}", this->imageUrl,
                           this->isCancel);
     ImageThreadPool::instance().Submit([this]() {
-        brls::Logger::debug("Submit view: {} {} {} {}", (size_t)this->imageView,
+        brls::Logger::verbose("Submit view: {} {} {} {}", (size_t)this->imageView,
                             (size_t)this, this->imageUrl, this->isCancel);
         if (this->isCancel) {
             this->clean();
@@ -158,7 +158,7 @@ void ImageHelper::clear(brls::Image* view) {
     // 请求不存在
     if (requestMap.find(view) == requestMap.end()) return;
 
-    brls::Logger::debug("clear view: {} {}", (size_t)view,
+    brls::Logger::verbose("clear view: {} {}", (size_t)view,
                         (size_t)(*requestMap[view]).get());
 
     // 请求没结束，取消请求

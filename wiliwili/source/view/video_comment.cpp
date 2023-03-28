@@ -11,7 +11,7 @@
 using namespace brls::literals;
 
 VideoComment::VideoComment() {
-    brls::Logger::debug("View VideoComment: create");
+    brls::Logger::verbose("View VideoComment: create");
     this->inflateFromXMLRes("xml/views/video_comment.xml");
 
     this->registerColorXMLAttribute("mainTextColor", [this](NVGcolor value) {
@@ -24,7 +24,7 @@ VideoComment::VideoComment() {
 }
 
 VideoComment::~VideoComment() {
-    brls::Logger::debug("View VideoComment: delete");
+    brls::Logger::verbose("View VideoComment: delete");
 }
 
 RecyclingGridItem* VideoComment::create() { return new VideoComment(); }
