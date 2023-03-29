@@ -107,22 +107,39 @@ public:
             nullptr,
         const ErrorCallback& error = nullptr);
 
-    /// get person collection list
+    /**
+     * 获取用户创建的收藏列表或用户订阅的合集
+     * @param mid
+     * @param index
+     * @param num
+     * @param type  获取的列表种类是 收藏夹 还是 合集, 1 为收藏夹 2 为合集
+     * @param callback
+     * @param error
+     */
     static void get_my_collection_list(
-        const int64_t mid, const int index = 1, const int num = 20,
+        int64_t mid, int index = 1, int num = 20, int type = 1,
         const std::function<void(CollectionListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
 
     static void get_my_collection_list(
-        const std::string& mid, const int index = 1, const int num = 20,
+        const std::string& mid, int index = 1, int num = 20, int type = 1,
         const std::function<void(CollectionListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
 
-    /// get collection video list
+    /**
+     * 获取单个 收藏夹 或 合集 的视频列表
+     * 注: 若获取的是合集，则一次性会获得全部列表
+     * @param id 收藏夹或视频合集的 id
+     * @param index 获取视频的列表的页号
+     * @param num 一次获取的视频数量
+     * @param type 获取的列表种类是 收藏夹 还是 合集, 1 为收藏夹 2 为合集
+     * @param callback
+     * @param error
+     */
     static void get_collection_video_list(
-        int64_t media_id, const int index = 1, const int num = 20,
+        int64_t id, int index = 1, int num = 20, int type = 1,
         const std::function<void(CollectionVideoListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);

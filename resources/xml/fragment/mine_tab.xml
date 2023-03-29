@@ -149,7 +149,16 @@
 
         <Tab label="@i18n/wiliwili/mine/collection"
              fontSize="18">
-            <MineCollection id="mine/collection"/>
+            <MineCollection
+                    id="mine/collection"
+                    type="1"/>
+        </Tab>
+
+        <Tab label="@i18n/wiliwili/mine/subscription"
+             fontSize="18">
+            <MineCollection
+                    id="mine/subscription"
+                    type="2"/>
         </Tab>
 
         <Tab label="@i18n/wiliwili/mine/anime"

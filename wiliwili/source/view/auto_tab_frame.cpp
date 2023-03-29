@@ -600,7 +600,9 @@ const std::string autoSidebarItemXML = R"xml(
             <brls:Label
                 wireframe="false"
                 id="autoSidebar/subtitle_label"
+                singleLine="true"
                 width="auto"
+                minWidth="80"
                 height="auto"
                 fontSize="12"
                 textColor="#80808080"
@@ -808,14 +810,10 @@ void AutoSidebarItem::onFocusGained() {
     Box::onFocusGained();
 
     if (this->group) this->group->setActive(this);
-
-    //    brls::Logger::info("AutoSidebarItem: onFocusGained");
 }
 
 void AutoSidebarItem::onFocusLost() {
     Box::onFocusLost();
-
-    //    brls::Logger::info("AutoSidebarItem: onFocusLost");
 }
 
 void AutoSidebarItem::setGroup(AutoSidebarItemGroup* group) {

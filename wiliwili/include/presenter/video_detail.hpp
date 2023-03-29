@@ -46,8 +46,6 @@ public:
     virtual void onRedirectToEp(const std::string& url) {}
     virtual void onUGCSeasonInfo(const bilibili::UGCSeason& result) {}
 
-    // todo: 获取视频合集
-
     /// 请求视频数据
     void requestData(const bilibili::VideoDetailResult& video);
 
@@ -64,7 +62,7 @@ public:
     void requestSeasonStatue(size_t seasonID);
 
     /// 获取视频信息：标题、作者、简介、分P等
-    void requestVideoInfo(const std::string bvid);
+    void requestVideoInfo(const std::string& bvid);
 
     /// 获取视频地址
     void requestVideoUrl(std::string bvid, int cid);

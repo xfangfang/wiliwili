@@ -16,11 +16,13 @@
 
 class MineCollectionVideoList : public brls::Box {
 public:
-    MineCollectionVideoList(const bilibili::CollectionResult& data);
+    MineCollectionVideoList();
 
-    ~MineCollectionVideoList();
+    MineCollectionVideoList(const bilibili::CollectionResult& data, int type);
 
-    static View* create(const bilibili::CollectionResult& data);
+    ~MineCollectionVideoList() override;
+
+    static View* create();
 
     void requestCollectionList();
 
@@ -33,4 +35,6 @@ private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "collection/recyclingGrid");
 
     unsigned int requestIndex = 1;
+    int requestType           = 1;
+    bool hasMore              = true;
 };

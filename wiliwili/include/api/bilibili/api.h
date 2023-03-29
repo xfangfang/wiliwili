@@ -181,6 +181,12 @@ static const std::string UserDynamicStat =
 /// 用户追番/追剧
 static const std::string UserBangumiCollection =
     _apiBase + "/x/space/bangumi/follow/list";
+/// 用户订阅合集列表
+static const std::string UserUGCSeason =
+    _apiBase + "/x/v3/fav/folder/collected/list";
+/// 用户订阅合集的视频列表
+static const std::string UserUGCSeasonVideoList =
+    _apiBase + "/x/space/fav/season/list";
 
 /// ===
 /// 搜索页API

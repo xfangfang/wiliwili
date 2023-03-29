@@ -180,7 +180,7 @@ void VideoDetail::requestSeasonStatue(size_t seasonID) {
 }
 
 /// 获取视频信息：标题、作者、简介、分P等
-void VideoDetail::requestVideoInfo(const std::string bvid) {
+void VideoDetail::requestVideoInfo(const std::string& bvid) {
     // 重置MPV
     MPVCore::instance().reset();
 

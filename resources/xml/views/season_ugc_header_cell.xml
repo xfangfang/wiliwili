@@ -1,0 +1,26 @@
+<brls:Box
+        width="auto"
+        height="@style/brls/sidebar/item_height"
+        focusable="true"
+        paddingTop="12.5"
+        paddingBottom="12.5"
+        alignItems="center">
+
+    <brls:Box
+            marginLeft="10"
+            axis="column">
+        <brls:Label
+                id="player/tab/title"
+                width="auto"
+                height="auto"
+                marginBottom="8"
+                fontSize="@style/brls/sidebar/item_font_size"/>
+        <brls:Label
+                id="player/tab/subtitle"
+                width="auto"
+                height="auto"
+                textColor="@theme/font/grey"/>
+    </brls:Box>
+
+
+</brls:Box>

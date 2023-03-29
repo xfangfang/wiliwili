@@ -34,6 +34,7 @@
 #include "fragment/home_cinema.hpp"
 #include "fragment/mine_history.hpp"
 #include "fragment/mine_collection.hpp"
+#include "fragment/mine_collection_video_list.hpp"
 #include "fragment/mine_bangumi.hpp"
 #include "fragment/search_tab.hpp"
 #include "fragment/search_video.hpp"
@@ -84,6 +85,8 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("MineHistory", MineHistory::create);
     brls::Application::registerXMLView("MineCollection",
                                        MineCollection::create);
+    brls::Application::registerXMLView("MineCollectionVideoList",
+                                       MineCollectionVideoList::create);
     brls::Application::registerXMLView("MineBangumi", MineBangumi::create);
     brls::Application::registerXMLView("SearchTab", SearchTab::create);
     brls::Application::registerXMLView("SearchVideo", SearchVideo::create);

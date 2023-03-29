@@ -18,7 +18,7 @@ class MineCollection : public AttachedView, public MineCollectionRequest {
 public:
     MineCollection();
 
-    ~MineCollection();
+    ~MineCollection() override;
 
     static View *create();
 

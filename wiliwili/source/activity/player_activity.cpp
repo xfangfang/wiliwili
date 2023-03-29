@@ -93,6 +93,18 @@ private:
     ChangeVideoEvent changeVideoEvent;
 };
 
+class UGCSeasonHeader : public RecyclingGridItem {
+public:
+    UGCSeasonHeader() {
+        this->inflateFromXMLRes("xml/views/season_ugc_header_cell.xml");
+    }
+
+    static RecyclingGridItem* create() { return new UGCSeasonHeader(); }
+
+    BRLS_BIND(brls::Label, title, "player/tab/title");
+    BRLS_BIND(brls::Label, subtitle, "player/tab/subtitle");
+};
+
 /// PlayerActivity
 
 PlayerActivity::PlayerActivity(const std::string& bvid, unsigned int cid,
@@ -346,44 +358,52 @@ void PlayerActivity::onUGCSeasonInfo(const bilibili::UGCSeason& result) {
     item->setFontSize(18);
     item->setLabel("wiliwili/player/ugc_season"_i18n);
     this->tabFrame->addTab(item, [this, result, item]() {
-        //暂时没有看到有多个 section 的合集
-        auto& section = result.sections[0];
-
-        // 在开头插入一项，用来当作标题
-        auto eps = section.episodes;
-        auto ep  = bilibili::UGCSeasonEpisode{};
-        ep.title = result.title;
-        eps.insert(eps.begin(), ep);
-
         // 设置分集页面
         auto container = new BasePlayerTabFragment<bilibili::UGCSeasonEpisode>(
             // 列表数据
-            eps,
+            result.episodes,
             // 分集标题设置回调
-            [](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
+            [result](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
+                if (d.index == 0) {
+                    // 显示项为 season 标题
+                    auto* item =
+                        (UGCSeasonHeader*)recycler->dequeueReusableCell(
+                            "HeaderUGC");
+                    item->title->setText(d.title);
+                    item->subtitle->setText(wiliwili::num2w(result.stat.view) +
+                                            "播放");
+                    return item;
+                }
                 if (!d.id) {
-                    // 显示项为标题
+                    // 显示项为 section 标题
                     auto* item =
                         (PlayerTabHeader*)recycler->dequeueReusableCell(
                             "Header");
                     item->title->setText(d.title);
-                    item->setFocusable(true);
                     return item;
                 }
 
                 auto* item =
                     (PlayerTabCell*)recycler->dequeueReusableCell("Cell");
                 item->title->setText(d.title);
-                item->setSelected(ds->getCurrentIndex() - 1 == d.index);
+                item->setSelected(ds->getCurrentIndex() == d.index);
                 item->setBadge(
                     wiliwili::sec2MinSec(d.page.duration), nvgRGBA(0, 0, 0, 0),
                     brls::Application::getTheme().getColor("font/grey"));
                 return item;
             },
             // container的构造函数
-            [](...) {},
+            [](auto recycler, auto ds) {
+                recycler->registerCell(
+                    "HeaderUGC", []() { return UGCSeasonHeader::create(); });
+            },
             // 默认的选中索引
-            result.currentIndex + 1);
+            result.currentIndex,
+            // 组件高度
+            [](auto recycler, auto ds, auto& d) -> float {
+                if (d.index == 0) return 80;
+                return 50;
+            });
 
         // 分集点击回调
         container->getSelectEvent()->subscribe(
@@ -396,7 +416,6 @@ void PlayerActivity::onUGCSeasonInfo(const bilibili::UGCSeason& result) {
                     dialog->open();
                     return;
                 }
-
                 if (r.bvid.empty()) return;
                 bilibili::Video video;
                 video.bvid = r.bvid;
@@ -404,9 +423,9 @@ void PlayerActivity::onUGCSeasonInfo(const bilibili::UGCSeason& result) {
             });
 
         // 设置标题上方的数字
-        item->setSubtitle(
-            fmt::format("{}/{}", result.currentIndex + 1,
-                        wiliwili::num2w(section.episodes.size())));
+        item->setSubtitle(fmt::format("{}/{}",
+                                      result.currentIndexWithoutHeader + 1,
+                                      wiliwili::num2w(result.count)));
         return container;
     });
 }
@@ -547,12 +566,14 @@ void PlayerActivity::onIndexChangeToNext() {
 
     // 分集播放结束，判断是否要播放合集视频
     auto& ugc = videoDetailResult.ugc_season;
-    if (ugc.currentIndex >= 0 &&
-        ugc.currentIndex + 1 < ugc.sections[0].episodes.size()) {
-        bilibili::Video video;
-        video.bvid = ugc.sections[0].episodes[ugc.currentIndex + 1].bvid;
-        this->changeVideoEvent.fire(video);
-        return;
+    if (ugc.currentIndex >= 0) {
+        for (int i = ugc.currentIndex + 1; i < ugc.episodes.size(); i++) {
+            if (ugc.episodes[i].bvid.empty()) continue;
+            bilibili::Video video;
+            video.bvid = ugc.episodes[i].bvid;
+            this->changeVideoEvent.fire(video);
+            return;
+        }
     }
 
     // 合集播放结束，判断是否要播放推荐视频

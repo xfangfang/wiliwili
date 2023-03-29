@@ -253,7 +253,17 @@ public:
     UGCSeasonState stat;
     bool is_pay_season;
     std::vector<UGCSeasonSection> sections;
+
+    /// 以下项为前端显示所需，非原始接口数据
+
+    // 将多个section的数据整合在一起
+    std::vector<UGCSeasonEpisode> episodes;
+    // 当前播放的视频在 episodes 中的索引值
     int currentIndex = -1;
+    // 当前播放的视频去除了 episodes 中的标题项的索引值
+    int currentIndexWithoutHeader = -1;
+    // 前段合集的视频总数量
+    int count;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeason, sections, id, mid, title, cover,
                                    intro, stat);
@@ -303,15 +313,39 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
                                              owner, title, pic, desc, pubdate,
                                              stat, rights, copyright));
 
-    // 计算当前播放的视频在合集中的索引
-    // 默认只考虑一个分区的情况，因为暂时还没有发现个人合集有多个分区
     if (nlohmann_json_t.ugc_season.sections.empty()) return;
+    auto& episodes = nlohmann_json_t.ugc_season.episodes;
 
-    auto& section = nlohmann_json_t.ugc_season.sections[0];
-    for (size_t i = 0; i < section.episodes.size(); i++) {
-        if (section.episodes[i].aid == nlohmann_json_t.aid) {
+    // 插入合集标题
+    UGCSeasonEpisode seasonHeader;
+    seasonHeader.title = nlohmann_json_t.ugc_season.title;
+    seasonHeader.id    = 0;
+    episodes.emplace_back(seasonHeader);
+
+    // 将所有section的视频呢整合成一个列表
+    for (auto& section : nlohmann_json_t.ugc_season.sections) {
+        // 有多个section的情况下，插入section标题
+        if (nlohmann_json_t.ugc_season.sections.size() > 1) {
+            UGCSeasonEpisode sectionHeader;
+            sectionHeader.title = section.title;
+            sectionHeader.id    = 0;
+            episodes.emplace_back(sectionHeader);
+        }
+        episodes.insert(episodes.end(), section.episodes.begin(),
+                        section.episodes.end());
+    }
+
+    // 计算当前播放的视频在合集中的索引
+    nlohmann_json_t.ugc_season.count = 0;
+    for (size_t i = 0; i < episodes.size(); i++) {
+        episodes[i].index = (int)i;
+        if (episodes[i].aid == nlohmann_json_t.aid) {
+            nlohmann_json_t.ugc_season.currentIndexWithoutHeader =
+                nlohmann_json_t.ugc_season.count;
             nlohmann_json_t.ugc_season.currentIndex = (int)i;
-            break;
+        }
+        if (episodes[i].id != 0) {
+            nlohmann_json_t.ugc_season.count++;
         }
     }
 }
