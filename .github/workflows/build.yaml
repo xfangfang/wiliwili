@@ -95,17 +95,32 @@ jobs:
             ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg
             ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak
 
-      - name: Upload WeTransfer
-        if: github.event.inputs.release != 'true' && !cancelled()
-        run: |
-          tree
-          curl -fsSL git.io/file-transfer | sh
-          ./transfer wet -s -p 16 --no-progress \
-            ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz \
-            ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz \
-            ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg \
-            ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak 2>&1 | tee wetransfer.log
-          echo "::warning title=访问下方链接免登录下载测试版 (有效期至：`date -u +"%FT%TZ" -d "7day"`)::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
+  ## WeTransfer 暂时不可用，可以使用 CatBox 代替，但是后者貌似是非盈利组织维护的，所以还是不要滥用了，先注释掉
+  #      - name: Upload WeTransfer
+  #        if: github.event.inputs.release != 'true' && !cancelled()
+  #        continue-on-error: true
+  #        run: |
+  #          tree
+  #          curl -fsSL git.io/file-transfer | sh
+  #          ./transfer wet -s -p 16 --no-progress \
+  #            ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz \
+  #            ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz \
+  #            ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg \
+  #            ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak 2>&1 | tee transfer.log
+  #          echo "::warning title=访问下方链接免登录下载测试版 (有效期至：`date -u +"%FT%TZ" -d "7day"`)::$(cat transfer.log | grep https | cut -f3 -d" ")"
+  #
+  #      - name: Upload CatBox
+  #        if: github.event.inputs.release != 'true' && !cancelled()
+  #        continue-on-error: true
+  #        run: |
+  #          tree
+  #          curl -fsSL git.io/file-transfer | sh
+  #          ./transfer wet -s -p 16 --no-progress \
+  #            ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz \
+  #            ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz \
+  #            ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg \
+  #            ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak 2>&1 | tee transfer.log
+  #          echo "::warning title=访问下方链接免登录下载测试版::$(cat transfer.log)"
 
   build-win-x64:
     needs: [ version ]

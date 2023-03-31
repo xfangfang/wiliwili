@@ -140,9 +140,10 @@ ValueSelectedEvent::Callback BaseDropdown::getSelectCallback() {
     return this->cb;
 }
 
-void BaseDropdown::text(const std::string& title,
-                        const std::vector<std::string>& values,
-                        ValueSelectedEvent::Callback cb, int selected) {
+BaseDropdown* BaseDropdown::text(const std::string& title,
+                                 const std::vector<std::string>& values,
+                                 ValueSelectedEvent::Callback cb,
+                                 int selected) {
     auto* dropdown = new BaseDropdown(title, std::move(cb), selected);
     dropdown->getRecyclingList()->registerCell("Cell", []() {
         auto* cell = new GridRadioCell();
@@ -154,4 +155,5 @@ void BaseDropdown::text(const std::string& title,
     });
     dropdown->setDataSource(new TextDataSourceDropdown(values, dropdown));
     brls::Application::pushActivity(new brls::Activity(dropdown));
+    return dropdown;
 }

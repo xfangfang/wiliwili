@@ -410,8 +410,9 @@ PlayerCommentAction::PlayerCommentAction() {
         return true;
     });
     this->svgReply->registerClickAction([this](...) {
-        this->animation = false;
-        this->dismiss();
+        // 直接退出不调用动画
+        // 相关issue: https://github.com/xfangfang/wiliwili/issues/108
+        brls::Application::popActivity(brls::TransitionAnimation::NONE);
         this->replyClickEvent.fire();
         return true;
     });
@@ -463,7 +464,7 @@ void PlayerCommentAction::showStartAnimation() {
 }
 
 void PlayerCommentAction::showDismissAnimation() {
-    if (commentOriginalPosition == 60 || !animation) {
+    if (commentOriginalPosition == 60) {
         brls::Application::popActivity(brls::TransitionAnimation::NONE);
         return;
     }

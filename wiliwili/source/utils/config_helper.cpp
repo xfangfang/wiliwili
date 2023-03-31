@@ -70,6 +70,13 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
       {0, 10, 20, 50, 100, 200, 500},
       0}},
+    {
+        SettingItem::PLAYER_DEFAULT_SPEED,
+        {"player_default_speed",
+         {"2.0x", "1.75x", "1.5x", "1.25x", "1.0x", "0.75x", "0.5x"},
+         {200, 175, 150, 125, 100, 75, 50},
+         4},
+    },
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
     {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
@@ -156,6 +163,13 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
       {0, 10, 20, 50, 100, 200, 500},
       2}},
+    {
+        SettingItem::PLAYER_DEFAULT_SPEED,
+        {"player_default_speed",
+         {"2.0x", "1.75x", "1.5x", "1.25x", "1.0x", "0.75x", "0.5x"},
+         {200, 175, 150, 125, 100, 75, 50},
+         0},
+    },
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
     {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
@@ -337,6 +351,9 @@ void ProgramConfig::load() {
     // 初始化视频清晰度
     VideoDetail::defaultQuality =
         getSettingItem(SettingItem::VIDEO_QUALITY, 116);
+
+    // 初始化默认的倍速设定
+    MPVCore::VIDEO_SPEED = getIntOption(SettingItem::PLAYER_DEFAULT_SPEED);
 
     // 初始化弹幕相关内容
     DanmakuCore::DANMAKU_ON = getBoolOption(SettingItem::DANMAKU_ON);

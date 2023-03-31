@@ -148,6 +148,7 @@ void MPVCore::init() {
     //    check_error(mpv_observe_property(mpv, 7, "paused-for-cache", MPV_FORMAT_FLAG));
     //    check_error(mpv_observe_property(mpv, 8, "demuxer-cache-time", MPV_FORMAT_DOUBLE));
     //    check_error(mpv_observe_property(mpv, 9, "demuxer-cache-state", MPV_FORMAT_NODE));
+    check_error(mpv_observe_property(mpv, 10, "speed", MPV_FORMAT_DOUBLE));
 
     // init renderer params
 #ifdef MPV_SW_RENDER
@@ -619,7 +620,8 @@ void MPVCore::eventMainLoop() {
                 brls::Logger::info("========> MPV_STOP");
                 mpvCoreEvent.fire(MpvEventEnum::MPV_STOP);
                 break;
-            case MPV_EVENT_PROPERTY_CHANGE:
+            case MPV_EVENT_PROPERTY_CHANGE: {
+                auto *data = ((mpv_event_property *)event->data)->data;
                 switch (event->reply_userdata) {
                     case 1:
                         // 播放器放空了自己，啥也不干的状态
@@ -719,50 +721,60 @@ void MPVCore::eventMainLoop() {
                                      ->data;
                         }
                         break;
-                        //                    case 7:
-                        //                        break;
-                        //                    case 8:
-                        //                        // 缓存时间
-                        //                        if (((mpv_event_property *)event->data)->data) {
-                        //                            //                            brls::Logger::verbose(
-                        //                            //                                "demuxer-cache-time: {}",
-                        //                            //                                *(double *)((mpv_event_property *)event->data)
-                        //                            //                                     ->data);
-                        //                        }
-                        //                        break;
-                        //                    case 9:
-                        //                        // 缓存信息
-                        //                        if (((mpv_event_property *)event->data)->data) {
-                        //                            mpv_node *node =
-                        //                                (mpv_node *)((mpv_event_property *)event->data)
-                        //                                    ->data;
-                        //                            std::unordered_map<std::string, mpv_node> node_map;
-                        //                            for (int i = 0; i < node->u.list->num; i++) {
-                        //                                node_map.insert(std::make_pair(
-                        //                                    std::string(node->u.list->keys[i]),
-                        //                                    node->u.list->values[i]));
-                        //                            }
-                        //                            brls::Logger::debug(
-                        //                                "total-bytes: {:.2f}MB; cache-duration: "
-                        //                                "{:.2f}; "
-                        //                                "underrun: {}; fw-bytes: {:.2f}MB; bof-cached: "
-                        //                                "{}; eof-cached: {}; file-cache-bytes: {}; "
-                        //                                "raw-input-rate: {:.2f};",
-                        //                                node_map["total-bytes"].u.int64 / 1048576.0,
-                        //                                node_map["cache-duration"].u.double_,
-                        //                                node_map["underrun"].u.flag,
-                        //                                node_map["fw-bytes"].u.int64 / 1048576.0,
-                        //                                node_map["bof-cached"].u.flag,
-                        //                                node_map["eof-cached"].u.flag,
-                        //                                node_map["file-cache-bytes"].u.int64 /
-                        //                                    1048576.0,
-                        //                                node_map["raw-input-rate"].u.int64 / 1048576.0);
-                        //                        }
-                        //                        break;
+                    case 7:
+                        // 发生了缓存等待
+                        brls::Logger::debug("========> pause for cache");
+                        break;
+                    case 8:
+                        // 缓存时间
+                        if (((mpv_event_property *)event->data)->data) {
+                            brls::Logger::verbose(
+                                "demuxer-cache-time: {}",
+                                *(double *)((mpv_event_property *)event->data)
+                                     ->data);
+                        }
+                        break;
+                    case 9:
+                        // 缓存信息
+                        if (((mpv_event_property *)event->data)->data) {
+                            auto *node =
+                                (mpv_node *)((mpv_event_property *)event->data)
+                                    ->data;
+                            std::unordered_map<std::string, mpv_node> node_map;
+                            for (int i = 0; i < node->u.list->num; i++) {
+                                node_map.insert(std::make_pair(
+                                    std::string(node->u.list->keys[i]),
+                                    node->u.list->values[i]));
+                            }
+                            brls::Logger::debug(
+                                "total-bytes: {:.2f}MB; cache-duration: "
+                                "{:.2f}; "
+                                "underrun: {}; fw-bytes: {:.2f}MB; bof-cached: "
+                                "{}; eof-cached: {}; file-cache-bytes: {}; "
+                                "raw-input-rate: {:.2f};",
+                                node_map["total-bytes"].u.int64 / 1048576.0,
+                                node_map["cache-duration"].u.double_,
+                                node_map["underrun"].u.flag,
+                                node_map["fw-bytes"].u.int64 / 1048576.0,
+                                node_map["bof-cached"].u.flag,
+                                node_map["eof-cached"].u.flag,
+                                node_map["file-cache-bytes"].u.int64 /
+                                    1048576.0,
+                                node_map["raw-input-rate"].u.int64 / 1048576.0);
+                        }
+                        break;
+                    case 10:
+                        // 倍速信息
+                        if (data) {
+                            video_speed = *(double *)data;
+                            mpvCoreEvent.fire(VIDEO_SPEED_CHANGE);
+                        }
+                        break;
                     default:
                         break;
                 }
                 break;
+            }
             default:
                 break;
         }
@@ -825,6 +837,11 @@ double MPVCore::getSpeed() {
     double ret = 1;
     get_property("speed", MPV_FORMAT_DOUBLE, &ret);
     return ret;
+}
+
+void MPVCore::setSpeed(double value) {
+    this->command_str(fmt::format("set speed {}", value).c_str());
+    DanmakuCore::instance().refresh();
 }
 
 double MPVCore::getPlaybackTime() {

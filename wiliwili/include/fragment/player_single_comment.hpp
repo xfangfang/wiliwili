@@ -83,5 +83,4 @@ private:
 
     brls::Animatable position     = 0.0f;
     float commentOriginalPosition = 1.0f;
-    bool animation                = true;
 };

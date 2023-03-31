@@ -71,7 +71,10 @@ public:
 
     void hideLoading();
 
-    void hideDanmakuButton();
+    /**
+     * 隐藏一部分视频播放相关的按钮，在直播页面调用此函数用来隐藏不需要的 UI
+     */
+    void hideActionButtons();
 
     void setTitle(const std::string& title);
 
@@ -166,6 +169,9 @@ private:
     BRLS_BIND(brls::Label, leftStatusLabel, "video/left/status");
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
     BRLS_BIND(brls::Label, videoQuality, "video/quality");
+    BRLS_BIND(brls::Label, videoSpeed, "video/speed");
+    BRLS_BIND(brls::Label, speedHintLabel, "video/speed/hint/label");
+    BRLS_BIND(brls::Box, speedHintBox, "video/speed/hint/box");
     BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
     BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
     BRLS_BIND(SVGImage, btnFullscreenIcon, "video/osd/fullscreen/icon");

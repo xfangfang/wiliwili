@@ -76,7 +76,7 @@ void LiveActivity::onContentAvailable() {
         "toggleDanmaku", brls::ControllerButton::BUTTON_X,
         [](brls::View* view) -> bool { return true; }, true);
 
-    this->video->hideDanmakuButton();
+    this->video->hideActionButtons();
     this->video->setFullscreenIcon(true);
     this->video->setTitle(liveData.title);
     this->video->setOnlineCount(liveData.watched_show.text_large);

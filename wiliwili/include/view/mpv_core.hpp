@@ -38,6 +38,7 @@ typedef enum MpvEventEnum {
     START_FILE,
     END_OF_FILE,
     CACHE_SPEED_CHANGE,
+    VIDEO_SPEED_CHANGE,
 } MpvEventEnum;
 
 typedef brls::Event<MpvEventEnum> MPVEvent;
@@ -95,6 +96,8 @@ public:
 
     void seek(int64_t p);
 
+    void setSpeed(double value);
+
     void setFrameSize(brls::Rect rect);
 
     bool isValid();
@@ -129,6 +132,7 @@ public:
     int core_idle          = 0;
     int64_t duration       = 0;  // second
     int64_t cache_speed    = 0;  // Bps
+    double video_speed     = 0;
     double playback_time   = 0;
     double percent_pos     = 0;
     int64_t video_progress = 0;
@@ -151,6 +155,9 @@ public:
 
     // 若值大于0 则当前时间大于 CLOSE_TIME 时，自动暂停播放
     inline static size_t CLOSE_TIME = 0;
+
+    // 触发倍速时的默认值，单位为 %
+    inline static int VIDEO_SPEED = 200;
 
     NVGcolor bottomBarColor =
         brls::Application::getTheme().getColor("color/bilibili");
