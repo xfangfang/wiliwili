@@ -394,6 +394,7 @@ void PlayerSingleComment::requestData() {
 PlayerSingleComment::~PlayerSingleComment() {
     brls::Logger::debug("Fragment PlayerSingleComment: delete");
 }
+
 brls::View* PlayerSingleComment::getDefaultFocus() {
     return this->recyclingGrid;
 }
@@ -409,6 +410,7 @@ PlayerCommentAction::PlayerCommentAction() {
         return true;
     });
     this->svgReply->registerClickAction([this](...) {
+        this->animation = false;
         this->dismiss();
         this->replyClickEvent.fire();
         return true;
@@ -461,7 +463,7 @@ void PlayerCommentAction::showStartAnimation() {
 }
 
 void PlayerCommentAction::showDismissAnimation() {
-    if (commentOriginalPosition == 60) {
+    if (commentOriginalPosition == 60 || !animation) {
         brls::Application::popActivity(brls::TransitionAnimation::NONE);
         return;
     }
