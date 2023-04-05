@@ -95,9 +95,17 @@ public:
     unsigned int aid;
     std::string bvid;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserUploadedVideoResult, comment, play, pic,
-                                   description, copyright, title, video_review,
-                                   author, mid, created, length, aid, bvid);
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      UserUploadedVideoResult& nlohmann_json_t) {
+    if (nlohmann_json_j.at("play").is_number()) {
+        nlohmann_json_j.at("play").get_to(nlohmann_json_t.play);
+    } else {
+        nlohmann_json_t.play = -1;
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
+        NLOHMANN_JSON_FROM, comment, pic, description, copyright, title,
+        video_review, author, mid, created, length, aid, bvid));
+}
 
 typedef std::vector<UserUploadedVideoResult> UserUploadedVideoListResult;
 

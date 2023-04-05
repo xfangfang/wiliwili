@@ -35,8 +35,8 @@ public:
         bilibili::UserUploadedVideoResult& r = this->list[index];
         item->setCard(r.pic + ImageHelper::h_ext, r.title,
                       r.author + " · " + wiliwili::sec2TimeDate(r.created),
-                      wiliwili::num2w(r.play), wiliwili::num2w(r.video_review),
-                      r.length);
+                      r.play == -1 ? "-" : wiliwili::num2w(r.play),
+                      wiliwili::num2w(r.video_review), r.length);
         return item;
     }
 
@@ -239,7 +239,8 @@ void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
 
     // bottom area
     this->videoBVIDLabel->setText(result.bvid);
-    this->videoCountLabel->setText(wiliwili::num2w(result.stat.view));
+    this->videoCountLabel->setText(
+        result.stat.view == -1 ? "-" : wiliwili::num2w(result.stat.view));
     this->videoDanmakuLabel->setText(wiliwili::num2w(result.stat.danmaku));
     this->videoTimeLabel->setText(wiliwili::sec2FullDate(result.pubdate));
     if (result.rights.no_reprint == 1) {
