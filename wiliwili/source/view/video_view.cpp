@@ -8,6 +8,7 @@
 #include "view/video_progress_slider.hpp"
 #include "view/svg_image.hpp"
 #include "view/grid_dropdown.hpp"
+#include "view/video_profile.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "activity/player_activity.hpp"
@@ -120,6 +121,15 @@ VideoView::VideoView() {
                          brls::ControllerButton::BUTTON_START,
                          [](brls::View* view) -> bool {
                              MPV_CE->fire(VideoView::QUALITY_CHANGE, nullptr);
+                             return true;
+                         });
+
+    /// 视频详情信息
+    this->registerAction("profile", brls::ControllerButton::BUTTON_BACK,
+                         [this](brls::View* view) -> bool {
+                             VIDEO_PROFILE = !VIDEO_PROFILE;
+                             if (!VIDEO_PROFILE) return true;
+                             videoProfile->update();
                              return true;
                          });
 
@@ -334,6 +344,11 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
 
     // cache info
     osdCenterBox->frame(ctx);
+
+    // draw video profile
+    if (VIDEO_PROFILE) {
+        videoProfile->frame(ctx);
+    }
 }
 
 void VideoView::invalidate() { View::invalidate(); }

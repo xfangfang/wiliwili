@@ -12,6 +12,8 @@ class VideoProgressSlider;
 
 class SVGImage;
 
+class VideoProfile;
+
 // https://github.com/mpv-player/mpv/blob/master/DOCS/edl-mpv.rst
 class EDLUrl {
 public:
@@ -148,7 +150,11 @@ public:
     inline static const int64_t POSITION_UNDEFINED = -1;
     inline static const int64_t POSITION_DISCARD   = -2;
 
+    // 当自动跳转下一集时不退出全屏
     inline static bool EXIT_FULLSCREEN_ON_END = true;
+
+    // 显示关于视频的详细信息
+    inline static bool VIDEO_PROFILE = false;
 
 private:
     bool allowFullscreen  = true;
@@ -181,6 +187,7 @@ private:
     BRLS_BIND(SVGImage, btnSettingIcon, "video/osd/setting/icon");
     BRLS_BIND(brls::Label, hintLabel, "video/osd/hint/label");
     BRLS_BIND(brls::Box, hintBox, "video/osd/hint/box");
+    BRLS_BIND(VideoProfile, videoProfile, "video/profile");
 
     // OSD
     time_t osdLastShowTime     = 0;
@@ -192,8 +199,4 @@ private:
 
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
-
-    //DEBUG
-    BRLS_BIND(brls::Box, videoLayerDebug, "video/layer/debug");
-    BRLS_BIND(brls::Box, videoLayerDanmaku, "video/layer/danmaku");
 };

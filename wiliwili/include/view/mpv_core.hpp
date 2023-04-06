@@ -88,6 +88,15 @@ public:
 
     void setUrl(const std::string &url, const std::string &extra = "");
 
+    std::string getString(const std::string &key);
+
+    double getDouble(const std::string &key);
+
+    int64_t getInt(const std::string &key);
+
+    std::unordered_map<std::string, mpv_node> getNodeMap(
+        const std::string &key);
+
     void resume();
 
     void pause();

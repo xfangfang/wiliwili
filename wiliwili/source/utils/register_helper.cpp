@@ -19,6 +19,7 @@
 #include "view/animation_image.hpp"
 #include "view/button_close.hpp"
 #include "view/check_box.hpp"
+#include "view/video_profile.hpp"
 
 #include "fragment/home_tab.hpp"
 #include "fragment/dynamic_tab.hpp"
@@ -49,6 +50,7 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("AutoTabFrame", AutoTabFrame::create);
     brls::Application::registerXMLView("RecyclingGrid", RecyclingGrid::create);
     brls::Application::registerXMLView("VideoView", VideoView::create);
+    brls::Application::registerXMLView("VideoProfile", VideoProfile::create);
     brls::Application::registerXMLView("QRImage", QRImage::create);
     brls::Application::registerXMLView("SVGImage", SVGImage::create);
     brls::Application::registerXMLView("TextBox", TextBox::create);

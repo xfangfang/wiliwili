@@ -636,7 +636,9 @@ void MPVCore::eventMainLoop() {
                         brls::Logger::info("========> core-idle: {}",
                                            core_idle);
                         if (isPaused()) {
-                            if (playback_time > duration - 1 && duration > 0) {
+                            if (duration > 0 &&
+                                (double)duration - playback_time < 1) {
+                                video_progress = duration;
                                 brls::Logger::info(
                                     "========> END OF FILE (paused)");
                                 mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
@@ -647,8 +649,9 @@ void MPVCore::eventMainLoop() {
                             disableDimming(false);
                         } else {
                             if (core_idle) {
-                                if (playback_time > duration - 1 &&
-                                    duration > 0) {
+                                if (duration > 0 &&
+                                    (double)duration - playback_time < 1) {
+                                    video_progress = duration;
                                     brls::Logger::info("========> END OF FILE");
                                     mpvCoreEvent.fire(
                                         MpvEventEnum::END_OF_FILE);
@@ -842,6 +845,45 @@ double MPVCore::getSpeed() {
 void MPVCore::setSpeed(double value) {
     this->command_str(fmt::format("set speed {}", value).c_str());
     DanmakuCore::instance().refresh();
+}
+
+std::string MPVCore::getString(const std::string &key) {
+    char *value = nullptr;
+    mpv_get_property(mpv, key.c_str(), MPV_FORMAT_STRING, &value);
+    if (!value) return "";
+    std::string result = std::string{value};
+    mpv_free(value);
+    return result;
+}
+
+double MPVCore::getDouble(const std::string &key) {
+    double value = 0;
+    mpv_get_property(mpv, key.c_str(), MPV_FORMAT_DOUBLE, &value);
+    return value;
+}
+
+int64_t MPVCore::getInt(const std::string &key) {
+    int64_t value = 0;
+    mpv_get_property(mpv, key.c_str(), MPV_FORMAT_INT64, &value);
+    return value;
+}
+
+std::unordered_map<std::string, mpv_node> MPVCore::getNodeMap(
+    const std::string &key) {
+    mpv_node node;
+    std::unordered_map<std::string, mpv_node> nodeMap;
+    if (mpv_get_property(mpv, key.c_str(), MPV_FORMAT_NODE, &node) < 0)
+        return nodeMap;
+    if (node.format != MPV_FORMAT_NODE_MAP) return nodeMap;
+    // todo: 目前不要使用 mpv_node中有指针的部分，因为这些内容指向的内存会在这个函数结束的时候删除
+    for (int i = 0; i < node.u.list->num; i++) {
+        char *nodeKey = node.u.list->keys[i];
+        if (nodeKey == nullptr) continue;
+        nodeMap.insert(
+            std::make_pair(std::string{nodeKey}, node.u.list->values[i]));
+    }
+    mpv_free_node_contents(&node);
+    return nodeMap;
 }
 
 double MPVCore::getPlaybackTime() {
