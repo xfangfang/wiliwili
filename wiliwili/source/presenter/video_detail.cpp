@@ -518,9 +518,10 @@ void VideoDetail::requestVideoDanmaku(int cid) {
             for (auto child = element->FirstChildElement(); child != nullptr;
                  child      = child->NextSiblingElement()) {
                 if (child->Name()[0] != 'd') continue;  // 简易判断是不是弹幕
+                const char* content = child->GetText();
+                if (!content) continue;
                 try {
-                    items.emplace_back(
-                        DanmakuItem(child->GetText(), child->Attribute("p")));
+                    items.emplace_back(content, child->Attribute("p"));
                 } catch (...) {
                     brls::Logger::error("DANMAKU: error decode: {}",
                                         child->GetText());
