@@ -82,7 +82,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads", {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
     {SettingItem::VIDEO_FORMAT,
-     {"video_format", {"dash", "flv/mp4"}, {1744, 0}, 0}},
+     {"file_format", {"Dash (AVC/HEVC/AV1)", "FLV/MP4"}, {4048, 0}, 0}},
+    {SettingItem::VIDEO_CODEC,
+     {"video_codec", {"AVC/H.264", "HEVC/H.265", "AV1"}, {7, 12, 13}, 0}},
+    {SettingItem::AUDIO_QUALITY,
+     {"audio_quality", {"High", "Medium", "Low"}, {30280, 30232, 30216}, 0}},
     {SettingItem::DANMAKU_FILTER_LEVEL,
      {"danmaku_filter_level",
       {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
@@ -178,7 +182,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {1, 2, 3, 4, 8, 12, 16},
       3}},
     {SettingItem::VIDEO_FORMAT,
-     {"video_format", {"dash", "flv/mp4"}, {1744, 0}, 0}},
+     {"file_format", {"Dash (AVC/HEVC/AV1)", "FLV/MP4"}, {4048, 0}, 0}},
+    {SettingItem::VIDEO_CODEC,
+     {"video_codec", {"AVC/H.264", "HEVC/H.265", "AV1"}, {7, 12, 13}, 0}},
+    {SettingItem::AUDIO_QUALITY,
+     {"audio_quality", {"High", "Medium", "Low"}, {30280, 30232, 30216}, 0}},
     {SettingItem::DANMAKU_FILTER_LEVEL,
      {"danmaku_filter_level",
       {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
@@ -383,8 +391,9 @@ void ProgramConfig::load() {
         getBoolOption(SettingItem::GAMEPAD_VIBRATION);
 
     // 初始化视频格式
-    bilibili::BilibiliClient::FNVAL =
-        std::to_string(getIntOption(SettingItem::VIDEO_FORMAT));
+    BILI::FNVAL       = std::to_string(getIntOption(SettingItem::VIDEO_FORMAT));
+    BILI::VIDEO_CODEC = getIntOption(SettingItem::VIDEO_CODEC);
+    BILI::AUDIO_QUALITY = getIntOption(SettingItem::AUDIO_QUALITY);
 
     // 初始化线程数
     ImageHelper::REQUEST_THREADS =
@@ -593,7 +602,7 @@ void ProgramConfig::init() {
 
     // set bilibili cookie and cookie update callback
     Cookie diskCookie = this->getCookie();
-    bilibili::BilibiliClient::init(
+    BILI::init(
         diskCookie,
         [](const Cookie& newCookie, const std::string& token) {
             brls::Logger::info("======== write cookies to disk");

@@ -435,6 +435,7 @@ public:
     std::vector<std::string> backup_url;
     unsigned int bandwidth;
     int width, height;  // only for video
+    int codecid;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       DashMedia& nlohmann_json_t) {
@@ -442,8 +443,8 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         !nlohmann_json_j.at("backup_url").is_null()) {
         nlohmann_json_j.at("backup_url").get_to(nlohmann_json_t.backup_url);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, base_url,
-                                             bandwidth, height, width));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
+        NLOHMANN_JSON_FROM, id, base_url, bandwidth, height, width, codecid));
 }
 
 class Dash {

@@ -60,7 +60,9 @@ class BilibiliClient {
 
 public:
     static Cookies cookies;
-    inline static std::string FNVAL = "1744";
+    inline static std::string FNVAL = "4048";
+    inline static int VIDEO_CODEC   = 7;
+    inline static int AUDIO_QUALITY = 30280;
 
     /// get qrcode for login
     static void get_login_url(

@@ -317,19 +317,63 @@ void SettingActivity::onContentAvailable() {
             return true;
         });
 
+    /// VideoCodec
+    auto codecOption = conf.getOptionData(SettingItem::VIDEO_CODEC);
+    selectorCodec->init("wiliwili/setting/app/playback/video_codec"_i18n,
+                        codecOption.optionList,
+                        conf.getIntOptionIndex(SettingItem::VIDEO_CODEC),
+                        [codecOption](int data) {
+                            ProgramConfig::instance().setSettingItem(
+                                SettingItem::VIDEO_CODEC,
+                                codecOption.rawOptionList[data]);
+                            bilibili::BilibiliClient::VIDEO_CODEC =
+                                codecOption.rawOptionList[data];
+                            return true;
+                        });
+
+    /// AudioBandwidth
+    auto bandwidthOption = conf.getOptionData(SettingItem::AUDIO_QUALITY);
+    selectorQuality->init(
+        "wiliwili/setting/app/playback/audio_quality"_i18n,
+        {"wiliwili/home/common/high"_i18n, "wiliwili/home/common/medium"_i18n,
+         "wiliwili/home/common/low"_i18n},
+        conf.getIntOptionIndex(SettingItem::AUDIO_QUALITY),
+        [bandwidthOption](int data) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::AUDIO_QUALITY,
+                bandwidthOption.rawOptionList[data]);
+            bilibili::BilibiliClient::AUDIO_QUALITY =
+                bandwidthOption.rawOptionList[data];
+            return true;
+        });
+
     /// VideoFormat
     auto formatOption = conf.getOptionData(SettingItem::VIDEO_FORMAT);
     selectorFormat->init(
         "wiliwili/setting/app/playback/video_format"_i18n,
         formatOption.optionList,
         conf.getIntOptionIndex(SettingItem::VIDEO_FORMAT),
-        [formatOption](int data) {
+        [this, formatOption](int data) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::VIDEO_FORMAT, formatOption.rawOptionList[data]);
             bilibili::BilibiliClient::FNVAL =
                 std::to_string(formatOption.rawOptionList[data]);
+            // 非 Dash 模式，无法调整视频编码与音频质量
+            if (formatOption.rawOptionList[data] == 0) {
+                selectorCodec->setVisibility(brls::Visibility::GONE);
+                selectorQuality->setVisibility(brls::Visibility::GONE);
+            } else {
+                selectorCodec->setVisibility(brls::Visibility::VISIBLE);
+                selectorQuality->setVisibility(brls::Visibility::VISIBLE);
+            }
             return true;
         });
+
+    // 非 Dash 模式，无法调整视频编码与音频质量
+    if (conf.getIntOption(SettingItem::VIDEO_FORMAT) == 0) {
+        selectorCodec->setVisibility(brls::Visibility::GONE);
+        selectorQuality->setVisibility(brls::Visibility::GONE);
+    }
 
     /// Opencc
     if (brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||

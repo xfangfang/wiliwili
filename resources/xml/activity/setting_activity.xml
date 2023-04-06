@@ -54,6 +54,12 @@
                             <brls:SelectorCell
                                     id="setting/video/format"/>
 
+                            <brls:SelectorCell
+                                    id="setting/video/codec"/>
+
+                            <brls:SelectorCell
+                                    id="setting/audio/quality"/>
+
                         </brls:Box>
                         <brls:Header
                                 width="auto"

@@ -64,6 +64,13 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 
 <br>
 
+# 使用说明
+
+wiliwili 拥有丰富的自定义选项，包括：使用 Anime4K 提升观感，自定义字体及图标等等  
+前往 [项目 WIKI](https://github.com/xfangfang/wiliwili/wiki) 查看更多使用技巧
+
+<br>
+
 # TODO list
 
 如果你有其他改进的想法或创意，欢迎在讨论区交流：[Discussions](https://github.com/xfangfang/wiliwili/discussions/categories/ideas)

@@ -431,19 +431,50 @@ void BasePlayerActivity::onVideoPlayUrl(
     if (!result.dash.video.empty()) {
         // dash
         brls::Logger::debug("Video type: dash");
+
+        // 找到当前可用的清晰度
         for (const auto& i : result.dash.video) {
-            // todo: 相同清晰度的码率选择方案
             if (result.quality >= i.id) {
-                // 手动设置当前选择的清晰度
                 videoUrlResult.quality = i.id;
-                if (result.dash.audio.empty()) {
-                    this->video->setUrl(i.base_url, progress);
-                } else {
-                    this->video->setUrl(i.base_url, progress,
-                                        result.dash.audio[0].base_url);
-                }
                 break;
             }
+        }
+
+        // 找到当前清晰度下可用的视频
+        std::vector<bilibili::DashMedia> codecs;
+        for (const auto& i : result.dash.video) {
+            if (i.id == videoUrlResult.quality) {
+                codecs.emplace_back(i);
+            }
+        }
+
+        // 匹配当前设定的视频编码
+        bilibili::DashMedia v = codecs[0];  // 默认是 AVC/H.264
+        for (const auto& i : codecs) {
+            if (BILI::VIDEO_CODEC == i.codecid) {
+                v = i;
+                break;
+            }
+        }
+
+        // 给播放器设置链接
+        if (result.dash.audio.empty()) {
+            // 无音频视频
+            this->video->setUrl(v.base_url, progress);
+            brls::Logger::debug("Dash quality: {}; video: {}",
+                                videoUrlResult.quality, v.codecid);
+        } else {
+            // 匹配当前设定的音频码率
+            bilibili::DashMedia a = result.dash.audio[0];  // High
+            for (auto& i : result.dash.audio) {
+                if (BILI::AUDIO_QUALITY == i.id) {
+                    a = i;
+                    break;
+                }
+            }
+            this->video->setUrl(v.base_url, progress, a.base_url);
+            brls::Logger::debug("Dash quality: {}; video: {}; audio: {}",
+                                videoUrlResult.quality, v.codecid, a.id);
         }
     } else {
         // flv

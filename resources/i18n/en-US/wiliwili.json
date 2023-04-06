@@ -17,6 +17,8 @@
         "auto_play_next_part": "Automatically playing next part",
         "auto_play_recommend": "Automatically playing recommend video",
         "sleep": "Timing Off",
+        "video_codec": "Video Codec",
+        "audio_quality": "Audio Quality",
         "video_format": "Video format"
       },
       "image": {
@@ -146,6 +148,9 @@
       "filter": "Filter",
       "save": "Save",
       "min": "Minutes",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low",
       "no_login": "You are not logged in yet"
     },
     "live": {

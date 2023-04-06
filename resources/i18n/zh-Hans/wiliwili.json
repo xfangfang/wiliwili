@@ -17,6 +17,8 @@
         "auto_play_next_part": "自动播放下一分集",
         "auto_play_recommend": "自动播放推荐视频",
         "sleep": "定时关闭",
+        "video_codec": "视频编码",
+        "audio_quality": "视频音质",
         "video_format": "视频格式"
       },
       "image": {
@@ -146,6 +148,9 @@
       "filter": "筛选",
       "save": "保存",
       "min": "分钟",
+      "high": "高",
+      "medium": "中",
+      "low": "低",
       "no_login": "用户未登录"
     },
     "live": {
