@@ -117,6 +117,20 @@ void DanmakuCore::refresh() {
     danmakuMutex.unlock();
 }
 
+void DanmakuCore::setSpeed(double speed) {
+    double oldSpeed     = videoSpeed;
+    videoSpeed          = speed;
+    int64_t currentTime = brls::getCPUTimeUsec();
+    double factor       = oldSpeed / speed;
+    // 修改滚动弹幕的起始播放时间，满足修改后的时间在新速度下生成的位置不变。
+    for (size_t j = this->danmakuIndex; j < this->danmakuData.size(); j++) {
+        auto &i = this->danmakuData[j];
+        if (i.type == 4 || i.type == 5) continue;
+        if (!i.canShow) continue;
+        i.startTime = currentTime - (currentTime - i.startTime) * factor;
+    }
+}
+
 void DanmakuCore::save() {
     ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_ON,
                                              DANMAKU_ON, false);
@@ -223,8 +237,8 @@ void DanmakuCore::drawDanmaku(NVGcontext *vg, float x, float y, float width,
                     i.speed * (currentTime - i.startTime) * videoSpeed / 1e6;
             }
 
-            // 根据时间或位置判断是否显示弹幕
-            if (position > width + i.length || i.time + SECOND < playbackTime) {
+            // 根据位置判断是否显示弹幕
+            if (position > width + i.length) {
                 i.showing    = false;
                 danmakuIndex = j + 1;
                 continue;

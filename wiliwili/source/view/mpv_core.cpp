@@ -844,7 +844,7 @@ double MPVCore::getSpeed() {
 
 void MPVCore::setSpeed(double value) {
     this->command_str(fmt::format("set speed {}", value).c_str());
-    DanmakuCore::instance().refresh();
+    DanmakuCore::instance().setSpeed(value);
 }
 
 std::string MPVCore::getString(const std::string &key) {

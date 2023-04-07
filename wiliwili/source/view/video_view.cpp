@@ -332,8 +332,6 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         if (a2 > 120) a2 = 240 - a2;
         if (a3 > 120) a3 = 240 - a3;
 
-        brls::Logger::debug("{}/{}/{}", a1, a2, a3);
-
         float tx                              = frame.getMinX() - 50;
         float ty                              = frame.getMinY() + 7;
         std::vector<std::pair<int, int>> data = {
