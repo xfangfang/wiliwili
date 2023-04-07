@@ -82,6 +82,28 @@ void HomeHotsWeekly::switchChannel() {
         selected)));
 }
 
+brls::View* HomeHotsWeekly::hitTest(brls::Point point) {
+    // Check if can focus farther first
+    if (alpha == 0.0f || getVisibility() != brls::Visibility::VISIBLE)
+        return nullptr;
+
+    // Check if touch fits in view frame
+    brls::Rect area = this->getFrame();
+    brls::Rect topArea =
+        brls::Rect(area.getMaxX() - 200, area.getMinY() - 62, 200, 62);
+    if (area.pointInside(point) || topArea.pointInside(point)) {
+        for (auto child = this->getChildren().rbegin();
+             child != this->getChildren().rend(); child++) {
+            View* result = (*child)->hitTest(point);
+
+            if (result) return result;
+        }
+        return this;
+    }
+
+    return nullptr;
+}
+
 brls::View* HomeHotsWeekly::create() { return new HomeHotsWeekly(); }
 
 HomeHotsWeekly::~HomeHotsWeekly() {

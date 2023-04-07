@@ -22,7 +22,10 @@ class HomeHotsWeekly : public AttachedView, public HomeHotsWeeklyRequest {
 public:
     HomeHotsWeekly();
 
-    ~HomeHotsWeekly();
+    ~HomeHotsWeekly() override;
+
+    // 重写点击判断函数，目的是让右上角超出组件显示区域外的按钮也能被检测点击事件
+    brls::View* hitTest(brls::Point point) override;
 
     static View* create();
 
