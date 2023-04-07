@@ -125,13 +125,17 @@ VideoView::VideoView() {
                          });
 
     /// 视频详情信息
-    this->registerAction("profile", brls::ControllerButton::BUTTON_BACK,
-                         [this](brls::View* view) -> bool {
-                             VIDEO_PROFILE = !VIDEO_PROFILE;
-                             if (!VIDEO_PROFILE) return true;
-                             videoProfile->update();
-                             return true;
-                         });
+    this->registerAction(
+        "profile", brls::ControllerButton::BUTTON_BACK,
+        [this](brls::View* view) -> bool {
+            if (videoProfile->getVisibility() == brls::Visibility::VISIBLE) {
+                videoProfile->setVisibility(brls::Visibility::INVISIBLE);
+                return true;
+            }
+            videoProfile->setVisibility(brls::Visibility::VISIBLE);
+            videoProfile->update();
+            return true;
+        });
 
     /// 倍速按钮
     this->videoSpeed->getParent()->registerClickAction([](...) {
@@ -287,6 +291,8 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
             is_osd_shown = true;
             this->onOSDStateChanged(true);
         }
+        osdTopBox->setVisibility(brls::Visibility::VISIBLE);
+        osdBottomBox->setVisibility(brls::Visibility::VISIBLE);
         osdBottomBox->frame(ctx);
         osdTopBox->frame(ctx);
 
@@ -298,6 +304,8 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
             is_osd_shown = false;
             this->onOSDStateChanged(false);
         }
+        osdTopBox->setVisibility(brls::Visibility::INVISIBLE);
+        osdBottomBox->setVisibility(brls::Visibility::INVISIBLE);
 
         // draw subtitle (without osd)
         SubtitleCore::instance().drawSubtitle(vg, x, y, width, height,
@@ -346,9 +354,7 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
     osdCenterBox->frame(ctx);
 
     // draw video profile
-    if (VIDEO_PROFILE) {
-        videoProfile->frame(ctx);
-    }
+    videoProfile->frame(ctx);
 }
 
 void VideoView::invalidate() { View::invalidate(); }

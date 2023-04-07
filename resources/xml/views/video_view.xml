@@ -293,6 +293,7 @@
             id="video/profile"
             positionTop="22"
             positionLeft="22"
-            positionType="absolute"/>
+            positionType="absolute"
+            visibility="invisible"/>
 
 </brls:Box>

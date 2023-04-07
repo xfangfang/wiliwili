@@ -14,7 +14,8 @@ void VideoProfile::update() {
     auto mpvCore = &MPVCore::instance();
 
     // file
-    labelUrl->setText(mpvCore->getString("filename"));
+    auto fileName = mpvCore->getString("filename");
+    if (fileName != labelUrl->getFullText()) labelUrl->setText(fileName);
     labelSize->setText(
         fmt::format("{:.2f}MB", mpvCore->getInt("file-size") / 1048576.0));
     labelFormat->setText(mpvCore->getString("file-format"));
@@ -44,10 +45,9 @@ void VideoProfile::update() {
     labelVideoHW->setText(mpvCore->getString("hwdec-current"));
     labelVideoBitrate->setText(
         std::to_string(mpvCore->getInt("video-bitrate") / 1024) + "kbps");
-    labelVideoDrop->setText(
-        fmt::format("{} (decoder); {} (output)",
-                    mpvCore->getInt("decoder-frame-drop-count"),
-                    mpvCore->getInt("frame-drop-count")));
+    labelVideoDrop->setText(fmt::format(
+        "{} (decoder) {} (output)", mpvCore->getInt("decoder-frame-drop-count"),
+        mpvCore->getInt("frame-drop-count")));
     labelVideoSync->setText(
         fmt::format("{:.5f}", mpvCore->getDouble("avsync")));
 

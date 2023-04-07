@@ -153,9 +153,6 @@ public:
     // 当自动跳转下一集时不退出全屏
     inline static bool EXIT_FULLSCREEN_ON_END = true;
 
-    // 显示关于视频的详细信息
-    inline static bool VIDEO_PROFILE = false;
-
 private:
     bool allowFullscreen  = true;
     bool registerMPVEvent = false;
