@@ -46,6 +46,7 @@ private:
     BRLS_BIND(brls::Box, shaderBox, "setting/shaders/box");
 
     // common setting
+    BRLS_BIND(brls::BooleanCell, btnFullscreen, "setting/fullscreen");
     BRLS_BIND(brls::BooleanCell, btnProgress, "setting/video/progress");
     BRLS_BIND(brls::BooleanCell, btnHistory, "setting/history/log");
     BRLS_BIND(brls::BooleanCell, btnAutoNextPart, "setting/auto/nextPart");

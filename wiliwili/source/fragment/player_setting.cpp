@@ -47,8 +47,21 @@ brls::View* PlayerSetting::getDefaultFocus() {
 
 void PlayerSetting::setupCustomShaders() {
     if (!ShaderHelper::instance().isAvailable()) {
-        shaderHeader->setVisibility(brls::Visibility::GONE);
-        shaderBox->setVisibility(brls::Visibility::GONE);
+        auto* cell = new brls::RadioCell();
+        cell->title->setText("查看项目 WIKI 获得详细说明");
+        cell->registerClickAction([](...) {
+            brls::Application::getPlatform()->openBrowser(
+                "https://github.com/xfangfang/wiliwili/wiki");
+            return true;
+        });
+        shaderBox->addView(cell);
+        auto* hint = new brls::Label();
+        hint->setText(
+            "https://github.com/xfangfang/wiliwili/wiki#自定义着色器");
+        hint->setFontSize(12);
+        hint->setMargins(10, 0, 0, 10);
+        hint->setTextColor(brls::Application::getTheme().getColor("font/grey"));
+        shaderBox->addView(hint);
         return;
     }
 
@@ -156,6 +169,23 @@ void PlayerSetting::setupCommonSetting() {
                                wiliwili::getUnixTime() + time[data] * 60;
                        return true;
                    });
+
+/// Fullscreen
+#if defined(__linux__) || defined(_WIN32)
+    btnFullscreen->init(
+        "wiliwili/setting/app/others/fullscreen"_i18n,
+        conf.getBoolOption(SettingItem::FULLSCREEN), [](bool value) {
+            ProgramConfig::instance().setSettingItem(SettingItem::FULLSCREEN,
+                                                     value);
+            // 更新设置
+            VideoContext::FULLSCREEN = value;
+            // 设置当前状态
+            brls::Application::getPlatform()->getVideoContext()->fullScreen(
+                value);
+        });
+#else
+    btnFullscreen->setVisibility(brls::Visibility::GONE);
+#endif
 }
 
 void PlayerSetting::setupSubtitle() {

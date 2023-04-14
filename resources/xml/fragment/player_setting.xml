@@ -63,6 +63,9 @@
                         marginBottom="30px">
 
                     <brls:BooleanCell
+                            id="setting/fullscreen"/>
+
+                    <brls:BooleanCell
                             id="setting/auto/nextPart"/>
 
                     <brls:BooleanCell
