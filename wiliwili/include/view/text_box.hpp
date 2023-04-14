@@ -6,6 +6,7 @@
 
 #include <borealis.hpp>
 #include "utils/image_helper.hpp"
+#include "utils/number_helper.hpp"
 
 enum class RichTextType { Text, Image };
 
