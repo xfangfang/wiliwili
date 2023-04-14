@@ -14,15 +14,50 @@ namespace bilibili {
 
 // todo：up主精选评论
 
-typedef std::unordered_map<std::string, std::string> VideoCommentEmoteMap;
+class Emote {
+public:
+    std::string text;
+    std::string url;
+    int size = 1;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      Emote& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("meta")) {
+        nlohmann_json_j.at("meta").at("size").get_to(nlohmann_json_t.size);
+    }
+
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, text, url));
+}
+
+class Picture {
+public:
+    std::string img_src;
+    //    int img_width = 0, img_height = 0;
+    //    float img_size = 0;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      Picture& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, img_src));
+}
+
+typedef std::unordered_map<std::string, Emote> EmoteMap;
 
 class VideoCommentContent {
 public:
-    // 未初始化貌似会导致VideoCommentContent释放时候在switch上报错
-    //    VideoCommentEmoteMap emote;
     std::string message;
+    std::unordered_map<std::string, Emote> emote;
+    std::vector<Picture> pictures;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoCommentContent, message);
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      VideoCommentContent& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("emote")) {
+        nlohmann_json_j.at("emote").get_to(nlohmann_json_t.emote);
+    }
+    if (nlohmann_json_j.contains("pictures")) {
+        nlohmann_json_j.at("pictures").get_to(nlohmann_json_t.pictures);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, message));
+}
 
 class VideoCommentControl {
     /** eg

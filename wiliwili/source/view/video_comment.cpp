@@ -42,7 +42,60 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
         subtitle += "  " + data.reply_control.location;
     }
 
-    this->commentContent->setText(data.content.message);
+    RichTextData d;
+    const std::string& msg = data.content.message;
+    const auto& emote      = data.content.emote;
+    NVGcolor textColor     = brls::Application::getTheme()["brls/text"];
+    size_t start = 0, index = -1;
+    for (size_t i = 0; i < msg.length(); i++) {
+        if (msg[i] == '[') {
+            index = i;
+        } else if (msg[i] == ']') {
+            // 没找到左半边中括号
+            if (index == -1) continue;
+            // 没找到表情包
+            std::string key = msg.substr(index, i - index + 1);
+            if (!emote.count(key)) continue;
+            // 找到表情包
+            // 文字分段
+            if (index > start)
+                d.emplace_back(std::make_shared<RichTextSpan>(
+                    msg.substr(start, index - start), textColor));
+            // 表情包
+            if (emote.at(key).size == 2) {
+                d.emplace_back(std::make_shared<RichTextImage>(
+                    emote.at(key).url + ImageHelper::emoji_size2_ext, 40, 40));
+            } else {
+                d.emplace_back(std::make_shared<RichTextImage>(
+                    emote.at(key).url + ImageHelper::emoji_size1_ext, 30, 30));
+            }
+
+            start = i + 1;
+            index = -1;
+        }
+    }
+    if (start < msg.length()) {
+        d.emplace_back(std::make_shared<RichTextSpan>(
+            msg.substr(start, msg.length() - start), textColor));
+    }
+
+    // 比较丑陋地简单实现笔记图片
+    if (!data.content.pictures.empty())
+        d.emplace_back(std::make_shared<RichTextSpan>("\n\n\n", textColor));
+    for (size_t i = 0; i < data.content.pictures.size(); i++) {
+        d.emplace_back(std::make_shared<RichTextImage>(
+            data.content.pictures[i].img_src + ImageHelper::note_ext, 96, 96));
+        if ((i + 1) % 3 == 0 && i != data.content.pictures.size() - 1) {
+            d.emplace_back(
+                std::make_shared<RichTextSpan>("\n\n\n\n", textColor));
+        }
+    }
+    if (!data.content.pictures.empty())
+        d.emplace_back(std::make_shared<RichTextSpan>("\n\n", textColor));
+
+    // 设置富文本
+    this->commentContent->setRichText(d);
+
     this->userInfo->setUserInfo(data.member.avatar + ImageHelper::face_ext,
                                 data.member.uname, subtitle);
 
