@@ -14,6 +14,8 @@
 #include "view/recycling_grid.hpp"
 #include "bilibili/result/mine_collection_result.h"
 
+class TextBox;
+
 class MineCollectionVideoList : public brls::Box {
 public:
     MineCollectionVideoList();
@@ -29,7 +31,7 @@ public:
 private:
     bilibili::CollectionResult collectionData;
 
-    BRLS_BIND(brls::Label, labelTitle, "collection/label/title");
+    BRLS_BIND(TextBox, labelTitle, "collection/label/title");
     BRLS_BIND(brls::Label, labelSubtitle, "collection/label/subtitle");
     BRLS_BIND(brls::Image, imageCover, "collection/cover");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "collection/recyclingGrid");

@@ -568,7 +568,7 @@ void PlayerActivity::onIndexChangeToNext() {
     // 分集播放结束，判断是否要播放合集视频
     auto& ugc = videoDetailResult.ugc_season;
     if (ugc.currentIndex >= 0) {
-        for (int i = ugc.currentIndex + 1; i < ugc.episodes.size(); i++) {
+        for (size_t i = ugc.currentIndex + 1; i < ugc.episodes.size(); i++) {
             if (ugc.episodes[i].bvid.empty()) continue;
             bilibili::Video video;
             video.bvid = ugc.episodes[i].bvid;

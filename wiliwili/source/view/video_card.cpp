@@ -4,6 +4,7 @@
 
 #include "view/video_card.hpp"
 #include "view/svg_image.hpp"
+#include "view/text_box.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/image_helper.hpp"
 

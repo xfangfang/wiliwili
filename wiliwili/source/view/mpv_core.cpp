@@ -84,8 +84,7 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "video-timing-offset", "0");  // 60fps
     mpv_set_option_string(mpv, "keep-open", "yes");
     mpv_set_option_string(mpv, "hr-seek", "yes");
-    mpv_set_option_string(mpv, "reset-on-next-file",
-                          "speed,pause,loop-playlist");
+    mpv_set_option_string(mpv, "reset-on-next-file", "speed,pause");
 
     if (MPVCore::LOW_QUALITY) {
         // Less cpu cost

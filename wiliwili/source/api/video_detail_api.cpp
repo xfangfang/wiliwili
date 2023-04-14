@@ -338,6 +338,30 @@ void BilibiliClient::be_agree_comment(const std::string& access_key, size_t oid,
     HTTP::postResultAsync(Api::CommentLike, {}, payload, callback, error);
 }
 
+void BilibiliClient::ugc_season_subscribe(int id, const std::string& csrf,
+                                          const std::function<void()>& callback,
+                                          const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"season_id", std::to_string(id)},
+        {"csrf", csrf},
+        {"platform", "web"},
+    };
+    HTTP::postResultAsync(Api::UGCSeasonSubscribe, {}, payload, callback,
+                          error);
+}
+
+void BilibiliClient::ugc_season_unsubscribe(
+    int id, const std::string& csrf, const std::function<void()>& callback,
+    const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"season_id", std::to_string(id)},
+        {"csrf", csrf},
+        {"platform", "web"},
+    };
+    HTTP::postResultAsync(Api::UGCSeasonUnsubscribe, {}, payload, callback,
+                          error);
+}
+
 void BilibiliClient::delete_comment(const std::string& access_key, size_t oid,
                                     int64_t rpid,
                                     const std::function<void()>& callback,

@@ -179,13 +179,13 @@ typedef std::vector<VideoDetailPage> VideoDetailPageListResult;
 class VideoDetailStat {
 public:
     unsigned int aid;
-    unsigned int view;
-    unsigned int danmaku;
-    unsigned int favorite;
-    unsigned int coin;
-    unsigned int share;
-    unsigned int like;
-    unsigned int reply;
+    int view;
+    int danmaku;
+    int favorite;
+    int coin;
+    int share;
+    int like;
+    int reply;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailStat, aid, view, danmaku,
                                    favorite, coin, share, like, reply);
@@ -235,7 +235,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
                       UGCSeasonSection& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, season_id, id,
                                              type, title, episodes));
-    for (int i = 0; i < nlohmann_json_t.episodes.size(); i++) {
+    for (size_t i = 0; i < nlohmann_json_t.episodes.size(); i++) {
         nlohmann_json_t.episodes[i].index = i;
     }
 }

@@ -475,6 +475,30 @@ public:
                              const ErrorCallback& error            = nullptr);
 
     /**
+     * 订阅合集
+     * @param id 合集 id
+     * @param csrf
+     * @param callback
+     * @param error
+     */
+    static void ugc_season_subscribe(
+        int id, const std::string& csrf,
+        const std::function<void()>& callback = nullptr,
+        const ErrorCallback& error            = nullptr);
+
+    /**
+     * 取消订阅合集
+     * @param id 合集 id
+     * @param csrf
+     * @param callback
+     * @param error
+     */
+    static void ugc_season_unsubscribe(
+        int id, const std::string& csrf,
+        const std::function<void()>& callback = nullptr,
+        const ErrorCallback& error            = nullptr);
+
+    /**
      * 获取对应视频
      * @param rid
      * @param type 普通视频:2, 番剧: 24

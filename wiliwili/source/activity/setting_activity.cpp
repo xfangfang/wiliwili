@@ -76,6 +76,14 @@ const std::string OPENSOURCE =
     "Copyright (c) 2017-2021 Huu Nguyen\n"
     "Copyright (c) 2022 libcpr and many other contributors\n\n"
     "Licensed under MIT license\n\n\n"
+#ifdef USE_WEBP
+    "--------------------------------\n"
+    "libwebp\n"
+    "--------------------------------\n"
+    "https://chromium.googlesource.com/webm/libwebp\n\n"
+    "Copyright (c) Google Inc\n\n"
+    "Licensed under BSD 3-Clause \"New\" or \"Revised\" License\n\n\n"
+#endif
     "--------------------------------\n"
     "nx\n--------------------------------\n"
     "https://github.com/switchbrew/libnx\n\n"

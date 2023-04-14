@@ -135,7 +135,8 @@ VideoView::VideoView() {
             videoProfile->setVisibility(brls::Visibility::VISIBLE);
             videoProfile->update();
             return true;
-        });
+        },
+        true);
 
     /// 倍速按钮
     this->videoSpeed->getParent()->registerClickAction([](...) {
@@ -146,9 +147,9 @@ VideoView::VideoView() {
         double speed      = MPVCore::instance().getSpeed();
         int selectedIndex = (int)ProgramConfig::instance().getIntOptionIndex(
             SettingItem::PLAYER_DEFAULT_SPEED);
-        for (int i = 0; i < conf.rawOptionList.size(); i++) {
+        for (size_t i = 0; i < conf.rawOptionList.size(); i++) {
             if (fabs(conf.rawOptionList[i] * 0.01 - speed) < 1e-5) {
-                selectedIndex = i;
+                selectedIndex = (int)i;
                 break;
             }
         }

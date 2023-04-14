@@ -81,8 +81,8 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
 
 class UserUploadedVideoResult {
 public:
-    unsigned int comment;
-    unsigned int play;
+    int comment;
+    int play;
     std::string pic;
     std::string description;
     std::string copyright;

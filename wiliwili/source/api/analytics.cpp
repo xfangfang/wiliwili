@@ -56,7 +56,7 @@ void Analytics::send() {
     brls::Logger::verbose("report event: {}", content.dump());
 
     cpr::PostCallback(
-        [](cpr::Response r) {
+        [](const cpr::Response& r) {
             brls::Logger::verbose("report event: status code: {}",
                                   r.status_code);
         },

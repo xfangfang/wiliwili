@@ -417,7 +417,8 @@ PlayerCommentAction::PlayerCommentAction() {
         return true;
     });
     this->svgDelete->registerClickAction([this](...) {
-        this->dismiss();
+        // Same as above
+        brls::Application::popActivity(brls::TransitionAnimation::NONE);
         this->deleteClickEvent.fire();
         return true;
     });

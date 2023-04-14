@@ -68,6 +68,10 @@ static const std::string CoinWeb = _apiBase + "/x/web-interface/coin/add";
 static const std::string CoinExp = _apiBase + "/x/web-interface/coin/today/exp";
 /// 添加或删除视频收藏.
 static const std::string ModifyFavorite = _apiBase + "/x/v3/fav/resource/deal";
+/// 添加视频合集订阅
+static const std::string UGCSeasonSubscribe = _apiBase + "/x/v3/season/fav";
+/// 移除视频合集订阅
+static const std::string UGCSeasonUnsubscribe = _apiBase + "/x/v3/season/unfav";
 /// 一键三连.
 static const std::string Triple = _appBase + "/x/v2/view/like/triple";
 static const std::string TripleWeb =

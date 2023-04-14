@@ -7,6 +7,7 @@
 #include <utility>
 #include "activity/player_activity.hpp"
 #include "view/video_card.hpp"
+#include "view/text_box.hpp"
 #include "utils/image_helper.hpp"
 #include "bilibili.h"
 

@@ -9,6 +9,7 @@
 
 class NetImage;
 class SVGImage;
+class TextBox;
 
 class BaseVideoCard : public RecyclingGridItem {
 public:
@@ -47,7 +48,7 @@ public:
     static RecyclingGridItemVideoCard* create();
 
 private:
-    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(TextBox, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
     BRLS_BIND(brls::Label, labelDanmaku, "video/card/label/danmaku");
@@ -78,7 +79,7 @@ public:
 
 private:
     BRLS_BIND(SVGImage, svgIndex, "video/card/svg/index");
-    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(TextBox, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
     BRLS_BIND(brls::Label, labelDanmaku, "video/card/label/danmaku");
@@ -99,7 +100,7 @@ public:
     static RecyclingGridItemLiveVideoCard* create();
 
 private:
-    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(TextBox, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
     BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
@@ -127,7 +128,7 @@ public:
 private:
     BRLS_BIND(brls::Image, badgeTop, "video/card/badge/top");
     BRLS_BIND(brls::Image, badgeBottomLeft, "video/card/badge/bottom/left");
-    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(TextBox, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
     BRLS_BIND(brls::Box, boxPic, "video/card/pic_box");
@@ -196,7 +197,7 @@ public:
     static RecyclingGridItemHistoryVideoCard* create();
 
 private:
-    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(TextBox, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
     BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
@@ -221,7 +222,7 @@ public:
     static RecyclingGridItemCollectionVideoCard* create();
 
 private:
-    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(TextBox, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
     BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
@@ -241,7 +242,7 @@ public:
     static RecyclingGridItemRelatedVideoCard* create();
 
 private:
-    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(TextBox, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
     BRLS_BIND(brls::Label, labelDanmaku, "video/card/label/danmaku");
@@ -263,7 +264,7 @@ public:
     static RecyclingGridItem* create();
 
 private:
-    BRLS_BIND(brls::Label, labelTitle, "video/card/label/title");
+    BRLS_BIND(TextBox, labelTitle, "video/card/label/title");
     BRLS_BIND(brls::Label, labelUsername, "video/card/label/username");
     BRLS_BIND(brls::Label, labelCount, "video/card/label/count");
     BRLS_BIND(brls::Label, labelLike, "video/card/label/like");
