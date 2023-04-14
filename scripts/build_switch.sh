@@ -20,6 +20,7 @@ if [ ! -f "${NSPMINI}" ];then
     wget ${BASE_URL}/${NSPMINI}
 fi
 
+dkp-pacman -Syu --noconfirm
 dkp-pacman -U --noconfirm ${FFMPEG} ${MPV} ${NSPMINI}
 
 cmake -B ${BUILD_DIR} -DCMAKE_BUILD_TYPE=Release -DBUILTIN_NSP=ON

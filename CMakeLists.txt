@@ -128,6 +128,7 @@ add_subdirectory(library)
 file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
 
 set(PLATFORM_OPTION)
+set(PLATFORM_INCLUDES)
 if (PLATFORM_DESKTOP)
     find_package(MPV REQUIRED)
     if (MPV_FOUND)
@@ -161,6 +162,14 @@ else ()
     list(APPEND MAIN_SRC ${CMAKE_SOURCE_DIR}/library/borealis/library/lib/platforms/switch/switch_wrapper.c)
 endif ()
 
+find_package(WebP)
+if (WebP_FOUND)
+    message(STATUS "Found webp: ${WebP_INCLUDE_DIR} ${WebP_LIBRARY}")
+    add_definitions(-DUSE_WEBP)
+    list(APPEND PLATFORM_INCLUDES ${WebP_INCLUDE_DIRS})
+    list(APPEND PLATFORM_LIBS ${WebP_LIBRARY})
+endif ()
+
 
 # building target
 if (WIN32)
@@ -191,7 +200,8 @@ endif ()
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PRIVATE
         wiliwili/include
-        wiliwili/include/api)
+        wiliwili/include/api
+        ${PLATFORM_INCLUDES})
 target_compile_options(${PROJECT_NAME} PRIVATE
         -D__VERSION_MAJOR__=${VERSION_MAJOR}
         -D__VERSION_MINOR__=${VERSION_MINOR}

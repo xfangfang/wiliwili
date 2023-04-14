@@ -48,9 +48,29 @@ public:
     static void setRequestThreads(size_t num);
 
     /// 图片请求后缀，用来控制图片大小
-    inline static std::string h_ext    = "@672w_378h_1c.jpg";
-    inline static std::string v_ext    = "@312w_420h_1c.jpg";
-    inline static std::string face_ext = "@96w_96h_1c_1s.jpg";
+#ifdef USE_WEBP
+    inline static std::string h_ext           = "@672w_378h_1c.webp";
+    inline static std::string v_ext           = "@312w_420h_1c.webp";
+    inline static std::string face_ext        = "@96w_96h_1c_1s.webp";
+    inline static std::string face_large_ext  = "@160w_160h_1c_1s.webp";
+    inline static std::string emoji_size1_ext = "@40w_40h.webp";
+    inline static std::string emoji_size2_ext = "@72w_72h.webp";
+    inline static std::string note_ext =
+        "@540w_540h_85q_!note-comment-multiple.webp";
+    inline static std::string note_raw_ext =
+        "@{}w_{}h_1c_!pc-common-cover-h.webp";
+#else
+    inline static std::string h_ext           = "@672w_378h_1c.jpg";
+    inline static std::string v_ext           = "@312w_420h_1c.jpg";
+    inline static std::string face_ext        = "@96w_96h_1c_1s.jpg";
+    inline static std::string face_large_ext  = "@160w_160h_1c_1s.jpg";
+    inline static std::string emoji_size1_ext = "@40w_40h.png";
+    inline static std::string emoji_size2_ext = "@72w_72h.png";
+    inline static std::string note_ext =
+        "@540w_540h_85q_!note-comment-multiple.jpg";
+    inline static std::string note_raw_ext =
+        "@{}w_{}h_1c_!pc-common-cover-h.jpg";
+#endif
 
     /// 图片请求线程数
     inline static size_t REQUEST_THREADS = 1;

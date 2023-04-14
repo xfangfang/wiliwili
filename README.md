@@ -241,7 +241,7 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 #### Docker
 
 ```shell
-docker run --rm -v $(pwd):/data devkitpro/devkita64:20221113 \
+docker run --rm -v $(pwd):/data devkitpro/devkita64 \
   sh -c "/data/scripts/build_switch.sh"
 ```
 

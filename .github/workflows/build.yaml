@@ -146,6 +146,7 @@ jobs:
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-make
             mingw-w64-x86_64-mpv
+            mingw-w64-x86_64-libwebp
             git
             p7zip
 
@@ -214,7 +215,7 @@ jobs:
 
       - name: install deps
         run: |
-          brew install create-dmg dylibbundler
+          brew install create-dmg dylibbundler webp
           brew tap xfangfang/wiliwili
           brew install -v mpv-wiliwili
 
