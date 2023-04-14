@@ -18,9 +18,8 @@ VideoComment::VideoComment() {
         this->setMainTextColor(value);
     });
 
-    this->registerFloatXMLAttribute("maxRows", [this](float value) {
-        this->commentContent->setMaxRows((int)value);
-    });
+    this->registerFloatXMLAttribute(
+        "maxRows", [this](float value) { this->setMaxRows((size_t)value); });
 }
 
 VideoComment::~VideoComment() {
@@ -32,6 +31,10 @@ RecyclingGridItem* VideoComment::create() { return new VideoComment(); }
 void VideoComment::setMainTextColor(NVGcolor color) {
     this->commentContent->setTextColor(color);
     this->userInfo->setMainTextColor(color);
+}
+
+void VideoComment::setMaxRows(size_t value) {
+    this->commentContent->setMaxRows(value);
 }
 
 void VideoComment::setData(bilibili::VideoCommentResult data) {

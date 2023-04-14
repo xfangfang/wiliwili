@@ -387,7 +387,7 @@ void PlayerActivity::onUGCSeasonInfo(const bilibili::UGCSeason& result) {
                 auto* item =
                     (PlayerTabCell*)recycler->dequeueReusableCell("Cell");
                 item->title->setText(d.title);
-                item->setSelected(ds->getCurrentIndex() == d.index);
+                item->setSelected(ds->getCurrentIndex() == (size_t)d.index);
                 item->setBadge(
                     wiliwili::sec2MinSec(d.page.duration), nvgRGBA(0, 0, 0, 0),
                     brls::Application::getTheme().getColor("font/grey"));

@@ -10,6 +10,7 @@
 #include "view/button_close.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/number_helper.hpp"
 #include "presenter/comment_related.hpp"
 #include "bilibili.h"
 
@@ -403,6 +404,8 @@ brls::View* PlayerSingleComment::getDefaultFocus() {
 
 PlayerCommentAction::PlayerCommentAction() {
     this->inflateFromXMLRes("xml/fragment/player_comment_action.xml");
+
+    this->comment->setMaxRows(SIZE_T_MAX);
 
     this->svgLike->registerClickAction([this](...) {
         this->dismiss();

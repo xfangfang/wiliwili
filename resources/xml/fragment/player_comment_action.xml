@@ -81,7 +81,6 @@
                         id="comment/action/comment"
                         focusable="false"
                         hideClickAnimation="true"
-                        maxRows="-1"
                         width="410"/>
             </brls:Box>
 

@@ -380,7 +380,7 @@ TextBox::~TextBox() = default;
 
 void TextBox::setMaxRows(size_t value) {
     this->maxRows = value;
-    this->invalidate();
+    if (!this->richContent.empty()) this->invalidate();
 }
 
 size_t TextBox::getMaxRows() const { return this->maxRows; }
