@@ -272,6 +272,7 @@ if (PLATFORM_DESKTOP)
         endif ()
     endif ()
 else ()
+    set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)
     add_custom_target(${PROJECT_NAME}.nro
             DEPENDS ${PROJECT_NAME}
             COMMAND ${NX_NACPTOOL_EXE} --create "${PROJECT_NAME}"
@@ -279,8 +280,7 @@ else ()
             ${PROJECT_NAME}.nacp --titleid=${PROJECT_TITLEID}
             COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/resources
             COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/icon/wiliwili.ico
-            COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/resources/font
-            COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/resources/gamepad
+            COMMAND ${CMAKE_COMMAND} -E remove -f ${BUILD_FONT_DIR}/*.txt ${BUILD_FONT_DIR}/switch_font.ttf ${BUILD_FONT_DIR}/keymap*.ttf
             COMMAND ${NX_ELF2NRO_EXE} ${PROJECT_NAME}.elf ${PROJECT_NAME}.nro --icon=${PROJECT_ICON}
             --nacp=${PROJECT_NAME}.nacp --romfsdir=${CMAKE_BINARY_DIR}/resources
             )

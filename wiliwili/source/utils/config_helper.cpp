@@ -600,6 +600,12 @@ void ProgramConfig::init() {
         }
     }
 
+    brls::FontLoader::USER_EMOJI_PATH = getConfigDir() + "/emoji.ttf";
+    if (access(brls::FontLoader::USER_EMOJI_PATH.c_str(), F_OK) == -1) {
+        // 自定义emoji不存在，使用内置emoji
+        brls::FontLoader::USER_EMOJI_PATH = BRLS_ASSET("font/emoji.ttf");
+    }
+
     // set bilibili cookie and cookie update callback
     Cookie diskCookie = this->getCookie();
     BILI::init(
