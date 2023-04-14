@@ -5,7 +5,7 @@
 
 pkgname=switch-ffmpeg
 pkgver=4.4.3
-pkgrel=1
+pkgrel=3
 pkgdesc='ffmpeg port (for Nintendo Switch homebrew development)'
 arch=('any')
 url='https://ffmpeg.org/'
@@ -52,7 +52,7 @@ build() {
     --enable-swresample \
     --enable-network \
     --disable-protocols \
-    --enable-protocol='file,http,tcp,udp,rtmp,hls,https,tls'\
+    --enable-protocol='file,http,tcp,udp,rtmp,hls,https,tls,ftp'\
     --enable-asm --enable-neon \
     --enable-zlib --enable-bzlib \
     --enable-libass --enable-libfreetype \

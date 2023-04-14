@@ -40,12 +40,15 @@ public:
                 badge += " " + "wiliwili/mine/public"_i18n;
             }
         } else {
+            badge += " · ";
             if (r.type == SUBSCRIPTION_TYPE_1) {
                 // 订阅的收藏
-                badge += " · 收藏";
+                badge += "wiliwili/player/collection/type"_i18n;
             } else if (r.type == SUBSCRIPTION_TYPE_2) {
                 // 订阅的合集
-                badge += " · 合集";
+                badge += "wiliwili/player/ugc_season"_i18n;
+            } else {
+                badge += r.upper.name;
             }
         }
 

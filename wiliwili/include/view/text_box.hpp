@@ -74,11 +74,10 @@ public:
 
     /**
      * 设置绘制的最大行数，若宽度已知、高度未知，会根据最大行数推断组件高度
-     * -1 或 0 表示不限制最大行数
      */
-    void setMaxRows(int value);
+    void setMaxRows(size_t value);
 
-    [[nodiscard]] int getMaxRows() const;
+    [[nodiscard]] size_t getMaxRows() const;
 
     /**
      * 设置若内容超出最大行数，是否在最后一行展示 "更多" 提示
@@ -110,7 +109,7 @@ public:
 
 protected:
     // 最大的行数
-    int maxRows = -1;
+    size_t maxRows = SIZE_T_MAX;
     // 若达到最大行数是否在底部展示提示
     bool showMoreText = false;
     // 富文本数据

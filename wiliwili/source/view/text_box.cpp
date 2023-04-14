@@ -46,7 +46,7 @@ static void richTextBoxBounds(NVGcontext* ctx, float x, float y,
     float invscale = 1.0f / scale;
     int nrows      = 0, i;
     float lineh = 0, rminy = 0, rmaxy = 0;
-    float minx, miny, maxx, maxy, endx, endy;
+    float minx = 0, miny = 0, maxx = 0, maxy = 0, endx = 0, endy = 0;
 
     nvgTextMetrics(ctx, nullptr, nullptr, &lineh);
 
@@ -195,10 +195,11 @@ static YGSize textBoxMeasureFunc(YGNodeRef node, float width,
     nvgFontFaceId(vg, textBox->getFont());
     nvgTextLineHeight(vg, textBox->getLineHeight());
 
-    int maxRows = textBox->getMaxRows();
-    if (textBox->isShowMoreText() && maxRows > 0) maxRows++;
-    float maxHeight =
-        maxRows <= 0 ? -1 : (float)maxRows * pxLineHeight - pxBottomSpace;
+    size_t maxRows = textBox->getMaxRows();
+    if (textBox->isShowMoreText() && maxRows != SIZE_T_MAX) maxRows++;
+    float maxHeight = maxRows == SIZE_T_MAX
+                          ? 0
+                          : (float)maxRows * pxLineHeight - pxBottomSpace;
 
     // 计算最大高度
     float bounds[6];
@@ -221,7 +222,7 @@ static YGSize textBoxMeasureFunc(YGNodeRef node, float width,
             lx += t->width;
         }
         size.height = ly + textBox->getFontSize();
-        if (maxRows > 0 && size.height > maxHeight) {
+        if (maxRows != SIZE_T_MAX && size.height > maxHeight) {
             size.height = maxHeight;
             return size;
         }
@@ -234,7 +235,7 @@ TextBox::TextBox() {
     this->brls::Label::setAnimated(false);
 
     this->registerFloatXMLAttribute(
-        "maxRows", [this](float value) { this->setMaxRows((int)value); });
+        "maxRows", [this](float value) { this->setMaxRows((size_t)value); });
 
     this->registerBoolXMLAttribute(
         "showMore", [this](bool value) { this->setShowMoreText(value); });
@@ -333,7 +334,7 @@ void TextBox::draw(NVGcontext* vg, float x, float y, float width, float height,
 
     // 当显示 "更多" 提示时，最大的绘制行数加1
     size_t drawRow = this->getMaxRows();
-    if (drawRow != 0 && drawRow != -1 && this->showMoreText) {
+    if (drawRow != SIZE_T_MAX && this->showMoreText) {
         drawRow++;
     }
 
@@ -377,12 +378,12 @@ brls::View* TextBox::create() { return new TextBox(); }
 
 TextBox::~TextBox() = default;
 
-void TextBox::setMaxRows(int value) {
+void TextBox::setMaxRows(size_t value) {
     this->maxRows = value;
     this->invalidate();
 }
 
-int TextBox::getMaxRows() const { return this->maxRows; }
+size_t TextBox::getMaxRows() const { return this->maxRows; }
 
 void TextBox::setShowMoreText(bool value) {
     this->showMoreText = value;

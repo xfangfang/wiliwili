@@ -239,6 +239,7 @@
     "fs": "Fullscreen",
     "quality": "Quality",
     "speed": "Speed",
+    "current_speed": "Current speed {}",
     "not_follow": "Cancel following?",
     "coin": {
       "title": "Coin",
@@ -251,6 +252,7 @@
       "pcs": "{} pcs"
     },
     "collection": {
+      "type": "Favorite",
       "title": "Select Favorites"
     },
     "setting": {

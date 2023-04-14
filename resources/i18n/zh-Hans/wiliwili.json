@@ -239,6 +239,7 @@
     "fs": "全屏",
     "quality": "画质",
     "speed": "倍速",
+    "current_speed": "{} 倍速播放中",
     "not_follow": "取消关注?",
     "coin": {
       "title": "投币",
@@ -251,6 +252,7 @@
       "pcs": "{}个"
     },
     "collection": {
+      "type": "收藏",
       "title": "选择收藏夹"
     },
     "setting": {

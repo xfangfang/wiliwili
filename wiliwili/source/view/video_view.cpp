@@ -720,7 +720,8 @@ void VideoView::buttonProcessing() {
                 rsb_press_time = getCPUTimeUsec();
                 click_state    = ClickState::PRESS;
                 // 绘制临时加速标识
-                speedHintLabel->setText(fmt::format("{} 倍速播放中", SPEED));
+                speedHintLabel->setText(
+                    fmt::format("wiliwili/player/current_speed"_i18n, SPEED));
                 speedHintBox->setVisibility(brls::Visibility::VISIBLE);
             }
             break;
@@ -730,7 +731,6 @@ void VideoView::buttonProcessing() {
                 int64_t current_time = getCPUTimeUsec();
                 if (current_time - rsb_press_time < CHECK_TIME) {
                     // 点击事件
-                    brls::Logger::debug("点击");
                     rsb_press_time = current_time;
                     click_state    = ClickState::FAST_RELEASE;
                 } else {

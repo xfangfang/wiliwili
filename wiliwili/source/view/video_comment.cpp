@@ -46,13 +46,13 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
     const std::string& msg = data.content.message;
     const auto& emote      = data.content.emote;
     NVGcolor textColor     = brls::Application::getTheme()["brls/text"];
-    size_t start = 0, index = -1;
+    size_t start = 0, index = SIZE_T_MAX;
     for (size_t i = 0; i < msg.length(); i++) {
         if (msg[i] == '[') {
             index = i;
         } else if (msg[i] == ']') {
             // 没找到左半边中括号
-            if (index == -1) continue;
+            if (index == SIZE_T_MAX) continue;
             // 没找到表情包
             std::string key = msg.substr(index, i - index + 1);
             if (!emote.count(key)) continue;
@@ -71,7 +71,7 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
             }
 
             start = i + 1;
-            index = -1;
+            index = SIZE_T_MAX;
         }
     }
     if (start < msg.length()) {
