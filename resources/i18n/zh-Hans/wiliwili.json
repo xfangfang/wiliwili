@@ -260,7 +260,8 @@
         "header": "字幕"
       },
       "common": {
-        "header": "通用"
+        "header": "通用",
+        "wiki": "查看项目 WIKI 获得详细说明"
       },
       "shader": {
         "header": "着色器"

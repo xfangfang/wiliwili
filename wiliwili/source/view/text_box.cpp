@@ -391,3 +391,27 @@ void TextBox::setShowMoreText(bool value) {
 }
 
 bool TextBox::isShowMoreText() const { return this->showMoreText; }
+
+/// RichTextImage
+
+RichTextImage::RichTextImage(std::string url, float width, float height)
+    : RichTextComponent(RichTextType::Image),
+      url(std::move(url)),
+      width(width),
+      height(height) {
+    image = new brls::Image();
+    image->setWidth(width);
+    image->setHeight(height);
+    image->setScalingType(brls::ImageScalingType::FIT);
+    ImageHelper::with(image)->load(this->url);
+}
+
+RichTextImage::~RichTextImage() {
+    ImageHelper::clear(this->image);
+    this->image->setParent(nullptr);
+    if (!this->image->isPtrLocked()) {
+        delete this->image;
+    } else {
+        this->image->freeView();
+    }
+}

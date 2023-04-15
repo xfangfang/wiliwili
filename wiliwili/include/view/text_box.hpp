@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/views/label.hpp>
 #include "utils/image_helper.hpp"
 #include "utils/number_helper.hpp"
 
@@ -34,27 +34,9 @@ public:
 
 class RichTextImage : public RichTextComponent {
 public:
-    RichTextImage(std::string url, float width, float height)
-        : RichTextComponent(RichTextType::Image),
-          url(std::move(url)),
-          width(width),
-          height(height) {
-        image = new brls::Image();
-        image->setWidth(width);
-        image->setHeight(height);
-        image->setScalingType(brls::ImageScalingType::FIT);
-        ImageHelper::with(image)->load(this->url);
-    }
+    RichTextImage(std::string url, float width, float height);
 
-    ~RichTextImage() {
-        ImageHelper::clear(this->image);
-        this->image->setParent(nullptr);
-        if (!this->image->isPtrLocked()) {
-            delete this->image;
-        } else {
-            this->image->freeView();
-        }
-    }
+    ~RichTextImage();
 
     std::string url;
     brls::Image* image;

@@ -260,7 +260,8 @@
         "header": "Subtitle"
       },
       "common": {
-        "header": "Common"
+        "header": "Common",
+        "wiki": "Access our wiki to learn how shader works"
       },
       "shader": {
         "header": "Shader"

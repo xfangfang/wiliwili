@@ -2,10 +2,11 @@
 // Created by fang on 2022/7/25.
 //
 
+#include <utility>
 #include "fragment/mine_qr_login.hpp"
 #include "utils/config_helper.hpp"
 
-MineQrLogin::MineQrLogin(loginStatusEvent cb) : loginCb(cb) {
+MineQrLogin::MineQrLogin(loginStatusEvent cb) : loginCb(std::move(cb)) {
     this->inflateFromXMLRes("xml/fragment/mine_qr_login.xml");
     brls::Logger::debug("Fragment MineQrLogin: create");
     this->getLoginUrl();
@@ -16,7 +17,7 @@ MineQrLogin::~MineQrLogin() {
     this->cancel = true;
 }
 
-brls::Box* MineQrLogin::create(loginStatusEvent cb) {
+brls::Box* MineQrLogin::create(const loginStatusEvent& cb) {
     return new MineQrLogin(cb);
 }
 
@@ -30,7 +31,7 @@ void MineQrLogin::onError() {
         this->hint->setText("wiliwili/mine/login/network_error"_i18n);
     });
 }
-void MineQrLogin::onLoginUrlChange(std::string url) {
+void MineQrLogin::onLoginUrlChange(const std::string& url) {
     ASYNC_RETAIN
     brls::sync([ASYNC_TOKEN, url]() {
         ASYNC_RELEASE
@@ -39,7 +40,7 @@ void MineQrLogin::onLoginUrlChange(std::string url) {
     });
 }
 
-void MineQrLogin::onLoginStateChange(std::string msg) {
+void MineQrLogin::onLoginStateChange(const std::string& msg) {
     ASYNC_RETAIN
     brls::sync([ASYNC_TOKEN, msg]() {
         ASYNC_RELEASE
@@ -84,7 +85,7 @@ void MineQrLogin::checkLogin() {
         ProgramConfig::instance().getDeviceID(),
         [ASYNC_TOKEN](bilibili::LoginInfo info) {
             this->loginCb.fire(info);
-            brls::Logger::debug("return code:{}", info);
+            brls::Logger::debug("return code:{}", (int)info);
             ASYNC_RELEASE
             switch (info) {
                 case bilibili::LoginInfo::OAUTH_KEY_TIMEOUT:
@@ -119,7 +120,7 @@ void MineQrLogin::checkLogin() {
                     this->onLoginSuccess();
                     break;
                 default:
-                    brls::Logger::error("return unknown code:{}", info);
+                    brls::Logger::error("return unknown code:{}", (int)info);
                     break;
             }
         });

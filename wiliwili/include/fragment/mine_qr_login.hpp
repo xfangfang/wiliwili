@@ -19,17 +19,17 @@ typedef brls::Event<bilibili::LoginInfo> loginStatusEvent;
 
 class MineQrLogin : public brls::Box {
 public:
-    MineQrLogin(loginStatusEvent cb);
+    explicit MineQrLogin(loginStatusEvent cb);
 
-    ~MineQrLogin();
+    ~MineQrLogin() override;
 
-    static brls::Box* create(loginStatusEvent cb);
+    static brls::Box* create(const loginStatusEvent& cb);
 
     void onError();
 
-    void onLoginUrlChange(std::string url);
+    void onLoginUrlChange(const std::string& url);
 
-    void onLoginStateChange(std::string msg);
+    void onLoginStateChange(const std::string& msg);
 
     void onLoginSuccess();
 

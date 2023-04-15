@@ -48,7 +48,7 @@ brls::View* PlayerSetting::getDefaultFocus() {
 void PlayerSetting::setupCustomShaders() {
     if (!ShaderHelper::instance().isAvailable()) {
         auto* cell = new brls::RadioCell();
-        cell->title->setText("查看项目 WIKI 获得详细说明");
+        cell->title->setText("wiliwili/player/setting/common/wiki"_i18n);
         cell->registerClickAction([](...) {
             brls::Application::getPlatform()->openBrowser(
                 "https://github.com/xfangfang/wiliwili/wiki");

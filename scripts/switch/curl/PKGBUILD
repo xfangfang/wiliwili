@@ -1,33 +1,47 @@
 
 # Maintainer: WinterMute <davem@devkitpro.org>
 pkgname=switch-curl
-pkgver=7.86.0
+pkgver=7.71.1
 pkgrel=1
 pkgdesc='An URL retrieval utility and library'
 arch=('any')
 url='http://www.zlib.net/'
 license=('zlib')
 options=(!strip libtool staticlibs)
-depends=('switch-zlib' 'switch-mbedtls')
+depends=('switch-zlib' 'libnx')
 makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
-source=("https://curl.haxx.se/download/curl-${pkgver}.tar.xz")
+source=(
+    "https://curl.haxx.se/download/curl-${pkgver}.tar.xz"
+    'curl.patch'
+)
 groups=('switch-portlibs')
 
-sha256sums=('SKIP')
+sha256sums=(
+ 'SKIP'
+ 'SKIP'
+)
 
 build() {
   cd curl-$pkgver
 
+  rm -rf lib/hos.h
+  rm -rf lib/hos.c
+  rm -rf lib/vtls/libnx.c
+  rm -rf lib/vtls/libnx.h
+  patch -Np1 -i $srcdir/curl.patch
+
   source /opt/devkitpro/switchvars.sh
   LDFLAGS="-specs=${DEVKITPRO}/libnx/switch.specs ${LDFLAGS}"
 
-  autoreconf -fi
+  ./buildconf
 
   ./configure --prefix=$PORTLIBS_PREFIX --host=aarch64-none-elf \
     --disable-shared --enable-static --disable-ipv6 --disable-unix-sockets \
     --disable-manual --disable-ntlm-wb --disable-threaded-resolver \
-    --with-mbedtls=$PORTLIBS_PREFIX \
-    --with-default-ssl-backend=mbedtls
+    --without-ssl --without-polar-ssl --without-cyassl --without-wolfssl \
+    --without-mbedtls \
+    --with-libnx \
+    --with-default-ssl-backend=libnx
 
   make -C lib
 
@@ -40,6 +54,6 @@ package() {
 
   make DESTDIR="$pkgdir" -C lib install
   make DESTDIR="$pkgdir" -C include install
-  make DESTDIR="$pkgdir" install-binSCRIPTS
+  make DESTDIR="$pkgdir" install-binSCRIPTS install-pkgconfigDATA
 
 }

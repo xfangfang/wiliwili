@@ -23,7 +23,7 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(QrLoginTokenResultV2, url, qrcode_key);
 
-enum LoginInfo {
+enum class LoginInfo {
     SUCCESS           = 1,
     OAUTH_KEY_ERROR   = -1,
     OAUTH_KEY_TIMEOUT = -2,

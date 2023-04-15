@@ -1,0 +1,1359 @@
+diff --git a/configure.ac b/configure.ac
+index f0fbcb0af..7b00009a1 100755
+--- a/configure.ac
++++ b/configure.ac
+@@ -143,7 +143,7 @@ AC_SUBST(PKGADD_VENDOR)
+ 
+ dnl
+ dnl initialize all the info variables
+-    curl_ssl_msg="no      (--with-{ssl,gnutls,nss,mbedtls,wolfssl,schannel,secure-transport,mesalink,amissl,bearssl} )"
++    curl_ssl_msg="no      (--with-{ssl,gnutls,nss,mbedtls,wolfssl,schannel,secure-transport,mesalink,amissl,bearssl,libnx} )"
+     curl_ssh_msg="no      (--with-{libssh,libssh2})"
+    curl_zlib_msg="no      (--with-zlib)"
+  curl_brotli_msg="no      (--with-brotli)"
+@@ -2720,10 +2720,89 @@ if test -z "$ssl_backends" -o "x$OPT_NSS" != xno; then
+   test -z "$ssl_msg" || ssl_backends="${ssl_backends:+$ssl_backends, }$ssl_msg"
+ fi
+ 
+-case "x$OPENSSL_ENABLED$GNUTLS_ENABLED$NSS_ENABLED$MBEDTLS_ENABLED$WOLFSSL_ENABLED$WINSSL_ENABLED$SECURETRANSPORT_ENABLED$MESALINK_ENABLED$BEARSSL_ENABLED$AMISSL_ENABLED" in
++dnl ----------------------------------------------------
++dnl check for libnx
++dnl ----------------------------------------------------
++
++OPT_LIBNX=no
++
++_cppflags=$CPPFLAGS
++_ldflags=$LDFLAGS
++AC_ARG_WITH(libnx,dnl
++AC_HELP_STRING([--with-libnx=PATH],[where to look for libnx, PATH points to the installation root])
++AC_HELP_STRING([--without-libnx], [disable libnx detection]),
++  OPT_LIBNX=$withval)
++
++if test -z "$ssl_backends" -o "x$OPT_LIBNX" != xno; then
++  ssl_msg=
++
++  if test X"$OPT_LIBNX" != Xno; then
++
++    if test "$OPT_LIBNX" = "yes"; then
++      OPT_LIBNX=""
++    fi
++
++    if test -z "$OPT_LIBNX" ; then
++      dnl check for lib first without setting any new path
++
++      AC_CHECK_LIB(nx, sslInitialize,
++      dnl libnx found, set the variable
++       [
++         AC_DEFINE(USE_LIBNX, 1, [if libnx is enabled])
++         AC_SUBST(USE_LIBNX, [1])
++         LIBNX_ENABLED=1
++         USE_LIBNX="yes"
++         ssl_msg="libnx"
++	 test libnx != "$DEFAULT_SSL_BACKEND" || VALID_DEFAULT_SSL_BACKEND=yes
++        ], [], -lnx)
++    fi
++
++    addld=""
++    addlib=""
++    addcflags=""
++    libnx=""
++
++    if test "x$USE_LIBNX" != "xyes"; then
++      dnl add the path and test again
++      addld=-L$OPT_LIBNX/lib$libsuff
++      addcflags=-I$OPT_LIBNX/include
++      libnx=$OPT_LIBNX/lib$libsuff
++
++      LDFLAGS="$LDFLAGS $addld"
++      if test "$addcflags" != "-I/usr/include"; then
++         CPPFLAGS="$CPPFLAGS $addcflags"
++      fi
++
++      AC_CHECK_LIB(nx, sslInitialize,
++       [
++       AC_DEFINE(USE_LIBNX, 1, [if libnx is enabled])
++       AC_SUBST(USE_LIBNX, [1])
++       LIBNX_ENABLED=1
++       USE_LIBNX="yes"
++       ssl_msg="libnx"
++       test libnx != "$DEFAULT_SSL_BACKEND" || VALID_DEFAULT_SSL_BACKEND=yes
++       ],
++       [
++         CPPFLAGS=$_cppflags
++         LDFLAGS=$_ldflags
++       ], -lnx)
++    fi
++
++    if test "x$USE_LIBNX" = "xyes"; then
++      AC_MSG_NOTICE([detected libnx])
++
++      LIBS="-lnx $LIBS"
++    fi
++
++  fi dnl libnx not disabled
++
++  test -z "$ssl_msg" || ssl_backends="${ssl_backends:+$ssl_backends, }$ssl_msg"
++fi
++
++case "x$OPENSSL_ENABLED$GNUTLS_ENABLED$NSS_ENABLED$MBEDTLS_ENABLED$WOLFSSL_ENABLED$WINSSL_ENABLED$SECURETRANSPORT_ENABLED$MESALINK_ENABLED$BEARSSL_ENABLED$AMISSL_ENABLED$LIBNX_ENABLED" in
+ x)
+   AC_MSG_WARN([SSL disabled, you will not be able to use HTTPS, FTPS, NTLM and more.])
+-  AC_MSG_WARN([Use --with-ssl, --with-gnutls, --with-wolfssl, --with-mbedtls, --with-nss, --with-schannel, --with-secure-transport, --with-mesalink, --with-amissl or --with-bearssl to address this.])
++  AC_MSG_WARN([Use --with-ssl, --with-gnutls, --with-wolfssl, --with-mbedtls, --with-nss, --with-schannel, --with-secure-transport, --with-mesalink, --with-amissl, --with-bearssl or --with-libnx to address this.])
+   ;;
+ x1)
+   # one SSL backend is enabled
+diff --git a/include/curl/curl.h b/include/curl/curl.h
+index e3531f5df..8454de0fa 100644
+--- a/include/curl/curl.h
++++ b/include/curl/curl.h
+@@ -75,7 +75,8 @@
+     defined(__minix) || defined(__SYMBIAN32__) || defined(__INTEGRITY) || \
+     defined(ANDROID) || defined(__ANDROID__) || defined(__OpenBSD__) || \
+     defined(__CYGWIN__) || \
+-   (defined(__FreeBSD_version) && (__FreeBSD_version < 800000))
++   (defined(__FreeBSD_version) && (__FreeBSD_version < 800000)) || \
++   defined(__SWITCH__)
+ #include <sys/select.h>
+ #endif
+ 
+@@ -155,7 +156,8 @@ typedef enum {
+   CURLSSLBACKEND_AXTLS = 10, /* never used since 7.63.0 */
+   CURLSSLBACKEND_MBEDTLS = 11,
+   CURLSSLBACKEND_MESALINK = 12,
+-  CURLSSLBACKEND_BEARSSL = 13
++  CURLSSLBACKEND_BEARSSL = 13,
++  CURLSSLBACKEND_LIBNX = 14
+ } curl_sslbackend;
+ 
+ /* aliases for library clones and renames */
+diff --git a/lib/Makefile.inc b/lib/Makefile.inc
+index 723b826e9..bfededfc6 100644
+--- a/lib/Makefile.inc
++++ b/lib/Makefile.inc
+@@ -30,11 +30,11 @@ LIB_VAUTH_HFILES = vauth/digest.h vauth/ntlm.h vauth/vauth.h
+ LIB_VTLS_CFILES = vtls/bearssl.c vtls/gskit.c vtls/gtls.c vtls/keylog.c  \
+   vtls/mbedtls.c vtls/mbedtls_threadlock.c vtls/mesalink.c vtls/nss.c    \
+   vtls/openssl.c vtls/schannel.c vtls/schannel_verify.c vtls/sectransp.c \
+-  vtls/vtls.c vtls/wolfssl.c
++  vtls/vtls.c vtls/wolfssl.c vtls/libnx.c
+ 
+ LIB_VTLS_HFILES = vtls/bearssl.h vtls/gskit.h vtls/gtls.h vtls/keylog.h      \
+   vtls/mbedtls.h vtls/mbedtls_threadlock.h vtls/mesalink.h vtls/nssg.h       \
+-  vtls/openssl.h vtls/schannel.h vtls/sectransp.h vtls/vtls.h vtls/wolfssl.h
++  vtls/openssl.h vtls/schannel.h vtls/sectransp.h vtls/vtls.h vtls/wolfssl.h vtls/libnx.h
+ 
+ LIB_VQUIC_CFILES = vquic/ngtcp2.c vquic/quiche.c vquic/vquic.c
+ 
+@@ -60,7 +60,7 @@ LIB_CFILES = altsvc.c amigaos.c asyn-ares.c asyn-thread.c base64.c            \
+   sendf.c setopt.c sha256.c share.c slist.c smb.c smtp.c socketpair.c socks.c \
+   socks_gssapi.c socks_sspi.c speedcheck.c splay.c strcase.c strdup.c         \
+   strerror.c strtok.c strtoofft.c system_win32.c telnet.c tftp.c timeval.c    \
+-  transfer.c urlapi.c version.c warnless.c wildcard.c x509asn1.c dynbuf.c
++  transfer.c urlapi.c version.c warnless.c wildcard.c x509asn1.c dynbuf.c hos.c
+ 
+ LIB_HFILES = altsvc.h amigaos.h arpa_telnet.h asyn.h conncache.h connect.h    \
+   content_encoding.h cookie.h curl_addrinfo.h curl_base64.h curl_ctype.h      \
+@@ -79,7 +79,7 @@ LIB_HFILES = altsvc.h amigaos.h arpa_telnet.h asyn.h conncache.h connect.h    \
+   smb.h smtp.h sockaddr.h socketpair.h socks.h speedcheck.h splay.h strcase.h \
+   strdup.h strerror.h strtok.h strtoofft.h system_win32.h telnet.h tftp.h     \
+   timeval.h transfer.h urlapi-int.h urldata.h warnless.h wildcard.h           \
+-  x509asn1.h dynbuf.h
++  x509asn1.h dynbuf.h hos.h
+ 
+ LIB_RCFILES = libcurl.rc
+ 
+diff --git a/lib/curl_setup.h b/lib/curl_setup.h
+index d76c630d0..9374339e0 100644
+--- a/lib/curl_setup.h
++++ b/lib/curl_setup.h
+@@ -619,7 +619,7 @@ int netware_init(void);
+     defined(USE_MBEDTLS) || \
+     defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
+     defined(USE_SECTRANSP) || defined(USE_GSKIT) || defined(USE_MESALINK) || \
+-    defined(USE_BEARSSL)
++    defined(USE_BEARSSL) || defined(USE_LIBNX)
+ #define USE_SSL    /* SSL support has been enabled */
+ #endif
+ 
+diff --git a/lib/hos.c b/lib/hos.c
+new file mode 100644
+index 000000000..95543e0df
+--- /dev/null
++++ b/lib/hos.c
+@@ -0,0 +1,90 @@
++/***************************************************************************
++ *                                  _   _ ____  _
++ *  Project                     ___| | | |  _ \| |
++ *                             / __| | | | |_) | |
++ *                            | (__| |_| |  _ <| |___
++ *                             \___|\___/|_| \_\_____|
++ *
++ * Copyright (C) 1998 - 2019, Daniel Stenberg, <daniel@haxx.se>, et al.
++ *
++ * This software is licensed as described in the file COPYING, which
++ * you should have received as part of this distribution. The terms
++ * are also available at https://curl.haxx.se/docs/copyright.html.
++ *
++ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
++ * copies of the Software, and permit persons to whom the Software is
++ * furnished to do so, under the terms of the COPYING file.
++ *
++ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
++ * KIND, either express or implied.
++ *
++ ***************************************************************************/
++
++#include "curl_setup.h"
++
++#ifdef USE_LIBNX
++
++#include <switch.h>
++
++#undef BIT
++
++#include "urldata.h"
++#include "setopt.h"
++#include "sendf.h"
++#include "hos.h"
++
++/* The last #include files should be: */
++#include "curl_printf.h"
++#include "curl_memory.h"
++#include "memdebug.h"
++
++CURLcode Curl_os_get_system_proxy(struct connectdata *conn)
++{
++  struct Curl_easy *data = conn->data;
++  CURLcode result = CURLE_OK;
++  Result rc = 0;
++  NifmNetworkProfileData profile;
++  NifmProxySetting *proxy = &profile.ip_setting_data.proxy_setting;
++  char server[0x64];
++  char user[0x20];
++  char password[0x20];
++
++  rc = nifmInitialize(NifmServiceType_User);
++  if(R_SUCCEEDED(rc)) {
++    rc = nifmGetCurrentNetworkProfile(&profile);
++    nifmExit();
++
++    if(R_SUCCEEDED(rc) && proxy->enabled) {
++      data->set.proxyport = proxy->port;
++
++      strncpy(server, proxy->server, sizeof(server) - 1);
++      server[sizeof(server) - 1] = 0;
++
++      result = Curl_setstropt(&data->set.str[STRING_PROXY], server);
++      if(result)
++        return result;
++
++      if(proxy->auto_auth_enabled) {
++        strncpy(user, proxy->user, sizeof(user)-1);
++        user[sizeof(user) - 1] = 0;
++
++        result = Curl_setstropt(&data->set.str[STRING_PROXYUSERNAME], user);
++        if(result)
++          return result;
++
++        strncpy(password, proxy->password, sizeof(password)-1);
++        password[sizeof(password) - 1] = 0;
++
++        result = Curl_setstropt(&data->set.str[STRING_PROXYPASSWORD], password);
++        if(result)
++          return result;
++
++        conn->bits.proxy_user_passwd = TRUE;
++      }
++    }
++  }
++
++  return result;
++}
++#endif /* USE_LIBNX */
++
+diff --git a/lib/hos.h b/lib/hos.h
+new file mode 100644
+index 000000000..ea92bac57
+--- /dev/null
++++ b/lib/hos.h
+@@ -0,0 +1,37 @@
++#ifndef HEADER_CURL_HOS_H
++#define HEADER_CURL_HOS_H
++/***************************************************************************
++ *                                  _   _ ____  _
++ *  Project                     ___| | | |  _ \| |
++ *                             / __| | | | |_) | |
++ *                            | (__| |_| |  _ <| |___
++ *                             \___|\___/|_| \_\_____|
++ *
++ * Copyright (C) 1998 - 2019, Daniel Stenberg, <daniel@haxx.se>, et al.
++ *
++ * This software is licensed as described in the file COPYING, which
++ * you should have received as part of this distribution. The terms
++ * are also available at https://curl.haxx.se/docs/copyright.html.
++ *
++ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
++ * copies of the Software, and permit persons to whom the Software is
++ * furnished to do so, under the terms of the COPYING file.
++ *
++ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
++ * KIND, either express or implied.
++ *
++ ***************************************************************************/
++#include "curl_setup.h"
++
++#ifdef USE_LIBNX
++
++CURLcode Curl_os_get_system_proxy(struct connectdata *conn);
++
++#else
++
++#define Curl_os_get_system_proxy(x) 0
++
++#endif /* USE_LIBNX */
++
++#endif /* HEADER_CURL_HOS_H */
++
+diff --git a/lib/url.c b/lib/url.c
+index a1a6b6910..e553aa2a1 100644
+--- a/lib/url.c
++++ b/lib/url.c
+@@ -96,6 +96,7 @@ bool curl_win32_idn_to_ascii(const char *in, char **out);
+ #include "getinfo.h"
+ #include "urlapi-int.h"
+ #include "system_win32.h"
++#include "hos.h"
+ 
+ /* And now for the protocols */
+ #include "ftp.h"
+@@ -2399,6 +2400,12 @@ static CURLcode create_conn_helper_init_proxy(struct connectdata *conn)
+   CURLcode result = CURLE_OK;
+   struct Curl_easy *data = conn->data;
+ 
++  if(!data->set.str[STRING_PROXY]) {
++    result = Curl_os_get_system_proxy(conn);
++    if(result)
++      goto out;
++  }
++
+   /*************************************************************
+    * Extract the user and password from the authentication string
+    *************************************************************/
+diff --git a/lib/vtls/libnx.c b/lib/vtls/libnx.c
+new file mode 100644
+index 000000000..372b638c5
+--- /dev/null
++++ b/lib/vtls/libnx.c
+@@ -0,0 +1,896 @@
++/***************************************************************************
++ *                                  _   _ ____  _
++ *  Project                     ___| | | |  _ \| |
++ *                             / __| | | | |_) | |
++ *                            | (__| |_| |  _ <| |___
++ *                             \___|\___/|_| \_\_____|
++ *
++ * Copyright (C) 2010 - 2011, Hoi-Ho Chan, <hoiho.chan@gmail.com>
++ * Copyright (C) 2012 - 2020, Daniel Stenberg, <daniel@haxx.se>, et al.
++ *
++ * This software is licensed as described in the file COPYING, which
++ * you should have received as part of this distribution. The terms
++ * are also available at https://curl.haxx.se/docs/copyright.html.
++ *
++ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
++ * copies of the Software, and permit persons to whom the Software is
++ * furnished to do so, under the terms of the COPYING file.
++ *
++ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
++ * KIND, either express or implied.
++ *
++ ***************************************************************************/
++
++/*
++ * Source file for all libnx-specific code for the TLS/SSL layer. No code
++ * but vtls.c should ever call or use these functions.
++ *
++ */
++
++#include "curl_setup.h"
++
++#ifdef USE_LIBNX
++
++#include <switch.h>
++
++#undef BIT
++
++#include "urldata.h"
++#include "sendf.h"
++#include "inet_pton.h"
++#include "libnx.h"
++#include "vtls.h"
++#include "parsedate.h"
++#include "connect.h" /* for the connect timeout */
++#include "select.h"
++#include "multiif.h"
++#include "x509asn1.h"
++
++/* The last 3 #include files should be in this order */
++#include "curl_printf.h"
++#include "curl_memory.h"
++#include "memdebug.h"
++
++#include <dirent.h>
++
++struct ssl_backend_data {
++  SslContext context;
++  SslConnection conn;
++  u8 *certbuf;
++  size_t certbuf_size;
++};
++
++#define BACKEND connssl->backend
++
++/* ALPN for http2? */
++#ifdef USE_NGHTTP2
++#  undef HAS_ALPN
++#  define HAS_ALPN
++#endif
++
++
++static bool load_file(const char *path, void **buffer, size_t *size)
++{
++  struct stat filestat;
++  size_t tmp = 0;
++  *buffer = NULL;
++  *size = 0;
++  if(stat(path, &filestat)==-1)
++    return FALSE;
++
++  FILE *f = fopen(path, "rb");
++  if(!f)
++    return FALSE;
++
++  *size = filestat.st_size;
++  *buffer = calloc(1, *size);
++
++  if(*buffer)
++    tmp = fread(*buffer, 1, *size, f);
++  fclose(f);
++
++  if(!*buffer)
++    return FALSE;
++
++  if(tmp!=*size) {
++    free(*buffer);
++    *buffer = NULL;
++    return FALSE;
++  }
++
++  return TRUE;
++}
++
++static CURLcode load_capath(struct Curl_easy *data, SslContext *context,
++                            const char *path, const bool verifypeer)
++{
++  Result rc = 0;
++  void *tmpbuf = NULL;
++  size_t tmpbuf_size = 0;
++  DIR *dir;
++  struct dirent* dp;
++  char tmp_path[PATH_MAX];
++
++  dir = opendir(path);
++  if(!dir) {
++    failf(data, "Error opening ca path %s",
++          path);
++
++    if(verifypeer)
++      return CURLE_SSL_CACERT_BADFILE;
++
++    return CURLE_OK;
++  }
++
++  while((dp = readdir(dir))) {
++    if(dp->d_name[0]=='.')
++      continue;
++
++    curl_msnprintf(tmp_path, sizeof(tmp_path), "%s/%s", path, dp->d_name);
++
++    bool entrytype = FALSE;
++
++    #ifdef _DIRENT_HAVE_D_TYPE
++    if(dp->d_type == DT_UNKNOWN)
++      continue;
++    entrytype = dp->d_type != DT_REG;
++    #else
++    struct stat tmpstat;
++
++    if(stat(tmp_path, &tmpstat)==-1)
++      continue;
++
++    entrytype = (tmpstat.st_mode & S_IFMT) != S_IFREG;
++    #endif
++
++    if(entrytype) /* Ignore directories. */
++      continue;
++
++    if(!load_file(tmp_path, &tmpbuf, &tmpbuf_size)) {
++      failf(data, "Error reading ca path file %s",
++            tmp_path);
++
++      if(verifypeer)
++        return CURLE_SSL_CACERT_BADFILE;
++    }
++
++    rc = sslContextImportServerPki(context, tmpbuf, tmpbuf_size,
++                                   SslCertificateFormat_Pem, NULL);
++    free(tmpbuf);
++
++    if(R_FAILED(rc)) {
++      failf(data, "Error importing ca path file %s - libnx: 0x%X",
++            tmp_path, rc);
++
++      if(verifypeer)
++        return CURLE_SSL_CACERT_BADFILE;
++    }
++  }
++
++  closedir(dir);
++
++  return CURLE_OK;
++}
++
++static CURLcode libnx_version_from_curl(u32 *outver, long version)
++{
++  switch(version) {
++    case CURL_SSLVERSION_TLSv1_0:
++      *outver = SslVersion_TlsV10;
++      return CURLE_OK;
++    case CURL_SSLVERSION_TLSv1_1:
++      *outver = SslVersion_TlsV11;
++      return CURLE_OK;
++    case CURL_SSLVERSION_TLSv1_2:
++      *outver = SslVersion_TlsV12;
++      return CURLE_OK;
++    case CURL_SSLVERSION_TLSv1_3:
++      break;
++  }
++  return CURLE_SSL_CONNECT_ERROR;
++}
++
++static CURLcode Curl_libnx_random(struct Curl_easy *data,
++                                    unsigned char *entropy, size_t length)
++{
++  Result rc = csrngGetRandomBytes(entropy, length);
++
++  return R_SUCCEEDED(rc) ? CURLE_OK : CURLE_FAILED_INIT;
++}
++
++static CURLcode
++set_ssl_version_min_max(struct connectdata *conn, int sockindex,
++                        u32 *out_version)
++{
++  struct Curl_easy *data = conn->data;
++  struct ssl_connect_data *connssl = &conn->ssl[sockindex];
++  u32 libnx_ver_min = 0;
++  u32 libnx_ver_max = 0;
++  long ssl_version = SSL_CONN_CONFIG(version);
++  long ssl_version_max = SSL_CONN_CONFIG(version_max);
++  CURLcode result = CURLE_OK;
++
++  switch(ssl_version) {
++    case CURL_SSLVERSION_DEFAULT:
++    case CURL_SSLVERSION_TLSv1:
++      ssl_version = CURL_SSLVERSION_TLSv1_0;
++      if(ssl_version_max == CURL_SSLVERSION_MAX_NONE ||
++         ssl_version_max == CURL_SSLVERSION_MAX_DEFAULT) {
++        *out_version = SslVersion_Auto;
++        return result;
++      }
++      break;
++  }
++
++  switch(ssl_version_max) {
++    case CURL_SSLVERSION_MAX_NONE:
++    case CURL_SSLVERSION_MAX_DEFAULT:
++      ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_2;
++      break;
++  }
++
++  result = libnx_version_from_curl(&libnx_ver_min, ssl_version);
++  if(result) {
++    failf(data, "unsupported min version passed via CURLOPT_SSLVERSION");
++    return result;
++  }
++  result = libnx_version_from_curl(&libnx_ver_max, ssl_version_max >> 16);
++  if(result) {
++    failf(data, "unsupported max version passed via CURLOPT_SSLVERSION");
++    return result;
++  }
++
++  *out_version = libnx_ver_min | libnx_ver_max;
++
++  return result;
++}
++
++static CURLcode
++libnx_connect_step1(struct connectdata *conn,
++                   int sockindex, bool nonblocking)
++{
++  struct Curl_easy *data = conn->data;
++  struct ssl_connect_data* connssl = &conn->ssl[sockindex];
++  curl_socket_t sockfd = conn->sock[sockindex];
++  const char * const ssl_cafile = SSL_CONN_CONFIG(CAfile);
++  const bool verifypeer = SSL_CONN_CONFIG(verifypeer);
++  const char * const ssl_capath = SSL_CONN_CONFIG(CApath);
++  char * const ssl_cert = SSL_SET_OPTION(cert);
++  char * const key_passwd = SSL_SET_OPTION(key_passwd);
++  const char * const ssl_crlfile = SSL_SET_OPTION(CRLfile);
++  const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
++    conn->host.name;
++  const long int port = SSL_IS_PROXY() ? conn->port : conn->remote_port;
++  int ret = -1;
++  Result rc = 0;
++  void *tmpbuf = NULL;
++  size_t tmpbuf_size = 0;
++
++  /* ssl-service only supports TLS 1.0-1.2 */
++  if(SSL_CONN_CONFIG(version) == CURL_SSLVERSION_SSLv2) {
++    failf(data, "ssl-service does not support SSLv2");
++    return CURLE_SSL_CONNECT_ERROR;
++  }
++
++  if(SSL_CONN_CONFIG(version) == CURL_SSLVERSION_SSLv3) {
++    failf(data, "ssl-service does not support SSLv3");
++    return CURLE_SSL_CONNECT_ERROR;
++  }
++
++  u32 ssl_version = 0;
++  switch(SSL_CONN_CONFIG(version)) {
++  case CURL_SSLVERSION_DEFAULT:
++  case CURL_SSLVERSION_TLSv1:
++  case CURL_SSLVERSION_TLSv1_0:
++  case CURL_SSLVERSION_TLSv1_1:
++  case CURL_SSLVERSION_TLSv1_2:
++  case CURL_SSLVERSION_TLSv1_3:
++    {
++      CURLcode result = set_ssl_version_min_max(conn, sockindex, &ssl_version);
++      if(result != CURLE_OK)
++        return result;
++      break;
++    }
++  default:
++    failf(data, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
++    return CURLE_SSL_CONNECT_ERROR;
++  }
++
++  rc = sslCreateContext(&BACKEND->context, ssl_version);
++  if(R_FAILED(rc))
++    return CURLE_SSL_CONNECT_ERROR;
++
++  /* give application a chance to interfere with context set up. */
++  if(data->set.ssl.fsslctx) {
++    ret = (*data->set.ssl.fsslctx)(data, &BACKEND->context,
++                                   data->set.ssl.fsslctxp);
++    if(ret) {
++      failf(data, "error signaled by ssl ctx callback");
++      return ret;
++    }
++  }
++  else { /* Only setup the context if the application didn't. */
++    /* Load the trusted CA */
++    if(ssl_cafile) {
++      if(!load_file(ssl_cafile, &tmpbuf, &tmpbuf_size)) {
++        failf(data, "Error reading ca cert file %s",
++              ssl_cafile);
++
++        if(verifypeer)
++          return CURLE_SSL_CACERT_BADFILE;
++      }
++      else {
++        rc = sslContextImportServerPki(&BACKEND->context, tmpbuf, tmpbuf_size,
++                                       SslCertificateFormat_Pem, NULL);
++        free(tmpbuf);
++
++        if(R_FAILED(rc)) {
++          failf(data, "Error importing ca cert file %s - libnx: 0x%X",
++                ssl_cafile, rc);
++
++          if(verifypeer)
++            return CURLE_SSL_CACERT_BADFILE;
++        }
++      }
++    }
++
++    if(ssl_capath) {
++      CURLcode retcode = load_capath(data, &BACKEND->context,
++                                     ssl_capath, verifypeer);
++
++      if(retcode) return retcode;
++    }
++
++    /* Load the CRL */
++    /* The input for CRLFILE is PEM, but the ssl-service requires DER.
++     * A helper func for converting PEM to DER would be needed for this.
++     * sectransp.c has pem_to_der(), but having a duplicate func isn't ideal.
++     * Therefore, the below is disabled. */
++    /*
++    if(ssl_crlfile) {
++      if(!load_file(ssl_crlfile, &tmpbuf, &tmpbuf_size)) {
++        failf(data, "Error reading CRL file %s",
++              ssl_cert);
++
++        return CURLE_SSL_CRL_BADFILE;
++      }
++
++      rc = sslContextImportCrl(&BACKEND->context, tmpbuf, tmpbuf_size, NULL);
++      free(tmpbuf);
++
++      if(R_FAILED(rc)) {
++        failf(data, "Error importing CRL file %s - libnx: 0x%X",
++              ssl_crlfile, rc);
++
++        return CURLE_SSL_CRL_BADFILE;
++      }
++    }*/
++
++    /* Load the client certificate */
++    if(ssl_cert) {
++      if(!SSL_SET_OPTION(cert_type))
++        infof(data, "WARNING: SSL: Certificate type not set, assuming "
++                    "PKCS#12 format.\n");
++        else if(strncmp(SSL_SET_OPTION(cert_type), "P12",
++          strlen(SSL_SET_OPTION(cert_type))) != 0)
++          infof(data, "WARNING: SSL: The ssl-service only supports "
++                      "loading identities that are in PKCS#12 format.\n");
++
++      if(!load_file(ssl_cert, &tmpbuf, &tmpbuf_size)) {
++        failf(data, "Error reading client cert file %s",
++              ssl_cert);
++
++        return CURLE_SSL_CERTPROBLEM;
++      }
++
++      rc = sslContextImportClientPki(&BACKEND->context, tmpbuf, tmpbuf_size,
++                                     key_passwd,
++                                     key_passwd ? strlen(key_passwd) : 0,
++                                     NULL);
++      free(tmpbuf);
++
++      if(R_FAILED(rc)) {
++        failf(data, "Error importing client PKCS#12 file %s - libnx: 0x%X",
++              ssl_cert, rc);
++
++        return CURLE_SSL_CERTPROBLEM;
++      }
++    }
++  }
++
++  rc = sslContextCreateConnection(&BACKEND->context, &BACKEND->conn);
++
++  if(R_SUCCEEDED(rc))
++    rc = sslConnectionSetOption(&BACKEND->conn,
++                                SslOptionType_DoNotCloseSocket, TRUE);
++
++  if(R_SUCCEEDED(rc)) {
++    ret = socketSslConnectionSetSocketDescriptor(&BACKEND->conn, (int)sockfd);
++    if(ret == -1 && errno != ENOENT) return CURLE_SSL_CONNECT_ERROR;
++  }
++
++  if(R_SUCCEEDED(rc))
++    rc = sslConnectionSetHostName(&BACKEND->conn, hostname, strlen(hostname));
++
++  /* This will fail on system-versions where this option isn't available,
++   * so ignore errors from this. */
++  if(R_SUCCEEDED(rc))
++    sslConnectionSetOption(&BACKEND->conn,
++                           SslOptionType_SkipDefaultVerify, TRUE);
++
++  if(R_SUCCEEDED(rc) && hosversionAtLeast(3, 0, 0))
++    rc = sslConnectionSetOption(&BACKEND->conn,
++                                SslOptionType_GetServerCertChain, TRUE);
++
++  if(R_SUCCEEDED(rc)) {
++    u32 verifyopt = SslVerifyOption_DateCheck;
++    if(verifypeer) verifyopt |= SslVerifyOption_PeerCa;
++    if(SSL_CONN_CONFIG(verifyhost)) verifyopt |= SslVerifyOption_HostName;
++    rc = sslConnectionSetVerifyOption(&BACKEND->conn, verifyopt);
++  }
++
++  if(R_SUCCEEDED(rc)) {
++    SslSessionCacheMode cache_mode = SslSessionCacheMode_None;
++    if(SSL_CONN_CONFIG(sessionid))
++      cache_mode = SslSessionCacheMode_SessionId;
++    rc = sslConnectionSetSessionCacheMode(&BACKEND->conn, cache_mode);
++  }
++
++#ifdef HAS_ALPN
++  if(conn->bits.tls_enable_alpn && hosversionAtLeast(9, 0, 0)) {
++    rc = sslConnectionSetOption(&BACKEND->conn,
++                                SslOptionType_EnableAlpn, TRUE);
++    if(R_FAILED(rc)) {
++      failf(data, "Failed enabling ALPN");
++      return CURLE_SSL_CONNECT_ERROR;
++    }
++
++    u8 protocols[0x80]={0};
++    u8 *p = protocols;
++#ifdef USE_NGHTTP2
++    if(data->set.httpversion >= CURL_HTTP_VERSION_2) {
++      memcpy(p, NGHTTP2_PROTO_ALPN, NGHTTP2_PROTO_ALPN_LEN);
++      p += NGHTTP2_PROTO_ALPN_LEN;
++      infof(data, "ALPN, offering %s\n", NGHTTP2_PROTO_VERSION_ID);
++    }
++#endif
++    *p++ = ALPN_HTTP_1_1_LENGTH;
++    memcpy(p, ALPN_HTTP_1_1, ALPN_HTTP_1_1_LENGTH);
++    infof(data, "ALPN, offering %s\n", ALPN_HTTP_1_1);
++
++    u32 size = (uintptr_t)p + ALPN_HTTP_1_1_LENGTH - (uintptr_t)protocols;
++    rc = sslConnectionSetNextAlpnProto(&BACKEND->conn, protocols,
++                                       size);
++    if(R_FAILED(rc)) {
++      failf(data, "Failed setting ALPN protocols");
++      return CURLE_SSL_CONNECT_ERROR;
++    }
++  }
++#endif
++
++  if(R_SUCCEEDED(rc)) {
++    SslIoMode iomode = SslIoMode_Blocking;
++    if(nonblocking)
++      iomode = SslIoMode_NonBlocking;
++    rc = sslConnectionSetIoMode(&BACKEND->conn, iomode);
++  }
++
++  if(R_FAILED(rc))
++    return CURLE_SSL_CONNECT_ERROR;
++
++  infof(data, "libnx: Connecting to %s:%ld\n", hostname, port);
++
++  connssl->connecting_state = ssl_connect_2;
++
++  return CURLE_OK;
++}
++
++static CURLcode
++libnx_connect_step2(struct connectdata *conn,
++                   int sockindex)
++{
++  Result rc = 0;
++  CURLcode retcode = CURLE_OK;
++  struct Curl_easy *data = conn->data;
++  struct ssl_connect_data* connssl = &conn->ssl[sockindex];
++  const char * const pinnedpubkey = SSL_IS_PROXY() ?
++        data->set.str[STRING_SSL_PINNEDPUBLICKEY_PROXY] :
++        data->set.str[STRING_SSL_PINNEDPUBLICKEY_ORIG];
++  const size_t bufsize = 16384;
++  u8 *buffer = calloc(1, bufsize);
++  u8 *peercert = NULL;
++  u32 peercert_size = 0;
++  u8 zeros[4]={0};
++
++  if(!BACKEND->certbuf) {
++    BACKEND->certbuf_size = bufsize;
++    BACKEND->certbuf = (u8*)calloc(1, BACKEND->certbuf_size);
++  }
++
++  if(!buffer || !BACKEND->certbuf) {
++    free(buffer);
++    free(BACKEND->certbuf);
++    return CURLE_OUT_OF_MEMORY;
++  }
++
++  u32 out_size = 0, total_certs = 0;
++  rc = sslConnectionDoHandshake(&BACKEND->conn, &out_size, &total_certs,
++                                buffer, bufsize);
++
++  if(memcmp(buffer, zeros, sizeof(zeros)))
++    memcpy(BACKEND->certbuf, buffer, bufsize);
++  free(buffer);
++
++  if(R_FAILED(rc)) {
++    if(R_VALUE(rc) == MAKERESULT(123, 204)) /* PR_WOULD_BLOCK_ERROR */
++      return CURLE_AGAIN;
++
++      if(R_VALUE(rc) == MAKERESULT(123, 207))
++        return CURLE_PEER_FAILED_VERIFICATION;
++      else
++        return CURLE_SSL_CONNECT_ERROR;
++  }
++
++  if(out_size && total_certs) {
++    if(data->set.ssl.certinfo)
++      retcode = Curl_ssl_init_certinfo(data,
++                                       (int)total_certs);
++    if(!retcode) {
++      if(hosversionBefore(3, 0, 0)) {
++        infof(data, "Dumping cert info:\n");
++        retcode = Curl_extract_certinfo(conn, 0, BACKEND->certbuf,
++                                        &BACKEND->certbuf[out_size]);
++        peercert = buffer;
++        peercert_size = out_size;
++      }
++      else {
++        for(u32 certi = 0; certi < total_certs; certi++) {
++          void *certdata = NULL;
++          u32 certdata_size = 0;
++
++          rc = sslConnectionGetServerCertDetail(BACKEND->certbuf, out_size,
++                                                certi, &certdata,
++                                                &certdata_size);
++          if(R_SUCCEEDED(rc)) {
++            if(!certi) {
++              infof(data, "Dumping cert info:\n");
++              peercert = certdata;
++              peercert_size = certdata_size;
++            }
++            retcode = Curl_extract_certinfo(conn, (int)certi, certdata,
++                                            &((u8*)certdata)[certdata_size]);
++          }
++
++          if(R_FAILED(rc) || retcode) break;
++          if(!data->set.ssl.certinfo) break;
++        }
++      }
++    }
++  }
++
++  if(R_FAILED(rc) || retcode)
++    failf(data, "Unable to dump certificate information.\n");
++
++  if(pinnedpubkey) {
++    struct Curl_X509certificate cert;
++
++    if(!peercert || !peercert_size) {
++      const char *errorptr = "";
++      if(!SSL_CONN_CONFIG(verifypeer))
++        errorptr = ", CURLOPT_SSL_VERIFYPEER must be enabled";
++      failf(data, "Failed due to missing peer certificate%s.", errorptr);
++      return CURLE_SSL_PINNEDPUBKEYNOTMATCH;
++    }
++
++    retcode = Curl_parseX509(&cert, peercert, &peercert[peercert_size]);
++    if(!retcode)
++      return retcode;
++
++    retcode = Curl_pin_peer_pubkey(data,
++                                  pinnedpubkey,
++                                  cert.subjectPublicKey.beg,
++                                  (uintptr_t)cert.subjectPublicKey.end -
++                                  (uintptr_t)cert.subjectPublicKey.beg);
++    if(retcode)
++      return retcode;
++  }
++
++#ifdef HAS_ALPN
++  if(conn->bits.tls_enable_alpn) {
++    u8 next_protocol[0x33]={0};
++    SslAlpnProtoState state;
++    u32 out_size = 0;
++    rc = sslConnectionGetNextAlpnProto(&BACKEND->conn, &state, &out_size,
++                                       next_protocol,
++                                       sizeof(next_protocol)-1);
++
++    if(R_SUCCEEDED(rc) && next_protocol[0] &&
++      (state == SslAlpnProtoState_Negotiated ||
++       state == SslAlpnProtoState_Selected)) {
++      infof(data, "ALPN, server accepted to use %s\n", next_protocol);
++#ifdef USE_NGHTTP2
++      if(out_size == NGHTTP2_PROTO_VERSION_ID_LEN &&
++         !memcmp(next_protocol, NGHTTP2_PROTO_VERSION_ID,
++                 NGHTTP2_PROTO_VERSION_ID_LEN)) {
++        conn->negnpn = CURL_HTTP_VERSION_2;
++      }
++      else
++#endif
++        if(out_size == ALPN_HTTP_1_1_LENGTH &&
++           !memcmp(next_protocol, ALPN_HTTP_1_1, ALPN_HTTP_1_1_LENGTH)) {
++          conn->negnpn = CURL_HTTP_VERSION_1_1;
++        }
++    }
++    else {
++      infof(data, "ALPN, server did not agree to a protocol\n");
++    }
++    Curl_multiuse_state(conn, conn->negnpn == CURL_HTTP_VERSION_2 ?
++                        BUNDLE_MULTIPLEX : BUNDLE_NO_MULTIUSE);
++  }
++#endif
++
++  connssl->connecting_state = ssl_connect_done;
++  infof(data, "SSL connected\n");
++
++  return CURLE_OK;
++}
++
++static ssize_t libnx_send(struct connectdata *conn, int sockindex,
++                         const void *mem, size_t len,
++                         CURLcode *curlcode)
++{
++  struct ssl_connect_data *connssl = &conn->ssl[sockindex];
++  Result rc = 0;
++  u32 out_size = 0;
++
++  rc = sslConnectionWrite(&BACKEND->conn, mem, len, &out_size);
++
++  if(R_FAILED(rc)) {
++    /* PR_WOULD_BLOCK_ERROR */
++    *curlcode = (R_VALUE(rc) == MAKERESULT(123, 204)) ?
++      CURLE_AGAIN : CURLE_WRITE_ERROR;
++    return -1;
++  }
++
++  return out_size;
++}
++
++static void Curl_libnx_close(struct connectdata *conn, int sockindex)
++{
++  struct ssl_connect_data *connssl = &conn->ssl[sockindex];
++  sslConnectionClose(&BACKEND->conn);
++  sslContextClose(&BACKEND->context);
++  free(BACKEND->certbuf);
++  BACKEND->certbuf = NULL;
++  BACKEND->certbuf_size = 0;
++}
++
++static ssize_t libnx_recv(struct connectdata *conn, int num,
++                         char *buf, size_t buffersize,
++                         CURLcode *curlcode)
++{
++  struct ssl_connect_data *connssl = &conn->ssl[num];
++  Result rc = 0;
++  u32 out_size = 0;
++
++  memset(buf, 0, buffersize);
++  rc = sslConnectionRead(&BACKEND->conn, buf, buffersize, &out_size);
++
++  if(R_FAILED(rc)) {
++    /* PR_WOULD_BLOCK_ERROR */
++    *curlcode = (R_VALUE(rc) == MAKERESULT(123, 204)) ?
++      CURLE_AGAIN : CURLE_RECV_ERROR;
++    return -1;
++  }
++
++  return out_size;
++}
++
++static size_t Curl_libnx_version(char *buffer, size_t size)
++{
++  return msnprintf(buffer, size, "libnx");
++}
++
++/*
++ * This function is used to determine connection status.
++ *
++ * Return codes:
++ *     1 means the connection is still in place
++ *     0 means the connection has been closed
++ *    -1 means the connection status is unknown
++ */
++static int Curl_libnx_check_cxn(struct connectdata *conn)
++{
++  struct ssl_connect_data *connssl = &conn->ssl[FIRSTSOCKET];
++  u8 data = 0;
++  u32 out_size = 0;
++  Result rc = sslConnectionPeek(&BACKEND->conn, &data,
++                                sizeof(data), &out_size);
++  if(R_FAILED(rc)) {
++    /* PR_WOULD_BLOCK_ERROR == connection is still in place,
++     * otherwise connection status unknown */
++    return R_VALUE(rc) == MAKERESULT(123, 204) ? 1 : -1;
++  }
++  return out_size ? 1 : 0;
++}
++
++static CURLcode
++libnx_connect_common(struct connectdata *conn,
++                    int sockindex,
++                    bool nonblocking,
++                    bool *done)
++{
++  Result rc = 0;
++  CURLcode retcode = CURLE_OK;
++  struct Curl_easy *data = conn->data;
++  struct ssl_connect_data *connssl = &conn->ssl[sockindex];
++  timediff_t timeout_ms;
++  int what;
++
++  *done = FALSE;
++
++  /* check if the connection has already been established */
++  if(ssl_connection_complete == connssl->state) {
++    *done = TRUE;
++    return CURLE_OK;
++  }
++
++  if(ssl_connect_1 == connssl->connecting_state) {
++    /* Find out how much more time we're allowed */
++    timeout_ms = Curl_timeleft(data, NULL, TRUE);
++
++    if(timeout_ms < 0) {
++      /* no need to continue if time already is up */
++      failf(data, "SSL connection timeout");
++      return CURLE_OPERATION_TIMEDOUT;
++    }
++    retcode = libnx_connect_step1(conn, sockindex, nonblocking);
++  }
++
++  if(!retcode && ssl_connect_2 == connssl->connecting_state) {
++    /* Find out how much more time we're allowed */
++    timeout_ms = Curl_timeleft(data, NULL, TRUE);
++
++    if(timeout_ms < 0) {
++      /* no need to continue if time already is up */
++      failf(data, "SSL connection timeout");
++      return CURLE_OPERATION_TIMEDOUT;
++    }
++    retcode = libnx_connect_step2(conn, sockindex);
++  }
++
++  if(!retcode) {
++    /* Reset our connect state machine */
++    connssl->connecting_state = ssl_connect_1;
++
++    connssl->state = ssl_connection_complete;
++    conn->recv[sockindex] = libnx_recv;
++    conn->send[sockindex] = libnx_send;
++    *done = TRUE;
++
++    return CURLE_OK;
++  }
++
++  if(retcode == CURLE_AGAIN)
++    return CURLE_OK;
++  if(retcode == CURLE_PEER_FAILED_VERIFICATION) {
++    rc = sslConnectionGetVerifyCertError(&BACKEND->conn);
++    if(R_VALUE(rc) != MAKERESULT(123, 301) &&
++       R_VALUE(rc) != MAKERESULT(123, 303) &&
++       R_VALUE(rc) != MAKERESULT(123, 304)) {
++      /* 1509: SSL_ERROR_BAD_CERT_ALERT
++       * 1511: SSL_ERROR_REVOKED_CERT_ALERT
++       * 1512: SSL_ERROR_EXPIRED_CERT_ALERT */
++      if(R_VALUE(rc) == MAKERESULT(123, 323) ||
++         R_VALUE(rc) == MAKERESULT(123, 1509) ||
++         R_VALUE(rc) == MAKERESULT(123, 1511) ||
++         R_VALUE(rc) == MAKERESULT(123, 1512))
++        retcode = CURLE_SSL_CERTPROBLEM;
++    }
++  }
++
++  return retcode;
++}
++
++static CURLcode Curl_libnx_connect_nonblocking(struct connectdata *conn,
++                                                 int sockindex, bool *done)
++{
++  return libnx_connect_common(conn, sockindex, TRUE, done);
++}
++
++
++static CURLcode Curl_libnx_connect(struct connectdata *conn, int sockindex)
++{
++  CURLcode retcode;
++  bool done = FALSE;
++
++  retcode = libnx_connect_common(conn, sockindex, FALSE, &done);
++  if(retcode)
++    return retcode;
++
++  DEBUGASSERT(done);
++
++  return CURLE_OK;
++}
++
++/*
++ * return 0 error initializing SSL
++ * return 1 SSL initialized successfully
++ */
++static int Curl_libnx_init(void)
++{
++  Result rc = 0;
++
++  rc = sslInitialize(0x3);
++
++  if(R_SUCCEEDED(rc))
++    rc = csrngInitialize();
++
++  return R_SUCCEEDED(rc);
++}
++
++static void Curl_libnx_cleanup(void)
++{
++  csrngExit();
++  sslExit();
++}
++
++static bool Curl_libnx_data_pending(const struct connectdata *conn,
++                                      int sockindex)
++{
++  const struct ssl_connect_data *connssl = &conn->ssl[sockindex];
++  s32 tmp = 0;
++  return R_SUCCEEDED(sslConnectionPending(&BACKEND->conn, &tmp)) && tmp>0;
++}
++
++static CURLcode Curl_libnx_sha256sum(const unsigned char *input,
++                                    size_t inputlen,
++                                    unsigned char *sha256sum,
++                                    size_t sha256len UNUSED_PARAM)
++{
++  (void)sha256len;
++  sha256CalculateHash(sha256sum, input, inputlen);
++  return CURLE_OK;
++}
++
++static void *Curl_libnx_get_internals(struct ssl_connect_data *connssl,
++                                        CURLINFO info UNUSED_PARAM)
++{
++  (void)info;
++  return &BACKEND->context;
++}
++
++const struct Curl_ssl Curl_ssl_libnx = {
++  { CURLSSLBACKEND_LIBNX, "libnx" }, /* info */
++
++  SSLSUPP_CA_PATH |
++  SSLSUPP_CERTINFO |
++  SSLSUPP_PINNEDPUBKEY |
++  SSLSUPP_SSL_CTX |
++  SSLSUPP_TLS13_CIPHERSUITES,
++
++  sizeof(struct ssl_backend_data),
++
++  Curl_libnx_init,                  /* init */
++  Curl_libnx_cleanup,               /* cleanup */
++  Curl_libnx_version,               /* version */
++  Curl_libnx_check_cxn,             /* check_cxn */
++  Curl_none_shutdown,               /* shutdown */
++  Curl_libnx_data_pending,          /* data_pending */
++  Curl_libnx_random,                /* random */
++  Curl_none_cert_status_request,    /* cert_status_request */
++  Curl_libnx_connect,               /* connect */
++  Curl_libnx_connect_nonblocking,   /* connect_nonblocking */
++  Curl_libnx_get_internals,         /* get_internals */
++  Curl_libnx_close,                 /* close_one */
++  Curl_none_close_all,              /* close_all */
++  Curl_none_session_free,           /* session_free */
++  Curl_none_set_engine,             /* set_engine */
++  Curl_none_set_engine_default,     /* set_engine_default */
++  Curl_none_engines_list,           /* engines_list */
++  Curl_none_false_start,            /* false_start */
++  Curl_none_md5sum,                 /* md5sum */
++  Curl_libnx_sha256sum              /* sha256sum */
++};
++
++#endif /* USE_LIBNX */
+diff --git a/lib/vtls/libnx.h b/lib/vtls/libnx.h
+new file mode 100644
+index 000000000..67b8fae28
+--- /dev/null
++++ b/lib/vtls/libnx.h
+@@ -0,0 +1,32 @@
++#ifndef HEADER_CURL_LIBNX_H
++#define HEADER_CURL_LIBNX_H
++/***************************************************************************
++ *                                  _   _ ____  _
++ *  Project                     ___| | | |  _ \| |
++ *                             / __| | | | |_) | |
++ *                            | (__| |_| |  _ <| |___
++ *                             \___|\___/|_| \_\_____|
++ *
++ * Copyright (C) 2012 - 2019, Daniel Stenberg, <daniel@haxx.se>, et al.
++ * Copyright (C) 2010, Hoi-Ho Chan, <hoiho.chan@gmail.com>
++ *
++ * This software is licensed as described in the file COPYING, which
++ * you should have received as part of this distribution. The terms
++ * are also available at https://curl.haxx.se/docs/copyright.html.
++ *
++ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
++ * copies of the Software, and permit persons to whom the Software is
++ * furnished to do so, under the terms of the COPYING file.
++ *
++ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
++ * KIND, either express or implied.
++ *
++ ***************************************************************************/
++#include "curl_setup.h"
++
++#ifdef USE_LIBNX
++
++extern const struct Curl_ssl Curl_ssl_libnx;
++
++#endif /* USE_LIBNX */
++#endif /* HEADER_CURL_LIBNX_H */
+diff --git a/lib/vtls/vtls.c b/lib/vtls/vtls.c
+index c3a55fb1c..20bf6ee5b 100644
+--- a/lib/vtls/vtls.c
++++ b/lib/vtls/vtls.c
+@@ -1260,6 +1260,8 @@ const struct Curl_ssl *Curl_ssl =
+   &Curl_ssl_mesalink;
+ #elif defined(USE_BEARSSL)
+   &Curl_ssl_bearssl;
++#elif defined(USE_LIBNX)
++  &Curl_ssl_libnx;
+ #else
+ #error "Missing struct Curl_ssl for selected SSL backend"
+ #endif
+@@ -1294,6 +1296,9 @@ static const struct Curl_ssl *available_backends[] = {
+ #endif
+ #if defined(USE_BEARSSL)
+   &Curl_ssl_bearssl,
++#endif
++#if defined(USE_LIBNX)
++  &Curl_ssl_libnx,
+ #endif
+   NULL
+ };
+diff --git a/lib/vtls/vtls.h b/lib/vtls/vtls.h
+index bcc844416..5a8504ff9 100644
+--- a/lib/vtls/vtls.h
++++ b/lib/vtls/vtls.h
+@@ -108,6 +108,7 @@ CURLcode Curl_none_md5sum(unsigned char *input, size_t inputlen,
+ #include "mbedtls.h"        /* mbedTLS versions */
+ #include "mesalink.h"       /* MesaLink versions */
+ #include "bearssl.h"        /* BearSSL versions */
++#include "libnx.h"          /* libnx versions */
+ 
+ #ifndef MAX_PINNED_PUBKEY_SIZE
+ #define MAX_PINNED_PUBKEY_SIZE 1048576 /* 1MB */
+diff --git a/lib/x509asn1.c b/lib/x509asn1.c
+index 52747d57d..a24ce72fd 100644
+--- a/lib/x509asn1.c
++++ b/lib/x509asn1.c
+@@ -23,7 +23,7 @@
+ #include "curl_setup.h"
+ 
+ #if defined(USE_GSKIT) || defined(USE_NSS) || defined(USE_GNUTLS) || \
+-    defined(USE_WOLFSSL) || defined(USE_SCHANNEL)
++    defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || defined(USE_LIBNX)
+ 
+ #include <curl/curl.h>
+ #include "urldata.h"
+@@ -1104,7 +1104,7 @@ CURLcode Curl_extract_certinfo(struct connectdata *conn,
+   return CURLE_OK;
+ }
+ 
+-#endif /* USE_GSKIT or USE_NSS or USE_GNUTLS or USE_WOLFSSL or USE_SCHANNEL */
++#endif /* USE_GSKIT or USE_NSS or USE_GNUTLS or USE_WOLFSSL or USE_SCHANNEL or USE_LIBNX */
+ 
+ #if defined(USE_GSKIT)
+ 
+diff --git a/lib/x509asn1.h b/lib/x509asn1.h
+index 0b7fb8817..0f0f215f2 100644
+--- a/lib/x509asn1.h
++++ b/lib/x509asn1.h
+@@ -26,7 +26,7 @@
+ #include "curl_setup.h"
+ 
+ #if defined(USE_GSKIT) || defined(USE_NSS) || defined(USE_GNUTLS) || \
+-    defined(USE_WOLFSSL) || defined(USE_SCHANNEL)
++    defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || defined(USE_LIBNX)
+ 
+ #include "urldata.h"
+ 
+@@ -129,5 +129,5 @@ CURLcode Curl_extract_certinfo(struct connectdata *conn, int certnum,
+                                const char *beg, const char *end);
+ CURLcode Curl_verifyhost(struct connectdata *conn,
+                          const char *beg, const char *end);
+-#endif /* USE_GSKIT or USE_NSS or USE_GNUTLS or USE_WOLFSSL or USE_SCHANNEL */
++#endif /* USE_GSKIT or USE_NSS or USE_GNUTLS or USE_WOLFSSL or USE_SCHANNEL or USE_LIBNX */
+ #endif /* HEADER_CURL_X509ASN1_H */

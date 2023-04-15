@@ -16,6 +16,7 @@ using namespace brls::literals;
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
+    MPVCore::instance().command_str("set loop-playlist force");
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(live.roomid)}})
 }
@@ -120,7 +121,6 @@ void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result) {
     }
     for (const auto& i : result.durl) {
         brls::Logger::debug("Live stream url: {}", i.url);
-        MPVCore::instance().command_str("set loop-playlist force");
         this->video->setUrl(i.url);
         break;
     }
@@ -138,4 +138,5 @@ LiveActivity::~LiveActivity() {
     VideoView::EXIT_FULLSCREEN_ON_END = globalExitFullscreen;
     // 取消监控mpv
     MPV_CE->unsubscribe(eventSubscribeID);
+    MPVCore::instance().command_str("set loop-playlist 1");
 }

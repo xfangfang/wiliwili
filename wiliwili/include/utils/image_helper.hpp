@@ -53,7 +53,7 @@ public:
     inline static std::string v_ext           = "@312w_420h_1c.webp";
     inline static std::string face_ext        = "@96w_96h_1c_1s.webp";
     inline static std::string face_large_ext  = "@160w_160h_1c_1s.webp";
-    inline static std::string emoji_size1_ext = "@40w_40h.webp";
+    inline static std::string emoji_size1_ext = "@48w_48h.webp";
     inline static std::string emoji_size2_ext = "@72w_72h.webp";
     inline static std::string note_ext =
         "@540w_540h_85q_!note-comment-multiple.webp";
