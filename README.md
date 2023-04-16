@@ -175,7 +175,7 @@ cd wiliwili
 
 ```shell
 # macOS: install dependencies
-brew install mpv
+brew install mpv webp
 
 cmake -B build -DPLATFORM_DESKTOP=ON
 make -C build wiliwili -j$(sysctl -n hw.ncpu)
@@ -189,7 +189,7 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 
 ```shell
 # Ubuntu: install dependencies
-sudo apt install libcurl4-openssl-dev libmpv-dev
+sudo apt install libcurl4-openssl-dev libmpv-dev libwebp-dev
 
 cmake -B build -DPLATFORM_DESKTOP=ON
 make -C build wiliwili -j$(nproc)
@@ -210,7 +210,7 @@ sudo xargs -a build/install_manifest.txt rm
 ```shell
 # Windows: install dependencies (MSYS2 MinGW64)
 pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-make \
-  git mingw-w64-x86_64-mpv
+  git mingw-w64-x86_64-mpv mingw-w64-x86_64-libwebp
 
 cmake -B build -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON
 mingw32-make -C build wiliwili -j$(nproc)
@@ -251,7 +251,7 @@ docker run --rm -v $(pwd):/data devkitpro/devkita64 \
 # 1. 安装devkitpro环境: https://github.com/devkitPro/pacman/releases
 
 # 2. 安装预编译的依赖
-sudo dkp-pacman -S switch-glfw switch-cmake devkita64-cmake switch-pkg-config
+sudo dkp-pacman -S switch-glfw switch-libwebp switch-cmake devkita64-cmake switch-pkg-config
 
 # 3. 安装ffmpeg与mpv（使用自编译的库，官方的库无法播放网络视频）
 # 手动编译方法请看：scripts/README.md

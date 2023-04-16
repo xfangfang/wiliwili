@@ -47,15 +47,9 @@
                             wireframe="false"
                             fontSize="24"
                             marginLeft="10"
-                            singleLine="true"
-                            text=""/>
+                            singleLine="true"/>
                 </brls:Box>
 
-                <brls:Rectangle
-                        width="auto"
-                        height="1"
-                        margin="4"
-                        color="@theme/color/line"/>
 
                 <brls:Box
                         id="video_detail_info_box"

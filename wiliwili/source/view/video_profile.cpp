@@ -38,8 +38,11 @@ void VideoProfile::update() {
 
     // video
     labelVideoRes->setText(fmt::format(
-        "{} x {}@{}", mpvCore->getInt("video-params/w"),
-        mpvCore->getInt("video-params/h"), mpvCore->getInt("container-fps")));
+        "{} x {}@{} (window: {} x {} framebuffer: {} x {})",
+        mpvCore->getInt("video-params/w"), mpvCore->getInt("video-params/h"),
+        mpvCore->getInt("container-fps"), brls::Application::contentWidth,
+        brls::Application::contentHeight, brls::Application::windowWidth,
+        brls::Application::windowHeight));
     labelVideoCodec->setText(mpvCore->getString("video-codec"));
     labelVideoPixel->setText(mpvCore->getString("video-params/pixelformat"));
     labelVideoHW->setText(mpvCore->getString("hwdec-current"));

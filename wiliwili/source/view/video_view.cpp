@@ -750,6 +750,10 @@ void VideoView::buttonProcessing() {
                     rsb_press_time = current_time;
                     click_state    = ClickState::PRESS;
                 }
+                // 绘制临时加速标识
+                speedHintLabel->setText(
+                    fmt::format("wiliwili/player/current_speed"_i18n, SPEED));
+                speedHintBox->setVisibility(brls::Visibility::VISIBLE);
             }
             break;
         case ClickState::FAST_PRESS:
@@ -764,6 +768,7 @@ void VideoView::buttonProcessing() {
                     setSpeed(1.0f);
                     click_state = ClickState::IDLE;
                 }
+                speedHintBox->setVisibility(brls::Visibility::GONE);
             }
             break;
         case ClickState::CLICK_DOUBLE:
