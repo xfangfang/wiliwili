@@ -121,15 +121,16 @@ void DataSourcePGCVideoList::onItemSelected(RecyclingGrid* recycler,
             // 我的追番
             brls::Application::pushActivity(
                 new brls::Activity(brls::Box::createFromXMLResource(
-                    "fragment/mine_bangumi_anime.xml")));
+                    "fragment/mine_bangumi_anime.xml")),
+                brls::TransitionAnimation::NONE);
         } else if (this->videoList.module_id == 1745) {
             // 我的追剧
             brls::Application::pushActivity(
                 new brls::Activity(brls::Box::createFromXMLResource(
-                    "fragment/mine_bangumi_series.xml")));
+                    "fragment/mine_bangumi_series.xml")),
+                brls::TransitionAnimation::NONE);
         } else {
-            brls::Application::pushActivity(
-                new PGCIndexActivity(this->videoList.url));
+            Intent::openPgcFilter(this->videoList.url);
         }
     } else {
         Intent::openSeasonBySeasonId(videoList.items[index].season_id);

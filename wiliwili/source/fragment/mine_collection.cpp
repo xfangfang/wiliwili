@@ -77,11 +77,13 @@ public:
             r.type == SUBSCRIPTION_TYPE_2) {
             brls::Application::pushActivity(
                 new brls::Activity(new MineCollectionVideoList(
-                    list[index], COLLECTION_UI_TYPE_2)));
+                    list[index], COLLECTION_UI_TYPE_2)),
+                brls::TransitionAnimation::NONE);
         } else {
             brls::Application::pushActivity(
                 new brls::Activity(new MineCollectionVideoList(
-                    list[index], COLLECTION_UI_TYPE_1)));
+                    list[index], COLLECTION_UI_TYPE_1)),
+                brls::TransitionAnimation::NONE);
         }
     }
 

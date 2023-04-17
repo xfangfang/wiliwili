@@ -108,7 +108,7 @@ void SettingActivity::onContentAvailable() {
 
 #ifdef __SWITCH__
     btnTutorialOpenApp->registerClickAction([](...) -> bool {
-        brls::Application::pushActivity(new HintActivity());
+        Intent::openHint();
         return true;
     });
 #else

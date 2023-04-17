@@ -140,9 +140,11 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
             brls::Logger::error(error);
-            this->onError(error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError(error);
+            });
         });
 }
 
@@ -270,9 +272,11 @@ void VideoDetail::requestVideoInfo(const std::string& bvid) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
             brls::Logger::error("ERROR:请求视频信息 {}", error);
-            this->onError(error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError(error);
+            });
         });
 
     // 请求视频点赞情况
@@ -299,9 +303,11 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
             brls::Logger::error(error);
-            this->onError("请求视频地址失败\n" + error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError("请求视频地址失败\n" + error);
+            });
         });
     // 请求当前视频在线人数
     this->requestVideoOnline(bvid, cid);
@@ -329,9 +335,11 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
             brls::Logger::error(error);
-            this->onError("请求视频地址失败\n" + error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError("请求视频地址失败\n" + error);
+            });
         });
 
     // 请求当前视频在线人数

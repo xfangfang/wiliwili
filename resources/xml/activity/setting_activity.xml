@@ -1,5 +1,6 @@
 <brls:AppletFrame
         iconInterpolation="linear"
+        backgroundColor="@theme/brls/background"
         headerHidden="true"
         footerHidden="false">
 

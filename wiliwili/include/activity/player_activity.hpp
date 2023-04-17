@@ -77,6 +77,10 @@ public:
     // 获取当前视频的aid
     virtual size_t getAid() = 0;
 
+    void willDisappear(bool resetState = false) override;
+
+    void willAppear(bool resetState = false) override;
+
     ~BasePlayerActivity() override;
 
     inline static bool AUTO_NEXT_RCMD = true;
@@ -111,6 +115,9 @@ protected:
 
     // 在软件自动切换分集时，传递当前跳转的索引值给列表用于更新ui
     ChangeIndexEvent changeIndexEvent;
+
+private:
+    bool activityShown = false;
 };
 
 class PlayerActivity : public BasePlayerActivity {
@@ -138,7 +145,7 @@ public:
 
     void onContentAvailable() override;
 
-    ~PlayerActivity();
+    ~PlayerActivity() override;
 
 private:
     // 切换UP视频

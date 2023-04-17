@@ -563,16 +563,30 @@ void BasePlayerActivity::setRelationButton(bool liked, bool coin,
 }
 
 void BasePlayerActivity::onError(const std::string& error) {
-    ASYNC_RETAIN
-    brls::sync([ASYNC_TOKEN, error]() {
-        ASYNC_RELEASE
-        auto dialog = new brls::Dialog(error);
-        dialog->setCancelable(false);
-        dialog->addButton("hints/ok"_i18n, []() {
-            brls::sync([]() { brls::Application::popActivity(); });
-        });
-        dialog->open();
+    if (!activityShown) return;
+    bool forceClose = true;
+    std::string msg = error;
+    if (pystring::count(error, "10403") > 0) {
+        // 大会员限制
+        forceClose = false;
+        msg        = "大会员专享";
+    }
+    auto dialog = new brls::Dialog(msg);
+    dialog->setCancelable(false);
+    dialog->addButton("hints/ok"_i18n, [forceClose]() {
+        if (forceClose) brls::sync([]() { brls::Application::popActivity(); });
     });
+    dialog->open();
+}
+
+void BasePlayerActivity::willDisappear(bool resetState) {
+    activityShown = false;
+    brls::Activity::willDisappear(resetState);
+}
+
+void BasePlayerActivity::willAppear(bool resetState) {
+    activityShown = true;
+    brls::Activity::willAppear(resetState);
 }
 
 BasePlayerActivity::~BasePlayerActivity() {
