@@ -15,12 +15,14 @@
 #include "bilibili/result/search_result.h"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
-#include "activity/player_activity.hpp"
+#include "utils/activity_helper.hpp"
+#include "utils/image_helper.hpp"
 
 class SearchVideo;
 class SearchBangumi;
 class SearchCinema;
 class SearchHots;
+class AutoTabFrame;
 typedef brls::Event<std::string> UpdateSearchEvent;
 
 class DataSourceSearchVideoList : public RecyclingGridDataSource {
@@ -45,11 +47,9 @@ public:
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         auto video = list[index];
         if (!video.bvid.empty()) {
-            brls::Application::pushActivity(
-                new PlayerActivity(list[index].bvid));
+            Intent::openBV(list[index].bvid);
         } else if (video.season_id != 0) {
-            brls::Application::pushActivity(
-                new PlayerSeasonActivity(list[index].season_id));
+            Intent::openSeasonBySeasonId(list[index].season_id);
         }
     }
 
@@ -104,8 +104,7 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         auto video = list[index];
-        brls::Application::pushActivity(
-            new PlayerSeasonActivity(list[index].season_id));
+        Intent::openSeasonBySeasonId(list[index].season_id);
     }
 
     void appendData(const bilibili::VideoItemSearchListResult& data) {

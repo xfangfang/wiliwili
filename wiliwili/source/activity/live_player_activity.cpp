@@ -21,9 +21,13 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     GA("open_live", {{"id", std::to_string(live.roomid)}})
 }
 
-LiveActivity::LiveActivity(int roomid) {
+LiveActivity::LiveActivity(int roomid, const std::string& name,
+                           const std::string& views) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
-    this->liveData.roomid = roomid;
+    MPVCore::instance().command_str("set loop-playlist force");
+    this->liveData.roomid                  = roomid;
+    this->liveData.title                   = name;
+    this->liveData.watched_show.text_large = views;
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(roomid)}})
 }
@@ -41,7 +45,7 @@ void LiveActivity::setCommonData() {
     SubtitleCore::instance().reset();
 
     // 清空自定义着色器
-    ShaderHelper::instance().clearShader();
+    ShaderHelper::instance().clearShader(false);
 
     eventSubscribeID =
         MPV_CE->subscribe([this](const std::string& event, void* data) {

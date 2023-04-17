@@ -120,13 +120,14 @@ public:
     /// 暂时用此变量记录 shader
     inline static std::string currentShader;
 
-    void setShader(size_t index) {
+    void setShader(size_t index, bool showHint = true) {
         currentShader = getProfileNameByIndex(index);
-        MPVCore::instance().setShader(currentShader, getProfileByIndex(index));
+        MPVCore::instance().setShader(currentShader, getProfileByIndex(index),
+                                      showHint);
     }
 
-    void clearShader() {
-        MPVCore::instance().clearShader();
+    void clearShader(bool showHint = true) {
+        MPVCore::instance().clearShader(showHint);
         currentShader.clear();
     }
 

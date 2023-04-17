@@ -3,11 +3,12 @@
 //
 
 #include "activity/pgc_index_activity.hpp"
-#include "activity/player_activity.hpp"
 #include "pystring.h"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "view/auto_tab_frame.hpp"
+#include "utils/image_helper.hpp"
+#include "utils/activity_helper.hpp"
 #include "analytics.h"
 
 using namespace brls::literals;
@@ -325,8 +326,7 @@ public:
     size_t getItemCount() override { return list.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        brls::Application::pushActivity(
-            new PlayerSeasonActivity(list[index].season_id));
+        Intent::openSeasonBySeasonId(list[index].season_id);
     }
 
     void appendData(const bilibili::PGCIndexListResult& data) {

@@ -133,9 +133,10 @@ public:
 
     void reset();
 
-    void setShader(const std::string &profile, const std::string &shader);
+    void setShader(const std::string &profile, const std::string &shaders,
+                   bool showHint = true);
 
-    void clearShader();
+    void clearShader(bool showHint = true);
 
     // core states
     int core_idle          = 0;

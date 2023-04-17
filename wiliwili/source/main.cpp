@@ -1,26 +1,22 @@
+/**
 
+██     ██ ██ ██      ██ ██     ██ ██ ██      ██
+██     ██ ██ ██      ██ ██     ██ ██ ██      ██
+██  █  ██ ██ ██      ██ ██  █  ██ ██ ██      ██
+██ ███ ██ ██ ██      ██ ██ ███ ██ ██ ██      ██
+ ███ ███  ██ ███████ ██  ███ ███  ██ ███████ ██
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <borealis.hpp>
+ Licensed under the GPL-3.0 license
+*/
 
+// Uncomment this to disable google analytics
 //#define NO_GA
+
+#include <borealis.hpp>
 
 #include "utils/config_helper.hpp"
 #include "utils/thread_helper.hpp"
-#include "activity/main_activity.hpp"
-#include "activity/hint_activity.hpp"
-//#include "activity/setting_activity.hpp"
-//#include "activity/splash_activity.hpp"
-//#include "activity/search_activity.hpp"
-//#include "activity/pgc_index_activity.hpp"
-//#include "activity/player_activity.hpp"
-//#include "activity/live_player_activity.hpp"
-
-//#define DISK_LOG
-
-using namespace brls::literals;  // for _i18n
+#include "utils/activity_helper.hpp"
 
 int main(int argc, char* argv[]) {
     // Set min_threads and max_threads of http thread pool
@@ -30,15 +26,6 @@ int main(int argc, char* argv[]) {
 
     // Set log level
     brls::Logger::setLogLevel(brls::LogLevel::LOG_INFO);
-
-#ifdef DISK_LOG
-    std::filesystem::create_directories(
-        ProgramConfig::instance().getConfigDir());
-    std::ofstream logFile(ProgramConfig::instance().getConfigDir() +
-                          "/log.txt");
-    brls::Logger::getLogEvent()->subscribe(
-        [&logFile](std::string log) { logFile << log << std::endl; });
-#endif
 
     // Load cookies and settings
     ProgramConfig::instance().init();
@@ -61,25 +48,25 @@ int main(int argc, char* argv[]) {
     Register::initCustomStyle();
 
     if (brls::Application::getPlatform()->isApplicationMode()) {
-        brls::Application::pushActivity(new MainActivity());
+        Intent::openMain();
         // Use these activities to debug
-        //        brls::Application::pushActivity(new PlayerActivity("BV18W4y1q72C"));  // wiliwili介绍
-        //        brls::Application::pushActivity(new PlayerActivity("BV1dx411c7Av"));  // flv拼接视频
-        //        brls::Application::pushActivity(new PlayerActivity("BV15z4y1Z734"));  // 4K HDR 视频
-        //        brls::Application::pushActivity(new PlayerActivity("BV1PN4y1G7u2"));  // up主视频自动跳转番剧
-        //        brls::Application::pushActivity(new PlayerActivity("BV1sK411s7zq"));  // 多P视频测试
-        //        brls::Application::pushActivity(new PlayerActivity("BV1A44y1u7PF")); // 测试FFMPEG在switch上的bug（加载时间过长）
-        //        brls::Application::pushActivity(new PlayerActivity("BV1U3411c7Qx")); // 测试长标题
-        //        brls::Application::pushActivity(new PlayerActivity("BV1fG411W7Px")); // 测试弹幕
-        //        brls::Application::pushActivity(new PlayerSeasonActivity(280975, PGC_ID_TYPE::EP_ID)); // 测试电影
-        //        brls::Application::pushActivity(new SearchActivity("哈利波特")); // 测试搜索影片
-        //        brls::Application::pushActivity(new SplashActivity()); // 首屏页面（暂时未使用）
-        //        brls::Application::pushActivity(new HintActivity());   // 应用开启教程页面
-        //        brls::Application::pushActivity(new PGCIndexActivity("/page/home/pgc/more?type=2&index_type=2&area=2&order=2&season_status=-1&season_status=3,6")); // 影片分类索引
-        //        brls::Application::pushActivity(new SettingActivity());     //  设置页面
-        //        brls::Application::pushActivity(new LiveActivity(1942240)); // 直播页面
+        //        Intent::openBV("BV18W4y1q72C");  // wiliwili介绍
+        //        Intent::openBV("BV1dx411c7Av");  // flv拼接视频
+        //        Intent::openBV("BV15z4y1Z734");  // 4K HDR 视频
+        //        Intent::openBV("BV1PN4y1G7u2");  // up主视频自动跳转番剧
+        //        Intent::openBV("BV1sK411s7zq");  // 多P视频测试
+        //        Intent::openBV("BV1Cg411j76F");  // 多字幕测试
+        //        Intent::openBV("BV1A44y1u7PF");  // 测试FFMPEG在switch上的bug（加载时间过长）
+        //        Intent::openBV("BV1U3411c7Qx");  // 测试长标题
+        //        Intent::openBV("BV1fG411W7Px");  // 测试弹幕
+        //        Intent::openSeasonByEpId(323434);// 测试电影
+        //        Intent::openLive(1942240);       // 测试直播
+        //        Intent::openSearch("harry");     // 测试搜索影片
+        //        Intent::openHint();              // 应用开启教程页面
+        //        Intent::openPgcFilter("/page/home/pgc/more?type=2&index_type=2&area=2&order=2&season_status=-1&season_status=3,6"); // 影片分类索引
+        //        Intent::openSetting();  //  设置页面
     } else {
-        brls::Application::pushActivity(new HintActivity());
+        Intent::openHint();
     }
 
     GA("open_app", {{"version", APPVersion::instance().getVersionStr()},
@@ -88,16 +75,13 @@ int main(int argc, char* argv[]) {
     APPVersion::instance().checkUpdate();
 
     // Run the app
+    // brls::Application::setLimitedFPS(60);
     while (brls::Application::mainLoop()) {
     }
 
-    brls::Logger::debug("main loop done");
+    brls::Logger::info("mainLoop done");
     cpr::async::cleanup();
     curl_global_cleanup();
-
-#ifdef DISK_LOG
-    logFile.close();
-#endif
 
     // Check whether restart is required
     ProgramConfig::instance().checkRestart(argv);

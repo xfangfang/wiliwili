@@ -138,7 +138,7 @@ modules:
 
       - name: libwebp
         config-opts: [ --disable-static, --enable-libwebpmux, --enable-libwebpdemux ]
-        cleanup: [ /share, /bin ]
+        cleanup: [ /share, /bin, /include ]
         sources:
           - type: archive
             url: https://github.com/webmproject/libwebp/archive/refs/tags/v1.3.0.tar.gz

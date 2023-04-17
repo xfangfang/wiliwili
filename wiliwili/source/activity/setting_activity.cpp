@@ -4,15 +4,17 @@
 
 #include "activity/setting_activity.hpp"
 #include "activity/hint_activity.hpp"
-#include "activity/player_activity.hpp"
 #include "fragment/setting_network.hpp"
 #include "fragment/test_rumble.hpp"
 #include "view/text_box.hpp"
+#include "view/mpv_core.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/vibration_helper.hpp"
 #include "utils/dialog_helper.hpp"
+#include "utils/activity_helper.hpp"
 #include "borealis/core/cache_helper.hpp"
 #include "borealis/views/applet_frame.hpp"
+#include "bilibili.h"
 
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
 #include "borealis/platforms/desktop/desktop_platform.hpp"
@@ -114,8 +116,7 @@ void SettingActivity::onContentAvailable() {
 #endif
 
     btnTutorialOpenVideoIntro->registerClickAction([](...) -> bool {
-        brls::Application::pushActivity(new PlayerActivity(
-            "wiliwili/setting/tools/tutorial/intro_bvid"_i18n));
+        Intent::openBV("wiliwili/setting/tools/tutorial/intro_bvid"_i18n);
         return true;
     });
 

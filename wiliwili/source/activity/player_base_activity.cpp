@@ -282,7 +282,7 @@ void BasePlayerActivity::setCommonData() {
         });
 }
 
-void BasePlayerActivity::showShareDialog(const std::string link) {
+void BasePlayerActivity::showShareDialog(const std::string& link) {
     auto container = new brls::Box(brls::Axis::COLUMN);
     container->setJustifyContent(brls::JustifyContent::CENTER);
     container->setAlignItems(brls::AlignItems::CENTER);

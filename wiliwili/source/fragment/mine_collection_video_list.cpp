@@ -5,11 +5,13 @@
 #include "fragment/mine_collection_video_list.hpp"
 
 #include <utility>
-#include "activity/player_activity.hpp"
 #include "view/video_card.hpp"
 #include "view/text_box.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/activity_helper.hpp"
 #include "bilibili.h"
+
+using namespace brls::literals;
 
 class DataSourceCollectionVideoList : public RecyclingGridDataSource {
 public:
@@ -38,14 +40,13 @@ public:
         auto& data = list[index];
         switch (data.type) {
             case 2:  // 普通视频
-                brls::Application::pushActivity(new PlayerActivity(data.bvid));
+                Intent::openBV(data.bvid);
                 break;
             case 12:  // 音频
             case 21:  // 视频合集
                 break;
             case 24:  // 番剧
-                brls::Application::pushActivity(
-                    new PlayerSeasonActivity(data.id, PGC_ID_TYPE::EP_ID));
+                Intent::openSeasonByEpId(data.id);
                 break;
         }
     }

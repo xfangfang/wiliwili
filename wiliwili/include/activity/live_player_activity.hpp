@@ -15,8 +15,9 @@ public:
     // Declare that the content of this activity is the given XML file
     CONTENT_FROM_XML_RES("activity/live_player_activity.xml");
 
-    LiveActivity(const bilibili::LiveVideoResult& live);
-    LiveActivity(int roomid);
+    explicit LiveActivity(const bilibili::LiveVideoResult& live);
+    LiveActivity(int roomid, const std::string& name = "",
+                 const std::string& views = "");
 
     void setCommonData();
 

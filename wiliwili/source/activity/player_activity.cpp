@@ -14,6 +14,7 @@
 #include "utils/number_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
+#include "utils/activity_helper.hpp"
 #include "fragment/player_collection.hpp"
 #include "fragment/player_fragments.hpp"
 #include "fragment/player_evaluate.hpp"
@@ -516,8 +517,7 @@ void PlayerActivity::onRedirectToEp(const std::string& epid) {
     }
     // 跳转到番剧播放页
     brls::Application::popActivity(brls::TransitionAnimation::NONE, [epid]() {
-        brls::Application::pushActivity(
-            new PlayerSeasonActivity(std::stoi(epid), PGC_ID_TYPE::EP_ID));
+        Intent::openSeasonByEpId(std::stoi(epid));
     });
 }
 

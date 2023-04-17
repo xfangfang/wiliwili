@@ -3,17 +3,20 @@
 //
 
 #include "fragment/mine_history.hpp"
+
+#include <utility>
 #include "view/video_card.hpp"
-#include "activity/player_activity.hpp"
-#include "activity/live_player_activity.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/activity_helper.hpp"
+#include "utils/image_helper.hpp"
 
 using namespace brls::literals;
 
 class DataSourceMineHistoryVideoList : public RecyclingGridDataSource {
 public:
-    DataSourceMineHistoryVideoList(bilibili::HistoryVideoListResult result)
-        : list(result) {}
+    explicit DataSourceMineHistoryVideoList(
+        bilibili::HistoryVideoListResult result)
+        : list(std::move(result)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
@@ -36,8 +39,8 @@ public:
         }
         auto time = wiliwili::sec2TimeDate(r.view_at);
 
-        std::string duration = "";
-        float progress       = -1;
+        std::string duration;
+        float progress = -1;
         if (r.duration >= 0 && r.progress >= 0 &&
             (r.history.business == "pgc" || r.history.business == "archive")) {
             duration = wiliwili::sec2Time(r.progress) + "/" +
@@ -63,16 +66,14 @@ public:
         if (business == "archive") {
             int progress = -1;
             if (list[index].progress > 0) progress = list[index].progress;
-            brls::Application::pushActivity(
-                new PlayerActivity(bvid, data.cid, progress));
+            Intent::openBV(bvid, data.cid, progress);
         } else if (business == "pgc") {
             int progress = -1;
             if (list[index].progress > 0) progress = list[index].progress;
-            brls::Application::pushActivity(new PlayerSeasonActivity(
-                data.epid, PGC_ID_TYPE::EP_ID, progress));
+            Intent::openSeasonByEpId(data.epid, progress);
         } else if (business == "live") {
             if (list[index].live_status) {
-                brls::Application::pushActivity(new LiveActivity(data.oid));
+                Intent::openLive(data.oid, list[index].title, "-");
             }
         } else if (business == "article" || business == "article-list") {
             auto cvid = data.oid;
@@ -146,9 +147,8 @@ void MineHistory::onHistoryList(
 
     int view_at = this->cursor.view_at;
     brls::Threading::sync([this, result, view_at]() {
-        DataSourceMineHistoryVideoList* datasource =
-            dynamic_cast<DataSourceMineHistoryVideoList*>(
-                recyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourceMineHistoryVideoList*>(
+            recyclingGrid->getDataSource());
         if (datasource && view_at != 0) {
             datasource->appendData(result.list);
             recyclingGrid->notifyDataChanged();

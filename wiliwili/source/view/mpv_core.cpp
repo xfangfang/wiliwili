@@ -894,18 +894,20 @@ void MPVCore::disableDimming(bool disable) {
         disable, "Playing video", APPVersion::getPackageName());
 }
 
-void MPVCore::setShader(const std::string &profile, const std::string &shader) {
-    brls::Logger::info("Set shader [{}]: {}", profile, shader);
-    if (shader.empty()) return;
+void MPVCore::setShader(const std::string &profile, const std::string &shaders,
+                        bool showHint) {
+    brls::Logger::info("Set shader [{}]: {}", profile, shaders);
+    if (shaders.empty()) return;
     mpv_command_string(
-        mpv, fmt::format("no-osd change-list glsl-shaders set \"{}\"", shader)
+        mpv, fmt::format("no-osd change-list glsl-shaders set \"{}\"", shaders)
                  .c_str());
-    mpv_command_string(mpv,
-                       fmt::format("show-text \"{}\" 2000", profile).c_str());
+    if (showHint)
+        mpv_command_string(
+            mpv, fmt::format("show-text \"{}\" 2000", profile).c_str());
 }
 
-void MPVCore::clearShader() {
+void MPVCore::clearShader(bool showHint) {
     brls::Logger::info("Clear shader");
     mpv_command_string(mpv, "no-osd change-list glsl-shaders clr \"\"");
-    mpv_command_string(mpv, "show-text \"Clear shader\" 2000");
+    if (showHint) mpv_command_string(mpv, "show-text \"Clear shader\" 2000");
 }

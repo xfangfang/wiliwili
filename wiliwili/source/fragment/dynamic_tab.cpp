@@ -2,19 +2,25 @@
 // Created by fang on 2022/6/9.
 //
 
-#include "activity/player_activity.hpp"
 #include "fragment/dynamic_tab.hpp"
+
+#include <utility>
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/svg_image.hpp"
 #include "view/video_card.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/activity_helper.hpp"
+
+using namespace brls::literals;
 
 class DynamicUserInfoView : public RecyclingGridItem {
 public:
-    DynamicUserInfoView(std::string xml) { this->inflateFromXMLRes(xml); }
+    explicit DynamicUserInfoView(const std::string& xml) {
+        this->inflateFromXMLRes(xml);
+    }
 
-    void setUserInfo(std::string avatar, std::string username,
+    void setUserInfo(const std::string& avatar, const std::string& username,
                      bool isUpdate = false) {
         this->labelUsername->setText(username);
         ImageHelper::with(this->avatarView)->load(avatar);
@@ -22,15 +28,15 @@ public:
 
     brls::Image* getAvatar() { return this->avatarView; }
 
-    void prepareForReuse() {}
+    void prepareForReuse() override {}
 
-    void cacheForReuse() {
+    void cacheForReuse() override {
         if (!dynamic_cast<SVGImage*>(this->avatarView.getView()))
             ImageHelper::clear(this->avatarView);
     }
 
     static RecyclingGridItem* create(
-        std::string xml = "xml/views/user_info_dynamic.xml") {
+        const std::string& xml = "xml/views/user_info_dynamic.xml") {
         return new DynamicUserInfoView(xml);
     }
 
@@ -41,7 +47,8 @@ private:
 
 class DataSourceUpList : public RecyclingGridDataSource {
 public:
-    DataSourceUpList(bilibili::DynamicUpListResult result) : list(result) {}
+    explicit DataSourceUpList(bilibili::DynamicUpListResult result)
+        : list(std::move(result)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         if (index == 0) {
@@ -87,8 +94,8 @@ private:
 
 class DataSourceDynamicVideoList : public RecyclingGridDataSource {
 public:
-    DataSourceDynamicVideoList(bilibili::DynamicVideoListResult result)
-        : list(result) {}
+    explicit DataSourceDynamicVideoList(bilibili::DynamicVideoListResult result)
+        : list(std::move(result)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
@@ -104,14 +111,14 @@ public:
     size_t getItemCount() override { return list.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        brls::Application::pushActivity(new PlayerActivity(list[index].bvid));
+        Intent::openBV(list[index].bvid);
     }
 
     void appendData(const bilibili::DynamicVideoListResult& data) {
         bool skip = false;
-        for (auto i : data) {
+        for (const auto& i : data) {
             skip = false;
-            for (auto j : this->list) {
+            for (const auto& j : this->list) {
                 if (j.aid == i.aid) {
                     skip = true;
                     break;
@@ -211,9 +218,8 @@ void DynamicTab::changeUser(int64_t mid) {
 void DynamicTab::onDynamicVideoList(
     const bilibili::DynamicVideoListResult& result, unsigned int index) {
     brls::Threading::sync([this, result, index]() {
-        DataSourceDynamicVideoList* datasource =
-            dynamic_cast<DataSourceDynamicVideoList*>(
-                videoRecyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourceDynamicVideoList*>(
+            videoRecyclingGrid->getDataSource());
         if (datasource && index != 1) {
             datasource->appendData(result);
             videoRecyclingGrid->notifyDataChanged();

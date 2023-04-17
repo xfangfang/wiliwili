@@ -7,6 +7,8 @@
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 
+using namespace brls::literals;
+
 HomeCinema::HomeCinema() {
     this->inflateFromXMLRes("xml/fragment/home_cinema.xml");
     brls::Logger::debug("Fragment HomeCinema: create");
@@ -50,14 +52,13 @@ void HomeCinema::onCreate() {
 
 void HomeCinema::onCinemaList(const bilibili::PGCResultWrapper& result) {
     if (this->refresh_flag == 1 && this->tabFrame->getActiveTab() != nullptr &&
-        result.modules.size() > 0) {
+        !result.modules.empty()) {
         // 加载的是 猜你喜欢的第N页
         auto tab =
             (AttachedView*)this->tabFrame->getActiveTab();  // 猜你喜欢页面
         auto grid = (RecyclingGrid*)tab->getChildren()[0];
 
-        DataSourcePGCVideoList* datasource =
-            (DataSourcePGCVideoList*)grid->getDataSource();
+        auto* datasource = (DataSourcePGCVideoList*)grid->getDataSource();
         datasource->appendData(result.modules[0].items);
         grid->notifyDataChanged();
 
@@ -65,9 +66,9 @@ void HomeCinema::onCinemaList(const bilibili::PGCResultWrapper& result) {
     }
 
     brls::sync([this, result]() {
-        for (auto i : result.modules) {
-            if (i.items.size() == 0) continue;
-            AutoSidebarItem* item = new AutoSidebarItem();
+        for (const auto& i : result.modules) {
+            if (i.items.empty()) continue;
+            auto* item = new AutoSidebarItem();
             item->setTabStyle(AutoTabBarStyle::PLAIN);
             item->setLabel(i.title);
             item->setFontSize(18);
