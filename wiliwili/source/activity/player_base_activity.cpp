@@ -564,12 +564,17 @@ void BasePlayerActivity::setRelationButton(bool liked, bool coin,
 
 void BasePlayerActivity::onError(const std::string& error) {
     if (!activityShown) return;
+    MPVCore::instance().stop();
+    MPVCore::instance().reset();
     bool forceClose = true;
     std::string msg = error;
     if (pystring::count(error, "10403") > 0) {
-        // 大会员限制
         forceClose = false;
-        msg        = "大会员专享";
+        msg        = "大会员专享限制";
+    } else if (pystring::count(error, "404") > 0) {
+        msg = "啥都木有";
+    } else if (pystring::count(error, "62002") > 0) {
+        msg = "稿件不可见";
     }
     auto dialog = new brls::Dialog(msg);
     dialog->setCancelable(false);
