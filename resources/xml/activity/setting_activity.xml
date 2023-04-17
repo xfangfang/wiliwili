@@ -1,5 +1,6 @@
 <brls:AppletFrame
         iconInterpolation="linear"
+        backgroundColor="@theme/brls/background"
         headerHidden="true"
         footerHidden="false">
 
@@ -43,9 +44,6 @@
                                 marginBottom="30px">
 
                             <brls:BooleanCell
-                                    id="setting/video/progress"/>
-
-                            <brls:BooleanCell
                                     id="setting/video/quality"/>
 
                             <brls:BooleanCell
@@ -54,17 +52,14 @@
                             <brls:SelectorCell
                                     id="setting/video/inmemory"/>
 
-                            <brls:BooleanCell
-                                    id="setting/history/log"/>
-
-                            <brls:BooleanCell
-                                    id="setting/auto/nextPart"/>
-
-                            <brls:BooleanCell
-                                    id="setting/auto/nextRcmd"/>
-
                             <brls:SelectorCell
                                     id="setting/video/format"/>
+
+                            <brls:SelectorCell
+                                    id="setting/video/codec"/>
+
+                            <brls:SelectorCell
+                                    id="setting/audio/quality"/>
 
                         </brls:Box>
                         <brls:Header

@@ -6,13 +6,12 @@
 #include <clocale>
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
+#include "view/subtitle_core.hpp"
 #include <pystring/pystring.h>
 #include "utils/config_helper.hpp"
+#include "utils/number_helper.hpp"
 
-#ifdef __SWITCH__
-#include <switch.h>
-#endif
-
+#if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER)
 const char *vertexShaderSource =
     "#version 150 core\n"
     "in vec3 aPos;\n"
@@ -34,6 +33,7 @@ const char *fragmentShaderSource =
     "   FragColor = texture(ourTexture, TexCoord);\n"
     "   FragColor.a = Alpha;\n"
     "}\n\0";
+#endif
 
 static inline void check_error(int status) {
     if (status < 0) {
@@ -71,8 +71,10 @@ void MPVCore::init() {
     }
 
     // misc
-    mpv_set_option_string(mpv, "no-config", "yes");
-    mpv_set_option_string(mpv, "no-ytdl", "yes");
+    mpv_set_option_string(mpv, "config", "yes");
+    mpv_set_option_string(mpv, "config-dir",
+                          ProgramConfig::instance().getConfigDir().c_str());
+    mpv_set_option_string(mpv, "ytdl", "no");
     mpv_set_option_string(mpv, "terminal", "yes");
     mpv_set_option_string(mpv, "audio-channels", "stereo");
     mpv_set_option_string(mpv, "referrer", "https://www.bilibili.com/");
@@ -82,13 +84,7 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "video-timing-offset", "0");  // 60fps
     mpv_set_option_string(mpv, "keep-open", "yes");
     mpv_set_option_string(mpv, "hr-seek", "yes");
-#ifdef MPV_NO_FB
     mpv_set_option_string(mpv, "reset-on-next-file", "speed,pause");
-#else
-    mpv_set_option_string(mpv, "fbo-format", "rgba8");
-    mpv_set_option_string(mpv, "reset-on-next-file", "all");
-    mpv_set_option_string(mpv, "opengl-pbo", "yes");
-#endif
 
     if (MPVCore::LOW_QUALITY) {
         // Less cpu cost
@@ -151,6 +147,7 @@ void MPVCore::init() {
     //    check_error(mpv_observe_property(mpv, 7, "paused-for-cache", MPV_FORMAT_FLAG));
     //    check_error(mpv_observe_property(mpv, 8, "demuxer-cache-time", MPV_FORMAT_DOUBLE));
     //    check_error(mpv_observe_property(mpv, 9, "demuxer-cache-state", MPV_FORMAT_NODE));
+    check_error(mpv_observe_property(mpv, 10, "speed", MPV_FORMAT_DOUBLE));
 
     // init renderer params
 #ifdef MPV_SW_RENDER
@@ -175,6 +172,9 @@ void MPVCore::init() {
                        mpv_get_property_string(mpv, "mpv-version"));
     brls::Logger::info("FFMPEG Version: {}",
                        mpv_get_property_string(mpv, "ffmpeg-version"));
+    command_str(
+        fmt::format("set audio-client-name {}", APPVersion::getPackageName())
+            .c_str());
 
     // set event callback
     mpv_set_wakeup_callback(mpv, on_wakeup, this);
@@ -404,22 +404,26 @@ void MPVCore::setFrameSize(brls::Rect rect) {
         brls::Logger::debug("Enlarge video surface buffer");
         free(pixels);
         pixels = nullptr;
-        nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
     }
 
     if (pixels == nullptr) {
         pixels             = malloc(frameSize * PIXCEL_SIZE);
         mpv_params[3].data = pixels;
-        sw_size[0]         = drawWidth;
-        sw_size[1]         = drawHeight;
-        pitch              = PIXCEL_SIZE * drawWidth;
-        nvg_image = nvgCreateImageRGBA(
-            brls::Application::getNVGContext(),
-            drawWidth,
-            drawHeight,
-            mpvImageFlags,
-            (const unsigned char *)pixels);
     }
+
+    if (nvg_image)
+        nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
+    nvg_image = nvgCreateImageRGBA(
+        brls::Application::getNVGContext(),
+        drawWidth,
+        drawHeight,
+        mpvImageFlags,
+        (const unsigned char *)pixels);
+    brls::Logger::error("=======> {}/{}", drawWidth, drawHeight);
+
+    sw_size[0] = drawWidth;
+    sw_size[1] = drawHeight;
+    pitch      = PIXCEL_SIZE * drawWidth;
 #elif defined(MPV_NO_FB)
     // Using default framebuffer
     this->mpv_fbo.w = brls::Application::windowWidth;
@@ -565,6 +569,8 @@ mpv_handle *MPVCore::getHandle() { return this->mpv; }
 
 MPVEvent *MPVCore::getEvent() { return &this->mpvCoreEvent; }
 
+MPVCustomEvent *MPVCore::getCustomEvent() { return &this->mpvCoreCustomEvent; }
+
 std::string MPVCore::getCacheSpeed() {
     if (cache_speed >> 20 > 0) {
         return fmt::format("{:.2f} MB/s", (cache_speed >> 10) / 1024.0f);
@@ -578,15 +584,12 @@ std::string MPVCore::getCacheSpeed() {
 void MPVCore::eventMainLoop() {
     while (true) {
         auto event = mpv_wait_event(this->mpv, 0);
-        //            brls::Logger::error("event: {} / {}", event->event_id, event->reply_userdata);
         switch (event->event_id) {
             case MPV_EVENT_NONE:
                 return;
             case MPV_EVENT_SHUTDOWN:
                 brls::Logger::debug("========> MPV_EVENT_SHUTDOWN");
-#ifdef __SWITCH__
-                appletSetMediaPlaybackState(false);
-#endif
+                disableDimming(false);
                 return;
             case MPV_EVENT_FILE_LOADED:
                 brls::Logger::info("========> MPV_EVENT_FILE_LOADED");
@@ -597,9 +600,7 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_START_FILE:
                 // event 6: 开始加载文件
                 brls::Logger::info("========> MPV_EVENT_START_FILE");
-#ifdef __SWITCH__
-                appletSetMediaPlaybackState(true);
-#endif
+                disableDimming(true);
 
                 // show osd for a really long time
                 mpvCoreEvent.fire(MpvEventEnum::START_FILE);
@@ -617,14 +618,13 @@ void MPVCore::eventMainLoop() {
                     this->pause();
                 break;
             case MPV_EVENT_END_FILE:
-// event 7: 文件播放结束
-#ifdef __SWITCH__
-                appletSetMediaPlaybackState(false);
-#endif
+                // event 7: 文件播放结束
+                disableDimming(false);
                 brls::Logger::info("========> MPV_STOP");
                 mpvCoreEvent.fire(MpvEventEnum::MPV_STOP);
                 break;
-            case MPV_EVENT_PROPERTY_CHANGE:
+            case MPV_EVENT_PROPERTY_CHANGE: {
+                auto *data = ((mpv_event_property *)event->data)->data;
                 switch (event->reply_userdata) {
                     case 1:
                         // 播放器放空了自己，啥也不干的状态
@@ -639,7 +639,9 @@ void MPVCore::eventMainLoop() {
                         brls::Logger::info("========> core-idle: {}",
                                            core_idle);
                         if (isPaused()) {
-                            if (playback_time > duration - 1 && duration > 0) {
+                            if (duration > 0 &&
+                                (double)duration - playback_time < 1) {
+                                video_progress = duration;
                                 brls::Logger::info(
                                     "========> END OF FILE (paused)");
                                 mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
@@ -647,15 +649,13 @@ void MPVCore::eventMainLoop() {
                                 brls::Logger::info("========> PAUSE");
                                 mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
                             }
-#ifdef __SWITCH__
-                            appletSetMediaPlaybackState(false);
-#endif
+                            disableDimming(false);
                         } else {
                             if (core_idle) {
-                                if (playback_time > duration - 1 &&
-                                    duration > 0) {
+                                if (duration > 0 &&
+                                    (double)duration - playback_time < 1) {
+                                    video_progress = duration;
                                     brls::Logger::info("========> END OF FILE");
-                                    this->pause();
                                     mpvCoreEvent.fire(
                                         MpvEventEnum::END_OF_FILE);
                                 } else {
@@ -663,16 +663,12 @@ void MPVCore::eventMainLoop() {
                                     mpvCoreEvent.fire(
                                         MpvEventEnum::LOADING_START);
                                 }
-#ifdef __SWITCH__
-                                appletSetMediaPlaybackState(false);
-#endif
+                                disableDimming(false);
                             } else {
                                 // video is playing
                                 brls::Logger::info("========> RESUME");
                                 mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);
-#ifdef __SWITCH__
-                                appletSetMediaPlaybackState(true);
-#endif
+                                disableDimming(true);
                             }
                         }
                         break;
@@ -701,6 +697,12 @@ void MPVCore::eventMainLoop() {
                                 video_progress = (int64_t)playback_time;
                                 mpvCoreEvent.fire(
                                     MpvEventEnum::UPDATE_PROGRESS);
+                                // 判断是否需要暂停播放
+                                if (CLOSE_TIME > 0 &&
+                                    wiliwili::getUnixTime() > CLOSE_TIME) {
+                                    CLOSE_TIME = 0;
+                                    this->pause();
+                                }
                             }
                         }
 
@@ -725,50 +727,60 @@ void MPVCore::eventMainLoop() {
                                      ->data;
                         }
                         break;
-                        //                    case 7:
-                        //                        break;
-                        //                    case 8:
-                        //                        // 缓存时间
-                        //                        if (((mpv_event_property *)event->data)->data) {
-                        //                            //                            brls::Logger::verbose(
-                        //                            //                                "demuxer-cache-time: {}",
-                        //                            //                                *(double *)((mpv_event_property *)event->data)
-                        //                            //                                     ->data);
-                        //                        }
-                        //                        break;
-                        //                    case 9:
-                        //                        // 缓存信息
-                        //                        if (((mpv_event_property *)event->data)->data) {
-                        //                            mpv_node *node =
-                        //                                (mpv_node *)((mpv_event_property *)event->data)
-                        //                                    ->data;
-                        //                            std::unordered_map<std::string, mpv_node> node_map;
-                        //                            for (int i = 0; i < node->u.list->num; i++) {
-                        //                                node_map.insert(std::make_pair(
-                        //                                    std::string(node->u.list->keys[i]),
-                        //                                    node->u.list->values[i]));
-                        //                            }
-                        //                            brls::Logger::debug(
-                        //                                "total-bytes: {:.2f}MB; cache-duration: "
-                        //                                "{:.2f}; "
-                        //                                "underrun: {}; fw-bytes: {:.2f}MB; bof-cached: "
-                        //                                "{}; eof-cached: {}; file-cache-bytes: {}; "
-                        //                                "raw-input-rate: {:.2f};",
-                        //                                node_map["total-bytes"].u.int64 / 1048576.0,
-                        //                                node_map["cache-duration"].u.double_,
-                        //                                node_map["underrun"].u.flag,
-                        //                                node_map["fw-bytes"].u.int64 / 1048576.0,
-                        //                                node_map["bof-cached"].u.flag,
-                        //                                node_map["eof-cached"].u.flag,
-                        //                                node_map["file-cache-bytes"].u.int64 /
-                        //                                    1048576.0,
-                        //                                node_map["raw-input-rate"].u.int64 / 1048576.0);
-                        //                        }
-                        //                        break;
+                    case 7:
+                        // 发生了缓存等待
+                        brls::Logger::debug("========> pause for cache");
+                        break;
+                    case 8:
+                        // 缓存时间
+                        if (((mpv_event_property *)event->data)->data) {
+                            brls::Logger::verbose(
+                                "demuxer-cache-time: {}",
+                                *(double *)((mpv_event_property *)event->data)
+                                     ->data);
+                        }
+                        break;
+                    case 9:
+                        // 缓存信息
+                        if (((mpv_event_property *)event->data)->data) {
+                            auto *node =
+                                (mpv_node *)((mpv_event_property *)event->data)
+                                    ->data;
+                            std::unordered_map<std::string, mpv_node> node_map;
+                            for (int i = 0; i < node->u.list->num; i++) {
+                                node_map.insert(std::make_pair(
+                                    std::string(node->u.list->keys[i]),
+                                    node->u.list->values[i]));
+                            }
+                            brls::Logger::debug(
+                                "total-bytes: {:.2f}MB; cache-duration: "
+                                "{:.2f}; "
+                                "underrun: {}; fw-bytes: {:.2f}MB; bof-cached: "
+                                "{}; eof-cached: {}; file-cache-bytes: {}; "
+                                "raw-input-rate: {:.2f};",
+                                node_map["total-bytes"].u.int64 / 1048576.0,
+                                node_map["cache-duration"].u.double_,
+                                node_map["underrun"].u.flag,
+                                node_map["fw-bytes"].u.int64 / 1048576.0,
+                                node_map["bof-cached"].u.flag,
+                                node_map["eof-cached"].u.flag,
+                                node_map["file-cache-bytes"].u.int64 /
+                                    1048576.0,
+                                node_map["raw-input-rate"].u.int64 / 1048576.0);
+                        }
+                        break;
+                    case 10:
+                        // 倍速信息
+                        if (data) {
+                            video_speed = *(double *)data;
+                            mpvCoreEvent.fire(VIDEO_SPEED_CHANGE);
+                        }
+                        break;
                     default:
                         break;
                 }
                 break;
+            }
             default:
                 break;
         }
@@ -778,6 +790,7 @@ void MPVCore::eventMainLoop() {
 void MPVCore::reset() {
     brls::Logger::debug("MPVCore::reset");
     DanmakuCore::instance().reset();
+    SubtitleCore::instance().reset();
     this->core_idle      = 0;
     this->percent_pos    = 0;
     this->duration       = 0;  // second
@@ -806,6 +819,10 @@ void MPVCore::stop() {
     command_async(cmd);
 }
 
+void MPVCore::seek(int64_t p) {
+    command_str(fmt::format("seek {} absolute", p).c_str());
+}
+
 int MPVCore::get_property(const char *name, mpv_format format, void *data) {
     return mpv_get_property(mpv, name, format, data);
 }
@@ -828,7 +845,73 @@ double MPVCore::getSpeed() {
     return ret;
 }
 
+void MPVCore::setSpeed(double value) {
+    this->command_str(fmt::format("set speed {}", value).c_str());
+    DanmakuCore::instance().setSpeed(value);
+}
+
+std::string MPVCore::getString(const std::string &key) {
+    char *value = nullptr;
+    mpv_get_property(mpv, key.c_str(), MPV_FORMAT_STRING, &value);
+    if (!value) return "";
+    std::string result = std::string{value};
+    mpv_free(value);
+    return result;
+}
+
+double MPVCore::getDouble(const std::string &key) {
+    double value = 0;
+    mpv_get_property(mpv, key.c_str(), MPV_FORMAT_DOUBLE, &value);
+    return value;
+}
+
+int64_t MPVCore::getInt(const std::string &key) {
+    int64_t value = 0;
+    mpv_get_property(mpv, key.c_str(), MPV_FORMAT_INT64, &value);
+    return value;
+}
+
+std::unordered_map<std::string, mpv_node> MPVCore::getNodeMap(
+    const std::string &key) {
+    mpv_node node;
+    std::unordered_map<std::string, mpv_node> nodeMap;
+    if (mpv_get_property(mpv, key.c_str(), MPV_FORMAT_NODE, &node) < 0)
+        return nodeMap;
+    if (node.format != MPV_FORMAT_NODE_MAP) return nodeMap;
+    // todo: 目前不要使用 mpv_node中有指针的部分，因为这些内容指向的内存会在这个函数结束的时候删除
+    for (int i = 0; i < node.u.list->num; i++) {
+        char *nodeKey = node.u.list->keys[i];
+        if (nodeKey == nullptr) continue;
+        nodeMap.insert(
+            std::make_pair(std::string{nodeKey}, node.u.list->values[i]));
+    }
+    mpv_free_node_contents(&node);
+    return nodeMap;
+}
+
 double MPVCore::getPlaybackTime() {
     get_property("pause", MPV_FORMAT_DOUBLE, &this->playback_time);
     return this->playback_time;
+}
+void MPVCore::disableDimming(bool disable) {
+    brls::Application::getPlatform()->disableScreenDimming(
+        disable, "Playing video", APPVersion::getPackageName());
+}
+
+void MPVCore::setShader(const std::string &profile, const std::string &shaders,
+                        bool showHint) {
+    brls::Logger::info("Set shader [{}]: {}", profile, shaders);
+    if (shaders.empty()) return;
+    mpv_command_string(
+        mpv, fmt::format("no-osd change-list glsl-shaders set \"{}\"", shaders)
+                 .c_str());
+    if (showHint)
+        mpv_command_string(
+            mpv, fmt::format("show-text \"{}\" 2000", profile).c_str());
+}
+
+void MPVCore::clearShader(bool showHint) {
+    brls::Logger::info("Clear shader");
+    mpv_command_string(mpv, "no-osd change-list glsl-shaders clr \"\"");
+    if (showHint) mpv_command_string(mpv, "show-text \"Clear shader\" 2000");
 }

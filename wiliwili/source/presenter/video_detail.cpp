@@ -9,6 +9,8 @@
 #include "utils/config_helper.hpp"
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
+#include "view/subtitle_core.hpp"
+#include "view/video_view.hpp"
 #include "bilibili/result/mine_collection_result.h"
 
 VideoDetail::VideoDetail() {
@@ -138,9 +140,11 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
             brls::Logger::error(fmt::runtime(error));
-            this->onError(error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError(error);
+            });
         });
 }
 
@@ -178,7 +182,7 @@ void VideoDetail::requestSeasonStatue(size_t seasonID) {
 }
 
 /// 获取视频信息：标题、作者、简介、分P等
-void VideoDetail::requestVideoInfo(const std::string bvid) {
+void VideoDetail::requestVideoInfo(const std::string& bvid) {
     // 重置MPV
     MPVCore::instance().reset();
 
@@ -224,8 +228,6 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
 
                             //上报历史记录
                             if (progress < 0) progress = 0;
-                            this->reportHistory(this->videoDetailResult.aid,
-                                                videoDetailPage.cid, progress);
                             break;
                         }
                     }
@@ -236,9 +238,6 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                     for (const auto& i : this->videoDetailResult.pages) {
                         brls::Logger::debug("获取视频分P列表: PV1 {}", i.cid);
                         videoDetailPage = i;
-                        //上报历史记录
-                        this->reportHistory(this->videoDetailResult.aid,
-                                            videoDetailPage.cid, 0);
                         break;
                     }
                 }
@@ -259,6 +258,10 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
                 // 展示分P数据
                 this->onVideoPageListInfo(this->videoDetailResult.pages);
 
+                // 展示合集数据
+                if (!videoDetailResult.ugc_season.sections.empty())
+                    this->onUGCSeasonInfo(videoDetailResult.ugc_season);
+
                 // 请求视频评论
                 this->requestVideoComment(this->videoDetailResult.aid, 1);
 
@@ -270,9 +273,11 @@ void VideoDetail::requestVideoInfo(const std::string bvid) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
             brls::Logger::error("ERROR:请求视频信息 {}", error);
-            this->onError(error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError(error);
+            });
         });
 
     // 请求视频点赞情况
@@ -299,14 +304,18 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
             brls::Logger::error(fmt::runtime(error));
-            this->onError("请求视频地址失败\n" + error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError("请求视频地址失败\n" + error);
+            });
         });
     // 请求当前视频在线人数
     this->requestVideoOnline(bvid, cid);
     // 请求弹幕
     this->requestVideoDanmaku(cid);
+    // 请求分P详情 （字幕链接/历史播放记录）
+    this->requestVideoPageDetail(bvid, cid);
 }
 
 /// 获取番剧地址
@@ -327,15 +336,19 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
             brls::Logger::error(fmt::runtime(error));
-            this->onError("请求视频地址失败\n" + error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError("请求视频地址失败\n" + error);
+            });
         });
 
     // 请求当前视频在线人数
     this->requestVideoOnline(bvid, cid);
     // 请求弹幕
     this->requestVideoDanmaku(cid);
+    // 请求分P详情 （字幕链接/历史播放记录）
+    this->requestVideoPageDetail(bvid, cid);
 }
 
 /// 获取当前清晰度的序号，默认为0，从最高清开始排起
@@ -485,7 +498,7 @@ void VideoDetail::requestVideoRelationInfo(size_t epid) {
 }
 
 /// 获取视频弹幕
-void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
+void VideoDetail::requestVideoDanmaku(int cid) {
     brls::Logger::debug("请求弹幕：cid: {}", cid);
     ASYNC_RETAIN
     BILI::get_danmaku(
@@ -514,9 +527,10 @@ void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
             for (auto child = element->FirstChildElement(); child != nullptr;
                  child      = child->NextSiblingElement()) {
                 if (child->Name()[0] != 'd') continue;  // 简易判断是不是弹幕
+                const char* content = child->GetText();
+                if (!content) continue;
                 try {
-                    items.emplace_back(
-                        DanmakuItem(child->GetText(), child->Attribute("p")));
+                    items.emplace_back(content, child->Attribute("p"));
                 } catch (...) {
                     brls::Logger::error("DANMAKU: error decode: {}",
                                         child->GetText());
@@ -534,6 +548,53 @@ void VideoDetail::requestVideoDanmaku(const unsigned int cid) {
         });
 }
 
+/// 获取视频分P详情
+void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid) {
+    brls::Logger::debug("请求字幕：bvid: {} cid: {}", bvid, cid);
+    ASYNC_RETAIN
+    BILI::get_page_detail(
+        bvid, cid,
+        [ASYNC_TOKEN](const bilibili::VideoPageResult& result) {
+            brls::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                SubtitleCore::instance().setSubtitleList(result);
+                // 存在UP主设置的字幕
+                if (!result.subtitles.empty() &&
+                    pystring::count(result.subtitles[0].lan, "ai") <= 0) {
+                    SubtitleCore::instance().selectSubtitle(0);
+                }
+
+                brls::Logger::debug("历史播放进度：{}/{}", result.last_play_cid,
+                                    result.last_play_time);
+                // 之前播放过此视频，或其他视频分集
+                if (videoDetailPage.cid && result.last_play_cid) {
+                    if (result.last_play_cid == videoDetailPage.cid) {
+                        if (result.last_play_time <= 0) return;
+                        // 之前播放过此视频
+                        MPV_CE->fire(VideoView::LAST_TIME,
+                                     (void*)&(result.last_play_time));
+                    } else {
+                        // 之前播放过同一合集的其他视频
+                        for (auto& p : videoDetailResult.pages) {
+                            if (p.cid != result.last_play_cid) continue;
+                            std::string hint = fmt::format(
+                                "上次看到第 {} 个: {}", p.page, p.part);
+                            if (result.last_play_time)
+                                hint += " " + wiliwili::sec2Time(
+                                                  result.last_play_time / 1000);
+                            MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
+                            break;
+                        }
+                    }
+                }
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
+            brls::Logger::error(fmt::runtime(error));
+        });
+}
+
 /// 上报历史记录
 void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
                                 unsigned int progress, unsigned int duration,
@@ -544,7 +605,7 @@ void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
                         cid, progress, duration);
     std::string mid   = ProgramConfig::instance().getUserID();
     std::string token = ProgramConfig::instance().getCSRF();
-    if (mid == "" || token == "") return;
+    if (mid.empty() || token.empty()) return;
     unsigned int sid = 0, epid = 0;
     if (type == 4) {
         sid  = seasonInfo.season_id;

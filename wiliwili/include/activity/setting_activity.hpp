@@ -35,15 +35,13 @@ private:
     BRLS_BIND(brls::SelectorCell, selectorTexture, "setting/image/texture");
     BRLS_BIND(brls::SelectorCell, selectorThreads, "setting/image/threads");
     BRLS_BIND(brls::SelectorCell, selectorKeymap, "setting/keymap");
-    BRLS_BIND(brls::BooleanCell, btnHistory, "setting/history/log");
-    BRLS_BIND(brls::BooleanCell, btnAutoNextPart, "setting/auto/nextPart");
-    BRLS_BIND(brls::BooleanCell, btnAutoNextRcmd, "setting/auto/nextRcmd");
     BRLS_BIND(brls::BooleanCell, btnOpencc, "setting/opencc");
-    BRLS_BIND(brls::BooleanCell, btnProgress, "setting/video/progress");
     BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/quality");
     BRLS_BIND(brls::BooleanCell, btnHWDEC, "setting/video/hwdec");
     BRLS_BIND(brls::SelectorCell, selectorInmemory, "setting/video/inmemory");
     BRLS_BIND(brls::SelectorCell, selectorFormat, "setting/video/format");
+    BRLS_BIND(brls::SelectorCell, selectorCodec, "setting/video/codec");
+    BRLS_BIND(brls::SelectorCell, selectorQuality, "setting/audio/quality");
     BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
     BRLS_BIND(brls::BooleanCell, cellHideBar, "cell/hideBottomBar");
     BRLS_BIND(brls::BooleanCell, cellHideFPS, "cell/hideFPS");

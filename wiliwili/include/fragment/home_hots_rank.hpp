@@ -22,15 +22,21 @@ public:
     HomeHotsRank();
 
     void onCreate() override;
+
     void onHotsRankList(const bilibili::HotsRankVideoListResult& result,
                         const std::string& note) override;
+
     void onHotsRankPGCList(const bilibili::HotsRankPGCVideoListResult& result,
                            const std::string& note) override;
+
     void onError(const std::string& error) override;
 
     void switchChannel();
 
-    ~HomeHotsRank();
+    // 重写点击判断函数，目的是让右上角超出组件显示区域外的按钮也能被检测点击事件
+    brls::View* hitTest(brls::Point point) override;
+
+    ~HomeHotsRank() override;
 
     static View* create() { return new HomeHotsRank(); }
 

@@ -7,6 +7,15 @@
 #include <ctime>
 #include <chrono>
 
+#ifndef SIZE_T_MAX
+/* some limits.h headers have this defined, some don't */
+#ifdef __LP64__
+#define SIZE_T_MAX 0xffffffffffffffffUL
+#else
+#define SIZE_T_MAX 0xffffffffUL
+#endif
+#endif
+
 namespace wiliwili {
 
 inline std::string pre0(size_t num, size_t length) {
@@ -25,6 +34,8 @@ static inline time_t unix_time() {
 std::string getRandomText(int length = 16);
 
 std::string getRandomNumber(int length = 8);
+
+std::string getRandomHex(int length, bool lowerCase = true);
 
 //100 => 01:40
 //4180 => 01:09:40
@@ -45,6 +56,13 @@ std::string num2w(size_t t);
 // this year => M-D
 // else => YYYY-M-D
 std::string sec2date(time_t sec);
+
+/**
+ * 生成年月日: 2023-01-01
+ * @param sec unix 时间戳
+ * @return 年-月-日
+ */
+std::string sec2dateV2(time_t sec);
 
 std::string sec2FullDate(time_t sec);
 

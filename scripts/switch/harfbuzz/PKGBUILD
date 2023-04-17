@@ -1,0 +1,37 @@
+# Maintainer:  Mary Strodl <ipadlover8322@gmail.com>
+# Update the lib to 7.1.0
+pkgname=switch-harfbuzz
+pkgver=7.1.0
+pkgrel=1
+pkgdesc='HarfBuzz is a text shaping library. Using the HarfBuzz library allows programs to convert a sequence of Unicode input into properly formatted and positioned glyph output—for any writing system and language.'
+arch=('any')
+url='https://harfbuzz.github.io/'
+license=(LGPL)
+options=(!strip libtool staticlibs)
+source=("https://github.com/harfbuzz/harfbuzz/releases/download/$pkgver/harfbuzz-$pkgver.tar.xz")
+sha256sums=('SKIP')
+makedepends=('switch-pkg-config' 'switch-cmake' 'switch-freetype')
+depends=('switch-freetype')
+
+groups=('switch-portlibs')
+
+build() {
+  mkdir harfbuzz-${pkgver}/build
+  cd harfbuzz-${pkgver}/build
+
+  source "${DEVKITPRO}/switchvars.sh"
+
+  aarch64-none-elf-cmake -G"Unix Makefiles" \
+    -DCMAKE_INSTALL_PREFIX="${PORTLIBS_PREFIX}"  \
+    -DHB_HAVE_FREETYPE=ON \
+    ../
+
+  make
+}
+
+package() {
+
+  cd harfbuzz-${pkgver}/build
+  make install DESTDIR="${pkgdir}"
+
+}

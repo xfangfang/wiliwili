@@ -4,7 +4,7 @@
 
 #include <borealis.hpp>
 #include "fragment/home_tab.hpp"
-#include "activity/search_activity.hpp"
+#include "utils/activity_helper.hpp"
 
 using namespace brls::literals;
 
@@ -18,9 +18,7 @@ void HomeTab::onCreate() {
         "wiliwili/search/tab"_i18n, brls::ControllerButton::BUTTON_Y,
         [](brls::View* view) -> bool {
             brls::Application::getImeManager()->openForText(
-                [](std::string text) {
-                    brls::Application::pushActivity(new SearchActivity(text));
-                },
+                [](const std::string& text) { Intent::openSearch(text); },
                 "wiliwili/home/common/search"_i18n, "", 32, "", 0);
 
             return true;
@@ -45,9 +43,7 @@ void HomeTab::onCreate() {
     this->search->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->search, []() {
             brls::Application::getImeManager()->openForText(
-                [](std::string text) {
-                    brls::Application::pushActivity(new SearchActivity(text));
-                },
+                [](const std::string& text) { Intent::openSearch(text); },
                 "wiliwili/home/common/search"_i18n, "", 32, "", 0);
         }));
 }

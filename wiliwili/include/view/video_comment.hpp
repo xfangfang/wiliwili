@@ -44,6 +44,8 @@ public:
 
     static RecyclingGridItem* create();
 
+    void setMaxRows(size_t value);
+
     void setData(bilibili::VideoCommentResult data);
 
     void setMainTextColor(NVGcolor color);

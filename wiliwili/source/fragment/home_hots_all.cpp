@@ -2,15 +2,20 @@
 // Created by fang on 2022/7/6.
 //
 
-#include "activity/player_activity.hpp"
 #include "fragment/home_hots_all.hpp"
+
+#include <utility>
 #include "view/video_card.hpp"
 #include "view/recycling_grid.hpp"
+#include "utils/activity_helper.hpp"
+#include "utils/image_helper.hpp"
+
+using namespace brls::literals;
 
 class DataSourceHotsAllVideoList : public RecyclingGridDataSource {
 public:
-    DataSourceHotsAllVideoList(bilibili::HotsAllVideoListResult result)
-        : videoList(result) {}
+    explicit DataSourceHotsAllVideoList(bilibili::HotsAllVideoListResult result)
+        : videoList(std::move(result)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
@@ -27,8 +32,7 @@ public:
     size_t getItemCount() override { return videoList.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        brls::Application::pushActivity(
-            new PlayerActivity(videoList[index].bvid));
+        Intent::openBV(videoList[index].bvid);
     }
 
     void appendData(const bilibili::HotsAllVideoListResult& data) {
@@ -55,9 +59,8 @@ HomeHotsAll::HomeHotsAll() {
 void HomeHotsAll::onHotsAllVideoList(
     const bilibili::HotsAllVideoListResult& result, int index) {
     brls::Threading::sync([this, index, result]() {
-        DataSourceHotsAllVideoList* datasource =
-            dynamic_cast<DataSourceHotsAllVideoList*>(
-                recyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourceHotsAllVideoList*>(
+            recyclingGrid->getDataSource());
         if (datasource && index != 1) {
             datasource->appendData(result);
             recyclingGrid->notifyDataChanged();

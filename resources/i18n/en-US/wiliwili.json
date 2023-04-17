@@ -13,8 +13,12 @@
         "low_quality": "Low quality decoding (with less CPU usage)",
         "in_memory_cache": "Inmemory cache",
         "hwdec": "Hardware decode",
+        "exit_fullscreen": "Exit full screen at the end of playback",
         "auto_play_next_part": "Automatically playing next part",
         "auto_play_recommend": "Automatically playing recommend video",
+        "sleep": "Timing Off",
+        "video_codec": "Video Codec",
+        "audio_quality": "Audio Quality",
         "video_format": "Video format"
       },
       "image": {
@@ -143,6 +147,10 @@
       "next": "Next",
       "filter": "Filter",
       "save": "Save",
+      "min": "Minutes",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low",
       "no_login": "You are not logged in yet"
     },
     "live": {
@@ -195,10 +203,12 @@
     },
     "history": "History",
     "collection": "Favorite",
+    "subscription": "Subscription",
     "anime": "Anime",
     "series": "Series",
     "refresh_history": "Refresh history",
     "refresh_collection": "Refresh favorite",
+    "refresh_subscription": "Refresh Subscription",
     "refresh_anime": "Refresh anime",
     "refresh_series": "Refresh series",
     "coin": "Coin",
@@ -216,6 +226,7 @@
   "player": {
     "intro": "Introduction",
     "p": "Parts",
+    "ugc_season": "Playlist",
     "related": "Related",
     "series": "Series",
     "recommend": "Recommend",
@@ -227,6 +238,8 @@
     "rights": "Reprint prohibited",
     "fs": "Fullscreen",
     "quality": "Quality",
+    "speed": "Speed",
+    "current_speed": "Current speed {}",
     "not_follow": "Cancel following?",
     "coin": {
       "title": "Coin",
@@ -239,7 +252,20 @@
       "pcs": "{} pcs"
     },
     "collection": {
+      "type": "Favorite",
       "title": "Select Favorites"
+    },
+    "setting": {
+      "subtitle": {
+        "header": "Subtitle"
+      },
+      "common": {
+        "header": "Common",
+        "wiki": "Access our wiki to learn how shader works"
+      },
+      "shader": {
+        "header": "Shader"
+      }
     },
     "danmaku": {
       "header": "Danmaku setting",

@@ -56,6 +56,7 @@
     <brls:Box
             width="460"
             height="100%"
+            id="box/background"
             backgroundColor="@theme/brls/background">
         <brls:Label
                 fontSize="24"
@@ -80,7 +81,6 @@
                         id="comment/action/comment"
                         focusable="false"
                         hideClickAnimation="true"
-                        maxRows="-1"
                         width="410"/>
             </brls:Box>
 

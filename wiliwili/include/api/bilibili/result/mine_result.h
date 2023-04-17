@@ -16,7 +16,14 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(QrLoginTokenResult, url, oauthKey);
 
-enum LoginInfo {
+class QrLoginTokenResultV2 {
+public:
+    std::string url;
+    std::string qrcode_key;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(QrLoginTokenResultV2, url, qrcode_key);
+
+enum class LoginInfo {
     SUCCESS           = 1,
     OAUTH_KEY_ERROR   = -1,
     OAUTH_KEY_TIMEOUT = -2,
@@ -42,10 +49,40 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, status));
 }
 
+class QrLoginInfoResultV2 {
+public:
+    bool status = false;
+    LoginInfo data;
+    std::string refresh_token;
+};
+
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      QrLoginInfoResultV2& nlohmann_json_t) {
+    switch (nlohmann_json_j.at("code").get<int>()) {
+        case 0:
+            nlohmann_json_t.status = true;
+            nlohmann_json_t.data   = LoginInfo::SUCCESS;
+            break;
+        case 86101:
+            nlohmann_json_t.data = LoginInfo::NEED_SCAN;
+            break;
+        case 86090:
+            nlohmann_json_t.data = LoginInfo::NEED_CONFIRM;
+            break;
+        case 86038:
+            nlohmann_json_t.data = LoginInfo::OAUTH_KEY_TIMEOUT;
+            break;
+        default:
+            nlohmann_json_t.data = LoginInfo::OAUTH_KEY_ERROR;
+    }
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, refresh_token));
+}
+
 class UserUploadedVideoResult {
 public:
-    unsigned int comment;
-    unsigned int play;
+    int comment;
+    int play;
     std::string pic;
     std::string description;
     std::string copyright;
@@ -58,9 +95,17 @@ public:
     unsigned int aid;
     std::string bvid;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserUploadedVideoResult, comment, play, pic,
-                                   description, copyright, title, video_review,
-                                   author, mid, created, length, aid, bvid);
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      UserUploadedVideoResult& nlohmann_json_t) {
+    if (nlohmann_json_j.at("play").is_number()) {
+        nlohmann_json_j.at("play").get_to(nlohmann_json_t.play);
+    } else {
+        nlohmann_json_t.play = -1;
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
+        NLOHMANN_JSON_FROM, comment, pic, description, copyright, title,
+        video_review, author, mid, created, length, aid, bvid));
+}
 
 typedef std::vector<UserUploadedVideoResult> UserUploadedVideoListResult;
 

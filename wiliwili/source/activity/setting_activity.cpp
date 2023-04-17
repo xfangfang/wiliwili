@@ -4,15 +4,17 @@
 
 #include "activity/setting_activity.hpp"
 #include "activity/hint_activity.hpp"
-#include "activity/player_activity.hpp"
 #include "fragment/setting_network.hpp"
 #include "fragment/test_rumble.hpp"
 #include "view/text_box.hpp"
+#include "view/mpv_core.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/vibration_helper.hpp"
 #include "utils/dialog_helper.hpp"
+#include "utils/activity_helper.hpp"
 #include "borealis/core/cache_helper.hpp"
 #include "borealis/views/applet_frame.hpp"
+#include "bilibili.h"
 
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
 #include "borealis/platforms/desktop/desktop_platform.hpp"
@@ -25,36 +27,36 @@ const std::string OPENSOURCE =
     "FFmpeg\n"
     "--------------------------------\n"
     "Official site:    https://www.ffmpeg.org\n"
-    "Copyright (c) FFmpeg developers and contributors\n\n"
+    "Copyright (c) FFmpeg developers and contributors.\n\n"
     "Licensed under LGPLv2.1 or later\n\n\n"
     "--------------------------------\n"
     "mpv\n"
     "--------------------------------\n"
     "Official site:    https://mpv.io\n"
-    "Copyright (c) mpv developers and contributors\n\n"
+    "Copyright (c) mpv developers and contributors.\n\n"
     "Licensed under GPL-2.0 or LGPLv2.1\n\n\n"
     "--------------------------------\n"
     "borealis\n"
     "--------------------------------\n"
     "https://github.com/natinusala/borealis\n"
-    "Copyright (c) 2019-2022, natinusala and contributors\n\n"
-    "Modifications for touch and recycler list support\n"
+    "Copyright (c) 2019-2022, natinusala and contributors.\n\n"
+    "Modifications for touch and recycler list support.\n"
     "https://github.com/XITRIX/borealis\n"
-    "Copyright (c) XITRIX \n\n"
+    "Copyright (c) XITRIX.\n\n"
     "Modified version: https://github.com/xfangfang/borealis\n\n"
     "Licensed under Apache-2.0 license\n\n\n"
     "--------------------------------\n"
     "OpenCC\n"
     "--------------------------------\n"
     "https://github.com/BYVoid/OpenCC\n"
-    "Copyright (c) Carbo Kuo and contributors\n\n"
+    "Copyright (c) Carbo Kuo and contributors.\n\n"
     "Modified version: https://github.com/xfangfang/OpenCC\n\n"
     "Licensed under Apache-2.0 license\n\n\n"
     "--------------------------------\n"
     "pystring\n"
     "--------------------------------\n"
     "https://github.com/imageworks/pystring\n\n"
-    "Copyright (c) imageworks and contributors\n\n"
+    "Copyright (c) imageworks and contributors.\n\n"
     "Licensed under BCD-3-Clause license\n\n\n"
     "--------------------------------\n"
     "QR-Code-generator\n"
@@ -73,18 +75,26 @@ const std::string OPENSOURCE =
     "--------------------------------\n"
     "Official site: https://docs.libcpr.org\n"
     "https://github.com/libcpr/cpr\n\n"
-    "Copyright (c) 2017-2021 Huu Nguyen\n"
-    "Copyright (c) 2022 libcpr and many other contributors\n\n"
+    "Copyright (c) 2017-2021 Huu Nguyen.\n"
+    "Copyright (c) 2022 libcpr and many other contributors.\n\n"
     "Licensed under MIT license\n\n\n"
+#ifdef USE_WEBP
+    "--------------------------------\n"
+    "libwebp\n"
+    "--------------------------------\n"
+    "https://chromium.googlesource.com/webm/libwebp\n\n"
+    "Copyright (c) Google Inc. All Rights Reserved.\n\n"
+    "Licensed under BSD 3-Clause \"New\" or \"Revised\" License\n\n\n"
+#endif
     "--------------------------------\n"
     "nx\n--------------------------------\n"
     "https://github.com/switchbrew/libnx\n\n"
-    "Copyright 2017-2018 libnx Authors\n\nPublic domain\n\n\n"
+    "Copyright 2017-2018 libnx Authors.\n\nPublic domain\n\n\n"
     "--------------------------------\n"
     "devkitPro\n"
     "--------------------------------\n"
     "https://devkitpro.org\n\n"
-    "Copyright devkitPro Authors\n\n"
+    "Copyright devkitPro Authors.\n\n"
     "Public domain\n"
     "\n";
 
@@ -98,7 +108,7 @@ void SettingActivity::onContentAvailable() {
 
 #ifdef __SWITCH__
     btnTutorialOpenApp->registerClickAction([](...) -> bool {
-        brls::Application::pushActivity(new HintActivity());
+        Intent::openHint();
         return true;
     });
 #else
@@ -106,8 +116,7 @@ void SettingActivity::onContentAvailable() {
 #endif
 
     btnTutorialOpenVideoIntro->registerClickAction([](...) -> bool {
-        brls::Application::pushActivity(new PlayerActivity(
-            "wiliwili/setting/tools/tutorial/intro_bvid"_i18n));
+        Intent::openBV("wiliwili/setting/tools/tutorial/intro_bvid"_i18n);
         return true;
     });
 
@@ -189,7 +198,7 @@ void SettingActivity::onContentAvailable() {
     /// Hide bottom bar
     cellHideBar->init(
         "wiliwili/setting/app/others/hide_bottom"_i18n,
-        conf.getBoolOption(SettingItem::HIDE_BOTTOM_BAR), [](bool value) {
+        conf.getBoolOption(SettingItem::HIDE_BOTTOM_BAR), [this](bool value) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::HIDE_BOTTOM_BAR, value);
             // 更新设置
@@ -204,6 +213,13 @@ void SettingActivity::onContentAvailable() {
                 frame->setFooterVisibility(value ? brls::Visibility::GONE
                                                  : brls::Visibility::VISIBLE);
             }
+
+            if (value) {
+                ProgramConfig::instance().setSettingItem(SettingItem::HIDE_FPS,
+                                                         true);
+                brls::Application::setFPSStatus(false);
+            }
+            this->cellHideFPS->setOn(true);
         });
 
     /// Hide FPS
@@ -310,19 +326,63 @@ void SettingActivity::onContentAvailable() {
             return true;
         });
 
+    /// VideoCodec
+    auto codecOption = conf.getOptionData(SettingItem::VIDEO_CODEC);
+    selectorCodec->init("wiliwili/setting/app/playback/video_codec"_i18n,
+                        codecOption.optionList,
+                        conf.getIntOptionIndex(SettingItem::VIDEO_CODEC),
+                        [codecOption](int data) {
+                            ProgramConfig::instance().setSettingItem(
+                                SettingItem::VIDEO_CODEC,
+                                codecOption.rawOptionList[data]);
+                            bilibili::BilibiliClient::VIDEO_CODEC =
+                                codecOption.rawOptionList[data];
+                            return true;
+                        });
+
+    /// AudioBandwidth
+    auto bandwidthOption = conf.getOptionData(SettingItem::AUDIO_QUALITY);
+    selectorQuality->init(
+        "wiliwili/setting/app/playback/audio_quality"_i18n,
+        {"wiliwili/home/common/high"_i18n, "wiliwili/home/common/medium"_i18n,
+         "wiliwili/home/common/low"_i18n},
+        conf.getIntOptionIndex(SettingItem::AUDIO_QUALITY),
+        [bandwidthOption](int data) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::AUDIO_QUALITY,
+                bandwidthOption.rawOptionList[data]);
+            bilibili::BilibiliClient::AUDIO_QUALITY =
+                bandwidthOption.rawOptionList[data];
+            return true;
+        });
+
     /// VideoFormat
     auto formatOption = conf.getOptionData(SettingItem::VIDEO_FORMAT);
     selectorFormat->init(
         "wiliwili/setting/app/playback/video_format"_i18n,
         formatOption.optionList,
         conf.getIntOptionIndex(SettingItem::VIDEO_FORMAT),
-        [formatOption](int data) {
+        [this, formatOption](int data) {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::VIDEO_FORMAT, formatOption.rawOptionList[data]);
             bilibili::BilibiliClient::FNVAL =
                 std::to_string(formatOption.rawOptionList[data]);
+            // 非 Dash 模式，无法调整视频编码与音频质量
+            if (formatOption.rawOptionList[data] == 0) {
+                selectorCodec->setVisibility(brls::Visibility::GONE);
+                selectorQuality->setVisibility(brls::Visibility::GONE);
+            } else {
+                selectorCodec->setVisibility(brls::Visibility::VISIBLE);
+                selectorQuality->setVisibility(brls::Visibility::VISIBLE);
+            }
             return true;
         });
+
+    // 非 Dash 模式，无法调整视频编码与音频质量
+    if (conf.getIntOption(SettingItem::VIDEO_FORMAT) == 0) {
+        selectorCodec->setVisibility(brls::Visibility::GONE);
+        selectorQuality->setVisibility(brls::Visibility::GONE);
+    }
 
     /// Opencc
     if (brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
@@ -377,52 +437,6 @@ void SettingActivity::onContentAvailable() {
             MPVCore::INMEMORY_CACHE = inmemoryOption.rawOptionList[data];
             MPVCore::instance().restart();
         });
-
-    /// Upload history record
-    btnHistory->init("wiliwili/setting/app/playback/report"_i18n,
-                     conf.getSettingItem(SettingItem::HISTORY_REPORT, true),
-                     [](bool value) {
-                         ProgramConfig::instance().setSettingItem(
-                             SettingItem::HISTORY_REPORT, value);
-                         VideoDetail::REPORT_HISTORY = value;
-                     });
-
-    btnAutoNextPart->init(
-        "wiliwili/setting/app/playback/auto_play_next_part"_i18n,
-        conf.getBoolOption(SettingItem::AUTO_NEXT_PART), [this](bool value) {
-            ProgramConfig::instance().setSettingItem(
-                SettingItem::AUTO_NEXT_PART, value);
-            BasePlayerActivity::AUTO_NEXT_PART = value;
-            if (!value) {
-                ProgramConfig::instance().setSettingItem(
-                    SettingItem::AUTO_NEXT_RCMD, false);
-                BasePlayerActivity::AUTO_NEXT_RCMD = false;
-                btnAutoNextRcmd->setOn(false, btnAutoNextRcmd->isOn());
-            }
-        });
-
-    btnAutoNextRcmd->init(
-        "wiliwili/setting/app/playback/auto_play_recommend"_i18n,
-        conf.getBoolOption(SettingItem::AUTO_NEXT_RCMD), [this](bool value) {
-            ProgramConfig::instance().setSettingItem(
-                SettingItem::AUTO_NEXT_RCMD, value);
-            BasePlayerActivity::AUTO_NEXT_RCMD = value;
-            if (value) {
-                ProgramConfig::instance().setSettingItem(
-                    SettingItem::AUTO_NEXT_PART, true);
-                BasePlayerActivity::AUTO_NEXT_PART = true;
-                btnAutoNextPart->setOn(true, !btnAutoNextPart->isOn());
-            }
-        });
-
-    /// Player bottom bar
-    btnProgress->init("wiliwili/setting/app/playback/player_bar"_i18n,
-                      conf.getBoolOption(SettingItem::PLAYER_BOTTOM_BAR),
-                      [](bool value) {
-                          ProgramConfig::instance().setSettingItem(
-                              SettingItem::PLAYER_BOTTOM_BAR, value);
-                          MPVCore::BOTTOM_BAR = value;
-                      });
 
 /// Hardware decode
 #ifdef __SWITCH__

@@ -38,7 +38,7 @@ void MineCollectionRequest::requestCollectionList(std::string &mid, int i,
                                                   int num) {
     CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_my_collection_list(
-        mid, i, num,
+        mid, i, num, requestType,
         [this](const bilibili::CollectionListResultWrapper &result) {
             if (index != result.index) {
                 brls::Logger::error(
@@ -57,3 +57,6 @@ void MineCollectionRequest::requestCollectionList(std::string &mid, int i,
             UNSET_REQUEST
         });
 }
+void MineCollectionRequest::setRequestType(int type) { requestType = type; }
+
+int MineCollectionRequest::getRequestType() { return requestType; }

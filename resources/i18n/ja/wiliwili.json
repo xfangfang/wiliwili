@@ -241,6 +241,17 @@
     "collection": {
       "title": "お気に入りを選択"
     },
+    "setting": {
+      "subtitle": {
+        "header": "字幕"
+      },
+      "common": {
+        "header": "一般"
+      },
+      "shader": {
+        "header": "シェーダー"
+      }
+    },
     "danmaku": {
       "header": "弾幕の設定",
       "filter": {

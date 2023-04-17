@@ -34,6 +34,8 @@ jobs:
       DIST_EXE: ${{ steps.info.outputs.DIST_EXE }}
       DIST_NRO: ${{ steps.info.outputs.DIST_NRO }}
       DIST_INTEL_DMG: ${{ steps.info.outputs.DIST_INTEL_DMG }}
+      DIST_FLATPAK_X86_64: ${{ steps.info.outputs.DIST_FLATPAK_X86_64 }}
+      DIST_FLATPAK_AARCH64: ${{ steps.info.outputs.DIST_FLATPAK_AARCH64 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -60,6 +62,8 @@ jobs:
           echo "DIST_EXE=wiliwili-Windows-x64-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_NRO=wiliwili-NintendoSwitch-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_INTEL_DMG=wiliwili-macOS-IntelChip-${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_FLATPAK_X86_64=wiliwili-Linux-${VERSION}-x86_64" >> $GITHUB_OUTPUT
+          echo "DIST_FLATPAK_AARCH64=wiliwili-Linux-${VERSION}-aarch64" >> $GITHUB_OUTPUT
           echo $VERSION
           echo "${{  github.event.inputs.version }}"
 
@@ -68,21 +72,15 @@ jobs:
     needs: [ build-win-x64, build-switch, build-macos-intel, build-flatpak, version ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v2
-        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
+      - uses: actions/download-artifact@v3
 
-      - name: Version
-        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
+      - name: Rename Flatpak
         run: |
-          echo "DIST_EXE=${{ needs.version.outputs.DIST_EXE }}" >> $GITHUB_ENV
-          echo "DIST_NRO=${{ needs.version.outputs.DIST_NRO }}" >> $GITHUB_ENV
-          echo "DIST_INTEL_DMG=${{ needs.version.outputs.DIST_INTEL_DMG }}" >> $GITHUB_ENV
-          echo "DIST_FLATPAK_x86_64=wiliwili-Linux-${{ needs.version.outputs.version }}-x86_64" >> $GITHUB_ENV
-          echo $GITHUB_ENV
-          ls -lah
+          mv ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak \
+            ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak
 
-      - name: Upload
-        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
+      - name: Upload Release
+        if: github.event.inputs.release == 'true' && !cancelled()
         uses: ncipollo/release-action@v1
         with:
           name: wiliwili ${{  github.event.inputs.version }}
@@ -92,11 +90,37 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
           artifacts: >
-            ${{ env.DIST_EXE }}/${{ env.DIST_EXE }}.tar.gz
-            ${{ env.DIST_NRO }}/${{ env.DIST_NRO }}.tar.gz
-            ${{ env.DIST_INTEL_DMG }}/${{ env.DIST_INTEL_DMG }}.dmg
-            ${{ env.DIST_FLATPAK_x86_64 }} / ${{ env.DIST_FLATPAK_x86_64 }}.zip
+            ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz
+            ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz
+            ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg
+            ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak
 
+  ## WeTransfer 暂时不可用，可以使用 CatBox 代替，但是后者貌似是非盈利组织维护的，所以还是不要滥用了，先注释掉
+  #      - name: Upload WeTransfer
+  #        if: github.event.inputs.release != 'true' && !cancelled()
+  #        continue-on-error: true
+  #        run: |
+  #          tree
+  #          curl -fsSL git.io/file-transfer | sh
+  #          ./transfer wet -s -p 16 --no-progress \
+  #            ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz \
+  #            ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz \
+  #            ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg \
+  #            ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak 2>&1 | tee transfer.log
+  #          echo "::warning title=访问下方链接免登录下载测试版 (有效期至：`date -u +"%FT%TZ" -d "7day"`)::$(cat transfer.log | grep https | cut -f3 -d" ")"
+  #
+  #      - name: Upload CatBox
+  #        if: github.event.inputs.release != 'true' && !cancelled()
+  #        continue-on-error: true
+  #        run: |
+  #          tree
+  #          curl -fsSL git.io/file-transfer | sh
+  #          ./transfer wet -s -p 16 --no-progress \
+  #            ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz \
+  #            ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz \
+  #            ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg \
+  #            ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak 2>&1 | tee transfer.log
+  #          echo "::warning title=访问下方链接免登录下载测试版::$(cat transfer.log)"
 
   build-win-x64:
     needs: [ version ]
@@ -122,6 +146,7 @@ jobs:
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-make
             mingw-w64-x86_64-mpv
+            mingw-w64-x86_64-libwebp
             git
             p7zip
 
@@ -129,22 +154,18 @@ jobs:
         shell: msys2 {0}
         id: compile
         run: |
-          VERSION="${{ needs.version.outputs.version }}"
-          DIST_EXE="${{ needs.version.outputs.DIST_EXE }}"
-          echo ${VERSION} ${DIST_EXE}
-
           mkdir -p build && pushd build
           cmake .. -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON -DWIN32_TERMINAL=OFF -DCMAKE_BUILD_TYPE=Release
           mingw32-make wiliwili -j4
           strip wiliwili.exe
           mkdir wiliwili && mv wiliwili.exe wiliwili && mv resources wiliwili
-          for i in {libwinpthread-1,libgcc_s_seh-1,zlib1,libssh2-1,libstdc++-6,libcrypto-3-x64}; do
+          for i in {libwinpthread-1,libgcc_s_seh-1,zlib1,libssh2-1,libstdc++-6,libcrypto-3-x64,libwebp-7,libsharpyuv-0}; do
           cp /mingw64/bin/${i}.dll wiliwili
           done
           wget https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/mpv-dev-x86_64-20221204-git-4574dd5.7z -O mpv.7z
           7z e mpv.7z -ompv
           cp mpv/mpv-2.dll wiliwili/libmpv-2.dll
-          tar -czvf ../${DIST_EXE}.tar.gz wiliwili
+          tar -czvf ../${{ needs.version.outputs.DIST_EXE }}.tar.gz wiliwili
           echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload dist
@@ -168,13 +189,10 @@ jobs:
       - name: Build
         id: compile
         run: |
-          VERSION="${{ needs.version.outputs.version }}"
-          DIST_NRO="${{ needs.version.outputs.DIST_NRO }}"
-          echo ${VERSION} ${DIST_NRO}
           wget https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/nsp_forwarder.nsp -P resources
           docker run --rm -v $(pwd):/data devkitpro/devkita64:latest sh -c "/data/scripts/build_switch.sh"
           cd cmake-build-switch
-          tar -czvf ../${DIST_NRO}.tar.gz wiliwili.nro
+          tar -czvf ../${{ needs.version.outputs.DIST_NRO }}.tar.gz wiliwili.nro
           echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload dist
@@ -197,7 +215,7 @@ jobs:
 
       - name: install deps
         run: |
-          brew install create-dmg dylibbundler
+          brew install create-dmg dylibbundler webp
           brew tap xfangfang/wiliwili
           brew install -v mpv-wiliwili
 
@@ -222,12 +240,7 @@ jobs:
 
       - name: Build
         id: compile
-        env:
-          VERSION: ${{ needs.version.outputs.version }}
-          DIST_INTEL_DMG: ${{ needs.version.outputs.DIST_INTEL_DMG }}
         run: |
-          echo $VERSION $DIST_INTEL_DMG
-
           BRLS_GLFW="library/borealis/library/lib/extern/glfw/"
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
 
@@ -238,7 +251,7 @@ jobs:
             --icon-size 100 --icon "wiliwili.app" 200 190 \
             --icon "readme.txt" 400 100 --hide-extension "wiliwili.app" \
             --app-drop-link 600 185  --volicon ./scripts/mac/dmg.icns \
-            --volname "wiliwili (${VERSION})" ${DIST_INTEL_DMG}.dmg "dist/"
+            --volname "wiliwili (${{ needs.version.outputs.version }})" ${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg "dist/"
           echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload dist
@@ -274,12 +287,14 @@ jobs:
           BRLS_GLFW="library/borealis/library/lib/extern/glfw/"
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
 
-      # - name: Set up QEMU
-      #   id: qemu
-      #   uses: docker/setup-qemu-action@v2
-      #   with:
-      #     platforms: arm64
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@v4
+      - name: Set up QEMU
+        id: qemu
+        if: matrix.arch == 'aarch64'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v5
         with:
           bundle: wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak
           manifest-path: .flatpak-manifest.yml

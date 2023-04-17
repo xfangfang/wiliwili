@@ -6,7 +6,9 @@
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
+#include "view/subtitle_core.hpp"
 #include "view/grid_dropdown.hpp"
+#include "utils/shader_helper.hpp"
 #include "bilibili.h"
 
 using namespace brls::literals;
@@ -14,30 +16,41 @@ using namespace brls::literals;
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
+    MPVCore::instance().command_str("set loop-playlist force");
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(live.roomid)}})
 }
 
-LiveActivity::LiveActivity(int roomid) {
+LiveActivity::LiveActivity(int roomid, const std::string& name,
+                           const std::string& views) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
-    this->liveData.roomid = roomid;
+    MPVCore::instance().command_str("set loop-playlist force");
+    this->liveData.roomid                  = roomid;
+    this->liveData.title                   = name;
+    this->liveData.watched_show.text_large = views;
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(roomid)}})
 }
 
 void LiveActivity::setCommonData() {
-    globalShowDanmaku       = DanmakuCore::DANMAKU_ON;
-    globalBottomBar         = MPVCore::BOTTOM_BAR;
-    DanmakuCore::DANMAKU_ON = false;
-    MPVCore::BOTTOM_BAR     = false;
+    // 临时关闭底部进度条与弹幕
+    globalShowDanmaku                 = DanmakuCore::DANMAKU_ON;
+    globalBottomBar                   = MPVCore::BOTTOM_BAR;
+    globalExitFullscreen              = VideoView::EXIT_FULLSCREEN_ON_END;
+    DanmakuCore::DANMAKU_ON           = false;
+    MPVCore::BOTTOM_BAR               = false;
+    VideoView::EXIT_FULLSCREEN_ON_END = false;
+
+    // 清空字幕
+    SubtitleCore::instance().reset();
+
+    // 清空自定义着色器
+    ShaderHelper::instance().clearShader(false);
+
     eventSubscribeID =
-        MPVCore::instance().getEvent()->subscribe([this](MpvEventEnum event) {
-            switch (event) {
-                case MpvEventEnum::QUALITY_CHANGE_REQUEST:
-                    this->setVideoQuality();
-                    break;
-                default:
-                    break;
+        MPV_CE->subscribe([this](const std::string& event, void* data) {
+            if (event == VideoView::QUALITY_CHANGE) {
+                this->setVideoQuality();
             }
         });
 }
@@ -68,11 +81,10 @@ void LiveActivity::onContentAvailable() {
         "toggleDanmaku", brls::ControllerButton::BUTTON_X,
         [](brls::View* view) -> bool { return true; }, true);
 
-    this->video->hideDanmakuButton();
+    this->video->hideActionButtons();
     this->video->setFullscreenIcon(true);
     this->video->setTitle(liveData.title);
     this->video->setOnlineCount(liveData.watched_show.text_large);
-    this->video->setCloseOnEndOfFile(false);
 
     // 调整清晰度
     this->registerAction("wiliwili/player/quality"_i18n,
@@ -107,8 +119,8 @@ void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result) {
     for (auto& i : result.quality_description) {
         brls::Logger::debug("quality: {}/{}", i.desc, i.qn);
         if (result.current_qn == i.qn) {
-            MPVCore::instance().qualityStr = i.desc + " \uE0EF";
-            MPVCore::instance().getEvent()->fire(MpvEventEnum::QUALITY_CHANGED);
+            std::string quality = i.desc + " \uE0EF";
+            MPV_CE->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
         }
     }
     for (const auto& i : result.durl) {
@@ -125,8 +137,10 @@ void LiveActivity::onError(const std::string& error) {
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     this->video->stop();
-    DanmakuCore::DANMAKU_ON = globalShowDanmaku;
-    MPVCore::BOTTOM_BAR     = globalBottomBar;
+    DanmakuCore::DANMAKU_ON           = globalShowDanmaku;
+    MPVCore::BOTTOM_BAR               = globalBottomBar;
+    VideoView::EXIT_FULLSCREEN_ON_END = globalExitFullscreen;
     // 取消监控mpv
-    MPVCore::instance().getEvent()->unsubscribe(eventSubscribeID);
+    MPV_CE->unsubscribe(eventSubscribeID);
+    MPVCore::instance().command_str("set loop-playlist 1");
 }

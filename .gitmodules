@@ -1,0 +1,18 @@
+[submodule "library/borealis"]
+	path = library/borealis
+	url = https://github.com/xfangfang/borealis.git
+[submodule "library/QR-Code-generator"]
+	path = library/QR-Code-generator
+	url = https://github.com/nayuki/QR-Code-generator.git
+[submodule "library/pystring"]
+	path = library/pystring
+	url = https://github.com/imageworks/pystring.git
+[submodule "library/OpenCC"]
+	path = library/OpenCC
+	url = https://github.com/xfangfang/OpenCC.git
+[submodule "library/lunasvg"]
+	path = library/lunasvg
+	url = https://github.com/sammycage/lunasvg.git
+[submodule "library/cpr"]
+	path = library/cpr
+	url = https://github.com/libcpr/cpr.git

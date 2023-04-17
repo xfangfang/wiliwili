@@ -31,6 +31,24 @@ void BilibiliClient::get_video_detail_all(
                                                callback, error);
 }
 
+void BilibiliClient::get_page_detail(
+    int aid, int cid, const std::function<void(VideoPageResult)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<VideoPageResult>(
+        Api::PageDetail,
+        {{"aid", std::to_string(aid)}, {"cid", std::to_string(cid)}}, callback,
+        error);
+}
+
+void BilibiliClient::get_page_detail(
+    const std::string& bvid, int cid,
+    const std::function<void(VideoPageResult)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<VideoPageResult>(
+        Api::PageDetail, {{"bvid", bvid}, {"cid", std::to_string(cid)}},
+        callback, error);
+}
+
 void BilibiliClient::get_video_pagelist(
     const std::string& bvid,
     const std::function<void(VideoDetailPageListResult Result)>& callback,
@@ -203,10 +221,10 @@ void BilibiliClient::get_video_relation(
 }
 
 void BilibiliClient::get_danmaku(
-    const unsigned int cid, const std::function<void(std::string)>& callback,
+    unsigned int cid, const std::function<void(std::string)>& callback,
     const ErrorCallback& error) {
     cpr::GetCallback<>(
-        [callback, error](cpr::Response r) {
+        [callback, error](const cpr::Response& r) {
             try {
                 callback(r.text);
             } catch (const std::exception& e) {
@@ -222,6 +240,34 @@ void BilibiliClient::get_danmaku(
 #endif
         cpr::Url{Api::VideoDanmaku}, HTTP::HEADERS,
         cpr::Parameters({{"oid", std::to_string(cid)}}), HTTP::COOKIES,
+        cpr::Timeout{HTTP::TIMEOUT});
+}
+
+void BilibiliClient::get_subtitle(
+    const std::string& link, const std::function<void(SubtitleData)>& callback,
+    const ErrorCallback& error) {
+    std::string url = link;
+    if (link.compare(0, 2, "//") == 0) {
+        url = "https:" + url;
+    }
+
+    cpr::GetCallback<>(
+        [callback, error](const cpr::Response& r) {
+            try {
+                nlohmann::json res = nlohmann::json::parse(r.text);
+                callback(res.get<SubtitleData>());
+            } catch (const std::exception& e) {
+                ERROR_MSG("Network error. [Status code: " +
+                              std::to_string(r.status_code) + " ]",
+                          -404);
+                printf("data: %s\n", r.text.c_str());
+                printf("ERROR: %s\n", e.what());
+            }
+        },
+#ifndef VERIFY_SSL
+        cpr::VerifySsl{false},
+#endif
+        cpr::Url{url}, HTTP::HEADERS, cpr::Parameters({}), HTTP::COOKIES,
         cpr::Timeout{HTTP::TIMEOUT});
 }
 
@@ -290,6 +336,30 @@ void BilibiliClient::be_agree_comment(const std::string& access_key, size_t oid,
         {"ordering", "heat"},
     };
     HTTP::postResultAsync(Api::CommentLike, {}, payload, callback, error);
+}
+
+void BilibiliClient::ugc_season_subscribe(int id, const std::string& csrf,
+                                          const std::function<void()>& callback,
+                                          const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"season_id", std::to_string(id)},
+        {"csrf", csrf},
+        {"platform", "web"},
+    };
+    HTTP::postResultAsync(Api::UGCSeasonSubscribe, {}, payload, callback,
+                          error);
+}
+
+void BilibiliClient::ugc_season_unsubscribe(
+    int id, const std::string& csrf, const std::function<void()>& callback,
+    const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"season_id", std::to_string(id)},
+        {"csrf", csrf},
+        {"platform", "web"},
+    };
+    HTTP::postResultAsync(Api::UGCSeasonUnsubscribe, {}, payload, callback,
+                          error);
 }
 
 void BilibiliClient::delete_comment(const std::string& access_key, size_t oid,

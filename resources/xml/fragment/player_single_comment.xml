@@ -5,6 +5,7 @@
         backgroundColor="@theme/brls/backdrop">
 
     <brls:Box
+            id="box/background"
             width="460"
             height="100%"
             axis="column"

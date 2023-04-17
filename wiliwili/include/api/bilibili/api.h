@@ -26,6 +26,8 @@ static const std::string DetailGRPC =
 /// 视频详情.
 static const std::string Detail    = _apiBase + "/x/web-interface/view";
 static const std::string DetailAll = _apiBase + "/x/web-interface/view/detail";
+/// 视频分P详情
+static const std::string PageDetail = _apiBase + "/x/player/v2";
 /// 番剧详情.
 static const std::string SeasonDetail = _apiBase + "/pgc/view/pc/season";
 /// 番剧推荐.
@@ -66,6 +68,10 @@ static const std::string CoinWeb = _apiBase + "/x/web-interface/coin/add";
 static const std::string CoinExp = _apiBase + "/x/web-interface/coin/today/exp";
 /// 添加或删除视频收藏.
 static const std::string ModifyFavorite = _apiBase + "/x/v3/fav/resource/deal";
+/// 添加视频合集订阅
+static const std::string UGCSeasonSubscribe = _apiBase + "/x/v3/season/fav";
+/// 移除视频合集订阅
+static const std::string UGCSeasonUnsubscribe = _apiBase + "/x/v3/season/unfav";
 /// 一键三连.
 static const std::string Triple = _appBase + "/x/v2/view/like/triple";
 static const std::string TripleWeb =
@@ -155,7 +161,13 @@ static const std::string RankingGRPC =
 /// ===
 static const std::string QrLoginUrl  = _passBase + "/qrcode/getLoginUrl";
 static const std::string QrLoginInfo = _passBase + "/qrcode/getLoginInfo";
-static const std::string MyInfo      = _apiBase + "/x/space/myinfo";
+static const std::string QrLoginUrlV2 =
+    _passBase + "/x/passport-login/web/qrcode/generate";
+static const std::string QrLoginInfoV2 =
+    _passBase + "/x/passport-login/web/qrcode/poll";
+static const std::string CheckRefreshToken =
+    _passBase + "/x/passport-login/web/cookie/info";
+static const std::string MyInfo = _apiBase + "/x/space/myinfo";
 static const std::string HistoryVideo =
     _apiBase + "/x/web-interface/history/cursor";
 static const std::string CollectionList =
@@ -173,6 +185,12 @@ static const std::string UserDynamicStat =
 /// 用户追番/追剧
 static const std::string UserBangumiCollection =
     _apiBase + "/x/space/bangumi/follow/list";
+/// 用户订阅合集列表
+static const std::string UserUGCSeason =
+    _apiBase + "/x/v3/fav/folder/collected/list";
+/// 用户订阅合集的视频列表
+static const std::string UserUGCSeasonVideoList =
+    _apiBase + "/x/space/fav/season/list";
 
 /// ===
 /// 搜索页API

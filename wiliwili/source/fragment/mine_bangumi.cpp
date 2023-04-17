@@ -8,7 +8,7 @@
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "utils/image_helper.hpp"
-#include "activity/player_activity.hpp"
+#include "utils/activity_helper.hpp"
 
 using namespace brls::literals;
 
@@ -35,8 +35,7 @@ public:
     size_t getItemCount() override { return videoList.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        brls::Application::pushActivity(
-            new PlayerSeasonActivity(videoList[index].season_id));
+        Intent::openSeasonBySeasonId(videoList[index].season_id);
     }
 
     void appendData(const bilibili::PGCItemListResult& data) {

@@ -64,6 +64,13 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 
 <br>
 
+# 使用说明
+
+wiliwili 拥有丰富的自定义选项，包括：使用 Anime4K 提升观感，自定义字体及图标等等  
+前往 [项目 WIKI](https://github.com/xfangfang/wiliwili/wiki) 查看更多使用技巧
+
+<br>
+
 # TODO list
 
 如果你有其他改进的想法或创意，欢迎在讨论区交流：[Discussions](https://github.com/xfangfang/wiliwili/discussions/categories/ideas)
@@ -81,7 +88,7 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 - [x] 解决收藏夹、搜索页某些情况导致闪退的问题
 - [x] 完善搜索页：番剧、影视 转为竖图
 - [x] 完善播放页投稿列表：调整结构、自动加载下一页
-- [ ] 播放页展示合集与推荐
+- [x] 播放页展示合集与推荐
 - [x] 添加动态页
 - [x] 添加视频检索页
 - [x] 完善设置页
@@ -96,8 +103,16 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 - [ ] 搜索支持搜索用户
 - [x] 支持切换按键图标
 - [x] 应用内多语言切换
-- [ ] 一键三连
+- [ ] 长按一键三连
 - [ ] 重构搜索页面
+- [ ] 支持个人主页
+- [ ] 评论跳转进度
+- [ ] 评论跳转搜索
+- [ ] 评论@显示不同颜色
+- [ ] 完善评论图片
+- [ ] 评论大表情包所在行增加行高
+- [ ] 评论更多信息 (置顶/按时间/up主点赞)
+- [x] 支持webp图片
 
 </details>
 
@@ -160,7 +175,7 @@ cd wiliwili
 
 ```shell
 # macOS: install dependencies
-brew install mpv
+brew install mpv webp
 
 cmake -B build -DPLATFORM_DESKTOP=ON
 make -C build wiliwili -j$(sysctl -n hw.ncpu)
@@ -174,7 +189,7 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 
 ```shell
 # Ubuntu: install dependencies
-sudo apt install libcurl4-openssl-dev libmpv-dev
+sudo apt install libcurl4-openssl-dev libmpv-dev libwebp-dev
 
 cmake -B build -DPLATFORM_DESKTOP=ON
 make -C build wiliwili -j$(nproc)
@@ -195,7 +210,7 @@ sudo xargs -a build/install_manifest.txt rm
 ```shell
 # Windows: install dependencies (MSYS2 MinGW64)
 pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-make \
-  git mingw-w64-x86_64-mpv
+  git mingw-w64-x86_64-mpv mingw-w64-x86_64-libwebp
 
 cmake -B build -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON
 mingw32-make -C build wiliwili -j$(nproc)
@@ -226,7 +241,7 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 #### Docker
 
 ```shell
-docker run --rm -v $(pwd):/data devkitpro/devkita64:20221113 \
+docker run --rm -v $(pwd):/data devkitpro/devkita64 \
   sh -c "/data/scripts/build_switch.sh"
 ```
 
@@ -236,7 +251,7 @@ docker run --rm -v $(pwd):/data devkitpro/devkita64:20221113 \
 # 1. 安装devkitpro环境: https://github.com/devkitPro/pacman/releases
 
 # 2. 安装预编译的依赖
-sudo dkp-pacman -S switch-glfw switch-cmake devkita64-cmake switch-pkg-config
+sudo dkp-pacman -S switch-glfw switch-libwebp switch-cmake devkita64-cmake switch-pkg-config
 
 # 3. 安装ffmpeg与mpv（使用自编译的库，官方的库无法播放网络视频）
 # 手动编译方法请看：scripts/README.md

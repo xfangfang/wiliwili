@@ -1,3 +1,4 @@
+dkp-pacman -Syu --noconfirm
 set -e
 
 BUILD_DIR=cmake-build-switch

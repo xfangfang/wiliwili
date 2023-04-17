@@ -1,0 +1,108 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        justifyContent="flexEnd"
+        backgroundColor="@theme/brls/backdrop">
+
+    <brls:Box
+            width="460"
+            height="100%"
+            axis="column"
+            backgroundColor="@theme/brls/background">
+
+        <brls:Label
+                height="24"
+                margin="20"
+                fontSize="24"
+                text="@i18n/wiliwili/setting/app/playback/header"/>
+
+        <ButtonClose
+                id="button/close"
+                focusable="true"
+                positionType="absolute"
+                positionTop="10"
+                positionRight="10"/>
+
+        <brls:ScrollingFrame
+                id="player/settings"
+                width="100%"
+                grow="1"
+                scrollingBehavior="centered">
+
+            <brls:Box
+                    width="auto"
+                    height="auto"
+                    axis="column"
+                    paddingLeft="40"
+                    paddingRight="@style/brls/tab_frame/content_padding_sides"
+                    paddingBottom="@style/brls/tab_frame/content_padding_top_bottom"
+                    alignItems="stretch">
+                <brls:Header
+                        id="setting/video/subtitle/header"
+                        width="auto"
+                        height="auto"
+                        title="@i18n/wiliwili/player/setting/subtitle/header"
+                        marginBottom="0px"/>
+                <brls:Box
+                        id="setting/video/subtitle/box"
+                        width="100%"
+                        height="auto"
+                        axis="column"
+                        marginBottom="30px">
+
+                </brls:Box>
+                <brls:Header
+                        width="auto"
+                        height="auto"
+                        title="@i18n/wiliwili/player/setting/common/header"
+                        marginBottom="0px"/>
+                <brls:Box
+                        width="100%"
+                        height="auto"
+                        axis="column"
+                        marginBottom="30px">
+
+                    <brls:BooleanCell
+                            id="setting/fullscreen"/>
+
+                    <brls:BooleanCell
+                            id="setting/auto/nextPart"/>
+
+                    <brls:BooleanCell
+                            id="setting/auto/nextRcmd"/>
+
+                    <brls:BooleanCell
+                            id="setting/auto/exit"/>
+
+                    <brls:BooleanCell
+                            id="setting/video/progress"/>
+
+                    <brls:BooleanCell
+                            id="setting/history/log"/>
+
+                    <brls:SelectorCell
+                            id="setting/sleep"/>
+
+                </brls:Box>
+                <brls:Header
+                        id="setting/shaders/header"
+                        width="auto"
+                        height="auto"
+                        title="@i18n/wiliwili/player/setting/shader/header"
+                        marginBottom="0px"/>
+                <brls:Box
+                        id="setting/shaders/box"
+                        width="100%"
+                        height="auto"
+                        axis="column"
+                        marginBottom="30px">
+
+
+                </brls:Box>
+            </brls:Box>
+
+        </brls:ScrollingFrame>
+
+    </brls:Box>
+
+</brls:Box>

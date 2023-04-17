@@ -14,6 +14,9 @@ finish-args:
   - --filesystem=home/.var/app/cn.xfangfang.wiliwili/config:create
   - --filesystem=xdg-run/pipewire-0:ro
   - --talk-name=org.freedesktop.ScreenSaver
+  - --talk-name=org.freedesktop.PowerManagement
+  - --talk-name=org.gnome.SessionManager
+  - --talk-name=org.mate.SessionManager
   - --env=LC_NUMERIC=C
 modules:
   - name: wiliwili
@@ -132,3 +135,16 @@ modules:
               - type: archive
                 url: 'https://gitlab.freedesktop.org/uchardet/uchardet/-/archive/v0.0.8/uchardet-v0.0.8.tar.gz'
                 sha256: '5aa402a1b5b1dbb8d81096f141ff1224e079f4d3a1db0f79ecca782756d3a416'
+
+      - name: libwebp
+        config-opts: [ --disable-static, --enable-libwebpmux, --enable-libwebpdemux ]
+        cleanup: [ /share, /bin, /include ]
+        sources:
+          - type: archive
+            url: https://github.com/webmproject/libwebp/archive/refs/tags/v1.3.0.tar.gz
+            sha256: dc9860d3fe06013266c237959e1416b71c63b36f343aae1d65ea9c94832630e1
+            x-checker-data:
+              type: anitya
+              project-id: 1761
+              url-template: https://github.com/webmproject/libwebp/archive/refs/tags/v$version.tar.gz
+              is-important: true

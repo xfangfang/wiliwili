@@ -4,6 +4,10 @@
 
 #include "presenter/home_pgc.hpp"
 #include "bilibili.h"
+#include "utils/activity_helper.hpp"
+#include "utils/image_helper.hpp"
+
+using namespace brls::literals;
 
 void HomeBangumiRequest::onBangumiList(
     const bilibili::PGCResultWrapper& result) {}
@@ -23,7 +27,7 @@ void HomeBangumiRequest::requestData(bool refresh) {
 }
 
 void HomeBangumiRequest::requestBangumiList(int is_refresh,
-                                            std::string cursor) {
+                                            const std::string& cursor) {
     CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_bangumi(
         is_refresh, cursor,
@@ -55,7 +59,8 @@ void HomeCinemaRequest::requestData(bool refresh) {
     this->requestCinemaList(refresh_flag, next_cursor);
 }
 
-void HomeCinemaRequest::requestCinemaList(int is_refresh, std::string cursor) {
+void HomeCinemaRequest::requestCinemaList(int is_refresh,
+                                          const std::string& cursor) {
     CHECK_AND_SET_REQUEST
     bilibili::BilibiliClient::get_cinema(
         is_refresh, cursor,
@@ -70,7 +75,8 @@ void HomeCinemaRequest::requestCinemaList(int is_refresh, std::string cursor) {
         });
 }
 
-DataSourcePGCVideoList::DataSourcePGCVideoList(bilibili::PGCModuleResult result)
+DataSourcePGCVideoList::DataSourcePGCVideoList(
+    const bilibili::PGCModuleResult& result)
     : videoList(result) {
     if (!result.url.empty()) {
         showMore = true;
@@ -115,19 +121,19 @@ void DataSourcePGCVideoList::onItemSelected(RecyclingGrid* recycler,
             // 我的追番
             brls::Application::pushActivity(
                 new brls::Activity(brls::Box::createFromXMLResource(
-                    "fragment/mine_bangumi_anime.xml")));
+                    "fragment/mine_bangumi_anime.xml")),
+                brls::TransitionAnimation::NONE);
         } else if (this->videoList.module_id == 1745) {
             // 我的追剧
             brls::Application::pushActivity(
                 new brls::Activity(brls::Box::createFromXMLResource(
-                    "fragment/mine_bangumi_series.xml")));
+                    "fragment/mine_bangumi_series.xml")),
+                brls::TransitionAnimation::NONE);
         } else {
-            brls::Application::pushActivity(
-                new PGCIndexActivity(this->videoList.url));
+            Intent::openPgcFilter(this->videoList.url);
         }
     } else {
-        brls::Application::pushActivity(
-            new PlayerSeasonActivity(videoList.items[index].season_id));
+        Intent::openSeasonBySeasonId(videoList.items[index].season_id);
     }
 }
 

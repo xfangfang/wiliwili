@@ -92,6 +92,7 @@ set(PROJECT_ICON_SVG ${CMAKE_CURRENT_SOURCE_DIR}/resources/svg/${PACKAGE_NAME}.s
 set(RESOURCES_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/wiliwili) # Only used in Linux
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 add_definitions(
+        -DBUILD_PACKAGE_NAME=${PACKAGE_NAME}
         -DBUILD_VERSION_MAJOR=${VERSION_MAJOR}
         -DBUILD_VERSION_MINOR=${VERSION_MINOR}
         -DBUILD_VERSION_REVISION=${VERSION_REVISION})
@@ -127,6 +128,7 @@ add_subdirectory(library)
 file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
 
 set(PLATFORM_OPTION)
+set(PLATFORM_INCLUDES)
 if (PLATFORM_DESKTOP)
     find_package(MPV REQUIRED)
     if (MPV_FOUND)
@@ -160,6 +162,14 @@ else ()
     list(APPEND MAIN_SRC ${CMAKE_SOURCE_DIR}/library/borealis/library/lib/platforms/switch/switch_wrapper.c)
 endif ()
 
+find_package(WebP)
+if (WebP_FOUND)
+    message(STATUS "Found webp: ${WebP_INCLUDE_DIR} ${WebP_LIBRARY}")
+    add_definitions(-DUSE_WEBP)
+    list(APPEND PLATFORM_INCLUDES ${WebP_INCLUDE_DIRS})
+    list(APPEND PLATFORM_LIBS ${WebP_LIBRARY})
+endif ()
+
 
 # building target
 if (WIN32)
@@ -190,7 +200,8 @@ endif ()
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PRIVATE
         wiliwili/include
-        wiliwili/include/api)
+        wiliwili/include/api
+        ${PLATFORM_INCLUDES})
 target_compile_options(${PROJECT_NAME} PRIVATE
         -D__VERSION_MAJOR__=${VERSION_MAJOR}
         -D__VERSION_MINOR__=${VERSION_MINOR}
@@ -271,6 +282,7 @@ if (PLATFORM_DESKTOP)
         endif ()
     endif ()
 else ()
+    set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)
     add_custom_target(${PROJECT_NAME}.nro
             DEPENDS ${PROJECT_NAME}
             COMMAND ${NX_NACPTOOL_EXE} --create "${PROJECT_NAME}"
@@ -278,8 +290,7 @@ else ()
             ${PROJECT_NAME}.nacp --titleid=${PROJECT_TITLEID}
             COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/resources
             COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/icon/wiliwili.ico
-            COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/resources/font
-            COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/resources/gamepad
+            COMMAND ${CMAKE_COMMAND} -E remove -f ${BUILD_FONT_DIR}/*.txt ${BUILD_FONT_DIR}/switch_font.ttf ${BUILD_FONT_DIR}/keymap*.ttf
             COMMAND ${NX_ELF2NRO_EXE} ${PROJECT_NAME}.elf ${PROJECT_NAME}.nro --icon=${PROJECT_ICON}
             --nacp=${PROJECT_NAME}.nacp --romfsdir=${CMAKE_BINARY_DIR}/resources
             )

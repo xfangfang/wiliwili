@@ -11,6 +11,11 @@ option("winrt")
     set_showmenu(true)
 option_end()
 
+option("window")
+    set_default("glfw")
+    set_showmenu(true)
+option_end()
+
 option("driver")
     set_default("opengl")
     set_showmenu(true)
@@ -72,6 +77,8 @@ package("borealis")
         configs["winrt"] = winrt and "y" or "n"
         import("package.tools.xmake").install(package, configs)
         os.cp("library/include/*", package:installdir("include").."/")
+        os.rm(package:installdir("include/borealis/extern"))
+        os.cp("library/include/borealis/extern/libretro-common", package:installdir("include").."/")
     end)
 package_end()
 
@@ -117,7 +124,7 @@ if get_config("winrt") then
     add_requires("borealis", {debug=true, configs={window="sdl",driver=get_config("driver"),winrt=true}})
     add_requireconfs("**.curl", {configs={winrt=true}})
 else
-    add_requires("borealis", {debug=true, configs={window="sdl",driver=get_config("driver")}})
+    add_requires("borealis", {debug=true, configs={window=get_config("window"),driver=get_config("driver")}})
 end
 add_requires("mpv", {configs={shared=true}})
 add_requires("cpr")
@@ -130,7 +137,11 @@ target("wiliwili")
     add_includedirs("wiliwili/include", "wiliwili/include/api")
     add_files("wiliwili/source/**.cpp")
     add_defines("BRLS_RESOURCES=\"./resources/\"")
-    add_defines("__SDL2__=1")
+    if get_config("window") == 'sdl' then
+        add_defines("__SDL2__=1")
+    else
+        add_defines("__GLFW__=1")
+    end
     if get_config("winrt") then
         add_defines("__WINRT__=1")
     end

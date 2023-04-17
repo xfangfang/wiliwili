@@ -33,12 +33,16 @@ enum class SettingItem {
     PLAYER_INMEMORY_CACHE,
     PLAYER_HWDEC,
     PLAYER_HWDEC_CUSTOM,
+    PLAYER_EXIT_FULLSCREEN_ON_END,
+    PLAYER_DEFAULT_SPEED,
     VIDEO_QUALITY,
     TEXTURE_CACHE_NUM,
     OPENCC_ON,
     CUSTOM_UPDATE_API,
     IMAGE_REQUEST_THREADS,
     VIDEO_FORMAT,
+    VIDEO_CODEC,
+    AUDIO_QUALITY,
     GAMEPAD_VIBRATION,
     DANMAKU_ON,
     DANMAKU_FILTER_LEVEL,
@@ -61,13 +65,15 @@ class APPVersion : public brls::Singleton<APPVersion> {
 
 public:
     int major, minor, revision;
-    std::string git_commit = "", git_tag = "";
+    std::string git_commit, git_tag;
 
     APPVersion();
 
     std::string getVersionStr();
 
     std::string getPlatform();
+
+    static std::string getPackageName();
 
     bool needUpdate(std::string latestVersion);
 
@@ -90,11 +96,18 @@ public:
     ProgramConfig();
     ProgramConfig(const ProgramConfig& config);
     void setProgramConfig(const ProgramConfig& conf);
-    void setCookie(Cookie data);
-    Cookie getCookie();
+    void setCookie(const Cookie& data);
+    Cookie getCookie() const;
+    void setRefreshToken(const std::string& token);
+    std::string getRefreshToken() const;
     std::string getCSRF();
     std::string getUserID();
+
+    // Google Analytics ID
     std::string getClientID();
+
+    // Device ID
+    std::string getDeviceID();
 
     void loadHomeWindowState();
     void saveHomeWindowState();
@@ -144,16 +157,18 @@ public:
     void checkRestart(char* argv[]);
 
     Cookie cookie = {{"DedeUserID", "0"}};
+    std::string refreshToken;
     nlohmann::json setting;
     std::string client;
+    std::string device;
 
     static std::unordered_map<SettingItem, ProgramOption> SETTING_MAP;
 };
 
 inline void to_json(nlohmann::json& nlohmann_json_j,
                     const ProgramConfig& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, cookie, setting, client));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
+        NLOHMANN_JSON_TO, cookie, refreshToken, setting, client, device));
 }
 
 inline void from_json(const nlohmann::json& nlohmann_json_j,
@@ -163,8 +178,15 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("cookie").get_to(nlohmann_json_t.cookie);
     if (nlohmann_json_j.contains("setting"))
         nlohmann_json_j.at("setting").get_to(nlohmann_json_t.setting);
-    if (nlohmann_json_j.contains("client"))
+    if (nlohmann_json_j.contains("client") &&
+        nlohmann_json_j.at("client").is_string())
         nlohmann_json_j.at("client").get_to(nlohmann_json_t.client);
+    if (nlohmann_json_j.contains("device") &&
+        nlohmann_json_j.at("device").is_string())
+        nlohmann_json_j.at("device").get_to(nlohmann_json_t.device);
+    if (nlohmann_json_j.contains("refreshToken") &&
+        nlohmann_json_j.at("refreshToken").is_string())
+        nlohmann_json_j.at("refreshToken").get_to(nlohmann_json_t.refreshToken);
 }
 
 class Register {

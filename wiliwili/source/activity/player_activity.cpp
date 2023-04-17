@@ -3,6 +3,7 @@
 //
 
 #include <borealis.hpp>
+#include <utility>
 #include "view/video_view.hpp"
 #include "view/video_card.hpp"
 #include "view/user_info.hpp"
@@ -13,6 +14,7 @@
 #include "utils/number_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
+#include "utils/activity_helper.hpp"
 #include "fragment/player_collection.hpp"
 #include "fragment/player_fragments.hpp"
 #include "fragment/player_evaluate.hpp"
@@ -23,7 +25,7 @@ class DataSourceUserUploadedVideoList : public RecyclingGridDataSource {
 public:
     DataSourceUserUploadedVideoList(
         bilibili::UserUploadedVideoListResult result, ChangeVideoEvent cb)
-        : list(result), changeVideoEvent(cb) {}
+        : list(std::move(result)), changeVideoEvent(std::move(cb)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
@@ -34,8 +36,8 @@ public:
         bilibili::UserUploadedVideoResult& r = this->list[index];
         item->setCard(r.pic + ImageHelper::h_ext, r.title,
                       r.author + " · " + wiliwili::sec2TimeDate(r.created),
-                      wiliwili::num2w(r.play), wiliwili::num2w(r.video_review),
-                      r.length);
+                      r.play == -1 ? "-" : wiliwili::num2w(r.play),
+                      wiliwili::num2w(r.video_review), r.length);
         return item;
     }
 
@@ -60,7 +62,7 @@ class DataSourceRelatedVideoList : public RecyclingGridDataSource {
 public:
     DataSourceRelatedVideoList(bilibili::VideoDetailListResult result,
                                ChangeVideoEvent cb)
-        : list(result), changeVideoEvent(cb) {}
+        : list(std::move(result)), changeVideoEvent(std::move(cb)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         RecyclingGridItemRelatedVideoCard* item =
@@ -92,9 +94,21 @@ private:
     ChangeVideoEvent changeVideoEvent;
 };
 
+class UGCSeasonHeader : public RecyclingGridItem {
+public:
+    UGCSeasonHeader() {
+        this->inflateFromXMLRes("xml/views/season_ugc_header_cell.xml");
+    }
+
+    static RecyclingGridItem* create() { return new UGCSeasonHeader(); }
+
+    BRLS_BIND(brls::Label, title, "player/tab/title");
+    BRLS_BIND(brls::Label, subtitle, "player/tab/subtitle");
+};
+
 /// PlayerActivity
 
-PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid,
+PlayerActivity::PlayerActivity(const std::string& bvid, unsigned int cid,
                                int progress) {
     videoDetailResult.bvid = bvid;
     videoDetailPage.cid    = cid;
@@ -103,29 +117,38 @@ PlayerActivity::PlayerActivity(std::string bvid, unsigned int cid,
                         bvid, cid, progress);
 
     // 切换到其他视频
-    changeVideoEvent.subscribe([this](bilibili::Video videoData) {
+    changeVideoEvent.subscribe([this](const bilibili::Video& videoData) {
         //上报历史记录
         this->reportCurrentProgress(MPVCore::instance().video_progress,
                                     MPVCore::instance().duration);
 
         // 停止播放视频
         this->video->stop();
+        // 允许加载历史记录
+        this->setProgress(0);
+        this->video->setLastPlayedPosition(VideoView::POSITION_UNDEFINED);
+
+        brls::View* currentFocus = brls::Application::getCurrentFocus();
 
         // 先重置一下tabFrame的焦点，避免空指针问题
         // 第0个tab是评论页面，这个tab固定存在，所以不会产生空指针的问题
         this->tabFrame->focusTab(0);
         // 焦点放在video上
-        brls::Application::giveFocus(this->video);
+        if (currentFocus->getParentActivity() == this)
+            brls::Application::giveFocus(this->video);
+        else
+            brls::Application::giveFocus(currentFocus);
 
         // 清空无用的tab
         this->tabFrame->clearTab("wiliwili/player/p"_i18n);
+        this->tabFrame->clearTab("wiliwili/player/ugc_season"_i18n);
         this->tabFrame->clearTab("wiliwili/player/related"_i18n);
         this->tabFrame->clearTab("wiliwili/player/uploaded"_i18n);
 
         // 清空评论
         // 强制设置高度100，提升骨架屏显示效果
         this->recyclingGrid->estimatedRowHeight = 100;
-        this->recyclingGrid->showSkeleton(6);
+        this->recyclingGrid->showSkeleton();
 
         // 请求新视频的数据
         videoDetailPage.cid = 0;  // cid 设置为0，新视频默认打开PV1
@@ -209,14 +232,16 @@ void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
         result.pages.size() > 1 ? " - " + videoDetailPage.part : "";
 
     // videoView osd
-    this->video->setTitle(result.title + subtitle);
+    std::string title = result.title + subtitle;
+    MPV_CE->fire(VideoView::SET_TITLE, (void*)title.c_str());
 
     // video title
     this->videoTitleLabel->setText(result.title);
 
     // bottom area
     this->videoBVIDLabel->setText(result.bvid);
-    this->videoCountLabel->setText(wiliwili::num2w(result.stat.view));
+    this->videoCountLabel->setText(
+        result.stat.view == -1 ? "-" : wiliwili::num2w(result.stat.view));
     this->videoDanmakuLabel->setText(wiliwili::num2w(result.stat.danmaku));
     this->videoTimeLabel->setText(wiliwili::sec2FullDate(result.pubdate));
     if (result.rights.no_reprint == 1) {
@@ -258,7 +283,7 @@ void PlayerActivity::onVideoPageListInfo(
     }
 
     changeIndexEvent.clear();
-    AutoSidebarItem* item = new AutoSidebarItem();
+    auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
     item->setLabel("wiliwili/player/p"_i18n);
@@ -269,7 +294,7 @@ void PlayerActivity::onVideoPageListInfo(
             result,
             // 分集标题设置回调
             [](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
-                PlayerTabCell* item =
+                auto* item =
                     (PlayerTabCell*)recycler->dequeueReusableCell("Cell");
                 item->title->setText(fmt::format("P{} {}", d.page, d.part));
                 item->setSelected(ds->getCurrentIndex() == (d.page - 1));
@@ -284,13 +309,13 @@ void PlayerActivity::onVideoPageListInfo(
                     ds->setCurrentIndex(index);
 
                     // 更新ui
-                    PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                    auto* item = dynamic_cast<PlayerTabCell*>(
                         recycler->getGridItemByIndex(index));
                     if (!item) return;
                     std::vector<RecyclingGridItem*>& items =
                         recycler->getGridItems();
                     for (auto& i : items) {
-                        PlayerTabCell* cell = dynamic_cast<PlayerTabCell*>(i);
+                        auto* cell = dynamic_cast<PlayerTabCell*>(i);
                         if (cell) cell->setSelected(false);
                     }
                     item->setSelected(true);
@@ -308,13 +333,13 @@ void PlayerActivity::onVideoPageListInfo(
                 this->onIndexChange(r.page - 1);
 
                 // 更新ui
-                PlayerTabCell* item = dynamic_cast<PlayerTabCell*>(
+                auto* item = dynamic_cast<PlayerTabCell*>(
                     recycler->getGridItemByIndex(index));
                 if (!item) return;
                 std::vector<RecyclingGridItem*>& items =
                     recycler->getGridItems();
                 for (auto& i : items) {
-                    PlayerTabCell* cell = dynamic_cast<PlayerTabCell*>(i);
+                    auto* cell = dynamic_cast<PlayerTabCell*>(i);
                     if (cell) cell->setSelected(false);
                 }
                 item->setSelected(true);
@@ -327,6 +352,86 @@ void PlayerActivity::onVideoPageListInfo(
     });
 }
 
+void PlayerActivity::onUGCSeasonInfo(const bilibili::UGCSeason& result) {
+    brls::Logger::debug("UGC Season: {}/{}", result.title, result.id);
+
+    auto* item = new AutoSidebarItem();
+    item->setTabStyle(AutoTabBarStyle::ACCENT);
+    item->setFontSize(18);
+    item->setLabel("wiliwili/player/ugc_season"_i18n);
+    this->tabFrame->addTab(item, [this, result, item]() {
+        // 设置分集页面
+        auto container = new BasePlayerTabFragment<bilibili::UGCSeasonEpisode>(
+            // 列表数据
+            result.episodes,
+            // 分集标题设置回调
+            [result](auto recycler, auto ds, auto& d) -> RecyclingGridItem* {
+                if (d.index == 0) {
+                    // 显示项为 season 标题
+                    auto* item =
+                        (UGCSeasonHeader*)recycler->dequeueReusableCell(
+                            "HeaderUGC");
+                    item->title->setText(d.title);
+                    item->subtitle->setText(wiliwili::num2w(result.stat.view) +
+                                            "播放");
+                    return item;
+                }
+                if (!d.id) {
+                    // 显示项为 section 标题
+                    auto* item =
+                        (PlayerTabHeader*)recycler->dequeueReusableCell(
+                            "Header");
+                    item->title->setText(d.title);
+                    return item;
+                }
+
+                auto* item =
+                    (PlayerTabCell*)recycler->dequeueReusableCell("Cell");
+                item->title->setText(d.title);
+                item->setSelected(ds->getCurrentIndex() == (size_t)d.index);
+                item->setBadge(
+                    wiliwili::sec2MinSec(d.page.duration), nvgRGBA(0, 0, 0, 0),
+                    brls::Application::getTheme().getColor("font/grey"));
+                return item;
+            },
+            // container的构造函数
+            [](auto recycler, auto ds) {
+                recycler->registerCell(
+                    "HeaderUGC", []() { return UGCSeasonHeader::create(); });
+            },
+            // 默认的选中索引
+            result.currentIndex,
+            // 组件高度
+            [](auto recycler, auto ds, auto& d) -> float {
+                if (d.index == 0) return 80;
+                return 50;
+            });
+
+        // 分集点击回调
+        container->getSelectEvent()->subscribe(
+            [this, result](auto recycler, auto ds, size_t index,
+                           const auto& r) {
+                if (index == 0) {
+                    auto* evaluate = new PlayerEvaluate();
+                    evaluate->setContent(result.intro);
+                    auto dialog = new brls::Dialog(evaluate);
+                    dialog->open();
+                    return;
+                }
+                if (r.bvid.empty()) return;
+                bilibili::Video video;
+                video.bvid = r.bvid;
+                this->changeVideoEvent.fire(video);
+            });
+
+        // 设置标题上方的数字
+        item->setSubtitle(fmt::format("{}/{}",
+                                      result.currentIndexWithoutHeader + 1,
+                                      wiliwili::num2w(result.count)));
+        return container;
+    });
+}
+
 void PlayerActivity::onUploadedVideos(
     const bilibili::UserUploadedVideoResultWrapper& result) {
     for (const auto& i : result.list) {
@@ -335,7 +440,7 @@ void PlayerActivity::onUploadedVideos(
 
     if (result.page.pn == 1) {
         // 加载第一页，添加tab
-        AutoSidebarItem* item = new AutoSidebarItem();
+        auto* item = new AutoSidebarItem();
         item->setTabStyle(AutoTabBarStyle::ACCENT);
         item->setFontSize(18);
         item->setLabel("wiliwili/player/uploaded"_i18n);
@@ -367,7 +472,7 @@ void PlayerActivity::onUploadedVideos(
         auto view = (AttachedView*)tab->getAttachedView();
         if (!view) return;
         auto grid = (RecyclingGrid*)view->getChildren()[0];
-        DataSourceUserUploadedVideoList* datasource =
+        auto* datasource =
             (DataSourceUserUploadedVideoList*)grid->getDataSource();
         datasource->appendData(result.list);
         grid->notifyDataChanged();
@@ -379,7 +484,7 @@ void PlayerActivity::onRelatedVideoList(
     if (result.size() <= 1) {
         return;
     }
-    AutoSidebarItem* item = new AutoSidebarItem();
+    auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
     item->setLabel("wiliwili/player/related"_i18n);
@@ -405,9 +510,14 @@ void PlayerActivity::onRelatedVideoList(
 
 void PlayerActivity::onRedirectToEp(const std::string& epid) {
     brls::Logger::debug("redirect to ep: {}", epid);
+    // 一般来说这种情况对应播放器全屏状态，将全屏的播放器先取消全屏
+    auto* view = brls::Application::getCurrentFocus();
+    if (view->getParentActivity() != this) {
+        brls::Application::popActivity(brls::TransitionAnimation::NONE);
+    }
+    // 跳转到番剧播放页
     brls::Application::popActivity(brls::TransitionAnimation::NONE, [epid]() {
-        brls::Application::pushActivity(
-            new PlayerSeasonActivity(std::stoi(epid), PGC_ID_TYPE::EP_ID));
+        Intent::openSeasonByEpId(std::stoi(epid));
     });
 }
 
@@ -427,18 +537,24 @@ void PlayerActivity::onIndexChange(size_t index) {
         return;
     }
 
-    brls::Logger::debug("切换分区: {}", index);
+    brls::Logger::debug("切换分P: {}", index);
+    // 上报历史记录
+    this->reportCurrentProgress(MPVCore::instance().video_progress,
+                                MPVCore::instance().duration);
     // 焦点放在video上
-    brls::Application::giveFocus(this->video);
+    if (brls::Application::getCurrentFocus()->getParentActivity() == this)
+        brls::Application::giveFocus(this->video);
     // 设置当前分P数据
     videoDetailPage = videoDetailResult.pages[index];
     // 设置播放器标题
-    this->video->setTitle(
-        fmt::format("{} - {}", videoDetailResult.title, videoDetailPage.part));
+    std::string title =
+        fmt::format("{} - {}", videoDetailResult.title, videoDetailPage.part);
+    MPV_CE->fire(VideoView::SET_TITLE, (void*)title.c_str());
+    // 允许加载历史记录
+    this->setProgress(0);
+    this->video->setLastPlayedPosition(VideoView::POSITION_UNDEFINED);
     // 请求视频链接
     this->requestVideoUrl(videoDetailResult.bvid, videoDetailPage.cid);
-    // 上报历史记录
-    this->reportCurrentProgress(0, 0);
 }
 
 void PlayerActivity::onIndexChangeToNext() {
@@ -446,10 +562,24 @@ void PlayerActivity::onIndexChangeToNext() {
     if (videoDetailPage.page < videoDetailResult.pages.size()) {
         changeIndexEvent.fire(videoDetailPage.page);
         this->onIndexChange(videoDetailPage.page);
-    } else if (AUTO_NEXT_RCMD) {
-        // 分集播放结束，判断是否要播放推荐视频
-        if (videDetailRelated.size() > 0)
-            changeVideoEvent.fire(videDetailRelated[0]);
+        return;
+    }
+
+    // 分集播放结束，判断是否要播放合集视频
+    auto& ugc = videoDetailResult.ugc_season;
+    if (ugc.currentIndex >= 0) {
+        for (size_t i = ugc.currentIndex + 1; i < ugc.episodes.size(); i++) {
+            if (ugc.episodes[i].bvid.empty()) continue;
+            bilibili::Video video;
+            video.bvid = ugc.episodes[i].bvid;
+            this->changeVideoEvent.fire(video);
+            return;
+        }
+    }
+
+    // 合集播放结束，判断是否要播放推荐视频
+    if (AUTO_NEXT_RCMD && !videDetailRelated.empty()) {
+        changeVideoEvent.fire(videDetailRelated[0]);
     }
 }
 

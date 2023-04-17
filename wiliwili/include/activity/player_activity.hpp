@@ -44,7 +44,7 @@ public:
     void setRelationButton(bool liked, bool coin, bool favorite);
 
     // 展示二维码共享对话框
-    void showShareDialog(const std::string link);
+    void showShareDialog(const std::string& link);
 
     // 展示收藏列表对话框
     void showCollectionDialog(int64_t id, int videoType);
@@ -77,6 +77,10 @@ public:
     // 获取当前视频的aid
     virtual size_t getAid() = 0;
 
+    void willDisappear(bool resetState = false) override;
+
+    void willAppear(bool resetState = false) override;
+
     ~BasePlayerActivity() override;
 
     inline static bool AUTO_NEXT_RCMD = true;
@@ -107,14 +111,19 @@ protected:
 
     // 监控mpv事件
     MPVEvent::Subscription eventSubscribeID;
+    MPVCustomEvent::Subscription customEventSubscribeID;
 
     // 在软件自动切换分集时，传递当前跳转的索引值给列表用于更新ui
     ChangeIndexEvent changeIndexEvent;
+
+private:
+    bool activityShown = false;
 };
 
 class PlayerActivity : public BasePlayerActivity {
 public:
-    PlayerActivity(std::string bvid, unsigned int cid = 0, int progress = -1);
+    PlayerActivity(const std::string& bvid, unsigned int cid = 0,
+                   int progress = -1);
 
     void setProgress(int p) override;
     int getProgress() override;
@@ -126,6 +135,7 @@ public:
     void onUpInfo(const bilibili::UserDetailResultWrapper& result) override;
     void onVideoPageListInfo(
         const bilibili::VideoDetailPageListResult& result) override;
+    void onUGCSeasonInfo(const bilibili::UGCSeason& result) override;
     void onUploadedVideos(
         const bilibili::UserUploadedVideoResultWrapper& result) override;
     void onRelatedVideoList(
@@ -135,7 +145,7 @@ public:
 
     void onContentAvailable() override;
 
-    ~PlayerActivity();
+    ~PlayerActivity() override;
 
 private:
     // 切换UP视频

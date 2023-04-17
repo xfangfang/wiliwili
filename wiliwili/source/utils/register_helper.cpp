@@ -19,6 +19,7 @@
 #include "view/animation_image.hpp"
 #include "view/button_close.hpp"
 #include "view/check_box.hpp"
+#include "view/video_profile.hpp"
 
 #include "fragment/home_tab.hpp"
 #include "fragment/dynamic_tab.hpp"
@@ -34,6 +35,7 @@
 #include "fragment/home_cinema.hpp"
 #include "fragment/mine_history.hpp"
 #include "fragment/mine_collection.hpp"
+#include "fragment/mine_collection_video_list.hpp"
 #include "fragment/mine_bangumi.hpp"
 #include "fragment/search_tab.hpp"
 #include "fragment/search_video.hpp"
@@ -48,6 +50,7 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("AutoTabFrame", AutoTabFrame::create);
     brls::Application::registerXMLView("RecyclingGrid", RecyclingGrid::create);
     brls::Application::registerXMLView("VideoView", VideoView::create);
+    brls::Application::registerXMLView("VideoProfile", VideoProfile::create);
     brls::Application::registerXMLView("QRImage", QRImage::create);
     brls::Application::registerXMLView("SVGImage", SVGImage::create);
     brls::Application::registerXMLView("TextBox", TextBox::create);
@@ -84,6 +87,8 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("MineHistory", MineHistory::create);
     brls::Application::registerXMLView("MineCollection",
                                        MineCollection::create);
+    brls::Application::registerXMLView("MineCollectionVideoList",
+                                       MineCollectionVideoList::create);
     brls::Application::registerXMLView("MineBangumi", MineBangumi::create);
     brls::Application::registerXMLView("SearchTab", SearchTab::create);
     brls::Application::registerXMLView("SearchVideo", SearchVideo::create);

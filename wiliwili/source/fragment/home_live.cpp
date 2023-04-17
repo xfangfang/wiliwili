@@ -3,18 +3,19 @@
 //
 
 #include <borealis.hpp>
+#include <utility>
 #include "fragment/home_live.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
-#include "activity/live_player_activity.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/activity_helper.hpp"
 
 using namespace brls::literals;
 
 class DataSourceLiveVideoList : public RecyclingGridDataSource {
 public:
-    DataSourceLiveVideoList(bilibili::LiveVideoListResult result)
-        : videoList(result) {}
+    explicit DataSourceLiveVideoList(bilibili::LiveVideoListResult result)
+        : videoList(std::move(result)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
@@ -31,7 +32,8 @@ public:
     size_t getItemCount() override { return videoList.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        brls::Application::pushActivity(new LiveActivity(videoList[index]));
+        Intent::openLive(videoList[index].roomid, videoList[index].title,
+                         videoList[index].watched_show.text_large);
     }
 
     void appendData(const bilibili::LiveVideoListResult& data) {
@@ -56,9 +58,8 @@ HomeLive::HomeLive() {
 void HomeLive::onLiveList(const bilibili::LiveVideoListResult& result,
                           int index, bool no_more) {
     brls::Threading::sync([this, result, index]() {
-        DataSourceLiveVideoList* datasource =
-            dynamic_cast<DataSourceLiveVideoList*>(
-                recyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourceLiveVideoList*>(
+            recyclingGrid->getDataSource());
         if (datasource && index != 1) {
             datasource->appendData(result);
             recyclingGrid->notifyDataChanged();

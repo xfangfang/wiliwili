@@ -120,7 +120,8 @@ void PlayerSeasonActivity::onContentAvailable() {
 
 void PlayerSeasonActivity::onSeasonEpisodeInfo(
     const bilibili::SeasonEpisodeResult& result) {
-    this->video->setTitle(this->seasonInfo.season_title + " - " + result.title);
+    std::string title = this->seasonInfo.season_title + " - " + result.title;
+    MPV_CE->fire(VideoView::SET_TITLE, (void*)title.c_str());
     this->videoBVIDLabel->setText(result.bvid);
 }
 
@@ -360,6 +361,8 @@ void PlayerSeasonActivity::playSeason(size_t season_id) {
     this->reportCurrentProgress(MPVCore::instance().video_progress,
                                 MPVCore::instance().duration);
 
+    brls::View* currentFocus = brls::Application::getCurrentFocus();
+
     // 停止播放视频
     this->video->stop();
 
@@ -368,7 +371,10 @@ void PlayerSeasonActivity::playSeason(size_t season_id) {
     this->tabFrame->focusTab(0);
 
     // 焦点放在video上
-    brls::Application::giveFocus(this->video);
+    if (currentFocus->getParentActivity() == this)
+        brls::Application::giveFocus(this->video);
+    else
+        brls::Application::giveFocus(currentFocus);
 
     // 清空无用的tab
     this->tabFrame->clearTab("wiliwili/player/p"_i18n);
@@ -378,7 +384,7 @@ void PlayerSeasonActivity::playSeason(size_t season_id) {
     // 清空评论
     // 强制设置高度100，提升骨架屏显示效果
     this->recyclingGrid->estimatedRowHeight = 100;
-    this->recyclingGrid->showSkeleton(6);
+    this->recyclingGrid->showSkeleton();
 
     this->setProgress(0);
     this->requestData(season_id, PGC_ID_TYPE::SEASON_ID);

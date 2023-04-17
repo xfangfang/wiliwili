@@ -33,7 +33,9 @@ class VideoEpisodeRelation;     // 番剧的某一集的点赞收藏情况
 class VideoUrlResult;           // 视频播放地址
 class VideoDetailPage;
 typedef std::vector<VideoDetailPage>
-    VideoDetailPageListResult;  // 视频分P列表 （视频详情API可以直接过去分P列表）
+    VideoDetailPageListResult;  // 视频分P列表 （视频详情API可以直接获取分P列表）
+class VideoPageResult;  // 视频分P详情 （主要用来获取cc字幕）
+class SubtitleData;     // 字幕数据
 class VideoCommentResultWrapper;  // 视频评论
 class VideoSingleCommentDetail;   //单条评论的相关回复
 class VideoCommentAddResult;      // 发布评论的返回
@@ -53,20 +55,33 @@ using Cookies = std::map<std::string, std::string>;
 #define BILI_ERR const std::string& error
 
 class BilibiliClient {
-    inline static std::function<void(Cookies)> writeCookiesCallback = nullptr;
+    inline static std::function<void(Cookies, std::string)>
+        writeCookiesCallback = nullptr;
 
 public:
     static Cookies cookies;
-    inline static std::string FNVAL = "1744";
+    inline static std::string FNVAL = "4048";
+    inline static int VIDEO_CODEC   = 7;
+    inline static int AUDIO_QUALITY = 30280;
 
     /// get qrcode for login
     static void get_login_url(
         const std::function<void(std::string, std::string)>& callback = nullptr,
         const ErrorCallback& error = nullptr);
 
+    static void get_login_url_v2(
+        const std::function<void(std::string, std::string)>& callback = nullptr,
+        const ErrorCallback& error = nullptr);
+
     /// check if qrcode has been scanned
     static void get_login_info(
-        const std::string oauthKey,
+        const std::string& oauthKey,
+        const std::function<void(enum LoginInfo)>& callback = nullptr,
+        const ErrorCallback& error                          = nullptr);
+
+    static void get_login_info_v2(
+        const std::string& qrcodeKey, const std::string& deviceName,
+        const std::string& deviceID,
         const std::function<void(enum LoginInfo)>& callback = nullptr,
         const ErrorCallback& error                          = nullptr);
 
@@ -94,22 +109,39 @@ public:
             nullptr,
         const ErrorCallback& error = nullptr);
 
-    /// get person collection list
+    /**
+     * 获取用户创建的收藏列表或用户订阅的合集
+     * @param mid
+     * @param index
+     * @param num
+     * @param type  获取的列表种类是 收藏夹 还是 合集, 1 为收藏夹 2 为合集
+     * @param callback
+     * @param error
+     */
     static void get_my_collection_list(
-        const int64_t mid, const int index = 1, const int num = 20,
+        int64_t mid, int index = 1, int num = 20, int type = 1,
         const std::function<void(CollectionListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
 
     static void get_my_collection_list(
-        const std::string& mid, const int index = 1, const int num = 20,
+        const std::string& mid, int index = 1, int num = 20, int type = 1,
         const std::function<void(CollectionListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
 
-    /// get collection video list
+    /**
+     * 获取单个 收藏夹 或 合集 的视频列表
+     * 注: 若获取的是合集，则一次性会获得全部列表
+     * @param id 收藏夹或视频合集的 id
+     * @param index 获取视频的列表的页号
+     * @param num 一次获取的视频数量
+     * @param type 获取的列表种类是 收藏夹 还是 合集, 1 为收藏夹 2 为合集
+     * @param callback
+     * @param error
+     */
     static void get_collection_video_list(
-        int64_t media_id, const int index = 1, const int num = 20,
+        int64_t id, int index = 1, int num = 20, int type = 1,
         const std::function<void(CollectionVideoListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
@@ -174,6 +206,17 @@ public:
         const std::string& bvid,
         const std::function<void(VideoDetailAllResult)>& callback = nullptr,
         const ErrorCallback& error                                = nullptr);
+
+    /// 获取分P详情 （主要内容为cc字幕）
+    static void get_page_detail(
+        int aid, int cid,
+        const std::function<void(VideoPageResult)>& callback = nullptr,
+        const ErrorCallback& error                           = nullptr);
+
+    static void get_page_detail(
+        const std::string& bvid, int cid,
+        const std::function<void(VideoPageResult)>& callback = nullptr,
+        const ErrorCallback& error                           = nullptr);
 
     /// get video pagelist by aid
     static void get_video_pagelist(
@@ -362,9 +405,15 @@ public:
 
     /// 视频页 获取弹幕的xml文件
     static void get_danmaku(
-        const unsigned int cid,
+        unsigned int cid,
         const std::function<void(std::string)>& callback = nullptr,
         const ErrorCallback& error                       = nullptr);
+
+    /// 视频页 获取字幕
+    static void get_subtitle(
+        const std::string& link,
+        const std::function<void(SubtitleData)>& callback = nullptr,
+        const ErrorCallback& error                        = nullptr);
 
     /// 视频页 上报历史记录
     static void report_history(const std::string& mid,
@@ -426,6 +475,30 @@ public:
                              const ErrorCallback& error            = nullptr);
 
     /**
+     * 订阅合集
+     * @param id 合集 id
+     * @param csrf
+     * @param callback
+     * @param error
+     */
+    static void ugc_season_subscribe(
+        int id, const std::string& csrf,
+        const std::function<void()>& callback = nullptr,
+        const ErrorCallback& error            = nullptr);
+
+    /**
+     * 取消订阅合集
+     * @param id 合集 id
+     * @param csrf
+     * @param callback
+     * @param error
+     */
+    static void ugc_season_unsubscribe(
+        int id, const std::string& csrf,
+        const std::function<void()>& callback = nullptr,
+        const ErrorCallback& error            = nullptr);
+
+    /**
      * 获取对应视频
      * @param rid
      * @param type 普通视频:2, 番剧: 24
@@ -475,8 +548,12 @@ public:
         const ErrorCallback& error                          = nullptr);
 
     /// 初始化设置Cookie
-    static void init(Cookies& cookies,
-                     std::function<void(Cookies)> writeCookiesCallback,
-                     int timeout = 10000);
+    static void init(
+        Cookies& cookies,
+        std::function<void(Cookies, std::string)> writeCookiesCallback,
+        int timeout = 10000, const std::string& httpProxy = "",
+        const std::string& httpsProxy = "");
+
+    static std::string genRandomBuvid3();
 };
 }  // namespace bilibili

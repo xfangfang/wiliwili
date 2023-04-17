@@ -56,6 +56,12 @@ public:
     void refresh();
 
     /**
+     * 设置当前视频倍速，弹幕会根据倍速变动
+     * @param speed
+     */
+    void setSpeed(double speed);
+
+    /**
      * 将当前弹幕配置写入配置文件
      */
     static void save();

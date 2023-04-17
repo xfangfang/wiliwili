@@ -12,6 +12,8 @@ class VideoProgressSlider;
 
 class SVGImage;
 
+class VideoProfile;
+
 // https://github.com/mpv-player/mpv/blob/master/DOCS/edl-mpv.rst
 class EDLUrl {
 public:
@@ -34,7 +36,8 @@ public:
     ~VideoView() override;
 
     /// Video control
-    void setUrl(std::string url, int progress = 0, std::string audio = "");
+    void setUrl(const std::string& url, int progress = 0,
+                const std::string& audio = "");
 
     void setUrl(const std::vector<EDLUrl>& edl_urls, int progress = 0);
 
@@ -47,6 +50,11 @@ public:
     void togglePlay();
 
     void setSpeed(float speed);
+
+    // 视频加载前重置此变量
+    // 视频加载结束后，获取此值，若大于0则跳转进度
+    void setLastPlayedPosition(int64_t p);
+    [[nodiscard]] int64_t getLastPlayedPosition() const;
 
     /// OSD
     void showOSD(bool temp = true);
@@ -65,21 +73,24 @@ public:
 
     void hideLoading();
 
-    void hideDanmakuButton();
+    /**
+     * 隐藏一部分视频播放相关的按钮，在直播页面调用此函数用来隐藏不需要的 UI
+     */
+    void hideActionButtons();
 
-    void setTitle(std::string title);
+    void setTitle(const std::string& title);
 
     std::string getTitle();
 
-    void setQuality(std::string str);
+    void setQuality(const std::string& str);
 
     std::string getQuality();
 
-    void setOnlineCount(std::string count);
+    void setOnlineCount(const std::string& count);
 
-    void setDuration(std::string value);
+    void setDuration(const std::string& value);
 
-    void setPlaybackTime(std::string value);
+    void setPlaybackTime(const std::string& value);
 
     // 手动设置osd右下角的全屏图标
     void setFullscreenIcon(bool fs);
@@ -94,6 +105,11 @@ public:
 
     float getProgress();
 
+    // 进度条上方显示提示文字
+    void showHint(const std::string& value);
+
+    void clearHint();
+
     /// Misc
     static View* create();
 
@@ -104,8 +120,6 @@ public:
     bool isFullscreen();
 
     void setFullScreen(bool fs);
-
-    void setCloseOnEndOfFile(bool value);
 
     void draw(NVGcontext* vg, float x, float y, float width, float height,
               brls::Style style, brls::FrameContext* ctx) override;
@@ -123,10 +137,27 @@ public:
 
     void buttonProcessing();
 
+    // 用于 VideoView 可以接收的自定义事件
+    inline static const std::string QUALITY_CHANGE = "QUALITY_CHANGE";
+    inline static const std::string SET_ONLINE_NUM = "SET_ONLINE_NUM";
+    inline static const std::string SET_TITLE      = "SET_TITLE";
+    inline static const std::string SET_QUALITY    = "SET_QUALITY";
+    inline static const std::string HINT           = "HINT";
+    inline static const std::string LAST_TIME      = "LAST_TIME";
+
+    // 用于指定 lastPlayedPosition 的值
+    // 若无历史记录，则为 -1，若不使用历史记录的值，则为 -2
+    inline static const int64_t POSITION_UNDEFINED = -1;
+    inline static const int64_t POSITION_DISCARD   = -2;
+
+    // 当自动跳转下一集时不退出全屏
+    inline static bool EXIT_FULLSCREEN_ON_END = true;
+
 private:
     bool allowFullscreen  = true;
     bool registerMPVEvent = false;
     MPVEvent::Subscription eventSubscribeID;
+    MPVCustomEvent::Subscription customEventSubscribeID;
     brls::InputManager* input;
 
     ///OSD
@@ -141,24 +172,28 @@ private:
     BRLS_BIND(brls::Label, leftStatusLabel, "video/left/status");
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
     BRLS_BIND(brls::Label, videoQuality, "video/quality");
+    BRLS_BIND(brls::Label, videoSpeed, "video/speed");
+    BRLS_BIND(brls::Label, speedHintLabel, "video/speed/hint/label");
+    BRLS_BIND(brls::Box, speedHintBox, "video/speed/hint/box");
     BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
     BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
     BRLS_BIND(SVGImage, btnFullscreenIcon, "video/osd/fullscreen/icon");
     BRLS_BIND(SVGImage, btnDanmakuIcon, "video/osd/danmaku/icon");
-    BRLS_BIND(SVGImage, btnDanmakuSettingIcon, "video/osd/danmaku/setting");
+    BRLS_BIND(SVGImage, btnDanmakuSettingIcon,
+              "video/osd/danmaku/setting/icon");
+    BRLS_BIND(SVGImage, btnSettingIcon, "video/osd/setting/icon");
+    BRLS_BIND(brls::Label, hintLabel, "video/osd/hint/label");
+    BRLS_BIND(brls::Box, hintBox, "video/osd/hint/box");
+    BRLS_BIND(VideoProfile, videoProfile, "video/profile");
 
     // OSD
     time_t osdLastShowTime     = 0;
     const time_t OSD_SHOW_TIME = 5;  //默认显示五秒
     OSDState osd_state         = OSDState::HIDDEN;
     bool is_osd_shown          = false;
+    time_t hintLastShowTime    = 0;
+    int64_t lastPlayedPosition = POSITION_UNDEFINED;
 
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
-
-    bool closeOnEndOfFile = true;  // 全屏时 播放结束自动取消全屏
-
-    //DEBUG
-    BRLS_BIND(brls::Box, videoLayerDebug, "video/layer/debug");
-    BRLS_BIND(brls::Box, videoLayerDanmaku, "video/layer/danmaku");
 };

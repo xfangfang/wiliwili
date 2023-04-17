@@ -89,9 +89,10 @@ public:
 
     ValueSelectedEvent::Callback getSelectCallback();
 
-    static void text(const std::string& title,
-                     const std::vector<std::string>& values,
-                     ValueSelectedEvent::Callback cb, int selected = 0);
+    static BaseDropdown* text(const std::string& title,
+                              const std::vector<std::string>& values,
+                              ValueSelectedEvent::Callback cb,
+                              int selected = 0);
 
 protected:
     BRLS_BIND(RecyclingGrid, recycler, "grid_dropdown/recycler");

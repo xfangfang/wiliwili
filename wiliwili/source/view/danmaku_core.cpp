@@ -65,7 +65,7 @@ void DanmakuCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
     danmakuMutex.unlock();
 
     // 通过mpv来通知弹幕加载完成
-    MPVCore::instance().getEvent()->fire(MpvEventEnum::DANMAKU_LOADED);
+    MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
 }
 
 void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
@@ -74,7 +74,7 @@ void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
     danmakuMutex.unlock();
 
     // 通过mpv来通知弹幕加载完成
-    MPVCore::instance().getEvent()->fire(MpvEventEnum::DANMAKU_LOADED);
+    MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
 }
 
 void DanmakuCore::refresh() {
@@ -116,6 +116,20 @@ void DanmakuCore::refresh() {
         centerLines[k]        = 0;
     }
     danmakuMutex.unlock();
+}
+
+void DanmakuCore::setSpeed(double speed) {
+    double oldSpeed     = videoSpeed;
+    videoSpeed          = speed;
+    int64_t currentTime = brls::getCPUTimeUsec();
+    double factor       = oldSpeed / speed;
+    // 修改滚动弹幕的起始播放时间，满足修改后的时间在新速度下生成的位置不变。
+    for (size_t j = this->danmakuIndex; j < this->danmakuData.size(); j++) {
+        auto &i = this->danmakuData[j];
+        if (i.type == 4 || i.type == 5) continue;
+        if (!i.canShow) continue;
+        i.startTime = currentTime - (currentTime - i.startTime) * factor;
+    }
 }
 
 void DanmakuCore::save() {
@@ -161,13 +175,10 @@ void DanmakuCore::drawDanmaku(NVGcontext *vg, float x, float y, float width,
                               float height, float alpha) {
     if (!DanmakuCore::DANMAKU_ON) return;
     if (!this->danmakuLoaded) return;
+    if (danmakuData.empty()) return;
 
     float SECOND        = 0.12f * DANMAKU_STYLE_SPEED;
     float CENTER_SECOND = 0.04f * DANMAKU_STYLE_SPEED;
-    if (danmakuData.empty()) {
-        refresh();
-        danmakuData = getDanmakuData();
-    }
 
     // Enable scissoring
     nvgSave(vg);
@@ -219,15 +230,16 @@ void DanmakuCore::drawDanmaku(NVGcontext *vg, float x, float y, float width,
             float position = 0;
             if (MPVCore::instance().core_idle) {
                 // 暂停状态弹幕也要暂停
-                position    = i.speed * videoSpeed * (playbackTime - i.time);
-                i.startTime = currentTime - (playbackTime - i.time) * 1e6;
+                position = i.speed * (playbackTime - i.time);
+                i.startTime =
+                    currentTime - (playbackTime - i.time) / videoSpeed * 1e6;
             } else {
                 position =
-                    i.speed * videoSpeed * (currentTime - i.startTime) / 1e6;
+                    i.speed * (currentTime - i.startTime) * videoSpeed / 1e6;
             }
 
-            // 根据时间或位置判断是否显示弹幕
-            if (position > width + i.length || i.time + SECOND < playbackTime) {
+            // 根据位置判断是否显示弹幕
+            if (position > width + i.length) {
                 i.showing    = false;
                 danmakuIndex = j + 1;
                 continue;
@@ -307,13 +319,17 @@ void DanmakuCore::drawDanmaku(NVGcontext *vg, float x, float y, float width,
                     if (i.time < scrollLines[k].first ||
                         i.time + width / i.speed < scrollLines[k].second)
                         continue;
-                    i.line                = k;
-                    scrollLines[k].first  = i.time + i.length / i.speed;
+                    i.line = k;
+                    // 一条弹幕完全展示的时间点，同一行的其他弹幕需要在这之后出现
+                    scrollLines[k].first = i.time + i.length / i.speed;
+                    // 一条弹幕展示结束的时间点，同一行的其他弹幕到达屏幕左侧的时间应该在这之后。
                     scrollLines[k].second = i.time + SECOND;
                     i.canShow             = true;
-                    i.startTime           = brls::getCPUTimeUsec();
+                    i.startTime           = currentTime;
+                    // 如果当前时间点弹幕已经出现在屏幕上了，那么反向推算出弹幕开始的现实时间
                     if (playbackTime - i.time > 0.2)
-                        i.startTime -= (playbackTime - i.time) * 1e6;
+                        i.startTime -=
+                            (playbackTime - i.time) / videoSpeed * 1e6;
                     break;
                 }
             }

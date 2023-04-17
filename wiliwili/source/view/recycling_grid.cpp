@@ -198,7 +198,7 @@ void RecyclingGrid::addCellAt(size_t index, int downSide) {
             cellHeight = cellHeightCache[index];
         }
 
-        brls::Logger::debug("Add cell at: y {} height {}",
+        brls::Logger::verbose("Add cell at: y {} height {}",
                             getHeightByCellIndex(index) + paddingTop,
                             cellHeight);
     } else {
@@ -419,7 +419,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
         queueReusableCell(minCell);
         this->contentBox->removeView(minCell, false);
 
-        brls::Logger::debug("Cell #{} - destroyed", visibleMin);
+        brls::Logger::verbose("Cell #{} - destroyed", visibleMin);
 
         visibleMin++;
     }
@@ -450,7 +450,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
         queueReusableCell(maxCell);
         this->contentBox->removeView(maxCell, false);
 
-        brls::Logger::debug("Cell #{} - destroyed", visibleMax);
+        brls::Logger::verbose("Cell #{} - destroyed", visibleMax);
 
         visibleMax--;
     }

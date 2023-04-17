@@ -16,11 +16,20 @@ public:
 
     virtual void onError(const std::string& error);
 
+    /**
+     * 设置请求类型
+     * @param type 1: 我的收藏 2: 我的订阅
+     */
+    void setRequestType(int type);
+
+    int getRequestType();
+
     void requestData(bool refresh = false);
 
     void requestCollectionList(std::string& mid, int index = 1, int num = 20);
 
 private:
     size_t index    = 1;
-    bool hasMore = true;
+    bool hasMore    = true;
+    int requestType = 1;
 };

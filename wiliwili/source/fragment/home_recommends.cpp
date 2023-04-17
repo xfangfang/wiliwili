@@ -3,17 +3,23 @@
 //
 
 #include "fragment/home_recommends.hpp"
-#include "activity/player_activity.hpp"
-#include "utils/number_helper.hpp"
+
+#include <utility>
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
+#include "utils/number_helper.hpp"
+#include "utils/activity_helper.hpp"
+#include "utils/image_helper.hpp"
+
+using namespace brls::literals;
 
 /// DataSourceRecommendVideoList
 
 class DataSourceRecommendVideoList : public RecyclingGridDataSource {
 public:
-    DataSourceRecommendVideoList(bilibili::RecommendVideoListResult result)
-        : recommendList(result) {}
+    explicit DataSourceRecommendVideoList(
+        bilibili::RecommendVideoListResult result)
+        : recommendList(std::move(result)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
@@ -21,7 +27,7 @@ public:
             (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::RecommendVideoResult& r = this->recommendList[index];
-        item->setCard(r.pic + "@672w_378h_1c.jpg", r.title, r.owner.name,
+        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name,
                       r.pubdate, r.stat.view, r.stat.danmaku, r.duration,
                       r.rcmd_reason.content);
         return item;
@@ -30,8 +36,7 @@ public:
     size_t getItemCount() override { return recommendList.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        brls::Application::pushActivity(
-            new PlayerActivity(recommendList[index].bvid));
+        Intent::openBV(recommendList[index].bvid);
     }
 
     void appendData(const bilibili::RecommendVideoListResult& data) {
@@ -39,9 +44,9 @@ public:
         //todo: 性能更强地去重
         brls::Logger::debug("DataSourceRecommendVideoList: append data");
         bool skip = false;
-        for (auto i : data) {
+        for (const auto& i : data) {
             skip = false;
-            for (auto j : this->recommendList) {
+            for (const auto& j : this->recommendList) {
                 if (j.cid == i.cid) {
                     skip = true;
                     break;
@@ -84,9 +89,8 @@ void HomeRecommends::onCreate() {
 void HomeRecommends::onRecommendVideoList(
     const bilibili::RecommendVideoListResultWrapper& result) {
     brls::Threading::sync([this, result]() {
-        DataSourceRecommendVideoList* datasource =
-            dynamic_cast<DataSourceRecommendVideoList*>(
-                recyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourceRecommendVideoList*>(
+            recyclingGrid->getDataSource());
         if (datasource && result.requestIndex != 1) {
             brls::Logger::debug("refresh home recommends: auto load {}",
                                 result.requestIndex);
@@ -102,7 +106,7 @@ void HomeRecommends::onRecommendVideoList(
 
 brls::View* HomeRecommends::create() { return new HomeRecommends(); }
 
-HomeRecommends::~HomeRecommends() {}
+HomeRecommends::~HomeRecommends() = default;
 
 void HomeRecommends::onError(const std::string& error) {
     brls::sync([this, error]() { this->recyclingGrid->setError(error); });

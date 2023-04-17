@@ -9,6 +9,7 @@
 #include "view/qr_image.hpp"
 #include "view/video_view.hpp"
 #include "view/grid_dropdown.hpp"
+#include "view/subtitle_core.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "presenter/comment_related.hpp"
@@ -57,17 +58,17 @@ public:
             return;
         }
 
-        PlayerSingleComment* view = new PlayerSingleComment();
-        view->setCommentData(dataList[index - 1]);
+        auto* item =
+            dynamic_cast<VideoComment*>(recycler->getGridItemByIndex(index));
+        if (!item) return;
+
+        auto* view = new PlayerSingleComment();
+        view->setCommentData(dataList[index - 1], item->getY());
         auto container = new brls::AppletFrame(view);
         container->setHeaderVisibility(brls::Visibility::GONE);
         container->setFooterVisibility(brls::Visibility::GONE);
         container->setInFadeAnimation(true);
         brls::Application::pushActivity(new brls::Activity(container));
-
-        VideoComment* item =
-            dynamic_cast<VideoComment*>(recycler->getGridItemByIndex(index));
-        if (!item) return;
 
         view->likeStateEvent.subscribe([this, item, index](bool value) {
             auto& itemData  = dataList[index - 1];
@@ -237,50 +238,51 @@ void BasePlayerActivity::setCommonData() {
 
     this->setRelationButton(false, false, false);
 
-    eventSubscribeID =
-        MPVCore::instance().getEvent()->subscribe([this](MpvEventEnum event) {
-            // 上一次报告历史记录的时间点
-            static int64_t lastProgress = MPVCore::instance().video_progress;
-            switch (event) {
-                case MpvEventEnum::UPDATE_PROGRESS:
-                    // 每15秒同步一次进度
-                    if (lastProgress + 15 <
-                        MPVCore::instance().video_progress) {
-                        lastProgress = MPVCore::instance().video_progress;
-                        this->reportCurrentProgress(
-                            lastProgress, MPVCore::instance().duration);
-                    } else if (MPVCore::instance().video_progress <
-                               lastProgress) {
-                        // 当前播放时间小于上一次上传历史记录的时间点
-                        // 发生于向前拖拽进度的时候，此时重置lastProgress的值
-                        lastProgress = MPVCore::instance().video_progress;
+    eventSubscribeID = MPV_E->subscribe([this](MpvEventEnum event) {
+        // 上一次报告历史记录的时间点
+        static int64_t lastProgress = MPVCore::instance().video_progress;
+        switch (event) {
+            case MpvEventEnum::UPDATE_PROGRESS:
+                // 每15秒同步一次进度
+                if (lastProgress + 15 < MPVCore::instance().video_progress) {
+                    lastProgress = MPVCore::instance().video_progress;
+                    this->reportCurrentProgress(lastProgress,
+                                                MPVCore::instance().duration);
+                } else if (MPVCore::instance().video_progress < lastProgress) {
+                    // 当前播放时间小于上一次上传历史记录的时间点
+                    // 发生于向前拖拽进度的时候，此时重置lastProgress的值
+                    lastProgress = MPVCore::instance().video_progress;
+                }
+                break;
+            case MpvEventEnum::END_OF_FILE:
+                // 尝试自动加载下一分集
+                // 如果当前最顶层是Dialog就放弃自动播放，因为有可能是用户点开了收藏或者投币对话框
+                {
+                    auto stack    = brls::Application::getActivitiesStack();
+                    Activity* top = stack[stack.size() - 1];
+                    if (!dynamic_cast<BasePlayerActivity*>(top)) {
+                        // 判断最顶层是否为video
+                        if (!dynamic_cast<VideoView*>(
+                                top->getContentView()->getView("video")))
+                            return;
                     }
-                    break;
-                case MpvEventEnum::END_OF_FILE:
-                    // 尝试自动加载下一分集
-                    // 如果当前最顶层是Dialog就放弃自动播放，因为有可能是用户点开了收藏或者投币对话框
-                    {
-                        auto stack    = brls::Application::getActivitiesStack();
-                        Activity* top = stack[stack.size() - 1];
-                        if (!dynamic_cast<BasePlayerActivity*>(top)) {
-                            // 判断最顶层是否为video
-                            if (!dynamic_cast<VideoView*>(
-                                    top->getContentView()->getView("video")))
-                                return;
-                        }
-                        if (AUTO_NEXT_PART) this->onIndexChangeToNext();
-                    }
-                    break;
-                case MpvEventEnum::QUALITY_CHANGE_REQUEST:
-                    this->setVideoQuality();
-                    break;
-                default:
-                    break;
+                    if (AUTO_NEXT_PART) this->onIndexChangeToNext();
+                }
+                break;
+            default:
+                break;
+        }
+    });
+
+    customEventSubscribeID =
+        MPV_CE->subscribe([this](const std::string& event, void* data) {
+            if (event == VideoView::QUALITY_CHANGE) {
+                this->setVideoQuality();
             }
         });
 }
 
-void BasePlayerActivity::showShareDialog(const std::string link) {
+void BasePlayerActivity::showShareDialog(const std::string& link) {
     auto container = new brls::Box(brls::Axis::COLUMN);
     container->setJustifyContent(brls::JustifyContent::CENTER);
     container->setAlignItems(brls::AlignItems::CENTER);
@@ -408,22 +410,71 @@ void BasePlayerActivity::onVideoPlayUrl(
     // 进度向前回退5秒，避免当前进度过于接近结尾出现一加载就结束的情况
     int progress = this->getProgress() - 5;
 
+    // 针对用户上传的视频，尝试加载上一次播放的进度
+    if (videoDetailPage.cid && progress <= 0) {
+        auto data = SubtitleCore::instance().getSubtitleList();
+        if (data.last_play_cid == videoDetailPage.cid &&
+            data.last_play_time > 0) {
+            this->video->setLastPlayedPosition(data.last_play_time / 1000);
+        }
+    } else {
+        // 设置为 POSITION_DISCARD 后，不会加载网络历史记录，而是直接使用 setProgress 指定的位置
+        // 一般来说 setProgress 是打开播放页面时指定的播放时间，通常是从历史记录页面进入时设置的
+        this->video->setLastPlayedPosition(VideoView::POSITION_DISCARD);
+        if (progress > 0)
+            MPV_CE->fire(VideoView::HINT,
+                         (void*)fmt::format("已为您定位至: {}",
+                                            wiliwili::sec2Time(progress))
+                             .c_str());
+    }
+
     if (!result.dash.video.empty()) {
         // dash
         brls::Logger::debug("Video type: dash");
+
+        // 找到当前可用的清晰度
         for (const auto& i : result.dash.video) {
-            // todo: 相同清晰度的码率选择方案
             if (result.quality >= i.id) {
-                // 手动设置当前选择的清晰度
                 videoUrlResult.quality = i.id;
-                if (result.dash.audio.empty()) {
-                    this->video->setUrl(i.base_url, progress);
-                } else {
-                    this->video->setUrl(i.base_url, progress,
-                                        result.dash.audio[0].base_url);
-                }
                 break;
             }
+        }
+
+        // 找到当前清晰度下可用的视频
+        std::vector<bilibili::DashMedia> codecs;
+        for (const auto& i : result.dash.video) {
+            if (i.id == videoUrlResult.quality) {
+                codecs.emplace_back(i);
+            }
+        }
+
+        // 匹配当前设定的视频编码
+        bilibili::DashMedia v = codecs[0];  // 默认是 AVC/H.264
+        for (const auto& i : codecs) {
+            if (BILI::VIDEO_CODEC == i.codecid) {
+                v = i;
+                break;
+            }
+        }
+
+        // 给播放器设置链接
+        if (result.dash.audio.empty()) {
+            // 无音频视频
+            this->video->setUrl(v.base_url, progress);
+            brls::Logger::debug("Dash quality: {}; video: {}",
+                                videoUrlResult.quality, v.codecid);
+        } else {
+            // 匹配当前设定的音频码率
+            bilibili::DashMedia a = result.dash.audio[0];  // High
+            for (auto& i : result.dash.audio) {
+                if (BILI::AUDIO_QUALITY == i.id) {
+                    a = i;
+                    break;
+                }
+            }
+            this->video->setUrl(v.base_url, progress, a.base_url);
+            brls::Logger::debug("Dash quality: {}; video: {}; audio: {}",
+                                videoUrlResult.quality, v.codecid, a.id);
         }
     } else {
         // flv
@@ -442,16 +493,15 @@ void BasePlayerActivity::onVideoPlayUrl(
     }
 
     // 设置mpv事件，更新清晰度
-    MPVCore::instance().qualityStr =
-        videoUrlResult.accept_description[getQualityIndex()];
-    MPVCore::instance().getEvent()->fire(MpvEventEnum::QUALITY_CHANGED);
+    std::string quality = videoUrlResult.accept_description[getQualityIndex()];
+    MPV_CE->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
 
     brls::Logger::debug("BasePlayerActivity::onVideoPlayUrl done");
 }
 
 void BasePlayerActivity::onCommentInfo(
     const bilibili::VideoCommentResultWrapper& result) {
-    DataSourceCommentList* datasource =
+    auto* datasource =
         dynamic_cast<DataSourceCommentList*>(recyclingGrid->getDataSource());
     if (result.cursor.prev == 1) {
         // 第一页评论
@@ -480,9 +530,9 @@ void BasePlayerActivity::onRequestCommentError(const std::string& error) {
 
 void BasePlayerActivity::onVideoOnlineCount(
     const bilibili::VideoOnlineTotal& result) {
-    this->videoPeopleLabel->setText(result.total +
-                                    "wiliwili/player/current"_i18n);
-    this->video->setOnlineCount(result.total + "wiliwili/player/current"_i18n);
+    std::string count = result.total + "wiliwili/player/current"_i18n;
+    this->videoPeopleLabel->setText(count);
+    MPV_CE->fire(VideoView::SET_ONLINE_NUM, (void*)count.c_str());
 }
 
 void BasePlayerActivity::onVideoRelationInfo(
@@ -513,22 +563,42 @@ void BasePlayerActivity::setRelationButton(bool liked, bool coin,
 }
 
 void BasePlayerActivity::onError(const std::string& error) {
-    ASYNC_RETAIN
-    brls::sync([ASYNC_TOKEN, error]() {
-        ASYNC_RELEASE
-        auto dialog = new brls::Dialog(error);
-        dialog->setCancelable(false);
-        dialog->addButton("hints/ok"_i18n, []() {
-            brls::sync([]() { brls::Application::popActivity(); });
-        });
-        dialog->open();
+    if (!activityShown) return;
+    MPVCore::instance().stop();
+    MPVCore::instance().reset();
+    bool forceClose = true;
+    std::string msg = error;
+    if (pystring::count(error, "10403") > 0) {
+        forceClose = false;
+        msg        = "大会员专享限制";
+    } else if (pystring::count(error, "404") > 0) {
+        msg = "啥都木有";
+    } else if (pystring::count(error, "62002") > 0) {
+        msg = "稿件不可见";
+    }
+    auto dialog = new brls::Dialog(msg);
+    dialog->setCancelable(false);
+    dialog->addButton("hints/ok"_i18n, [forceClose]() {
+        if (forceClose) brls::sync([]() { brls::Application::popActivity(); });
     });
+    dialog->open();
+}
+
+void BasePlayerActivity::willDisappear(bool resetState) {
+    activityShown = false;
+    brls::Activity::willDisappear(resetState);
+}
+
+void BasePlayerActivity::willAppear(bool resetState) {
+    activityShown = true;
+    brls::Activity::willAppear(resetState);
 }
 
 BasePlayerActivity::~BasePlayerActivity() {
     brls::Logger::debug("del BasePlayerActivity");
     // 取消监控mpv
-    MPVCore::instance().getEvent()->unsubscribe(eventSubscribeID);
+    MPV_E->unsubscribe(eventSubscribeID);
+    MPV_CE->unsubscribe(customEventSubscribeID);
     // 停止视频播放
     this->video->stop();
 }

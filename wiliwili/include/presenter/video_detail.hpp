@@ -44,8 +44,7 @@ public:
         const bilibili::VideoDetailListResult& result) {}
     virtual void onUpInfo(const bilibili::UserDetailResultWrapper& result) {}
     virtual void onRedirectToEp(const std::string& url) {}
-
-    // todo: 获取视频合集
+    virtual void onUGCSeasonInfo(const bilibili::UGCSeason& result) {}
 
     /// 请求视频数据
     void requestData(const bilibili::VideoDetailResult& video);
@@ -63,7 +62,7 @@ public:
     void requestSeasonStatue(size_t seasonID);
 
     /// 获取视频信息：标题、作者、简介、分P等
-    void requestVideoInfo(const std::string bvid);
+    void requestVideoInfo(const std::string& bvid);
 
     /// 获取视频地址
     void requestVideoUrl(std::string bvid, int cid);
@@ -92,7 +91,10 @@ public:
     void requestVideoRelationInfo(size_t epid);
 
     /// 获取视频弹幕
-    void requestVideoDanmaku(const unsigned int cid);
+    void requestVideoDanmaku(int cid);
+
+    /// 获取视频分P详情
+    void requestVideoPageDetail(const std::string& bvid, int cid);
 
     /// 上报播放进度
     void reportHistory(unsigned int aid, unsigned int cid,

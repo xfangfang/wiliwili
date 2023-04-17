@@ -18,6 +18,7 @@
 #include "presenter/video_detail.hpp"
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
+#include "view/video_view.hpp"
 #include "activity/player_activity.hpp"
 
 using namespace brls::literals;
@@ -52,6 +53,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
     {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
+    {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END,
+     {"player_exit_fullscreen_on_end", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
@@ -67,12 +70,23 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
       {0, 10, 20, 50, 100, 200, 500},
       0}},
+    {
+        SettingItem::PLAYER_DEFAULT_SPEED,
+        {"player_default_speed",
+         {"2.0x", "1.75x", "1.5x", "1.25x", "1.0x", "0.75x", "0.5x"},
+         {200, 175, 150, 125, 100, 75, 50},
+         4},
+    },
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
     {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads", {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
     {SettingItem::VIDEO_FORMAT,
-     {"video_format", {"dash", "flv/mp4"}, {1744, 0}, 0}},
+     {"file_format", {"Dash (AVC/HEVC/AV1)", "FLV/MP4"}, {4048, 0}, 0}},
+    {SettingItem::VIDEO_CODEC,
+     {"video_codec", {"AVC/H.264", "HEVC/H.265", "AV1"}, {7, 12, 13}, 0}},
+    {SettingItem::AUDIO_QUALITY,
+     {"audio_quality", {"High", "Medium", "Low"}, {30280, 30232, 30216}, 0}},
     {SettingItem::DANMAKU_FILTER_LEVEL,
      {"danmaku_filter_level",
       {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
@@ -133,12 +147,13 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     // release 下默认全屏
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
 #endif
-#endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
     {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
+    {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END,
+     {"player_exit_fullscreen_on_end", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
@@ -154,6 +169,13 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
       {0, 10, 20, 50, 100, 200, 500},
       2}},
+    {
+        SettingItem::PLAYER_DEFAULT_SPEED,
+        {"player_default_speed",
+         {"2.0x", "1.75x", "1.5x", "1.25x", "1.0x", "0.75x", "0.5x"},
+         {200, 175, 150, 125, 100, 75, 50},
+         0},
+    },
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
     {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
@@ -162,7 +184,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {1, 2, 3, 4, 8, 12, 16},
       3}},
     {SettingItem::VIDEO_FORMAT,
-     {"video_format", {"dash", "flv/mp4"}, {1744, 0}, 0}},
+     {"file_format", {"Dash (AVC/HEVC/AV1)", "FLV/MP4"}, {4048, 0}, 0}},
+    {SettingItem::VIDEO_CODEC,
+     {"video_codec", {"AVC/H.264", "HEVC/H.265", "AV1"}, {7, 12, 13}, 0}},
+    {SettingItem::AUDIO_QUALITY,
+     {"audio_quality", {"High", "Medium", "Low"}, {30280, 30232, 30216}, 0}},
     {SettingItem::DANMAKU_FILTER_LEVEL,
      {"danmaku_filter_level",
       {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
@@ -196,27 +222,43 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 ProgramConfig::ProgramConfig() = default;
 
 ProgramConfig::ProgramConfig(const ProgramConfig& conf) {
-    this->cookie  = conf.cookie;
-    this->setting = conf.setting;
+    this->cookie       = conf.cookie;
+    this->setting      = conf.setting;
+    this->device       = conf.device;
+    this->client       = conf.client;
+    this->refreshToken = conf.refreshToken;
 }
 
 void ProgramConfig::setProgramConfig(const ProgramConfig& conf) {
-    this->cookie  = conf.cookie;
-    this->setting = conf.setting;
-    this->client  = conf.client;
-    brls::Logger::info("client: {}", conf.client);
+    this->cookie       = conf.cookie;
+    this->setting      = conf.setting;
+    this->client       = conf.client;
+    this->device       = conf.device;
+    this->refreshToken = conf.refreshToken;
+    brls::Logger::info("client: {}/{}", conf.client, conf.device);
     for (const auto& c : conf.cookie) {
         brls::Logger::info("cookie: {}:{}", c.first, c.second);
     }
+    brls::Logger::info("refreshToken: {}", conf.refreshToken);
     brls::Logger::info("setting: {}", conf.setting.dump());
 }
 
-void ProgramConfig::setCookie(Cookie data) {
-    this->cookie = std::move(data);
+void ProgramConfig::setCookie(const Cookie& data) {
+    this->cookie = data;
+    if (data.empty()) this->refreshToken.clear();
     this->save();
 }
 
-Cookie ProgramConfig::getCookie() { return this->cookie; }
+Cookie ProgramConfig::getCookie() const { return this->cookie; }
+
+void ProgramConfig::setRefreshToken(const std::string& token) {
+    this->refreshToken = token;
+    this->save();
+}
+
+std::string ProgramConfig::getRefreshToken() const {
+    return this->refreshToken;
+}
 
 std::string ProgramConfig::getCSRF() {
     if (this->cookie.count("bili_jct") == 0) {
@@ -239,6 +281,17 @@ std::string ProgramConfig::getClientID() {
         this->save();
     }
     return this->client;
+}
+
+std::string ProgramConfig::getDeviceID() {
+    if (this->device.empty()) {
+        this->device =
+            fmt::format("{}-{}-{}-{}-{}", wiliwili::getRandomHex(8),
+                        wiliwili::getRandomHex(4), wiliwili::getRandomHex(4),
+                        wiliwili::getRandomHex(4), wiliwili::getRandomHex(12));
+        this->save();
+    }
+    return this->device;
 }
 
 void ProgramConfig::loadHomeWindowState() {
@@ -310,6 +363,9 @@ void ProgramConfig::load() {
     VideoDetail::defaultQuality =
         getSettingItem(SettingItem::VIDEO_QUALITY, 116);
 
+    // 初始化默认的倍速设定
+    MPVCore::VIDEO_SPEED = getIntOption(SettingItem::PLAYER_DEFAULT_SPEED);
+
     // 初始化弹幕相关内容
     DanmakuCore::DANMAKU_ON = getBoolOption(SettingItem::DANMAKU_ON);
     DanmakuCore::DANMAKU_FILTER_SHOW_TOP =
@@ -338,8 +394,9 @@ void ProgramConfig::load() {
         getBoolOption(SettingItem::GAMEPAD_VIBRATION);
 
     // 初始化视频格式
-    bilibili::BilibiliClient::FNVAL =
-        std::to_string(getIntOption(SettingItem::VIDEO_FORMAT));
+    BILI::FNVAL       = std::to_string(getIntOption(SettingItem::VIDEO_FORMAT));
+    BILI::VIDEO_CODEC = getIntOption(SettingItem::VIDEO_CODEC);
+    BILI::AUDIO_QUALITY = getIntOption(SettingItem::AUDIO_QUALITY);
 
     // 初始化线程数
     ImageHelper::REQUEST_THREADS =
@@ -375,6 +432,10 @@ void ProgramConfig::load() {
     // 初始化自定义的硬件加速方案
     MPVCore::PLAYER_HWDEC_METHOD = getSettingItem(
         SettingItem::PLAYER_HWDEC_CUSTOM, MPVCore::PLAYER_HWDEC_METHOD);
+
+    // 播放结束时自动退出全屏
+    VideoView::EXIT_FULLSCREEN_ON_END =
+        getBoolOption(SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END);
 
     // 初始化内存缓存大小
     MPVCore::INMEMORY_CACHE = getIntOption(SettingItem::PLAYER_INMEMORY_CACHE);
@@ -542,16 +603,24 @@ void ProgramConfig::init() {
         }
     }
 
+    brls::FontLoader::USER_EMOJI_PATH = getConfigDir() + "/emoji.ttf";
+    if (access(brls::FontLoader::USER_EMOJI_PATH.c_str(), F_OK) == -1) {
+        // 自定义emoji不存在，使用内置emoji
+        brls::FontLoader::USER_EMOJI_PATH = BRLS_ASSET("font/emoji.ttf");
+    }
+
     // set bilibili cookie and cookie update callback
     Cookie diskCookie = this->getCookie();
-    bilibili::BilibiliClient::init(
+    BILI::init(
         diskCookie,
-        [](const Cookie& newCookie) {
+        [](const Cookie& newCookie, const std::string& token) {
             brls::Logger::info("======== write cookies to disk");
             for (const auto& c : newCookie) {
                 brls::Logger::info("cookie: {}:{}", c.first, c.second);
             }
+            brls::Logger::info("refreshToken: {}", token);
             ProgramConfig::instance().setCookie(newCookie);
+            ProgramConfig::instance().setRefreshToken(token);
         },
         5000);
 }

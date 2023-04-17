@@ -13,8 +13,12 @@
         "low_quality": "低畫質解碼（以畫質為代價換取更低的功耗）",
         "in_memory_cache": "解码緩存（Switch上更小的值可减少BUG發生，不過會導致跳轉不流暢）\n",
         "hwdec": "硬體解碼",
+        "exit_fullscreen": "播放結束時自動退出全屏",
         "auto_play_next_part": "自動播放下一分集",
         "auto_play_recommend": "自動播放推薦影片",
+        "sleep": "定時關閉",
+        "video_codec": "影像編碼",
+        "audio_quality": "影像音質",
         "video_format": "影像格式"
       },
       "image": {
@@ -102,7 +106,7 @@
       "common_header": "通用快速鍵",
       "common_content": " /  切換一級頁面\n  /  切換二級頁面",
       "player_header": "播放器快速鍵",
-      "player_content": " 快進，按兩下  快進鎖定\n  +  向前跳轉視頻（單個  即可完整操控播放）\n  顯示/隱藏播放器OSD \n  顯示/隱藏彈幕"
+      "player_content": " 快進，按兩下  快進鎖定\n  +  向前跳轉視頻（單個  即可完整操控播放）\n  顯示/隱藏播放器OSD \n  顯示/隱藏彈幕 \n \uE0F0 顯示/隱藏影像數據"
     },
     "net": {
       "test": {
@@ -143,6 +147,10 @@
       "next": "下一項",
       "filter": "篩選",
       "save": "儲存",
+      "min": "分鐘",
+      "high": "高",
+      "medium": "中",
+      "low": "低",
       "no_login": "您尚未登入"
     },
     "live": {
@@ -195,10 +203,12 @@
     },
     "history": "歷史記錄",
     "collection": "我的收藏",
+    "subscription": "我的訂閱",
     "anime": "我的追番",
     "series": "我的追劇",
     "refresh_history": "重新整理歷史記錄",
     "refresh_collection": "重新整理我的收藏",
+    "refresh_subscription": "重新整理我的訂閱",
     "refresh_anime": "重新整理我的追劇",
     "refresh_series": "重新整理我的追番",
     "coin": "硬幣",
@@ -216,6 +226,7 @@
   "player": {
     "intro": "查看簡介",
     "p": "分集",
+    "ugc_season": "合集",
     "related": "推薦",
     "series": "系列",
     "recommend": "推薦",
@@ -227,6 +238,8 @@
     "rights": "未經作者授權，禁止轉載",
     "fs": "全屏",
     "quality": "畫質",
+    "speed": "倍速",
+    "current_speed": "{} 倍速播放中",
     "not_follow": "取消關注？",
     "coin": {
       "title": "硬幣",
@@ -239,7 +252,20 @@
       "pcs": "{} 个"
     },
     "collection": {
+      "type": "收藏",
       "title": "選擇收藏夾"
+    },
+    "setting": {
+      "subtitle": {
+        "header": "字幕"
+      },
+      "common": {
+        "header": "通用",
+        "wiki": "查看項目 WIKI 獲得詳細說明"
+      },
+      "shader": {
+        "header": "著色器"
+      }
     },
     "danmaku": {
       "header": "彈幕設定",

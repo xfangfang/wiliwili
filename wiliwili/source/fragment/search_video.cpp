@@ -6,7 +6,6 @@
 #include "bilibili.h"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
-#include "activity/player_activity.hpp"
 #include "activity/search_activity.hpp"
 #include "fragment/search_tab.hpp"
 

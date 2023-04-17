@@ -6,6 +6,8 @@
 #include "fragment/search_tab.hpp"
 #include "analytics.h"
 
+using namespace brls::literals;
+
 SearchActivity::SearchActivity(const std::string& key) {
     SearchActivity::currentKey = key;
     brls::Logger::debug("SearchActivity: create {}", key);
@@ -22,16 +24,16 @@ void SearchActivity::onContentAvailable() {
                          brls::ControllerButton::BUTTON_Y,
                          [this](brls::View* view) -> bool {
                              brls::Application::getImeManager()->openForText(
-                                 [&](std::string text) { this->search(text); },
-                                 "wiliwili/home/common/search"_i18n, "", 32,
-                                 SearchActivity::currentKey, 0);
+                [&](const std::string& text) { this->search(text); },
+                "wiliwili/home/common/search"_i18n, "", 32,
+                SearchActivity::currentKey, 0);
                              return true;
                          });
 
     this->searchBox->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->searchBox, [this]() {
             brls::Application::getImeManager()->openForText(
-                [&](std::string text) { this->search(text); },
+                [&](const std::string& text) { this->search(text); },
                 "wiliwili/home/common/search"_i18n, "", 32,
                 SearchActivity::currentKey, 0);
         }));

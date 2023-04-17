@@ -7,6 +7,11 @@
 #include "borealis/core/cache_helper.hpp"
 #include "utils/thread_helper.hpp"
 #include "borealis/core/thread.hpp"
+#include "stb_image.h"
+
+#ifdef USE_WEBP
+#include <webp/decode.h>
+#endif
 
 class ImageThreadPool : public cpr::ThreadPool,
                         public brls::Singleton<ImageThreadPool> {
@@ -53,7 +58,7 @@ std::shared_ptr<ImageHelper> ImageHelper::with(brls::Image* view) {
     // 设置图片组件不处理纹理的销毁，由缓存统一管理纹理销毁
     item->imageView->setFreeTexture(false);
 
-    brls::Logger::debug("with view: {} {} {}", (size_t)view, (size_t)item.get(),
+    brls::Logger::verbose("with view: {} {} {}", (size_t)view, (size_t)item.get(),
                         (size_t)(*iter).get());
 
     return item;
@@ -62,7 +67,7 @@ std::shared_ptr<ImageHelper> ImageHelper::with(brls::Image* view) {
 void ImageHelper::load(std::string url) {
     this->imageUrl = url;
 
-    brls::Logger::debug("load view: {} {}", (size_t)this->imageView,
+    brls::Logger::verbose("load view: {} {}", (size_t)this->imageView,
                         (size_t)this);
 
     //    std::unique_lock<std::mutex> lock(this->loadingMutex);
@@ -82,7 +87,7 @@ void ImageHelper::load(std::string url) {
     brls::Logger::verbose("request Image 1: {} {}", this->imageUrl,
                           this->isCancel);
     ImageThreadPool::instance().Submit([this]() {
-        brls::Logger::debug("Submit view: {} {} {} {}", (size_t)this->imageView,
+        brls::Logger::verbose("Submit view: {} {} {} {}", (size_t)this->imageView,
                             (size_t)this, this->imageUrl, this->isCancel);
         if (this->isCancel) {
             this->clean();
@@ -116,7 +121,27 @@ void ImageHelper::requestImage() {
     brls::Logger::verbose("load pic:{} size:{} bytes by{} to {} {}",
                           r.url.str(), r.downloaded_bytes, (size_t)this,
                           (size_t)this->imageView, this->imageView->describe());
-    brls::sync([this, r]() {
+
+    uint8_t* imageData = nullptr;
+    int imageW = 0, imageH = 0;
+
+#ifdef USE_WEBP
+    if (imageUrl.size() > 5 &&
+        imageUrl.substr(imageUrl.size() - 5, 5) == ".webp") {
+        imageData =
+            WebPDecodeRGBA((const uint8_t*)r.text.c_str(),
+                           (size_t)r.downloaded_bytes, &imageW, &imageH);
+    } else {
+#endif
+        int n;
+        imageData = stbi_load_from_memory((unsigned char*)r.text.c_str(),
+                                          (int)r.downloaded_bytes, &imageW,
+                                          &imageH, &n, 4);
+#ifdef USE_WEBP
+    }
+#endif
+
+    brls::sync([this, r, imageData, imageW, imageH]() {
         // 再检查一遍缓存
         int tex = brls::TextureCache::instance().getCache(this->imageUrl);
         if (tex > 0) {
@@ -124,8 +149,12 @@ void ImageHelper::requestImage() {
             this->imageView->innerSetImage(tex);
         } else {
             NVGcontext* vg = brls::Application::getNVGContext();
-            tex = nvgCreateImageMem(vg, 0, (unsigned char*)r.text.c_str(),
-                                    (size_t)r.downloaded_bytes);
+            if (imageData) {
+                tex = nvgCreateImageRGBA(vg, imageW, imageH, 0, imageData);
+            } else {
+                brls::Logger::error("Failed to load image: {}", this->imageUrl);
+            }
+
             if (tex > 0) {
                 brls::TextureCache::instance().addCache(this->imageUrl, tex);
                 if (!this->isCancel) {
@@ -133,6 +162,13 @@ void ImageHelper::requestImage() {
                     this->imageView->innerSetImage(tex);
                 }
             }
+        }
+        if (imageData) {
+#ifdef USE_WEBP
+            WebPFree(imageData);
+#else
+            stbi_image_free(imageData);
+#endif
         }
         this->clean();
     });
@@ -158,7 +194,7 @@ void ImageHelper::clear(brls::Image* view) {
     // 请求不存在
     if (requestMap.find(view) == requestMap.end()) return;
 
-    brls::Logger::debug("clear view: {} {}", (size_t)view,
+    brls::Logger::verbose("clear view: {} {}", (size_t)view,
                         (size_t)(*requestMap[view]).get());
 
     // 请求没结束，取消请求

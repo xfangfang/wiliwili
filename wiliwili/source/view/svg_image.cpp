@@ -6,8 +6,9 @@
 #include "borealis/core/cache_helper.hpp"
 
 SVGImage::SVGImage() {
-    this->registerFilePathXMLAttribute(
-        "SVG", [this](std::string value) { this->setImageFromSVGFile(value); });
+    this->registerFilePathXMLAttribute("SVG", [this](const std::string& value) {
+        this->setImageFromSVGFile(value);
+    });
 
     // 交给缓存自动处理纹理的删除
     this->setFreeTexture(false);
@@ -24,11 +25,11 @@ SVGImage::SVGImage() {
         });
 }
 
-void SVGImage::setImageFromSVGRes(std::string name) {
-    this->setImageFromSVGFile(std::string(BRLS_RESOURCES) + name);
+void SVGImage::setImageFromSVGRes(const std::string& value) {
+    this->setImageFromSVGFile(std::string(BRLS_RESOURCES) + value);
 }
 
-void SVGImage::setImageFromSVGFile(const std::string value) {
+void SVGImage::setImageFromSVGFile(const std::string& value) {
     filePath   = value;
     size_t tex = this->getTexture();
     if (tex > 0) brls::TextureCache::instance().removeCache(tex);
@@ -50,7 +51,7 @@ void SVGImage::setImageFromSVGFile(const std::string value) {
     }
 }
 
-void SVGImage::setImageFromSVGString(const std::string value) {
+void SVGImage::setImageFromSVGString(const std::string& value) {
     this->document = lunasvg::Document::loadFromData(value);
     this->updateBitmap();
 }
