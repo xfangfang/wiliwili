@@ -405,7 +405,6 @@ void BasePlayerActivity::setVideoQuality() {
 void BasePlayerActivity::onVideoPlayUrl(
     const bilibili::VideoUrlResult& result) {
     brls::Logger::debug("onVideoPlayUrl quality: {}", result.quality);
-    //todo: 播放失败时可以尝试备用播放链接
 
     // 进度向前回退5秒，避免当前进度过于接近结尾出现一加载就结束的情况
     int progress = this->getProgress() - 5;
@@ -461,6 +460,9 @@ void BasePlayerActivity::onVideoPlayUrl(
         if (result.dash.audio.empty()) {
             // 无音频视频
             this->video->setUrl(v.base_url, progress);
+            for (auto& url : v.backup_url) {
+                this->video->setBackupUrl(url, progress);
+            }
             brls::Logger::debug("Dash quality: {}; video: {}",
                                 videoUrlResult.quality, v.codecid);
         } else {
@@ -473,6 +475,11 @@ void BasePlayerActivity::onVideoPlayUrl(
                 }
             }
             this->video->setUrl(v.base_url, progress, a.base_url);
+            for (auto& videoUrl : v.backup_url) {
+                for (auto& audioUrl : a.backup_url) {
+                    this->video->setBackupUrl(videoUrl, progress, audioUrl);
+                }
+            }
             brls::Logger::debug("Dash quality: {}; video: {}; audio: {}",
                                 videoUrlResult.quality, v.codecid, a.id);
         }

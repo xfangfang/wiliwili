@@ -377,23 +377,27 @@ void VideoView::onLayout() {
     oldRect = rect;
 }
 
-void VideoView::setUrl(const std::string& url, int progress,
-                       const std::string& audio) {
-    brls::Logger::debug("set video url: {}", url);
-
-    if (progress < 0) progress = 0;
-    std::string extra = "referrer=\"https://www.bilibili.com\"";
+std::string VideoView::genExtraUrlParam(int progress,
+                                        const std::string& audio) {
+    std::string extra =
+        "referrer=\"https://www.bilibili.com\",network-timeout=5";
     if (progress > 0) {
         extra += fmt::format(",start={}", progress);
-        brls::Logger::debug("set video progress: {}", progress);
     }
     if (!audio.empty()) {
         extra += fmt::format(",audio-file=\"{}\"", audio);
-        brls::Logger::debug("set audio: {}", audio);
     }
-    brls::Logger::debug("Extra options: {}", extra);
+    return extra;
+}
 
-    mpvCore->setUrl(url, extra);
+void VideoView::setUrl(const std::string& url, int progress,
+                       const std::string& audio) {
+    mpvCore->setUrl(url, genExtraUrlParam(progress, audio));
+}
+
+void VideoView::setBackupUrl(const std::string& url, int progress,
+                             const std::string& audio) {
+    mpvCore->setBackupUrl(url, genExtraUrlParam(progress, audio));
 }
 
 void VideoView::setUrl(const std::vector<EDLUrl>& edl_urls, int progress) {

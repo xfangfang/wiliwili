@@ -86,7 +86,10 @@ public:
 
     std::string getCacheSpeed();
 
-    void setUrl(const std::string &url, const std::string &extra = "");
+    void setUrl(const std::string &url, const std::string &extra = "",
+                const std::string &method = "replace");
+
+    void setBackupUrl(const std::string &url, const std::string &extra = "");
 
     std::string getString(const std::string &key);
 
@@ -146,6 +149,12 @@ public:
     double playback_time   = 0;
     double percent_pos     = 0;
     int64_t video_progress = 0;
+
+    // 播放列表设计为：
+    // 第 0 项：默认视频
+    // 第 1 - N 项：备用视频
+    int64_t playlistPos   = -1;
+    int64_t playlistCount = 0;
 
     // Bottom progress bar
     inline static bool BOTTOM_BAR = true;

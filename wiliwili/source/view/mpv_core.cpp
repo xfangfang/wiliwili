@@ -415,8 +415,6 @@ void MPVCore::setFrameSize(brls::Rect rect) {
         nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth,
                            drawHeight, 0, (const unsigned char *)pixels);
 
-    brls::Logger::error("=======> {}/{}", drawWidth, drawHeight);
-
     sw_size[0] = drawWidth;
     sw_size[1] = drawHeight;
     pitch      = PIXCEL_SIZE * drawWidth;
@@ -591,7 +589,7 @@ void MPVCore::eventMainLoop() {
                 brls::Logger::info("========> MPV_EVENT_FILE_LOADED");
                 // event 8: 文件预加载结束，准备解码
                 mpvCoreEvent.fire(MpvEventEnum::MPV_LOADED);
-                // this->resume();
+                playlistPos = getInt("playlist-pos");
                 break;
             case MPV_EVENT_START_FILE:
                 // event 6: 开始加载文件
@@ -641,6 +639,10 @@ void MPVCore::eventMainLoop() {
                                 brls::Logger::info(
                                     "========> END OF FILE (paused)");
                                 mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
+                                // 当前播放列表大于1项，停止后续列表播放
+                                if (this->playlistCount > 1) {
+                                    this->stop();
+                                }
                             } else {
                                 brls::Logger::info("========> PAUSE");
                                 mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
@@ -654,6 +656,11 @@ void MPVCore::eventMainLoop() {
                                     brls::Logger::info("========> END OF FILE");
                                     mpvCoreEvent.fire(
                                         MpvEventEnum::END_OF_FILE);
+
+                                    // 当前播放列表大于1项，停止后续列表播放
+                                    if (this->playlistCount > 1) {
+                                        this->stop();
+                                    }
                                 } else {
                                     brls::Logger::info("========> LOADING");
                                     mpvCoreEvent.fire(
@@ -793,17 +800,26 @@ void MPVCore::reset() {
     this->cache_speed    = 0;  // Bps
     this->playback_time  = 0;
     this->video_progress = 0;
+    this->playlistPos    = -1;
+    this->playlistCount  = 0;
 }
 
-void MPVCore::setUrl(const std::string &url, const std::string &extra) {
+void MPVCore::setUrl(const std::string &url, const std::string &extra,
+                     const std::string &method) {
+    brls::Logger::debug("{} Url: {}, extra: {}", method, url, extra);
     if (extra.empty()) {
-        const char *cmd[] = {"loadfile", url.c_str(), nullptr};
+        const char *cmd[] = {"loadfile", url.c_str(), method.c_str(), nullptr};
         command_async(cmd);
     } else {
-        const char *cmd[] = {"loadfile", url.c_str(), "replace", extra.c_str(),
-                             nullptr};
+        const char *cmd[] = {"loadfile", url.c_str(), method.c_str(),
+                             extra.c_str(), nullptr};
         command_async(cmd);
     }
+    this->playlistCount = getInt("playlist-count");
+}
+
+void MPVCore::setBackupUrl(const std::string &url, const std::string &extra) {
+    this->setUrl(url, extra, "append");
 }
 
 void MPVCore::resume() { command_str("set pause no"); }
