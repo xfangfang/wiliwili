@@ -2,8 +2,9 @@
 // Created by fang on 2022/6/15.
 //
 
+#include <utility>
 #include "view/recycling_grid.hpp"
-#include <borealis/core/time.hpp>
+#include "view/button_refresh.hpp"
 
 /// RecyclingGridItem
 
@@ -81,6 +82,17 @@ RecyclingGrid::RecyclingGrid() {
     this->hintLabel->detach();
     this->hintLabel->setFontSize(14);
     this->hintLabel->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+
+    // Create Refresh button
+    this->refreshButton = new ButtonRefresh();
+    this->refreshButton->detach();
+    this->refreshButton->setVisibility(brls::Visibility::GONE);
+    this->refreshButton->registerClickAction([this](...) {
+        if (this->refreshAction) this->refreshAction();
+        return true;
+    });
+    // 使用 Box 的 addView，添加一个 detached button
+    brls::Box::addView(this->refreshButton);
 
     this->setFocusable(false);
 
@@ -508,6 +520,16 @@ void RecyclingGrid::showSkeleton(unsigned int num) {
     this->setDataSource(new DataSourceSkeleton(num));
 }
 
+void RecyclingGrid::refresh() {
+    this->refreshButton->startRotate();
+    if (this->refreshAction) this->refreshAction();
+}
+
+void RecyclingGrid::setRefreshAction(const std::function<void()>& event) {
+    this->refreshAction = event;
+    this->refreshButton->setVisibility(brls::Visibility::VISIBLE);
+}
+
 void RecyclingGrid::selectRowAt(size_t index, bool animated) {
     this->setContentOffsetY(getHeightByCellIndex(index), animated);
     this->itemsRecyclingLoop();
@@ -642,16 +664,20 @@ brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction,
 
 void RecyclingGrid::onLayout() {
     ScrollingFrame::onLayout();
-    float width = this->getWidth();
+    auto rect   = this->getFrame();
+    float width = rect.getWidth();
     // check NAN
     if (width != width) return;
 
+    if (!this->contentBox) return;
     this->contentBox->setWidth(width);
     if (checkWidth()) {
         brls::Logger::debug("RecyclingGrid::onLayout reloadData()");
         layouted = true;
         reloadData();
     }
+    this->refreshButton->setDetachedPosition(rect.getWidth() - 80,
+                                             rect.getHeight() - 80);
 }
 
 bool RecyclingGrid::checkWidth() {

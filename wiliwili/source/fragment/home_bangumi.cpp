@@ -12,7 +12,11 @@ using namespace brls::literals;
 HomeBangumi::HomeBangumi() {
     this->inflateFromXMLRes("xml/fragment/home_bangumi.xml");
     brls::Logger::debug("Fragment HomeBangumi: create");
-
+    this->tabFrame->setRefreshAction([this]() {
+        AutoTabFrame::focus2Sidebar(this);
+        this->tabFrame->clearTabs();
+        this->requestData();
+    });
     this->requestData();
 }
 
@@ -20,9 +24,7 @@ void HomeBangumi::onCreate() {
     this->registerTabAction("wiliwili/home/common/refresh"_i18n,
                             brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
-                                AutoTabFrame::focus2Sidebar(this);
-                                this->tabFrame->clearTabs();
-                                this->requestData();
+                                this->tabFrame->refresh();
                                 return true;
                             });
 

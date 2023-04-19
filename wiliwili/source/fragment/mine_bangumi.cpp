@@ -72,6 +72,11 @@ MineBangumi::MineBangumi() {
     recyclingGrid->registerCell(
         "Cell", []() { return RecyclingGridItemPGCVideoCard::create(true); });
     recyclingGrid->onNextPage([this]() { this->requestData(); });
+    recyclingGrid->setRefreshAction([this]() {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
+        this->requestData(true);
+    });
 }
 
 MineBangumi::~MineBangumi() {
@@ -103,9 +108,7 @@ void MineBangumi::onCreate() {
         requestType == 1 ? "wiliwili/mine/refresh_anime"_i18n
                          : "wiliwili/mine/refresh_series"_i18n,
         brls::ControllerButton::BUTTON_X, [this](brls::View* view) -> bool {
-            AutoTabFrame::focus2Sidebar(this);
-            this->recyclingGrid->showSkeleton();
-            this->requestData(true);
+            this->recyclingGrid->refresh();
             return true;
         });
 }

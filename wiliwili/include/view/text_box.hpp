@@ -76,7 +76,7 @@ public:
 
     RichTextData& getRichText();
 
-    void setText(const std::string& text);
+    void setText(const std::string& text) override;
 
     /**
      * 按行重新分割富文本数据

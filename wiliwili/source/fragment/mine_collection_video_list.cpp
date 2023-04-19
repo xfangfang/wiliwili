@@ -78,14 +78,17 @@ MineCollectionVideoList::MineCollectionVideoList() {
     recyclingGrid->registerCell(
         "Cell", []() { return RecyclingGridItemVideoCard::create(); });
     recyclingGrid->onNextPage([this]() { this->requestCollectionList(); });
+    recyclingGrid->setRefreshAction([this]() {
+        brls::Application::giveFocus(this->imageCover);
+        this->recyclingGrid->showSkeleton();
+        this->requestIndex = 1;
+        this->hasMore      = true;
+        this->requestCollectionList();
+    });
     this->registerAction("wiliwili/home/common/refresh"_i18n,
                          brls::ControllerButton::BUTTON_X,
                          [this](brls::View* view) -> bool {
-                             brls::Application::giveFocus(this->imageCover);
-                             this->recyclingGrid->showSkeleton();
-                             this->requestIndex = 1;
-                             this->hasMore      = true;
-                             this->requestCollectionList();
+                             this->recyclingGrid->refresh();
                              return true;
                          });
 }
