@@ -47,7 +47,8 @@ void DialogHelper::quitApp(bool restart) {
         container->addView(hint);
         container->setBackgroundColor(
             brls::Application::getTheme().getColor("brls/background"));
-        brls::Application::pushActivity(new brls::Activity(container));
+        brls::Application::pushActivity(new brls::Activity(container),
+                                        brls::TransitionAnimation::NONE);
         brls::Application::getPlatform()->exitToHomeMode(!restart);
         brls::Application::quit();
     });

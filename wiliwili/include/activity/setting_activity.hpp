@@ -28,6 +28,7 @@ private:
     BRLS_BIND(brls::RadioCell, btnHotKey, "tools/hot_key");
     BRLS_BIND(brls::RadioCell, btnNetworkChecker, "tools/network_checker");
     BRLS_BIND(brls::RadioCell, btnReleaseChecker, "tools/release_checker");
+    BRLS_BIND(brls::RadioCell, btnQuit, "tools/quit");
     BRLS_BIND(brls::RadioCell, btnOpenConfig, "tools/config_dir");
     BRLS_BIND(brls::RadioCell, btnVibrationTest, "tools/vibration_test");
     BRLS_BIND(brls::SelectorCell, selectorLang, "setting/language");

@@ -192,6 +192,13 @@ void SettingActivity::onContentAvailable() {
     });
     labelAboutVersion->setText(version);
     labelOpensource->setText(OPENSOURCE);
+    btnQuit->registerClickAction([](...) -> bool {
+        auto dialog = new brls::Dialog("hints/exit_hint"_i18n);
+        dialog->addButton("hints/cancel"_i18n, []() {});
+        dialog->addButton("hints/ok"_i18n, []() { brls::Application::quit(); });
+        dialog->open();
+        return true;
+    });
 
     auto& conf = ProgramConfig::instance();
 

@@ -200,6 +200,10 @@
 
                         <brls:RadioCell
                                 id="tools/release_checker"/>
+
+                        <brls:RadioCell
+                                id="tools/quit"
+                                title="@i18n/hints/exit"/>
                     </brls:Box>
                 </brls:ScrollingFrame>
             </Tab>
