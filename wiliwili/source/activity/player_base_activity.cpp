@@ -161,7 +161,7 @@ public:
 
         if (quality > 80) {
             item->vipLabel->setVisibility(brls::Visibility::VISIBLE);
-        } else if (quality > 32) {
+        } else if (quality >= 32) {
             if (!login)
                 item->loginLabel->setVisibility(brls::Visibility::VISIBLE);
         }
@@ -358,9 +358,9 @@ void BasePlayerActivity::setVideoQuality() {
             ProgramConfig::instance().setSettingItem(SettingItem::VIDEO_QUALITY,
                                                      code);
 
-            // 如果未登录选择了大于480P清晰度的视频
+            // 如果未登录选择了大于等于480P清晰度的视频
             if (ProgramConfig::instance().getCSRF().empty() &&
-                defaultQuality > 32) {
+                defaultQuality >= 32) {
                 DialogHelper::showDialog("wiliwili/home/common/no_login"_i18n);
                 return;
             }

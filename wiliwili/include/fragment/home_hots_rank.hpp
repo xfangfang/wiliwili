@@ -45,4 +45,5 @@ private:
     BRLS_BIND(brls::Label, rank_label, "home/hots/rank/label");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/hots/rank/recyclingGrid");
     BRLS_BIND(brls::Box, rank_box, "home/hots/rank/box");
+    int currentChannel = 0;
 };

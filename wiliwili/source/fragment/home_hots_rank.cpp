@@ -49,7 +49,8 @@ private:
 
 class DataSourceHotsRankPGCVideoList : public RecyclingGridDataSource {
 public:
-    DataSourceHotsRankPGCVideoList(bilibili::HotsRankPGCVideoListResult result)
+    explicit DataSourceHotsRankPGCVideoList(
+        bilibili::HotsRankPGCVideoListResult result)
         : videoList(std::move(result)) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
@@ -91,6 +92,11 @@ HomeHotsRank::HomeHotsRank() {
         return RecyclingGridItemRankVideoCard::create(
             "xml/views/video_card_rank_pgc.xml");
     });
+    recyclingGrid->setRefreshAction([this]() {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
+        this->requestData(currentChannel);
+    });
     this->requestData();
 }
 
@@ -110,17 +116,14 @@ void HomeHotsRank::onCreate() {
 
 void HomeHotsRank::switchChannel() {
     AutoTabFrame::focus2Sidebar(this);
-    static int selected = 0;
-    brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
+    BaseDropdown::text(
         "排行榜", this->getRankList(),
-        [this](int _selected) {
-            this->recyclingGrid->showSkeleton();
-            selected = _selected;
-            this->rank_label->setText("榜单：" +
-                                      this->getRankList()[_selected]);
-            this->requestData(_selected);
+        [this](int selected) {
+            this->currentChannel = selected;
+            this->rank_label->setText("榜单：" + this->getRankList()[selected]);
+            this->recyclingGrid->refresh();
         },
-        selected)));
+        currentChannel);
 }
 
 void HomeHotsRank::onHotsRankList(
