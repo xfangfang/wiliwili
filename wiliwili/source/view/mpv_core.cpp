@@ -589,7 +589,8 @@ void MPVCore::eventMainLoop() {
                 brls::Logger::info("========> MPV_EVENT_FILE_LOADED");
                 // event 8: 文件预加载结束，准备解码
                 mpvCoreEvent.fire(MpvEventEnum::MPV_LOADED);
-                playlistPos = getInt("playlist-pos");
+                // 移除其他备用链接
+                command_str("playlist-clear");
                 break;
             case MPV_EVENT_START_FILE:
                 // event 6: 开始加载文件
@@ -639,10 +640,6 @@ void MPVCore::eventMainLoop() {
                                 brls::Logger::info(
                                     "========> END OF FILE (paused)");
                                 mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
-                                // 当前播放列表大于1项，停止后续列表播放
-                                if (this->playlistCount > 1) {
-                                    this->stop();
-                                }
                             } else {
                                 brls::Logger::info("========> PAUSE");
                                 mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
@@ -656,11 +653,6 @@ void MPVCore::eventMainLoop() {
                                     brls::Logger::info("========> END OF FILE");
                                     mpvCoreEvent.fire(
                                         MpvEventEnum::END_OF_FILE);
-
-                                    // 当前播放列表大于1项，停止后续列表播放
-                                    if (this->playlistCount > 1) {
-                                        this->stop();
-                                    }
                                 } else {
                                     brls::Logger::info("========> LOADING");
                                     mpvCoreEvent.fire(
@@ -800,8 +792,6 @@ void MPVCore::reset() {
     this->cache_speed    = 0;  // Bps
     this->playback_time  = 0;
     this->video_progress = 0;
-    this->playlistPos    = -1;
-    this->playlistCount  = 0;
 }
 
 void MPVCore::setUrl(const std::string &url, const std::string &extra,
@@ -815,7 +805,6 @@ void MPVCore::setUrl(const std::string &url, const std::string &extra,
                              extra.c_str(), nullptr};
         command_async(cmd);
     }
-    this->playlistCount = getInt("playlist-count");
 }
 
 void MPVCore::setBackupUrl(const std::string &url, const std::string &extra) {
