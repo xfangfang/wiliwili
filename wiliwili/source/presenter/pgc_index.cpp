@@ -2,6 +2,8 @@
 // Created by fang on 2022/8/24.
 //
 
+#include <cpr/cpr.h>
+
 #include "bilibili.h"
 #include "presenter/pgc_index.hpp"
 #include "pystring.h"

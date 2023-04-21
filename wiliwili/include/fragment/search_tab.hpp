@@ -17,6 +17,7 @@
 #include "view/video_card.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/number_helper.hpp"
 
 class SearchVideo;
 class SearchBangumi;

@@ -1,18 +1,19 @@
 #pragma once
 
 #include <string>
+#include <map>
 #include <vector>
 #include <future>
 #include "bilibili/api.h"
-#include "bilibili/util/md5.hpp"
-#include "bilibili/util/http.hpp"
-#include "bilibili/result/home_hots_all_result.h"
-#include "bilibili/result/home_hots_weekly_result.h"
-#include "bilibili/result/home_hots_history_result.h"
-#include "bilibili/result/home_hots_rank.h"
-#include "bilibili/result/mine_result.h"
-#include "bilibili/result/mine_history_result.h"
-#include "bilibili/result/home_pgc_season_result.h"
+//#include "bilibili/util/md5.hpp"
+//#include "bilibili/util/http.hpp"
+//#include "bilibili/result/home_hots_all_result.h"
+//#include "bilibili/result/home_hots_weekly_result.h"
+//#include "bilibili/result/home_hots_history_result.h"
+//#include "bilibili/result/home_hots_rank.h"
+//#include "bilibili/result/mine_result.h"
+//#include "bilibili/result/mine_history_result.h"
+//#include "bilibili/result/home_pgc_season_result.h"
 
 namespace bilibili {
 
@@ -48,8 +49,30 @@ class CollectionListResultWrapper;       // 用户收藏列表
 class CollectionVideoListResultWrapper;  // 收藏夹 视频列表
 class SimpleCollectionListResultWrapper;  // 单个视频在所有收藏夹中的收藏情况
 class BangumiCollectionWrapper;  // 用户追番/追剧
+enum class LoginInfo;
+class UserResult;
+class HistoryVideoListCursor;
+class HistoryVideoResultWrapper;
+class UserUploadedVideoResultWrapper;
+class SeasonResultWrapper;
+class SeasonRecommendWrapper;
+class SeasonStatusResult;
+class RecommendVideoListResultWrapper;
+class HotsRankPGCVideoResult;
+typedef std::vector<HotsRankPGCVideoResult> HotsRankPGCVideoListResult;
+class HotsRankVideoResult;
+typedef std::vector<HotsRankVideoResult> HotsRankVideoListResult;
+class HotsHistoryVideoResult;
+typedef std::vector<HotsHistoryVideoResult> HotsHistoryVideoListResult;
+class HotsWeeklyVideoResult;
+typedef std::vector<HotsWeeklyVideoResult> HotsWeeklyVideoListResult;
+class HotsWeeklyResult;
+typedef std::vector<HotsWeeklyResult> HotsWeeklyListResult;
+class HotsAllVideoResult;
+typedef std::vector<HotsAllVideoResult> HotsAllVideoListResult;
 
-using Cookies = std::map<std::string, std::string>;
+using Cookies       = std::map<std::string, std::string>;
+using ErrorCallback = std::function<void(const std::string&)>;
 
 #define BILI bilibili::BilibiliClient
 #define BILI_ERR const std::string& error

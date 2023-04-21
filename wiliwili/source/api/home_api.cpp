@@ -6,6 +6,10 @@
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/home_pgc_result.h"
 #include "bilibili/result/home_live_result.h"
+#include "bilibili/result/home_hots_all_result.h"
+#include "bilibili/result/home_hots_weekly_result.h"
+#include "bilibili/result/home_hots_history_result.h"
+#include "bilibili/result/home_hots_rank.h"
 
 namespace bilibili {
 

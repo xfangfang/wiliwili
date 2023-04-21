@@ -12,6 +12,7 @@
 #include "view/subtitle_core.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
+#include "utils/number_helper.hpp"
 #include "presenter/comment_related.hpp"
 
 class DataSourceCommentList : public RecyclingGridDataSource,

@@ -7,6 +7,7 @@
 #include "presenter.h"
 #include "bilibili.h"
 #include "bilibili/result/video_detail_result.h"
+#include "bilibili/result/home_pgc_season_result.h"
 
 // 指明一个id的类型
 enum class PGC_ID_TYPE {

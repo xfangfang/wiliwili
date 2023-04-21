@@ -5,6 +5,7 @@
 #include <borealis.hpp>
 
 #include "bilibili.h"
+#include "bilibili/result/mine_result.h"
 #include "presenter/dynamic_video.hpp"
 #include "utils/config_helper.hpp"
 

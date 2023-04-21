@@ -2,6 +2,7 @@
 // Created by fang on 2022/4/23.
 //
 
+#include "pystring.h"
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
 #include "view/subtitle_core.hpp"

@@ -5,6 +5,7 @@
 #include <utility>
 #include "fragment/mine_qr_login.hpp"
 #include "utils/config_helper.hpp"
+#include "bilibili/result/mine_result.h"
 
 MineQrLogin::MineQrLogin(loginStatusEvent cb) : loginCb(std::move(cb)) {
     this->inflateFromXMLRes("xml/fragment/mine_qr_login.xml");
