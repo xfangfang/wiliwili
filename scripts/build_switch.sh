@@ -1,4 +1,5 @@
-dkp-pacman -Syu --noconfirm
+dkp-pacman -S --noconfirm \
+  libnx switch-curl switch-freetype switch-harfbuzz switch-libfribidi switch-libpng switch-zlib
 set -e
 
 BUILD_DIR=cmake-build-switch
