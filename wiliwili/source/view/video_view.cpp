@@ -206,6 +206,7 @@ VideoView::VideoView() {
         brls::Application::pushActivity(new Activity(setting));
         // 手动将焦点赋给设置页面
         brls::sync([setting]() { brls::Application::giveFocus(setting); });
+        GA("open_danmaku_setting")
         return true;
     });
     this->btnDanmakuSettingIcon->getParent()->addGestureRecognizer(
@@ -218,6 +219,7 @@ VideoView::VideoView() {
         brls::Application::pushActivity(new Activity(setting));
         // 手动将焦点赋给设置页面
         brls::sync([setting]() { brls::Application::giveFocus(setting); });
+        GA("open_player_setting")
         return true;
     });
     this->btnSettingIcon->getParent()->addGestureRecognizer(

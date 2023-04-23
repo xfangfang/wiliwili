@@ -15,6 +15,7 @@
 #include "utils/image_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/vibration_helper.hpp"
+#include "utils/ban_list.hpp"
 #include "presenter/video_detail.hpp"
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
@@ -494,6 +495,9 @@ void ProgramConfig::load() {
     brls::Application::getExitEvent()->subscribe(
         [this]() { saveHomeWindowState(); });
 #endif
+
+    // 检查不欢迎名单
+    wiliwili::checkBanList();
 }
 
 ProgramOption ProgramConfig::getOptionData(SettingItem item) {
