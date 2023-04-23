@@ -645,11 +645,19 @@ void VideoView::setFullScreen(bool fs) {
         brls::sync([ASYNC_TOKEN]() {
             ASYNC_RELEASE
             //todo: a better way to get videoView pointer
-            BasePlayerActivity* last = dynamic_cast<BasePlayerActivity*>(
-                Application::getActivitiesStack()
-                    [Application::getActivitiesStack().size() - 2]);
-            if (last) {
-                VideoView* video = dynamic_cast<VideoView*>(
+
+            // 同时点击全屏按钮和评论会导致评论弹出在 BasePlayerActivity 和 videoView 之间，
+            // 因此目前需要遍历全部的 activity 找到 BasePlayerActivity
+            auto activityStack = Application::getActivitiesStack();
+            if (activityStack.size() <= 2) {
+                brls::Application::popActivity(brls::TransitionAnimation::NONE);
+                return;
+            }
+            for (size_t i = activityStack.size() - 2; i != 0; i--) {
+                auto* last =
+                    dynamic_cast<BasePlayerActivity*>(activityStack[i]);
+                if (!last) continue;
+                auto* video = dynamic_cast<VideoView*>(
                     last->getView("video/detail/video"));
                 if (video) {
                     video->setProgress(this->getProgress());
@@ -672,6 +680,7 @@ void VideoView::setFullScreen(bool fs) {
                     // 立刻准确地显示视频尺寸
                     this->mpvCore->setFrameSize(video->getFrame());
                 }
+                break;
             }
             // Pop fullscreen videoView
             brls::Application::popActivity(brls::TransitionAnimation::NONE);
