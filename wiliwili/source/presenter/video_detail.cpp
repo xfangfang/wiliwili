@@ -140,7 +140,7 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
                 this->onError(error);
@@ -160,7 +160,7 @@ void VideoDetail::requestSeasonRecommend(size_t seasonID) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
         });
 }
 
@@ -177,7 +177,7 @@ void VideoDetail::requestSeasonStatue(size_t seasonID) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
         });
 }
 
@@ -304,7 +304,7 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
                 this->onError("请求视频地址失败\n" + error);
@@ -336,7 +336,7 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
                 this->onError("请求视频地址失败\n" + error);
@@ -436,7 +436,7 @@ void VideoDetail::requestUploadedVideos(int64_t mid, int pn, int ps) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
         });
 }
 
@@ -454,7 +454,7 @@ void VideoDetail::requestVideoOnline(const std::string& bvid, int cid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
         });
 }
 
@@ -472,7 +472,7 @@ void VideoDetail::requestVideoRelationInfo(const std::string& bvid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
         });
 }
 
@@ -493,7 +493,7 @@ void VideoDetail::requestVideoRelationInfo(size_t epid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
         });
 }
 
@@ -544,7 +544,7 @@ void VideoDetail::requestVideoDanmaku(int cid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
         });
 }
 
@@ -591,7 +591,7 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid) {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
         });
 }
 
@@ -615,7 +615,7 @@ void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
     BILI::report_history(
         mid, token, aid, cid, type, progress, duration, sid, epid,
         []() { brls::Logger::debug("reportHistory: success"); },
-        [](const std::string& err) { brls::Logger::error(fmt::runtime(err)); });
+        [](const std::string& err) { brls::Logger::error("{}", err); });
 }
 
 int VideoDetail::getCoinTolerate() {

@@ -84,8 +84,8 @@ package_end()
 
 package("mpv")
     if is_plat("windows", "mingw") then
-        set_urls("https://github.com/zhongfly/mpv-winbuild/releases/download/2023-03-01/mpv-dev-x86_64-20230301-git-779d4f9.7z")
-        add_versions("latest", "5b49e682548f40169dc52f8844344ad779d06f6656934753521e21b1e8e3e2d7")
+        set_urls("https://github.com/zhongfly/mpv-winbuild/releases/download/2023-04-24/mpv-dev-x86_64-v3-20230424-git-4fd0a39.7z")
+        add_versions("20230424", "e29d9749a7a77c78f308b1fb82a322cbaf4a2dc79369228ae4cba2d8c3fd2053")
     end
     add_links("mpv")
     on_install("windows", "mingw", function (package)

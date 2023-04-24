@@ -6,6 +6,7 @@
 #include "view/animation_image.hpp"
 #include "view/check_box.hpp"
 #include "utils/vibration_helper.hpp"
+#include "utils/string_helper.hpp"
 #include "bilibili.h"
 
 using namespace brls::literals;
@@ -76,7 +77,7 @@ void PlayerCoin::getCoinExp() {
         },
         [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
         });
 }
 
@@ -86,8 +87,7 @@ void PlayerCoin::updateHintLabel() {
     if (exp >= 50) {
         labelHint->setText("wiliwili/player/coin/exp_full"_i18n);
     } else {
-        labelHint->setText(
-            fmt::format(fmt::runtime("wiliwili/player/coin/exp"_i18n), this->coin * 10, exp));
+        labelHint->setText(wiliwili::format("wiliwili/player/coin/exp"_i18n, this->coin * 10, exp));
     }
 }
 
@@ -107,12 +107,10 @@ void PlayerCoin::onChildFocusGained(brls::View* directChild,
                                     brls::View* focusedView) {
     Box::onChildFocusGained(directChild, focusedView);
     if (focusedView == this->img2.getView()) {
-        this->labelNum->setText(
-            fmt::format(fmt::runtime("wiliwili/player/coin/pcs"_i18n), 2));
+        this->labelNum->setText(wiliwili::format("wiliwili/player/coin/pcs"_i18n, 2));
         this->coin = 2;
     } else if (focusedView == this->img1.getView()) {
-        this->labelNum->setText(
-            fmt::format(fmt::runtime("wiliwili/player/coin/pcs"_i18n), 1));
+        this->labelNum->setText(wiliwili::format("wiliwili/player/coin/pcs"_i18n, 1));
         this->coin = 1;
     } else {
         return;

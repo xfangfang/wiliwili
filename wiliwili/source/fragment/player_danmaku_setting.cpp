@@ -6,6 +6,7 @@
 #include "view/danmaku_core.hpp"
 #include "view/button_close.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/string_helper.hpp"
 
 using namespace brls::literals;
 
@@ -59,8 +60,7 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
 
     std::vector<std::string> levels;
     for (size_t i = 1; i <= 10; i++)
-        levels.emplace_back(
-            fmt::format(fmt::runtime("wiliwili/player/danmaku/filter/level_n"_i18n), i));
+        levels.emplace_back(wiliwili::format("wiliwili/player/danmaku/filter/level_n"_i18n, i));
     this->cellLevel->init(
         "wiliwili/player/danmaku/filter/level"_i18n, levels,
         conf.getIntOptionIndex(SettingItem::DANMAKU_FILTER_LEVEL),

@@ -22,7 +22,7 @@ MineTab::MineTab() {
 
     this->loginCb.subscribe([this](bilibili::LoginInfo status) {
         if (status == bilibili::LoginInfo::SUCCESS) {
-            brls::Logger::debug(fmt::runtime("wiliwili/mine/login/success"_i18n));
+            brls::Logger::debug("{}", "wiliwili/mine/login/success"_i18n);
             this->requestData();
             try {
                 this->mineHistory->requestData(true);

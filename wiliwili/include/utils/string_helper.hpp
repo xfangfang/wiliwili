@@ -15,24 +15,13 @@ namespace wiliwili {
 inline bool isNonSymbol(unsigned char c) {
     if (c == '\0') return true;
     return (c >= 48 && c <= 57) || (c >= 65 && c <= 90) ||
-           (c >= 97 && c <= 122);
+        (c >= 97 && c <= 122);
 }
 
-std::string urlEncode(const std::string &in) {
-    const char *input = in.c_str();
+std::string urlEncode(const std::string &in);
 
-    std::string working;
-
-    while (*input) {
-        const unsigned char c = *input++;
-        if (isNonSymbol(c)) {
-            working += (char)c;
-        } else {
-            working += fmt::format("%{:02x}", c);
-        }
-    }
-
-    return working;
+template <typename... Args> inline std::string format(fmt::string_view fmt, Args&&... args) {
+    return fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
 }
 
 };  // namespace wiliwili

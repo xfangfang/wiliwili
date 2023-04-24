@@ -11,6 +11,7 @@
 #include "utils/dialog_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/string_helper.hpp"
 #include "presenter/comment_related.hpp"
 #include "bilibili.h"
 
@@ -35,8 +36,8 @@ public:
             this->hintLabel->setText("");
         } else {
             this->hintLabel->setText(
-                fmt::format(fmt::runtime("wiliwili/player/single_comment/related"_i18n),
-                            wiliwili::num2w(num)));
+                wiliwili::format"wiliwili/player/single_comment/related"_i18n),
+                            wiliwili::num2w(num));
         }
     }
 
@@ -384,7 +385,7 @@ void PlayerSingleComment::requestData() {
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            brls::Logger::error(fmt::runtime(error));
+            brls::Logger::error("{}", error);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
                 DialogHelper::showDialog(error);

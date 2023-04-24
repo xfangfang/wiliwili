@@ -11,6 +11,7 @@
 #include "view/video_profile.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/string_helper.hpp"
 #include "activity/player_activity.hpp"
 #include "fragment/player_danmaku_setting.hpp"
 #include "fragment/player_setting.hpp"
@@ -721,7 +722,7 @@ void VideoView::buttonProcessing() {
                 click_state    = ClickState::PRESS;
                 // 绘制临时加速标识
                 speedHintLabel->setText(
-                    fmt::format(fmt::runtime("wiliwili/player/current_speed"_i18n), SPEED));
+                    wiliwili::format("wiliwili/player/current_speed"_i18n, SPEED));
                 speedHintBox->setVisibility(brls::Visibility::VISIBLE);
             }
             break;
@@ -752,7 +753,7 @@ void VideoView::buttonProcessing() {
                 }
                 // 绘制临时加速标识
                 speedHintLabel->setText(
-                    fmt::format(fmt::runtime("wiliwili/player/current_speed"_i18n), SPEED));
+                    wiliwili::format("wiliwili/player/current_speed"_i18n, SPEED));
                 speedHintBox->setVisibility(brls::Visibility::VISIBLE);
             }
             break;
