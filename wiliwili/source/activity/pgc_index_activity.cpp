@@ -3,7 +3,7 @@
 //
 
 #include "activity/pgc_index_activity.hpp"
-#include <pystring/pystring.h>
+#include <pystring.h>
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "view/auto_tab_frame.hpp"

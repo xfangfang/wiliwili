@@ -12,7 +12,7 @@
 #include <mpv/render_gl.h>
 #include <glad/glad.h>
 #ifdef __SDL2__
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #else
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>

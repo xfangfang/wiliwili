@@ -9,7 +9,7 @@
 
 #include "bilibili/util/md5.hpp"
 #include "utils/number_helper.hpp"
-#include <pystring/pystring.h>
+#include <pystring.h>
 
 namespace bilibili {
 

@@ -121,10 +121,10 @@ package_end()
 
 if get_config("winrt") then
     add_requireconfs("**.sdl2", {configs={shared=true,winrt=true}})
-    add_requires("borealis", {debug=true, configs={window="sdl",driver=get_config("driver"),winrt=true}})
+    add_requires("borealis", {configs={window="sdl",driver=get_config("driver"),winrt=true}})
     add_requireconfs("**.curl", {configs={winrt=true}})
 else
-    add_requires("borealis", {debug=true, configs={window=get_config("window"),driver=get_config("driver")}})
+    add_requires("borealis", {configs={window=get_config("window"),driver=get_config("driver")}})
 end
 add_requires("mpv", {configs={shared=true}})
 add_requires("cpr")
@@ -160,7 +160,6 @@ target("wiliwili")
     )
     if is_plat("windows", "mingw") then
         add_files("app_win32.rc")
-        add_files("wiliwili/source/resource.manifest")
         after_build(function (target) 
             if get_config("winrt") then
                 import("uwp")(target)
@@ -186,6 +185,5 @@ target("demo/sw")
     )
     if is_plat("windows", "mingw") then
         add_files("app_win32.rc")
-        add_files("wiliwili/source/resource.manifest")
     end
     add_files("demo/sw.c")

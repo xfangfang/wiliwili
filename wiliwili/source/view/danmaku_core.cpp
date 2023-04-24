@@ -2,7 +2,7 @@
 // Created by fang on 2023/1/11.
 //
 
-#include <pystring/pystring.h>
+#include <pystring.h>
 
 #include "view/danmaku_core.hpp"
 #include "view/mpv_core.hpp"

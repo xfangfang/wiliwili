@@ -6,7 +6,7 @@
 #include <borealis.hpp>
 #include <cpr/cpr.h>
 #include <qrcodegen.hpp>
-#include <pystring/pystring.h>
+#include <pystring.h>
 #include <fmt/format.h>
 
 #include "view/svg_image.hpp"

@@ -7,7 +7,7 @@
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
 #include "view/subtitle_core.hpp"
-#include <pystring/pystring.h>
+#include <pystring.h>
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
 

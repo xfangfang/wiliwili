@@ -3,7 +3,7 @@
 //
 #include <cstdlib>
 #include <tinyxml2.h>
-#include <pystring/pystring.h>
+#include <pystring.h>
 #include "borealis.hpp"
 #include "presenter/video_detail.hpp"
 #include "utils/config_helper.hpp"

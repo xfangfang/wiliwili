@@ -9,7 +9,7 @@
 #include <borealis/core/singleton.hpp>
 #include <borealis/core/util.hpp>
 #include <utility>
-#include <pystring/pystring.h>
+#include <pystring.h>
 #include "utils/config_helper.hpp"
 #include "view/mpv_core.hpp"
 

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "nlohmann/json.hpp"
-#include <pystring/pystring.h>
+#include <pystring.h>
 
 namespace bilibili {
 

@@ -6,7 +6,7 @@
 #include "borealis.hpp"
 #include "fmt/format.h"
 #include "cpr/cpr.h"
-#include <pystring/pystring.h>
+#include <pystring.h>
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "fragment/latest_update.hpp"
