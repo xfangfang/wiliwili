@@ -132,13 +132,16 @@ add_requires("lunasvg")
 add_requires("opencc")
 add_requires("pystring")
 add_requires("qr-code-generator", {configs={cpp=true}})
+add_requires("webp")
 
 target("wiliwili")
     add_includedirs("wiliwili/include", "wiliwili/include/api")
     add_files("wiliwili/source/**.cpp")
     add_defines("BRLS_RESOURCES=\"./resources/\"")
+    add_defines("USE_WEBP")
     if get_config("window") == 'sdl' then
         add_defines("__SDL2__=1")
+        add_packages("sdl2")
     else
         add_defines("__GLFW__=1")
     end
@@ -156,7 +159,7 @@ target("wiliwili")
         "lunasvg",
         "opencc",
         "pystring",
-        "sdl2"
+        "webp"
     )
     if is_plat("windows", "mingw") then
         add_files("app_win32.rc")

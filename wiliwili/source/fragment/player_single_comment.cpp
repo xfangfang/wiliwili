@@ -36,8 +36,8 @@ public:
             this->hintLabel->setText("");
         } else {
             this->hintLabel->setText(
-                wiliwili::format"wiliwili/player/single_comment/related"_i18n),
-                            wiliwili::num2w(num));
+                wiliwili::format("wiliwili/player/single_comment/related"_i18n,
+                            wiliwili::num2w(num)));
         }
     }
 
