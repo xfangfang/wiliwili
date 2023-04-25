@@ -15,17 +15,17 @@ public:
     // Declare that the content of this activity is the given XML file
     CONTENT_FROM_XML_RES("activity/search_activity.xml");
 
-    SearchActivity(const std::string &key = "");
+    explicit SearchActivity(const std::string &key = "");
 
     void onContentAvailable() override;
 
-    ~SearchActivity();
+    ~SearchActivity() override;
 
     void search(const std::string &key);
 
     UpdateSearchEvent *getUpdateSearchEvent();
 
-    inline static std::string currentKey = "";
+    inline static std::string currentKey;
 
 private:
     BRLS_BIND(brls::Label, labelSearchKey, "search/label/key");

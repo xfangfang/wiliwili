@@ -70,6 +70,7 @@ class HotsWeeklyResult;
 typedef std::vector<HotsWeeklyResult> HotsWeeklyListResult;
 class HotsAllVideoResult;
 typedef std::vector<HotsAllVideoResult> HotsAllVideoListResult;
+class SearchSuggestList;
 
 using Cookies       = std::map<std::string, std::string>;
 using ErrorCallback = std::function<void(const std::string&)>;
@@ -551,6 +552,11 @@ public:
         int limit                                                    = 20,
         const std::function<void(SearchHotsResultWrapper)>& callback = nullptr,
         const ErrorCallback& error                                   = nullptr);
+    /// 搜索页 获取TV搜索建议
+    static void get_search_suggest_tv(
+        const std::string& key,
+        const std::function<void(SearchSuggestList)>& callback = nullptr,
+        const ErrorCallback& error                             = nullptr);
 
     /// 动态页 获取全部关注用户的最近动态
     static void dynamic_video(

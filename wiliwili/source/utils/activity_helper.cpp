@@ -8,6 +8,7 @@
 #include "activity/hint_activity.hpp"
 #include "activity/setting_activity.hpp"
 #include "activity/search_activity.hpp"
+#include "activity/search_activity_tv.hpp"
 #include "activity/pgc_index_activity.hpp"
 #include "activity/main_activity.hpp"
 #include "utils/activity_helper.hpp"
@@ -39,6 +40,11 @@ void Intent::openLive(int live, const std::string& name,
 
 void Intent::openSearch(const std::string& key) {
     brls::Application::pushActivity(new SearchActivity(key),
+                                    brls::TransitionAnimation::NONE);
+}
+
+void Intent::openTVSearch() {
+    brls::Application::pushActivity(new TVSearchActivity(),
                                     brls::TransitionAnimation::NONE);
 }
 

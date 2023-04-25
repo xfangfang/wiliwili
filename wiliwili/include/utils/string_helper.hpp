@@ -4,35 +4,16 @@
 
 #pragma once
 
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
 #include <string>
-#include "fmt/format.h"
 
 namespace wiliwili {
 
-inline bool isNonSymbol(unsigned char c) {
-    if (c == '\0') return true;
-    return (c >= 48 && c <= 57) || (c >= 65 && c <= 90) ||
-           (c >= 97 && c <= 122);
-}
+std::string urlEncode(const std::string &in);
 
-std::string urlEncode(const std::string &in) {
-    const char *input = in.c_str();
+// https://gist.github.com/tomykaira/f0fd86b6c73063283afe550bc5d77594
 
-    std::string working;
+std::string base64Encode(const std::string &in);
 
-    while (*input) {
-        const unsigned char c = *input++;
-        if (isNonSymbol(c)) {
-            working += (char)c;
-        } else {
-            working += fmt::format("%{:02x}", c);
-        }
-    }
-
-    return working;
-}
+int base64Decode(const std::string &in, std::string &out);
 
 };  // namespace wiliwili

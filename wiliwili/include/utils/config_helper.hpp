@@ -57,6 +57,7 @@ enum class SettingItem {
     DANMAKU_STYLE_SPEED,
     KEYMAP,
     HOME_WINDOW_STATE,
+    SEARCH_TV_MODE,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -98,6 +99,9 @@ public:
     void setProgramConfig(const ProgramConfig& conf);
     void setCookie(const Cookie& data);
     Cookie getCookie() const;
+    void addHistory(const std::string& key);
+    std::vector<std::string> getHistoryList();
+    void setHistory(const std::vector<std::string>& list);
     void setRefreshToken(const std::string& token);
     std::string getRefreshToken() const;
     std::string getCSRF();
@@ -161,14 +165,16 @@ public:
     nlohmann::json setting;
     std::string client;
     std::string device;
+    std::vector<std::string> searchHistory;
 
     static std::unordered_map<SettingItem, ProgramOption> SETTING_MAP;
 };
 
 inline void to_json(nlohmann::json& nlohmann_json_j,
                     const ProgramConfig& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
-        NLOHMANN_JSON_TO, cookie, refreshToken, setting, client, device));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, cookie,
+                                             refreshToken, setting, client,
+                                             device, searchHistory));
 }
 
 inline void from_json(const nlohmann::json& nlohmann_json_j,
@@ -176,6 +182,10 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     if (nlohmann_json_j.contains("cookie") &&
         !nlohmann_json_j.at("cookie").empty())
         nlohmann_json_j.at("cookie").get_to(nlohmann_json_t.cookie);
+    if (nlohmann_json_j.contains("searchHistory") &&
+        nlohmann_json_j.at("searchHistory").is_array())
+        nlohmann_json_j.at("searchHistory")
+            .get_to(nlohmann_json_t.searchHistory);
     if (nlohmann_json_j.contains("setting"))
         nlohmann_json_j.at("setting").get_to(nlohmann_json_t.setting);
     if (nlohmann_json_j.contains("client") &&

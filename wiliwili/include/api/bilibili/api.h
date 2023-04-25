@@ -195,7 +195,8 @@ static const std::string UserUGCSeasonVideoList =
 /// ===
 /// 搜索页API
 /// ===
-static const std::string Search = _apiBase + "/x/web-interface/search/type";
+static const std::string Search    = _apiBase + "/x/web-interface/search/type";
+static const std::string TVSuggest = _apiBase + "/x/tv/suggest";
 static const std::string SearchHots =
     _apiBase + "/x/web-interface/search/square";
 

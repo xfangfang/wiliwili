@@ -4,6 +4,7 @@
 
 #include "activity/setting_activity.hpp"
 #include "activity/hint_activity.hpp"
+#include "activity/search_activity_tv.hpp"
 #include "fragment/setting_network.hpp"
 #include "fragment/test_rumble.hpp"
 #include "view/text_box.hpp"
@@ -237,6 +238,15 @@ void SettingActivity::onContentAvailable() {
                               SettingItem::HIDE_FPS, value);
                           brls::Application::setFPSStatus(!value);
                       });
+
+    /// TV Search Mode
+    cellTvSearch->init("wiliwili/setting/app/others/tv_search"_i18n,
+                       conf.getBoolOption(SettingItem::SEARCH_TV_MODE),
+                       [](bool value) {
+                           ProgramConfig::instance().setSettingItem(
+                               SettingItem::SEARCH_TV_MODE, value);
+                           TVSearchActivity::TV_MODE = value;
+                       });
 
 /// Gamepad vibration
 #ifdef __SWITCH__

@@ -10,6 +10,7 @@
 #pragma once
 
 #include <borealis.hpp>
+#include <utility>
 
 #include "bilibili.h"
 #include "bilibili/result/search_result.h"
@@ -23,13 +24,14 @@ class SearchVideo;
 class SearchBangumi;
 class SearchCinema;
 class SearchHots;
+class SearchHistory;
 class AutoTabFrame;
 typedef brls::Event<std::string> UpdateSearchEvent;
 
 class DataSourceSearchVideoList : public RecyclingGridDataSource {
 public:
     DataSourceSearchVideoList(bilibili::VideoItemSearchListResult result)
-        : list(result) {}
+        : list(std::move(result)) {}
 
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
@@ -130,14 +132,23 @@ public:
 
     inline static std::string keyWord;
 
-    void passEventToSearchHots(UpdateSearchEvent* updateSearchEvent);
-
     void focusNthTab(int i);
+
+    SearchHistory* getSearchHistoryTab();
+
+    SearchHots* getSearchHotsTab();
+
+    SearchVideo* getSearchVideoTab();
+
+    SearchBangumi* getSearchBangumiTab();
+
+    SearchCinema* getSearchCinemaTab();
 
 private:
     BRLS_BIND(SearchVideo, searchVideoTab, "search/tab/video");
     BRLS_BIND(SearchBangumi, searchBangumiTab, "search/tab/bangumi");
     BRLS_BIND(SearchCinema, searchCinemaTab, "search/tab/cinema");
     BRLS_BIND(SearchHots, searchHotsTab, "search/tab/hots");
+    BRLS_BIND(SearchHistory, searchHistoryTab, "search/tab/history");
     BRLS_BIND(AutoTabFrame, tabFrame, "search/tab/frame");
 };

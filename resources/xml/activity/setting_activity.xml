@@ -101,6 +101,9 @@
                                     id="cell/hideFPS"/>
 
                             <brls:BooleanCell
+                                    id="cell/tvSearch"/>
+
+                            <brls:BooleanCell
                                     id="cell/gamepadVibration"/>
 
                             <brls:BooleanCell

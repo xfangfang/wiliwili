@@ -1,5 +1,5 @@
 //
-// Created by 贾海峰 on 2022/8/20.
+// Created by fang on 2023/4/25.
 //
 
 #pragma once
@@ -12,15 +12,15 @@ typedef brls::Event<std::string> UpdateSearchEvent;
 
 class RecyclingGrid;
 
-class SearchHots : public AttachedView {
+class SearchHistory : public AttachedView {
 public:
-    SearchHots();
+    SearchHistory();
 
-    ~SearchHots() override;
+    ~SearchHistory() override;
 
     static View *create();
 
-    void requestSearch();
+    void requestHistory();
 
     RecyclingGrid *getRecyclingGrid();
 
@@ -28,5 +28,5 @@ public:
 
 private:
     UpdateSearchEvent *updateSearchEvent = nullptr;
-    BRLS_BIND(RecyclingGrid, recyclingGrid, "search/hots/recyclingGrid");
+    BRLS_BIND(RecyclingGrid, recyclingGrid, "search/history/recyclingGrid");
 };

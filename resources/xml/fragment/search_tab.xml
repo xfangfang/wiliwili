@@ -7,11 +7,16 @@
             demandMode="false"
             id="search/tab/frame"
             grow="1"
-            defaultTab="1"
+            defaultTab="2"
             tabHeight="65"
             tabFontSize="16"
             tabItemActiveTextColor="@theme/color/bilibili"
             sidebarPosition="top">
+
+        <Tab label="@i18n/wiliwili/search/t0"
+             fontSize="18">
+            <SearchHistory id="search/tab/history"/>
+        </Tab>
 
         <Tab label="@i18n/wiliwili/search/t1"
              fontSize="18">

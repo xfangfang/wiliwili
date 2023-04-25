@@ -7,6 +7,7 @@
 #include "fragment/search_bangumi.hpp"
 #include "fragment/search_cinema.hpp"
 #include "fragment/search_hots.hpp"
+#include "fragment/search_history.hpp"
 
 SearchTab::SearchTab() {
     this->inflateFromXMLRes("xml/fragment/search_tab.xml");
@@ -40,14 +41,21 @@ void SearchTab::requestData(const std::string& key) {
         this->searchVideoTab->requestSearch(key);
         this->searchBangumiTab->requestSearch(key);
         this->searchCinemaTab->requestSearch(key);
-        brls::sync([this]() { this->focusNthTab(1); });
+        this->searchHistoryTab->requestHistory();
+        brls::sync([this]() { this->focusNthTab(2); });
     } catch (brls::ViewNotFoundException const& e) {
         brls::Logger::error("ViewNotFoundException: {}", e.what());
     }
 }
 
-void SearchTab::passEventToSearchHots(UpdateSearchEvent* updateSearchEvent) {
-    this->searchHotsTab->updateSearchEvent = updateSearchEvent;
-}
-
 void SearchTab::focusNthTab(int i) { this->tabFrame->focusTab(i); }
+
+SearchHistory* SearchTab::getSearchHistoryTab() { return searchHistoryTab; };
+
+SearchHots* SearchTab::getSearchHotsTab() { return searchHotsTab; }
+
+SearchVideo* SearchTab::getSearchVideoTab() { return searchVideoTab; }
+
+SearchBangumi* SearchTab::getSearchBangumiTab() { return searchBangumiTab; }
+
+SearchCinema* SearchTab::getSearchCinemaTab() { return searchCinemaTab; }
