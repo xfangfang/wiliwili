@@ -138,6 +138,14 @@ target("wiliwili")
     add_includedirs("wiliwili/include", "wiliwili/include/api")
     add_files("wiliwili/source/**.cpp")
     add_defines("BRLS_RESOURCES=\"./resources/\"")
+    local driver = get_config("driver")
+    if driver == "opengl" then
+        add_defines("BOREALIS_USE_OPENGL")
+    elseif driver == "d3d11" then
+        add_defines("BOREALIS_USE_D3D11")
+    elseif driver == "metal" then
+        add_defines("BOREALIS_USE_METAL")
+    end
     add_defines("USE_WEBP")
     if get_config("window") == 'sdl' then
         add_defines("__SDL2__=1")
@@ -180,13 +188,3 @@ target("wiliwili")
             end
         end)
     end
-
-target("demo/sw")
-    add_packages(
-        "mpv",
-        "sdl2"
-    )
-    if is_plat("windows", "mingw") then
-        add_files("app_win32.rc")
-    end
-    add_files("demo/sw.c")

@@ -393,14 +393,18 @@ void MPVCore::command_async(const char **args) {
 
 void MPVCore::setFrameSize(brls::Rect rect) {
 #ifdef MPV_SW_RENDER
+#ifdef BOREALIS_USE_D3D11
     // 使用 dx11 的拷贝交换，否则视频渲染异常
     const static int mpvImageFlags = NVG_IMAGE_STREAMING|NVG_IMAGE_COPY_SWAP;
+#else
+    const static int mpvImageFlags = 0;
+#endif
     int drawWidth  = rect.getWidth() * brls::Application::windowScale;
     int drawHeight = rect.getHeight() * brls::Application::windowScale;
     if (drawWidth == 0 || drawHeight == 0) return;
     int frameSize = drawWidth * drawHeight;
 
-    if (pixels != nullptr && frameSize != sw_size[0] * sw_size[1]) {
+    if (pixels != nullptr && frameSize > sw_size[0] * sw_size[1]) {
         brls::Logger::debug("Enlarge video surface buffer");
         free(pixels);
         pixels = nullptr;
