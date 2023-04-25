@@ -3,6 +3,7 @@
 //
 
 #include <borealis.hpp>
+#include "activity/search_activity_tv.hpp"
 #include "fragment/home_tab.hpp"
 #include "utils/activity_helper.hpp"
 
@@ -17,10 +18,13 @@ void HomeTab::onCreate() {
     this->registerTabAction(
         "wiliwili/search/tab"_i18n, brls::ControllerButton::BUTTON_Y,
         [](brls::View* view) -> bool {
-            brls::Application::getImeManager()->openForText(
-                [](const std::string& text) { Intent::openSearch(text); },
-                "wiliwili/home/common/search"_i18n, "", 32, "", 0);
-
+            if (TVSearchActivity::TV_MODE) {
+                Intent::openTVSearch();
+            } else {
+                brls::Application::getImeManager()->openForText(
+                    [](const std::string& text) { Intent::openSearch(text); },
+                    "wiliwili/home/common/search"_i18n, "", 32, "", 0);
+            }
             return true;
         });
 
@@ -42,9 +46,13 @@ void HomeTab::onCreate() {
 
     this->search->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->search, []() {
-            brls::Application::getImeManager()->openForText(
-                [](const std::string& text) { Intent::openSearch(text); },
-                "wiliwili/home/common/search"_i18n, "", 32, "", 0);
+            if (TVSearchActivity::TV_MODE) {
+                Intent::openTVSearch();
+            } else {
+                brls::Application::getImeManager()->openForText(
+                    [](const std::string& text) { Intent::openSearch(text); },
+                    "wiliwili/home/common/search"_i18n, "", 32, "", 0);
+            }
         }));
 }
 

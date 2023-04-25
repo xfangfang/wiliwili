@@ -1,6 +1,7 @@
 <brls:Box
         axis="column"
         marginTop="10"
+        marginBottom="8"
         width="auto"
         height="auto">
     <RecyclingGrid

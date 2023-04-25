@@ -12,6 +12,7 @@
 #include "view/subtitle_core.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
+#include "utils/number_helper.hpp"
 #include "presenter/comment_related.hpp"
 
 class DataSourceCommentList : public RecyclingGridDataSource,
@@ -161,7 +162,7 @@ public:
 
         if (quality > 80) {
             item->vipLabel->setVisibility(brls::Visibility::VISIBLE);
-        } else if (quality > 32) {
+        } else if (quality >= 32) {
             if (!login)
                 item->loginLabel->setVisibility(brls::Visibility::VISIBLE);
         }
@@ -358,9 +359,9 @@ void BasePlayerActivity::setVideoQuality() {
             ProgramConfig::instance().setSettingItem(SettingItem::VIDEO_QUALITY,
                                                      code);
 
-            // 如果未登录选择了大于480P清晰度的视频
+            // 如果未登录选择了大于等于480P清晰度的视频
             if (ProgramConfig::instance().getCSRF().empty() &&
-                defaultQuality > 32) {
+                defaultQuality >= 32) {
                 DialogHelper::showDialog("wiliwili/home/common/no_login"_i18n);
                 return;
             }
@@ -405,7 +406,6 @@ void BasePlayerActivity::setVideoQuality() {
 void BasePlayerActivity::onVideoPlayUrl(
     const bilibili::VideoUrlResult& result) {
     brls::Logger::debug("onVideoPlayUrl quality: {}", result.quality);
-    //todo: 播放失败时可以尝试备用播放链接
 
     // 进度向前回退5秒，避免当前进度过于接近结尾出现一加载就结束的情况
     int progress = this->getProgress() - 5;
@@ -461,6 +461,9 @@ void BasePlayerActivity::onVideoPlayUrl(
         if (result.dash.audio.empty()) {
             // 无音频视频
             this->video->setUrl(v.base_url, progress);
+            for (auto& url : v.backup_url) {
+                this->video->setBackupUrl(url, progress);
+            }
             brls::Logger::debug("Dash quality: {}; video: {}",
                                 videoUrlResult.quality, v.codecid);
         } else {
@@ -473,6 +476,11 @@ void BasePlayerActivity::onVideoPlayUrl(
                 }
             }
             this->video->setUrl(v.base_url, progress, a.base_url);
+            for (auto& videoUrl : v.backup_url) {
+                for (auto& audioUrl : a.backup_url) {
+                    this->video->setBackupUrl(videoUrl, progress, audioUrl);
+                }
+            }
             brls::Logger::debug("Dash quality: {}; video: {}; audio: {}",
                                 videoUrlResult.quality, v.codecid, a.id);
         }

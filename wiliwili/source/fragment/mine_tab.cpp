@@ -13,6 +13,8 @@
 #include "fragment/mine_bangumi.hpp"
 #include "fragment/dynamic_tab.hpp"
 
+#include "bilibili/result/mine_result.h"
+
 using namespace brls;
 using namespace brls::literals;
 

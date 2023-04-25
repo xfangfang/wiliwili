@@ -7,6 +7,7 @@
 #include "fragment/home_live.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
+#include "view/grid_dropdown.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/activity_helper.hpp"
 
@@ -52,6 +53,11 @@ HomeLive::HomeLive() {
     recyclingGrid->registerCell(
         "Cell", []() { return RecyclingGridItemLiveVideoCard::create(); });
     recyclingGrid->onNextPage([this]() { this->requestData(); });
+    recyclingGrid->setRefreshAction([this]() {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
+        this->requestData(currentChannel);
+    });
     this->requestData();
 }
 
@@ -84,23 +90,21 @@ void HomeLive::onCreate() {
 }
 
 void HomeLive::switchChannel() {
-    static int selected = 0;
     AutoTabFrame::focus2Sidebar(this);
-    brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
+    BaseDropdown::text(
         "wiliwili/home/live/dialog"_i18n, this->getAreaList(),
-        [this](int _selected) {
-            this->recyclingGrid->showSkeleton();
-            selected = _selected;
-            this->requestData(selected);
+        [this](int selected) {
+            currentChannel = selected;
+            recyclingGrid->refresh();
             auto list = this->getAreaList();
-            if (_selected == 0 && list.size() <= 1) {
+            if (selected == 0 && list.size() <= 1) {
                 // 暂未加载出分区列表
                 this->live_label->setText("wiliwili/home/live/default"_i18n);
             } else
                 this->live_label->setText("wiliwili/home/common/part"_i18n +
-                                          this->getAreaList()[_selected]);
+                                          this->getAreaList()[selected]);
         },
-        selected)));
+        currentChannel);
 }
 
 void HomeLive::onError(const std::string& error) {

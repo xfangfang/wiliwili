@@ -42,6 +42,7 @@
 #include "fragment/search_cinema.hpp"
 #include "fragment/search_bangumi.hpp"
 #include "fragment/search_hots.hpp"
+#include "fragment/search_history.hpp"
 
 #include "utils/config_helper.hpp"
 
@@ -95,6 +96,7 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("SearchCinema", SearchCinema::create);
     brls::Application::registerXMLView("SearchBangumi", SearchBangumi::create);
     brls::Application::registerXMLView("SearchHots", SearchHots::create);
+    brls::Application::registerXMLView("SearchHistory", SearchHistory::create);
 }
 
 void Register::initCustomTheme() {

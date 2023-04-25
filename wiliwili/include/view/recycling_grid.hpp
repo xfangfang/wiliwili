@@ -12,11 +12,12 @@
 #include <borealis.hpp>
 
 class RecyclingGrid;
+class ButtonRefresh;
 
 class RecyclingGridItem : public brls::Box {
 public:
     RecyclingGridItem();
-    virtual ~RecyclingGridItem();
+    ~RecyclingGridItem() override;
 
     /*
      * Cell's position inside recycler frame
@@ -43,15 +44,13 @@ public:
      */
     virtual void cacheForReuse() {}
 
-    static RecyclingGridItem* create();
-
 private:
     size_t index;
 };
 
 class RecyclingGridDataSource {
 public:
-    virtual ~RecyclingGridDataSource() {}
+    virtual ~RecyclingGridDataSource() = default;
 
     /*
      * Tells the data source to return the number of items in a recycler frame.
@@ -104,6 +103,10 @@ public:
 
     void showSkeleton(unsigned int num = 12);
 
+    void refresh();
+
+    void setRefreshAction(const std::function<void()>& event);
+
     // 重新加载数据
     void reloadData();
 
@@ -153,7 +156,7 @@ public:
     // 如果缓存列表为空则生成一个新的
     RecyclingGridItem* dequeueReusableCell(std::string identifier);
 
-    ~RecyclingGrid();
+    ~RecyclingGrid() override;
 
     static View* create();
 
@@ -191,10 +194,12 @@ private:
     float paddingLeft   = 0;
 
     std::function<void()> nextPageCallback = nullptr;
+    std::function<void()> refreshAction    = nullptr;
 
-    RecyclingGridContentBox* contentBox;
+    RecyclingGridContentBox* contentBox = nullptr;
     brls::Image* hintImage;
     brls::Label* hintLabel;
+    ButtonRefresh* refreshButton;
     brls::Rect renderedFrame;
     std::vector<float> cellHeightCache;
     std::map<std::string, std::vector<RecyclingGridItem*>*> queueMap;

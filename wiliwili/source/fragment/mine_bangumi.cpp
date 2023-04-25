@@ -92,20 +92,24 @@ void MineBangumi::onBangumiList(
             new DataSourceMineBangumiVideoList(result.list));
     } else {
         // 第N页
-        auto* datasource =
-            (DataSourceMineBangumiVideoList*)recyclingGrid->getDataSource();
+        auto* datasource = dynamic_cast<DataSourceMineBangumiVideoList*>(
+            recyclingGrid->getDataSource());
+        if (!datasource) return;
         datasource->appendData(result.list);
         recyclingGrid->notifyDataChanged();
     }
 }
 void MineBangumi::onCreate() {
+    recyclingGrid->setRefreshAction([this]() {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
+        this->requestData(true);
+    });
     this->registerTabAction(
         requestType == 1 ? "wiliwili/mine/refresh_anime"_i18n
                          : "wiliwili/mine/refresh_series"_i18n,
         brls::ControllerButton::BUTTON_X, [this](brls::View* view) -> bool {
-            AutoTabFrame::focus2Sidebar(this);
-            this->recyclingGrid->showSkeleton();
-            this->requestData(true);
+            this->recyclingGrid->refresh();
             return true;
         });
 }

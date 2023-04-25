@@ -26,7 +26,7 @@ public:
 
     void switchChannel();
 
-    ~HomeLive();
+    ~HomeLive() override;
 
     void onCreate() override;
 
@@ -39,4 +39,5 @@ private:
     BRLS_BIND(brls::Label, live_label, "home/live/label");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/live/recyclingGrid");
     BRLS_BIND(brls::Box, live_box, "home/live/box");
+    int currentChannel = 0;
 };

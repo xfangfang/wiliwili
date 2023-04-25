@@ -52,6 +52,11 @@ HomeHotsAll::HomeHotsAll() {
         "Cell", []() { return RecyclingGridItemVideoCard::create(); });
 
     recyclingGrid->onNextPage([this]() { this->requestData(); });
+    recyclingGrid->setRefreshAction([this]() {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
+        this->requestData(true);
+    });
 
     this->requestData();
 }
@@ -75,9 +80,7 @@ void HomeHotsAll::onCreate() {
     this->registerTabAction("wiliwili/home/common/refresh"_i18n,
                             brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
-                                AutoTabFrame::focus2Sidebar(this);
-                                this->recyclingGrid->showSkeleton();
-                                this->requestData(true);
+                                this->recyclingGrid->refresh();
                                 return true;
                             });
 }

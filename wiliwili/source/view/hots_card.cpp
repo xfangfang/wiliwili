@@ -9,18 +9,23 @@ RecyclingGridItemHotsCard::RecyclingGridItemHotsCard() {
     this->inflateFromXMLRes("xml/views/hots_card.xml");
 }
 
-RecyclingGridItemHotsCard::~RecyclingGridItemHotsCard() {}
+RecyclingGridItemHotsCard::~RecyclingGridItemHotsCard() = default;
 
-void RecyclingGridItemHotsCard::setCard(int order, std::string showName,
-                                        std::string pic) {
+void RecyclingGridItemHotsCard::setCard(const std::string& prefix,
+                                        const std::string& name,
+                                        const std::string& image) {
     this->order->setVisibility(brls::Visibility::VISIBLE);
-    this->order->setText(std::to_string(order));
+    this->order->setText(prefix);
     this->content->setVisibility(brls::Visibility::VISIBLE);
-    this->content->setText(showName);
+    this->content->setText(name);
     this->icon->setVisibility(brls::Visibility::VISIBLE);
-    if (pic.size()) ImageHelper::with(this->icon)->load(pic);
+    if (!image.empty()) ImageHelper::with(this->icon)->load(image);
 }
 
-RecyclingGridItemHotsCard *RecyclingGridItemHotsCard::create() {
-    return new RecyclingGridItemHotsCard;
+void RecyclingGridItemHotsCard::cacheForReuse() {
+    ImageHelper::clear(this->icon);
+}
+
+RecyclingGridItemHotsCard* RecyclingGridItemHotsCard::create() {
+    return new RecyclingGridItemHotsCard();
 }

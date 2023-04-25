@@ -136,6 +136,7 @@
     <AutoTabFrame
             id="mine/tab/frame"
             grow="1"
+            marginBottom="8"
             defaultTab="0"
             tabHeight="65"
             tabFontSize="16"

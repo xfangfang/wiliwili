@@ -4,6 +4,7 @@
 
 #include "bilibili.h"
 #include "bilibili/result/dynamic_video.h"
+#include "bilibili/util/http.hpp"
 
 namespace bilibili {
 

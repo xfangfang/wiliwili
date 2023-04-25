@@ -42,7 +42,12 @@ void SVGImage::setImageFromSVGFile(const std::string& value) {
     }
 
     this->document = lunasvg::Document::loadFromFile(value.c_str());
-    this->updateBitmap();
+    if (this->document) {
+        this->updateBitmap();
+    } else {
+        brls::Logger::error("cannot load svg image: {}", value);
+        return;
+    }
 
     tex = this->getTexture();
     if (tex > 0) {
@@ -53,10 +58,16 @@ void SVGImage::setImageFromSVGFile(const std::string& value) {
 
 void SVGImage::setImageFromSVGString(const std::string& value) {
     this->document = lunasvg::Document::loadFromData(value);
-    this->updateBitmap();
+    if (this->document) {
+        this->updateBitmap();
+    } else {
+        brls::Logger::error("cannot load svg image: {}", value);
+    }
 }
 
 void SVGImage::updateBitmap() {
+    if (!this->document) return;
+
     float width  = this->getWidth() * brls::Application::windowScale;
     float height = this->getHeight() * brls::Application::windowScale;
     auto bitmap  = this->document->renderToBitmap(width, height);
@@ -67,6 +78,8 @@ void SVGImage::updateBitmap() {
     this->innerSetImage(tex);
 }
 
+void SVGImage::rotate(float value) { this->angle = value; }
+
 SVGImage::~SVGImage() {
     size_t tex = this->getTexture();
     if (tex > 0) brls::TextureCache::instance().removeCache(tex);
@@ -74,3 +87,23 @@ SVGImage::~SVGImage() {
 }
 
 brls::View* SVGImage::create() { return new SVGImage(); }
+
+void SVGImage::draw(NVGcontext* vg, float x, float y, float width, float height,
+                    brls::Style style, brls::FrameContext* ctx) {
+    if (this->texture == 0) return;
+
+    nvgSave(vg);
+    float cx = width / 2, cy = height / 2;
+    nvgTranslate(vg, x + cx, y + cy);
+    nvgRotate(vg, this->angle);
+
+    this->paint.xform[4] = -cx;
+    this->paint.xform[5] = -cy;
+
+    nvgBeginPath(vg);
+    nvgRoundedRect(vg, -cx, -cy, width, height, getCornerRadius());
+    nvgFillPaint(vg, a(this->paint));
+    nvgFill(vg);
+
+    nvgRestore(vg);
+}

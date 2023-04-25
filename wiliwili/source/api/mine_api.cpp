@@ -11,6 +11,8 @@
 #include "bilibili/result/setting.h"
 #include "bilibili/result/mine_collection_result.h"
 #include "bilibili/result/mine_bangumi_result.h"
+#include "bilibili/result/mine_result.h"
+#include "bilibili/result/mine_history_result.h"
 
 namespace bilibili {
 

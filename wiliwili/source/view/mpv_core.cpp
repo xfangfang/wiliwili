@@ -599,7 +599,8 @@ void MPVCore::eventMainLoop() {
                 brls::Logger::info("========> MPV_EVENT_FILE_LOADED");
                 // event 8: 文件预加载结束，准备解码
                 mpvCoreEvent.fire(MpvEventEnum::MPV_LOADED);
-                // this->resume();
+                // 移除其他备用链接
+                command_str("playlist-clear");
                 break;
             case MPV_EVENT_START_FILE:
                 // event 6: 开始加载文件
@@ -803,15 +804,21 @@ void MPVCore::reset() {
     this->video_progress = 0;
 }
 
-void MPVCore::setUrl(const std::string &url, const std::string &extra) {
+void MPVCore::setUrl(const std::string &url, const std::string &extra,
+                     const std::string &method) {
+    brls::Logger::debug("{} Url: {}, extra: {}", method, url, extra);
     if (extra.empty()) {
-        const char *cmd[] = {"loadfile", url.c_str(), nullptr};
+        const char *cmd[] = {"loadfile", url.c_str(), method.c_str(), nullptr};
         command_async(cmd);
     } else {
-        const char *cmd[] = {"loadfile", url.c_str(), "replace", extra.c_str(),
-                             nullptr};
+        const char *cmd[] = {"loadfile", url.c_str(), method.c_str(),
+                             extra.c_str(), nullptr};
         command_async(cmd);
     }
+}
+
+void MPVCore::setBackupUrl(const std::string &url, const std::string &extra) {
+    this->setUrl(url, extra, "append");
 }
 
 void MPVCore::resume() { command_str("set pause no"); }

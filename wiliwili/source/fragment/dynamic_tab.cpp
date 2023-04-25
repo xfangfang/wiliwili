@@ -158,6 +158,22 @@ DynamicTab::DynamicTab() {
         //自动加载下一页
         this->DynamicVideoRequest::requestData();
     });
+    videoRecyclingGrid->setRefreshAction([this]() {
+        if (currentUser == 0) {
+            // 全部动态页，同时刷新up主列表和视频内容
+            AutoTabFrame::focus2Sidebar(this);
+            this->upRecyclingGrid->showSkeleton();
+            this->DynamicTabRequest::requestData();
+            this->changeUser(0);
+        } else {
+            //焦点转移到UP主列表
+            brls::Application::giveFocus(this->upRecyclingGrid);
+            //展示骨架屏
+            this->videoRecyclingGrid->showSkeleton();
+            //请求刷新数据
+            this->DynamicVideoRequest::requestData(true);
+        }
+    });
     this->DynamicVideoRequest::requestData();
 }
 
@@ -189,21 +205,14 @@ void DynamicTab::onCreate() {
     this->registerTabAction("wiliwili/activity/refresh"_i18n,
                             brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
-                                AutoTabFrame::focus2Sidebar(this);
-                                this->upRecyclingGrid->showSkeleton();
-                                this->DynamicTabRequest::requestData();
-                                this->changeUser(0);
+                                this->setCurrentUser(0);
+                                this->videoRecyclingGrid->refresh();
                                 return true;
                             });
     this->videoRecyclingGrid->registerAction(
         "wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
         [this](brls::View* view) -> bool {
-            //焦点转移到UP主列表
-            brls::Application::giveFocus(this->upRecyclingGrid);
-            //展示骨架屏
-            this->videoRecyclingGrid->showSkeleton();
-            //请求刷新数据
-            this->DynamicVideoRequest::requestData(true);
+            this->videoRecyclingGrid->refresh();
             return true;
         });
 }

@@ -52,6 +52,7 @@
             <RecyclingGrid
                     paddingLeft="20"
                     paddingRight="10"
+                    marginBottom="8"
                     itemHeight="250"
                     grow="1"
                     preFetchLine="1"

@@ -32,6 +32,7 @@
         "hide_bottom": "Hide the hint bar below",
         "hide_fps": "Hide FPS",
         "fullscreen": "Fullscreen",
+        "tv_search": "TV style search page",
         "theme": {
           "header": "Theme (restart required)",
           "1": "Auto",
@@ -176,7 +177,17 @@
     }
   },
   "search": {
+    "tv": {
+      "hint": "Support keywords and their initial letters",
+      "clear": "Clear",
+      "delete": "Delete",
+      "search": "Search",
+      "hots": "Hots",
+      "history": "History",
+      "suggest": "Suggest"
+    },
     "tab": "Search",
+    "t0": "History",
     "t1": "Hots",
     "t2": "Video",
     "t3": "Bangumi",

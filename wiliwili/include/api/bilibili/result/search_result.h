@@ -153,4 +153,16 @@ inline void from_json(const nlohmann::json &nlohmann_json_j,
         nlohmann_json_j.at("trending").at("list").get_to(nlohmann_json_t.list);
     }
 }
+
+class SearchSuggest {
+public:
+    std::string value;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SearchSuggest, value);
+
+class SearchSuggestList {
+public:
+    std::vector<SearchSuggest> tag;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SearchSuggestList, tag);
 }  // namespace bilibili

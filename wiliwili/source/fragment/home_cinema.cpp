@@ -12,7 +12,11 @@ using namespace brls::literals;
 HomeCinema::HomeCinema() {
     this->inflateFromXMLRes("xml/fragment/home_cinema.xml");
     brls::Logger::debug("Fragment HomeCinema: create");
-
+    this->tabFrame->setRefreshAction([this]() {
+        AutoTabFrame::focus2Sidebar(this);
+        this->tabFrame->clearTabs();
+        this->requestData();
+    });
     this->requestData();
 }
 
@@ -26,10 +30,7 @@ void HomeCinema::onCreate() {
     this->registerTabAction("wiliwili/home/common/refresh"_i18n,
                             brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
-                                AutoTabFrame::focus2Sidebar(this);
-                                this->tabFrame->clearTabs();
-
-                                this->requestData();
+                                this->tabFrame->refresh();
                                 return true;
                             });
 

@@ -86,7 +86,10 @@ public:
 
     std::string getCacheSpeed();
 
-    void setUrl(const std::string &url, const std::string &extra = "");
+    void setUrl(const std::string &url, const std::string &extra = "",
+                const std::string &method = "replace");
+
+    void setBackupUrl(const std::string &url, const std::string &extra = "");
 
     std::string getString(const std::string &key);
 

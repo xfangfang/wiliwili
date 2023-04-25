@@ -30,6 +30,7 @@ enum class AutoTabBarStyle { ACCENT, PLAIN, NONE };
 class AutoSidebarItemGroup;
 class AttachedView;
 class SVGImage;
+class ButtonRefresh;
 
 class AutoSidebarItem : public brls::Box {
 public:
@@ -150,7 +151,7 @@ public:
     AutoSidebarItem* getTab(size_t index);
 
     static brls::View* create();
-    ~AutoTabFrame();
+    ~AutoTabFrame() override;
 
     void setTabAttachedView(brls::View* newContent);
 
@@ -202,6 +203,8 @@ public:
     void draw(NVGcontext* vg, float x, float y, float width, float height,
               brls::Style style, brls::FrameContext* ctx) override;
 
+    void onLayout() override;
+
     /**
      * Setting the position of sidebar.
      * Only set once.
@@ -209,6 +212,10 @@ public:
     void setSideBarPosition(AutoTabBarPosition position);
 
     int getActiveIndex();
+
+    void refresh();
+
+    void setRefreshAction(const std::function<void()>& event);
 
 private:
     BRLS_BIND(Box, sidebar, "auto_tab_frame/auto_sidebar");
@@ -221,6 +228,9 @@ private:
     bool isDemandMode  = true;  // load pages on demand
     float itemFontSize = 22;
     float sidebarWidth = 100;
+
+    ButtonRefresh* refreshButton        = nullptr;
+    std::function<void()> refreshAction = nullptr;
 
     NVGcolor skeletonBackground = brls::Application::getTheme()["color/grey_3"];
     NVGcolor tabItemBackgroundColor       = nvgRGBA(0, 0, 0, 0);

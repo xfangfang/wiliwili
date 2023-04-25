@@ -112,6 +112,12 @@ MineCollection::MineCollection() {
     });
 
     recyclingGrid->onNextPage([this]() { this->requestData(); });
+
+    recyclingGrid->setRefreshAction([this]() {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
+        this->requestData(true);
+    });
 }
 
 MineCollection::~MineCollection() {
@@ -126,9 +132,7 @@ void MineCollection::onCreate() {
                                 : "wiliwili/mine/refresh_subscription"_i18n,
                             brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
-                                AutoTabFrame::focus2Sidebar(this);
-                                this->recyclingGrid->showSkeleton();
-                                this->requestData(true);
+                                this->recyclingGrid->refresh();
                                 return true;
                             });
 }

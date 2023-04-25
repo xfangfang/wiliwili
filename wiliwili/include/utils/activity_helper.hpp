@@ -16,6 +16,7 @@ public:
 
     // 开启搜索
     static void openSearch(const std::string& key);
+    static void openTVSearch();
 
     // 番剧检索
     static void openPgcFilter(const std::string& filter);

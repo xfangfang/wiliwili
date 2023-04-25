@@ -1,5 +1,5 @@
 #include "bilibili.h"
-#include <cpr/cpr.h>
+#include "bilibili/util/http.hpp"
 #include <random>
 #include <utility>
 

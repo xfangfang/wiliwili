@@ -10,6 +10,7 @@
 #include "view/video_view.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/shader_helper.hpp"
+#include "utils/number_helper.hpp"
 #include "activity/player_activity.hpp"
 
 using namespace brls::literals;

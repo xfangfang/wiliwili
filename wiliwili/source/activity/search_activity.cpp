@@ -4,6 +4,9 @@
 
 #include "activity/search_activity.hpp"
 #include "fragment/search_tab.hpp"
+#include "fragment/search_hots.hpp"
+#include "fragment/search_history.hpp"
+#include "utils/config_helper.hpp"
 #include "analytics.h"
 
 using namespace brls::literals;
@@ -40,14 +43,16 @@ void SearchActivity::onContentAvailable() {
 
     this->getUpdateSearchEvent()->subscribe(
         [this](const std::string& s) { this->search(s); });
-    this->searchTab->passEventToSearchHots(&updateSearchEvent);
+    this->searchTab->getSearchHotsTab()->setSearchCallback(&updateSearchEvent);
+    this->searchTab->getSearchHistoryTab()->setSearchCallback(
+        &updateSearchEvent);
 }
 
 void SearchActivity::search(const std::string& key) {
     if (key.empty()) return;
+    ProgramConfig::instance().addHistory(key);
     SearchActivity::currentKey = key;
     this->labelSearchKey->setText(key);
-
     this->searchTab->requestData(key);
 }
 

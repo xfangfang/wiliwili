@@ -7,6 +7,7 @@
 #include "borealis.hpp"
 #include "presenter/video_detail.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/number_helper.hpp"
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
 #include "view/subtitle_core.hpp"

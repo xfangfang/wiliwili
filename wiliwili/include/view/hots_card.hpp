@@ -11,9 +11,12 @@ class RecyclingGridItemHotsCard : public RecyclingGridItem {
 public:
     RecyclingGridItemHotsCard();
 
-    ~RecyclingGridItemHotsCard();
+    ~RecyclingGridItemHotsCard() override;
 
-    void setCard(int order, std::string showName, std::string icon);
+    void setCard(const std::string& prefix, const std::string& name,
+                 const std::string& image);
+
+    void cacheForReuse() override;
 
     static RecyclingGridItemHotsCard* create();
 

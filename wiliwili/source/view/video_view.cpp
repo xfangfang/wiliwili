@@ -2,6 +2,7 @@
 // Created by fang on 2022/4/23.
 //
 
+#include "pystring.h"
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
 #include "view/subtitle_core.hpp"
@@ -206,6 +207,7 @@ VideoView::VideoView() {
         brls::Application::pushActivity(new Activity(setting));
         // 手动将焦点赋给设置页面
         brls::sync([setting]() { brls::Application::giveFocus(setting); });
+        GA("open_danmaku_setting")
         return true;
     });
     this->btnDanmakuSettingIcon->getParent()->addGestureRecognizer(
@@ -218,6 +220,7 @@ VideoView::VideoView() {
         brls::Application::pushActivity(new Activity(setting));
         // 手动将焦点赋给设置页面
         brls::sync([setting]() { brls::Application::giveFocus(setting); });
+        GA("open_player_setting")
         return true;
     });
     this->btnSettingIcon->getParent()->addGestureRecognizer(
@@ -378,23 +381,27 @@ void VideoView::onLayout() {
     oldRect = rect;
 }
 
-void VideoView::setUrl(const std::string& url, int progress,
-                       const std::string& audio) {
-    brls::Logger::debug("set video url: {}", url);
-
-    if (progress < 0) progress = 0;
-    std::string extra = "referrer=\"https://www.bilibili.com\"";
+std::string VideoView::genExtraUrlParam(int progress,
+                                        const std::string& audio) {
+    std::string extra =
+        "referrer=\"https://www.bilibili.com\",network-timeout=5";
     if (progress > 0) {
         extra += fmt::format(",start={}", progress);
-        brls::Logger::debug("set video progress: {}", progress);
     }
     if (!audio.empty()) {
         extra += fmt::format(",audio-file=\"{}\"", audio);
-        brls::Logger::debug("set audio: {}", audio);
     }
-    brls::Logger::debug("Extra options: {}", extra);
+    return extra;
+}
 
-    mpvCore->setUrl(url, extra);
+void VideoView::setUrl(const std::string& url, int progress,
+                       const std::string& audio) {
+    mpvCore->setUrl(url, genExtraUrlParam(progress, audio));
+}
+
+void VideoView::setBackupUrl(const std::string& url, int progress,
+                             const std::string& audio) {
+    mpvCore->setBackupUrl(url, genExtraUrlParam(progress, audio));
 }
 
 void VideoView::setUrl(const std::vector<EDLUrl>& edl_urls, int progress) {
@@ -639,11 +646,19 @@ void VideoView::setFullScreen(bool fs) {
         brls::sync([ASYNC_TOKEN]() {
             ASYNC_RELEASE
             //todo: a better way to get videoView pointer
-            BasePlayerActivity* last = dynamic_cast<BasePlayerActivity*>(
-                Application::getActivitiesStack()
-                    [Application::getActivitiesStack().size() - 2]);
-            if (last) {
-                VideoView* video = dynamic_cast<VideoView*>(
+
+            // 同时点击全屏按钮和评论会导致评论弹出在 BasePlayerActivity 和 videoView 之间，
+            // 因此目前需要遍历全部的 activity 找到 BasePlayerActivity
+            auto activityStack = Application::getActivitiesStack();
+            if (activityStack.size() <= 2) {
+                brls::Application::popActivity(brls::TransitionAnimation::NONE);
+                return;
+            }
+            for (size_t i = activityStack.size() - 2; i != 0; i--) {
+                auto* last =
+                    dynamic_cast<BasePlayerActivity*>(activityStack[i]);
+                if (!last) continue;
+                auto* video = dynamic_cast<VideoView*>(
                     last->getView("video/detail/video"));
                 if (video) {
                     video->setProgress(this->getProgress());
@@ -666,6 +681,7 @@ void VideoView::setFullScreen(bool fs) {
                     // 立刻准确地显示视频尺寸
                     this->mpvCore->setFrameSize(video->getFrame());
                 }
+                break;
             }
             // Pop fullscreen videoView
             brls::Application::popActivity(brls::TransitionAnimation::NONE);

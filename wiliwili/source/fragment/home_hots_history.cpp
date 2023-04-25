@@ -52,6 +52,11 @@ HomeHotsHistory::HomeHotsHistory() {
     brls::Logger::debug("Fragment HomeHotsHistory: create");
     this->recyclingGrid->registerCell(
         "Cell", []() { return RecyclingGridItemVideoCard::create(); });
+    this->recyclingGrid->setRefreshAction([this]() {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
+        this->requestData();
+    });
     this->requestData();
 }
 
@@ -59,9 +64,7 @@ void HomeHotsHistory::onCreate() {
     this->registerTabAction("wiliwili/home/common/refresh"_i18n,
                             brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
-                                AutoTabFrame::focus2Sidebar(this);
-                                this->recyclingGrid->showSkeleton();
-                                this->requestData();
+                                this->recyclingGrid->refresh();
                                 return true;
                             });
 }

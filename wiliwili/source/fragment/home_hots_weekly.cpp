@@ -51,6 +51,15 @@ HomeHotsWeekly::HomeHotsWeekly() {
     brls::Logger::debug("Fragment HomeHotsWeekly: create");
     recyclingGrid->registerCell(
         "Cell", []() { return RecyclingGridItemVideoCard::create(); });
+    recyclingGrid->setRefreshAction([this]() {
+        AutoTabFrame::focus2Sidebar(this);
+        this->recyclingGrid->showSkeleton();
+        if (this->weeklyList.empty()) {
+            this->requestData();
+        } else {
+            this->requestHotsWeeklyVideoListByIndex(currentChannel);
+        }
+    });
     this->requestData();
 }
 
@@ -71,19 +80,13 @@ void HomeHotsWeekly::onCreate() {
 
 void HomeHotsWeekly::switchChannel() {
     AutoTabFrame::focus2Sidebar(this);
-    static int selected = 0;
     brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
         "wiliwili/home/hots/t3"_i18n, this->getWeeklyList(),
-        [this](int _selected) {
-            selected = _selected;
-            this->recyclingGrid->showSkeleton();
-            if (this->weeklyList.empty()) {
-                this->requestData();
-            } else {
-                this->requestHotsWeeklyVideoListByIndex(selected);
-            }
+        [this](int selected) {
+            currentChannel = selected;
+            this->recyclingGrid->refresh();
         },
-        selected)));
+        currentChannel)));
 }
 
 brls::View* HomeHotsWeekly::hitTest(brls::Point point) {

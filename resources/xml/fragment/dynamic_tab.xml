@@ -7,7 +7,7 @@
             paddingLeft="10"
             paddingRight="10"
             marginTop="20"
-            marginBottom="10"
+            marginBottom="8"
             itemHeight="50"
             preFetchLine="2"
             spanCount="1"
@@ -18,7 +18,7 @@
 
     <brls:Box
             paddingTop="20"
-            paddingBottom="0"
+            paddingBottom="8"
             wireframe="false"
             grow="1">
             <RecyclingGrid

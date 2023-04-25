@@ -9,6 +9,7 @@
             grow="1">
         <brls:Box
                 axis="column"
+                marginBottom="8"
                 grow="1">
             <brls:Label
                     fontSize="24"

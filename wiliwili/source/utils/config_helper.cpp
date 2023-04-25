@@ -15,11 +15,14 @@
 #include "utils/image_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/vibration_helper.hpp"
+#include "utils/ban_list.hpp"
+#include "utils/string_helper.hpp"
 #include "presenter/video_detail.hpp"
 #include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
 #include "view/video_view.hpp"
 #include "activity/player_activity.hpp"
+#include "activity/search_activity_tv.hpp"
 
 using namespace brls::literals;
 
@@ -63,6 +66,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DANMAKU_FILTER_TOP, {"danmaku_filter_top", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_SCROLL, {"danmaku_filter_scroll", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
+    {SettingItem::SEARCH_TV_MODE, {"search_tv_mode", {}, {}, 0}},
 
     /// number
     {SettingItem::PLAYER_INMEMORY_CACHE,
@@ -162,6 +166,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DANMAKU_FILTER_TOP, {"danmaku_filter_top", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_SCROLL, {"danmaku_filter_scroll", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
+    {SettingItem::SEARCH_TV_MODE, {"search_tv_mode", {}, {}, 0}},
 
     /// number
     {SettingItem::PLAYER_INMEMORY_CACHE,
@@ -222,19 +227,21 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 ProgramConfig::ProgramConfig() = default;
 
 ProgramConfig::ProgramConfig(const ProgramConfig& conf) {
-    this->cookie       = conf.cookie;
-    this->setting      = conf.setting;
-    this->device       = conf.device;
-    this->client       = conf.client;
-    this->refreshToken = conf.refreshToken;
+    this->cookie        = conf.cookie;
+    this->setting       = conf.setting;
+    this->device        = conf.device;
+    this->client        = conf.client;
+    this->refreshToken  = conf.refreshToken;
+    this->searchHistory = conf.searchHistory;
 }
 
 void ProgramConfig::setProgramConfig(const ProgramConfig& conf) {
-    this->cookie       = conf.cookie;
-    this->setting      = conf.setting;
-    this->client       = conf.client;
-    this->device       = conf.device;
-    this->refreshToken = conf.refreshToken;
+    this->cookie        = conf.cookie;
+    this->setting       = conf.setting;
+    this->client        = conf.client;
+    this->device        = conf.device;
+    this->refreshToken  = conf.refreshToken;
+    this->searchHistory = conf.searchHistory;
     brls::Logger::info("client: {}/{}", conf.client, conf.device);
     for (const auto& c : conf.cookie) {
         brls::Logger::info("cookie: {}:{}", c.first, c.second);
@@ -250,6 +257,45 @@ void ProgramConfig::setCookie(const Cookie& data) {
 }
 
 Cookie ProgramConfig::getCookie() const { return this->cookie; }
+
+void ProgramConfig::addHistory(const std::string& key) {
+    if (key.empty()) return;
+    std::string newItem = wiliwili::base64Encode(key);
+    auto it             = this->searchHistory.begin();
+    for (; it != this->searchHistory.end(); it++) {
+        if (*it == newItem) break;
+    }
+    if (it != this->searchHistory.end()) {
+        this->searchHistory.erase(it);
+    }
+    if (this->searchHistory.size() == 50) {
+        this->searchHistory.erase(this->searchHistory.begin());
+    }
+    this->searchHistory.emplace_back(newItem);
+    this->save();
+}
+
+std::vector<std::string> ProgramConfig::getHistoryList() {
+    std::vector<std::string> res;
+    for (auto it = this->searchHistory.rbegin();
+         it != this->searchHistory.rend(); it++) {
+        std::string out;
+        if (wiliwili::base64Decode(*it, out) == 0) {
+            res.emplace_back(out);
+        } else {
+            res.emplace_back(*it);
+        }
+    }
+    return res;
+}
+
+void ProgramConfig::setHistory(const std::vector<std::string>& list) {
+    this->searchHistory.clear();
+    for (auto& i : list) {
+        this->searchHistory.emplace_back(wiliwili::base64Encode(i));
+    }
+    this->save();
+}
 
 void ProgramConfig::setRefreshToken(const std::string& token) {
     this->refreshToken = token;
@@ -398,6 +444,9 @@ void ProgramConfig::load() {
     BILI::VIDEO_CODEC = getIntOption(SettingItem::VIDEO_CODEC);
     BILI::AUDIO_QUALITY = getIntOption(SettingItem::AUDIO_QUALITY);
 
+    // 初始化搜索页样式
+    TVSearchActivity::TV_MODE = getBoolOption(SettingItem::SEARCH_TV_MODE);
+
     // 初始化线程数
     ImageHelper::REQUEST_THREADS =
         getIntOption(SettingItem::IMAGE_REQUEST_THREADS);
@@ -497,6 +546,9 @@ void ProgramConfig::load() {
     brls::Application::getExitEvent()->subscribe(
         [this]() { saveHomeWindowState(); });
 #endif
+
+    // 检查不欢迎名单
+    wiliwili::checkBanList();
 }
 
 ProgramOption ProgramConfig::getOptionData(SettingItem item) {

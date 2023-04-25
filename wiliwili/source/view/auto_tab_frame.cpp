@@ -19,6 +19,7 @@
 
 #include "view/auto_tab_frame.hpp"
 #include "view/svg_image.hpp"
+#include "view/button_refresh.hpp"
 
 /**
  * auto tab frame
@@ -93,6 +94,27 @@ AutoTabFrame::AutoTabFrame() {
 
     this->sidebar->setAxis(brls::Axis::COLUMN);
     this->sidebar->setPadding(32, 10, 47, 10);
+
+    // Create Refresh button
+    this->refreshButton = new ButtonRefresh();
+    this->refreshButton->detach();
+    this->refreshButton->setVisibility(brls::Visibility::GONE);
+    this->refreshButton->registerClickAction([this](...) {
+        if (this->refreshAction) this->refreshAction();
+        return true;
+    });
+    // 使用 Box 的 addView，添加一个 detached button
+    brls::Box::addView(this->refreshButton);
+}
+
+void AutoTabFrame::refresh() {
+    this->refreshButton->startRotate();
+    if (this->refreshAction) this->refreshAction();
+}
+
+void AutoTabFrame::setRefreshAction(const std::function<void()>& event) {
+    this->refreshAction = event;
+    this->refreshButton->setVisibility(brls::Visibility::VISIBLE);
 }
 
 void AutoTabFrame::setDemandMode(bool value) { this->isDemandMode = value; }
@@ -320,7 +342,7 @@ AutoTabFrame::~AutoTabFrame() {
     brls::Logger::debug("delete AutoTabFrame");
     if (this->activeTab) {
         // 直接移除activeTab，销毁的工作交给其对应的 AutoSidebarItem 来处理
-        this->getChildren().erase(this->getChildren().end() - 1);
+        this->getChildren().erase(this->getChildren().begin() + 1);
         this->activeTab = nullptr;
     }
 }
@@ -503,58 +525,67 @@ void AutoTabFrame::setItemActiveTextColor(NVGcolor c) {
 
 void AutoTabFrame::draw(NVGcontext* vg, float x, float y, float width,
                         float height, Style style, FrameContext* ctx) {
-    Box::draw(vg, x, y, width, height, style, ctx);
+    //todo: 最后绘制刷新按钮
 
-    if (!this->sidebar || this->sidebar->getChildren().size() != 0) return;
+    if (this->sidebar && this->sidebar->getChildren().size() == 0) {
+        // Draw skeleton screen
+        // Only fit to home_bangumi and home_cinema page
 
-    // Draw skeleton screen
-    // Only fit to home_bangumi and home_cinema page
+        brls::Time curTime = brls::getCPUTimeUsec() / 1000;
+        float p            = (curTime % 1000) * 1.0 / 1000;
+        p                  = fabs(0.5 - p) + 0.25;
 
-    brls::Time curTime = brls::getCPUTimeUsec() / 1000;
-    float p            = (curTime % 1000) * 1.0 / 1000;
-    p                  = fabs(0.5 - p) + 0.25;
+        float padding      = 20;
+        auto drawWidth     = width - 3 * padding;
+        auto drawHeight    = height - padding;
+        auto drawX         = x + padding + getMarginLeft();
+        auto drawY         = y + padding;
+        auto sidebarHeight = this->sidebar->getHeight() - 10;
 
-    float padding      = 20;
-    auto drawWidth     = width - 3 * padding;
-    auto drawHeight    = height - padding;
-    auto drawX         = x + padding + getMarginLeft();
-    auto drawY         = y + padding;
-    auto sidebarHeight = this->sidebar->getHeight() - 10;
+        if (this->isHorizontal) {
+            drawHeight -= sidebarHeight;
+            drawY += sidebarHeight;
+        }
 
-    if (this->isHorizontal) {
-        drawHeight -= sidebarHeight;
-        drawY += sidebarHeight;
-    }
-
-    NVGcolor end = skeletonBackground;
-    end.a        = p;
-    NVGpaint paint =
-        nvgLinearGradient(vg, drawX, drawY, drawX + drawWidth,
-                          drawY + drawHeight, a(skeletonBackground), a(end));
-    nvgBeginPath(vg);
-    nvgFillPaint(vg, paint);
-    nvgRoundedRect(vg, drawX, drawY, drawWidth, drawHeight, 6);
-    nvgFill(vg);
-
-    if (!this->isHorizontal) return;
-
-    // draw sidebar items
-    const unsigned int num       = 6;
-    const unsigned int itemWidth = 80;
-    drawY                        = y + 10;
-    drawX                        = x + padding;
-    padding                      = 10;
-
-    for (size_t i = 0; i < num; i++) {
-        paint = nvgLinearGradient(vg, drawX, drawY, drawX + itemWidth,
-                                  drawY + sidebarHeight, a(skeletonBackground),
-                                  a(end));
+        NVGcolor end   = skeletonBackground;
+        end.a          = p;
+        NVGpaint paint = nvgLinearGradient(vg, drawX, drawY, drawX + drawWidth,
+                                           drawY + drawHeight,
+                                           a(skeletonBackground), a(end));
         nvgBeginPath(vg);
         nvgFillPaint(vg, paint);
-        nvgRoundedRect(vg, drawX, drawY, itemWidth, sidebarHeight, 6);
+        nvgRoundedRect(vg, drawX, drawY, drawWidth, drawHeight, 6);
         nvgFill(vg);
-        drawX += padding + itemWidth;
+
+        if (!this->isHorizontal) return;
+
+        // draw sidebar items
+        const unsigned int num       = 6;
+        const unsigned int itemWidth = 80;
+        drawY                        = y + 10;
+        drawX                        = x + padding;
+        padding                      = 10;
+
+        for (size_t i = 0; i < num; i++) {
+            paint = nvgLinearGradient(vg, drawX, drawY, drawX + itemWidth,
+                                      drawY + sidebarHeight,
+                                      a(skeletonBackground), a(end));
+            nvgBeginPath(vg);
+            nvgFillPaint(vg, paint);
+            nvgRoundedRect(vg, drawX, drawY, itemWidth, sidebarHeight, 6);
+            nvgFill(vg);
+            drawX += padding + itemWidth;
+        }
     }
+
+    Box::draw(vg, x, y, width, height, style, ctx);
+}
+
+void AutoTabFrame::onLayout() {
+    View::onLayout();
+    if (this->refreshButton)
+        this->refreshButton->setDetachedPosition(getWidth() - 80,
+                                                 getHeight() - 80);
 }
 
 /**
