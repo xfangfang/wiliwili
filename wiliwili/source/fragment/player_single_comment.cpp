@@ -12,6 +12,7 @@
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/string_helper.hpp"
+#include "utils/activity_helper.hpp"
 #include "presenter/comment_related.hpp"
 #include "bilibili.h"
 
@@ -426,6 +427,14 @@ PlayerCommentAction::PlayerCommentAction() {
         this->deleteClickEvent.fire();
         return true;
     });
+    this->svgGallery->registerClickAction([this](...) {
+        std::vector<std::string> data;
+        for (auto& i : this->comment->getData().content.pictures) {
+            data.emplace_back(i.img_src + ImageHelper::note_raw_ext);
+        }
+        Intent::openGallery(data);
+        return true;
+    });
 
     this->svgLike->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->svgLike));
@@ -433,6 +442,8 @@ PlayerCommentAction::PlayerCommentAction() {
         new brls::TapGestureRecognizer(this->svgReply));
     this->svgDelete->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->svgDelete));
+    this->svgGallery->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->svgGallery));
 
     this->closeBtn->registerClickAction([this](...) {
         this->dismiss();
@@ -451,6 +462,8 @@ PlayerCommentAction::PlayerCommentAction() {
 void PlayerCommentAction::setActionData(
     const bilibili::VideoCommentResult& data, float y) {
     this->comment->setData(data);
+    if (!data.content.pictures.empty())
+        this->svgGallery->setVisibility(brls::Visibility::VISIBLE);
     if (data.rpid != data.root) this->comment->hideReplyIcon(true);
     commentOriginalPosition = y;
     this->showStartAnimation();

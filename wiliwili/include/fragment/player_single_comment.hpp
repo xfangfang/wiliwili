@@ -76,6 +76,7 @@ private:
     BRLS_BIND(SVGImage, svgReply, "comment/action/svg/reply");
     BRLS_BIND(SVGImage, svgLike, "comment/action/svg/like");
     BRLS_BIND(SVGImage, svgDelete, "comment/action/svg/delete");
+    BRLS_BIND(SVGImage, svgGallery, "comment/action/svg/gallery");
     BRLS_BIND(brls::Box, actionBox, "comment/action/box");
     BRLS_BIND(VideoComment, comment, "comment/action/comment");
     BRLS_BIND(ButtonClose, closeBtn, "button/close");

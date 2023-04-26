@@ -45,6 +45,19 @@ GalleryView::GalleryView() {
             return true;
         },
         true);
+
+    this->addGestureRecognizer(new brls::TapGestureRecognizer(
+        [this](brls::TapGestureStatus status, brls::Sound* soundToPlay) {
+            if (status.state != brls::GestureState::END) return;
+            float width = getWidth();
+            float x     = getX();
+            if (isnan(width) || isnan(x)) return;
+            if (status.position.x < x + width * 0.25) {
+                this->prev();
+            } else if (status.position.x > x + width * 0.75) {
+                this->next();
+            }
+        }));
 }
 
 GalleryView::~GalleryView() { brls::Logger::debug("View GalleryView: delete"); }
@@ -55,17 +68,17 @@ void GalleryView::setData(GalleryData value) {
     this->clearViews();
     this->data = value;
 
-    if (value.size() == 0) return;
+    if (value.empty()) return;
 
     for (auto v : value) {
-        ImageGalleryItem* item = new ImageGalleryItem();
+        auto* item = new ImageGalleryItem();
         item->setData(v);
         item->setSize(brls::Size(getWidth(), getHeight()));
         this->addView(item, this->getChildren().size());
         brls::Logger::debug("GalleryView set Data: {}/{}", v.second, v.first);
     }
 
-    GalleryItem* first = (GalleryItem*)this->getChildren()[0];
+    auto* first = (GalleryItem*)this->getChildren()[0];
     first->setVisibility(brls::Visibility::VISIBLE);
     first->show([]() {}, true, 500);
     this->index = 0;
@@ -74,6 +87,12 @@ void GalleryView::setData(GalleryData value) {
 void GalleryView::addCustomView(GalleryItem* view) {
     view->setSize(brls::Size(getWidth(), getHeight()));
     this->addView(view, this->getChildren().size());
+    if (this->getChildren().size() == 1) {
+        auto* first = (GalleryItem*)this->getChildren()[0];
+        first->setVisibility(brls::Visibility::VISIBLE);
+        first->show([]() {}, true, 500);
+        this->index = 0;
+    }
 }
 
 void GalleryView::prev() {
@@ -104,6 +123,10 @@ void GalleryView::next() {
         ->animate(GalleryAnimation::ENTER_RIGHT);
 }
 
+void GalleryView::setIndicatorPosition(float height) {
+    this->indicatorPosition = height;
+}
+
 void GalleryView::draw(NVGcontext* vg, float x, float y, float width,
                        float height, brls::Style style,
                        brls::FrameContext* ctx) {
@@ -122,7 +145,7 @@ void GalleryView::draw(NVGcontext* vg, float x, float y, float width,
 
     auto drawW = padding * (n - 1) + circleR * 2 * n;
     auto drawX = (width - drawW) / 2 + getMarginLeft();
-    auto drawY = height * 0.98;
+    auto drawY = height * indicatorPosition;
 
     float offsetX = 0;
     for (unsigned int i = 0; i < n; i++) {

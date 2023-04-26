@@ -41,6 +41,7 @@ public:
     std::string url;
     brls::Image* image;
     float width, height;
+    float margin = 2;
 };
 
 typedef std::vector<std::shared_ptr<RichTextComponent>> RichTextData;
@@ -78,10 +79,14 @@ public:
 
     void setText(const std::string& text) override;
 
+    void onLayout() override;
+
     /**
      * 按行重新分割富文本数据
+     * @param width 设定分割的宽度
+     * @return 总高度
      */
-    void onLayout() override;
+    float cutRichTextLines(float width);
 
     void draw(NVGcontext* vg, float x, float y, float width, float height,
               brls::Style style, brls::FrameContext* ctx) override;

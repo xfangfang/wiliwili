@@ -57,8 +57,9 @@ public:
     inline static std::string emoji_size2_ext = "@72w_72h.webp";
     inline static std::string note_ext =
         "@540w_540h_85q_!note-comment-multiple.webp";
-    inline static std::string note_raw_ext =
-        "@{}w_{}h_1c_!pc-common-cover-h.webp";
+    inline static std::string note_custom_ext =
+        "@{}w_{}h_85q_!note-comment-multiple.webp";
+    inline static std::string note_raw_ext = "@!web-comment-note.webp";
 #else
     inline static std::string h_ext           = "@672w_378h_1c.jpg";
     inline static std::string v_ext           = "@312w_420h_1c.jpg";
@@ -68,8 +69,9 @@ public:
     inline static std::string emoji_size2_ext = "@72w_72h.png";
     inline static std::string note_ext =
         "@540w_540h_85q_!note-comment-multiple.jpg";
-    inline static std::string note_raw_ext =
-        "@{}w_{}h_1c_!pc-common-cover-h.jpg";
+    inline static std::string note_custom_ext =
+        "@{}w_{}h_85q_!note-comment-multiple.jpg";
+    inline static std::string note_raw_ext = "@!web-comment-note.jpg";
 #endif
 
     /// 图片请求线程数

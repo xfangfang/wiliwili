@@ -2,9 +2,9 @@
 // Created by fang on 2022/12/4.
 //
 
-#include "view/text_box.hpp"
-
 #include <utility>
+
+#include "view/text_box.hpp"
 #include "bilibili/result/video_detail_result.h"
 
 const char* TEXTBOX_MORE = "更多";
@@ -13,97 +13,8 @@ const char* TEXTBOX_MORE = "更多";
 // Do not directly modify nanovg for easy upgrade in the future
 // Great thanks to nanovg!
 
-inline static float minf(float a, float b) { return a < b ? a : b; }
-inline static float maxf(float a, float b) { return a > b ? a : b; }
-
-inline static float quantize(float a, float d) {
-    return ((int)(a / d + 0.5f)) * d;
-}
-
-inline static float getAverageScale(float* t) {
-    float sx = sqrtf(t[0] * t[0] + t[2] * t[2]);
-    float sy = sqrtf(t[1] * t[1] + t[3] * t[3]);
-    return (sx + sy) * 0.5f;
-}
-
-inline static float getFontScale(NVGcontext* ctx) {
-    float xform[6];
-    nvgCurrentTransform(ctx, xform);
-    return minf(quantize(getAverageScale(xform), 0.01f), 4.0f);
-}
-
-inline static float getPixelRatio() {
-    return (float)brls::Application::windowWidth /
-           (float)brls::Application::windowHeight;
-}
-
-static void richTextBoxBounds(NVGcontext* ctx, float x, float y,
-                              float breakRowWidth, const char* string,
-                              const char* end, float lineHeight, float sx,
-                              float* bounds) {
-    NVGtextRow rows[2];
-    float scale    = getFontScale(ctx) * getPixelRatio();
-    float invscale = 1.0f / scale;
-    int nrows      = 0, i;
-    float lineh = 0, rminy = 0, rmaxy = 0;
-    float minx = 0, miny = 0, maxx = 0, maxy = 0, endx = 0, endy = 0;
-
-    nvgTextMetrics(ctx, nullptr, nullptr, &lineh);
-
-    minx = maxx = x;
-    miny = maxy = y;
-    rminy *= invscale;
-    rmaxy *= invscale;
-
-    nrows = nvgTextBreakLines(ctx, string, end, breakRowWidth - sx, rows, 1);
-    NVGtextRow* row = &rows[0];
-    if (nrows > 0) {
-        if (row->end - row->start == 1 && row->width / 2 + sx > breakRowWidth) {
-            // 只有一个字符且宽度超出了范围
-            // 这里使用 row->width / 2 来判断是因为 nanovg在这种情况下会错误的返回前两个字符的宽度
-            // 当前行不变
-        } else {
-            minx   = minf(minx, x + row->minx);
-            maxx   = maxf(maxx, x + row->maxx);
-            miny   = minf(miny, y + rminy);
-            maxy   = maxf(maxy, y + rmaxy);
-            endx   = sx + row->width;
-            endy   = y;
-            string = row->next;
-        }
-        y += lineh * lineHeight;
-    }
-
-    while (
-        (nrows = nvgTextBreakLines(ctx, string, end, breakRowWidth, rows, 2))) {
-        for (i = 0; i < nrows; i++) {
-            row = &rows[i];
-            float rminx, rmaxx, dx = 0;
-            dx    = 0;
-            endx  = x + row->width;
-            endy  = y;
-            rminx = x + row->minx + dx;
-            rmaxx = x + row->maxx + dx;
-            minx  = minf(minx, rminx);
-            maxx  = maxf(maxx, rmaxx);
-            // Vertical bounds.
-            miny = minf(miny, y + rminy);
-            maxy = maxf(maxy, y + rmaxy);
-
-            y += lineh * lineHeight;
-        }
-        string = rows[nrows - 1].next;
-    }
-
-    if (bounds != nullptr) {
-        bounds[0] = minx;
-        bounds[1] = miny;
-        bounds[2] = maxx;
-        bounds[3] = maxy;
-        bounds[4] = endx;
-        bounds[5] = endy;
-    }
-}
+inline float minf(float a, float b) { return a < b ? a : b; }
+inline float maxf(float a, float b) { return a > b ? a : b; }
 
 inline static std::shared_ptr<RichTextComponent> genRichTextSpan(
     const std::string& text, float x, float y, NVGcolor c) {
@@ -178,9 +89,6 @@ static YGSize textBoxMeasureFunc(YGNodeRef node, float width,
                                  YGMeasureMode heightMode) {
     auto* textBox       = (TextBox*)YGNodeGetContext(node);
     auto& richTextData  = textBox->getRichText();
-    float lineHeight    = textBox->getLineHeight();
-    float pxLineHeight  = textBox->getFontSize() * lineHeight;
-    float pxBottomSpace = textBox->getFontSize() * (lineHeight - 1);
 
     YGSize size = {
         .width  = width,
@@ -189,45 +97,7 @@ static YGSize textBoxMeasureFunc(YGNodeRef node, float width,
 
     if (richTextData.empty() || isnan(width)) return size;
 
-    NVGcontext* vg = brls::Application::getNVGContext();
-    nvgFontSize(vg, textBox->getFontSize());
-    nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-    nvgFontFaceId(vg, textBox->getFont());
-    nvgTextLineHeight(vg, textBox->getLineHeight());
-
-    size_t maxRows = textBox->getMaxRows();
-    if (textBox->isShowMoreText() && maxRows != SIZE_T_MAX) maxRows++;
-    float maxHeight = maxRows == SIZE_T_MAX
-                          ? 0
-                          : (float)maxRows * pxLineHeight - pxBottomSpace;
-
-    // 计算最大高度
-    float bounds[6];
-    float lx = 0, ly = 0;
-    for (const auto& i : richTextData) {
-        if (i->type == RichTextType::Text) {
-            auto* t = (RichTextSpan*)i.get();
-            if (t->text.empty()) continue;
-            richTextBoxBounds(vg, 0, ly, width, t->text.c_str(), nullptr,
-                              lineHeight, lx, bounds);
-            lx = bounds[4];
-            ly = bounds[5];
-        } else if (i->type == RichTextType::Image) {
-            auto* t = (RichTextImage*)i.get();
-            // 当前行长度不够，就换到下一行
-            if (lx + t->width - 2 > width) {
-                lx = 0;
-                ly += pxLineHeight;
-            }
-            lx += t->width;
-        }
-        size.height = ly + textBox->getFontSize();
-        if (maxRows != SIZE_T_MAX && size.height > maxHeight) {
-            size.height = maxHeight;
-            return size;
-        }
-    }
-
+    size.height = textBox->cutRichTextLines(width);
     return size;
 }
 
@@ -249,6 +119,7 @@ TextBox::TextBox() {
 }
 
 void TextBox::setRichText(const RichTextData& value) {
+    this->lineContent.clear();
     this->richContent = value;
     // 设置内容后调用 invalidate 会触发 textBoxMeasureFunc 重排布局
     this->invalidate();
@@ -257,6 +128,7 @@ void TextBox::setRichText(const RichTextData& value) {
 RichTextData& TextBox::getRichText() { return this->richContent; }
 
 void TextBox::setText(const std::string& text) {
+    this->lineContent.clear();
     this->richContent.clear();
     this->richContent.emplace_back(
         std::make_shared<RichTextSpan>(text, this->textColor));
@@ -264,11 +136,17 @@ void TextBox::setText(const std::string& text) {
 }
 
 void TextBox::onLayout() {
-    this->lineContent.clear();
+    float width = getWidth();
+    if (isnan(width)) return;
     if (this->richContent.empty()) return;
+    this->cutRichTextLines(width);
+}
 
-    float width = this->getWidth();
-    auto* vg    = brls::Application::getNVGContext();
+float TextBox::cutRichTextLines(float width) {
+    this->lineContent.clear();
+    if (this->richContent.empty()) return 0;
+
+    auto* vg = brls::Application::getNVGContext();
 
     nvgFontSize(vg, this->fontSize);
     nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
@@ -284,7 +162,9 @@ void TextBox::onLayout() {
             if (t->text.empty()) continue;
             auto rows = richTextBreakLines(vg, 0, ly, width, t->text, t->color,
                                            this->lineHeight, lx, &lx, &ly);
-            if (rows.size() == 1) {
+            if (rows.empty()) {
+                // todo：一般是一堆空格，暂时忽视
+            } else if (rows.size() == 1) {
                 tempData.emplace_back(rows[0]);
             } else {
                 if (!((RichTextSpan*)rows[0].get())->text.empty()) {
@@ -301,25 +181,56 @@ void TextBox::onLayout() {
         } else if (i->type == RichTextType::Image) {
             auto* t = (RichTextImage*)i.get();
 
-            if (lx + t->width - 2 > width) {
+            if (lx + t->width + 2 * t->margin - 2 > width) {
                 // 当前行长度不够，就换到下一行
-                lx = 0;
-                ly += fontSize * lineHeight;
-                tempData.emplace_back(
-                    genRichTextImage(t->url, t->width, t->height, lx,
-                                     ly - (t->height - fontSize) / 2));
+                // 提交之前的行
                 this->lineContent.emplace_back(tempData);
                 tempData.clear();
-            } else {
-                // 当前行可以容纳
-                tempData.emplace_back(
-                    genRichTextImage(t->url, t->width, t->height, lx,
-                                     ly - (t->height - fontSize) / 2));
+                // 设置下一行的其实位置
+                lx = 0;
+                ly += fontSize * lineHeight;
             }
-            lx += t->width;
+            tempData.emplace_back(genRichTextImage(
+                t->url, t->width, t->height, lx + t->margin,
+                ly - (t->height - fontSize * (lineHeight / 2 + 0.5))));
+            lx += t->width + t->margin * 2;
         }
     }
     if (!tempData.empty()) lineContent.emplace_back(tempData);
+
+    // 重新扫描一遍，根据图片高度调整行高
+    float height = fontSize * lineHeight;
+    float bias   = 0;
+    for (auto& i : lineContent) {
+        // 获取最大行高
+        float maxLineHeight = height;
+        for (auto& j : i) {
+            if (j->type == RichTextType::Image) {
+                auto* t       = (RichTextImage*)j.get();
+                maxLineHeight = maxf(maxLineHeight, t->height);
+            }
+        }
+        bias += maxLineHeight - height;
+        if (maxLineHeight > height) {
+            // 显示超出了行高的图片时，增加一点行高，避免图片顶格显示
+            bias += 4;
+        }
+        for (auto& j : i) {
+            j->y += bias;
+        }
+    }
+
+    float pxBottomSpace = fontSize * (lineHeight - 1);
+    size_t rows         = maxRows;
+    if (isShowMoreText() && maxRows != SIZE_T_MAX) rows++;
+
+    if (maxRows == SIZE_T_MAX || rows >= lineContent.size()) {
+        // 无限制最大行数 或 最大行数大于等于当前行数
+        return height * (float)lineContent.size() + bias - pxBottomSpace;
+    }
+
+    // 限制最大行数
+    return lineContent[maxRows][0]->y + fontSize;
 }
 
 void TextBox::draw(NVGcontext* vg, float x, float y, float width, float height,
@@ -402,7 +313,10 @@ RichTextImage::RichTextImage(std::string url, float width, float height)
     image = new brls::Image();
     image->setWidth(width);
     image->setHeight(height);
+    image->setCornerRadius(4);
     image->setScalingType(brls::ImageScalingType::FIT);
+
+    //todo: 在第一次显示前，RichTextImage 被复制来复制去，会导致重复加载与取消
     ImageHelper::with(image)->load(this->url);
 }
 

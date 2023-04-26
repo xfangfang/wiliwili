@@ -46,9 +46,15 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
     }
 
     RichTextData d;
+    if (data.top) {
+        d.emplace_back(std::make_shared<RichTextSpan>(
+            "置顶　",
+            brls::Application::getTheme().getColor("color/bilibili")));
+    }
+
     const std::string& msg = data.content.message;
     const auto& emote      = data.content.emote;
-    NVGcolor textColor     = brls::Application::getTheme()["brls/text"];
+    NVGcolor textColor = brls::Application::getTheme().getColor("brls/text");
     size_t start = 0, index = SIZE_T_MAX;
     for (size_t i = 0; i < msg.length(); i++) {
         if (msg[i] == '[') {
@@ -67,7 +73,7 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
             // 表情包
             if (emote.at(key).size == 2) {
                 d.emplace_back(std::make_shared<RichTextImage>(
-                    emote.at(key).url + ImageHelper::emoji_size2_ext, 40, 40));
+                    emote.at(key).url + ImageHelper::emoji_size2_ext, 50, 50));
             } else {
                 d.emplace_back(std::make_shared<RichTextImage>(
                     emote.at(key).url + ImageHelper::emoji_size1_ext, 30, 30));
@@ -82,19 +88,31 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
             msg.substr(start, msg.length() - start), textColor));
     }
 
-    // 比较丑陋地简单实现笔记图片
-    if (!data.content.pictures.empty())
-        d.emplace_back(std::make_shared<RichTextSpan>("\n\n\n", textColor));
-    for (size_t i = 0; i < data.content.pictures.size(); i++) {
-        d.emplace_back(std::make_shared<RichTextImage>(
-            data.content.pictures[i].img_src + ImageHelper::note_ext, 96, 96));
-        if ((i + 1) % 3 == 0 && i != data.content.pictures.size() - 1) {
-            d.emplace_back(
-                std::make_shared<RichTextSpan>("\n\n\n\n", textColor));
-        }
-    }
+    // 笔记图片
     if (!data.content.pictures.empty())
         d.emplace_back(std::make_shared<RichTextSpan>("\n\n", textColor));
+
+    if (data.content.pictures.size() == 1) {
+        auto& picture = data.content.pictures[0];
+        float w = 108, h = 108;
+        if (picture.img_height == 0 || picture.img_width == 0) {
+        } else if (picture.img_height > picture.img_width) {
+            h = picture.img_height / picture.img_width * w;
+            if (h > 324) h = 324;
+        } else {
+            w = picture.img_width / picture.img_height * h;
+            if (w > 324) w = 324;
+        }
+        d.emplace_back(std::make_shared<RichTextImage>(
+            picture.img_src + fmt::format(ImageHelper::note_custom_ext,
+                                          (int)(w * 5), (int)(h * 5)),
+            w, h));
+    } else {
+        for (auto& picture : data.content.pictures) {
+            d.emplace_back(std::make_shared<RichTextImage>(
+                picture.img_src + ImageHelper::note_ext, 108, 108));
+        }
+    }
 
     // 设置富文本
     this->commentContent->setRichText(d);
@@ -126,6 +144,10 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
 
     this->labelLike->setText(wiliwili::num2w(data.like));
     this->labelReply->setText(wiliwili::num2w(data.rcount));
+}
+
+bilibili::VideoCommentResult VideoComment::getData() {
+    return this->comment_data;
 }
 
 void VideoComment::prepareForReuse() {

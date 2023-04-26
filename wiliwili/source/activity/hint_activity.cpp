@@ -63,6 +63,8 @@ public:
             dialog->open();
             return true;
         });
+
+        button->addGestureRecognizer(new brls::TapGestureRecognizer(button));
     }
 
 private:

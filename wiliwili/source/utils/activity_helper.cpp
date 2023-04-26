@@ -11,6 +11,7 @@
 #include "activity/search_activity_tv.hpp"
 #include "activity/pgc_index_activity.hpp"
 #include "activity/main_activity.hpp"
+#include "activity/gallery_activity.hpp"
 #include "utils/activity_helper.hpp"
 
 #include "presenter/video_detail.hpp"
@@ -60,3 +61,8 @@ void Intent::openSetting() {
 void Intent::openHint() { brls::Application::pushActivity(new HintActivity()); }
 
 void Intent::openMain() { brls::Application::pushActivity(new MainActivity()); }
+
+void Intent::openGallery(const std::vector<std::string>& data) {
+    brls::Application::pushActivity(new GalleryActivity(data),
+                                    brls::TransitionAnimation::NONE);
+}

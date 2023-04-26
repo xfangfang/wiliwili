@@ -29,4 +29,7 @@ public:
 
     // 开启主页面
     static void openMain();
+
+    // 浏览图片
+    static void openGallery(const std::vector<std::string>& data);
 };

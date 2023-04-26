@@ -518,7 +518,8 @@ void BasePlayerActivity::onCommentInfo(
         comments.insert(comments.end(), result.replies.begin(),
                         result.replies.end());
         // 为了加载骨架屏美观，设置为了100，在加载评论时手动修改回来
-        this->recyclingGrid->estimatedRowHeight = 420;
+        // 这里限制的是评论的最大高度，实际评论高度还受评论组件的最大行数限制
+        this->recyclingGrid->estimatedRowHeight = 700;
         this->recyclingGrid->setDataSource(
             new DataSourceCommentList(comments, this->getAid()));
         if (comments.size() > 1) this->recyclingGrid->selectRowAt(1, false);

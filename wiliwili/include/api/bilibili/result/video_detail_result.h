@@ -32,11 +32,16 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
 class Picture {
 public:
     std::string img_src;
-    //    int img_width = 0, img_height = 0;
-    //    float img_size = 0;
+    float img_width = 0, img_height = 0;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       Picture& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("img_width")) {
+        nlohmann_json_j.at("img_width").get_to(nlohmann_json_t.img_width);
+    }
+    if (nlohmann_json_j.contains("img_height")) {
+        nlohmann_json_j.at("img_height").get_to(nlohmann_json_t.img_height);
+    }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, img_src));
 }
 
@@ -114,6 +119,7 @@ public:
     std::vector<VideoCommentResult> replies;
     VideoCommentControl reply_control;
     size_t rcount, like, action;
+    bool top = false;  // 自定义数据项：是否是置顶评论
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoCommentResult& nlohmann_json_t) {
@@ -163,6 +169,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     if (!nlohmann_json_j.at("top_replies").is_null()) {
         nlohmann_json_j.at("top_replies").get_to(nlohmann_json_t.top_replies);
     }
+    for (auto& i : nlohmann_json_t.top_replies) i.top = true;
     if (!nlohmann_json_j.at("replies").is_null()) {
         nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
     }

@@ -1,0 +1,21 @@
+<brls:AppletFrame
+        iconInterpolation="linear"
+        backgroundColor="@theme/brls/backdrop"
+        headerHidden="true"
+        footerHidden="true">
+    <brls:Box
+            width="100%"
+            height="100%">
+        <GalleryView
+                wireframe="false"
+                width="100%"
+                height="100%"
+                hideHighlight="true"
+                id="hint/gallery"/>
+        <ButtonClose
+                textColor="#FFFFFF"
+                positionType="absolute"
+                positionTop="10"
+                positionRight="10"/>
+    </brls:Box>
+</brls:AppletFrame>

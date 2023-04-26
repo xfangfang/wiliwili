@@ -19,7 +19,7 @@ class GalleryItem : public brls::Box {
 public:
     GalleryItem();
 
-    virtual ~GalleryItem() = default;
+    ~GalleryItem() override = default;
 
     void animate(GalleryAnimation animation);
 
@@ -45,7 +45,7 @@ class GalleryView : public brls::Box {
 public:
     GalleryView();
 
-    ~GalleryView();
+    ~GalleryView() override;
 
     static View *create();
 
@@ -57,10 +57,13 @@ public:
 
     void next();
 
+    void setIndicatorPosition(float height);
+
     void draw(NVGcontext *vg, float x, float y, float width, float height,
               brls::Style style, brls::FrameContext *ctx) override;
 
 private:
     GalleryData data;
-    unsigned int index = 0;
+    unsigned int index      = 0;
+    float indicatorPosition = 0.98;
 };

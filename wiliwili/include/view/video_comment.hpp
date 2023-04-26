@@ -48,6 +48,8 @@ public:
 
     void setData(bilibili::VideoCommentResult data);
 
+    bilibili::VideoCommentResult getData();
+
     void setMainTextColor(NVGcolor color);
 
     void hideReplyIcon(bool hide);
