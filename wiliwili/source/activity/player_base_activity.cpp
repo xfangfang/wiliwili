@@ -88,8 +88,9 @@ public:
         });
         view->deleteEvent.subscribe([this, recycler, index]() {
             dataList.erase(dataList.begin() + index - 1);
-            recycler->setDefaultCellFocus(0);
             recycler->reloadData();
+            // 重新设置一下焦点到 recycler 的默认 cell （顶部）
+            brls::Application::giveFocus(recycler);
         });
     }
 

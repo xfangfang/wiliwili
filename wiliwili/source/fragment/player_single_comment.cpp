@@ -154,6 +154,8 @@ public:
                             this->dataList.insert(dataList.begin() + 2,
                                                   result.reply);
                             recycler->reloadData();
+                            // 重新设置一下焦点到 recycler 的默认 cell （顶部）
+                            brls::Application::giveFocus(recycler);
                         });
                 },
                 "", "", 500, "", 0);
@@ -166,8 +168,6 @@ public:
                     auto& itemData = dataList[index];
                     this->commentDelete(itemData.oid, itemData.rpid);
 
-                    brls::Logger::error("current reply: {}",
-                                        dataList[0].rcount - 1);
                     if (index == 0) {
                         // 删除一整层
                         deleteReply->fire();
@@ -175,6 +175,8 @@ public:
                         // 删除单条回复
                         dataList.erase(dataList.begin() + index);
                         recycler->reloadData();
+                        // 重新设置一下焦点到 recycler 的默认 cell （顶部）
+                        brls::Application::giveFocus(recycler);
                         // 更新评论数量
                         this->updateCommentLabelNum(recycler,
                                                     dataList[0].rcount - 1);
@@ -248,7 +250,10 @@ PlayerSingleComment::PlayerSingleComment() {
         return true;
     });
 
-    this->deleteEvent.subscribe([this]() { this->dismiss(); });
+    this->deleteEvent.subscribe([]() {
+        // 直接移除，避免关闭动画导致焦点错乱
+        brls::Application::popActivity(brls::TransitionAnimation::NONE);
+    });
 
     this->registerAction("wiliwili/home/common/refresh"_i18n,
                          brls::ControllerButton::BUTTON_X,
