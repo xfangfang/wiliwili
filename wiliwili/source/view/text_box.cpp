@@ -3,6 +3,10 @@
 //
 
 #include <utility>
+#include <codecvt>
+#include <cstring>
+#include <iostream>
+#include <locale>
 
 #include "view/text_box.hpp"
 #include "bilibili/result/video_detail_result.h"
@@ -49,15 +53,18 @@ RichTextData richTextBreakLines(NVGcontext* ctx, float x, float y,
         nvgTextBreakLines(ctx, string, nullptr, breakRowWidth - sx, rows, 1);
     if (nrows > 0) {
         row = &rows[0];
-        if (row->end - row->start == 1 && row->width / 2 + sx > breakRowWidth) {
+        std::string currentText =
+            text.substr(row->start - stringStart, row->end - row->start);
+        auto firstLine =
+            std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(
+                currentText);
+        if (firstLine.length() == 1 && row->width / 2 + sx > breakRowWidth) {
             // 只有一个字符且宽度超出了范围
             // 这里使用 row->width / 2 来判断是因为 nanovg在这种情况下会错误的返回前两个字符的宽度
             // 添加空白的一行
             res.emplace_back(genRichTextSpan("", x + sx, y, c));
         } else {
-            res.emplace_back(genRichTextSpan(
-                text.substr(row->start - stringStart, row->end - row->start),
-                x + sx, y, c));
+            res.emplace_back(genRichTextSpan(currentText, x + sx, y, c));
             if (lx) *lx = sx + row->width;
             if (ly) *ly = y;
             string = row->next;
@@ -95,6 +102,7 @@ static YGSize textBoxMeasureFunc(YGNodeRef node, float width,
         .height = height,
     };
 
+    if (heightMode == YGMeasureMode::YGMeasureModeExactly) return size;
     if (richTextData.empty() || isnan(width)) return size;
 
     size.height = textBox->cutRichTextLines(width);

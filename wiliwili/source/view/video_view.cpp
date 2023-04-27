@@ -19,6 +19,14 @@
 
 using namespace brls;
 
+enum ClickState {
+    IDLE         = 0,
+    PRESS        = 1,
+    FAST_RELEASE = 3,
+    FAST_PRESS   = 4,
+    CLICK_DOUBLE = 5
+};
+
 VideoView::VideoView() {
     mpvCore = &MPVCore::instance();
     this->inflateFromXMLRes("xml/views/video_view.xml");
@@ -95,9 +103,115 @@ VideoView::VideoView() {
             wiliwili::sec2Time(mpvCore->duration * progress));
     });
 
-    /// 点击屏幕其他位置切换OSD
-    this->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this, [this]() { this->toggleOSD(); }));
+    /// 组件触摸事件
+    /// 单击控制 OSD
+    /// 双击控制播放与暂停
+    /// 长按加速
+    //todo 滑动调整进度
+    this->addGestureRecognizer(new brls::TapGestureRecognizer(
+        [this](brls::TapGestureStatus status, brls::Sound* soundToPlay) {
+            brls::Application::giveFocus(this);
+            static size_t iter = 0;
+            // 当长按时已经加速，则忽视此次加速
+            static bool ignoreSpeed = false;
+            switch (status.state) {
+                case brls::GestureState::UNSURE: {
+                    // 长按加速
+                    if (fabs(mpvCore->getSpeed() - 1) > 10e-2) {
+                        ignoreSpeed = true;
+                        break;
+                    }
+                    ignoreSpeed = false;
+                    brls::cancelDelay(iter);
+                    ASYNC_RETAIN
+                    iter = brls::delay(200, [ASYNC_TOKEN]() {
+                        ASYNC_RELEASE
+                        float SPEED = MPVCore::VIDEO_SPEED == 100
+                                          ? 2.0
+                                          : MPVCore::VIDEO_SPEED * 0.01f;
+                        this->setSpeed(SPEED);
+                        // 绘制临时加速标识
+                        this->speedHintLabel->setText(wiliwili::format(
+                            "wiliwili/player/current_speed"_i18n, SPEED));
+                        this->speedHintBox->setVisibility(
+                            brls::Visibility::VISIBLE);
+                    });
+                    break;
+                }
+                case brls::GestureState::FAILED:
+                case brls::GestureState::INTERRUPTED: {
+                    // 打断加速
+                    if (!ignoreSpeed) {
+                        brls::cancelDelay(iter);
+                        this->setSpeed(1.0f);
+                        this->speedHintBox->setVisibility(
+                            brls::Visibility::GONE);
+                    }
+                    break;
+                }
+                case brls::GestureState::END: {
+                    // 打断加速
+                    if (!ignoreSpeed) {
+                        brls::cancelDelay(iter);
+                        this->setSpeed(1.0f);
+                        if (this->speedHintBox->getVisibility() ==
+                            brls::Visibility::VISIBLE) {
+                            this->speedHintBox->setVisibility(
+                                brls::Visibility::GONE);
+                            // 正在加速时抬起手指，不触发后面 OSD 相关内容，直接结束此次事件
+                            break;
+                        }
+                    }
+
+                    // 处理点击事件
+                    static int click_state    = ClickState::IDLE;
+                    static int64_t press_time = 0;
+
+                    int CHECK_TIME         = 200000;
+                    static size_t tap_iter = 0;
+                    switch (click_state) {
+                        case ClickState::IDLE: {
+                            press_time  = getCPUTimeUsec();
+                            click_state = ClickState::CLICK_DOUBLE;
+                            // 单击切换 OSD，设置一个延迟用来等待双击结果
+                            ASYNC_RETAIN
+                            tap_iter = brls::delay(200, [ASYNC_TOKEN]() {
+                                ASYNC_RELEASE
+                                this->toggleOSD();
+                            });
+                            break;
+                        }
+                        case ClickState::CLICK_DOUBLE: {
+                            brls::cancelDelay(tap_iter);
+                            int64_t current_time = getCPUTimeUsec();
+                            if (current_time - press_time < CHECK_TIME) {
+                                // 双击切换播放状态
+                                if (mpvCore->isPaused()) {
+                                    mpvCore->resume();
+                                } else {
+                                    mpvCore->pause();
+                                }
+                                click_state = ClickState::IDLE;
+                            } else {
+                                // 单击切换 OSD，设置一个延迟用来等待双击结果
+                                press_time  = getCPUTimeUsec();
+                                click_state = ClickState::CLICK_DOUBLE;
+                                ASYNC_RETAIN
+                                tap_iter = brls::delay(200, [ASYNC_TOKEN]() {
+                                    ASYNC_RELEASE
+                                    this->toggleOSD();
+                                });
+                            }
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+                default:
+                    break;
+            }
+        }));
 
     /// 播放/暂停 按钮
     this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
@@ -701,14 +815,6 @@ View* VideoView::getNextFocus(brls::FocusDirection direction,
     if (this->isFullscreen()) return this;
     return Box::getNextFocus(direction, currentView);
 }
-
-enum ClickState {
-    IDLE         = 0,
-    PRESS        = 1,
-    FAST_RELEASE = 3,
-    FAST_PRESS   = 4,
-    CLICK_DOUBLE = 5
-};
 
 void VideoView::buttonProcessing() {
     // 获取按键数据

@@ -16,6 +16,7 @@
 #include "utils/activity_helper.hpp"
 #include "bilibili.h"
 #include "bilibili/result/search_result.h"
+#include "analytics.h"
 
 using namespace brls::literals;
 
@@ -108,6 +109,7 @@ private:
 
 TVSearchActivity::TVSearchActivity() {
     brls::Logger::debug("TVSearchActivity: create");
+    GA("open_tv_search")
 }
 
 void TVSearchActivity::requestSearchSuggest() {
