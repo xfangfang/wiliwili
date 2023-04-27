@@ -10,6 +10,77 @@
 
 using namespace brls::literals;
 
+enum class CommentElementType {
+    EMOTE,
+    USER,
+    TOPIC,
+    JUMP,
+    NONE,
+};
+
+class CommentElement {
+public:
+    CommentElement(const std::string& title, CommentElementType type)
+        : title(title), type(type) {}
+    std::string title;
+    CommentElementType type;
+    bool matchDone = false;  // 为真则不参与匹配
+};
+
+class CommentElementEmote : public CommentElement {
+public:
+    CommentElementEmote(const std::string& title, const std::string& url,
+                        int size)
+        : CommentElement(title, CommentElementType::EMOTE),
+          url(url),
+          size(size) {}
+    std::string url;
+    int size = 1;
+};
+
+class CommentElementUser : public CommentElement {
+public:
+    CommentElementUser(const std::string& name, int64_t id)
+        : CommentElement("@" + name + " ", CommentElementType::USER),
+          name(name),
+          id(id) {}
+    std::string name;
+    int64_t id;
+};
+
+class CommentElementTopic : public CommentElement {
+public:
+    CommentElementTopic(const std::string& topic, const std::string& uri)
+        : CommentElement("#" + topic + "#", CommentElementType::TOPIC),
+          topic(topic),
+          uri(uri) {}
+    std::string topic;
+    std::string uri;
+};
+
+enum class CommentElementJumpType {
+    SEARCH,
+    NONE,
+};
+
+class CommentElementJump : public CommentElement {
+public:
+    CommentElementJump(const std::string& title, const std::string& show,
+                       const std::string& icon, int position,
+                       CommentElementJumpType type)
+        : CommentElement(title, CommentElementType::JUMP),
+          showTitle(show),
+          icon(icon),
+          position(position),
+          type(type) {}
+    std::string showTitle;
+    std::string icon;
+    int position                = 1;
+    CommentElementJumpType type = CommentElementJumpType::NONE;
+};
+
+typedef std::unordered_map<std::string, std::shared_ptr<CommentElement>> CEMap;
+
 VideoComment::VideoComment() {
     brls::Logger::verbose("View VideoComment: create");
     this->inflateFromXMLRes("xml/views/video_comment.xml");
@@ -45,72 +116,163 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
         subtitle += "  " + data.reply_control.location;
     }
 
+    // 结尾加个空格用来正确识别尾部的@
     RichTextData d;
+    std::string msg    = data.content.message + " ";
+    auto theme         = brls::Application::getTheme();
+    NVGcolor textColor = theme.getColor("brls/text");
+    NVGcolor linkColor = theme.getColor("color/link");
+    NVGcolor biliColor = theme.getColor("color/bilibili");
+
     if (data.top) {
-        d.emplace_back(std::make_shared<RichTextSpan>(
-            "置顶　",
-            brls::Application::getTheme().getColor("color/bilibili")));
+        auto top      = std::make_shared<RichTextSpan>("置顶", biliColor);
+        top->r_margin = 10;
+        d.emplace_back(top);
     }
 
-    const std::string& msg = data.content.message;
-    const auto& emote      = data.content.emote;
-    NVGcolor textColor = brls::Application::getTheme().getColor("brls/text");
-    size_t start = 0, index = SIZE_T_MAX;
+    // todo: 识别进度跳转
+
+    // 将表情包、@、跳转、话题 整合进一个map里
+    CEMap commentElement;
+    for (auto& i : data.content.emote) {
+        commentElement.insert(
+            {i.first, std::make_shared<CommentElementEmote>(
+                          i.first, i.second.url, i.second.size)});
+    }
+    for (auto& i : data.content.at_name_to_mid) {
+        commentElement.insert(
+            {"@" + i.first + " ",
+             std::make_shared<CommentElementUser>(i.first, i.second)});
+    }
+    for (auto& i : data.content.jump_url) {
+        commentElement.insert(
+            {i.first, std::make_shared<CommentElementJump>(
+                          i.first, i.second.title, i.second.prefix_icon,
+                          i.second.icon_position,
+                          i.second.search ? CommentElementJumpType::SEARCH
+                                          : CommentElementJumpType::NONE)});
+    }
+    for (auto& i : data.content.topics_uri) {
+        commentElement.insert(
+            {"#" + i.first + "#",
+             std::make_shared<CommentElementTopic>(i.first, i.second)});
+    }
+
+    // 识别评论组件
+    size_t start = 0;
     for (size_t i = 0; i < msg.length(); i++) {
-        if (msg[i] == '[') {
-            index = i;
-        } else if (msg[i] == ']') {
-            // 没找到左半边中括号
-            if (index == SIZE_T_MAX) continue;
-            // 没找到表情包
-            std::string key = msg.substr(index, i - index + 1);
-            if (!emote.count(key)) continue;
-            // 找到表情包
-            // 文字分段
-            if (index > start)
-                d.emplace_back(std::make_shared<RichTextSpan>(
-                    msg.substr(start, index - start), textColor));
-            // 表情包
-            if (emote.at(key).size == 2) {
-                d.emplace_back(std::make_shared<RichTextImage>(
-                    emote.at(key).url + ImageHelper::emoji_size2_ext, 50, 50));
-            } else {
-                d.emplace_back(std::make_shared<RichTextImage>(
-                    emote.at(key).url + ImageHelper::emoji_size1_ext, 30, 30));
+        std::shared_ptr<CommentElement> matchElement = nullptr;
+        size_t nextMatch                             = -1;
+        for (auto& key : commentElement) {
+            if (key.second->matchDone) continue;
+            size_t position = msg.find(key.first, i);
+            if (position < nextMatch) {
+                nextMatch    = position;
+                matchElement = key.second;
             }
-
-            start = i + 1;
-            index = SIZE_T_MAX;
         }
-    }
-    if (start < msg.length()) {
-        d.emplace_back(std::make_shared<RichTextSpan>(
-            msg.substr(start, msg.length() - start), textColor));
+        if (matchElement == nullptr) nextMatch = msg.length() - 1;
+        if (start < nextMatch) {
+            // 纯文本
+            auto item = std::make_shared<RichTextSpan>(
+                msg.substr(start, nextMatch - start), textColor);
+            d.emplace_back(item);
+        }
+        if (matchElement == nullptr) break;
+        // 根据 matchElement 类型判断
+        switch (matchElement->type) {
+            case CommentElementType::EMOTE: {
+                auto* t = (CommentElementEmote*)matchElement.get();
+                std::shared_ptr<RichTextImage> item;
+                if (t->size == 2) {
+                    item = std::make_shared<RichTextImage>(
+                        t->url + ImageHelper::emoji_size2_ext, 50, 50);
+                    item->t_margin = 4;
+                } else {
+                    item = std::make_shared<RichTextImage>(
+                        t->url + ImageHelper::emoji_size1_ext, 30, 30);
+                }
+                item->v_align  = 4;
+                item->l_margin = 2;
+                item->r_margin = 2;
+                d.emplace_back(item);
+                break;
+            }
+            case CommentElementType::USER: {
+                auto* t   = (CommentElementUser*)matchElement.get();
+                auto item = std::make_shared<RichTextSpan>(t->title, linkColor);
+                item->l_margin = 8;
+                item->r_margin = 8;
+                d.emplace_back(item);
+                break;
+            }
+            case CommentElementType::TOPIC: {
+                auto* t   = (CommentElementTopic*)matchElement.get();
+                auto item = std::make_shared<RichTextSpan>(t->title, linkColor);
+                d.emplace_back(item);
+                break;
+            }
+            case CommentElementType::JUMP: {
+                auto* t = (CommentElementJump*)matchElement.get();
+                if (!t->icon.empty() && t->position == 0) {
+                    auto item =
+                        std::make_shared<RichTextImage>(t->icon, 30, 30);
+                    item->v_align = 5;
+                    d.emplace_back(item);
+                }
+                d.emplace_back(
+                    std::make_shared<RichTextSpan>(t->showTitle, linkColor));
+                if (!t->icon.empty() && t->position == 1) {
+                    auto item =
+                        std::make_shared<RichTextImage>(t->icon, 16, 30);
+                    item->v_align  = 5;
+                    item->r_margin = 2;
+                    d.emplace_back(item);
+                }
+                // 关键字只匹配一次
+                commentElement[t->title]->matchDone = true;
+                break;
+            }
+            case CommentElementType::NONE:
+                break;
+        }
+
+        i     = nextMatch + matchElement->title.length() - 1;
+        start = i + 1;
     }
 
     // 笔记图片
     if (!data.content.pictures.empty())
         d.emplace_back(std::make_shared<RichTextSpan>("\n\n", textColor));
 
+    static constexpr float size    = 108;
+    static constexpr float maxSize = 324;
     if (data.content.pictures.size() == 1) {
+        // 只有一张图片时，按图片的比例显示
         auto& picture = data.content.pictures[0];
-        float w = 108, h = 108;
+        float w = size, h = size;
         if (picture.img_height == 0 || picture.img_width == 0) {
         } else if (picture.img_height > picture.img_width) {
             h = picture.img_height / picture.img_width * w;
-            if (h > 324) h = 324;
+            if (h > maxSize) h = maxSize;
         } else {
             w = picture.img_width / picture.img_height * h;
-            if (w > 324) w = 324;
+            if (w > maxSize) w = maxSize;
         }
-        d.emplace_back(std::make_shared<RichTextImage>(
+        auto item = std::make_shared<RichTextImage>(
             picture.img_src + fmt::format(ImageHelper::note_custom_ext,
                                           (int)(w * 5), (int)(h * 5)),
-            w, h));
+            w, h);
+        item->t_margin = 8;
+        d.emplace_back(item);
     } else {
+        // 多张图片显示为正方形缩略图
         for (auto& picture : data.content.pictures) {
-            d.emplace_back(std::make_shared<RichTextImage>(
-                picture.img_src + ImageHelper::note_ext, 108, 108));
+            auto item = std::make_shared<RichTextImage>(
+                picture.img_src + ImageHelper::note_ext, size, size);
+            item->r_margin = 8;
+            item->t_margin = 8;
+            d.emplace_back(item);
         }
     }
 
@@ -142,12 +304,31 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
         this->svgLike->setImageFromSVGRes("svg/comment-agree-grey.svg");
     }
 
-    this->labelLike->setText(wiliwili::num2w(data.like));
-    this->labelReply->setText(wiliwili::num2w(data.rcount));
+    this->setLikeNum(data.like);
+    this->setReplyNum(data.rcount);
 }
 
 bilibili::VideoCommentResult VideoComment::getData() {
     return this->comment_data;
+}
+
+void VideoComment::setReplyNum(size_t num) {
+    this->comment_data.rcount = num;
+    this->labelReply->setText(wiliwili::num2w(num));
+}
+
+void VideoComment::setLikeNum(size_t num) {
+    this->comment_data.like = num;
+    this->labelLike->setText(wiliwili::num2w(num));
+}
+
+void VideoComment::setLiked(bool liked) {
+    this->comment_data.action = liked;
+    if (liked) {
+        this->svgLike->setImageFromSVGRes("svg/comment-agree-active.svg");
+    } else {
+        this->svgLike->setImageFromSVGRes("svg/comment-agree-grey.svg");
+    }
 }
 
 void VideoComment::prepareForReuse() {

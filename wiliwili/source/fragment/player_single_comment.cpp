@@ -121,7 +121,8 @@ public:
             auto& itemData  = dataList[index];
             itemData.action = !itemData.action;
             itemData.like += itemData.action ? 1 : -1;
-            item->setData(itemData);
+            item->setLiked(itemData.action);
+            item->setLikeNum(itemData.like);
 
             // 只将对层主的点赞情况传递给上一级列表
             if (index == 0) {
@@ -143,7 +144,7 @@ public:
 
                     // 若回复指定人而不是回复层主，需要@被回复人
                     if (itemData.rpid != itemData.root) {
-                        text = fmt::format("回复 @{} : {}",
+                        text = fmt::format("回复 @{} :{}",
                                            itemData.member.uname, text);
                     }
 
@@ -192,10 +193,12 @@ public:
         // 设置上级数量
         replyNum->fire(wholeNum);
 
-        // 层主显示的数量
+        // 更新层主显示的评论数量
         auto* topItem =
             dynamic_cast<VideoComment*>(recycler->getGridItemByIndex(0));
-        if (topItem) topItem->setData(dataList[0]);
+        if (topItem) {
+            topItem->setReplyNum(wholeNum);
+        }
 
         // 相关回复
         auto* relatedItem =

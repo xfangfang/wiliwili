@@ -20,17 +20,6 @@
 
             <SVGImage
                     focusable="true"
-                    id="comment/action/svg/gallery"
-                    margin="14"
-                    width="48"
-                    height="48"
-                    cornerRadius="48"
-                    highlightCornerRadius="48"
-                    visibility="gone"
-                    SVG="@res/svg/bpx-svg-sprite-fullpage.svg"/>
-
-            <SVGImage
-                    focusable="true"
                     id="comment/action/svg/delete"
                     margin="14"
                     width="48"
@@ -39,6 +28,17 @@
                     highlightCornerRadius="48"
                     visibility="gone"
                     SVG="@res/svg/bpx-svg-sprite-delete.svg"/>
+
+            <SVGImage
+                    focusable="true"
+                    id="comment/action/svg/gallery"
+                    margin="14"
+                    width="48"
+                    height="48"
+                    cornerRadius="48"
+                    highlightCornerRadius="48"
+                    visibility="gone"
+                    SVG="@res/svg/bpx-svg-sprite-fullpage.svg"/>
 
             <SVGImage
                     focusable="true"

@@ -74,17 +74,17 @@ public:
         view->likeStateEvent.subscribe([this, item, index](bool value) {
             auto& itemData  = dataList[index - 1];
             itemData.action = value;
-            item->setData(itemData);
+            item->setLiked(value);
         });
         view->likeNumEvent.subscribe([this, item, index](size_t value) {
             auto& itemData = dataList[index - 1];
             itemData.like  = value;
-            item->setData(itemData);
+            item->setLikeNum(value);
         });
         view->replyNumEvent.subscribe([this, item, index](size_t value) {
             auto& itemData  = dataList[index - 1];
             itemData.rcount = value;
-            item->setData(itemData);
+            item->setReplyNum(value);
         });
         view->deleteEvent.subscribe([this, recycler, index]() {
             dataList.erase(dataList.begin() + index - 1);

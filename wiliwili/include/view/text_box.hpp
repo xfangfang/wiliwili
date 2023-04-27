@@ -21,6 +21,16 @@ public:
 
     RichTextType type;
     float x = 0, y = 0;
+
+    // 左侧与右侧的空隙
+    float l_margin = 0;
+    float r_margin = 0;
+
+    // 垂直偏移，目前仅图片组件用到
+    float v_align = 0;
+
+    // 顶部空隙，目前仅图片组件用到
+    float t_margin = 0;
 };
 
 class RichTextSpan : public RichTextComponent {
@@ -29,19 +39,20 @@ public:
         : RichTextComponent(RichTextType::Text), text(std::move(t)), color(c) {}
 
     std::string text;
+    float fontSize = 0;
     NVGcolor color;
 };
 
 class RichTextImage : public RichTextComponent {
 public:
-    RichTextImage(std::string url, float width, float height);
+    RichTextImage(std::string url, float width, float height,
+                  bool autoLoad = false);
 
     ~RichTextImage();
 
     std::string url;
     brls::Image* image;
     float width, height;
-    float margin = 2;
 };
 
 typedef std::vector<std::shared_ptr<RichTextComponent>> RichTextData;
@@ -82,6 +93,13 @@ public:
     void onLayout() override;
 
     /**
+     * 内部使用
+     * 标记为真后，onLayout 执行时不会重新按行分割文本 ( cutRichTextLines() )
+     * 当指定宽度，高度位置时，会自动计算高度，在计算的过程中已经做好了分割文本，这时候可以设置标记，可以减少计算
+     */
+    void setParsedDone(bool value) { this->parsedDone = value; }
+
+    /**
      * 按行重新分割富文本数据
      * @param width 设定分割的宽度
      * @return 总高度
@@ -104,4 +122,6 @@ protected:
     RichTextData richContent;
     // 按行分割的富文本数据。开发者设置富文本数据后，会按行重新分割。
     std::vector<RichTextData> lineContent;
+
+    bool parsedDone = false;
 };

@@ -48,6 +48,12 @@ public:
 
     void setData(bilibili::VideoCommentResult data);
 
+    void setReplyNum(size_t num);
+
+    void setLikeNum(size_t num);
+
+    void setLiked(bool liked);
+
     bilibili::VideoCommentResult getData();
 
     void setMainTextColor(NVGcolor color);

@@ -25,7 +25,7 @@ inline static std::shared_ptr<RichTextComponent> genRichTextSpan(
 
 inline static std::shared_ptr<RichTextComponent> genRichTextImage(
     const std::string& url, float width, float height, float x, float y) {
-    auto item = std::make_shared<RichTextImage>(url, width, height);
+    auto item = std::make_shared<RichTextImage>(url, width, height, true);
     item->setPosition(x, y);
     return item;
 }
@@ -87,8 +87,8 @@ RichTextData richTextBreakLines(NVGcontext* ctx, float x, float y,
 static YGSize textBoxMeasureFunc(YGNodeRef node, float width,
                                  YGMeasureMode widthMode, float height,
                                  YGMeasureMode heightMode) {
-    auto* textBox       = (TextBox*)YGNodeGetContext(node);
-    auto& richTextData  = textBox->getRichText();
+    auto* textBox      = (TextBox*)YGNodeGetContext(node);
+    auto& richTextData = textBox->getRichText();
 
     YGSize size = {
         .width  = width,
@@ -98,6 +98,7 @@ static YGSize textBoxMeasureFunc(YGNodeRef node, float width,
     if (richTextData.empty() || isnan(width)) return size;
 
     size.height = textBox->cutRichTextLines(width);
+    textBox->setParsedDone(true);
     return size;
 }
 
@@ -120,6 +121,7 @@ TextBox::TextBox() {
 
 void TextBox::setRichText(const RichTextData& value) {
     this->lineContent.clear();
+    this->setParsedDone(false);
     this->richContent = value;
     // 设置内容后调用 invalidate 会触发 textBoxMeasureFunc 重排布局
     this->invalidate();
@@ -128,8 +130,8 @@ void TextBox::setRichText(const RichTextData& value) {
 RichTextData& TextBox::getRichText() { return this->richContent; }
 
 void TextBox::setText(const std::string& text) {
-    this->lineContent.clear();
     this->richContent.clear();
+    this->setParsedDone(false);
     this->richContent.emplace_back(
         std::make_shared<RichTextSpan>(text, this->textColor));
     this->invalidate();
@@ -137,9 +139,9 @@ void TextBox::setText(const std::string& text) {
 
 void TextBox::onLayout() {
     float width = getWidth();
-    if (isnan(width)) return;
+    if (isnan(width) || width == 0) return;
     if (this->richContent.empty()) return;
-    this->cutRichTextLines(width);
+    if (!this->parsedDone) this->cutRichTextLines(width);
 }
 
 float TextBox::cutRichTextLines(float width) {
@@ -161,7 +163,9 @@ float TextBox::cutRichTextLines(float width) {
             auto* t = (RichTextSpan*)i.get();
             if (t->text.empty()) continue;
             auto rows = richTextBreakLines(vg, 0, ly, width, t->text, t->color,
-                                           this->lineHeight, lx, &lx, &ly);
+                                           this->lineHeight, lx + t->l_margin,
+                                           &lx, &ly);
+            lx += t->r_margin;
             if (rows.empty()) {
                 // todo：一般是一堆空格，暂时忽视
             } else if (rows.size() == 1) {
@@ -181,7 +185,7 @@ float TextBox::cutRichTextLines(float width) {
         } else if (i->type == RichTextType::Image) {
             auto* t = (RichTextImage*)i.get();
 
-            if (lx + t->width + 2 * t->margin - 2 > width) {
+            if (lx + t->width + 2 + t->l_margin + t->r_margin - 2 > width) {
                 // 当前行长度不够，就换到下一行
                 // 提交之前的行
                 this->lineContent.emplace_back(tempData);
@@ -190,10 +194,12 @@ float TextBox::cutRichTextLines(float width) {
                 lx = 0;
                 ly += fontSize * lineHeight;
             }
-            tempData.emplace_back(genRichTextImage(
-                t->url, t->width, t->height, lx + t->margin,
-                ly - (t->height - fontSize * (lineHeight / 2 + 0.5))));
-            lx += t->width + t->margin * 2;
+            auto item =
+                genRichTextImage(t->url, t->width, t->height, lx + t->l_margin,
+                                 ly - t->height + fontSize + t->v_align);
+            item->t_margin = t->t_margin;
+            tempData.emplace_back(item);
+            lx += t->width + t->l_margin + t->r_margin;
         }
     }
     if (!tempData.empty()) lineContent.emplace_back(tempData);
@@ -207,14 +213,10 @@ float TextBox::cutRichTextLines(float width) {
         for (auto& j : i) {
             if (j->type == RichTextType::Image) {
                 auto* t       = (RichTextImage*)j.get();
-                maxLineHeight = maxf(maxLineHeight, t->height);
+                maxLineHeight = maxf(maxLineHeight, t->height + t->t_margin);
             }
         }
         bias += maxLineHeight - height;
-        if (maxLineHeight > height) {
-            // 显示超出了行高的图片时，增加一点行高，避免图片顶格显示
-            bias += 4;
-        }
         for (auto& j : i) {
             j->y += bias;
         }
@@ -281,8 +283,7 @@ void TextBox::draw(NVGcontext* vg, float x, float y, float width, float height,
     static auto linkColor = ctx->theme.getColor("color/link");
     nvgFontSize(vg, 18);
     nvgFillColor(vg, a(linkColor));
-    nvgText(vg, x, y + maxRows * this->getFontSize() * this->getLineHeight(),
-            TEXTBOX_MORE, nullptr);
+    nvgText(vg, x, y + lineContent[maxRows][0]->y, TEXTBOX_MORE, nullptr);
 }
 
 brls::View* TextBox::create() { return new TextBox(); }
@@ -305,7 +306,8 @@ bool TextBox::isShowMoreText() const { return this->showMoreText; }
 
 /// RichTextImage
 
-RichTextImage::RichTextImage(std::string url, float width, float height)
+RichTextImage::RichTextImage(std::string url, float width, float height,
+                             bool autoLoad)
     : RichTextComponent(RichTextType::Image),
       url(std::move(url)),
       width(width),
@@ -316,8 +318,7 @@ RichTextImage::RichTextImage(std::string url, float width, float height)
     image->setCornerRadius(4);
     image->setScalingType(brls::ImageScalingType::FIT);
 
-    //todo: 在第一次显示前，RichTextImage 被复制来复制去，会导致重复加载与取消
-    ImageHelper::with(image)->load(this->url);
+    if (autoLoad) ImageHelper::with(image)->load(this->url);
 }
 
 RichTextImage::~RichTextImage() {

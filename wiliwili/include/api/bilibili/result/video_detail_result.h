@@ -47,18 +47,60 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
 
 typedef std::unordered_map<std::string, Emote> EmoteMap;
 
+class JumpUrl {
+public:
+    std::string title;
+    std::string prefix_icon;
+    int icon_position = 0;      // 1 右侧，0 左侧
+    bool search       = false;  // 自定义数据：是否是搜索关键字
+};
+
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      JumpUrl& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("extra") &&
+        nlohmann_json_j.at("extra").is_object()) {
+        nlohmann_json_j.at("extra")
+            .at("is_word_search")
+            .get_to(nlohmann_json_t.search);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title,
+                                             prefix_icon, icon_position));
+}
+
+typedef std::unordered_map<std::string, JumpUrl> JumpUrlMap;
+typedef std::unordered_map<std::string, int64_t> IdMap;
+typedef std::unordered_map<std::string, std::string> TopicMap;
+
 class VideoCommentContent {
 public:
     std::string message;
-    std::unordered_map<std::string, Emote> emote;
+    EmoteMap emote;
+    JumpUrlMap jump_url;
+    IdMap at_name_to_mid;
+    TopicMap topics_uri;
     std::vector<Picture> pictures;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoCommentContent& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("emote")) {
+    if (nlohmann_json_j.contains("emote") &&
+        !nlohmann_json_j.at("emote").is_null()) {
         nlohmann_json_j.at("emote").get_to(nlohmann_json_t.emote);
     }
-    if (nlohmann_json_j.contains("pictures")) {
+    if (nlohmann_json_j.contains("at_name_to_mid") &&
+        !nlohmann_json_j.at("at_name_to_mid").is_null()) {
+        nlohmann_json_j.at("at_name_to_mid")
+            .get_to(nlohmann_json_t.at_name_to_mid);
+    }
+    if (nlohmann_json_j.contains("jump_url") &&
+        !nlohmann_json_j.at("jump_url").is_null()) {
+        nlohmann_json_j.at("jump_url").get_to(nlohmann_json_t.jump_url);
+    }
+    if (nlohmann_json_j.contains("topics_uri") &&
+        !nlohmann_json_j.at("topics_uri").is_null()) {
+        nlohmann_json_j.at("topics_uri").get_to(nlohmann_json_t.topics_uri);
+    }
+    if (nlohmann_json_j.contains("pictures") &&
+        !nlohmann_json_j.at("pictures").is_null()) {
         nlohmann_json_j.at("pictures").get_to(nlohmann_json_t.pictures);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, message));
