@@ -14,16 +14,16 @@ BUILD_DIR=$(pwd)
 # cd to wiliwili
 cd "$(dirname "$0")/.."
 
-APP_PATH=${BUILD_DIR}/wiliwili.app
+APP_PATH="${BUILD_DIR}"/wiliwili.app
 
-rm -rf ${APP_PATH}
+rm -rf "${APP_PATH}"
 
-mkdir -p ${APP_PATH}/Contents
-mkdir -p ${APP_PATH}/Contents/MacOS
-mkdir -p ${APP_PATH}/Contents/Resources
+mkdir -p "${APP_PATH}"/Contents
+mkdir -p "${APP_PATH}"/Contents/MacOS
+mkdir -p "${APP_PATH}"/Contents/Resources
 
 
-cp ./scripts/mac/Info.plist ${APP_PATH}/Contents/Info.plist
+cp ./scripts/mac/Info.plist "${APP_PATH}"/Contents/Info.plist
 
 version_major=$(jq .version_major resources/i18n/en-US/version.json)
 version_minor=$(jq .version_minor resources/i18n/en-US/version.json)
@@ -31,18 +31,18 @@ version_revision=$(jq .version_revision resources/i18n/en-US/version.json)
 version=${version_major}.${version_minor}.${version_revision}
 git_tag=$(git rev-parse --short HEAD)
 
-/usr/bin/sed -i '' '35s/1.0/'${version}'/' ${APP_PATH}/Contents/Info.plist
-/usr/bin/sed -i '' '39s/1.0/'${git_tag}'/' ${APP_PATH}/Contents/Info.plist
+/usr/bin/sed -i '' '35s/1.0/'"${version}"'/' "${APP_PATH}"/Contents/Info.plist
+/usr/bin/sed -i '' '39s/1.0/'"${git_tag}"'/' "${APP_PATH}"/Contents/Info.plist
 
-cp ./scripts/mac/AppIcon.icns ${APP_PATH}/Contents/Resources/AppIcon.icns
-cp ${BUILD_DIR}/wiliwili ${APP_PATH}/Contents/MacOS/wiliwili
-cp -r ./resources ${APP_PATH}/Contents/Resources/
+cp ./scripts/mac/AppIcon.icns "${APP_PATH}"/Contents/Resources/AppIcon.icns
+cp "${BUILD_DIR}"/wiliwili "${APP_PATH}"/Contents/MacOS/wiliwili
+cp -r ./resources "${APP_PATH}"/Contents/Resources/
 
 if ! command -v dylibbundler >/dev/null 2>&1; then
     echo -e "\033[31m\"dylibbundler\" is not installed. The application you built can only be used locally\033[0m"
     echo -e "For more information, please refer to: \033[36mhttps://github.com/xfangfang/wiliwili/issues/83#issuecomment-1415858949\033[0m"
 else
-  dylibbundler -cd -b -x ${APP_PATH}/Contents/MacOS/wiliwili \
-    -d ${APP_PATH}/Contents/MacOS/lib/ -p @executable_path/lib/
-  codesign --sign - --force ${APP_PATH}/Contents/MacOS/lib/*
+  dylibbundler -cd -b -x "${APP_PATH}"/Contents/MacOS/wiliwili \
+    -d "${APP_PATH}"/Contents/MacOS/lib/ -p @executable_path/lib/
+  codesign --sign - --force "${APP_PATH}"/Contents/MacOS/lib/*
 fi
