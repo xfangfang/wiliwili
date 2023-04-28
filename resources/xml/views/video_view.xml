@@ -271,9 +271,8 @@
             <brls:Box
                     cornerRadius="4"
                     backgroundColor="@theme/brls/backdrop"
-                    positionType="absolute"
-                    positionTop="-20"
-                    positionLeft="30"
+                    detachedX="30"
+                    detachedY="-20"
                     visibility="gone"
                     height="32"
                     id="video/osd/hint/box">

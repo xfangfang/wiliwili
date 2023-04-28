@@ -32,8 +32,8 @@ static int64_t getSeekRange(int64_t current) {
     if (current < 60) return 5;
     if (current < 300) return 10;
     if (current < 600) return 20;
-    if (current < 1200) return 40;
-    return current / 30;
+    if (current < 1200) return 60;
+    return current / 15;
 }
 
 VideoView::VideoView() {
@@ -424,7 +424,7 @@ void VideoView::requestSeeking() {
     // 延迟触发跳转进度
     brls::cancelDelay(seeking_iter);
     ASYNC_RETAIN
-    seeking_iter = brls::delay(200, [ASYNC_TOKEN]() {
+    seeking_iter = brls::delay(400, [ASYNC_TOKEN]() {
         ASYNC_RELEASE
         mpvCore->command_str(fmt::format("seek {}", seeking_range).c_str());
         seeking_range = 0;
