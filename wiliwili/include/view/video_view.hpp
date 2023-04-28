@@ -196,9 +196,18 @@ private:
     const time_t OSD_SHOW_TIME = 5;  //默认显示五秒
     OSDState osd_state         = OSDState::HIDDEN;
     bool is_osd_shown          = false;
+    bool is_seeking            = false;
+    int64_t seeking_range      = 0;
+    size_t seeking_iter        = 0;
     time_t hintLastShowTime    = 0;
     int64_t lastPlayedPosition = POSITION_UNDEFINED;
 
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
+
+    /**
+     * 延迟 200ms 触发进度跳转到 seeking_range
+     * seeking_range: 相对进度，单位秒
+     */
+    void requestSeeking();
 };

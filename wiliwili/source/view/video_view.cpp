@@ -27,6 +27,15 @@ enum ClickState {
     CLICK_DOUBLE = 5
 };
 
+static int64_t getSeekRange(int64_t current) {
+    current = abs(current);
+    if (current < 60) return 5;
+    if (current < 300) return 10;
+    if (current < 600) return 20;
+    if (current < 1200) return 40;
+    return current / 30;
+}
+
 VideoView::VideoView() {
     mpvCore = &MPVCore::instance();
     this->inflateFromXMLRes("xml/views/video_view.xml");
@@ -53,7 +62,8 @@ VideoView::VideoView() {
     this->registerAction(
         "\uE08F", brls::ControllerButton::BUTTON_LB,
         [this](brls::View* view) -> bool {
-            mpvCore->command_str("seek -10");
+            seeking_range -= getSeekRange(seeking_range);
+            this->requestSeeking();
             return true;
         },
         false, true);
@@ -61,13 +71,14 @@ VideoView::VideoView() {
     this->registerAction(
         "\uE08E", brls::ControllerButton::BUTTON_RB,
         [this](brls::View* view) -> bool {
-            ControllerState state;
+            ControllerState state{};
             input->updateUnifiedControllerState(&state);
             if (state.buttons[BUTTON_Y]) {
-                mpvCore->command_str("seek -10");
+                seeking_range -= getSeekRange(seeking_range);
             } else {
-                mpvCore->command_str("seek +10");
+                seeking_range += getSeekRange(seeking_range);
             }
+            this->requestSeeking();
             return true;
         },
         false, true);
@@ -75,6 +86,8 @@ VideoView::VideoView() {
     this->registerAction(
         "toggleOSD", brls::ControllerButton::BUTTON_Y,
         [this](brls::View* view) -> bool {
+            // 拖拽进度时不要影响显示 OSD
+            if (is_seeking) return true;
             this->toggleOSD();
             return true;
         },
@@ -386,6 +399,39 @@ VideoView::VideoView() {
     });
 }
 
+void VideoView::requestSeeking() {
+    if (mpvCore->duration <= 0) {
+        seeking_range = 0;
+        is_seeking    = false;
+        return;
+    }
+    double progress =
+        (this->mpvCore->playback_time + seeking_range) / mpvCore->duration;
+
+    if (progress < 0) {
+        progress      = 0;
+        seeking_range = (int64_t)this->mpvCore->playback_time * -1;
+    } else if (progress > 1) {
+        progress      = 1;
+        seeking_range = mpvCore->duration;
+    }
+
+    showOSD(false);
+    osdSlider->setProgress((float)progress);
+    leftStatusLabel->setText(wiliwili::sec2Time(mpvCore->duration * progress));
+    is_seeking = true;
+
+    // 延迟触发跳转进度
+    brls::cancelDelay(seeking_iter);
+    ASYNC_RETAIN
+    seeking_iter = brls::delay(200, [ASYNC_TOKEN]() {
+        ASYNC_RELEASE
+        mpvCore->command_str(fmt::format("seek {}", seeking_range).c_str());
+        seeking_range = 0;
+        is_seeking    = false;
+    });
+}
+
 VideoView::~VideoView() {
     brls::Logger::debug("trying delete VideoView...");
     this->unRegisterMpvEvent();
@@ -650,6 +696,7 @@ void VideoView::setDuration(const std::string& value) {
 }
 
 void VideoView::setPlaybackTime(const std::string& value) {
+    if (this->is_seeking) return;
     this->leftStatusLabel->setText(value);
 }
 
@@ -682,6 +729,7 @@ void VideoView::refreshToggleIcon() {
 }
 
 void VideoView::setProgress(float value) {
+    if (is_seeking) return;
     if (isnan(value)) return;
     this->osdSlider->setProgress(value);
 }

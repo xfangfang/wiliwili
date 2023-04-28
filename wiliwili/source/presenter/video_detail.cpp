@@ -580,9 +580,12 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid) {
                             if (p.cid != result.last_play_cid) continue;
                             std::string hint = fmt::format(
                                 "上次看到第 {} 个: {}", p.page, p.part);
-                            if (result.last_play_time)
+                            if (result.last_play_time > 0) {
                                 hint += " " + wiliwili::sec2Time(
                                                   result.last_play_time / 1000);
+                            } else {
+                                hint += " 已看完";
+                            }
                             MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
                             break;
                         }

@@ -16,18 +16,17 @@ class VideoProgressSlider : public brls::Box {
 public:
     VideoProgressSlider();
 
-    ~VideoProgressSlider();
+    ~VideoProgressSlider() override;
 
     static brls::View* create();
 
     void onLayout() override;
+
     brls::View* getDefaultFocus() override;
-    void draw(NVGcontext* vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext* ctx) override;
 
     void setProgress(float progress);
 
-    float getProgress() { return progress; }
+    [[nodiscard]] float getProgress() const { return progress; }
 
     // Progress is manually dragged
     brls::Event<float>* getProgressEvent() { return &progressEvent; }
@@ -47,6 +46,5 @@ private:
 
     float progress = 1;
 
-    void buttonsProcessing();
     void updateUI();
 };

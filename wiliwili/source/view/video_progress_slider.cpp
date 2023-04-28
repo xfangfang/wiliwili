@@ -94,47 +94,6 @@ void VideoProgressSlider::onLayout() {
 
 View* VideoProgressSlider::getDefaultFocus() { return pointer; }
 
-void VideoProgressSlider::draw(NVGcontext* vg, float x, float y, float width,
-                               float height, Style style, FrameContext* ctx) {
-    buttonsProcessing();
-    Box::draw(vg, x, y, width, height, style, ctx);
-}
-
-void VideoProgressSlider::buttonsProcessing() {
-    if (pointer->isFocused()) {
-        ControllerState state;
-        input->updateUnifiedControllerState(&state);
-        static bool repeat = false;
-
-        if (state.buttons[BUTTON_NAV_RIGHT] && state.buttons[BUTTON_NAV_LEFT])
-            return;
-
-        if (state.buttons[BUTTON_NAV_RIGHT]) {
-            setProgress(progress += 0.5f / 60.0f);
-            if (progress >= 1 && !repeat) {
-                repeat = true;
-                pointer->shakeHighlight(FocusDirection::RIGHT);
-                Application::getAudioPlayer()->play(SOUND_FOCUS_ERROR);
-            }
-        }
-
-        if (state.buttons[BUTTON_NAV_LEFT]) {
-            setProgress(progress -= 0.5f / 60.0f);
-            if (progress <= 0 && !repeat) {
-                repeat = true;
-                pointer->shakeHighlight(FocusDirection::LEFT);
-                Application::getAudioPlayer()->play(SOUND_FOCUS_ERROR);
-            }
-        }
-
-        if ((!state.buttons[BUTTON_NAV_RIGHT] &&
-             !state.buttons[BUTTON_NAV_LEFT]) ||
-            (progress > 0.01f && progress < 0.99f)) {
-            repeat = false;
-        }
-    }
-}
-
 void VideoProgressSlider::setProgress(float progress) {
     static int lastProgressTicker = this->progress * 10;
 
