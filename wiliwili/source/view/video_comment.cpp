@@ -6,6 +6,7 @@
 #include "view/text_box.hpp"
 #include "view/svg_image.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/string_helper.hpp"
 #include "bilibili.h"
 
 using namespace brls::literals;
@@ -260,7 +261,7 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
             if (w > maxSize) w = maxSize;
         }
         auto item = std::make_shared<RichTextImage>(
-            picture.img_src + fmt::format(ImageHelper::note_custom_ext,
+            picture.img_src + wiliwili::format(ImageHelper::note_custom_ext,
                                           (int)(w * 5), (int)(h * 5)),
             w, h);
         item->t_margin = 8;
