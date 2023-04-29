@@ -62,6 +62,7 @@ int main(int argc, char* argv[]) {
         //        Intent::openSeasonByEpId(323434);// 测试电影
         //        Intent::openLive(1942240);       // 测试直播
         //        Intent::openSearch("harry");     // 测试搜索影片
+        //        Intent::openTVSearch();          // 测试TV搜索模式
         //        Intent::openHint();              // 应用开启教程页面
         //        Intent::openPgcFilter("/page/home/pgc/more?type=2&index_type=2&area=2&order=2&season_status=-1&season_status=3,6"); // 影片分类索引
         //        Intent::openSetting();  //  设置页面
