@@ -13,8 +13,12 @@
         "low_quality": "低品質ぬデコード (CPU使用率がふぃくくなやびーん)",
         "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
+        "exit_fullscreen": "再生終了時んかい全画面表示終了",
         "auto_play_next_part": "次ぬパート自動再生",
         "auto_play_recommend": "うすすみ動画ぬ自動再生",
+        "sleep": "タイミングオフ",
+        "video_codec": "ビデオコーデック",
+        "audio_quality": "オーディオ品質",
         "video_format": "動画ぬ形式"
       },
       "image": {
@@ -28,6 +32,7 @@
         "hide_bottom": "しちゃぬヒントバーくゎっくゎすん",
         "hide_fps": "FPS非表示",
         "fullscreen": "フルスクリーン",
+        "tv_search": "テレビスタイルぬ検索ページ",
         "theme": {
           "header": "テーマ(再起動ぬいりゆーやいびーん)",
           "1": "自動",
@@ -143,6 +148,10 @@
       "next": "次",
       "filter": "フィルター",
       "save": "保存",
+      "min": "分",
+      "high": "高",
+      "medium": "中",
+      "low": "ふぃく",
       "no_login": "なーらログインさびらん"
     },
     "live": {
@@ -168,7 +177,19 @@
     }
   },
   "search": {
+    "tv": {
+      "hint": "キーワードとぅ最初ぬ文字サポート",
+      "clear": "クリア",
+      "delete": "削除",
+      "search": "検索",
+      "hots": "ホット",
+      "history": "履歴",
+      "history_clear": "まじり消去",
+      "history_delete": "削除",
+      "suggest": "提案"
+    },
     "tab": "検索",
+    "t0": "履歴",
     "t1": "ホット",
     "t2": "動画",
     "t3": "番組",
@@ -193,12 +214,16 @@
       "need_confirm": "確認待ちゅん",
       "need_scan": "QRコードぬスキャン待っちょーいびーん"
     },
+    "later": "後でぃんーじゅん",
     "history": "履歴",
     "collection": "う気に入り",
+    "subscription": "サブスクリプション",
     "anime": "アニメ",
     "series": "シリーズ",
     "refresh_history": "履歴リフレッシュ",
     "refresh_collection": "う気に入りリフレッシュ",
+    "refresh_subscription": "サブスクリプション更新",
+    "refresh_later": "後でぃんーじゅん更新",
     "refresh_anime": "アニメ更新",
     "refresh_series": "シリーズ更新",
     "coin": "コイン",
@@ -216,6 +241,7 @@
   "player": {
     "intro": "序章",
     "p": "パート",
+    "ugc_season": "プレイリスト",
     "related": "関連",
     "series": "シリーズ",
     "recommend": "うすすみ",
@@ -227,6 +253,9 @@
     "rights": "再配布禁止",
     "fs": "フルスクリーン",
     "quality": "品質",
+    "speed": "速度",
+    "replay": "リプレイ",
+    "current_speed": "現在ぬ速度 {}",
     "not_follow": "フォローキャンセルさびーが？",
     "coin": {
       "title": "コイン",
@@ -238,7 +267,18 @@
       "exp_full": "ちゅー得らったる経験ーみっちゃかーんやいびーん(50/50)  ！",
       "pcs": "{} 個"
     },
+    "season_part": {
+      "ascend": "昇順",
+      "descend": "降順"
+    },
+    "comment_sort": {
+      "sort_top": "ホット順んかい並び替い",
+      "sort_new": "最新順んかい並び替い",
+      "top": "トップコメント",
+      "new": "最新ぬコメント"
+    },
     "collection": {
+      "type": "ちーいり",
       "title": "う気に入り選択"
     },
     "setting": {
@@ -246,7 +286,8 @@
         "header": "字幕"
       },
       "common": {
-        "header": "一般"
+        "header": "一般",
+        "wiki": "シェーダーぬ仕組み学ぶんがー、wikiんかいアクセスしみそーれー"
       },
       "shader": {
         "header": "シェーダー"
@@ -254,6 +295,10 @@
     },
     "danmaku": {
       "header": "弾幕ぬ設定",
+      "send": {
+        "action": "送信",
+        "hint": "じょーとぅーやるくとぅコメントさびら"
+      },
       "filter": {
         "header": "弾幕フィルター",
         "top": "トップ",

@@ -13,8 +13,12 @@
         "low_quality": "低品質のデコード (CPU使用率が低くなります)",
         "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
+        "exit_fullscreen": "再生終了時に全画面表示を終了",
         "auto_play_next_part": "次のパートを自動再生",
         "auto_play_recommend": "おすすめ動画の自動再生",
+        "sleep": "タイミングオフ",
+        "video_codec": "ビデオコーデック",
+        "audio_quality": "オーディオ品質",
         "video_format": "動画の形式"
       },
       "image": {
@@ -28,6 +32,7 @@
         "hide_bottom": "下のヒントバーを隠す",
         "hide_fps": "FPSを非表示",
         "fullscreen": "フルスクリーン",
+        "tv_search": "テレビスタイルの検索ページ",
         "theme": {
           "header": "テーマ (再起動が必要です)",
           "1": "自動",
@@ -143,6 +148,10 @@
       "next": "次",
       "filter": "フィルター",
       "save": "保存",
+      "min": "分",
+      "high": "高",
+      "medium": "中",
+      "low": "低",
       "no_login": "まだログインしていません"
     },
     "live": {
@@ -168,7 +177,19 @@
     }
   },
   "search": {
+    "tv": {
+      "hint": "キーワードと最初の文字をサポート",
+      "clear": "クリア",
+      "delete": "削除",
+      "search": "検索",
+      "hots": "ホット",
+      "history": "履歴",
+      "history_clear": "全て消去",
+      "history_delete": "削除",
+      "suggest": "提案"
+    },
     "tab": "検索",
+    "t0": "履歴",
     "t1": "ホット",
     "t2": "動画",
     "t3": "番組",
@@ -193,12 +214,16 @@
       "need_confirm": "確認を待つ",
       "need_scan": "QRコードのスキャンを待っています"
     },
+    "later": "後で見る",
     "history": "履歴",
     "collection": "お気に入り",
+    "subscription": "サブスクリプション",
     "anime": "アニメ",
     "series": "シリーズ",
     "refresh_history": "履歴をリフレッシュ",
     "refresh_collection": "お気に入りをリフレッシュ",
+    "refresh_subscription": "サブスクリプションを更新",
+    "refresh_later": "後で見るを更新",
     "refresh_anime": "アニメを更新",
     "refresh_series": "シリーズを更新",
     "coin": "コイン",
@@ -216,6 +241,7 @@
   "player": {
     "intro": "序章",
     "p": "パート",
+    "ugc_season": "プレイリスト",
     "related": "関連",
     "series": "シリーズ",
     "recommend": "おすすめ",
@@ -227,6 +253,9 @@
     "rights": "再配布禁止",
     "fs": "フルスクリーン",
     "quality": "品質",
+    "speed": "速度",
+    "replay": "リプレイ",
+    "current_speed": "現在の速度 {}",
     "not_follow": "フォローをキャンセルしますか？",
     "coin": {
       "title": "コイン",
@@ -238,7 +267,18 @@
       "exp_full": "今日得られた経験はいっぱいです(50/50)  ！",
       "pcs": "{} 個"
     },
+    "season_part": {
+      "ascend": "昇順",
+      "descend": "降順"
+    },
+    "comment_sort": {
+      "sort_top": "ホット順に並び替え",
+      "sort_new": "最新順に並び替え",
+      "top": "トップコメント",
+      "new": "最新のコメント"
+    },
     "collection": {
+      "type": "お気に入り",
       "title": "お気に入りを選択"
     },
     "setting": {
@@ -246,7 +286,8 @@
         "header": "字幕"
       },
       "common": {
-        "header": "一般"
+        "header": "一般",
+        "wiki": "シェーダーの仕組みを学ぶには、wikiにアクセスしてください"
       },
       "shader": {
         "header": "シェーダー"
@@ -254,6 +295,10 @@
     },
     "danmaku": {
       "header": "弾幕の設定",
+      "send": {
+        "action": "送信",
+        "hint": "素敵なことをコメントしましょう"
+      },
       "filter": {
         "header": "弾幕フィルター",
         "top": "トップ",
