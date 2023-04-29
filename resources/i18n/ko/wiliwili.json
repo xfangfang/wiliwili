@@ -13,8 +13,12 @@
         "low_quality": "낮은 품질의 디코딩(CPU 사용량이 적음)",
         "in_memory_cache": "메모리 캐시",
         "hwdec": "하드웨어 디코드",
+        "exit_fullscreen": "재생 종료 시 전체 화면 종료",
         "auto_play_next_part": "자동으로 다음 동영상 재생",
         "auto_play_recommend": "추천 동영상 자동 재생",
+        "sleep": "타이밍 끄기",
+        "video_codec": "비디오 코덱",
+        "audio_quality": "오디오 품질",
         "video_format": "비디오 형식"
       },
       "image": {
@@ -28,6 +32,7 @@
         "hide_bottom": "아래 힌트 바 숨기기",
         "hide_fps": "FPS 숨김",
         "fullscreen": "전체화면",
+        "tv_search": "TV 스타일 검색 페이지",
         "theme": {
           "header": "테마 (재시작 필요)",
           "1": "자동",
@@ -143,6 +148,10 @@
       "next": "다음",
       "filter": "필터",
       "save": "저장",
+      "min": "분",
+      "high": "높음",
+      "medium": "중간",
+      "low": "낮음",
       "no_login": "아직 로그인하지 않았습니다."
     },
     "live": {
@@ -168,7 +177,19 @@
     }
   },
   "search": {
+    "tv": {
+      "hint": "키워드 및 해당 이니셜 지원",
+      "clear": "지움",
+      "delete": "삭제",
+      "search": "검색",
+      "hots": "인기",
+      "history": "이력",
+      "history_clear": "모두 지움",
+      "history_delete": "삭제",
+      "suggest": "제안"
+    },
     "tab": "검색",
+    "t0": "이력",
     "t1": "핫",
     "t2": "동영상",
     "t3": "프로그램",
@@ -193,12 +214,16 @@
       "need_confirm": "확인 대기 중",
       "need_scan": "QR 코드 스캔 대기 중"
     },
+    "later": "나중에 시청",
     "history": "이력",
     "collection": "즐겨찾기",
+    "subscription": "구독",
     "anime": "애니메이션",
     "series": "시리즈",
     "refresh_history": "이력 새로 고침",
     "refresh_collection": "즐겨찾기 새로 고침",
+    "refresh_subscription": "구독 새로 고침",
+    "refresh_later": "나중에 시청 새로 고침",
     "refresh_anime": "애니메이션 새로 고침",
     "refresh_series": "시리즈 새로 고침",
     "coin": "코인",
@@ -216,6 +241,7 @@
   "player": {
     "intro": "소개",
     "p": "부분",
+    "ugc_season": "재생목록",
     "related": "관련",
     "series": "시리즈",
     "recommend": "추천",
@@ -227,6 +253,9 @@
     "rights": "복제 불허",
     "fs": "전체화면",
     "quality": "품질",
+    "speed": "속도",
+    "replay": "다시 보기",
+    "current_speed": "현재 속도 {}",
     "not_follow": "팔로우를 취소하겠습니까?",
     "coin": {
       "title": "코인",
@@ -238,7 +267,18 @@
       "exp_full": "오늘 획득한 경험치가 최고점에 도달했습니다 (50/50)  !",
       "pcs": "{} 개"
     },
+    "season_part": {
+      "ascend": "오름차순",
+      "descend": "내림차순"
+    },
+    "comment_sort": {
+      "sort_top": "열별로 정렬",
+      "sort_new": "최신순으로 정렬",
+      "top": "인기 댓글",
+      "new": "최신 댓글"
+    },
     "collection": {
+      "type": "즐겨찾기",
       "title": "즐겨찾기 선택"
     },
     "setting": {
@@ -246,7 +286,8 @@
         "header": "자막"
       },
       "common": {
-        "header": "공통"
+        "header": "공통",
+        "wiki": "셰이더 작동 방식을 알아보려면 위키에 접속하세요"
       },
       "shader": {
         "header": "셰이더"
@@ -254,6 +295,10 @@
     },
     "danmaku": {
       "header": "탄막 설정",
+      "send": {
+        "action": "전송",
+        "hint": "좋은 말 한마디"
+      },
       "filter": {
         "header": "탄막 필터",
         "top": "상단",
