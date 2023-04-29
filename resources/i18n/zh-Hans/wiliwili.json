@@ -105,9 +105,9 @@
     },
     "hot_keys": {
       "common_header": "通用快捷键",
-      "common_content": " /  切换一级页面 \n  /  切换二级页面",
+      "common_content": " /  切换一级页面 \n /  切换二级页面",
       "player_header": "播放器快捷键",
-      "player_content": " 快进，双击  快进锁定 \n  +  向前跳转视频（单个  即可完整操控播放） \n  显示/隐藏 播放器OSD \n  显示/隐藏 弹幕 \n \uE0F0 显示/隐藏 视频数据"
+      "player_content": " 快进，双击  快进锁定 \n +  向前跳转视频（单个  即可完整操控播放） \n 显示/隐藏 播放器OSD\n 显示/隐藏 弹幕 \n 显示/隐藏 视频数据"
     },
     "net": {
       "test": {
@@ -184,6 +184,8 @@
       "search": "搜索",
       "hots": "热门搜索",
       "history": "历史记录",
+      "history_clear": "全部清除",
+      "history_delete": "删除",
       "suggest": "猜你想搜"
     },
     "tab": "搜索",
@@ -212,6 +214,7 @@
       "need_confirm": "等待确认",
       "need_scan": "等待扫码"
     },
+    "later": "稍后再看",
     "history": "历史记录",
     "collection": "我的收藏",
     "subscription": "我的订阅",
@@ -220,6 +223,7 @@
     "refresh_history": "刷新历史记录",
     "refresh_collection": "刷新我的收藏",
     "refresh_subscription": "刷新我的订阅",
+    "refresh_later": "刷新稍后再看",
     "refresh_anime": "刷新我的追番",
     "refresh_series": "刷新我的追剧",
     "coin": "硬币",
@@ -250,6 +254,7 @@
     "fs": "全屏",
     "quality": "画质",
     "speed": "倍速",
+    "replay": "重播",
     "current_speed": "{} 倍速播放中",
     "not_follow": "取消关注?",
     "coin": {
@@ -261,6 +266,16 @@
       "exp": "经验值+{}（今日{}/50）",
       "exp_full": "今日投币+50经验成就 get  赞！",
       "pcs": "{}个"
+    },
+    "season_part": {
+      "ascend": "正序",
+      "descend": "倒序"
+    },
+    "comment_sort": {
+      "sort_top": "按热度",
+      "sort_new": "按时间",
+      "top": "热门评论",
+      "new": "最新评论"
     },
     "collection": {
       "type": "收藏",
@@ -280,6 +295,10 @@
     },
     "danmaku": {
       "header": "弹幕设置",
+      "send": {
+        "action": "发送",
+        "hint": "发个友善的弹幕见证当下"
+      },
       "filter": {
         "header": "弹幕过滤",
         "top": "顶部弹幕",

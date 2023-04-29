@@ -384,3 +384,33 @@ VideoCommentReply::VideoCommentReply() {
 RecyclingGridItem* VideoCommentReply::create() {
     return new VideoCommentReply();
 }
+
+/// VideoCommentSort
+
+VideoCommentSort::VideoCommentSort() {
+    auto theme = brls::Application::getTheme();
+    this->setFocusable(true);
+    this->setHeight(30);
+    this->setJustifyContent(brls::JustifyContent::SPACE_BETWEEN);
+    hintLabel = new brls::Label();
+    this->hintLabel->setFontSize(18);
+    this->addView(hintLabel);
+
+    auto* rightBox = new brls::Box();
+    rightBox->setAlignItems(brls::AlignItems::CENTER);
+    svgImage = new SVGImage();
+    this->svgImage->setSize(brls::Size(16, 16));
+    this->svgImage->setImageFromSVGRes("svg/bpx-svg-sprite-sort.svg");
+    rightBox->addView(svgImage);
+    sortLabel = new brls::Label();
+    this->sortLabel->setMarginLeft(4);
+    this->sortLabel->setFontSize(16);
+    this->sortLabel->setTextColor(theme.getColor("font/grey"));
+    rightBox->addView(sortLabel);
+    this->addView(rightBox);
+    this->setPaddingBottom(6);
+    this->setHideClickAnimation(true);
+    this->addGestureRecognizer(new brls::TapGestureRecognizer(this));
+}
+
+RecyclingGridItem* VideoCommentSort::create() { return new VideoCommentSort(); }

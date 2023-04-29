@@ -105,9 +105,9 @@
     },
     "hot_keys": {
       "common_header": "通用快速鍵",
-      "common_content": " /  切換一級頁面\n  /  切換二級頁面",
+      "common_content": " /  切換一級頁面\n /  切換二級頁面",
       "player_header": "播放器快速鍵",
-      "player_content": " 快進，按兩下  快進鎖定\n  +  向前跳轉視頻（單個  即可完整操控播放）\n  顯示/隱藏播放器OSD \n  顯示/隱藏彈幕 \n \uE0F0 顯示/隱藏影像數據"
+      "player_content": " 快進，按兩下  快進鎖定\n +  向前跳轉視頻（單個  即可完整操控播放）\n 顯示/隱藏播放器OSD\n 顯示/隱藏彈幕 \n 顯示/隱藏影像數據"
     },
     "net": {
       "test": {
@@ -184,6 +184,8 @@
       "search": "搜尋",
       "hots": "熱門搜尋",
       "history": "歷史記錄",
+      "history_clear": "清除全部",
+      "history_delete": "删除",
       "suggest": "猜你想搜"
     },
     "tab": "搜尋",
@@ -212,6 +214,7 @@
       "need_confirm": "等待確認",
       "need_scan": "等待掃碼"
     },
+    "later": "稍後再看",
     "history": "歷史記錄",
     "collection": "我的收藏",
     "subscription": "我的訂閱",
@@ -220,6 +223,7 @@
     "refresh_history": "重新整理歷史記錄",
     "refresh_collection": "重新整理我的收藏",
     "refresh_subscription": "重新整理我的訂閱",
+    "refresh_later": "重新整理稍後再看",
     "refresh_anime": "重新整理我的追劇",
     "refresh_series": "重新整理我的追番",
     "coin": "硬幣",
@@ -250,6 +254,7 @@
     "fs": "全屏",
     "quality": "畫質",
     "speed": "倍速",
+    "replay": "重播",
     "current_speed": "{} 倍速播放中",
     "not_follow": "取消關注？",
     "coin": {
@@ -261,6 +266,16 @@
       "exp": "經驗值+{}（今日{}/50）",
       "exp_full": "今日投幣+50經驗成就 get  贊！",
       "pcs": "{} 个"
+    },
+    "season_part": {
+      "ascend": "正序",
+      "descend": "倒序"
+    },
+    "comment_sort": {
+      "sort_top": "按熱度",
+      "sort_new": "按時間",
+      "top": "熱門評論",
+      "new": "最新評論"
     },
     "collection": {
       "type": "收藏",
@@ -280,6 +295,10 @@
     },
     "danmaku": {
       "header": "彈幕設定",
+      "send": {
+        "action": "發送",
+        "hint": "發一條友善的彈幕"
+      },
       "filter": {
         "header": "彈幕篩選",
         "top": "頂部",

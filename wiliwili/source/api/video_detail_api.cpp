@@ -105,7 +105,11 @@ void BilibiliClient::get_comment(
          {"oid", std::to_string(aid)},
          {"plat", "1"},
          {"type", "1"}},
-        callback, error);
+        [callback, next](VideoCommentResultWrapper result) {
+            result.requestIndex = next;
+            callback(result);
+        },
+        error);
 }
 
 void BilibiliClient::get_comment_detail(

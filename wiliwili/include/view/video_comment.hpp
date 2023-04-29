@@ -14,6 +14,9 @@
 #include "view/user_info.hpp"
 #include "bilibili/result/video_detail_result.h"
 
+class SVGImage;
+class TextBox;
+
 /// GridHintView
 
 class GridHintView : public RecyclingGridItem {
@@ -34,8 +37,17 @@ public:
     brls::Label* hintLabel;
 };
 
-class SVGImage;
-class TextBox;
+class VideoCommentSort : public RecyclingGridItem {
+public:
+    VideoCommentSort();
+
+    static RecyclingGridItem* create();
+
+    brls::Label* hintLabel;
+    brls::Label* sortLabel;
+    SVGImage* svgImage;
+};
+
 class VideoComment : public RecyclingGridItem {
 public:
     VideoComment();

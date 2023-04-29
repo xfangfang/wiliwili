@@ -2,6 +2,8 @@
 // Created by fang on 2023/1/3.
 //
 
+#include <utility>
+
 #include "activity/player_activity.hpp"
 #include "fragment/player_collection.hpp"
 #include "fragment/player_coin.hpp"
@@ -18,15 +20,36 @@
 class DataSourceCommentList : public RecyclingGridDataSource,
                               public CommentRequest {
 public:
-    DataSourceCommentList(bilibili::VideoCommentListResult result, size_t aid)
-        : dataList(result), aid(aid) {}
+    DataSourceCommentList(bilibili::VideoCommentListResult result, size_t aid,
+                          int mode, std::function<void(void)> cb)
+        : dataList(std::move(result)),
+          aid(aid),
+          commentMode(mode),
+          switchModeCallback(cb) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
                                   size_t index) override {
         if (index == 0) {
+            VideoCommentSort* item =
+                (VideoCommentSort*)recycler->dequeueReusableCell("Sort");
+            item->setHeight(30);
+            item->setFocusable(false);
+            if (commentMode == 3) {
+                item->hintLabel->setText(
+                    "wiliwili/player/comment_sort/top"_i18n);
+                item->sortLabel->setText(
+                    "wiliwili/player/comment_sort/sort_top"_i18n);
+            } else {
+                item->hintLabel->setText(
+                    "wiliwili/player/comment_sort/new"_i18n);
+                item->sortLabel->setText(
+                    "wiliwili/player/comment_sort/sort_new"_i18n);
+            }
+            return item;
+        }
+        if (index == 1) {
             VideoCommentReply* item =
                 (VideoCommentReply*)recycler->dequeueReusableCell("Reply");
             item->setHeight(40);
-            item->setFocusable(true);
             return item;
         }
 
@@ -34,14 +57,18 @@ public:
         VideoComment* item =
             (VideoComment*)recycler->dequeueReusableCell("Cell");
 
-        item->setData(this->dataList[index - 1]);
+        item->setData(this->dataList[index - 2]);
         return item;
     }
 
-    size_t getItemCount() override { return dataList.size() + 1; }
+    size_t getItemCount() override { return dataList.size() + 2; }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         if (index == 0) {
+            if (switchModeCallback) switchModeCallback();
+            return;
+        }
+        if (index == 1) {
             if (!DialogHelper::checkLogin()) return;
             // 回复评论
             brls::Application::getImeManager()->openForText(
@@ -64,7 +91,7 @@ public:
         if (!item) return;
 
         auto* view = new PlayerSingleComment();
-        view->setCommentData(dataList[index - 1], item->getY());
+        view->setCommentData(dataList[index - 2], item->getY());
         auto container = new brls::AppletFrame(view);
         container->setHeaderVisibility(brls::Visibility::GONE);
         container->setFooterVisibility(brls::Visibility::GONE);
@@ -72,22 +99,22 @@ public:
         brls::Application::pushActivity(new brls::Activity(container));
 
         view->likeStateEvent.subscribe([this, item, index](bool value) {
-            auto& itemData  = dataList[index - 1];
+            auto& itemData  = dataList[index - 2];
             itemData.action = value;
             item->setLiked(value);
         });
         view->likeNumEvent.subscribe([this, item, index](size_t value) {
-            auto& itemData = dataList[index - 1];
+            auto& itemData = dataList[index - 2];
             itemData.like  = value;
             item->setLikeNum(value);
         });
         view->replyNumEvent.subscribe([this, item, index](size_t value) {
-            auto& itemData  = dataList[index - 1];
+            auto& itemData  = dataList[index - 2];
             itemData.rcount = value;
             item->setReplyNum(value);
         });
         view->deleteEvent.subscribe([this, recycler, index]() {
-            dataList.erase(dataList.begin() + index - 1);
+            dataList.erase(dataList.begin() + index - 2);
             recycler->reloadData();
             // 重新设置一下焦点到 recycler 的默认 cell （顶部）
             brls::Application::giveFocus(recycler);
@@ -113,6 +140,8 @@ public:
 private:
     bilibili::VideoCommentListResult dataList;
     size_t aid;
+    int commentMode = 3;  // 2: 按时间；3: 按热度
+    std::function<void(void)> switchModeCallback = nullptr;
 };
 
 class QualityCell : public RecyclingGridItem {
@@ -198,6 +227,18 @@ void BasePlayerActivity::setCommonData() {
     recyclingGrid->registerCell("Reply",
                                 []() { return VideoCommentReply::create(); });
 
+    recyclingGrid->registerCell("Sort",
+                                []() { return VideoCommentSort::create(); });
+
+    recyclingGrid->setDefaultCellFocus(1);
+
+    recyclingGrid->registerAction("wiliwili/home/common/switch"_i18n,
+                                  brls::ControllerButton::BUTTON_X,
+                                  [this](brls::View* view) -> bool {
+                                      this->setCommentMode();
+                                      return true;
+                                  });
+
     // 切换右侧Tab
     this->registerAction(
         "上一项", brls::ControllerButton::BUTTON_LT,
@@ -206,9 +247,23 @@ void BasePlayerActivity::setCommonData() {
             return true;
         },
         true);
+    this->registerAction(
+        "上一项", brls::ControllerButton::BUTTON_LB,
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2LastTab();
+            return true;
+        },
+        true);
 
     this->registerAction(
         "下一项", brls::ControllerButton::BUTTON_RT,
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2NextTab();
+            return true;
+        },
+        true);
+    this->registerAction(
+        "下一项", brls::ControllerButton::BUTTON_RB,
         [this](brls::View* view) -> bool {
             tabFrame->focus2NextTab();
             return true;
@@ -404,6 +459,13 @@ void BasePlayerActivity::setVideoQuality() {
     });
 }
 
+void BasePlayerActivity::setCommentMode() {
+    this->recyclingGrid->estimatedRowHeight = 100;
+    this->recyclingGrid->showSkeleton();
+    tabFrame->focusTab(0);
+    requestVideoComment(this->getAid(), 0, getVideoCommentMode() == 3 ? 2 : 3);
+}
+
 void BasePlayerActivity::onVideoPlayUrl(
     const bilibili::VideoUrlResult& result) {
     brls::Logger::debug("onVideoPlayUrl quality: {}", result.quality);
@@ -512,7 +574,7 @@ void BasePlayerActivity::onCommentInfo(
     const bilibili::VideoCommentResultWrapper& result) {
     auto* datasource =
         dynamic_cast<DataSourceCommentList*>(recyclingGrid->getDataSource());
-    if (result.cursor.prev == 1) {
+    if (!datasource && result.requestIndex == 0) {
         // 第一页评论
         //整合置顶评论
         std::vector<bilibili::VideoCommentResult> comments(result.top_replies);
@@ -520,10 +582,11 @@ void BasePlayerActivity::onCommentInfo(
                         result.replies.end());
         // 为了加载骨架屏美观，设置为了100，在加载评论时手动修改回来
         // 这里限制的是评论的最大高度，实际评论高度还受评论组件的最大行数限制
-        this->recyclingGrid->estimatedRowHeight = 700;
-        this->recyclingGrid->setDataSource(
-            new DataSourceCommentList(comments, this->getAid()));
-        if (comments.size() > 1) this->recyclingGrid->selectRowAt(1, false);
+        this->recyclingGrid->estimatedRowHeight = 600;
+        this->recyclingGrid->setDataSource(new DataSourceCommentList(
+            comments, this->getAid(), this->getVideoCommentMode(),
+            [this]() { this->setCommentMode(); }));
+        this->recyclingGrid->selectRowAt(comments.empty() ? 1 : 2, false);
         // 设置评论数量提示
         auto item = this->tabFrame->getTab("wiliwili/player/comment"_i18n);
         if (item) item->setSubtitle(wiliwili::num2w(result.cursor.all_count));
@@ -531,6 +594,10 @@ void BasePlayerActivity::onCommentInfo(
         // 第N页评论
         datasource->appendData(result.replies);
         recyclingGrid->notifyDataChanged();
+    } else {
+        brls::Logger::error("onCommentInfo ds: {} index: {} end: {}",
+                            (bool)datasource, result.requestIndex,
+                            result.cursor.is_end);
     }
 }
 

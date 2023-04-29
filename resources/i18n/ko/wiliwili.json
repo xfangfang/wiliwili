@@ -105,9 +105,9 @@
     },
     "hot_keys": {
       "common_header": "공통",
-      "common_content": " /  기본 페이지 전환\n  /  보조 페이지 전환",
+      "common_content": " /  기본 페이지 전환\n /  보조 페이지 전환",
       "player_header": "플레이어",
-      "player_content": " 속도를 높이고,  를 두번 클릭하여 잠금\n  +  앞으로 탐색\n  플레이어 OSD 전환 \n  단막 전환"
+      "player_content": " 속도를 높이고,  를 두번 클릭하여 잠금\n +  앞으로 탐색\n 플레이어 OSD 전환 \n 단막 전환"
     },
     "net": {
       "test": {

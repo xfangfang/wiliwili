@@ -205,6 +205,7 @@ public:
     VideoCommentCursor cursor;
     VideoCommentListResult replies;
     VideoCommentListResult top_replies;
+    size_t requestIndex = 0;  // 自定义数据，请求的评论页
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoCommentResultWrapper& nlohmann_json_t) {

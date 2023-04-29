@@ -105,9 +105,9 @@
     },
     "hot_keys": {
       "common_header": "Common",
-      "common_content": "\uE0A4 / \uE0A5 Switch the primary page\n \uE0A6 / \uE0A7 Switch the secondary page",
+      "common_content": "\uE0A4 / \uE0A5 Switch the primary page\n\uE0A6 / \uE0A7 Switch the secondary page",
       "player_header": "Player",
-      "player_content": "\uE0C5 Speed up，double click \uE0C5 to lock\n \uE0A3 + \uE0A5 Seek forward\n \uE0A3 Toggle player OSD \n \uE0A2 Toggle danmaku"
+      "player_content": "\uE0C5 Speed up，double click \uE0C5 to lock\n\uE0A3 + \uE0A5 Seek forward\n\uE0A3 Toggle player OSD \n\uE0A2 Toggle danmaku"
     },
     "net": {
       "test": {
@@ -184,6 +184,8 @@
       "search": "Search",
       "hots": "Hots",
       "history": "History",
+      "history_clear": "Clear all",
+      "history_delete": "Delete",
       "suggest": "Suggest"
     },
     "tab": "Search",
@@ -212,6 +214,7 @@
       "need_confirm": "Waiting for confirmation",
       "need_scan": "Waiting for scanning QR code"
     },
+    "later": "Watch Later",
     "history": "History",
     "collection": "Favorite",
     "subscription": "Subscription",
@@ -220,6 +223,7 @@
     "refresh_history": "Refresh history",
     "refresh_collection": "Refresh favorite",
     "refresh_subscription": "Refresh Subscription",
+    "refresh_later": "Refresh Watch Later",
     "refresh_anime": "Refresh anime",
     "refresh_series": "Refresh series",
     "coin": "Coin",
@@ -250,6 +254,7 @@
     "fs": "Fullscreen",
     "quality": "Quality",
     "speed": "Speed",
+    "replay": "Replay",
     "current_speed": "Current speed {}",
     "not_follow": "Cancel following?",
     "coin": {
@@ -261,6 +266,16 @@
       "exp": "Experience + {}（Today {}/50）",
       "exp_full": "The experience gained today is full (50/50) \uE87D ！",
       "pcs": "{} pcs"
+    },
+    "season_part": {
+      "ascend": "Ascend",
+      "descend": "Descend"
+    },
+    "comment_sort": {
+      "sort_top": "Sort by heat",
+      "sort_new": "Sort by newest",
+      "top": "Top Comments",
+      "new": "Newest Comments"
     },
     "collection": {
       "type": "Favorite",
@@ -280,6 +295,10 @@
     },
     "danmaku": {
       "header": "Danmaku setting",
+      "send": {
+        "action": "Send",
+        "hint": "Say something nice"
+      },
       "filter": {
         "header": "Danmaku filter",
         "top": "Top",
