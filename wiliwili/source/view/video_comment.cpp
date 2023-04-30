@@ -176,7 +176,7 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
         if (start < nextMatch) {
             // 纯文本
             auto item = std::make_shared<RichTextSpan>(
-                msg.substr(start, nextMatch - start), textColor);
+                msg.substr(start, nextMatch - start) + "\r", textColor);
             d.emplace_back(item);
         }
         if (matchElement == nullptr) break;
