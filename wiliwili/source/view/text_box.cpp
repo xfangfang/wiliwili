@@ -56,7 +56,7 @@ RichTextData richTextBreakLines(NVGcontext* ctx, float x, float y,
         std::string currentText =
             text.substr(row->start - stringStart, row->end - row->start);
         auto firstLine =
-            std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(
                 currentText);
         if (firstLine.length() == 1 && row->width / 2 + sx > breakRowWidth) {
             // 只有一个字符且宽度超出了范围
@@ -175,7 +175,8 @@ float TextBox::cutRichTextLines(float width) {
                                            &lx, &ly);
             lx += t->r_margin;
             if (rows.empty()) {
-                // todo：一般是一堆空格，暂时忽视
+                // 应该不会出现这种情况
+                brls::Logger::error("TextBox: got empty line: {}", t->text);
             } else if (rows.size() == 1) {
                 tempData.emplace_back(rows[0]);
             } else {
