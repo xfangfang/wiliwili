@@ -14,10 +14,6 @@
 #include "view/video_view.hpp"
 #include "bilibili/result/mine_collection_result.h"
 
-VideoDetail::VideoDetail() {
-    changeEpisodeEvent.subscribe([this](auto t) { changeEpisode(t); });
-}
-
 /// 请求视频数据
 void VideoDetail::requestData(const bilibili::VideoDetailResult& video) {
     this->requestVideoInfo(video.bvid);

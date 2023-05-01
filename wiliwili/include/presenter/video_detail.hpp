@@ -17,8 +17,6 @@ enum class PGC_ID_TYPE {
 
 class VideoDetail : public Presenter {
 public:
-    VideoDetail();
-
     virtual void onVideoInfo(const bilibili::VideoDetailResult& result) {}
     virtual void onSeasonVideoInfo(
         const bilibili::SeasonResultWrapper& result) {}
