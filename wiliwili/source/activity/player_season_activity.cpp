@@ -53,6 +53,21 @@ void PlayerSeasonActivity::onIndexChange(size_t index) {
     // 如果遇到id为0，说明是标题，那么就停止播放
     // 也就是说目前的设定是自动连播不会跨越section播放
     if (episodeList[index].id == 0) return;
+
+    // 设置评论区骨架屏幕
+    this->recyclingGrid->estimatedRowHeight = 100;
+    this->recyclingGrid->showSkeleton();
+    // 当焦点在评论区时，将焦点转移到tab栏
+    auto view = brls::Application::getCurrentFocus();
+    // 焦点位于当前页面，且在 评论 或 回复 上
+    if (view->getParentActivity() == this &&
+        (dynamic_cast<VideoComment*>(view) != nullptr ||
+         dynamic_cast<VideoCommentReply*>(view) != nullptr)) {
+        tabFrame->focusTab(0);
+    }
+
+    // 因为是手动切换分集，所以将分集进度设置为 0
+    episodeList[index].progress = 0;
     this->changeEpisode(episodeList[index]);
     this->changeIndexEvent.fire(index);
 }

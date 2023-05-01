@@ -511,7 +511,12 @@ void PlayerCommentAction::showDelete() {
     this->svgDelete->setVisibility(brls::Visibility::VISIBLE);
 }
 
-brls::View* PlayerCommentAction::getDefaultFocus() { return this->svgLike; }
+brls::View* PlayerCommentAction::getDefaultFocus() {
+    if (this->svgGallery->getVisibility() == brls::Visibility::VISIBLE) {
+        return this->svgGallery;
+    }
+    return this->svgLike;
+}
 
 void PlayerCommentAction::dismiss(std::function<void(void)> cb) {
     this->showDismissAnimation();

@@ -31,17 +31,6 @@
 
             <SVGImage
                     focusable="true"
-                    id="comment/action/svg/gallery"
-                    margin="14"
-                    width="48"
-                    height="48"
-                    cornerRadius="48"
-                    highlightCornerRadius="48"
-                    visibility="gone"
-                    SVG="@res/svg/bpx-svg-sprite-fullpage.svg"/>
-
-            <SVGImage
-                    focusable="true"
                     id="comment/action/svg/reply"
                     margin="14"
                     width="48"
@@ -59,6 +48,17 @@
                     cornerRadius="48"
                     highlightCornerRadius="48"
                     SVG="@res/svg/bpx-svg-sprite-liked.svg"/>
+
+            <SVGImage
+                    focusable="true"
+                    id="comment/action/svg/gallery"
+                    margin="14"
+                    width="48"
+                    height="48"
+                    cornerRadius="48"
+                    highlightCornerRadius="48"
+                    visibility="gone"
+                    SVG="@res/svg/bpx-svg-sprite-fullpage.svg"/>
 
         </brls:Box>
 
