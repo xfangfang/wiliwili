@@ -241,7 +241,17 @@ float TextBox::cutRichTextLines(float width) {
     }
 
     // 限制最大行数
-    return lineContent[maxRows][0]->y + fontSize;
+    return getLineY(maxRows) + fontSize;
+}
+
+float TextBox::getLineY(size_t line) {
+    if (line >= lineContent.size()) return 0;
+    if (lineContent[line].empty()) return 0;
+    float y = lineContent[line][0]->y;
+    for (auto& i : lineContent[line]) {
+        y = minf(y, i->y);
+    }
+    return y;
 }
 
 void TextBox::draw(NVGcontext* vg, float x, float y, float width, float height,
@@ -292,7 +302,7 @@ void TextBox::draw(NVGcontext* vg, float x, float y, float width, float height,
     static auto linkColor = ctx->theme.getColor("color/link");
     nvgFontSize(vg, 18);
     nvgFillColor(vg, a(linkColor));
-    nvgText(vg, x, y + lineContent[maxRows][0]->y, TEXTBOX_MORE, nullptr);
+    nvgText(vg, x, y + getLineY(maxRows), TEXTBOX_MORE, nullptr);
 }
 
 brls::View* TextBox::create() { return new TextBox(); }

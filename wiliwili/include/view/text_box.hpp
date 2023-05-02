@@ -106,6 +106,12 @@ public:
      */
     float cutRichTextLines(float width);
 
+    /**
+     * 获取第 line 行的 Y 值
+     * @return
+     */
+    float getLineY(size_t line);
+
     void draw(NVGcontext* vg, float x, float y, float width, float height,
               brls::Style style, brls::FrameContext* ctx) override;
 
