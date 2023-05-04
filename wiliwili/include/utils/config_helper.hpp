@@ -106,6 +106,7 @@ public:
     std::string getRefreshToken() const;
     std::string getCSRF();
     std::string getUserID();
+    bool hasLoginInfo();
 
     // Google Analytics ID
     std::string getClientID();

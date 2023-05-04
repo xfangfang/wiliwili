@@ -24,8 +24,7 @@ void DialogHelper::showCancelableDialog(const std::string& msg,
 
 /// 检查本地是否存在登录信息，非联网检查
 bool DialogHelper::checkLogin() {
-    if (ProgramConfig::instance().getUserID().empty() ||
-        ProgramConfig::instance().getCSRF().empty()) {
+    if (!ProgramConfig::instance().hasLoginInfo()) {
         DialogHelper::showDialog("wiliwili/home/common/no_login"_i18n);
         return false;
     }

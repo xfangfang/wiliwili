@@ -320,6 +320,10 @@ std::string ProgramConfig::getUserID() {
     return this->cookie["DedeUserID"];
 }
 
+bool ProgramConfig::hasLoginInfo() {
+    return !getUserID().empty() && (getUserID() != "0") && !getCSRF().empty();
+}
+
 std::string ProgramConfig::getClientID() {
     if (this->client.empty()) {
         this->client = fmt::format("{}.{}", wiliwili::getRandomNumber(),
@@ -408,6 +412,10 @@ void ProgramConfig::load() {
     // 初始化视频清晰度
     VideoDetail::defaultQuality =
         getSettingItem(SettingItem::VIDEO_QUALITY, 116);
+    if (!hasLoginInfo()) {
+        // 用户未登录时跟随官方将默认清晰度设置到 360P
+        VideoDetail::defaultQuality = 16;
+    }
 
     // 初始化默认的倍速设定
     MPVCore::VIDEO_SPEED = getIntOption(SettingItem::PLAYER_DEFAULT_SPEED);
@@ -673,6 +681,8 @@ void ProgramConfig::init() {
             brls::Logger::info("refreshToken: {}", token);
             ProgramConfig::instance().setCookie(newCookie);
             ProgramConfig::instance().setRefreshToken(token);
+            // 用户登录后，将默认清晰度设置为 1080P 60FPS
+            VideoDetail::defaultQuality = 116;
         },
         5000);
 }
