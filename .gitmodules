@@ -16,3 +16,6 @@
 [submodule "library/cpr"]
 	path = library/cpr
 	url = https://github.com/libcpr/cpr.git
+[submodule "library/mongoose"]
+	path = library/mongoose
+	url = https://github.com/xfangfang/mongoose.git
