@@ -9,6 +9,7 @@
 #include "view/subtitle_core.hpp"
 #include "view/grid_dropdown.hpp"
 #include "utils/shader_helper.hpp"
+#include "live/danmaku_live.hpp"
 #include "bilibili.h"
 
 using namespace brls::literals;
@@ -37,9 +38,13 @@ void LiveActivity::setCommonData() {
     globalShowDanmaku                 = DanmakuCore::DANMAKU_ON;
     globalBottomBar                   = MPVCore::BOTTOM_BAR;
     globalExitFullscreen              = VideoView::EXIT_FULLSCREEN_ON_END;
-    DanmakuCore::DANMAKU_ON           = false;
+    DanmakuCore::DANMAKU_ON           = true;
     MPVCore::BOTTOM_BAR               = false;
     VideoView::EXIT_FULLSCREEN_ON_END = false;
+
+    DanmakuCore::instance().reset();
+    LiveDanmaku::instance().disconnect();
+    LiveDanmaku::instance().connect(liveData.roomid, 0/*liveData.uid*/);
 
     // 清空字幕
     SubtitleCore::instance().reset();

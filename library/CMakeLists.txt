@@ -40,3 +40,6 @@ set_property(TARGET pystring PROPERTY CXX_STANDARD 17)
 set(BRLS_USE_OPENCC ON)
 set(BRLS_OPENCC_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/OpenCC/src)
 add_subdirectory(borealis/library)
+
+# add mongoose
+add_subdirectory(mongoose EXCLUDE_FROM_ALL)

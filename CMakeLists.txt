@@ -217,6 +217,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         borealis
         lunasvg
         pystring
+        mongoose
         ${PLATFORM_LIBS}
         )
 
