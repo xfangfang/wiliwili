@@ -71,6 +71,7 @@ void DanmakuCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
 void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
     danmakuMutex.lock();
     this->danmakuData.emplace_back(item);
+    this->danmakuLoaded = true;
     danmakuMutex.unlock();
 
     // 通过mpv来通知弹幕加载完成

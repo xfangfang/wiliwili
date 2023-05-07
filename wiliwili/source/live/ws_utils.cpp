@@ -6,10 +6,9 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <stdint.h>
 //#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdint.h>
-#include <zlib.h>
 //#include <brotli/decode.h>
 
 
@@ -58,36 +57,6 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
             switch (protocol_version) {
                 case 0: {
                     messages.push_back(body);
-                    break;
-                }
-                case 2: {
-                    z_stream strm;
-                    strm.zalloc = Z_NULL;
-                    strm.zfree = Z_NULL;
-                    strm.opaque = Z_NULL;
-                    strm.avail_in = body.size();
-                    strm.next_in = const_cast<Bytef*>(reinterpret_cast<const Bytef*>(body.data()));
-
-                    if (inflateInit(&strm) != Z_OK) {
-                        std::cerr << "Failed to initialize zlib" << std::endl;
-                        break;
-                    }
-
-                    std::vector<uint8_t> decompressed;
-                    do {
-                        uint8_t buffer[16384];
-                        strm.avail_out = sizeof(buffer);
-                        strm.next_out = buffer;
-                        if (inflate(&strm, Z_NO_FLUSH) == Z_STREAM_ERROR) {
-                            std::cerr << "Failed to inflate zlib stream" << std::endl;
-                            break;
-                        }
-                        decompressed.insert(decompressed.end(), buffer, buffer + sizeof(buffer) - strm.avail_out);
-                    } while (strm.avail_out == 0);
-                    inflateEnd(&strm);
-
-                    auto nested_messages = parse_packet(decompressed);
-                    messages.insert(messages.end(), nested_messages.begin(), nested_messages.end());
                     break;
                 }
                 case 3: {

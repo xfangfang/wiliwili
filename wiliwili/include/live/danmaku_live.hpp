@@ -12,10 +12,9 @@
 #include <string>
 #include <atomic>
 #include <vector>
-//#include <thread>
+#include <thread>
 #include <mutex>
 
-#define MG_ARCH 14
 #define MG_ENABLE_HTTP 1
 #define MG_ENABLE_HTTP_WEBSOCKET 1
 #include "mongoose.h"  // Include Mongoose header file
@@ -38,7 +37,7 @@ public:
 private:
     std::atomic_bool connected{false};
     //std::thread heartbeat_thread;
-    //std::thread mongoose_thread;
+    std::thread mongoose_thread;
 
     //人气值
     int popularity = 0;

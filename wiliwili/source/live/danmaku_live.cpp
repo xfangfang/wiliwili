@@ -2,7 +2,6 @@
 // Created by maye174 on 2023/4/6.
 //
 
-#include "borealis/core/thread.hpp"
 #include <api/nlohmann/json.hpp>
 
 #include "view/danmaku_core.hpp"
@@ -56,7 +55,7 @@ void LiveDanmaku::connect(int room_id, int uid) {
     //mg_mgr_poll(this->mgr, 10);
 
     // Start Mongoose event loop and heartbeat thread
-    brls::Threading::async([this]() {
+    mongoose_thread = std::thread([this]() {
         int last = 0;
         int s = 0;
         while (this->is_connected()) {
@@ -67,7 +66,7 @@ void LiveDanmaku::connect(int room_id, int uid) {
             this->mongoose_mutex.unlock();
             mg_mgr_poll(this->mgr, 800);
             s += 1;
-            if (s - last >= 25) {
+            if (s - last >= 36) {
                 send_heartbeat();
                 last = s;
             }
@@ -90,6 +89,11 @@ void LiveDanmaku::disconnect() {
 
     // Stop Mongoose event loop thread
     connected.store(false, std::memory_order_release);
+
+    // Stop Mongoose event loop thread
+    if(mongoose_thread.joinable()) {
+        mongoose_thread.join();
+    }
 }
 
 bool LiveDanmaku::is_connected() {
@@ -130,7 +134,7 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_da
     if (ev == MG_EV_OPEN) {
         nc->is_hexdumping = 1;
     } else if (ev == MG_EV_ERROR) {
-        MG_ERROR(("%p %s", nc->fd, (char *) ev_data));
+        //MG_ERROR(("%p %s", nc->fd, (char *) ev_data));
         liveDanmaku->disconnect();
     } else if (ev == MG_EV_WS_OPEN) {
         liveDanmaku->send_join_request(liveDanmaku->room_id, liveDanmaku->uid);
