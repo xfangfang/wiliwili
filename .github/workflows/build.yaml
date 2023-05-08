@@ -39,8 +39,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          repository: 'xfangfang/wiliwili'
 
       - name: Debug version
         run: |
@@ -129,7 +127,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
           fetch-depth: 0
 
@@ -182,7 +179,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
           fetch-depth: 0
 
@@ -209,7 +205,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
           fetch-depth: 0
 
@@ -277,7 +272,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: 'xfangfang/wiliwili'
           submodules: 'recursive'
           fetch-depth: 0
 
