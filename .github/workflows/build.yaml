@@ -39,6 +39,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository }}
 
       - name: Debug version
         run: |
@@ -127,6 +129,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          repository: ${{ github.repository }}
           submodules: 'recursive'
           fetch-depth: 0
 
@@ -179,6 +182,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          repository: ${{ github.repository }}
           submodules: 'recursive'
           fetch-depth: 0
 
@@ -205,6 +209,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          repository: ${{ github.repository }}
           submodules: 'recursive'
           fetch-depth: 0
 
@@ -272,6 +277,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          repository: ${{ github.repository }}
           submodules: 'recursive'
           fetch-depth: 0
 
