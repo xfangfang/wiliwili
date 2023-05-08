@@ -219,6 +219,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         lunasvg
         pystring
         mongoose
+        z
         ${PLATFORM_LIBS}
         )
 

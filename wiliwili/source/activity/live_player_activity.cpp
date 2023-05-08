@@ -43,7 +43,6 @@ void LiveActivity::setCommonData() {
     VideoView::EXIT_FULLSCREEN_ON_END = false;
 
     DanmakuCore::instance().reset();
-    LiveDanmaku::instance().disconnect();
     LiveDanmaku::instance().connect(liveData.roomid, 0/*liveData.uid*/);
 
     // 清空字幕
@@ -142,6 +141,7 @@ void LiveActivity::onError(const std::string& error) {
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     this->video->stop();
+    LiveDanmaku::instance().disconnect();
     DanmakuCore::DANMAKU_ON           = globalShowDanmaku;
     MPVCore::BOTTOM_BAR               = globalBottomBar;
     VideoView::EXIT_FULLSCREEN_ON_END = globalExitFullscreen;
