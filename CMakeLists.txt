@@ -158,6 +158,7 @@ else ()
     if (BUILTIN_NSP)
         list(APPEND PLATFORM_LIBS nsp)
         set(PLATFORM_OPTION -DBUILTIN_NSP)
+        list(APPEND PLATFORM_OPTION -DMG_ARCH=14)
     endif ()
     list(APPEND MAIN_SRC ${CMAKE_SOURCE_DIR}/library/borealis/library/lib/platforms/switch/switch_wrapper.c)
 endif ()
@@ -217,6 +218,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         borealis
         lunasvg
         pystring
+        mongoose
+        z
         ${PLATFORM_LIBS}
         )
 

@@ -9,9 +9,41 @@
 #include "view/subtitle_core.hpp"
 #include "view/grid_dropdown.hpp"
 #include "utils/shader_helper.hpp"
+#include "live/danmaku_live.hpp"
+#include "live/extract_messages.hpp"
+#include "live/ws_utils.hpp"
 #include "bilibili.h"
 
 using namespace brls::literals;
+
+void onDanmakuReceived(std::string message) {
+    std::vector<uint8_t> payload(message.begin(), message.end());
+    std::vector<std::string> messages = parse_packet(payload);
+
+    if(messages.size() == 0){
+        return;
+    }
+    // Check if it's a heartbeat reply
+    else if (messages.size() == 1 && messages[0].substr(0,17) == "heartbeat reply: "){
+        //popularity = std::stoi(messages[0].substr(17));
+        return;
+    }
+
+    std::vector<std::string> danmaku_list = extract_danmu_messages(messages);
+
+    double time;
+    std::string time_str;
+    std::string combined_attr;
+
+    std::string tem = ",1,25,16777215,0,0,0,0,1";
+    for(auto &dan : danmaku_list){
+        time = MPVCore::instance().getPlaybackTime() + 0.3;
+        time_str = std::to_string(time);
+        combined_attr = time_str + tem;
+        DanmakuItem item(dan, combined_attr.c_str());
+        DanmakuCore::instance().addSingleDanmaku(item);
+    }
+}
 
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
@@ -19,6 +51,7 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     MPVCore::instance().command_str("set loop-playlist force");
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(live.roomid)}})
+    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
 }
 
 LiveActivity::LiveActivity(int roomid, const std::string& name,
@@ -30,16 +63,22 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
     this->liveData.watched_show.text_large = views;
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(roomid)}})
+    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
 }
+
+
 
 void LiveActivity::setCommonData() {
     // 临时关闭底部进度条与弹幕
     globalShowDanmaku                 = DanmakuCore::DANMAKU_ON;
     globalBottomBar                   = MPVCore::BOTTOM_BAR;
     globalExitFullscreen              = VideoView::EXIT_FULLSCREEN_ON_END;
-    DanmakuCore::DANMAKU_ON           = false;
+    DanmakuCore::DANMAKU_ON           = true;
     MPVCore::BOTTOM_BAR               = false;
     VideoView::EXIT_FULLSCREEN_ON_END = false;
+
+    DanmakuCore::instance().reset();
+    LiveDanmaku::instance().connect(liveData.roomid, 0/*liveData.uid*/);
 
     // 清空字幕
     SubtitleCore::instance().reset();
@@ -137,6 +176,7 @@ void LiveActivity::onError(const std::string& error) {
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     this->video->stop();
+    LiveDanmaku::instance().disconnect();
     DanmakuCore::DANMAKU_ON           = globalShowDanmaku;
     MPVCore::BOTTOM_BAR               = globalBottomBar;
     VideoView::EXIT_FULLSCREEN_ON_END = globalExitFullscreen;
