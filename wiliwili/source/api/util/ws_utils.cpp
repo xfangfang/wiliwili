@@ -6,29 +6,15 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
-//#include <netinet/in.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <arpa/inet.h>
+#endif
 #include <stdint.h>
 #include <zlib.h>
 //#include <brotli/decode.h>
 
-
-/*
-uint16_t htons(uint16_t hostshort) {
-    return ((hostshort & 0xFF) << 8) | ((hostshort >> 8) & 0xFF);
-}
-
-uint32_t htonl(uint32_t hostlong) {
-  return ((hostlong & 0xFF) << 24) | ((hostlong & 0xFF00) << 8) | ((hostlong & 0xFF0000) >> 8) | ((hostlong >> 24) & 0xFF);
-}
-
-uint16_t ntohs(uint16_t netshort) {
-  return htons(netshort);
-}
-
-uint32_t ntohl(uint32_t netlong) {
-  return htonl(netlong);
-}*/
 
 
 // 解析数据包

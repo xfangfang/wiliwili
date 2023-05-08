@@ -14,6 +14,7 @@
 #include <vector>
 #include <thread>
 #include <mutex>
+#include <functional>
 
 #define MG_ENABLE_HTTP 1
 #define MG_ENABLE_HTTP_WEBSOCKET 1
@@ -25,24 +26,25 @@ public:
     int uid;
     void connect(int room_id, int uid);
     void disconnect();
+    bool is_connected();
 
     void send_join_request(int room_id, int uid);
     void send_heartbeat();
     void send_text_message(const std::string &message);
-    void onMessage(std::string message);
 
-    bool is_connected();
+    void setonMessage(std::function<void(std::string)> func);
+    std::function<void(std::string)> onMessage;
 
+    LiveDanmaku();
     ~LiveDanmaku();
 private:
     std::atomic_bool connected{false};
-    //std::thread heartbeat_thread;
+
     std::thread mongoose_thread;
-
-    //人气值
-    int popularity = 0;
-
     std::mutex mongoose_mutex;
     mg_mgr *mgr;
     mg_connection *nc;
+    
+    //人气值
+    int popularity = 0;
 };

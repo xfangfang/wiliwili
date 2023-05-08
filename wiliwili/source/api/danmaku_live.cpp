@@ -4,8 +4,6 @@
 
 #include <api/nlohmann/json.hpp>
 
-#include "view/danmaku_core.hpp"
-#include "view/mpv_core.hpp"
 #include <sstream>
 #include <cstdlib>
 #include <cstring>
@@ -15,13 +13,29 @@
 #include "live/ws_utils.hpp"
 #include "live/extract_messages.hpp"
 
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
+
 using json = nlohmann::json;
 
 const std::string url = "ws://broadcastlv.chat.bilibili.com:2244/sub";
-std::string tem = ",1,25,16777215,0,0,0,0,1";
+
+LiveDanmaku::LiveDanmaku() {
+#ifdef _WIN32
+    WSADATA wsaData;
+    int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (result != 0) {
+        printf("WSAStartup failed with error: %d\n", result);
+    }
+#endif
+}
 
 LiveDanmaku::~LiveDanmaku() {
     disconnect();
+#ifdef _WIN32
+    WSACleanup();
+#endif
 }
 
 static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_data, void *user_data);
@@ -147,30 +161,6 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_da
     }
 }
 
-void LiveDanmaku::onMessage(std::string message) {
-    std::vector<uint8_t> payload(message.begin(), message.end());
-    std::vector<std::string> messages = parse_packet(payload);
-
-    if(messages.size() == 0){
-        return;
-    }
-    // Check if it's a heartbeat reply
-    else if (messages.size() == 1 && messages[0].substr(0,17) == "heartbeat reply: "){
-        popularity = std::stoi(messages[0].substr(17));
-        return;
-    }
-
-    std::vector<std::string> danmaku_list = extract_danmu_messages(messages);
-
-    double time;
-    std::string time_str;
-    std::string combined_attr;
-
-    for(auto &dan : danmaku_list){
-        time = MPVCore::instance().getPlaybackTime() + 0.3;
-        time_str = std::to_string(time);
-        combined_attr = time_str + tem;
-        DanmakuItem item(dan, combined_attr.c_str());
-        DanmakuCore::instance().addSingleDanmaku(item);
-    }
+void LiveDanmaku::setonMessage(std::function<void(std::string)> func) {
+    onMessage = func;
 }
