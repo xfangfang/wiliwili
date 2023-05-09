@@ -1,7 +1,7 @@
 
 #include <vector>
 #include <string>
-
+#include <cstdint>
 
 std::vector<std::string> parse_packet(const std::vector<uint8_t>& data);
 
