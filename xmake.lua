@@ -219,3 +219,11 @@ target("wiliwili")
             end
         end)
     end
+    if is_mode("release") then
+        if is_plat("mingw") then
+            add_cxflags("-Wl,--subsystem,windows", {force = true})
+            add_ldflags("-Wl,--subsystem,windows", {force = true})
+        elseif is_plat("windows") then
+            add_ldflags("/SUBSYSTEM:WINDOWS")
+        end
+    end
