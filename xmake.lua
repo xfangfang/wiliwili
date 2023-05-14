@@ -148,6 +148,7 @@ package("mpv")
 package_end()
 
 if get_config("winrt") then
+    add_requires("sdl2", {configs={shared=true,winrt=true}})
     add_requireconfs("**.sdl2", {configs={shared=true,winrt=true}})
     add_requires("borealis", {configs={window="sdl",driver=get_config("driver"),winrt=true}})
     add_requireconfs("**.curl", {configs={winrt=true}})
