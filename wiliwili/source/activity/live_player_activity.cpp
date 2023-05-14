@@ -35,7 +35,7 @@ void onDanmakuReceived(std::string message) {
     std::string time_str;
     std::string combined_attr;
 
-    std::string tem = ",1,25,16777215,0,0,0,0,1";
+    std::string tem = ",1,25,16777215,0,0,0,0,9";//临时方案
     for(auto &dan : danmaku_list){
         time = MPVCore::instance().getPlaybackTime() + 0.3;
         time_str = std::to_string(time);
