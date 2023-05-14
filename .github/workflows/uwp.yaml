@@ -1,6 +1,9 @@
 name: Build uwp wiliwili
 
 on:
+  push:
+    branches:
+      - uwp
   workflow_dispatch:
     inputs:
       release:
