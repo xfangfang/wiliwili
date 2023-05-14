@@ -78,8 +78,7 @@ jobs:
           $env:path+=";C:\Users\$($env:username)\xmake"
           xmake f -c -y --sw=y --winrt=y --window=sdl --driver=d3d11
           xmake build wiliwili
-          cp build/wiliwili.msix build/${{ needs.version.outputs.DIST_UWP }}.msix 
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ needs.version.outputs.DIST_UWP }}
-          path: "${{ needs.version.outputs.DIST_UWP }}.msix"
+          path: build/wiliwili.msix
