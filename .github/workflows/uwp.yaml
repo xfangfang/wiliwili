@@ -71,7 +71,7 @@ jobs:
           mkdir -p build/xrepo
           cd build/xrepo
           git clone https://github.com/xfangfang/borealis.git -b wiliwili --depth=1
-          cd -
+          cd ../../
       - name: build
         shell: powershell
         run: |
