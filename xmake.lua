@@ -32,7 +32,16 @@ else
 end
 
 package("borealis")
-    set_sourcedir("../borealis")
+    local sourcedirs = {
+        path.join(path.directory(os.projectfile()),"../borealis"),
+        path.join(path.directory(os.projectfile()), "./build/xrepo/borealis"),
+    }
+    for _, sourcedir in ipairs(sourcedirs) do
+        if os.exists(sourcedir) and os.isdir(sourcedir) then
+            set_sourcedir(sourcedir)
+            break
+        end
+    end
     add_configs("window", {description = "use window lib", default = "glfw", type = "string"})
     add_configs("driver", {description = "use driver lib", default = "opengl", type = "string"})
     add_configs("winrt", {description = "use winrt api", default = false, type = "boolean"})
@@ -82,10 +91,29 @@ package("borealis")
     end)
 package_end()
 
+package("mongoose")
+    set_urls("https://github.com/xfangfang/mongoose/archive/6cb500ca1e2cb2be36e5e2592547cd0803a6a90b.zip")
+
+    add_versions("latest", "4b72b2aa0a18a4fb4161e60d6d1d16d2dd595f2b9b97a0fd9cd7fb80a68fb12f")
+    
+    on_install(function (package)
+        io.writefile("xmake.lua", [[
+            add_rules("mode.debug", "mode.release")
+            target("mongoose")
+                set_kind("$(kind)")
+                add_headerfiles("mongoose.h")
+                add_files("mongoose.c")
+        ]])
+        local configs = {}
+        configs["kind"] = package:config("shared") and "shared" or "static"
+        import("package.tools.xmake").install(package, configs)
+    end)
+package_end()
+
 package("mpv")
     if is_plat("windows", "mingw") then
-        set_urls("https://github.com/zhongfly/mpv-winbuild/releases/download/2023-04-24/mpv-dev-x86_64-v3-20230424-git-4fd0a39.7z")
-        add_versions("20230424", "e29d9749a7a77c78f308b1fb82a322cbaf4a2dc79369228ae4cba2d8c3fd2053")
+        set_urls("https://github.com/zeromake/wiliwili/releases/download/v0.6.0/mpv-dev-x86_64-v3-20230514-git-9e716d6.7z")
+        add_versions("20230514", "d56e3e10ea3f9362a0d9bb85ff3cd84f6e1fecfe66c87725040a82d5712b3f5f")
     end
     add_links("mpv")
     on_install("windows", "mingw", function (package)
@@ -120,6 +148,7 @@ package("mpv")
 package_end()
 
 if get_config("winrt") then
+    add_requires("sdl2", {configs={shared=true,winrt=true}})
     add_requireconfs("**.sdl2", {configs={shared=true,winrt=true}})
     add_requires("borealis", {configs={window="sdl",driver=get_config("driver"),winrt=true}})
     add_requireconfs("**.curl", {configs={winrt=true}})
@@ -133,6 +162,7 @@ add_requires("opencc")
 add_requires("pystring")
 add_requires("qr-code-generator", {configs={cpp=true}})
 add_requires("webp")
+add_requires("mongoose")
 
 target("wiliwili")
     add_includedirs("wiliwili/include", "wiliwili/include/api")
@@ -167,7 +197,8 @@ target("wiliwili")
         "lunasvg",
         "opencc",
         "pystring",
-        "webp"
+        "webp",
+        "mongoose"
     )
     if is_plat("windows", "mingw") then
         add_files("app_win32.rc")
@@ -187,4 +218,12 @@ target("wiliwili")
                 os.cp("resources", target:targetdir().."/")
             end
         end)
+    end
+    if is_mode("release") then
+        if is_plat("mingw") then
+            add_cxflags("-Wl,--subsystem,windows", {force = true})
+            add_ldflags("-Wl,--subsystem,windows", {force = true})
+        elseif is_plat("windows") then
+            add_ldflags("/SUBSYSTEM:WINDOWS")
+        end
     end
