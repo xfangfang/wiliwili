@@ -87,7 +87,7 @@ jobs:
           tag: ${{  github.event.inputs.version }}
           omitBodyDuringUpdate: true
           body: This release is built by github-action.
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
           artifacts: >
             ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz
