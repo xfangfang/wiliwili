@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - uwp
+      - dev
   workflow_dispatch:
     inputs:
       release:
@@ -47,7 +48,7 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_UWP=wiliwili-windows-x64-uwp-${VERSION}" >> $GITHUB_OUTPUT
           echo $VERSION
-          echo "${{  github.event.inputs.version }}"
+          echo "${{ github.event.inputs.version }}"
   build-win-x64:
     needs: [ version ]
     runs-on: windows-2022
@@ -74,6 +75,8 @@ jobs:
           cd ../../
       - name: build
         shell: powershell
+        env:
+          VERSION: ${{ needs.version.outputs.VERSION }}
         run: |
           $env:path+=";C:\Users\$($env:username)\xmake"
           xmake f -c -y --sw=y --winrt=y --window=sdl --driver=d3d11
