@@ -32,7 +32,10 @@ void SVGImage::setImageFromSVGRes(const std::string& value) {
 void SVGImage::setImageFromSVGFile(const std::string& value) {
     filePath   = value;
     size_t tex = this->getTexture();
-    if (tex > 0) brls::TextureCache::instance().removeCache(tex);
+    if (tex > 0) {
+        brls::TextureCache::instance().removeCache(tex);
+        brls::Logger::verbose("cache remove: {} {}", value, tex);
+    }
 
     tex = brls::TextureCache::instance().getCache(value);
     if (tex > 0) {
@@ -41,7 +44,7 @@ void SVGImage::setImageFromSVGFile(const std::string& value) {
         return;
     }
 
-    this->document = lunasvg::Document::loadFromFile(value.c_str());
+    this->document = lunasvg::Document::loadFromFile(value);
     if (this->document) {
         this->updateBitmap();
     } else {
@@ -53,6 +56,8 @@ void SVGImage::setImageFromSVGFile(const std::string& value) {
     if (tex > 0) {
         brls::Logger::verbose("cache svg: {} {}", value, tex);
         brls::TextureCache::instance().addCache(value, tex);
+    } else {
+        brls::Logger::error("svg got zero tex: {} {}", value, tex);
     }
 }
 
@@ -81,8 +86,6 @@ void SVGImage::updateBitmap() {
 void SVGImage::rotate(float value) { this->angle = value; }
 
 SVGImage::~SVGImage() {
-    size_t tex = this->getTexture();
-    if (tex > 0) brls::TextureCache::instance().removeCache(tex);
     brls::Application::getWindowSizeChangedEvent()->unsubscribe(subscription);
 }
 
