@@ -63,6 +63,8 @@ jobs:
           Invoke-Expression (Invoke-Webrequest 'https://xmake.io/psget.text' -UseBasicParsing).Content
           xmake --version
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: pre-repo
         shell: powershell
         run: |
