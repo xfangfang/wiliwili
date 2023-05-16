@@ -18,3 +18,4 @@ repo/
 .vscode
 .xmake
 .vs
+.DS_Store
