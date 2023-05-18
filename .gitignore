@@ -19,3 +19,4 @@ repo/
 .xmake
 .vs
 .DS_Store
+/winrt/AppxManifest.xml
