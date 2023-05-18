@@ -187,6 +187,7 @@ private:
     BRLS_BIND(SVGImage, btnDanmakuSettingIcon,
               "video/osd/danmaku/setting/icon");
     BRLS_BIND(SVGImage, btnSettingIcon, "video/osd/setting/icon");
+    BRLS_BIND(SVGImage, btnCastIcon, "video/osd/cast/icon");
     BRLS_BIND(brls::Label, hintLabel, "video/osd/hint/label");
     BRLS_BIND(brls::Box, hintBox, "video/osd/hint/box");
     BRLS_BIND(VideoProfile, videoProfile, "video/profile");

@@ -592,3 +592,15 @@ PlayerActivity::~PlayerActivity() {
     this->reportCurrentProgress(MPVCore::instance().video_progress,
                                 MPVCore::instance().duration);
 }
+void PlayerActivity::requestCastUrl() {
+    this->requestCastVideoUrl(videoDetailResult.aid, videoDetailPage.cid, 1);
+}
+
+void PlayerActivity::onCastPlayUrl(const bilibili::VideoUrlResult& result) {
+    brls::Logger::debug("onCastPlayUrl: {}", result.durl[0].url);
+
+    bilibili::VideoCastData data;
+    data.url   = result.durl[0].url;
+    data.title = videoDetailResult.title;
+    MPV_CE->fire("CAST_URL", (void*)&data);
+}

@@ -184,21 +184,21 @@ public:
 
     /// get user's upload videos
     static void get_user_videos(
-        const int64_t mid, int pn, int ps,
+        int64_t mid, int pn, int ps,
         const std::function<void(UserUploadedVideoResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
 
     /// get user's dynamic videos
     static void get_user_videos2(
-        const int64_t mid, int pn, int ps,
+        int64_t mid, int pn, int ps,
         const std::function<void(UserDynamicVideoResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
 
     /// get season detail by seasonID
     static void get_season_detail(
-        const int seasonID, const int epID = 0,
+        int seasonID, int epID = 0,
         const std::function<void(SeasonResultWrapper)>& callback = nullptr,
         const ErrorCallback& error                               = nullptr);
 
@@ -216,7 +216,7 @@ public:
 
     /// get video detail by aid
     static void get_video_detail(
-        const int aid,
+        int aid,
         const std::function<void(VideoDetailResult)>& callback = nullptr,
         const ErrorCallback& error                             = nullptr);
 
@@ -244,7 +244,7 @@ public:
 
     /// get video pagelist by aid
     static void get_video_pagelist(
-        const int aid,
+        int aid,
         const std::function<void(VideoDetailPageListResult)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
@@ -258,38 +258,48 @@ public:
 
     /// get video url by aid & cid
     static void get_video_url(
-        const int aid, const int cid, const int qn = 64,
+        int aid, int cid, int qn = 64,
+        const std::function<void(VideoUrlResult)>& callback = nullptr,
+        const ErrorCallback& error                          = nullptr);
+
+    /**
+     * 获取投屏所需的视频链接
+     * @param oid aid 或 epic
+     * @param type 如果传入的普通视频的 aid 则为 1；如果是番剧类的 epid 则为 2
+     */
+    static void get_video_url_cast(
+        int oid, int cid, int type, int qn = 64, const std::string& csrf = "",
         const std::function<void(VideoUrlResult)>& callback = nullptr,
         const ErrorCallback& error                          = nullptr);
 
     /// get video url by bvid & cid
     static void get_video_url(
-        const std::string& bvid, const int cid, const int qn = 64,
+        const std::string& bvid, int cid, int qn = 64,
         const std::function<void(VideoUrlResult)>& callback = nullptr,
         const ErrorCallback& error                          = nullptr);
 
     /// get season video url by cid
     static void get_season_url(
-        const int cid, const int qn = 64,
+        int cid, int qn = 64,
         const std::function<void(VideoUrlResult)>& callback = nullptr,
         const ErrorCallback& error                          = nullptr);
 
     /// get live video url by roomid
     static void get_live_url(
-        const int roomid, const int qn = 10000,
+        int roomid, int qn = 10000,
         const std::function<void(LiveUrlResultWrapper)>& callback = nullptr,
         const ErrorCallback& error                                = nullptr);
 
     /// 主页 推荐
     static void get_recommend(
-        const int index = 1, const int num = 24,
+        int index = 1, int num = 24,
         const std::function<void(RecommendVideoListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
 
     /// 主页 热门 热门综合
     static void get_hots_all(
-        const int index = 1, const int num = 40,
+        int index = 1, int num = 40,
         const std::function<void(HotsAllVideoListResult, bool)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);
@@ -301,7 +311,7 @@ public:
 
     /// 主页 热门 每周推荐
     static void get_hots_weekly(
-        const int number,
+        int number,
         const std::function<void(HotsWeeklyVideoListResult, std::string,
                                  std::string)>& callback = nullptr,
         const ErrorCallback& error                       = nullptr);
@@ -314,14 +324,14 @@ public:
 
     /// 主页 热门 排行榜 投稿视频
     static void get_hots_rank(
-        const int rid, const std::string type = "all",
+        int rid, const std::string& type = "all",
         const std::function<void(HotsRankVideoListResult, std::string)>&
             callback               = nullptr,
         const ErrorCallback& error = nullptr);
 
     /// 主页 热门 排行榜 官方
     static void get_hots_rank_pgc(
-        const int season_type, const int day = 3,
+        int season_type, int day = 3,
         const std::function<void(HotsRankPGCVideoListResult, std::string)>&
             callback               = nullptr,
         const ErrorCallback& error = nullptr);
@@ -451,7 +461,7 @@ public:
 
     /// 直播页 上报观看记录
     static void report_live_history(
-        const int room, const std::string& csrf,
+        int room, const std::string& csrf,
         const std::function<void()>& callback = nullptr,
         const ErrorCallback& error            = nullptr);
 

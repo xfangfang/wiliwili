@@ -293,6 +293,17 @@
         "header": "着色器"
       }
     },
+    "cast": {
+      "header": "投屏",
+      "device": "设备列表",
+      "request_url": "获取链接...",
+      "cast_to_renderer": "投射视频...",
+      "casting": "投屏中...",
+      "cancel": "取消投屏",
+      "err_connect": "无法连接到投屏设备",
+      "err_url": "获取投屏链接失败",
+      "countdown": "搜索倒计时"
+    },
     "danmaku": {
       "header": "弹幕设置",
       "send": {

@@ -15,7 +15,7 @@ namespace bilibili {
 
 /// 主页 推荐
 void BilibiliClient::get_recommend(
-    const int index, const int num,
+    int index, int num,
     const std::function<void(RecommendVideoListResultWrapper)>& callback,
     const ErrorCallback& error) {
     //        BilibiliClient::pool.enqueue([=]{
@@ -38,7 +38,7 @@ void BilibiliClient::get_recommend(
 
 /// 主页 热门 热门综合
 void BilibiliClient::get_hots_all(
-    const int index, const int num,
+    int index, int num,
     const std::function<void(HotsAllVideoListResult, bool)>& callback,
     const ErrorCallback& error) {
     HTTP::getResultAsync<HotsAllVideoListResultWrapper>(
@@ -64,7 +64,7 @@ void BilibiliClient::get_hots_weekly_list(
 
 /// 主页 热门 每周推荐
 void BilibiliClient::get_hots_weekly(
-    const int number,
+    int number,
     const std::function<void(HotsWeeklyVideoListResult, std::string,
                              std::string)>& callback,
     const ErrorCallback& error) {
@@ -91,7 +91,7 @@ void BilibiliClient::get_hots_history(
 
 /// 主页 热门 排行榜 投稿视频
 void BilibiliClient::get_hots_rank(
-    const int rid, const std::string type,
+    int rid, const std::string& type,
     const std::function<void(HotsRankVideoListResult, std::string)>& callback,
     const ErrorCallback& error) {
     HTTP::getResultAsync<HotsRankVideoListResultWrapper>(
@@ -102,7 +102,7 @@ void BilibiliClient::get_hots_rank(
 
 /// 主页 热门 排行榜 官方
 void BilibiliClient::get_hots_rank_pgc(
-    const int season_type, const int day,
+    int season_type, int day,
     const std::function<void(HotsRankPGCVideoListResult, std::string)>&
         callback,
     const ErrorCallback& error) {

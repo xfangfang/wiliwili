@@ -335,6 +335,8 @@ void BasePlayerActivity::setCommonData() {
         MPV_CE->subscribe([this](const std::string& event, void* data) {
             if (event == VideoView::QUALITY_CHANGE) {
                 this->setVideoQuality();
+            } else if (event == "REQUEST_CAST_URL") {
+                this->requestCastUrl();
             }
         });
 }

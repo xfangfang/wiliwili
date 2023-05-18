@@ -16,6 +16,7 @@
 #include "activity/player_activity.hpp"
 #include "fragment/player_danmaku_setting.hpp"
 #include "fragment/player_setting.hpp"
+#include "fragment/player_dlna_search.hpp"
 
 using namespace brls;
 
@@ -353,6 +354,21 @@ VideoView::VideoView() {
     this->btnSettingIcon->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnSettingIcon->getParent()));
 
+    /// 投屏按钮
+    this->btnCastIcon->getParent()->registerClickAction([this](...) {
+        this->pause();
+
+        auto dlna = new PlayerDlnaSearch();
+        brls::Application::pushActivity(new brls::Activity(dlna));
+
+        // 手动将焦点赋给设置页面
+        brls::sync([dlna]() { brls::Application::giveFocus(dlna); });
+        GA("open_player_cast")
+        return true;
+    });
+    this->btnCastIcon->getParent()->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->btnCastIcon->getParent()));
+
     this->refreshDanmakuIcon();
 
     this->registerAction(
@@ -668,6 +684,7 @@ void VideoView::hideActionButtons() {
     btnDanmakuIcon->getParent()->setVisibility(brls::Visibility::GONE);
     btnDanmakuSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
     btnSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
+    btnCastIcon->getParent()->setVisibility(brls::Visibility::GONE);
     videoSpeed->getParent()->setVisibility(brls::Visibility::GONE);
 }
 

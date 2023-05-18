@@ -16,7 +16,7 @@
                 id="video/osd/title"
                 height="100%"
                 marginLeft="20"
-                marginRight="80"
+                marginRight="120"
                 singleLine="true"
                 textColor="#FFFFFF"/>
         <brls:Box
@@ -38,6 +38,30 @@
         </brls:Box>
         <brls:Box
                 wireframe="false"
+                id="video/osd/cast"
+                hideClickAnimation="true"
+                positionType="absolute"
+                positionRight="60"
+                positionTop="10"
+                alignItems="center"
+                justifyContent="center"
+                height="60"
+                width="60">
+            <SVGImage
+                    id="video/osd/cast/icon"
+                    focusable="true"
+                    focusUp="video/osd/cast/icon"
+                    focusLeft="video/osd/cast/icon"
+                    focusRight="video/osd/setting/icon"
+                    focusDown="video/osd/bottom/box"
+                    hideHighlightBackground="true"
+                    highlightCornerRadius="30"
+                    height="30"
+                    width="30"
+                    SVG="@res/svg/bpx-svg-sprite-cast.svg"/>
+        </brls:Box>
+        <brls:Box
+                wireframe="false"
                 id="video/osd/setting"
                 hideClickAnimation="true"
                 positionType="absolute"
@@ -51,7 +75,7 @@
                     id="video/osd/setting/icon"
                     focusable="true"
                     focusUp="video/osd/setting/icon"
-                    focusLeft="video/osd/setting/icon"
+                    focusLeft="video/osd/cast/icon"
                     focusRight="video/osd/setting/icon"
                     focusDown="video/osd/bottom/box"
                     hideHighlightBackground="true"
@@ -76,8 +100,8 @@
                 <brls:Label
                         marginLeft="64"
                         marginRight="8"
-                        marginTop="4"
-                        marginBottom="4"
+                        marginTop="6"
+                        marginBottom="6"
                         textColor="#FFFFFF"
                         id="video/speed/hint/label"/>
             </brls:Box>

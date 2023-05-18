@@ -348,6 +348,32 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
     this->requestVideoPageDetail(bvid, cid);
 }
 
+/// 获取投屏地址
+void VideoDetail::requestCastVideoUrl(int oid, int cid, int type) {
+    ASYNC_RETAIN
+    brls::Logger::debug("请求投屏视频播放地址: {}/{}", oid, cid);
+    BILI::get_video_url_cast(
+        oid, cid, type, 120, ProgramConfig::instance().getCSRF(),
+        [ASYNC_TOKEN](const bilibili::VideoUrlResult& result) {
+            brls::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                if (result.durl.empty()) {
+                    brls::Logger::error("requestCastVideoUrl: empty durl");
+                    MPV_CE->fire("CAST_URL_ERROR", nullptr);
+                    return;
+                }
+                this->onCastPlayUrl(result);
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            brls::Logger::error("{}", error);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                MPV_CE->fire("CAST_URL_ERROR", nullptr);
+            });
+        });
+}
+
 /// 获取当前清晰度的序号，默认为0，从最高清开始排起
 int VideoDetail::getQualityIndex() {
     for (size_t i = 0; i < videoUrlResult.accept_quality.size(); i++) {

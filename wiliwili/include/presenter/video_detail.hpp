@@ -29,6 +29,7 @@ public:
     virtual void onVideoPageListInfo(
         const bilibili::VideoDetailPageListResult& result) {}
     virtual void onVideoPlayUrl(const bilibili::VideoUrlResult& result) {}
+    virtual void onCastPlayUrl(const bilibili::VideoUrlResult& result) {}
     virtual void onUploadedVideos(
         const bilibili::UserUploadedVideoResultWrapper& result) {}
     virtual void onDanmakuInfo() {}
@@ -68,6 +69,9 @@ public:
 
     /// 获取番剧地址
     void requestSeasonVideoUrl(const std::string& bvid, int cid);
+
+    /// 获取投屏地址
+    void requestCastVideoUrl(int oid, int cid, int type);
 
     int getQualityIndex();
 

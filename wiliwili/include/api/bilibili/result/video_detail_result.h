@@ -549,6 +549,11 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
                                              video, min_buffer_time));
 }
 
+class VideoCastData {
+public:
+    std::string url, title;
+};
+
 class VideoUrlResult {
 public:
     int quality;                                  //当前画质

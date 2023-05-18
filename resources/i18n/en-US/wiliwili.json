@@ -293,6 +293,17 @@
         "header": "Shader"
       }
     },
+    "cast": {
+      "header": "DLNA",
+      "device": "Devices",
+      "request_url": "Requesting video link...",
+      "cast_to_renderer": "Casting to renderer...",
+      "casting": "Casting...",
+      "cancel": "Cancel video casting",
+      "err_connect": "Unable to connect to the DLNA renderer",
+      "err_url": "Failed to obtain the video link",
+      "countdown": "Search countdown"
+    },
     "danmaku": {
       "header": "Danmaku setting",
       "send": {

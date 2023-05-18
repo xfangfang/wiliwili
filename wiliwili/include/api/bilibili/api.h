@@ -43,6 +43,8 @@ static const std::string OnlineViewerCount =
 static const std::string PlayInformation = _apiBase + "/x/player/playurl";
 /// 视频播放地址 TV.
 static const std::string PlayUrlTV = _apiBase + "/x/tv/card/view_v2";
+/// 视频播放地址 投屏
+static const std::string PlayUrlCast = _apiBase + "/x/tv/playurl";
 /// 番剧播放地址
 static const std::string SeasonUrl = _apiBase + "/pgc/player/web/playurl";
 /// 视频分P列表.

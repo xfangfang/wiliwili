@@ -80,6 +80,9 @@ public:
     // 获取当前视频的aid
     virtual size_t getAid() = 0;
 
+    // 获取投屏链接
+    virtual void requestCastUrl() = 0;
+
     void willDisappear(bool resetState = false) override;
 
     void willAppear(bool resetState = false) override;
@@ -133,6 +136,7 @@ public:
     void onIndexChange(size_t index) override;
     void onIndexChangeToNext() override;
     void reportCurrentProgress(size_t progress, size_t duration) override;
+    void requestCastUrl() override;
 
     void onVideoInfo(const bilibili::VideoDetailResult& result) override;
     void onUpInfo(const bilibili::UserDetailResultWrapper& result) override;
@@ -144,6 +148,7 @@ public:
     void onRelatedVideoList(
         const bilibili::VideoDetailListResult& result) override;
     void onRedirectToEp(const std::string& url) override;
+    void onCastPlayUrl(const bilibili::VideoUrlResult& result) override;
     size_t getAid() override;
 
     void onContentAvailable() override;
@@ -167,6 +172,8 @@ public:
 
     int getProgress() override;
 
+    void requestCastUrl() override;
+
     void onContentAvailable() override;
 
     void onSeasonVideoInfo(
@@ -187,6 +194,8 @@ public:
     void onIndexChangeToNext() override;
 
     void reportCurrentProgress(size_t progress, size_t duration) override;
+
+    void onCastPlayUrl(const bilibili::VideoUrlResult& result) override;
 
     // 正在播放的情况下切换到新的番剧
     void playSeason(size_t season_id);

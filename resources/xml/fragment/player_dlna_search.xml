@@ -1,0 +1,61 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        justifyContent="flexEnd"
+        backgroundColor="@theme/brls/backdrop">
+
+    <brls:Box
+            width="460"
+            height="100%"
+            axis="column"
+            backgroundColor="@theme/brls/background">
+
+        <brls:Label
+                height="24"
+                margin="20"
+                fontSize="24"
+                text="@i18n/wiliwili/player/cast/header"/>
+
+        <ButtonClose
+                id="button/close"
+                focusable="true"
+                positionType="absolute"
+                positionTop="10"
+                positionRight="10"/>
+
+        <brls:ScrollingFrame
+                id="player/dlna"
+                width="100%"
+                grow="1"
+                scrollingBehavior="centered">
+
+            <brls:Box
+                    width="auto"
+                    height="auto"
+                    axis="column"
+                    paddingLeft="40"
+                    paddingRight="@style/brls/tab_frame/content_padding_sides"
+                    paddingBottom="@style/brls/tab_frame/content_padding_top_bottom"
+                    alignItems="stretch">
+                <brls:Header
+                        id="setting/dlna/header"
+                        width="auto"
+                        height="auto"
+                        title="@i18n/wiliwili/player/cast/device"
+                        marginBottom="0px"/>
+                <brls:Box
+                        id="setting/dlna/device/box"
+                        width="100%"
+                        height="auto"
+                        axis="column">
+
+                </brls:Box>
+                <brls:RadioCell
+                        id="setting/dlna/search"/>
+            </brls:Box>
+
+        </brls:ScrollingFrame>
+
+    </brls:Box>
+
+</brls:Box>

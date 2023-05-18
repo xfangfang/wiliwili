@@ -416,3 +416,16 @@ void PlayerSeasonActivity::playSeason(size_t season_id) {
 }
 
 size_t PlayerSeasonActivity::getAid() { return episodeResult.aid; }
+
+void PlayerSeasonActivity::requestCastUrl() {
+    this->requestCastVideoUrl(episodeResult.id, episodeResult.cid, 2);
+}
+
+void PlayerSeasonActivity::onCastPlayUrl(
+    const bilibili::VideoUrlResult& result) {
+    brls::Logger::debug("onCastPlayUrl: {}", result.durl[0].url);
+    bilibili::VideoCastData data;
+    data.url   = result.durl[0].url;
+    data.title = seasonInfo.season_title + " " + episodeResult.title;
+    MPV_CE->fire("CAST_URL", (void*)&data);
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 22 22" id="bpx-svg-sprite-setting" xmlns="http://www.w3.org/2000/svg">
+  <path style="fill: #FFFFFF; stroke: #FFFFFF; stroke-linejoin: round; stroke-linecap: round;" d="M 11 15 L 8.7 17 L 13.2 17 Z"/>
+  <path style="fill: none; stroke: #FFFFFF; stroke-linejoin: round; stroke-linecap: round; stroke-width: 2px;" d="M 6.543 15.955 C 6.543 15.955 5.645 15.983 5.004 15.969 C 4.15 15.952 2.925 15.245 2.931 14.002 C 2.936 12.759 2.925 8.04 2.924 6.894 C 2.923 5.796 3.769 4.795 4.986 4.783 C 6.203 4.77 15.747 4.783 16.908 4.778 C 18.134 4.774 18.979 5.723 18.996 6.849 C 19.013 7.974 19.096 13.04 19.072 14.14 C 19.048 15.179 18.004 15.956 16.929 15.973 C 15.855 15.989 15.369 15.958 15.369 15.958"/>
+  <path style="fill: none; stroke: #FFFFFF; stroke-linejoin: round; stroke-linecap: round; stroke-width: 2px;" d="M 8.5 12.2 L 8.5 9"/>
+  <path style="fill: none; stroke: #FFFFFF; stroke-linejoin: round; stroke-linecap: round; stroke-width: 2px;" d="M 6.6 8.5 L 11.5 8.5 L 13.5 12.2 L 15.5 8.5"/>
+</svg>
