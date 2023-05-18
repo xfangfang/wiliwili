@@ -25,6 +25,16 @@ function main(target)
         {target:targetfile(), "wiliwili.exe"},
     }
     local d = {}
+    local debugs = {
+        path.join(target:targetdir(), "wiliwili.pdb"),
+        path.join(target:targetdir(), "wiliwili.ilk"),
+    }
+    for _, f in ipairs(debugs) do
+        if os.exists(f) then
+            local k = path.filename(f)
+            table.insert(files, {f, k})
+        end
+    end
     for _, pkg in pairs(target:pkgs()) do
         if pkg:has_shared() then
             for _, f in ipairs(pkg:libraryfiles()) do

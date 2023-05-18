@@ -86,4 +86,6 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ needs.version.outputs.DIST_UWP }}
-          path: build/wiliwili.msix
+          path: |
+            build/wiliwili.msix
+            winrt/key.pfx
