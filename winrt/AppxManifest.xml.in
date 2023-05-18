@@ -5,7 +5,7 @@
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   IgnorableNamespaces="uap mp build"
   xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build">
-  <Identity Name="a430d85b-5cf1-4705-9fe1-7da520f91d4b" Publisher="CN=ljh" Version="1.0.1.0" ProcessorArchitecture="x64" />
+  <Identity Name="a430d85b-5cf1-4705-9fe1-7da520f91d4b" Publisher="CN=ljh" Version="$(VERISON)" ProcessorArchitecture="x64" />
   <mp:PhoneIdentity PhoneProductId="a430d85b-5cf1-4705-9fe1-7da520f91d4b" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>wiliwili</DisplayName>

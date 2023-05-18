@@ -18,3 +18,5 @@ repo/
 .vscode
 .xmake
 .vs
+.DS_Store
+/winrt/AppxManifest.xml

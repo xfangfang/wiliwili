@@ -168,6 +168,26 @@ target("wiliwili")
     add_includedirs("wiliwili/include", "wiliwili/include/api")
     add_files("wiliwili/source/**.cpp")
     add_defines("BRLS_RESOURCES=\"./resources/\"")
+    before_build(function (target)
+        local GIT_TAG_VERSION, _ = os.iorunv("git", {"describe", "--tags"})
+        local GIT_TAG_SHORT, _ = os.iorunv("git", {"rev-parse", "--short", "HEAD"})
+        GIT_TAG_VERSION = GIT_TAG_VERSION:gsub("\r?\n", "")
+        GIT_TAG_SHORT = GIT_TAG_SHORT:gsub("\r?\n", "")
+        local cmakefile = io.readfile("CMakeLists.txt")
+        local VERSION_MAJOR = string.match(cmakefile, "set%(VERSION_MAJOR \"(%d)\"%)")
+        local VERSION_MINOR = string.match(cmakefile, "set%(VERSION_MINOR \"(%d)\"%)")
+        local VERSION_REVISION = string.match(cmakefile, "set%(VERSION_REVISION \"(%d)\"%)")
+        local PACKAGE_NAME = string.match(cmakefile, "set%(PACKAGE_NAME ([^%)]+)%)")
+        target:add(
+            "defines",
+            "BUILD_TAG_VERSION="..GIT_TAG_VERSION,
+            "DBUILD_TAG_SHORT="..GIT_TAG_SHORT,
+            "BUILD_VERSION_MAJOR="..VERSION_MAJOR,
+            "BUILD_VERSION_MINOR="..VERSION_MINOR,
+            "BUILD_VERSION_REVISION="..VERSION_REVISION,
+            "BUILD_PACKAGE_NAME="..PACKAGE_NAME
+        )
+    end)
     local driver = get_config("driver")
     if driver == "opengl" then
         add_defines("BOREALIS_USE_OPENGL")

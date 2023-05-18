@@ -1,5 +1,6 @@
 import("lib.detect.find_program")
 import("detect.sdks.find_vstudio")
+import("core.base.option")
 
 local function listFiles(dir, out, i)
     for _, f in ipairs(os.filedirs(path.join(dir, "**"))) do
@@ -20,11 +21,23 @@ local fileMapPath = "build/main.map.txt"
 local priPath = "build\\resources.pri"
 
 function main(target)
+    option.save("main")
+    option.set("verbose", true)
     local files = {
         {priPath, "resources.pri"},
         {target:targetfile(), "wiliwili.exe"},
     }
     local d = {}
+    local debugs = {
+        path.join(target:targetdir(), "wiliwili.pdb"),
+        path.join(target:targetdir(), "wiliwili.ilk"),
+    }
+    for _, f in ipairs(debugs) do
+        if os.exists(f) then
+            local k = path.filename(f)
+            table.insert(files, {f, k})
+        end
+    end
     for _, pkg in pairs(target:pkgs()) do
         if pkg:has_shared() then
             for _, f in ipairs(pkg:libraryfiles()) do
@@ -51,6 +64,16 @@ function main(target)
 [Files]
 %s
 ]], context))
+    local cmakefile = io.readfile("CMakeLists.txt")
+    local VERSION_MAJOR = string.match(cmakefile, "set%(VERSION_MAJOR \"(%d)\"%)")
+    local VERSION_MINOR = string.match(cmakefile, "set%(VERSION_MINOR \"(%d)\"%)")
+    local VERSION_REVISION = string.match(cmakefile, "set%(VERSION_REVISION \"(%d)\"%)")
+
+    local appxManifest = io.readfile("winrt/AppxManifest.xml.in")
+    local VERSION_BUILD = tostring(os.time()):sub(6)
+    local VERSION = string.format("%s.%s.%s.%s", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD)
+    appxManifest = appxManifest:gsub("%$%(VERISON%)", VERSION)
+    io.writefile("winrt/AppxManifest.xml", appxManifest)
 
     local vs = find_vstudio()["2022"]["vcvarsall"]["x86"]
     local windowsSdkBinPath = path.join(vs["WindowsSdkBinPath"], vs["WindowsSDKVersion"], "x86")
@@ -58,7 +81,7 @@ function main(target)
     local makeappx = path.join(windowsSdkBinPath, "makeappx.exe")
     local signtool = path.join(windowsSdkBinPath, "signtool.exe")
 
-    os.execv(makepri, {
+    os.vexecv(makepri, {
         "createconfig",
         "-Overwrite",
         "/cf",
@@ -66,7 +89,7 @@ function main(target)
         "/dq",
         "en-US"
     })
-    os.execv(makepri, {
+    os.vexecv(makepri, {
         "new",
         "-Overwrite",
         "/pr",
@@ -76,7 +99,7 @@ function main(target)
         "-OutputFile",
         priPath
     })
-    os.execv(makeappx, {
+    os.vexecv(makeappx, {
         "pack",
         "/l",
         "/h",
@@ -89,7 +112,7 @@ function main(target)
         "/p",
         outPath
     })
-    os.execv(signtool, {
+    os.vexecv(signtool, {
         "sign",
         "/fd",
         "SHA256",
@@ -98,4 +121,5 @@ function main(target)
         keyPath,
         outPath
     })
+    print(format("build msix: %s", VERSION))
 end
