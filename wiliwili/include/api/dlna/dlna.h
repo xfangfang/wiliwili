@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 #include <tinyxml2.h>
 #include <borealis/core/singleton.hpp>
 
@@ -75,4 +76,6 @@ public:
      * @return renderer 列表
      */
     std::vector<DlnaRenderer> searchRenderer(int timeout = 5000);
+
+    static inline std::set<std::string> rendererList;
 };

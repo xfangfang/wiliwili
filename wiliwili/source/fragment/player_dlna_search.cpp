@@ -124,20 +124,29 @@ PlayerDlnaSearch::PlayerDlnaSearch() {
             if (currentCell) currentCell->title->setText(currentRenderer.friendlyName + " " + "wiliwili/player/cast/cast_to_renderer"_i18n);
             auto* castData = (bilibili::VideoCastData*)data;
             ASYNC_RETAIN
-            currentRenderer.play(castData->url, castData->title, [ASYNC_TOKEN](){
+            currentRenderer.play(castData->url, castData->title, [ASYNC_TOKEN]() {
                     ASYNC_RELEASE
                     waitingRenderer = false;
-                    brls::Application::popActivity(brls::TransitionAnimation::NONE);
-                    auto renderer = currentRenderer;
-                    auto dialog = new brls::Dialog(renderer.friendlyName + " " + "wiliwili/player/cast/casting"_i18n);
-                    dialog->setCancelable(false);
-                    dialog->addButton("wiliwili/player/cast/cancel"_i18n, [renderer]() {
-                            renderer.stop([](){}, [](){
-                            DialogHelper::showDialog("wiliwili/player/cast/err_connect"_i18n);
+                    auto renderer   = currentRenderer;
+                    brls::Application::popActivity(
+                        brls::TransitionAnimation::FADE, [renderer]() {
+                            auto dialog = new brls::Dialog(
+                                renderer.friendlyName + " " +
+                                "wiliwili/player/cast/casting"_i18n);
+                            dialog->setCancelable(false);
+                            dialog->addButton(
+                                "wiliwili/player/cast/cancel"_i18n,
+                                [renderer]() {
+                                    renderer.stop(
+                                        []() {},
+                                        []() {
+                                            DialogHelper::showDialog(
+                                                "wiliwili/player/cast/err_connect"_i18n);
+                                        });
+                                });
+                            dialog->open();
                         });
-                    });
-                    dialog->open();
-            }, [ASYNC_TOKEN](){
+                }, [ASYNC_TOKEN](){
                     ASYNC_RELEASE
                     DialogHelper::showDialog("wiliwili/player/cast/err_connect"_i18n);
                     waitingRenderer = false;

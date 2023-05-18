@@ -6,9 +6,9 @@
 #include <future>
 #include <mongoose.h>
 #include <cpr/cpr.h>
-#include <fmt/format.h>
 #include <pystring.h>
 #include <borealis/core/logger.hpp>
+#include "utils/string_helper.hpp"
 #include "dlna/dlna.h"
 
 static std::string AVTransport =
@@ -49,8 +49,6 @@ static std::string Stop =
 
 static const char* s_ssdp_url = "udp://239.255.255.250:1900";
 
-std::set<std::string> rendererList;
-
 static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data) {
     MG_DEBUG(("%p got event: %d %p %p", c, ev, ev_data, fn_data));
     if (ev == MG_EV_OPEN) {
@@ -68,7 +66,8 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data) {
                 struct mg_str *k = &hm.headers[i].name,
                               *v = &hm.headers[i].value;
                 if (mg_vcasecmp(k, "LOCATION") == 0) {
-                    rendererList.insert(std::string{v->ptr}.substr(0, v->len));
+                    UpnpDlna::rendererList.insert(
+                        std::string{v->ptr}.substr(0, v->len));
                 }
             }
         }
@@ -153,7 +152,7 @@ void DlnaRenderer::play(const std::string& url, const std::string& title,
     }
 
     std::string urlEncode = pystring::replace(url, "&", "&amp;");
-    std::string data      = fmt::format(AVTransport, urlEncode, "", title);
+    std::string data      = wiliwili::format(AVTransport, urlEncode, "", title);
 
     cpr::PostCallback(
         [callback, error](const cpr::Response& r) {
