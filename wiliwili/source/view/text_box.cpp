@@ -128,16 +128,41 @@ TextBox::TextBox() {
 }
 
 void TextBox::setRichText(const RichTextData& value) {
+#ifdef OPENCC
+    static bool trans =
+        brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
+        brls::Application::getLocale() == brls::LOCALE_ZH_TW;
+    if (trans && OPENCC_ON) {
+        this->richContent.clear();
+        for (auto& i : value) {
+            if (i->type == RichTextType::Text) {
+                auto* t = (RichTextSpan*)i.get();
+                t->text = Label::STConverter(t->text);
+            }
+            this->richContent.emplace_back(i);
+        }
+    } else {
+        this->richContent = value;
+    }
+#endif
     this->lineContent.clear();
     this->setParsedDone(false);
-    this->richContent = value;
     // 设置内容后调用 invalidate 会触发 textBoxMeasureFunc 重排布局
     this->invalidate();
 }
 
 RichTextData& TextBox::getRichText() { return this->richContent; }
 
-void TextBox::setText(const std::string& text) {
+void TextBox::setText(const std::string& value) {
+    std::string text = value;
+#ifdef OPENCC
+    static bool trans =
+        brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
+        brls::Application::getLocale() == brls::LOCALE_ZH_TW;
+    if (trans && OPENCC_ON) {
+        text = Label::STConverter(text);
+    }
+#endif
     this->richContent.clear();
     this->setParsedDone(false);
     this->richContent.emplace_back(
