@@ -23,7 +23,7 @@
                 <brls:Label
                         id="tv/search/input"
                         marginTop="8"
-                        marginBottom="8"/>
+                        marginBottom="10"/>
             </brls:Box>
             <brls:Box
                     marginTop="10"

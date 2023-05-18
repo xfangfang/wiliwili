@@ -8,9 +8,11 @@
 #include "fragment/season_evaluate.hpp"
 #include "view/video_view.hpp"
 #include "view/video_card.hpp"
+#include "view/svg_image.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/image_helper.hpp"
 #include "bilibili/result/home_pgc_season_result.h"
 
 /// PlayerSeasonActivity

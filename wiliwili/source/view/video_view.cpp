@@ -498,7 +498,7 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         if (a3 > 120) a3 = 240 - a3;
 
         float tx                              = frame.getMinX() - 50;
-        float ty                              = frame.getMinY() + 7;
+        float ty                              = frame.getMinY() + 4.5;
         std::vector<std::pair<int, int>> data = {
             {0, a3 + 80}, {15, a2 + 80}, {30, a1 + 80}};
 

@@ -8,7 +8,11 @@
         height="50">
     <brls:Label
             id="close/button/text"
-            marginTop="9"
+            marginTop="7"
+            marginLeft="1"
+            horizontalAlign="center"
+            verticalAlign="center"
+            lineHeight="1"
             fontSize="32"
             text=""/>
 </brls:Box>

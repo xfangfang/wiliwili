@@ -8,6 +8,8 @@
 #include "view/video_comment.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/button_close.hpp"
+#include "view/svg_image.hpp"
+#include "utils/image_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"

@@ -11,19 +11,16 @@
             lineRight="0"
             wireframe="false"
             height="50"
-            horizontalAlign="center"
-    />
+            horizontalAlign="center"/>
     <brls:Label
             id="hots/content"
             wireframe="false"
             width="auto"
-            height="50"
-    />
+            marginRight="4"
+            height="50"/>
     <brls:Image
             id="hots/icon"
             wireframe="false"
             height="20"
-            maxWidth="63"
-            scalingType="fit"
-    />
+            scalingType="fit"/>
 </brls:Box>

@@ -626,6 +626,7 @@ const std::string autoSidebarItemXML = R"xml(
                 width="auto"
                 height="auto"
                 fontSize="22"
+                marginBottom="5"
                 horizontalAlign="center"/>
 
             <brls:Label

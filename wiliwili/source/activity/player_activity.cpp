@@ -15,6 +15,7 @@
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/image_helper.hpp"
 #include "fragment/player_collection.hpp"
 #include "fragment/player_fragments.hpp"
 #include "fragment/player_evaluate.hpp"

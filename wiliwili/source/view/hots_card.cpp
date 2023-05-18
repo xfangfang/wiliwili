@@ -14,12 +14,14 @@ RecyclingGridItemHotsCard::~RecyclingGridItemHotsCard() = default;
 void RecyclingGridItemHotsCard::setCard(const std::string& prefix,
                                         const std::string& name,
                                         const std::string& image) {
-    this->order->setVisibility(brls::Visibility::VISIBLE);
     this->order->setText(prefix);
-    this->content->setVisibility(brls::Visibility::VISIBLE);
     this->content->setText(name);
-    this->icon->setVisibility(brls::Visibility::VISIBLE);
-    if (!image.empty()) ImageHelper::with(this->icon)->load(image);
+    if (image.empty()) {
+        this->icon->setVisibility(brls::Visibility::GONE);
+    } else {
+        this->icon->setVisibility(brls::Visibility::VISIBLE);
+        ImageHelper::with(this->icon)->load(image);
+    }
 }
 
 void RecyclingGridItemHotsCard::cacheForReuse() {
