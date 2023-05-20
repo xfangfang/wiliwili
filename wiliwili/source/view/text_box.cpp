@@ -144,6 +144,8 @@ void TextBox::setRichText(const RichTextData& value) {
     } else {
         this->richContent = value;
     }
+#else
+    this->richContent = value;
 #endif
     this->lineContent.clear();
     this->setParsedDone(false);
@@ -154,14 +156,18 @@ void TextBox::setRichText(const RichTextData& value) {
 RichTextData& TextBox::getRichText() { return this->richContent; }
 
 void TextBox::setText(const std::string& value) {
-    std::string text = value;
+    std::string text;
 #ifdef OPENCC
     static bool trans =
         brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
         brls::Application::getLocale() == brls::LOCALE_ZH_TW;
     if (trans && OPENCC_ON) {
-        text = Label::STConverter(text);
+        text = Label::STConverter(value);
+    } else {
+        text = value;
     }
+#else
+    text              = value;
 #endif
     this->richContent.clear();
     this->setParsedDone(false);
