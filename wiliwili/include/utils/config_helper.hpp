@@ -58,6 +58,9 @@ enum class SettingItem {
     KEYMAP,
     HOME_WINDOW_STATE,
     SEARCH_TV_MODE,
+    LIMITED_FPS,
+    DEACTIVATED_TIME,
+    DEACTIVATED_FPS,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {

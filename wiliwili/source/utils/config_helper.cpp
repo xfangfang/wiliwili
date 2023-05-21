@@ -118,6 +118,9 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"0.5", "0.75", "1.0", "1.25", "1.5"},
       {150, 125, 100, 75, 50},
       2}},
+    {SettingItem::LIMITED_FPS, {"limited_fps", {}, {}, 0}},
+    {SettingItem::DEACTIVATED_TIME, {"deactivated_time", {}, {}, 3000}},
+    {SettingItem::DEACTIVATED_FPS, {"deactivated_fps", {}, {}, 5}},
 };
 #else
 std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
@@ -221,6 +224,9 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"0.5", "0.75", "1.0", "1.25", "1.5"},
       {150, 125, 100, 75, 50},
       2}},
+    {SettingItem::LIMITED_FPS, {"limited_fps", {}, {}, 0}},
+    {SettingItem::DEACTIVATED_TIME, {"deactivated_time", {}, {}, 3000}},
+    {SettingItem::DEACTIVATED_FPS, {"deactivated_fps", {}, {}, 5}},
 };
 #endif
 
@@ -524,6 +530,18 @@ void ProgramConfig::load() {
     // 初始化上一次窗口位置
     loadHomeWindowState();
 #endif
+
+    // 初始化FPS限制
+    brls::Application::setLimitedFPS(
+        getSettingItem(SettingItem::LIMITED_FPS, 0));
+
+    // 初始化进入闲置状态需要的时间
+    brls::Application::setDeactivatedTime(
+        getSettingItem(SettingItem::DEACTIVATED_TIME, 3000));
+
+    // 初始化闲置状态 FPS
+    brls::Application::setDeactivatedFPS(
+        getSettingItem(SettingItem::DEACTIVATED_FPS, 5));
 
     // 初始化一些在创建窗口之后才能初始化的内容
     brls::Application::getWindowCreationDoneEvent()->subscribe([this]() {

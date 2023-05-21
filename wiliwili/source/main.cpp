@@ -39,6 +39,9 @@ int main(int argc, char* argv[]) {
     // Return directly to the desktop when closing the application (only for NX)
     brls::Application::getPlatform()->exitToHomeMode(true);
 
+    // Reduce FPS to a lower value after a period of inactivity
+    brls::Application::setAutomaticDeactivation(true);
+
     brls::Application::createWindow("wiliwili");
     brls::Logger::info("createWindow done");
 

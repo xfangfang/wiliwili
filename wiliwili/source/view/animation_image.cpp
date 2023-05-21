@@ -60,6 +60,7 @@ brls::View* AnimationImage::create() { return new AnimationImage(); }
 void AnimationImage::draw(NVGcontext* vg, float x, float y, float width,
                           float height, brls::Style style,
                           brls::FrameContext* ctx) {
+    brls::Application::setActiveEvent(true);
     size_t time_now = brls::getCPUTimeUsec();
     if (time_now - last_refresh_time > frame_time) {
         last_refresh_time = time_now;
