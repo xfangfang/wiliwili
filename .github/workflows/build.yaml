@@ -212,12 +212,14 @@ jobs:
           xmake f -c -y --sw=y --winrt=y --window=sdl --driver=d3d11
           xmake build wiliwili
           cp winrt/key.pfx build/
+          cp winrt/docs/key.pdf build/key.pdf
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ needs.version.outputs.DIST_UWP }}
           path: |
             build/wiliwili.msix
             build/key.pfx
+            build/key.pdf
 
   build-switch:
     needs: [ version ]
