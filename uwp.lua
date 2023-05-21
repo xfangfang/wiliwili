@@ -70,7 +70,13 @@ function main(target)
     local VERSION_REVISION = string.match(cmakefile, "set%(VERSION_REVISION \"(%d)\"%)")
 
     local appxManifest = io.readfile("winrt/AppxManifest.xml.in")
-    local VERSION_BUILD = tostring(os.time()):sub(6)
+    local GIT_TAG_VERSION = vformat("$(shell git describe --tags)")
+    local arr = GIT_TAG_VERSION:split("-")
+    local VERSION_BUILD = 0
+    if #arr > 1 then
+        VERSION_BUILD = arr[2]
+    end
+    -- local VERSION_BUILD = tostring(os.time()):sub(6)
     local VERSION = string.format("%s.%s.%s.%s", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD)
     appxManifest = appxManifest:gsub("%$%(VERISON%)", VERSION)
     io.writefile("winrt/AppxManifest.xml", appxManifest)

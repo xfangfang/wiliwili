@@ -121,29 +121,30 @@ package("mpv")
         os.cp("include/*", package:installdir("include").."/")
         os.cp("*.a", package:installdir("lib").."/")
         os.cp("*.dll", package:installdir("bin").."/")
-
-        -- 从 dll 里导出函数为 lib 文件，预编译自带 def 文件格式不正确，没法导出 lib
-        if os.isfile("mpv.def") then
-            local def_context = io.readfile("mpv.def")
-            if not def_context:startswith("EXPORTS") then
-                io.writefile("mpv.def", format("EXPORTS\n%s", def_context))
+        if package:is_plat("windows") then
+            -- 从 dll 里导出函数为 lib 文件，预编译自带 def 文件格式不正确，没法导出 lib
+            if os.isfile("mpv.def") then
+                local def_context = io.readfile("mpv.def")
+                if not def_context:startswith("EXPORTS") then
+                    io.writefile("mpv.def", format("EXPORTS\n%s", def_context))
+                end
             end
+            local vs = find_vstudio()["2022"]["vcvarsall"]["x64"]
+            local libExec = path.join(
+                vs["VSInstallDir"],
+                "VC",
+                "Tools",
+                "MSVC",
+                vs["VCToolsVersion"],
+                "bin",
+                "HostX64",
+                "x64",
+                "lib.exe"
+            )
+            os.execv(libExec, {"/name:libmpv-2.dll", "/def:mpv.def", "/out:mpv.lib", "/MACHINE:X64"})
+            os.cp("*.lib", package:installdir("lib").."/")
+            os.cp("*.exp", package:installdir("lib").."/")
         end
-        local vs = find_vstudio()["2022"]["vcvarsall"]["x64"]
-        local libExec = path.join(
-            vs["VSInstallDir"],
-            "VC",
-            "Tools",
-            "MSVC",
-            vs["VCToolsVersion"],
-            "bin",
-            "HostX64",
-            "x64",
-            "lib.exe"
-        )
-        os.execv(libExec, {"/name:libmpv-2.dll", "/def:mpv.def", "/out:mpv.lib", "/MACHINE:X64"})
-        os.cp("*.lib", package:installdir("lib").."/")
-        os.cp("*.exp", package:installdir("lib").."/")
     end)
 package_end()
 
@@ -163,16 +164,15 @@ add_requires("pystring")
 add_requires("qr-code-generator", {configs={cpp=true}})
 add_requires("webp")
 add_requires("mongoose")
+add_requires("zlib")
 
 target("wiliwili")
     add_includedirs("wiliwili/include", "wiliwili/include/api")
     add_files("wiliwili/source/**.cpp")
     add_defines("BRLS_RESOURCES=\"./resources/\"")
     before_build(function (target)
-        local GIT_TAG_VERSION, _ = os.iorunv("git", {"describe", "--tags"})
-        local GIT_TAG_SHORT, _ = os.iorunv("git", {"rev-parse", "--short", "HEAD"})
-        GIT_TAG_VERSION = GIT_TAG_VERSION:gsub("\r?\n", "")
-        GIT_TAG_SHORT = GIT_TAG_SHORT:gsub("\r?\n", "")
+        local GIT_TAG_VERSION = vformat("$(shell git describe --tags)")
+        local GIT_TAG_SHORT = vformat("$(shell git rev-parse --short HEAD)")
         local cmakefile = io.readfile("CMakeLists.txt")
         local VERSION_MAJOR = string.match(cmakefile, "set%(VERSION_MAJOR \"(%d)\"%)")
         local VERSION_MINOR = string.match(cmakefile, "set%(VERSION_MINOR \"(%d)\"%)")
@@ -218,7 +218,8 @@ target("wiliwili")
         "opencc",
         "pystring",
         "webp",
-        "mongoose"
+        "mongoose",
+        "zlib"
     )
     if is_plat("windows", "mingw") then
         add_files("app_win32.rc")
@@ -238,6 +239,10 @@ target("wiliwili")
                 os.cp("resources", target:targetdir().."/")
             end
         end)
+    end
+
+    if is_plat("mingw") then
+        add_ldflags("-static-libgcc", "-static-libstdc++")
     end
     if is_mode("release") then
         if is_plat("mingw") then
