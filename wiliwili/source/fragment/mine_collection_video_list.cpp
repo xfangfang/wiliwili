@@ -102,7 +102,7 @@ MineCollectionVideoList::MineCollectionVideoList(
     this->labelTitle->setText(data.title);
     this->labelSubtitle->setText(
         fmt::format("{}{}", data.media_count, "wiliwili/mine/num"_i18n));
-    ImageHelper::with(this->imageCover)->load(data.cover);
+    ImageHelper::with(this->imageCover, data.cover);
 
     this->requestCollectionList();
 }
@@ -149,8 +149,7 @@ void MineCollectionVideoList::requestCollectionList() {
                         "{}{} · {}: {}", result.info.media_count,
                         "wiliwili/mine/num"_i18n, "wiliwili/mine/creator"_i18n,
                         result.info.upper.name));
-                    ImageHelper::with(this->imageCover)
-                        ->load(result.info.cover);
+                    ImageHelper::with(this->imageCover, result.info.cover);
                 }
             });
         },

@@ -20,7 +20,7 @@ void RecyclingGridItemHotsCard::setCard(const std::string& prefix,
         this->icon->setVisibility(brls::Visibility::GONE);
     } else {
         this->icon->setVisibility(brls::Visibility::VISIBLE);
-        ImageHelper::with(this->icon)->load(image);
+        ImageHelper::with(this->icon, image);
     }
 }
 

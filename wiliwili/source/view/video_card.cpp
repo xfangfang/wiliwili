@@ -61,7 +61,7 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
 
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
+    ImageHelper::with(this->picture, pic);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDanmaku->setText(wiliwili::num2w(danmaku));
 
@@ -93,7 +93,7 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
 
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
+    ImageHelper::with(this->picture, pic);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDanmaku->setText(wiliwili::num2w(danmaku));
     this->labelDuration->setText(rightBottomBadge);
@@ -124,7 +124,7 @@ void RecyclingGridItemRankVideoCard::setCard(std::string pic, std::string title,
 
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
+    ImageHelper::with(this->picture, pic);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDanmaku->setText(wiliwili::num2w(danmaku));
 
@@ -179,7 +179,7 @@ void RecyclingGridItemLiveVideoCard::setCard(std::string pic, std::string title,
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(false);
     this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
+    ImageHelper::with(this->picture, pic);
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDuration->setText(area);
     if (following) {
@@ -225,15 +225,15 @@ void RecyclingGridItemPGCVideoCard::setCard(std::string pic, std::string title,
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(false);
     this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
+    ImageHelper::with(this->picture, pic);
     this->labelDuration->setText(badge_bottom_right);
 
     if (!badge_top.empty()) {
-        ImageHelper::with(this->badgeTop)->load(badge_top);
+        ImageHelper::with(this->badgeTop, badge_top);
     }
 
     if (!badge_bottom_left.empty()) {
-        ImageHelper::with(this->badgeBottomLeft)->load(badge_bottom_left);
+        ImageHelper::with(this->badgeBottomLeft, badge_bottom_left);
     }
 }
 
@@ -289,7 +289,7 @@ void RecyclingGridItemSearchPGCVideoCard::setCard(
         this->boxTop->setVisibility(brls::Visibility::GONE);
     }
 
-    ImageHelper::with(this->picture)->load(pic);
+    ImageHelper::with(this->picture, pic);
 }
 
 RecyclingGridItem* RecyclingGridItemSearchPGCVideoCard::create() {
@@ -340,7 +340,7 @@ void RecyclingGridItemHistoryVideoCard::setCard(
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
+    ImageHelper::with(this->picture, pic);
     this->labelCount->setText(leftBottomBadge);
     this->labelDuration->setText(rightBottomBadge);
     this->labelRightTop->setText(rightTopBadge);
@@ -421,7 +421,7 @@ void RecyclingGridItemCollectionVideoCard::setCard(
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
     if (!pic.empty()) {
-        ImageHelper::with(this->picture)->load(pic);
+        ImageHelper::with(this->picture, pic);
     }
     this->labelCount->setText(leftBottomBadge);
     this->labelDuration->setText(rightBottomBadge);
@@ -451,7 +451,7 @@ void RecyclingGridItemRelatedVideoCard::setCard(std::string pic,
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
+    ImageHelper::with(this->picture, pic);
     this->labelCount->setText(playCount);
     this->labelDanmaku->setText(danmakuCount);
     this->labelDuration->setText(rightBottomBadge);
@@ -482,7 +482,7 @@ void RecyclingGridItemSeasonSeriesVideoCard::setCard(
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
+    ImageHelper::with(this->picture, pic);
     this->labelCount->setText(playCount);
     this->labelLike->setText(likeCount);
     this->badgeTop->setText(badge);

@@ -23,7 +23,7 @@ public:
     void setUserInfo(const std::string& avatar, const std::string& username,
                      bool isUpdate = false) {
         this->labelUsername->setText(username);
-        ImageHelper::with(this->avatarView)->load(avatar);
+        ImageHelper::with(this->avatarView, avatar);
     }
 
     brls::Image* getAvatar() { return this->avatarView; }

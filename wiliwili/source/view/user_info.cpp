@@ -36,7 +36,7 @@ void UserInfoView::setUserInfo(const std::string& avatar, const std::string& use
     } else {
         this->avatarView->getParent()->setVisibility(
             brls::Visibility::VISIBLE);
-        ImageHelper::with(this->avatarView)->load(avatar);
+        ImageHelper::with(this->avatarView, avatar);
     }
 }
 
