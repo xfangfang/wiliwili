@@ -32,11 +32,6 @@ ImageHelper::ImageHelper() : imageView(nullptr) {
 }
 
 ImageHelper::~ImageHelper() {
-    if (this->imageView) {
-        this->imageView->ptrUnlock();
-        requestMap.erase(imageView);
-    }
-
     brls::Logger::verbose("delete ImageHelper {}", fmt::ptr(this));
 }
 
@@ -127,19 +122,25 @@ void ImageHelper::requestImage() {
     }
 #endif
 
-    brls::sync([this, r, imageData, imageW, imageH]() {
-        // 再检查一遍缓存
-        int tex = brls::TextureCache::instance().getCache(this->imageUrl);
-        if (tex == 0 && imageData) {
-            NVGcontext* vg = brls::Application::getNVGContext();
-            tex = nvgCreateImageRGBA(vg, imageW, imageH, 0, imageData);
-        }
-        if (tex > 0) {
-            brls::TextureCache::instance().addCache(this->imageUrl, tex);
-            brls::Logger::verbose("load image: {}", this->imageUrl);
-            this->imageView->innerSetImage(tex);
-        } else {
-            brls::Logger::error("Failed to load image: {}", this->imageUrl);
+    brls::sync([this, imageData, imageW, imageH]() {
+        if (!this->isCancel.load()) {
+            // brls::Logger::info("sync ImageHelper {} view {}", fmt::ptr(this), fmt::ptr(this->imageView));
+            // 再检查一遍缓存
+            int tex = brls::TextureCache::instance().getCache(this->imageUrl);
+            if (tex == 0) {
+                if (imageData) {
+                    NVGcontext* vg = brls::Application::getNVGContext();
+                    tex = nvgCreateImageRGBA(vg, imageW, imageH, 0, imageData);
+                } else {
+                    brls::Logger::error("Failed to load image: {}",
+                                        this->imageUrl);
+                }
+            }
+            if (tex > 0) {
+                brls::TextureCache::instance().addCache(this->imageUrl, tex);
+                this->imageView->innerSetImage(tex);
+            }
+            clean(this->imageView);
         }
         if (imageData) {
 #ifdef USE_WEBP
@@ -148,32 +149,28 @@ void ImageHelper::requestImage() {
             stbi_image_free(imageData);
 #endif
         }
-        clean(this->imageView);
     });
 }
 
 void ImageHelper::clean(brls::Image* view) {
     auto it = requestMap.find(view);
-    if (it != requestMap.end()) {
-        it->second->imageView->ptrUnlock();
-        it->second->imageView = nullptr;
-        /// 归还对象
-        requestPool.push_back(it->second);
-        requestMap.erase(it);
-    }
+    if (it == requestMap.end()) return;
+
+    it->second->imageView->ptrUnlock();
+    it->second->imageView = nullptr;
+    // 请求没结束，取消请求
+    it->second->isCancel.store(true);
+    // 归还到对象池
+    requestPool.push_back(it->second);
+    // 从请求池中移除
+    requestMap.erase(it);
 }
 
 void ImageHelper::clear(brls::Image* view) {
     brls::TextureCache::instance().removeCache(view->getTexture());
     view->clear();
-    // 请求不存在
-    auto it = requestMap.find(view);
-    if (it == requestMap.end()) return;
-    brls::Logger::verbose("clear view: {} {}", fmt::ptr(view),
-                          fmt::ptr(it->second));
-    // 请求没结束，取消请求
-    it->second->isCancel.store(true);
-    requestMap.erase(it);
+
+    clean(view);
 }
 
 void ImageHelper::setImageView(brls::Image* view) {
