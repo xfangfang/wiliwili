@@ -27,8 +27,13 @@ add_subdirectory(OpenCC EXCLUDE_FROM_ALL)
 target_compile_options(libopencc PRIVATE -w)
 
 # add QR-Code-generator
-add_library(qrcode STATIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp/qrcodegen.cpp)
-target_include_directories(qrcode PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp)
+add_library(
+    qrcode STATIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp/qrcodegen.cpp
+)
+target_include_directories(
+    qrcode PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-generator/cpp
+)
 set_property(TARGET qrcode PROPERTY CXX_STANDARD 17)
 
 # add pystring
