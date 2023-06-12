@@ -21,6 +21,10 @@ set(USE_SYSTEM_CURL
     OFF
     CACHE BOOL "Whether to use the curl in your system libs"
 )
+set(USE_SHARED_LIB
+    OFF
+    CACHE BOOL "Whether to use shared libs provided by system"
+)
 
 # analytics
 set(ANALYTICS
@@ -90,6 +94,11 @@ if (PLATFORM_DESKTOP)
     message("Build Type: ${CMAKE_BUILD_TYPE}")
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -g2 -ggdb -Wall")
     set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
+    if (USE_SHARED_LIB)
+        message("Using system shared libraries whenever possible.")
+        set(_USE_SHARED_LIB ON)
+        set(USE_SYSTEM_CURL ON)
+    endif ()
 else ()
     message("building for SWITCH")
     message("Build Type: ${CMAKE_BUILD_TYPE}")
@@ -170,9 +179,6 @@ else ()
     set(CPR_USE_SYSTEM_CURL OFF)
 endif ()
 
-# build borealis qrcode and other third party libraries
-add_subdirectory(library)
-
 # setting src and include
 file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
 
@@ -239,6 +245,9 @@ else ()
         ${CMAKE_SOURCE_DIR}/library/borealis/library/lib/platforms/switch/switch_wrapper.c
     )
 endif ()
+
+# build borealis qrcode and other third party libraries
+add_subdirectory(library)
 
 find_package(WebP)
 if (WebP_FOUND)
