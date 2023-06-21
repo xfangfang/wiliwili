@@ -26,7 +26,16 @@ endif (PKG_CONFIG_FOUND)
 
 # Used for macOS
 # brew tap xfangfang/wiliwili && brew install mpv-wiliwili
-set(HOMEBREW_MPV /usr/local/opt/mpv-wiliwili)
+if (APPLE)
+    execute_process(COMMAND brew --prefix mpv-wiliwili
+            TIMEOUT 5
+            OUTPUT_VARIABLE HOMEBREW_MPV
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+    if (NOT HOMEBREW_MPV)
+        message(AUTHOR_WARNING "You can install mpv-wiliwili to reduce the size of dependencies, this is very useful when used with dylibbundler to package as a standalone app:\nbrew tap xfangfang/wiliwili && brew install mpv-wiliwili\nPlease refer to: https://github.com/xfangfang/wiliwili/discussions/151 for more information")
+    endif()
+endif ()
 
 #
 ### Look for the include files.
