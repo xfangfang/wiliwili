@@ -1,11 +1,23 @@
 # Build ffmpeg and mpv for switch
 
-Build System: `Ubuntu 22.04`
+If building using macOS, additional tools need to be installed.
+
+```shell
+brew install gnu-sed coreutils
+
+# you need add a "gnubin" directory to your PATH with: 
+PATH="`brew --prefix gsed`/libexec/gnubin:$PATH"
+PATH="`brew --prefix coreutils`/libexec/gnubin:$PATH"
+```
 
 ### Build and install
 
 ```shell
-libs=(ffmpeg mpv)
+sudo dkp-pacman -S switch-pkg-config dkp-toolchain-vars switch-zlib \
+    switch-bzip2 switch-libass switch-libfribidi switch-freetype \
+    switch-harfbuzz switch-mesa switch-mbedtls
+    
+libs=(libass ffmpeg mpv)
 for lib in ${libs[@]}; do
     pushd switch/$lib
     dkp-makepkg -i
@@ -13,28 +25,19 @@ for lib in ${libs[@]}; do
 done
 ```
 
-### Another way (Not recommended)
-
-```shell
-sudo dkp-pacman -S switch-pkg-config dkp-toolchain-vars switch-zlib \
-    switch-bzip2 switch-libass switch-libfribidi switch-freetype \
-    switch-sdl2 switch-mesa switch-mbedtls
-bash ./build_ffmpeg.sh
-bash ./build_mpv.sh
-```
-
 # Precompiled
 
 ```
 base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 sudo dkp-pacman -U \
-    $base_url/switch-ffmpeg-4.4.3-1-any.pkg.tar.xz
-    $base_url/switch-libmpv-0.34.1-1-any.pkg.tar.xz
+    $base_url/switch-libass-0.17.1-1-any.pkg.tar.zst
+    $base_url/switch-ffmpeg-4.4.4-1-any.pkg.tar.zst
+    $base_url/switch-libmpv-0.35.1-1-any.pkg.tar.zst
 ```
 
 # Acknowledgement
 
-Thanks to Cpasjuste and proconsule
+Huge thanks to averne Cpasjuste and proconsule
 
 - https://github.com/Cpasjuste/pplay
 - https://github.com/proconsule/nxmp

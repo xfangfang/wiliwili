@@ -243,7 +243,7 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 #### Docker
 
 ```shell
-docker run --rm -v $(pwd):/data devkitpro/devkita64:20221113 \
+docker run --rm -v $(pwd):/data devkitpro/devkita64:20230622 \
   sh -c "/data/scripts/build_switch.sh"
 ```
 
@@ -252,14 +252,17 @@ docker run --rm -v $(pwd):/data devkitpro/devkita64:20221113 \
 ```shell
 # 1. 安装devkitpro环境: https://github.com/devkitPro/pacman/releases
 
-# 2. 安装预编译的依赖
-sudo dkp-pacman -S switch-glfw switch-libwebp switch-cmake devkita64-cmake switch-pkg-config
+# 2. 安装依赖
+sudo dkp-pacman -S switch-glfw switch-libwebp switch-cmake switch-curl devkitA64
 
-# 3. 安装ffmpeg与mpv（使用自编译的库，官方的库无法播放网络视频）
-# 手动编译方法请看：scripts/README.md
+# 3. 安装自定义依赖
+# devkitpro提供的部分依赖版本过低, 提供的 ffmpeg 无法播放网络视频
+# 手动编译方法请参考：scripts/README.md
+base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 sudo dkp-pacman -U \
-  https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-ffmpeg-4.4.3-1-any.pkg.tar.xz \
-  https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/switch-libmpv-0.34.1-1-any.pkg.tar.xz
+    $base_url/switch-libass-0.17.1-1-any.pkg.tar.zst
+    $base_url/switch-ffmpeg-4.4.4-1-any.pkg.tar.zst
+    $base_url/switch-libmpv-0.35.1-1-any.pkg.tar.zst
 
 # 4. 可选：安装依赖库 nspmini：https://github.com/StarDustCFW/nspmini
 # (1). 在resources 目录下放置：nsp_forwarder.nsp (如何生成nsp见: scripts/switch-forwarder)

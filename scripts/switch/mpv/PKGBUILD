@@ -3,7 +3,7 @@
 
 pkgbasename=libmpv
 pkgname=switch-${pkgbasename}
-pkgver=0.34.1
+pkgver=0.35.1
 pkgrel=1
 pkgdesc='Command line video player (library only)'
 arch=('any')
@@ -16,7 +16,7 @@ sha256sums=(
   'SKIP'
 )
 makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
-depends=('switch-sdl2' 'switch-ffmpeg' 'switch-mesa')
+depends=('switch-ffmpeg' 'switch-mesa')
 groups=('switch-portlibs')
 
 prepare() {
@@ -34,8 +34,7 @@ build() {
   export CFLAGS="$CFLAGS -D_POSIX_VERSION=200809L -DNDEBUG -I`pwd`/osdep/switch"
   LIBDIR=${PORTLIBS_PREFIX}/lib TARGET=aarch64-none-elf ./waf configure \
     --prefix="${PORTLIBS_PREFIX}" --disable-libmpv-shared \
-    --enable-libmpv-static --disable-cplayer --enable-sdl2 \
-    --enable-sdl2-audio --enable-sdl2-gamepad --enable-sdl2-video \
+    --enable-libmpv-static --disable-cplayer --disable-sdl2 --enable-hos-audio \
     --disable-iconv --disable-jpeg --disable-libavdevice --disable-debug-build
   sed -i 's/#define HAVE_POSIX 1/#define HAVE_POSIX 0/' build/config.h
   ./waf build

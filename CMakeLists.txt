@@ -220,10 +220,10 @@ else ()
         ass
         freetype
         fribidi
+        harfbuzz
         png
         bz2
         z
-        SDL2
         mbedx509
         mbedtls
         mbedcrypto
