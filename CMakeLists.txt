@@ -407,13 +407,14 @@ if (PLATFORM_DESKTOP)
     endif ()
 else ()
     set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)
-    add_custom_target(
-        ${PROJECT_NAME}.nro
+    set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}")
+    if (GIT_TAG_VERSION)
+        string(SUBSTRING ${GIT_TAG_VERSION} 1 -1 APP_VERSION)
+    endif ()
+    add_custom_target(${PROJECT_NAME}.nro
         DEPENDS ${PROJECT_NAME}
-        COMMAND
-            ${NX_NACPTOOL_EXE} --create "${PROJECT_NAME}" "${PROJECT_AUTHOR}"
-            "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}"
-            ${PROJECT_NAME}.nacp --titleid=${PROJECT_TITLEID}
+        COMMAND ${NX_NACPTOOL_EXE} --create ${PROJECT_NAME} ${PROJECT_AUTHOR}
+                ${APP_VERSION} ${PROJECT_NAME}.nacp --titleid=${PROJECT_TITLEID}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES}
                 ${CMAKE_BINARY_DIR}/resources
         COMMAND ${CMAKE_COMMAND} -E remove -f
