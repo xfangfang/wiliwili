@@ -4,6 +4,7 @@ BUILD_DIR=cmake-build-switch
 
 # cd to wiliwili
 cd "$(dirname $0)/.."
+git config --global --add safe.directory `pwd`
 
 BASE_URL="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 LIBASS="switch-libass-0.17.1-1-any.pkg.tar.zst"
