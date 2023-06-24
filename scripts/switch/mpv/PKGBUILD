@@ -21,6 +21,7 @@ groups=('switch-portlibs')
 
 prepare() {
   cd mpv-$pkgver
+  rm -rf audio/out/ao_hos.c
   rm -rf osdep/switch/sys/mman.h
   patch -Np1 -i "$srcdir/mpv.patch"
 }

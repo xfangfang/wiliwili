@@ -260,8 +260,8 @@ sudo dkp-pacman -S switch-glfw switch-libwebp switch-cmake switch-curl devkitA64
 # 手动编译方法请参考：scripts/README.md
 base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 sudo dkp-pacman -U \
-    $base_url/switch-libass-0.17.1-1-any.pkg.tar.zst
-    $base_url/switch-ffmpeg-4.4.4-1-any.pkg.tar.zst
+    $base_url/switch-libass-0.17.1-1-any.pkg.tar.zst \
+    $base_url/switch-ffmpeg-4.4.4-1-any.pkg.tar.zst \
     $base_url/switch-libmpv-0.35.1-1-any.pkg.tar.zst
 
 # 4. 可选：安装依赖库 nspmini：https://github.com/StarDustCFW/nspmini

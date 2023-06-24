@@ -11,7 +11,7 @@
         "report": "上传历史播放记录",
         "player_bar": "播放器下方固定显示进度条",
         "low_quality": "低画质解码（以画质为代价换取更低的功耗）",
-        "in_memory_cache": "解码缓存（Switch上更小的值可减少BUG发生，不过会导致跳转不流畅）",
+        "in_memory_cache": "解码缓存",
         "hwdec": "硬件解码",
         "exit_fullscreen": "播放结束时自动退出全屏",
         "auto_play_next_part": "自动播放下一分集",

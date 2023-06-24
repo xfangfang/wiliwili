@@ -22,7 +22,7 @@ index e797ad3f9c..2b4749bb6d 100644
  #if HAVE_COREAUDIO
 diff --git a/audio/out/ao_hos.c b/audio/out/ao_hos.c
 new file mode 100644
-index 0000000000..16babdf1fa
+index 0000000000..f114a182a8
 --- /dev/null
 +++ b/audio/out/ao_hos.c
 @@ -0,0 +1,294 @@
@@ -56,7 +56,7 @@ index 0000000000..16babdf1fa
 +#include "ao.h"
 +#include "internal.h"
 +
-+#define MAX_CHANS 2 // 5.1
++#define MAX_CHANS 6 // 5.1
 +#define MAX_BUF 16
 +#define MAX_SAMPLES 32768
 +
@@ -74,7 +74,7 @@ index 0000000000..16babdf1fa
 +
 +static const AudioRendererConfig ar_config = {
 +    .output_rate     = AudioRendererOutputRate_48kHz,
-+    .num_voices      = 24,
++    .num_voices      = MAX_CHANS,
 +    .num_effects     = 0,
 +    .num_sinks       = 1,
 +    .num_mix_objs    = 1,
