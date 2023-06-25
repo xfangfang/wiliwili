@@ -12,12 +12,12 @@ namespace bilibili {
 
 class DynamicVideoResult {
 public:
-    int aid;
+    int aid = 0;
     std::string bvid;
     std::string pic;
     std::string title;
-    int duration;
-    int pubdate;
+    int duration = 0;
+    int pubdate = 0;
     UserSimpleResult owner;
     VideoSimpleStateResult stat;
 };
@@ -33,8 +33,14 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     } else if (nlohmann_json_j.contains("author")) {
         nlohmann_json_j.at("author").get_to(nlohmann_json_t.owner);
     }
+    if (nlohmann_json_j.at("duration").is_number()) {
+        nlohmann_json_j.at("duration").get_to(nlohmann_json_t.duration);
+    }
+    if (nlohmann_json_j.at("pubdate").is_number()) {
+        nlohmann_json_j.at("pubdate").get_to(nlohmann_json_t.pubdate);
+    }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, aid, bvid, pic,
-                                             title, duration, pubdate, stat));
+                                             title, stat));
 }
 
 typedef std::vector<DynamicVideoResult> DynamicVideoListResult;
