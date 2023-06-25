@@ -1,8 +1,330 @@
+diff --git a/audio/out/ao.c b/audio/out/ao.c
+index e797ad3f9c..2b4749bb6d 100644
+--- a/audio/out/ao.c
++++ b/audio/out/ao.c
+@@ -53,6 +53,7 @@ extern const struct ao_driver audio_out_wasapi;
+ extern const struct ao_driver audio_out_pcm;
+ extern const struct ao_driver audio_out_lavc;
+ extern const struct ao_driver audio_out_sdl;
++extern const struct ao_driver audio_out_hos;
+ 
+ static const struct ao_driver * const audio_out_drivers[] = {
+ // native:
+@@ -95,6 +96,9 @@ static const struct ao_driver * const audio_out_drivers[] = {
+ #endif
+ #if HAVE_SNDIO
+     &audio_out_sndio,
++#endif
++#if HAVE_HOS_AUDIO
++    &audio_out_hos,
+ #endif
+     &audio_out_null,
+ #if HAVE_COREAUDIO
+diff --git a/audio/out/ao_hos.c b/audio/out/ao_hos.c
+new file mode 100644
+index 0000000000..f114a182a8
+--- /dev/null
++++ b/audio/out/ao_hos.c
+@@ -0,0 +1,294 @@
++/*
++ * audio output driver for Horizon OS using audren
++ * Copyright (C) 2021 averne <averne381@gmail.com>
++ *
++ * This file is part of mpv.
++ *
++ * mpv is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * mpv is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with mpv.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <switch.h>
++
++#include "config.h"
++#include "common/common.h"
++#include "common/msg.h"
++#include "options/m_option.h"
++#include "audio/format.h"
++#include "ao.h"
++#include "internal.h"
++
++#define MAX_CHANS 6 // 5.1
++#define MAX_BUF 16
++#define MAX_SAMPLES 32768
++
++struct priv {
++    AudioDriver driver;
++    int num_buffers;
++    int num_samples;
++
++    void *pool;
++    AudioDriverWaveBuf *buffers;
++
++    int cur_buf_idx;
++    uint32_t cur_queued_samples, total_queued_samples;
++};
++
++static const AudioRendererConfig ar_config = {
++    .output_rate     = AudioRendererOutputRate_48kHz,
++    .num_voices      = MAX_CHANS,
++    .num_effects     = 0,
++    .num_sinks       = 1,
++    .num_mix_objs    = 1,
++    .num_mix_buffers = MAX_CHANS,
++};
++
++static const uint8_t sink_channel_ids[] = { 0, 1, 2, 3, 4, 5 };
++
++static const struct mp_chmap possible_channel_layouts[] = {
++    {0},
++    MP_CHMAP_INIT_MONO,                 // mono
++    MP_CHMAP_INIT_STEREO,               // stereo
++    MP_CHMAP3(FL, FR, LFE),             // 2.1
++    MP_CHMAP4(FL, FR, BL, BR),          // 4.0
++    MP_CHMAP5(FL, FR, FC, BL, BR),      // 5.0
++    MP_CHMAP6(FL, FR, FC, LFE, BL, BR), // 5.1
++};
++
++static int init(struct ao *ao) {
++    struct priv *priv = ao->priv;
++
++    Result rc;
++
++    MP_VERBOSE(ao, "Initializing hos audio\n");
++
++    ao->format   = AF_FORMAT_S16; // Only format supported by audrv with Adpcm which mpv can't output
++    ao->channels = possible_channel_layouts[MPMIN(ao->channels.num, MAX_CHANS)];
++
++    rc = audrenInitialize(&ar_config);
++    if (R_FAILED(rc))
++        return -rc;
++
++    rc = audrvCreate(&priv->driver, &ar_config, MAX_CHANS);
++    if (R_FAILED(rc))
++        return -rc;
++
++    size_t mempool_size = MP_ALIGN_UP(priv->num_samples * ao->channels.num *
++        priv->num_buffers * sizeof(int16_t), AUDREN_MEMPOOL_ALIGNMENT);
++
++    priv->pool = aligned_alloc(AUDREN_MEMPOOL_ALIGNMENT, mempool_size);
++    if (!priv->pool)
++        return -1;
++
++    priv->buffers = malloc(sizeof(AudioDriverWaveBuf) * priv->num_buffers);
++    for (int i = 0; i < priv->num_buffers; ++i) {
++        priv->buffers[i] = (AudioDriverWaveBuf){
++            .data_raw            = priv->pool,
++            .size                = mempool_size,
++            .start_sample_offset = priv->num_samples * i,
++            .end_sample_offset   = priv->num_samples * (i + 1),
++        };
++    }
++
++    int mpid = audrvMemPoolAdd(&priv->driver, priv->pool, mempool_size);
++    audrvMemPoolAttach(&priv->driver, mpid);
++
++    ao->device_buffer = priv->num_buffers * priv->num_samples;
++
++    audrvDeviceSinkAdd(&priv->driver, AUDREN_DEFAULT_DEVICE_NAME, MAX_CHANS, sink_channel_ids);
++
++    rc = audrenStartAudioRenderer();
++    if (R_FAILED(rc))
++        return -rc;
++
++    audrvVoiceInit(&priv->driver, 0, ao->channels.num, PcmFormat_Int16, ao->samplerate);
++    audrvVoiceSetDestinationMix(&priv->driver, 0, AUDREN_FINAL_MIX_ID);
++
++    for (int i = 0; i < ao->channels.num; ++i)
++        audrvVoiceSetMixFactor(&priv->driver, 0, 1.0f, ao->channels.speaker[i], ao->channels.speaker[i]);
++
++    return 0;
++}
++
++static void uninit(struct ao *ao) {
++    struct priv *priv = ao->priv;
++
++    MP_VERBOSE(ao, "Deinitializing hos audio\n");
++
++    audrvVoiceStop(&priv->driver, 0);
++    audrvUpdate(&priv->driver);
++
++    audrvClose(&priv->driver);
++    audrenExit();
++    free(priv->buffers);
++    free(priv->pool);
++}
++
++static void reset(struct ao *ao) {
++    struct priv *priv = ao->priv;
++
++    priv->cur_buf_idx = -1;
++    priv->cur_queued_samples = priv->total_queued_samples = 0;
++    audrvVoiceStop(&priv->driver, 0);
++    audrvUpdate(&priv->driver);
++}
++
++static bool set_pause(struct ao *ao, bool paused) {
++    struct priv *priv = ao->priv;
++
++    audrvVoiceSetPaused(&priv->driver, 0, paused);
++    return R_SUCCEEDED(audrvUpdate(&priv->driver));
++}
++
++static void start(struct ao *ao) {
++    struct priv *priv = ao->priv;
++
++    audrvVoiceStart(&priv->driver, 0);
++    audrvUpdate(&priv->driver);
++}
++
++static int find_free_wavebuf(struct priv *priv) {
++    for (int i = 0; i < priv->num_buffers; ++i) {
++        AudioDriverWaveBuf *buf = &priv->buffers[i];
++        if (buf->state == AudioDriverWaveBufState_Done ||
++                buf->state == AudioDriverWaveBufState_Free)
++            return i;
++    }
++    return -1;
++}
++
++static bool audio_write(struct ao *ao, void **data, int samples) {
++    struct priv *priv = ao->priv;
++
++    int idx = (priv->cur_buf_idx != -1) ? priv->cur_buf_idx : find_free_wavebuf(priv);
++    if (idx == -1)
++        return false;
++    priv->cur_buf_idx = idx;
++
++    AudioDriverWaveBuf *buf = &priv->buffers[idx];
++    uint8_t *buf_offset = (uint8_t *)buf->data_raw + (idx * priv->num_samples * ao->sstride);
++
++    size_t num_samples = MPMIN(samples, priv->num_samples - priv->cur_queued_samples);
++    size_t size        = num_samples * ao->sstride;
++
++    // We requested a linear PCM format so there is only one buffer
++    memcpy(buf_offset + priv->cur_queued_samples * ao->sstride, data[0], size);
++    priv->cur_queued_samples   += num_samples;
++    priv->total_queued_samples += num_samples;
++
++    if (priv->cur_queued_samples >= priv->num_samples) {
++        // Append buffer once it's full
++        armDCacheFlush(buf_offset, priv->num_samples * ao->sstride);
++        audrvVoiceAddWaveBuf(&priv->driver, 0, buf);
++        audrvUpdate(&priv->driver);
++
++        priv->cur_buf_idx = -1, priv->cur_queued_samples = 0;
++
++        // Write the rest of the data
++        int remaining = samples - num_samples;
++        if (remaining) {
++            void *dat = (uint8_t *)(data[0]) + size;
++            return audio_write(ao, &dat, remaining);
++        }
++    }
++
++    return true;
++}
++
++static void get_state(struct ao *ao, struct mp_pcm_state *state) {
++    struct priv *priv = ao->priv;
++    audrvUpdate(&priv->driver);
++
++    state->free_samples = state->queued_samples = 0;
++    for (int i = 0; i < priv->num_buffers; ++i) {
++        AudioDriverWaveBuf *buf = &priv->buffers[i];
++        if (buf->state == AudioDriverWaveBufState_Free
++                || buf->state == AudioDriverWaveBufState_Done)
++            state->free_samples += priv->num_samples;
++    }
++
++    if (priv->cur_buf_idx != -1)
++        state->free_samples -= priv->num_samples - priv->cur_queued_samples;
++
++    state->queued_samples = priv->total_queued_samples -
++        audrvVoiceGetPlayedSampleCount(&priv->driver, 0);
++    state->delay = (double)state->queued_samples / ao->samplerate;
++    state->playing = audrvVoiceIsPlaying(&priv->driver, 0);
++}
++
++static int control(struct ao *ao, enum aocontrol cmd, void *arg) {
++    struct priv *priv = ao->priv;
++
++    int rc;
++
++    switch (cmd) {
++        case AOCONTROL_SET_MUTE:
++        case AOCONTROL_SET_VOLUME: {
++                float vol;
++                if (cmd == AOCONTROL_SET_MUTE) {
++                    bool in = *(bool *)arg;
++                    vol = !in;
++                } else {
++                    ao_control_vol_t *in = (ao_control_vol_t *)arg;
++                    vol = (in->left + in->right) / 200.0f;
++                }
++
++                audrvMixSetVolume(&priv->driver, 0, vol);
++                rc = audrvUpdate(&priv->driver);
++            }
++            break;
++        case AOCONTROL_GET_MUTE:
++        case AOCONTROL_GET_VOLUME: {
++                rc = audrvUpdate(&priv->driver);
++                float vol = priv->driver.in_mixes[0].volume;
++                if (cmd == AOCONTROL_GET_MUTE) {
++                    bool *out = (bool *)arg;
++                    *out = !vol;
++                } else {
++                    ao_control_vol_t *out = (ao_control_vol_t *)arg;
++                    out->left = out->right = vol * 100.0f;
++                }
++            }
++            break;
++        default:
++            return CONTROL_UNKNOWN;
++    }
++
++    return R_SUCCEEDED(rc) ? CONTROL_OK : CONTROL_ERROR;
++}
++
++#define OPT_BASE_STRUCT struct priv
++
++const struct ao_driver audio_out_hos = {
++    .description     = "HOS Audio",
++    .name            = "hos",
++    .init            = init,
++    .uninit          = uninit,
++    .reset           = reset,
++    .control         = control,
++    .set_pause       = set_pause,
++    .start           = start,
++    .write           = audio_write,
++    .get_state       = get_state,
++    .priv_size       = sizeof(struct priv),
++    .priv_defaults   = &(const struct priv){
++        .num_buffers = 4,
++        .num_samples = 8192,
++    },
++    .options         = (const struct m_option[]){
++        {"num-buffers", OPT_INT(num_buffers), M_RANGE(2,   MAX_BUF)},
++        {"num-samples", OPT_INT(num_samples), M_RANGE(256, MAX_SAMPLES)},
++        {0}
++    },
++    .options_prefix   = "ao-hos",
++};
 diff --git a/osdep/io.c b/osdep/io.c
-index d4dcfc6..12fb384 100644
+index ec55aa2647..617a31d262 100644
 --- a/osdep/io.c
 +++ b/osdep/io.c
-@@ -61,7 +61,7 @@ bool mp_set_cloexec(int fd)
+@@ -62,7 +62,7 @@ bool mp_set_cloexec(int fd)
      return true;
  }
  
@@ -11,7 +333,7 @@ index d4dcfc6..12fb384 100644
  int mp_make_cloexec_pipe(int pipes[2])
  {
      pipes[0] = pipes[1] = -1;
-@@ -81,7 +81,7 @@ int mp_make_cloexec_pipe(int pipes[2])
+@@ -82,7 +82,7 @@ int mp_make_cloexec_pipe(int pipes[2])
  }
  #endif
  
@@ -22,10 +344,10 @@ index d4dcfc6..12fb384 100644
      return mp_make_cloexec_pipe(pipes);
 diff --git a/osdep/switch/sys/mman.h b/osdep/switch/sys/mman.h
 new file mode 100644
-index 0000000..ce75000
+index 0000000000..f37f1719e1
 --- /dev/null
 +++ b/osdep/switch/sys/mman.h
-@@ -0,0 +1,31 @@
+@@ -0,0 +1,16 @@
 +#ifndef _MEMMAP_H_
 +#define _MEMMAP_H_
 +
@@ -38,27 +360,12 @@ index 0000000..ce75000
 +#define MAP_SHARED      0x01
 +#define MAP_FAILED      ((void *) -1)
 +
-+// #define mmap(a, b, c, d, e, f) malloc(b)
-+// #define munmap(a, b) free(a)
-+
-+static inline void *mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset)
-+{
-+    printf("mmap: %p, %ld\n", addr, len);
-+    
-+    return malloc(len);
-+}
-+
-+static inline int munmap(void *addr, size_t len)
-+{
-+    printf("munmap: %ld\n", len);
-+
-+    free(addr);
-+    return 0;
-+}
++#define mmap(a, b, c, d, e, f) malloc(b)
++#define munmap(a, b) free(a)
 +
 +#endif
 diff --git a/sub/filter_regex.c b/sub/filter_regex.c
-index 8e29991..c7b08f5 100644
+index 8e299918ce..c7b08f5273 100644
 --- a/sub/filter_regex.c
 +++ b/sub/filter_regex.c
 @@ -1,5 +1,5 @@
@@ -68,29 +375,75 @@ index 8e29991..c7b08f5 100644
  
  #include "common/common.h"
  #include "common/msg.h"
+diff --git a/wscript b/wscript
+index e349d4103e..9200e9344c 100644
+--- a/wscript
++++ b/wscript
+@@ -405,6 +405,10 @@ iconv support use --disable-iconv.",
+         'name': 'rubberband-3',
+         'desc': 'new engine support for librubberband',
+         'func': check_pkg_config('rubberband >= 3.0.0'),
++    }, {
++        'name': '--hos',
++        'desc': 'Horizon OS',
++        'func': check_statement(['switch.h'], ''),
+     }
+ ]
+ 
+@@ -491,6 +495,11 @@ audio_output_features = [
+         'desc': 'WASAPI audio output',
+         'deps': 'os-win32 || os-cygwin',
+         'func': check_cc(fragment=load_fragment('wasapi.c')),
++    }, {
++        'name': '--hos-audio',
++        'desc': 'Audren audio output',
++        'deps': 'hos',
++        'func': check_true,
+     }
+ ]
+ 
 diff --git a/wscript_build.py b/wscript_build.py
-index 384bb50..e0e28ee 100644
+index 16c8cf0895..6e3e6ca054 100644
 --- a/wscript_build.py
 +++ b/wscript_build.py
-@@ -191,7 +191,6 @@ def build(ctx):
+@@ -197,32 +197,22 @@ def build(ctx):
+ 
+     if ctx.dependency_satisfied('cplayer'):
+         main_fn_c = ctx.pick_first_matching_dep([
+-            ( "osdep/main-fn-cocoa.c",               "cocoa" ),
+             ( "osdep/main-fn-unix.c",                "posix" ),
+-            ( "osdep/main-fn-win.c",                 "win32-desktop" ),
          ])
  
      getch2_c = ctx.pick_first_matching_dep([
 -        ( "osdep/terminal-unix.c",               "posix" ),
-         ( "osdep/terminal-win.c",                "win32-desktop" ),
+-        ( "osdep/terminal-win.c",                "win32-desktop" ),
          ( "osdep/terminal-dummy.c" ),
      ])
-@@ -203,13 +202,11 @@ def build(ctx):
+ 
+     timer_c = ctx.pick_first_matching_dep([
+-        ( "osdep/timer-win2.c",                  "os-win32" ),
+-        ( "osdep/timer-darwin.c",                "os-darwin" ),
+         ( "osdep/timer-linux.c",                 "posix" ),
      ])
  
      ipc_c = ctx.pick_first_matching_dep([
 -        ( "input/ipc-unix.c",                    "posix" ),
-         ( "input/ipc-win.c",                     "win32-desktop" ),
+-        ( "input/ipc-win.c",                     "win32-desktop" ),
          ( "input/ipc-dummy.c" ),
      ])
  
      subprocess_c = ctx.pick_first_matching_dep([
 -        ( "osdep/subprocess-posix.c",            "posix" ),
-         ( "osdep/subprocess-win.c",              "win32-desktop" ),
+-        ( "osdep/subprocess-win.c",              "win32-desktop" ),
          ( "osdep/subprocess-dummy.c" ),
      ])
+ 
+@@ -266,6 +256,7 @@ def build(ctx):
+         ( "audio/out/ao_wasapi.c",               "wasapi" ),
+         ( "audio/out/ao_wasapi_changenotify.c",  "wasapi" ),
+         ( "audio/out/ao_wasapi_utils.c",         "wasapi" ),
++        ( "audio/out/ao_hos.c",                  "hos-audio" ),
+         ( "audio/out/buffer.c" ),
+ 
+         ## Core
