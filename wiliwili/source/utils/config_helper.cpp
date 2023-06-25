@@ -26,14 +26,15 @@
 
 using namespace brls::literals;
 
+std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
+    /// string
+    {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
+    {SettingItem::APP_LANG,
+     {"app_lang",
+      {
 #ifdef __SWITCH__
-std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
-    /// string
-    {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
-    {SettingItem::APP_LANG,
-     {"app_lang",
-      {
           brls::LOCALE_AUTO,
+#endif
           brls::LOCALE_EN_US,
           brls::LOCALE_JA,
           brls::LOCALE_RYU,
@@ -42,102 +43,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
           brls::LOCALE_Ko,
       },
       {},
+#ifdef __SWITCH__
       0}},
-    {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
-    {SettingItem::KEYMAP, {"keymap", {"xbox", "ps", "keyboard"}, {}, 0}},
-
-    /// bool
-    {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
-    {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
-    {SettingItem::HIDE_FPS, {"hide_fps", {}, {}, 1}},
-    {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
-    {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
-    {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
-    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
-    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
-    {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
-    {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END,
-     {"player_exit_fullscreen_on_end", {}, {}, 1}},
-    {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
-    {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
-    {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
-    {SettingItem::DANMAKU_ON, {"danmaku", {}, {}, 1}},
-    {SettingItem::DANMAKU_FILTER_BOTTOM, {"danmaku_filter_bottom", {}, {}, 1}},
-    {SettingItem::DANMAKU_FILTER_TOP, {"danmaku_filter_top", {}, {}, 1}},
-    {SettingItem::DANMAKU_FILTER_SCROLL, {"danmaku_filter_scroll", {}, {}, 1}},
-    {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
-    {SettingItem::SEARCH_TV_MODE, {"search_tv_mode", {}, {}, 0}},
-
-    /// number
-    {SettingItem::PLAYER_INMEMORY_CACHE,
-     {"player_inmemory_cache",
-      {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
-      {0, 10, 20, 50, 100, 200, 500},
-      0}},
-    {
-        SettingItem::PLAYER_DEFAULT_SPEED,
-        {"player_default_speed",
-         {"2.0x", "1.75x", "1.5x", "1.25x", "1.0x", "0.75x", "0.5x"},
-         {200, 175, 150, 125, 100, 75, 50},
-         4},
-    },
-    {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
-    {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
-    {SettingItem::IMAGE_REQUEST_THREADS,
-     {"image_request_threads", {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
-    {SettingItem::VIDEO_FORMAT,
-     {"file_format", {"Dash (AVC/HEVC/AV1)", "FLV/MP4"}, {4048, 0}, 0}},
-    {SettingItem::VIDEO_CODEC,
-     {"video_codec", {"AVC/H.264", "HEVC/H.265", "AV1"}, {7, 12, 13}, 0}},
-    {SettingItem::AUDIO_QUALITY,
-     {"audio_quality", {"High", "Medium", "Low"}, {30280, 30232, 30216}, 0}},
-    {SettingItem::DANMAKU_FILTER_LEVEL,
-     {"danmaku_filter_level",
-      {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
-      {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-      0}},
-    {SettingItem::DANMAKU_STYLE_AREA,
-     {"danmaku_style_area", {"1/4", "1/2", "3/4", "1"}, {25, 50, 75, 100}, 3}},
-    {SettingItem::DANMAKU_STYLE_ALPHA,
-     {"danmaku_style_alpha",
-      {"10%", "25%", "50%", "60%", "70%", "80%", "90%", "100%"},
-      {10, 25, 50, 60, 70, 80, 90, 100},
-      5}},
-    {SettingItem::DANMAKU_STYLE_FONTSIZE,
-     {"danmaku_style_fontsize",
-      {"50%", "75%", "100%", "125%", "150%", "175%"},
-      {15, 22, 30, 37, 45, 50},
-      2}},
-    {SettingItem::DANMAKU_STYLE_LINE_HEIGHT,
-     {"danmaku_style_line_height",
-      {"100%", "120%", "140%", "160%", "180%", "200%"},
-      {100, 120, 140, 160, 180, 200},
-      1}},
-    {SettingItem::DANMAKU_STYLE_SPEED,
-     {"danmaku_style_speed",
-      {"0.5", "0.75", "1.0", "1.25", "1.5"},
-      {150, 125, 100, 75, 50},
-      2}},
-    {SettingItem::LIMITED_FPS, {"limited_fps", {}, {}, 0}},
-    {SettingItem::DEACTIVATED_TIME, {"deactivated_time", {}, {}, 3000}},
-    {SettingItem::DEACTIVATED_FPS, {"deactivated_fps", {}, {}, 5}},
-};
 #else
-std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
-    /// string
-    {SettingItem::CUSTOM_UPDATE_API, {"custom_update_api", {}, {}, 0}},
-    {SettingItem::APP_LANG,
-     {"app_lang",
-      {
-          brls::LOCALE_EN_US,
-          brls::LOCALE_JA,
-          brls::LOCALE_RYU,
-          brls::LOCALE_ZH_HANT,
-          brls::LOCALE_ZH_HANS,
-          brls::LOCALE_Ko,
-      },
-      {},
       4}},
+#endif
     {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
     {SettingItem::KEYMAP, {"keymap", {"xbox", "ps", "keyboard"}, {}, 0}},
     {SettingItem::HOME_WINDOW_STATE, {"home_window_state", {}, {}, 0}},
@@ -156,7 +66,12 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
-    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
+    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {},
+#ifdef __SWITCH__
+        1}},
+#else
+        0}},
+#endif
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
     {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
     {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END,
@@ -169,14 +84,14 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DANMAKU_FILTER_TOP, {"danmaku_filter_top", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_SCROLL, {"danmaku_filter_scroll", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
-    {SettingItem::SEARCH_TV_MODE, {"search_tv_mode", {}, {}, 0}},
+    {SettingItem::SEARCH_TV_MODE, {"search_tv_mode", {}, {}, 1}},
 
     /// number
     {SettingItem::PLAYER_INMEMORY_CACHE,
      {"player_inmemory_cache",
       {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
       {0, 10, 20, 50, 100, 200, 500},
-      2}},
+      1}},
     {
         SettingItem::PLAYER_DEFAULT_SPEED,
         {"player_default_speed",
@@ -188,9 +103,13 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads",
+#ifdef __SWITCH__
+      {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
+#else
       {"1", "2", "3", "4", "8", "12", "16"},
       {1, 2, 3, 4, 8, 12, 16},
       3}},
+#endif
     {SettingItem::VIDEO_FORMAT,
      {"file_format", {"Dash (AVC/HEVC/AV1)", "FLV/MP4"}, {4048, 0}, 0}},
     {SettingItem::VIDEO_CODEC,
@@ -225,10 +144,9 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {150, 125, 100, 75, 50},
       2}},
     {SettingItem::LIMITED_FPS, {"limited_fps", {}, {}, 0}},
-    {SettingItem::DEACTIVATED_TIME, {"deactivated_time", {}, {}, 3000}},
-    {SettingItem::DEACTIVATED_FPS, {"deactivated_fps", {}, {}, 5}},
+    {SettingItem::DEACTIVATED_TIME, {"deactivated_time", {}, {}, 0}},
+    {SettingItem::DEACTIVATED_FPS, {"deactivated_fps", {}, {}, 0}},
 };
-#endif
 
 ProgramConfig::ProgramConfig() = default;
 
@@ -535,9 +453,13 @@ void ProgramConfig::load() {
     brls::Application::setLimitedFPS(
         getSettingItem(SettingItem::LIMITED_FPS, 0));
 
-    // 初始化进入闲置状态需要的时间
-    brls::Application::setDeactivatedTime(
-        getSettingItem(SettingItem::DEACTIVATED_TIME, 3000));
+    // 初始化进入闲置状态需要的时间 (ms);
+    int deactivatedTime = getSettingItem(SettingItem::DEACTIVATED_TIME, 0);
+    if (deactivatedTime > 0) {
+        // Reduce FPS to a lower value after a period of inactivity
+        brls::Application::setAutomaticDeactivation(true);
+        brls::Application::setDeactivatedTime(deactivatedTime);
+    }
 
     // 初始化闲置状态 FPS
     brls::Application::setDeactivatedFPS(
