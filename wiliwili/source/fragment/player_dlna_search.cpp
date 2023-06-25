@@ -48,16 +48,17 @@ bool RepeatDuratoinTimer::onUpdate(brls::Time delta)
 }
 
 void PlayerDlnaSearch::searchStop() {
-    running = false;
+    running.store(false);
     if (dlnaSearchThread.joinable()) dlnaSearchThread.join();
     brls::Logger::debug("PlayerDlnaSearch::searchStop()");
 }
 
 void PlayerDlnaSearch::searchStart() {
-    if (running || waitingUrl || waitingRenderer) {
+    if (PlayerDlnaSearch::isRunning()) {
         brls::Logger::error("DLNA searching is already running");
+        return;
     }
-    running = true;
+    running.store(true);
     if (dlnaSearchThread.joinable()) dlnaSearchThread.join();
     ASYNC_RETAIN
     dlnaSearchThread = std::thread([ASYNC_TOKEN](){
@@ -71,18 +72,20 @@ void PlayerDlnaSearch::searchStart() {
                 l->title->setText(i.friendlyName);
                 deviceBox->addView(l);
                 l->registerClickAction([this, i, l](...) {
-                    if (running || waitingUrl || waitingRenderer) return true;
-                    waitingUrl = true;
-                    currentCell = l;
+                    if (PlayerDlnaSearch::isRunning()) return true;
+                    waitingUrl.store(true);
+                    currentCell     = l;
                     currentRenderer = i;
-                    l->title->setText(i.friendlyName + " " + "wiliwili/player/cast/request_url"_i18n);
+                    l->title->setText(i.friendlyName + " " +
+                                      "wiliwili/player/cast/request_url"_i18n);
                     MPV_CE->fire("REQUEST_CAST_URL", nullptr);
                     return true;
                 });
             }
             btnRefresh->title->setText("wiliwili/home/common/refresh"_i18n);
-            btnRefresh->title->setTextColor(brls::Application::getTheme().getColor("brls/text"));
-            running = false;
+            btnRefresh->title->setTextColor(
+                brls::Application::getTheme().getColor("brls/text"));
+            running.store(false);
         });
     });
 }
@@ -98,38 +101,46 @@ PlayerDlnaSearch::PlayerDlnaSearch() {
     });
 
     closebtn->registerClickAction([](...) {
-        if (running || waitingUrl || waitingRenderer) return true;
+        if (PlayerDlnaSearch::isRunning()) return true;
         brls::Application::popActivity();
         return true;
     });
 
     btnRefresh->title->setText("wiliwili/home/common/refresh"_i18n);
-    btnRefresh->registerClickAction([this](...){
+    btnRefresh->registerClickAction([this](...) {
         this->refreshRenderer();
-       return true;
+        return true;
     });
     btnRefresh->addGestureRecognizer(new brls::TapGestureRecognizer(this));
 
-    this->registerAction("hints/back"_i18n, brls::BUTTON_B,
-                         [](View* view) {
-                             if (running || waitingUrl || waitingRenderer) return true;
-                             brls::Application::popActivity();
-                             return true;
-                         });
+    this->registerAction("hints/back"_i18n, brls::BUTTON_B, [](View* view) {
+        if (PlayerDlnaSearch::isRunning()) return true;
+        brls::Application::popActivity();
+        return true;
+    });
 
-    customEventSubscribeID = MPV_CE->subscribe([this](const std::string& event, void* data){
+    customEventSubscribeID = MPV_CE->subscribe([this](const std::string& event,
+                                                      void* data) {
         if (event == "CAST_URL") {
-            waitingUrl = false;
-            waitingRenderer = true;
-            if (currentCell) currentCell->title->setText(currentRenderer.friendlyName + " " + "wiliwili/player/cast/cast_to_renderer"_i18n);
+            waitingUrl.store(false);
+            waitingRenderer.store(true);
+            if (currentCell)
+                currentCell->title->setText(
+                    currentRenderer.friendlyName + " " +
+                    "wiliwili/player/cast/cast_to_renderer"_i18n);
             auto* castData = (bilibili::VideoCastData*)data;
             ASYNC_RETAIN
-            currentRenderer.play(castData->url, castData->title, [ASYNC_TOKEN]() {
+            currentRenderer.play(
+                castData->url, castData->title,
+                [ASYNC_TOKEN]() {
                     ASYNC_RELEASE
-                    waitingRenderer = false;
-                    auto renderer   = currentRenderer;
+                    waitingRenderer.store(false);
+                    auto renderer = currentRenderer;
                     brls::Application::popActivity(
                         brls::TransitionAnimation::FADE, [renderer]() {
+                            // 如果在视频加载前进入DLNA搜索页，可能会出现视频没有被暂停的问题，这里重新暂停一次
+                            // todo: 如果视频在此时还没有加载，那么还是有可能没有被正常暂停
+                            MPVCore::instance().pause();
                             auto dialog = new brls::Dialog(
                                 renderer.friendlyName + " " +
                                 "wiliwili/player/cast/casting"_i18n);
@@ -146,14 +157,18 @@ PlayerDlnaSearch::PlayerDlnaSearch() {
                                 });
                             dialog->open();
                         });
-                }, [ASYNC_TOKEN](){
+                },
+                [ASYNC_TOKEN]() {
                     ASYNC_RELEASE
-                    DialogHelper::showDialog("wiliwili/player/cast/err_connect"_i18n);
-                    waitingRenderer = false;
-                    if (currentCell) currentCell->title->setText(currentRenderer.friendlyName);
-            });
+                    DialogHelper::showDialog(
+                        "wiliwili/player/cast/err_connect"_i18n);
+                    waitingRenderer.store(false);
+                    if (currentCell)
+                        currentCell->title->setText(
+                            currentRenderer.friendlyName);
+                });
         } else if (event == "CAST_URL_ERROR") {
-            waitingUrl = false;
+            waitingUrl.store(false);
             brls::Application::popActivity(brls::TransitionAnimation::NONE);
             DialogHelper::showDialog("wiliwili/player/cast/err_url"_i18n);
             if (currentCell) currentCell->title->setText(currentRenderer.friendlyName);
@@ -164,7 +179,7 @@ PlayerDlnaSearch::PlayerDlnaSearch() {
 }
 
 void PlayerDlnaSearch::refreshRenderer() {
-    if (running || waitingUrl || waitingRenderer) return;
+    if (PlayerDlnaSearch::isRunning()) return;
     btnRefresh->title->setTextColor(brls::Application::getTheme().getColor("brls/text_disabled"));
     searchCounter.setDuration(TIMEOUT * 1000);
     searchCounter.setCallback([this](int cycleTimes){
@@ -189,3 +204,7 @@ PlayerDlnaSearch::~PlayerDlnaSearch() {
 }
 
 bool PlayerDlnaSearch::isTranslucent() { return true; }
+
+bool PlayerDlnaSearch::isRunning() {
+    return running.load() || waitingUrl.load() || waitingRenderer.load();
+}
