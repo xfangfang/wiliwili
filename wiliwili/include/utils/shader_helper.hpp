@@ -295,7 +295,8 @@ public:
     void save() {
         const std::string path =
             ProgramConfig::instance().getConfigDir() + "/pack.json";
-        std::filesystem::create_directories(
+        // fs is defined in cpr/cpr.h
+        fs::create_directories(
             ProgramConfig::instance().getConfigDir());
         nlohmann::json content(pack);
         std::ofstream writeFile(path);

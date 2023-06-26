@@ -9,7 +9,6 @@
 #include <map>
 #include <vector>
 #include <nlohmann/json.hpp>
-#include <filesystem>
 #include <cpr/cpr.h>
 #include "analytics.h"
 #include "borealis/core/singleton.hpp"

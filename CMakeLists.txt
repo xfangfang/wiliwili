@@ -41,9 +41,9 @@ set(ANALYTICS_KEY
 )
 
 # Strongly depends on the environment, these options may lead to build errors
-set(MAC_10_15
+set(MAC_10_11
     OFF
-    CACHE BOOL "Set the Minimum OS X deployment version to 10.15"
+    CACHE BOOL "Set the Minimum OS X deployment version to 10.11"
 )
 set(MAC_UNIVERSAL
     OFF
@@ -86,12 +86,12 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)
 
 # toolchain
 if (PLATFORM_DESKTOP)
-    message("building for Desktop")
+    message(STATUS "building for Desktop")
     set(TARGET_PLATFORM
         desktop
         CACHE STRING ""
     )
-    message("Build Type: ${CMAKE_BUILD_TYPE}")
+    message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -g2 -ggdb -Wall")
     set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
     if (USE_SHARED_LIB)
@@ -100,9 +100,9 @@ if (PLATFORM_DESKTOP)
         set(USE_SYSTEM_CURL ON)
     endif ()
 else ()
-    message("building for SWITCH")
-    message("Build Type: ${CMAKE_BUILD_TYPE}")
-    message("DEVKITPRO: $ENV{DEVKITPRO}")
+    message(STATUS "building for SWITCH")
+    message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
+    message(STATUS "DEVKITPRO: $ENV{DEVKITPRO}")
     set(CMAKE_USE_SYSTEM_ENVIRONMENT_PATH OFF)
     file(TO_CMAKE_PATH "$ENV{DEVKITPRO}" DEVKITPRO)
     if (NOT IS_DIRECTORY ${DEVKITPRO})
@@ -268,6 +268,10 @@ else ()
     add_executable(${PROJECT_NAME} ${MAIN_SRC})
 endif ()
 
+if (APPLE)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macos.cmake)
+endif ()
+
 # set google analytics
 if (ANALYTICS)
     if (NOT ANALYTICS_ID OR NOT ANALYTICS_KEY)
@@ -325,27 +329,13 @@ if (PLATFORM_DESKTOP)
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
 
     if (APPLE)
-        if (MAC_10_15)
-            message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: 10.15")
-            set(CMAKE_OSX_DEPLOYMENT_TARGET
-                "10.15"
-                CACHE STRING "Minimum OS X deployment version" FORCE
-            )
-        endif ()
         if (MAC_UNIVERSAL)
-            message(STATUS "CMAKE_OSX_ARCHITECTURES: x86_64;arm64")
-            set(CMAKE_OSX_ARCHITECTURES
-                "x86_64;arm64"
-                CACHE STRING "Architectures" FORCE
-            )
-            set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET[arch=arm64]
-                "11.0"
-                CACHE STRING "arm 64 minimum deployment target" FORCE
-            )
+            set(bundle_args1 "-nb")
+            set(bundle_args2 "${CMAKE_BINARY_DIR}/deps/universal")
         endif ()
         add_custom_target(
             ${PROJECT_NAME}.app
-            COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/build_mac.sh"
+            COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/build_mac.sh" "${bundle_args1}" "${bundle_args2}"
         )
         add_dependencies(${PROJECT_NAME}.app ${PROJECT_NAME})
     elseif (UNIX)
