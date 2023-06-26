@@ -64,6 +64,8 @@ jobs:
           echo "DIST_UWP=wiliwili-windows-x64-uwp-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_NRO=wiliwili-NintendoSwitch-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_INTEL_DMG=wiliwili-macOS-IntelChip-${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_ARM_DMG=wiliwili-macOS-AppleSilicon-${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_UNIVERSAL_DMG=wiliwili-macOS-Universal-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_FLATPAK_X86_64=wiliwili-Linux-${VERSION}-x86_64" >> $GITHUB_OUTPUT
           echo "DIST_FLATPAK_AARCH64=wiliwili-Linux-${VERSION}-aarch64" >> $GITHUB_OUTPUT
           echo $VERSION
@@ -95,34 +97,9 @@ jobs:
             ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz
             ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz
             ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg
+            ${{ needs.version.outputs.DIST_ARM_DMG }}/${{ needs.version.outputs.DIST_ARM_DMG }}.dmg
+            ${{ needs.version.outputs.DIST_UNIVERSAL_DMG }}/${{ needs.version.outputs.DIST_UNIVERSAL_DMG }}.dmg
             ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak
-
-  ## WeTransfer 暂时不可用，可以使用 CatBox 代替，但是后者貌似是非盈利组织维护的，所以还是不要滥用了，先注释掉
-  #      - name: Upload WeTransfer
-  #        if: github.event.inputs.release != 'true' && !cancelled()
-  #        continue-on-error: true
-  #        run: |
-  #          tree
-  #          curl -fsSL git.io/file-transfer | sh
-  #          ./transfer wet -s -p 16 --no-progress \
-  #            ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz \
-  #            ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz \
-  #            ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg \
-  #            ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak 2>&1 | tee transfer.log
-  #          echo "::warning title=访问下方链接免登录下载测试版 (有效期至：`date -u +"%FT%TZ" -d "7day"`)::$(cat transfer.log | grep https | cut -f3 -d" ")"
-  #
-  #      - name: Upload CatBox
-  #        if: github.event.inputs.release != 'true' && !cancelled()
-  #        continue-on-error: true
-  #        run: |
-  #          tree
-  #          curl -fsSL git.io/file-transfer | sh
-  #          ./transfer wet -s -p 16 --no-progress \
-  #            ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz \
-  #            ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz \
-  #            ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg \
-  #            ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak 2>&1 | tee transfer.log
-  #          echo "::warning title=访问下方链接免登录下载测试版::$(cat transfer.log)"
 
   build-win-x64:
     needs: [ version ]
@@ -248,9 +225,14 @@ jobs:
           name: ${{ needs.version.outputs.DIST_NRO }}
           path: "${{ needs.version.outputs.DIST_NRO }}.tar.gz"
 
-  build-macos-intel:
+  build-macos:
     needs: [ version ]
     runs-on: macos-11
+    strategy:
+      matrix:
+        arch: [ INTEL, ARM, UNIVERSAL ]
+      # Don't fail the whole workflow if one architecture fails
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -261,21 +243,9 @@ jobs:
 
       - name: install deps
         run: |
-          brew install create-dmg dylibbundler webp
+          brew install create-dmg dylibbundler webp boost
           brew tap xfangfang/wiliwili
           brew install -v mpv-wiliwili
-
-      - name: Readme
-        run: |
-          mkdir -p dist
-          echo "wiliwili" > dist/readme.txt
-          echo "" >> dist/readme.txt
-          echo "if you see any of these after open this application:" >> dist/readme.txt
-          echo "1: wiliwili.app is damaged and can't be opened. You should move it to he Trash." >> dist/readme.txt
-          echo "2: wiliwili.app can't be opened because it is from an unidentified developer." >> dist/readme.txt
-          echo "" >> dist/readme.txt
-          echo "Please run this command in your terminal:" >> dist/readme.txt
-          echo "sudo xattr -rd com.apple.quarantine /Applications/wiliwili.app" >> dist/readme.txt
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
@@ -284,28 +254,36 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      - name: Build
-        id: compile
+      - name: Update gamepad mappings
+        id: gamepad
         run: |
           BRLS_GLFW="library/borealis/library/lib/extern/glfw/"
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
 
-          cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        id: compile
+        run: |
+          cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release -DMAC_${{ matrix.arch }}=ON
           make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
+
+      - name: Bundle
+        id: bundle
+        run: |
           mv build/wiliwili.app dist/
+          cp ./scripts/mac/readme.txt dist/readme.txt
           create-dmg --window-pos 200 120 --window-size 800 400 \
             --icon-size 100 --icon "wiliwili.app" 200 190 \
             --icon "readme.txt" 400 100 --hide-extension "wiliwili.app" \
             --app-drop-link 600 185  --volicon ./scripts/mac/dmg.icns \
-            --volname "wiliwili (${{ needs.version.outputs.version }})" ${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg "dist/"
+            --volname "wiliwili (${{ needs.version.outputs.version }})" ${{ needs.version.outputs.DIST_${{ matrix.arch }}_DMG }}.dmg "dist/"
           echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
         if: steps.compile.outputs.status == 'success'
         with:
-          name: ${{ needs.version.outputs.DIST_INTEL_DMG }}
-          path: "${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg"
+          name: ${{ needs.version.outputs.DIST_${{ matrix.arch }}_DMG }}
+          path: "${{ needs.version.outputs.DIST_${{ matrix.arch }}_DMG }}.dmg"
 
   build-flatpak:
     needs: [ version ]

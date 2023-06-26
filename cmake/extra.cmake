@@ -33,29 +33,32 @@ message(STATUS "building from git tag ${GIT_TAG_VERSION}")
 message(STATUS "building from git commit ${GIT_TAG_SHORT}")
 
 if (APPLE)
-    if (MAC_10_11)
+    if (MAC_INTEL)
         message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: 10.11")
-        set(CMAKE_OSX_DEPLOYMENT_TARGET
-                "10.11"
-                CACHE STRING "Minimum OS X deployment version" FORCE
-                )
+        set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "" FORCE)
+
         set(CPR_USE_BOOST_FILESYSTEM ON)
         set(USE_BOOST_FILESYSTEM ON)
         add_definitions(-DCPR_USE_BOOST_FILESYSTEM)
         add_definitions(-DUSE_BOOST_FILESYSTEM)
     endif ()
+    if(MAC_ARM)
+        # Build a Universal binary on macOS
+        message(STATUS "CMAKE_OSX_ARCHITECTURES: arm64")
+        set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "" FORCE)
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "" FORCE)
+    endif()
     if(MAC_UNIVERSAL)
         # Build a Universal binary on macOS
         message(STATUS "CMAKE_OSX_ARCHITECTURES: x86_64;arm64")
         set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "" FORCE)
-        set(CMAKE_OSX_DEPLOYMENT_TARGET
-                "10.15"
-                CACHE STRING "x86_64 minimum deployment target" FORCE
-                )
-        set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET[arch=arm64]
-                "11.0"
-                CACHE STRING "arm64 minimum deployment target" FORCE
-                )
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "" FORCE)
+        set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET[arch=arm64] "11.0" CACHE STRING "" FORCE)
+
+        set(CPR_USE_BOOST_FILESYSTEM ON)
+        set(USE_BOOST_FILESYSTEM ON)
+        add_definitions(-DCPR_USE_BOOST_FILESYSTEM)
+        add_definitions(-DUSE_BOOST_FILESYSTEM)
     endif()
-    message(STATUS "CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
 endif()

@@ -40,14 +40,23 @@ set(ANALYTICS_KEY
     CACHE STRING "Google Analytics key"
 )
 
-# Strongly depends on the environment, these options may lead to build errors
-set(MAC_10_11
+# These three options are only for app bundling usage.
+# Do not use it until you know what you are doing.
+set(MAC_INTEL
     OFF
-    CACHE BOOL "Set the Minimum OS X deployment version to 10.11"
+    CACHE BOOL "Set the Minimum OS X deployment version to 10.11 (x86_64)"
+)
+set(MAC_ARM
+    OFF
+    CACHE BOOL "Set the Minimum OS X deployment version to 11.0 (aarch64)"
 )
 set(MAC_UNIVERSAL
     OFF
     CACHE BOOL "Support x86_64;arm64 at the same time"
+)
+set(MAC_DOWNLOAD_DYLIB
+    OFF
+    CACHE BOOL "Using precompiled dylib instead of system provided"
 )
 
 # mpv related
@@ -268,9 +277,8 @@ else ()
     add_executable(${PROJECT_NAME} ${MAIN_SRC})
 endif ()
 
-if (APPLE)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macos.cmake)
-endif ()
+# download macos dylib dependencies
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macos.cmake)
 
 # set google analytics
 if (ANALYTICS)
@@ -329,9 +337,9 @@ if (PLATFORM_DESKTOP)
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
 
     if (APPLE)
-        if (MAC_UNIVERSAL)
+        if (MAC_DOWNLOAD_DYLIB)
             set(bundle_args1 "-nb")
-            set(bundle_args2 "${CMAKE_BINARY_DIR}/deps/universal")
+            set(bundle_args2 "${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}")
         endif ()
         add_custom_target(
             ${PROJECT_NAME}.app
