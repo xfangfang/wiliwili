@@ -63,6 +63,7 @@ jobs:
           echo "DIST_EXE=wiliwili-Windows-x64-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_UWP=wiliwili-windows-x64-uwp-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_NRO=wiliwili-NintendoSwitch-${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_DMG_PREFIX=wiliwili-macOS" >> $GITHUB_OUTPUT
           echo "DIST_INTEL_DMG=wiliwili-macOS-IntelChip-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_ARM_DMG=wiliwili-macOS-AppleSilicon-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_UNIVERSAL_DMG=wiliwili-macOS-Universal-${VERSION}" >> $GITHUB_OUTPUT
@@ -230,7 +231,7 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        arch: [ INTEL, ARM, UNIVERSAL ]
+        arch: [ IntelChip, AppleSilicon, Universal ]
       # Don't fail the whole workflow if one architecture fails
       fail-fast: false
     steps:
@@ -266,6 +267,11 @@ jobs:
           cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release -DMAC_${{ matrix.arch }}=ON -DMAC_DOWNLOAD_DYLIB=ON
           make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
 
+      - name: Name
+        id: name
+        run: |
+          echo "DMG=${{ needs.version.outputs.DIST_DMG_PREFIX }}-${{ matrix.arch }}-${{ needs.version.outputs.version }}"  >> $GITHUB_OUTPUT
+
       - name: Bundle
         id: bundle
         run: |
@@ -275,15 +281,15 @@ jobs:
             --icon-size 100 --icon "wiliwili.app" 200 190 \
             --icon "readme.txt" 400 100 --hide-extension "wiliwili.app" \
             --app-drop-link 600 185  --volicon ./scripts/mac/dmg.icns \
-            --volname "wiliwili (${{ needs.version.outputs.version }})" ${{ needs.version.outputs.DIST_${{ matrix.arch }}_DMG }}.dmg "dist/"
+            --volname "wiliwili (${{ needs.version.outputs.version }})" ${{ steps.name.outputs.DMG }}.dmg "dist/"
           echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
         if: steps.compile.outputs.status == 'success'
         with:
-          name: ${{ needs.version.outputs.DIST_${{ matrix.arch }}_DMG }}
-          path: "${{ needs.version.outputs.DIST_${{ matrix.arch }}_DMG }}.dmg"
+          name: ${{ steps.name.outputs.DMG }}
+          path: "${{ steps.name.outputs.DMG }}.dmg"
 
   build-flatpak:
     needs: [ version ]

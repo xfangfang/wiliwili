@@ -42,15 +42,15 @@ set(ANALYTICS_KEY
 
 # These three options are only for app bundling usage.
 # Do not use it until you know what you are doing.
-set(MAC_INTEL
+set(MAC_IntelChip
     OFF
     CACHE BOOL "Set the Minimum OS X deployment version to 10.11 (x86_64)"
 )
-set(MAC_ARM
+set(MAC_AppleSilicon
     OFF
     CACHE BOOL "Set the Minimum OS X deployment version to 11.0 (aarch64)"
 )
-set(MAC_UNIVERSAL
+set(MAC_Universal
     OFF
     CACHE BOOL "Support x86_64;arm64 at the same time"
 )

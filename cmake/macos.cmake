@@ -7,11 +7,11 @@
 
 if (APPLE)
 
-    if (MAC_INTEL)
+    if (MAC_IntelChip)
         set(MAC_OS_ARCH x86_64)
-    elseif (MAC_ARM)
+    elseif (MAC_AppleSilicon)
         set(MAC_OS_ARCH arm64)
-    elseif (MAC_UNIVERSAL)
+    elseif (MAC_Universal)
         set(MAC_OS_ARCH universal)
     endif ()
 
