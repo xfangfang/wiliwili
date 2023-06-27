@@ -278,6 +278,7 @@ jobs:
       - name: Bundle
         id: bundle
         run: |
+          mkdir -p dist
           mv build/wiliwili.app dist/
           cp ./scripts/mac/readme.txt dist/readme.txt
           create-dmg --window-pos 200 120 --window-size 800 400 \

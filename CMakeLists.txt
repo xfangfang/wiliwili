@@ -7,7 +7,7 @@ set(PLATFORM_DESKTOP
 )
 set(BUILTIN_NSP
     OFF
-    CACHE BOOL "Built in NSP forwarder"
+    CACHE BOOL "Built in NSP forwarder (only for NintendoSwitch)"
 )
 set(WIN32_TERMINAL
     ON
@@ -25,6 +25,10 @@ set(USE_SHARED_LIB
     OFF
     CACHE BOOL "Whether to use shared libs provided by system"
 )
+set(DEBUG_SANITIZER
+    OFF
+    CACHE BOOL "Turn on sanitizers (only available in debug build)"
+)
 
 # analytics
 set(ANALYTICS
@@ -40,7 +44,7 @@ set(ANALYTICS_KEY
     CACHE STRING "Google Analytics key"
 )
 
-# These three options are only for app bundling usage.
+# These four options are only for macOS app bundling usage.
 # Do not use it until you know what you are doing.
 set(MAC_IntelChip
     OFF
