@@ -34,7 +34,10 @@ jobs:
       DIST_EXE: ${{ steps.info.outputs.DIST_EXE }}
       DIST_UWP: ${{ steps.info.outputs.DIST_UWP }}
       DIST_NRO: ${{ steps.info.outputs.DIST_NRO }}
+      DIST_DMG_PREFIX: ${{ steps.info.outputs.DIST_DMG_PREFIX }}
       DIST_INTEL_DMG: ${{ steps.info.outputs.DIST_INTEL_DMG }}
+      DIST_ARM_DMG: ${{ steps.info.outputs.DIST_ARM_DMG }}
+      DIST_UNIVERSAL_DMG: ${{ steps.info.outputs.DIST_UNIVERSAL_DMG }}
       DIST_FLATPAK_X86_64: ${{ steps.info.outputs.DIST_FLATPAK_X86_64 }}
       DIST_FLATPAK_AARCH64: ${{ steps.info.outputs.DIST_FLATPAK_AARCH64 }}
     steps:
