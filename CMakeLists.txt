@@ -7,7 +7,7 @@ set(PLATFORM_DESKTOP
 )
 set(BUILTIN_NSP
     OFF
-    CACHE BOOL "Built in NSP forwarder"
+    CACHE BOOL "Built in NSP forwarder (only for NintendoSwitch)"
 )
 set(WIN32_TERMINAL
     ON
@@ -25,6 +25,10 @@ set(USE_SHARED_LIB
     OFF
     CACHE BOOL "Whether to use shared libs provided by system"
 )
+set(DEBUG_SANITIZER
+    OFF
+    CACHE BOOL "Turn on sanitizers (only available in debug build)"
+)
 
 # analytics
 set(ANALYTICS
@@ -40,14 +44,23 @@ set(ANALYTICS_KEY
     CACHE STRING "Google Analytics key"
 )
 
-# Strongly depends on the environment, these options may lead to build errors
-set(MAC_10_15
+# These four options are only for macOS app bundling usage.
+# Do not use it until you know what you are doing.
+set(MAC_IntelChip
     OFF
-    CACHE BOOL "Set the Minimum OS X deployment version to 10.15"
+    CACHE BOOL "Set the Minimum OS X deployment version to 10.11 (x86_64)"
 )
-set(MAC_UNIVERSAL
+set(MAC_AppleSilicon
+    OFF
+    CACHE BOOL "Set the Minimum OS X deployment version to 11.0 (aarch64)"
+)
+set(MAC_Universal
     OFF
     CACHE BOOL "Support x86_64;arm64 at the same time"
+)
+set(MAC_DOWNLOAD_DYLIB
+    OFF
+    CACHE BOOL "Using precompiled dylib instead of system provided"
 )
 
 # mpv related
@@ -86,12 +99,12 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)
 
 # toolchain
 if (PLATFORM_DESKTOP)
-    message("building for Desktop")
+    message(STATUS "building for Desktop")
     set(TARGET_PLATFORM
         desktop
         CACHE STRING ""
     )
-    message("Build Type: ${CMAKE_BUILD_TYPE}")
+    message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
     set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -g2 -ggdb -Wall")
     set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
     if (USE_SHARED_LIB)
@@ -100,9 +113,9 @@ if (PLATFORM_DESKTOP)
         set(USE_SYSTEM_CURL ON)
     endif ()
 else ()
-    message("building for SWITCH")
-    message("Build Type: ${CMAKE_BUILD_TYPE}")
-    message("DEVKITPRO: $ENV{DEVKITPRO}")
+    message(STATUS "building for SWITCH")
+    message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
+    message(STATUS "DEVKITPRO: $ENV{DEVKITPRO}")
     set(CMAKE_USE_SYSTEM_ENVIRONMENT_PATH OFF)
     file(TO_CMAKE_PATH "$ENV{DEVKITPRO}" DEVKITPRO)
     if (NOT IS_DIRECTORY ${DEVKITPRO})
@@ -268,6 +281,9 @@ else ()
     add_executable(${PROJECT_NAME} ${MAIN_SRC})
 endif ()
 
+# download macos dylib dependencies
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macos.cmake)
+
 # set google analytics
 if (ANALYTICS)
     if (NOT ANALYTICS_ID OR NOT ANALYTICS_KEY)
@@ -325,27 +341,13 @@ if (PLATFORM_DESKTOP)
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
 
     if (APPLE)
-        if (MAC_10_15)
-            message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: 10.15")
-            set(CMAKE_OSX_DEPLOYMENT_TARGET
-                "10.15"
-                CACHE STRING "Minimum OS X deployment version" FORCE
-            )
-        endif ()
-        if (MAC_UNIVERSAL)
-            message(STATUS "CMAKE_OSX_ARCHITECTURES: x86_64;arm64")
-            set(CMAKE_OSX_ARCHITECTURES
-                "x86_64;arm64"
-                CACHE STRING "Architectures" FORCE
-            )
-            set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET[arch=arm64]
-                "11.0"
-                CACHE STRING "arm 64 minimum deployment target" FORCE
-            )
+        if (MAC_DOWNLOAD_DYLIB)
+            set(bundle_args1 "-nb")
+            set(bundle_args2 "${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}")
         endif ()
         add_custom_target(
             ${PROJECT_NAME}.app
-            COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/build_mac.sh"
+            COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/build_mac.sh" "${bundle_args1}" "${bundle_args2}"
         )
         add_dependencies(${PROJECT_NAME}.app ${PROJECT_NAME})
     elseif (UNIX)

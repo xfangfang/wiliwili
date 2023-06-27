@@ -567,7 +567,8 @@ int ProgramConfig::getStringOptionIndex(SettingItem item) {
 
 void ProgramConfig::save() {
     const std::string path = this->getConfigDir() + "/wiliwili_config.json";
-    std::filesystem::create_directories(this->getConfigDir());
+    // fs is defined in cpr/cpr.h
+    fs::create_directories(this->getConfigDir());
     nlohmann::json content(*this);
     std::ofstream writeFile(path);
     if (!writeFile) {

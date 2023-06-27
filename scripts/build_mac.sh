@@ -42,7 +42,15 @@ if ! command -v dylibbundler >/dev/null 2>&1; then
     echo -e "\033[31m\"dylibbundler\" is not installed. The application you built can only be used locally\033[0m"
     echo -e "For more information, please refer to: \033[36mhttps://github.com/xfangfang/wiliwili/issues/83#issuecomment-1415858949\033[0m"
 else
-  dylibbundler -cd -b -x "${APP_PATH}"/Contents/MacOS/wiliwili \
+  bundle_deps=""
+  if [[ "$1" != "-nb" ]]; then
+    echo "bundle deps"
+    bundle_deps="-b"
+  else
+    echo "bundle deps: $2"
+    cp -r "$2" "${APP_PATH}"/Contents/MacOS/lib
+  fi
+  dylibbundler -cd ${bundle_deps} -x "${APP_PATH}"/Contents/MacOS/wiliwili \
     -d "${APP_PATH}"/Contents/MacOS/lib/ -p @executable_path/lib/
   codesign --sign - --force "${APP_PATH}"/Contents/MacOS/lib/*
 fi
