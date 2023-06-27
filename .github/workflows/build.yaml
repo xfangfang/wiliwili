@@ -149,11 +149,9 @@ jobs:
           7z e mpv.7z -ompv
           cp mpv/mpv-2.dll wiliwili/libmpv-2.dll
           tar -czvf ../${{ needs.version.outputs.DIST_EXE }}.tar.gz wiliwili
-          echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
-        if: steps.compile.outputs.status == 'success'
         with:
           name: ${{ needs.version.outputs.DIST_EXE }}
           path: "${{ needs.version.outputs.DIST_EXE }}.tar.gz"
@@ -220,11 +218,9 @@ jobs:
           docker run --rm -v $(pwd):/data devkitpro/devkita64:20230622 sh -c "/data/scripts/build_switch.sh"
           cd cmake-build-switch
           tar -czvf ../${{ needs.version.outputs.DIST_NRO }}.tar.gz wiliwili.nro
-          echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
-        if: steps.compile.outputs.status == 'success'
         with:
           name: ${{ needs.version.outputs.DIST_NRO }}
           path: "${{ needs.version.outputs.DIST_NRO }}.tar.gz"
@@ -286,11 +282,9 @@ jobs:
             --icon "readme.txt" 400 100 --hide-extension "wiliwili.app" \
             --app-drop-link 600 185  --volicon ./scripts/mac/dmg.icns \
             --volname "wiliwili (${{ needs.version.outputs.version }})" ${{ steps.name.outputs.DMG }}.dmg "dist/"
-          echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
-        if: steps.compile.outputs.status == 'success'
         with:
           name: ${{ steps.name.outputs.DMG }}
           path: "${{ steps.name.outputs.DMG }}.dmg"
