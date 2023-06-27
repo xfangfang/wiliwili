@@ -263,7 +263,7 @@ jobs:
       - name: Build
         id: compile
         run: |
-          cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release -DMAC_${{ matrix.arch }}=ON
+          cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release -DMAC_${{ matrix.arch }}=ON -DMAC_DOWNLOAD_DYLIB=ON
           make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
 
       - name: Bundle

@@ -34,6 +34,7 @@ message(STATUS "building from git commit ${GIT_TAG_SHORT}")
 
 if (APPLE)
     if (MAC_INTEL)
+        message(STATUS "CMAKE_OSX_ARCHITECTURES: x86_64")
         message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: 10.11")
         set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
         set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "" FORCE)
