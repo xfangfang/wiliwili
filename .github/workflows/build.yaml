@@ -74,7 +74,7 @@ jobs:
 
 
   release:
-    needs: [ build-win-x64, build-switch, build-macos-intel, build-flatpak, version ]
+    needs: [ build-win-x64, build-switch, build-macos, build-flatpak, version ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
