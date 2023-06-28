@@ -5,20 +5,13 @@
 #include <vector>
 #include <future>
 #include "bilibili/api.h"
-//#include "bilibili/util/md5.hpp"
-//#include "bilibili/util/http.hpp"
-//#include "bilibili/result/home_hots_all_result.h"
-//#include "bilibili/result/home_hots_weekly_result.h"
-//#include "bilibili/result/home_hots_history_result.h"
-//#include "bilibili/result/home_hots_rank.h"
-//#include "bilibili/result/mine_result.h"
-//#include "bilibili/result/mine_history_result.h"
-//#include "bilibili/result/home_pgc_season_result.h"
 
 namespace bilibili {
 
 class LiveResultWrapper;
 class LiveUrlResultWrapper;
+class LiveFullAreaResultWrapper;  // 直播分区列表
+class LiveSecondResultWrapper;    // 直播二级分区推荐
 class SearchResult;
 class DynamicVideoListResultWrapper;  // 动态 全部关注的视频列表
 class DynamicUpListResultWrapper;     // 动态 最近更新的UP主列表
@@ -342,6 +335,19 @@ public:
         const std::string& source                              = "pc",
         const std::function<void(LiveResultWrapper)>& callback = nullptr,
         const ErrorCallback& error                             = nullptr);
+
+    /// 主页 直播二级分区推荐, 不包含关注
+    /// area_id 为 0 则推荐 parent_area 全部视频
+    static void get_live_recommend_second(
+        int parent_area_id, int area_id, int page,
+        const std::function<void(LiveSecondResultWrapper)>& callback = nullptr,
+        const ErrorCallback& error                                   = nullptr);
+
+    /// 主页 直播分区
+    static void get_live_area_list(
+        const std::function<void(LiveFullAreaResultWrapper)>& callback =
+            nullptr,
+        const ErrorCallback& error = nullptr);
 
     /// 主页 追番列表
     static void get_bangumi(

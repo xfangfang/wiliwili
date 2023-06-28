@@ -104,6 +104,8 @@ static const std::string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
 /// 直播历史记录
 static const std::string LiveReport =
     _liveBase + "/xlive/web-room/v1/index/roomEntryAction";
+static const std::string LiveAreaList =
+    _liveBase + "/xlive/app-interface/v2/index/getAreaList";
 
 /// ===
 /// 主页API
@@ -130,6 +132,9 @@ static const std::string HotsRankPGC = _apiBase + "/pgc/season/rank/web/list";
 /// 主页 直播推荐
 static const std::string LiveFeed =
     _liveBase + "/xlive/app-interface/v2/index/feedV2";
+/// 主页 直播推荐 second
+static const std::string LiveFeedSecond =
+    _liveBase + "/xlive/app-interface/v2/second/getList";
 /// 主页 追番
 static const std::string Bangumi = _apiBase + "/pgc/page/pc/bangumi/tab";
 /// 主页 影视

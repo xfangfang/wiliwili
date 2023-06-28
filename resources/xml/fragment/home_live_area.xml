@@ -23,12 +23,11 @@
             <brls:Box
                     id="grid_dropdown/content"
                     width="100%"
-                    height="330"
+                    height="auto"
                     axis="column"
                     backgroundColor="@theme/brls/background">
 
                 <brls:Box
-                        wireframe="false"
                         id="grid_dropdown/header"
                         height="@style/brls/dropdown/header_height"
                         axis="row"
@@ -46,25 +45,46 @@
                             id="grid_dropdown/title_label"
                             width="auto"
                             height="auto"
+                            text="@i18n/wiliwili/home/live/dialog"
                             marginTop="@style/brls/applet_frame/header_title_top_offset"
                             fontSize="@style/brls/dropdown/header_title_font_size"/>
 
                 </brls:Box>
 
-                <RecyclingGrid
-                        wireframe="false"
-                        id="grid_dropdown/recycler"
-                        width="100%"
-                        height="auto"
-                        grow="1"
-                        itemSpace="-1"
-                        preFetchLine="1"
-                        spanCount="1"
-                        itemHeight="60"
-                        paddingTop="@style/brls/dropdown/listPadding"
-                        paddingRight="@style/brls/dropdown/listPaddingSides"
-                        paddingBottom="@style/brls/dropdown/listPadding"
-                        paddingLeft="@style/brls/dropdown/listPaddingSides"/>
+                <brls:Box
+                    width="100%"
+                    marginLeft="20"
+                    marginRight="20"
+                    grow="1">
+                    <RecyclingGrid
+                            width="270"
+                            paddingLeft="10"
+                            paddingRight="10"
+                            marginTop="20"
+                            marginBottom="8"
+                            itemHeight="50"
+                            preFetchLine="2"
+                            spanCount="1"
+                            lineColor="@theme/color/line"
+                            lineRight="1"
+                            id="area/mainList"/>
+
+                    <brls:Box
+                            paddingTop="20"
+                            paddingBottom="8"
+                            wireframe="false"
+                            grow="1">
+                        <RecyclingGrid
+                                paddingLeft="20"
+                                paddingRight="20"
+                                itemHeight="100"
+                                grow="1"
+                                preFetchLine="2"
+                                spanCount="8"
+                                wireframe="false"
+                                id="area/subList"/>
+                    </brls:Box>
+                </brls:Box>
 
                 <ButtonClose
                         positionType="absolute"

@@ -17,7 +17,7 @@ using Cookies = std::map<std::string, std::string>;
 
 const std::string BILIBILI_APP_KEY    = "aa1e74ee4874176e";
 const std::string BILIBILI_APP_SECRET = "54e6a9a31b911cd5fc0daa66ebf94bc4";
-const std::string BILIBILI_BUILD      = "1001009001";
+const std::string BILIBILI_BUILD      = "1001011000";
 
 using ErrorCallback = std::function<void(const std::string&)>;
 #define ERROR_MSG(msg, ...) \
