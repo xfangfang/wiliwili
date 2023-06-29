@@ -7,6 +7,7 @@
 #include "fragment/home_hots_weekly.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
+#include "view/grid_dropdown.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
 
@@ -80,13 +81,13 @@ void HomeHotsWeekly::onCreate() {
 
 void HomeHotsWeekly::switchChannel() {
     AutoTabFrame::focus2Sidebar(this);
-    brls::Application::pushActivity(new brls::Activity(new brls::Dropdown(
+    BaseDropdown::text(
         "wiliwili/home/hots/t3"_i18n, this->getWeeklyList(),
         [this](int selected) {
             currentChannel = selected;
             this->recyclingGrid->refresh();
         },
-        currentChannel)));
+        currentChannel);
 }
 
 brls::View* HomeHotsWeekly::hitTest(brls::Point point) {

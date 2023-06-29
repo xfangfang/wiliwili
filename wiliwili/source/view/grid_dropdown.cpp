@@ -4,6 +4,53 @@
 
 #include "view/grid_dropdown.hpp"
 
+/// EmptyDropDown
+
+void EmptyDropdown::show(std::function<void(void)> cb, bool animate,
+                         float animationDuration) {
+    if (animate) {
+        content->setTranslationY(30.0f);
+
+        showOffset.stop();
+        showOffset.reset(30.0f);
+        showOffset.addStep(0, animationDuration,
+                           brls::EasingFunction::quadraticOut);
+        showOffset.setTickCallback([this] { this->offsetTick(); });
+        showOffset.start();
+    }
+
+    Box::show(cb, animate, animationDuration);
+
+    if (animate) {
+        alpha.stop();
+        alpha.reset(1);
+
+        applet->alpha.stop();
+        applet->alpha.reset(0);
+        applet->alpha.addStep(1, animationDuration,
+                              brls::EasingFunction::quadraticOut);
+        applet->alpha.start();
+    }
+}
+
+void EmptyDropdown::hide(std::function<void(void)> cb, bool animated,
+                         float animationDuration) {
+    if (animated) {
+        alpha.stop();
+        alpha.reset(0);
+
+        applet->alpha.stop();
+        applet->alpha.reset(1);
+        applet->alpha.addStep(0, animationDuration,
+                              brls::EasingFunction::quadraticOut);
+        applet->alpha.start();
+    }
+
+    Box::hide(cb, animated, animationDuration);
+}
+
+bool EmptyDropdown::isTranslucent() { return true; }
+
 /// GridRadioCell
 GridRadioCell::GridRadioCell() {
     this->inflateFromXMLRes("xml/views/grid_radio_cell.xml");
@@ -73,49 +120,6 @@ void BaseDropdown::setDataSource(DataSourceDropdown* dataSource) {
     content->setHeight(fmin(height, brls::Application::contentHeight * 0.73f));
 }
 
-void BaseDropdown::show(std::function<void(void)> cb, bool animate,
-                        float animationDuration) {
-    if (animate) {
-        content->setTranslationY(30.0f);
-
-        showOffset.stop();
-        showOffset.reset(30.0f);
-        showOffset.addStep(0, animationDuration,
-                           brls::EasingFunction::quadraticOut);
-        showOffset.setTickCallback([this] { this->offsetTick(); });
-        showOffset.start();
-    }
-
-    Box::show(cb, animate, animationDuration);
-
-    if (animate) {
-        alpha.stop();
-        alpha.reset(1);
-
-        applet->alpha.stop();
-        applet->alpha.reset(0);
-        applet->alpha.addStep(1, animationDuration,
-                              brls::EasingFunction::quadraticOut);
-        applet->alpha.start();
-    }
-}
-
-void BaseDropdown::hide(std::function<void(void)> cb, bool animated,
-                        float animationDuration) {
-    if (animated) {
-        alpha.stop();
-        alpha.reset(0);
-
-        applet->alpha.stop();
-        applet->alpha.reset(1);
-        applet->alpha.addStep(0, animationDuration,
-                              brls::EasingFunction::quadraticOut);
-        applet->alpha.start();
-    }
-
-    Box::hide(cb, animated, animationDuration);
-}
-
 brls::View* BaseDropdown::getParentNavigationDecision(
     View* from, View* newFocus, brls::FocusDirection direction) {
     View* result = Box::getParentNavigationDecision(from, newFocus, direction);
@@ -131,8 +135,6 @@ brls::View* BaseDropdown::getParentNavigationDecision(
 brls::Event<RecyclingGridItem*>* BaseDropdown::getCellFocusDidChangeEvent() {
     return &cellFocusDidChangeEvent;
 }
-
-bool BaseDropdown::isTranslucent() { return true; }
 
 size_t BaseDropdown::getSelected() const { return this->selected; }
 

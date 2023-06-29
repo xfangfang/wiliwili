@@ -7,6 +7,7 @@
 #include "fragment/home_live.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
+#include "view/grid_dropdown.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/activity_helper.hpp"
 
@@ -255,7 +256,7 @@ private:
     SubAreaSelectedEvent subAreaSelectedEvent;
 };
 
-class HomeLiveArea : public brls::Box {
+class HomeLiveArea : public EmptyDropdown {
 public:
     HomeLiveArea(const bilibili::LiveFullAreaListResult& result, int mainID,
                  int subID)
@@ -323,8 +324,6 @@ public:
     }
 
     View* getDefaultFocus() override { return this->subGrid; }
-
-    bool isTranslucent() override { return true; }
 
 private:
     BRLS_BIND(brls::Box, header, "grid_dropdown/header");
