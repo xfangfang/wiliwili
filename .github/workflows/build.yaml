@@ -16,6 +16,10 @@ on:
         description: 'SSH connection to Ubuntu'
         required: false
         default: 'false'
+      arm_flatpak:
+        description: 'build flatpak (aarch64)'
+        required: false
+        default: 'false'
       release:
         description: 'Push a new release'
         required: false
@@ -257,7 +261,7 @@ jobs:
       - name: Update gamepad mappings
         id: gamepad
         run: |
-          BRLS_GLFW="library/borealis/library/lib/extern/glfw/"
+          BRLS_GLFW="library/borealis/library/lib/extern/glfw"
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
 
       - name: Build
@@ -297,19 +301,20 @@ jobs:
       options: --privileged
     strategy:
       matrix:
-        arch: [ x86_64 ]
-        # arch: [ x86_64, aarch64 ]
+        arch: [ x86_64, aarch64 ]
       # Don't fail the whole workflow if one architecture fails
       fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         with:
           repository: ${{ github.repository }}
           submodules: 'recursive'
           fetch-depth: 0
 
       - name: Install deps
+        if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         run: |
           dnf -y install docker cmake
           BRLS_GLFW="library/borealis/library/lib/extern/glfw/"
@@ -317,12 +322,13 @@ jobs:
 
       - name: Set up QEMU
         id: qemu
-        if: matrix.arch == 'aarch64'
+        if: matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true'
         uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
 
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v5
+        if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         with:
           bundle: wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak
           manifest-path: .flatpak-manifest.yml
