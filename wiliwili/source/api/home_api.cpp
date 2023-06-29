@@ -134,6 +134,36 @@ void BilibiliClient::get_live_recommend(
         [callback](auto wrapper) { callback(wrapper); }, error, true);
 }
 
+/// 主页 二级分区直播推荐，不包含关注
+void BilibiliClient::get_live_recommend_second(
+    int parent_area_id, int area_id, int page,
+    const std::function<void(LiveSecondResultWrapper)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<LiveSecondResultWrapper>(
+        Api::LiveFeedSecond,
+        {
+            {"parent_area_id", std::to_string(parent_area_id)},
+            {"area_id", std::to_string(area_id)},
+            {"page", std::to_string(page)},
+            {"page_size", "20"},
+            {"platform", "web"},
+            {"device", "switch"},
+        },
+        [callback](auto wrapper) { callback(wrapper); }, error, true);
+}
+
+/// 主页 直播分区列表
+void BilibiliClient::get_live_area_list(
+    const std::function<void(LiveFullAreaResultWrapper)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<LiveFullAreaResultWrapper>(
+        Api::LiveAreaList,
+        {
+            {"platform", "web"},
+        },
+        [callback](auto wrapper) { callback(wrapper); }, error, true);
+}
+
 /// 主页 追番列表
 void BilibiliClient::get_bangumi(
     int is_refresh, const std::string& cursor,

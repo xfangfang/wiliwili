@@ -17,6 +17,26 @@
 
 typedef brls::Event<int> ValueSelectedEvent;
 
+class EmptyDropdown: public brls::Box  {
+public:
+    void show(std::function<void(void)> cb, bool animate,
+              float animationDuration) override;
+
+    void hide(std::function<void(void)> cb, bool animated,
+              float animationDuration) override;
+
+    bool isTranslucent() override;
+
+protected:
+    BRLS_BIND(brls::Box, header, "grid_dropdown/header");
+    BRLS_BIND(brls::Label, title, "grid_dropdown/title_label");
+    BRLS_BIND(brls::Box, content, "grid_dropdown/content");
+    BRLS_BIND(brls::AppletFrame, applet, "grid_dropdown/applet");
+
+    brls::Animatable showOffset = 0;
+    void offsetTick() { content->setTranslationY(showOffset); }
+};
+
 //class GridDropdown;
 class BaseDropdown;
 
@@ -63,7 +83,10 @@ private:
     std::vector<std::string> data;
 };
 
-class BaseDropdown : public brls::Box {
+/**
+ * 带有进入退出动画的菜单，自带列表，默认提供了文本列表，也可以自定义列表内容
+ */
+class BaseDropdown : public EmptyDropdown {
 public:
     BaseDropdown(const std::string& title, ValueSelectedEvent::Callback cb,
                  int selected = 0);
@@ -72,18 +95,10 @@ public:
 
     void setDataSource(DataSourceDropdown* dataSource);
 
-    void show(std::function<void(void)> cb, bool animate,
-              float animationDuration) override;
-
-    void hide(std::function<void(void)> cb, bool animated,
-              float animationDuration) override;
-
     virtual View* getParentNavigationDecision(
         View* from, View* newFocus, brls::FocusDirection direction) override;
 
     brls::Event<RecyclingGridItem*>* getCellFocusDidChangeEvent();
-
-    bool isTranslucent() override;
 
     size_t getSelected() const;
 
@@ -96,15 +111,8 @@ public:
 
 protected:
     BRLS_BIND(RecyclingGrid, recycler, "grid_dropdown/recycler");
-    BRLS_BIND(brls::Box, header, "grid_dropdown/header");
-    BRLS_BIND(brls::Label, title, "grid_dropdown/title_label");
-    BRLS_BIND(brls::Box, content, "grid_dropdown/content");
-    BRLS_BIND(brls::AppletFrame, applet, "grid_dropdown/applet");
 
     ValueSelectedEvent::Callback cb;
     size_t selected;
-    brls::Animatable showOffset = 0;
     brls::Event<RecyclingGridItem*> cellFocusDidChangeEvent;
-
-    void offsetTick() { content->setTranslationY(showOffset); }
 };

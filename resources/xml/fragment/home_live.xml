@@ -12,7 +12,7 @@
 
         <brls:Box
                 id="home/live/box"
-                width="160"
+                width="180"
                 height="35"
                 backgroundColor="@theme/color/grey_2"
                 marginRight="10"
@@ -24,7 +24,7 @@
                     culled="false"
                     fontSize="13"
                     singleLine="true"
-                    text="@i18n/wiliwili/home/live/default"/>
+                    maxWidth="140"/>
             <brls:Label
                     positionType="absolute"
                     positionRight="15"

@@ -58,9 +58,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveAreaResult, id, title, area_v2_id,
  */
 class ShowInfo {
 public:
-    int num                = 0;   // eg: 14130
-    std::string text_small = "";  // eg: 1.4万
-    std::string text_large = "";  // eg: 1.4万人看过
+    int num = 0;             // eg: 14130
+    std::string text_small;  // eg: 1.4万
+    std::string text_large;  // eg: 1.4万人看过
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ShowInfo, num, text_small, text_large);
 
@@ -74,7 +74,7 @@ public:
     std::string play_url;
     std::string cover;
     std::string area_name;
-    bool following = false;  //是否为我关注的主播
+    bool following = false;  //是否为我关注的主播，自定义数据
     ShowInfo watched_show;
     int current_qn = 10000;
     LiveQualityList quality_description;
@@ -132,4 +132,57 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more));
 }
+
+// 细化到二级分区的直播推荐
+class LiveSecondResultWrapper {
+public:
+    LiveVideoListResult list;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      LiveSecondResultWrapper& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, list));
+}
+
+// 二级分区列表
+class LiveSubAreaResult {
+public:
+    int id        = 0;
+    int parent_id = 0;
+    std::string name;
+    std::string pic;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveSubAreaResult, id, parent_id, name, pic)
+typedef std::vector<LiveSubAreaResult> LiveSubAreaListResult;
+
+// 包含全部直播分区的列表 (一级分区列表)
+class LiveFullAreaResult {
+public:
+    int id = 0;
+    std::string name;
+    LiveSubAreaListResult area_list;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      LiveFullAreaResult& nlohmann_json_t) {
+    if (nlohmann_json_j.at("area_list").is_array()) {
+        nlohmann_json_j.at("area_list").get_to(nlohmann_json_t.area_list);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, name))
+    if (nlohmann_json_t.id == 0) {
+        LiveSubAreaResult all{0, 0, "全部推荐", ""};
+        nlohmann_json_t.area_list.insert(nlohmann_json_t.area_list.begin(),
+                                         all);
+    }
+}
+
+typedef std::vector<LiveFullAreaResult> LiveFullAreaListResult;
+
+class LiveFullAreaResultWrapper {
+public:
+    LiveFullAreaListResult list;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      LiveFullAreaResultWrapper& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, list))
+}
+
 }  // namespace bilibili
