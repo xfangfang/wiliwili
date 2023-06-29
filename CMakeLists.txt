@@ -251,7 +251,7 @@ else ()
         list(APPEND PLATFORM_LIBS nsp)
         set(PLATFORM_OPTION -DBUILTIN_NSP)
     endif ()
-    list(APPEND PLATFORM_OPTION -DMG_ARCH=14)
+    list(APPEND PLATFORM_OPTION -DMG_ARCH=10086)
     list(
         APPEND
         MAIN_SRC
