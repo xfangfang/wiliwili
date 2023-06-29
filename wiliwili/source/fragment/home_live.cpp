@@ -189,8 +189,7 @@ public:
             pic = r.area_list[0].pic;
         }
         item->setData(r.name, pic);
-
-        if (index == defaultIndex) item->setSelected(true);
+        item->setSelected(index == defaultIndex);
         return item;
     }
 
@@ -206,7 +205,7 @@ public:
             if (cell) cell->setSelected(false);
         }
         if (item) item->setSelected(true);
-        defaultIndex = -1;
+        defaultIndex = index;
     }
 
     void clearData() override { this->areaList.clear(); }
@@ -219,7 +218,10 @@ private:
     size_t defaultIndex = -1;
 };
 
-typedef brls::Event<int, int, std::string, std::string> SubAreaSelectedEvent;
+// 主分区id，子分区id，主分区名，子分区名，进入的分区id
+// 某个子分区可能位于全站推荐分区下，“进入的分区id” 这时为 0，其他情况同主分区id
+typedef brls::Event<int, int, std::string, std::string, int>
+    SubAreaSelectedEvent;
 
 class DataSourceLiveSubAreaList : public RecyclingGridDataSource {
 public:
@@ -239,7 +241,7 @@ public:
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         this->subAreaSelectedEvent.fire(
             areaList.area_list[index].parent_id, areaList.area_list[index].id,
-            areaList.name, areaList.area_list[index].name);
+            areaList.name, areaList.area_list[index].name, areaList.id);
     }
 
     void clearData() override {}
@@ -306,10 +308,11 @@ public:
         auto subDS = new DataSourceLiveSubAreaList(data);
         subDS->getSelectedEvent()->subscribe(
             [this](int mainID, int subID, const std::string& mainName,
-                   const std::string& subName) {
+                   const std::string& subName, int entryID) {
                 brls::Logger::debug("live main/{}/{} sub/{}/{}", mainID,
                                     mainName, subID, subName);
-                subAreaSelectedEvent.fire(mainID, subID, mainName, subName);
+                subAreaSelectedEvent.fire(mainID, subID, mainName, subName,
+                                          entryID);
             });
         subGrid->setDefaultCellFocus(subIndex);
         subGrid->setDataSource(subDS);
@@ -389,15 +392,16 @@ void HomeLive::switchChannel() {
     if (this->fullAreaList.empty()) return;
 
     AutoTabFrame::focus2Sidebar(this);
-    auto* area = new HomeLiveArea(fullAreaList, staticMain, staticSub);
-    area->getSelectedEvent()->subscribe([this](int main, int sub,
-                                               const std::string& mainName,
-                                               const std::string& subName) {
-        this->requestData(main, sub, 1);
-        live_label->setText(mainName + " - " + subName);
-        brls::Application::popActivity();
-        recyclingGrid->refresh();
-    });
+    auto* area = new HomeLiveArea(fullAreaList, staticEntry, staticSub);
+    area->getSelectedEvent()->subscribe(
+        [this](int main, int sub, const std::string& mainName,
+               const std::string& subName, int entryID) {
+            this->staticEntry = entryID;
+            this->requestData(main, sub, 1);
+            live_label->setText(mainName + " - " + subName);
+            brls::Application::popActivity();
+            recyclingGrid->refresh();
+        });
     brls::Application::pushActivity(new brls::Activity(area));
 }
 

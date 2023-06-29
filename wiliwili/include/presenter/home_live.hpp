@@ -53,5 +53,6 @@ protected:
 
     int staticMain = 0;
     int staticSub  = 0;
-    int staticPage = 0;
+    int staticPage  = 0;
+    int staticEntry = 0;
 };
