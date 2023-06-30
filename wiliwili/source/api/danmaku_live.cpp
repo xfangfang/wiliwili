@@ -81,7 +81,7 @@ void LiveDanmaku::connect(int room_id, int uid) {
             mg_mgr_poll(this->mgr, 800);
             s += 1;
             if (s - last >= 36) {
-                send_heartbeat();
+                this->send_heartbeat();
                 last = s;
             }
             if (s < 0) {
@@ -127,6 +127,7 @@ void LiveDanmaku::send_join_request(int room_id, int uid) {
     std::vector<uint8_t> packet = encode_packet(0, 7, join_request_str);
     std::string packet_str(packet.begin(), packet.end());
     mongoose_mutex.lock();
+    if(this->nc == nullptr) return;
     mg_ws_send(this->nc, packet_str.data(), packet_str.size(), WEBSOCKET_OP_BINARY);
     mongoose_mutex.unlock();
 }
@@ -135,6 +136,7 @@ void LiveDanmaku::send_heartbeat() {
     std::vector<uint8_t> packet = encode_packet(0, 2, "");
     std::string packet_str(packet.begin(), packet.end());
     mongoose_mutex.lock();
+    if(this->nc == nullptr) return;
     mg_ws_send(this->nc, packet_str.data(), packet_str.size(), WEBSOCKET_OP_BINARY);
     mongoose_mutex.unlock();
 }
