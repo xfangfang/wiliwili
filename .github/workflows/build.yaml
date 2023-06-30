@@ -43,7 +43,8 @@ jobs:
       DIST_ARM_DMG: ${{ steps.info.outputs.DIST_ARM_DMG }}
       DIST_UNIVERSAL_DMG: ${{ steps.info.outputs.DIST_UNIVERSAL_DMG }}
       DIST_FLATPAK_X86_64: ${{ steps.info.outputs.DIST_FLATPAK_X86_64 }}
-      DIST_FLATPAK_AARCH64: ${{ steps.info.outputs.DIST_FLATPAK_AARCH64 }}
+      DIST_FLATPAK_AARCH64_GL: ${{ steps.info.outputs.DIST_FLATPAK_AARCH64_GL }}
+      DIST_FLATPAK_AARCH64_GLES2: ${{ steps.info.outputs.DIST_FLATPAK_AARCH64_GLES2 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -75,7 +76,8 @@ jobs:
           echo "DIST_ARM_DMG=wiliwili-macOS-AppleSilicon-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_UNIVERSAL_DMG=wiliwili-macOS-Universal-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_FLATPAK_X86_64=wiliwili-Linux-${VERSION}-x86_64" >> $GITHUB_OUTPUT
-          echo "DIST_FLATPAK_AARCH64=wiliwili-Linux-${VERSION}-aarch64" >> $GITHUB_OUTPUT
+          echo "DIST_FLATPAK_AARCH64_GL=wiliwili-Linux-${VERSION}-gl-aarch64" >> $GITHUB_OUTPUT
+          echo "DIST_FLATPAK_AARCH64_GLES2=wiliwili-Linux-${VERSION}-gles2-aarch64" >> $GITHUB_OUTPUT
           echo $VERSION
           echo "${{  github.event.inputs.version }}"
 
@@ -302,12 +304,14 @@ jobs:
     strategy:
       matrix:
         arch: [ x86_64, aarch64 ]
-        driver: [ opengl3, opengles2 ]
+        driver: [ gl, gles2 ]
         exclude:
           - arch: x86_64
-            driver: opengles2
+            driver: gles2
       # Don't fail the whole workflow if one architecture fails
       fail-fast: false
+    env:
+      FLATPAK_NAME: wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -317,17 +321,25 @@ jobs:
           submodules: 'recursive'
           fetch-depth: 0
 
-      - name: Fix config
-        if: matrix.driver == 'opengles2'
+      - name: Add OpenGL ES 2.0 build option
+        if: matrix.driver == 'gles2'
         run: |
           sed -i "29i \      - '-DUSE_GLES2=ON'" .flatpak-manifest.yml
 
+      - name: Rename package
+        if: matrix.arch == 'aarch64'
+        run: |
+          echo "FLATPAK_NAME=wiliwili-Linux-${{ needs.version.outputs.version }}-${{ matrix.driver }}.flatpak"  >> $GITHUB_ENV
+
       - name: Install deps
+        id: dep
         if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         run: |
           dnf -y install docker cmake
           BRLS_GLFW="library/borealis/library/lib/extern/glfw/"
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
+          echo "FLATPAK_NAME=${FLATPAK_NAME}"  >> $GITHUB_OUTPUT
+          echo ${FLATPAK_NAME}
 
       - name: Set up QEMU
         id: qemu
@@ -339,7 +351,7 @@ jobs:
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v5
         if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         with:
-          bundle: wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak
+          bundle: ${{ steps.dep.outputs.FLATPAK_NAME }}
           manifest-path: .flatpak-manifest.yml
           cache-key: flatpak-builder-${{ matrix.arch }}
           arch: ${{ matrix.arch }}
