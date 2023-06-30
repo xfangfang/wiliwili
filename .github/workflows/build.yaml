@@ -127,7 +127,7 @@ jobs:
       - name: Install dependency
         uses: msys2/setup-msys2@v2
         with:
-          update: true
+#          update: true
           install: >-
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-cmake
@@ -341,5 +341,5 @@ jobs:
         with:
           bundle: wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak
           manifest-path: .flatpak-manifest.yml
-          cache-key: flatpak-builder-${{ github.sha }}
+          cache-key: flatpak-builder-${{ matrix.arch }}
           arch: ${{ matrix.arch }}
