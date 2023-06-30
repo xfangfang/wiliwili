@@ -49,9 +49,8 @@ void LiveDanmaku::connect(int room_id, int uid) {
     // Create and configure Mongoose connection
     struct mg_mgr *mgr = new mg_mgr;
     mg_log_set(MG_LL_NONE);
-    mg_mgr_init(mgr);
 
-    if(mgr == nullptr){
+    if(mgr == nullptr or mg_mgr_init(mgr) < 0){
         disconnect();
         return;
     }
