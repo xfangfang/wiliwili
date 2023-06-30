@@ -72,19 +72,19 @@ void LiveDanmaku::connect(int room_id, int uid) {
     //mg_mgr_poll(this->mgr, 10);
 
     // Start Mongoose event loop and heartbeat thread
-    mongoose_thread = std::thread([this]() {
+    mongoose_thread = std::thread([&]() {
         int last = 0;
         int s = 0;
-        while (this->is_connected()) {
-            this->mongoose_mutex.lock();
-            if(this->nc == nullptr) {
+        while (is_connected()) {
+            mongoose_mutex.lock();
+            if(nc == nullptr) {
                 break;
             }
-            this->mongoose_mutex.unlock();
-            mg_mgr_poll(this->mgr, 800);
+            mongoose_mutex.unlock();
+            mg_mgr_poll(mgr, 800);
             s += 1;
             if (s - last >= 36) {
-                this->send_heartbeat();
+                send_heartbeat();
                 last = s;
             }
             if (s < 0) {
@@ -92,8 +92,8 @@ void LiveDanmaku::connect(int room_id, int uid) {
                 last = 0;
             }
         }
-        mg_mgr_free(this->mgr);
-        delete this->mgr;
+        mg_mgr_free(mgr);
+        delete mgr;
     });
 }
 
