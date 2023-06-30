@@ -21,6 +21,10 @@ set(USE_SYSTEM_CURL
     OFF
     CACHE BOOL "Whether to use the curl in your system libs"
 )
+set(USE_BOOST_FILESYSTEM
+    OFF
+    CACHE BOOL "Whether to use the boost::filesystem instead of std::filesystem"
+)
 set(USE_SHARED_LIB
     OFF
     CACHE BOOL "Whether to use shared libs provided by system"
@@ -64,14 +68,24 @@ set(MAC_DOWNLOAD_DYLIB
 )
 
 # mpv related
+
+# If your system does not support Opengl(es), you can use software rendering before modifying MPV related content,
+# but it will affect performance.
 set(MPV_SW_RENDER
     OFF
     CACHE BOOL "Using CPU to draw videos"
+)
+# On systems that do not support framebuffer, let MPV to draw to full screen and
+# then cover unnecessary areas with UI (only for OpenGL).
+set(MPV_NO_FB
+    OFF
+    CACHE BOOL "Not using extra framebuffer"
 )
 
 option(USE_GLFW "using glfw for input and create window" ON)
 option(USE_SDL2 "using sdl2 for input and create window" OFF)
 option(USE_GL2 "using OpenGL 2.1" OFF)
+option(USE_GLES2 "using OpenGL ES 2.0 (current only works with USE_GLFW)" OFF)
 
 option(INSTALL "Install to system. only use this option with Linux." OFF)
 
@@ -88,12 +102,18 @@ endif ()
 if (USE_GL2)
     set(USE_GL2 ON)
     add_definitions(-DUSE_GL2)
-    add_definitions(-DMPV_NO_FB)
+    set(MPV_NO_FB ON)
+elseif (USE_GLES2)
+    set(USE_GLES2 ON)
+    add_definitions(-DUSE_GLES2)
 endif ()
 
 if (MPV_SW_RENDER)
     add_definitions(-DMPV_SW_RENDER)
 endif ()
+if (MPV_NO_FB)
+    add_definitions(-DMPV_NO_FB)
+endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)
 

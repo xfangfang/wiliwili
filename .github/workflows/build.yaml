@@ -302,6 +302,10 @@ jobs:
     strategy:
       matrix:
         arch: [ x86_64, aarch64 ]
+        driver: [ opengl3, opengles2 ]
+        exclude:
+          - arch: x86_64
+            driver: opengles2
       # Don't fail the whole workflow if one architecture fails
       fail-fast: false
     steps:
@@ -312,6 +316,11 @@ jobs:
           repository: ${{ github.repository }}
           submodules: 'recursive'
           fetch-depth: 0
+
+      - name: Fix config
+        if: matrix.driver == 'opengles2'
+        run: |
+          sed -i "29i \      - '-DUSE_GLES2=ON'" .flatpak-manifest.yml
 
       - name: Install deps
         if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
