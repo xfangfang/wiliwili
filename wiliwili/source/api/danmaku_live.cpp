@@ -47,24 +47,21 @@ void LiveDanmaku::connect(int room_id, int uid) {
     connected.store(true, std::memory_order_release);
 
     // Create and configure Mongoose connection
-    struct mg_mgr *mgr = new mg_mgr;
+    this->mgr = new mg_mgr;
     mg_log_set(MG_LL_NONE);
 
-    if(mgr == nullptr or mg_mgr_init(mgr) < 0){
+    if(this->mgr == nullptr or mg_mgr_init(this->mgr) < 0){
         disconnect();
         return;
     }
 
-    struct mg_connection *nc = mg_ws_connect(mgr, url.c_str(), mongoose_event_handler, this, nullptr);
+    this->nc = mg_ws_connect(this->mgr, url.c_str(), mongoose_event_handler, this, nullptr);
 
-    this->mgr = mgr;
-    this->nc = nc;
-
-    if(nc == nullptr) {
+    if(this->nc == nullptr) {
         std::cout << "nc is null" << std::endl;
         disconnect();
         mg_mgr_free(this->mgr);
-        delete mgr;
+        delete this->mgr;
         return;
     }
 
