@@ -48,12 +48,13 @@ void LiveDanmaku::connect(int room_id, int uid) {
 
     // Create and configure Mongoose connection
     this->mgr = new mg_mgr;
-    mg_log_set(MG_LL_NONE);
-
-    if(this->mgr == nullptr or mg_mgr_init(this->mgr) < 0){
+    if(this->mgr == nullptr){
         disconnect();
         return;
     }
+
+    mg_log_set(MG_LL_NONE);
+    mg_mgr_init(this->mgr);
 
     this->nc = mg_ws_connect(this->mgr, url.c_str(), mongoose_event_handler, this, nullptr);
 
