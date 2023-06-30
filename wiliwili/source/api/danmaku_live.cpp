@@ -50,6 +50,12 @@ void LiveDanmaku::connect(int room_id, int uid) {
     struct mg_mgr *mgr = new mg_mgr;
     mg_log_set(MG_LL_NONE);
     mg_mgr_init(mgr);
+
+    if(mgr == nullptr){
+        disconnect();
+        return;
+    }
+
     struct mg_connection *nc = mg_ws_connect(mgr, url.c_str(), mongoose_event_handler, this, nullptr);
 
     this->mgr = mgr;
