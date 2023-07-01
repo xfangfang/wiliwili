@@ -83,10 +83,6 @@ void LiveDanmaku::connect(int room_id, int uid) {
             }
             this->mongoose_mutex.unlock();
             mg_mgr_poll(this->mgr, 800);
-            if (!this->ms_ev_ok.load(std::memory_order_acquire)) {
-                std::this_thread::sleep_for(std::chrono::seconds(3));
-                continue;
-            }
             s += 1;
             if (s - last >= 36) {
                 this->send_heartbeat();
