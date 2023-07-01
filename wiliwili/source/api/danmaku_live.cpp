@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <chrono>
 
 #include "live/danmaku_live.hpp"
 #include "live/ws_utils.hpp"
@@ -72,19 +73,23 @@ void LiveDanmaku::connect(int room_id, int uid) {
     //mg_mgr_poll(this->mgr, 10);
 
     // Start Mongoose event loop and heartbeat thread
-    mongoose_thread = std::thread([&]() {
+    mongoose_thread = std::thread([this]() {
         int last = 0;
         int s = 0;
-        while (is_connected()) {
-            mongoose_mutex.lock();
-            if(nc == nullptr) {
+        while (this->is_connected()) {
+            this->mongoose_mutex.lock();
+            if(this->nc == nullptr) {
                 break;
             }
-            mongoose_mutex.unlock();
-            mg_mgr_poll(mgr, 800);
+            this->mongoose_mutex.unlock();
+            mg_mgr_poll(this->mgr, 800);
+            if (!this->ms_ev_ok.load(std::memory_order_acquire)) {
+                std::this_thread::sleep_for(std::chrono::seconds(3));
+                continue;
+            }
             s += 1;
             if (s - last >= 36) {
-                send_heartbeat();
+                this->send_heartbeat();
                 last = s;
             }
             if (s < 0) {
@@ -92,8 +97,8 @@ void LiveDanmaku::connect(int room_id, int uid) {
                 last = 0;
             }
         }
-        mg_mgr_free(mgr);
-        delete mgr;
+        mg_mgr_free(this->mgr);
+        delete this->mgr;
     });
 }
 
@@ -150,11 +155,13 @@ void LiveDanmaku::send_text_message(const std::string &message) {
 
 static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_data, void *user_data) {
     LiveDanmaku *liveDanmaku = static_cast<LiveDanmaku *>(user_data);
+    liveDanmaku->ms_ev_ok.store(true, std::memory_order_release);
     if (ev == MG_EV_OPEN) {
         nc->is_hexdumping = 1;
     } else if (ev == MG_EV_ERROR) {
         //MG_ERROR(("%p %s", nc->fd, (char *) ev_data));
-        liveDanmaku->disconnect();
+        //liveDanmaku->disconnect();
+        liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);
     } else if (ev == MG_EV_WS_OPEN) {
         liveDanmaku->send_join_request(liveDanmaku->room_id, liveDanmaku->uid);
     } else if (ev == MG_EV_WS_MSG) {
@@ -162,7 +169,8 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_da
         std::string message(wm->data.ptr, wm->data.len);
         liveDanmaku->onMessage(message);
     } else if(ev == MG_EV_CLOSE) {
-        liveDanmaku->disconnect();
+        //liveDanmaku->disconnect();
+        liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);
     }
 }
 
