@@ -20,6 +20,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Url:"/>
         <brls:Label
                 id="profile/file/url"
@@ -35,6 +36,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Size:"/>
         <brls:Label
                 id="profile/file/size"
@@ -50,6 +52,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Format/Protocol:"/>
         <brls:Label
                 id="profile/file/format"
@@ -65,6 +68,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Total Cache:"/>
         <brls:Label
                 id="profile/file/cache"
@@ -87,6 +91,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Resolution:"/>
         <brls:Label
                 id="profile/video/res"
@@ -102,6 +107,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Codec:"/>
         <brls:Label
                 id="profile/video/codec"
@@ -117,6 +123,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Pixel Format:"/>
         <brls:Label
                 id="profile/video/pixel"
@@ -132,6 +139,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Hardware Decode:"/>
         <brls:Label
                 id="profile/video/hwdec"
@@ -147,7 +155,8 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
-                text="Video Bitrate"/>
+                marginRight="4"
+                text="Video Bitrate:"/>
         <brls:Label
                 id="profile/video/bitrate"
                 textColor="@theme/font/grey"
@@ -162,6 +171,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Dropped Frames:"/>
         <brls:Label
                 id="profile/video/drop"
@@ -177,6 +187,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="A-V:"/>
         <brls:Label
                 id="profile/video/avsync"
@@ -199,6 +210,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Channels:"/>
         <brls:Label
                 id="profile/audio/channel"
@@ -214,6 +226,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Codec:"/>
         <brls:Label
                 id="profile/audio/codec"
@@ -229,6 +242,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Sample Rate:"/>
         <brls:Label
                 id="profile/audio/sample"
@@ -244,6 +258,7 @@
                 textColor="#FFFFFF"
                 fontSize="14"
                 shrink="0"
+                marginRight="4"
                 text="Bitrate:"/>
         <brls:Label
                 id="profile/audio/bitrate"
