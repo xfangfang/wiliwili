@@ -37,8 +37,9 @@ public:
 
     LiveDanmaku();
     ~LiveDanmaku();
-private:
+
     std::atomic_bool connected{false};
+    std::atomic_bool ms_ev_ok{false};
 
     std::thread mongoose_thread;
     std::mutex mongoose_mutex;
