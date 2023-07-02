@@ -5,4 +5,4 @@ Exec=wiliwili
 Icon=cn.xfangfang.wiliwili
 Terminal=false
 Type=Application
-Categories=AudioVideo
+Categories=AudioVideo;Audio;Video;

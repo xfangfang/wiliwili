@@ -34,6 +34,12 @@ set(DEBUG_SANITIZER
     CACHE BOOL "Turn on sanitizers (only available in debug build)"
 )
 
+# Do not use it until you know what you are doing.
+set(CUSTOM_RESOURCES_DIR
+    ""
+    CACHE STRING "Custom resources dir"
+)
+
 # analytics
 set(ANALYTICS
     OFF
@@ -108,13 +114,6 @@ elseif (USE_GLES2)
     add_definitions(-DUSE_GLES2)
 endif ()
 
-if (MPV_SW_RENDER)
-    add_definitions(-DMPV_SW_RENDER)
-endif ()
-if (MPV_NO_FB)
-    add_definitions(-DMPV_NO_FB)
-endif()
-
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)
 
 # toolchain
@@ -183,7 +182,8 @@ set(PROJECT_ICON_SVG
 set(RESOURCES_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/wiliwili) # Only used in
                                                                   # Linux
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-add_definitions(
+set(PLATFORM_INCLUDES)
+set(PLATFORM_OPTION
     -DBUILD_PACKAGE_NAME=${PACKAGE_NAME} -DBUILD_VERSION_MAJOR=${VERSION_MAJOR}
     -DBUILD_VERSION_MINOR=${VERSION_MINOR}
     -DBUILD_VERSION_REVISION=${VERSION_REVISION}
@@ -193,6 +193,12 @@ if (USE_SDL2)
 else ()
     add_definitions(-D__GLFW__)
 endif ()
+if (MPV_SW_RENDER)
+    list(APPEND PLATFORM_OPTION -DMPV_SW_RENDER)
+endif ()
+if (MPV_NO_FB)
+    list(APPEND PLATFORM_OPTION -DMPV_NO_FB)
+endif()
 
 # disable in-source build
 if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
@@ -200,7 +206,9 @@ if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
 endif ()
 
 # set resources dir
-if (INSTALL)
+if (CUSTOM_RESOURCES_DIR)
+    set(BRLS_RESOURCES_DIR ${CUSTOM_RESOURCES_DIR})
+elseif (INSTALL)
     set(BRLS_RESOURCES_DIR ${RESOURCES_INSTALL_DIR})
 else ()
     set(BRLS_RESOURCES_DIR ".")
@@ -215,8 +223,6 @@ endif ()
 # setting src and include
 file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
 
-set(PLATFORM_OPTION)
-set(PLATFORM_INCLUDES)
 if (PLATFORM_DESKTOP)
     find_package(MPV REQUIRED)
     if (MPV_FOUND)
@@ -227,7 +233,7 @@ if (PLATFORM_DESKTOP)
     endif ()
     set(PLATFORM_LIBS ${MPV_LIBRARY})
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-    set(PLATFORM_OPTION -pthread -I${MPV_INCLUDE_DIR})
+    list(APPEND PLATFORM_OPTION -pthread -I${MPV_INCLUDE_DIR})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 else ()
     if (USE_SDL2)
@@ -269,7 +275,7 @@ else ()
     )
     if (BUILTIN_NSP)
         list(APPEND PLATFORM_LIBS nsp)
-        set(PLATFORM_OPTION -DBUILTIN_NSP)
+        list(APPEND PLATFORM_OPTION -DBUILTIN_NSP)
     endif ()
     list(APPEND PLATFORM_OPTION -DMG_ARCH=10086)
     list(
@@ -320,7 +326,7 @@ if (ANALYTICS)
 endif ()
 
 if (VERIFY_SSL)
-    target_compile_options(${PROJECT_NAME} PRIVATE -DVERIFY_SSL)
+    list(APPEND PLATFORM_OPTION -DVERIFY_SSL)
 endif ()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
