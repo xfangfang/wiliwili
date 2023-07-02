@@ -39,6 +39,9 @@ typedef enum MpvEventEnum {
     END_OF_FILE,
     CACHE_SPEED_CHANGE,
     VIDEO_SPEED_CHANGE,
+    VIDEO_VOLUME_CHANGE,
+    VIDEO_MUTE,
+    VIDEO_UNMUTE,
 } MpvEventEnum;
 
 typedef brls::Event<MpvEventEnum> MPVEvent;
@@ -97,6 +100,10 @@ public:
 
     int64_t getInt(const std::string &key);
 
+    void setVolume(int64_t value);
+
+    int64_t getVolume();
+
     std::unordered_map<std::string, mpv_node> getNodeMap(
         const std::string &key);
 
@@ -145,6 +152,7 @@ public:
     int core_idle          = 0;
     int64_t duration       = 0;  // second
     int64_t cache_speed    = 0;  // Bps
+    int64_t volume         = 100;
     double video_speed     = 0;
     double playback_time   = 0;
     double percent_pos     = 0;

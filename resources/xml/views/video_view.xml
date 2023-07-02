@@ -199,6 +199,25 @@
                         positionType="absolute"
                         positionRight="20">
                     <brls:Box
+                            id="video/osd/danmaku/box/volume"
+                            hideClickAnimation="true"
+                            alignItems="center"
+                            justifyContent="center"
+                            height="60"
+                            width="60">
+                        <SVGImage
+                                id="video/osd/danmaku/volume/icon"
+                                focusable="true"
+                                focusUp="video/osd/setting"
+                                focusDown="video/osd/danmaku/volume/icon"
+                                hideHighlightBackground="true"
+                                highlightCornerRadius="30"
+                                wireframe="false"
+                                height="30"
+                                width="30"
+                                SVG="@res/svg/bpx-svg-sprite-volume.svg"/>
+                    </brls:Box>
+                    <brls:Box
                             id="video/osd/danmaku/box/setting"
                             hideClickAnimation="true"
                             alignItems="center"

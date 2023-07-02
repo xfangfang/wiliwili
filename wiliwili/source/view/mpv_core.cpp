@@ -148,6 +148,7 @@ void MPVCore::init() {
     //    check_error(mpv_observe_property(mpv, 8, "demuxer-cache-time", MPV_FORMAT_DOUBLE));
     //    check_error(mpv_observe_property(mpv, 9, "demuxer-cache-state", MPV_FORMAT_NODE));
     check_error(mpv_observe_property(mpv, 10, "speed", MPV_FORMAT_DOUBLE));
+    check_error(mpv_observe_property(mpv, 11, "volume", MPV_FORMAT_INT64));
 
     // init renderer params
 #ifdef MPV_SW_RENDER
@@ -781,6 +782,18 @@ void MPVCore::eventMainLoop() {
                             mpvCoreEvent.fire(VIDEO_SPEED_CHANGE);
                         }
                         break;
+                    case 11:
+                        // 音量信息
+                        if (data) {
+                            if (*(int64_t *)data > 0 && volume == 0) {
+                                mpvCoreEvent.fire(VIDEO_UNMUTE);
+                            } else if (*(int64_t *)data == 0 && volume > 0) {
+                                mpvCoreEvent.fire(VIDEO_MUTE);
+                            }
+                            volume = *(int64_t *)data;
+                            mpvCoreEvent.fire(VIDEO_SPEED_CHANGE);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -820,6 +833,13 @@ void MPVCore::setUrl(const std::string &url, const std::string &extra,
 void MPVCore::setBackupUrl(const std::string &url, const std::string &extra) {
     this->setUrl(url, extra, "append");
 }
+
+void MPVCore::setVolume(int64_t value) {
+    if (value < 0 || value > 100) return;
+    command_str(fmt::format("set volume {}", value).c_str());
+}
+
+int64_t MPVCore::getVolume() { return this->volume; }
 
 void MPVCore::resume() { command_str("set pause no"); }
 

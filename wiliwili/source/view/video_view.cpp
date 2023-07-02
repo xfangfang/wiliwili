@@ -354,6 +354,58 @@ VideoView::VideoView() {
     this->btnSettingIcon->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnSettingIcon->getParent()));
 
+    /// 音量按钮
+    this->btnVolumeIcon->getParent()->registerClickAction(
+        [this](brls::View* view) {
+            // 一直显示 OSD
+            this->showOSD(false);
+            auto theme     = brls::Application::getTheme();
+            auto container = new brls::Box();
+            container->setHideClickAnimation(true);
+            container->addGestureRecognizer(
+                new brls::TapGestureRecognizer(container, [this, container]() {
+                    // 几秒后自动关闭 OSD
+                    this->showOSD(true);
+                    container->dismiss();
+                }));
+            // 滑动条背景
+            auto sliderBox = new brls::Box();
+            sliderBox->setAlignItems(brls::AlignItems::CENTER);
+            sliderBox->setHeight(60);
+            sliderBox->setCornerRadius(4);
+            sliderBox->setBackgroundColor(theme.getColor("color/grey_1"));
+            sliderBox->setTranslationX(view->getX() - 120);
+            sliderBox->setTranslationY(view->getY() - 70);
+            // 滑动条
+            auto slider = new brls::Slider();
+            slider->setMargins(8, 16, 8, 16);
+            slider->setWidth(300);
+            slider->setHeight(40);
+            slider->setProgress(MPVCore::instance().getVolume() * 1.0 / 100);
+            slider->getProgressEvent()->subscribe([](float progress) {
+                MPVCore::instance().setVolume(progress * 100);
+            });
+            sliderBox->addView(slider);
+            container->addView(sliderBox);
+            auto frame = new AppletFrame(container);
+            frame->setInFadeAnimation(true);
+            frame->setHeaderVisibility(brls::Visibility::GONE);
+            frame->setFooterVisibility(brls::Visibility::GONE);
+            frame->setBackgroundColor(theme.getColor("brls/backdrop"));
+            brls::Application::pushActivity(new Activity(frame));
+
+            // 手动将焦点赋给音量组件
+            brls::sync(
+                [container]() { brls::Application::giveFocus(container); });
+            return true;
+        });
+    this->btnVolumeIcon->getParent()->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->btnVolumeIcon->getParent()));
+    if (mpvCore->volume <= 0) {
+        this->btnVolumeIcon->setImageFromSVGRes(
+            "svg/bpx-svg-sprite-volume-off.svg");
+    }
+
     /// 投屏按钮
     this->btnCastIcon->getParent()->registerClickAction([this](...) {
         this->pause();
@@ -686,6 +738,7 @@ void VideoView::hideActionButtons() {
     btnSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
     btnCastIcon->getParent()->setVisibility(brls::Visibility::GONE);
     videoSpeed->getParent()->setVisibility(brls::Visibility::GONE);
+    btnVolumeIcon->getParent()->setVisibility(brls::Visibility::GONE);
 }
 
 void VideoView::setTitle(const std::string& title) {
@@ -1050,6 +1103,14 @@ void VideoView::registerMpvEvent() {
                                 brls::Visibility::VISIBLE);
                         this->centerLabel->setText(mpvCore->getCacheSpeed());
                     }
+                    break;
+                case MpvEventEnum::VIDEO_MUTE:
+                    this->btnVolumeIcon->setImageFromSVGRes(
+                        "svg/bpx-svg-sprite-volume-off.svg");
+                    break;
+                case MpvEventEnum::VIDEO_UNMUTE:
+                    this->btnVolumeIcon->setImageFromSVGRes(
+                        "svg/bpx-svg-sprite-volume.svg");
                     break;
                 default:
                     break;
