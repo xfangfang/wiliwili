@@ -1,6 +1,7 @@
 //
 // Created by fang on 2023/4/20.
 //
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #include <codecvt>
 #include <cstring>

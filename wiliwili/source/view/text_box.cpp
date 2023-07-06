@@ -2,6 +2,8 @@
 // Created by fang on 2022/12/4.
 //
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include <utility>
 #include <codecvt>
 #include <cstring>
