@@ -26,23 +26,38 @@ SVGImage::SVGImage() {
 }
 
 void SVGImage::setImageFromSVGRes(const std::string& value) {
+    filePath = value;
+#ifdef USE_LIBROMFS
+    if (checkCache("@res/" + value) > 0) return;
+    auto image     = romfs::get(value);
+    this->document = lunasvg::Document::loadFromData(
+        (const char*)image.string().data(), image.size());
+    if (this->document) {
+        this->updateBitmap();
+    } else {
+        brls::Logger::error("cannot load svg image: {}", value);
+        return;
+    }
+
+    size_t tex = this->getTexture();
+    if (tex > 0) {
+        brls::Logger::verbose("cache svg: {} {}", value, tex);
+        brls::TextureCache::instance().addCache("@res/" + value, tex);
+    } else {
+        brls::Logger::error("svg got zero tex: {} {}", value, tex);
+    }
+#else
     this->setImageFromSVGFile(std::string(BRLS_RESOURCES) + value);
+#endif
 }
 
 void SVGImage::setImageFromSVGFile(const std::string& value) {
-    filePath   = value;
-    size_t tex = this->getTexture();
-    if (tex > 0) {
-        brls::TextureCache::instance().removeCache(tex);
-        brls::Logger::verbose("cache remove: {} {}", value, tex);
-    }
-
-    tex = brls::TextureCache::instance().getCache(value);
-    if (tex > 0) {
-        brls::Logger::verbose("cache hit: {} {}", value, tex);
-        this->innerSetImage(tex);
-        return;
-    }
+    filePath = value;
+#ifdef USE_LIBROMFS
+    if (value.rfind("@res/", 0) == 0)
+        return this->setImageFromSVGRes(value.substr(5));
+#endif
+    if (checkCache(value) > 0) return;
 
     this->document = lunasvg::Document::loadFromFile(value);
     if (this->document) {
@@ -52,7 +67,7 @@ void SVGImage::setImageFromSVGFile(const std::string& value) {
         return;
     }
 
-    tex = this->getTexture();
+    size_t tex = this->getTexture();
     if (tex > 0) {
         brls::Logger::verbose("cache svg: {} {}", value, tex);
         brls::TextureCache::instance().addCache(value, tex);
@@ -80,6 +95,10 @@ void SVGImage::updateBitmap() {
     NVGcontext* vg = brls::Application::getNVGContext();
     int tex        = nvgCreateImageRGBA(vg, bitmap.width(), bitmap.height(), 0,
                                         bitmap.data());
+    if (tex <= 0) {
+        brls::Logger::error("svg: {} update bitmap with texture 0.", filePath);
+        return;
+    }
     this->innerSetImage(tex);
 }
 

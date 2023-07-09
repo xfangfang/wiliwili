@@ -33,7 +33,13 @@ void AnimationImage::setImage(const std::string& value) {
     texture = brls::TextureCache::instance().getCache(value);
     auto vg = brls::Application::getNVGContext();
     if (!texture) {
+#ifdef USE_LIBROMFS
+        auto image = romfs::get(value.substr(5));
+        texture    = nvgCreateImageMem(
+            vg, 0, (unsigned char*)image.string().data(), (int)image.size());
+#else
         texture = nvgCreateImage(vg, value.c_str(), 0);
+#endif
         if (texture) brls::TextureCache::instance().addCache(value, texture);
     }
     this->refreshImage();
