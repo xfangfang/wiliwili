@@ -18,6 +18,10 @@
 #include "utils/thread_helper.hpp"
 #include "utils/activity_helper.hpp"
 
+#ifdef IOS
+#include <SDL2/SDL_main.h>
+#endif
+
 int main(int argc, char* argv[]) {
     // Set min_threads and max_threads of http thread pool
     curl_global_init(CURL_GLOBAL_DEFAULT);

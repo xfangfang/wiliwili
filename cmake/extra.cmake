@@ -34,7 +34,7 @@ add_definitions(-DBUILD_TAG_VERSION=${GIT_TAG_VERSION} -DBUILD_TAG_SHORT=${GIT_T
 message(STATUS "building from git tag ${GIT_TAG_VERSION}")
 message(STATUS "building from git commit ${GIT_TAG_SHORT}")
 
-if (APPLE)
+if (APPLE AND NOT PLATFORM_IOS)
     if (MAC_IntelChip)
         message(STATUS "CMAKE_OSX_ARCHITECTURES: x86_64")
         message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: 10.11")

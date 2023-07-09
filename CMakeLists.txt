@@ -1,9 +1,13 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.10)
 
 # build options
 set(PLATFORM_DESKTOP
     OFF
     CACHE BOOL "build for desktop, ON for desktop; OFF for switch"
+)
+set(PLATFORM_IOS
+    OFF
+    CACHE BOOL "build for iOS"
 )
 set(BUILTIN_NSP
     OFF
@@ -91,28 +95,12 @@ set(MPV_NO_FB
 option(USE_GLFW "using glfw for input and create window" ON)
 option(USE_SDL2 "using sdl2 for input and create window" OFF)
 option(USE_GL2 "using OpenGL 2.1" OFF)
-option(USE_GLES2 "using OpenGL ES 2.0 (current only works with USE_GLFW)" OFF)
-
+option(USE_GLES2 "using OpenGL ES 2.0" OFF)
+option(USE_GLES3 "using OpenGL ES 3.0" OFF)
 option(INSTALL "Install to system. only use this option with Linux." OFF)
+option(USE_LIBROMFS "using libromfs to bundle resources" OFF)
 
-if (USE_SDL2)
-    message("SDL2")
-    set(USE_GLFW OFF)
-else ()
-    # default glfw3.3
-    message("GLFW")
-    set(USE_GLFW ON)
-    set(USE_SDL2 OFF)
-endif ()
-
-if (USE_GL2)
-    set(USE_GL2 ON)
-    add_definitions(-DUSE_GL2)
-    set(MPV_NO_FB ON)
-elseif (USE_GLES2)
-    set(USE_GLES2 ON)
-    add_definitions(-DUSE_GLES2)
-endif ()
+# =======================================================================
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)
 
@@ -131,6 +119,17 @@ if (PLATFORM_DESKTOP)
         set(_USE_SHARED_LIB ON)
         set(USE_SYSTEM_CURL ON)
     endif ()
+elseif (PLATFORM_IOS)
+    message(STATUS "building for iOS")
+    set(USE_SDL2 ON)
+    set(USE_GLES3 ON)
+    set(MPV_NO_FB ON)
+    set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2") # iphone, ipad
+    set(USE_LIBROMFS ON) # package resources inside
+    set(LIBROMFS_PREBUILT_GENERATOR "${CMAKE_CURRENT_SOURCE_DIR}/libromfs-generator" CACHE STRING "")
+    if (NOT EXISTS "${LIBROMFS_PREBUILT_GENERATOR}")
+        message(FATAL_ERROR "libromfs-generator has not been built, please refer to library/borealis/build_libromfs_generator.sh for more information")
+    endif()
 else ()
     message(STATUS "building for SWITCH")
     message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
@@ -161,6 +160,32 @@ else ()
     message(STATUS "CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}")
     message(STATUS "NX_NACP" = ${NX_NACPTOOL_EXE})
     message(STATUS "NX_ELF2NRO" = ${NX_ELF2NRO_EXE})
+endif ()
+
+if (USE_GL2)
+    message(STATUS "USE_GL2")
+    set(USE_GL2 ON)
+    add_definitions(-DUSE_GL2)
+    set(MPV_NO_FB ON)
+elseif (USE_GLES2)
+    message(STATUS "USE_GLES2")
+    set(USE_GLES2 ON)
+    add_definitions(-DUSE_GLES2)
+    set(MPV_NO_FB ON)
+elseif (USE_GLES3)
+    message(STATUS "USE_GLES3")
+    set(USE_GLES3 ON)
+    add_definitions(-DUSE_GLES3)
+else ()
+    message(STATUS "USE_GL3/4")
+endif ()
+
+if (USE_SDL2)
+    message(STATUS "SDL2")
+    set(USE_GLFW OFF)
+else ()
+    message(STATUS "GLFW")
+    set(USE_GLFW ON)
 endif ()
 
 # project info
@@ -199,6 +224,13 @@ endif ()
 if (MPV_NO_FB)
     list(APPEND PLATFORM_OPTION -DMPV_NO_FB)
 endif()
+if (USE_LIBROMFS)
+    message(STATUS "USE LIBROMFS")
+    set(USE_LIBROMFS ON)
+    add_definitions(-DUSE_LIBROMFS)
+    set(LIBROMFS_PROJECT_NAME ${PROJECT_NAME})
+    set(LIBROMFS_RESOURCE_LOCATION "${PROJECT_RESOURCES}")
+endif ()
 
 # disable in-source build
 if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
@@ -235,6 +267,36 @@ if (PLATFORM_DESKTOP)
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
     list(APPEND PLATFORM_OPTION -pthread -I${MPV_INCLUDE_DIR})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+elseif (PLATFORM_IOS)
+    if (NOT DEFINED IOS_DEPS_DIR)
+        message(FATAL_ERROR "You should add -DIOS_DEPS_DIR=/some/path which contain include and lib for ios")
+    endif ()
+    set(IOS_INCLUDE_DIR "${IOS_DEPS_DIR}/include")
+    set(IOS_LIB_DIR "${IOS_DEPS_DIR}/lib")
+    list(APPEND PLATFORM_INCLUDES "${IOS_INCLUDE_DIR}")
+    list(APPEND PLATFORM_OPTION -DUSE_WEBP)
+    set(PLATFORM_LIBS
+            ${IOS_LIB_DIR}/libmpv.a
+            ${IOS_LIB_DIR}/libavcodec.a
+            ${IOS_LIB_DIR}/libavdevice.a
+            ${IOS_LIB_DIR}/libavfilter.a
+            ${IOS_LIB_DIR}/libavformat.a
+            ${IOS_LIB_DIR}/libswresample.a
+            ${IOS_LIB_DIR}/libswscale.a
+            ${IOS_LIB_DIR}/libavutil.a
+            ${IOS_LIB_DIR}/libuchardet.a
+            ${IOS_LIB_DIR}/libharfbuzz.a
+            ${IOS_LIB_DIR}/libfribidi.a
+            ${IOS_LIB_DIR}/libfreetype.a
+            ${IOS_LIB_DIR}/libass.a
+            ${IOS_LIB_DIR}/libssl.a
+            ${IOS_LIB_DIR}/libcrypto.a
+            ${IOS_LIB_DIR}/libwebp.a
+            ${IOS_LIB_DIR}/libsharpyuv.a
+            z
+            bz2
+            "-framework CoreMedia -framework CoreText -framework VideoToolbox"
+            )
 else ()
     if (USE_SDL2)
         set(PLATFORM_LIBS SDL2)
@@ -277,6 +339,7 @@ else ()
         list(APPEND PLATFORM_LIBS nsp)
         list(APPEND PLATFORM_OPTION -DBUILTIN_NSP)
     endif ()
+    # compile option for mongoose
     list(APPEND PLATFORM_OPTION -DMG_ARCH=10086)
     list(
         APPEND
@@ -288,12 +351,14 @@ endif ()
 # build borealis qrcode and other third party libraries
 add_subdirectory(library)
 
-find_package(WebP)
-if (WebP_FOUND)
-    message(STATUS "Found webp: ${WebP_INCLUDE_DIR} ${WebP_LIBRARY}")
-    add_definitions(-DUSE_WEBP)
-    list(APPEND PLATFORM_INCLUDES ${WebP_INCLUDE_DIRS})
-    list(APPEND PLATFORM_LIBS ${WebP_LIBRARY})
+if (NOT PLATFORM_IOS)
+    find_package(WebP)
+    if (WebP_FOUND)
+        message(STATUS "Found webp: ${WebP_INCLUDE_DIR} ${WebP_LIBRARY}")
+        list(APPEND PLATFORM_OPTION -DUSE_WEBP)
+        list(APPEND PLATFORM_INCLUDES ${WebP_INCLUDE_DIRS})
+        list(APPEND PLATFORM_LIBS ${WebP_LIBRARY})
+    endif ()
 endif ()
 
 # building target
@@ -364,7 +429,9 @@ if (PLATFORM_DESKTOP)
             "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_SOURCE_DIR}/resources
             ${CMAKE_CURRENT_BINARY_DIR}/resources
     )
-    add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
+    if (NOT USE_LIBROMFS)
+        add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
+    endif ()
 
     if (APPLE)
         if (MAC_DOWNLOAD_DYLIB)
@@ -433,6 +500,50 @@ if (PLATFORM_DESKTOP)
             )
         endif ()
     endif ()
+elseif (PLATFORM_IOS)
+    set(IOS_CODE_SIGN_IDENTITY "" CACHE STRING "The code sign identity to use when building the IPA.")
+    if(IOS_CODE_SIGN_IDENTITY STREQUAL "")
+        set(IOS_CODE_SIGNING_ENABLED NO)
+    else()
+        set(IOS_CODE_SIGNING_ENABLED YES)
+    endif()
+    if (NOT DEFINED IOS_GUI_IDENTIFIER)
+        set(IOS_GUI_IDENTIFIER "${PACKAGE_NAME}")
+        message(WARNING "Using default package name: ${PACKAGE_NAME}")
+    endif ()
+    if (TVOS)
+        set(IOS_SPLASH_STORYBOARD "${CMAKE_SOURCE_DIR}/library/borealis/demo/ios/tvos/Splash.storyboard")
+    else ()
+        set(IOS_SPLASH_STORYBOARD "${CMAKE_SOURCE_DIR}/library/borealis/demo/ios/iphoneos/Splash.storyboard")
+    endif ()
+    set(IOS_ASSETS ${CMAKE_SOURCE_DIR}/library/borealis/demo/ios/Images.xcassets)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "${IOS_CODE_SIGN_IDENTITY}"
+            XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "${IOS_CODE_SIGNING_ENABLED}"
+            XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "${IOS_CODE_SIGNING_ENABLED}"
+            BUNDLE TRUE
+            MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/scripts/ios/iOSBundleInfo.plist.in
+            MACOSX_BUNDLE TRUE
+            MACOSX_BUNDLE_GUI_IDENTIFIER ${IOS_GUI_IDENTIFIER}
+            MACOSX_BUNDLE_BUNDLE_NAME wiliwili
+            MACOSX_BUNDLE_BUNDLE_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_ALTER}"
+            MACOSX_BUNDLE_SHORT_VERSION_STRING "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_ALTER}"
+            XCODE_ATTRIBUTE_ENABLE_BITCODE NO
+            XCODE_ATTRIBUTE_SKIP_INSTALL NO
+            XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+            )
+    set_property(
+            SOURCE ${IOS_ASSETS}
+            PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
+    )
+    set_property(
+            SOURCE ${IOS_SPLASH_STORYBOARD}
+            PROPERTY MACOSX_PACKAGE_LOCATION "Resources"
+    )
+    target_sources(${PROJECT_NAME} PRIVATE
+            ${IOS_ASSETS}
+            ${IOS_SPLASH_STORYBOARD}
+            )
 else ()
     set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)
     set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}")

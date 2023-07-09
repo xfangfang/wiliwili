@@ -2,7 +2,9 @@
 // Created by fang on 2022/7/10.
 //
 
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#ifdef IOS
+#include <CoreFoundation/CoreFoundation.h>
+#elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
 #include <unistd.h>
 #include <borealis/platforms/desktop/desktop_platform.hpp>
 #endif
@@ -54,7 +56,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
+#ifdef IOS
+    {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 1}},
+#else
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
+#endif
     {SettingItem::HIDE_FPS, {"hide_fps", {}, {}, 1}},
 #if defined(__APPLE__) || !defined(NDEBUG)
     // mac使用原生全屏按钮效果更好，不通过软件来控制
@@ -66,13 +72,16 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
-    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {},
 #ifdef __SWITCH__
-        1}},
+    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else
-        0}},
+    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
 #endif
+#ifdef IOS
+    {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 1}},
+#else
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
+#endif
     {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
     {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END,
      {"player_exit_fullscreen_on_end", {}, {}, 1}},
@@ -328,7 +337,8 @@ void ProgramConfig::load() {
         brls::Logger::info("Load config from: {}", path);
     }
 
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#ifdef IOS
+#elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     brls::DesktopPlatform::GAMEPAD_DB =
         getConfigDir() + "/gamecontrollerdb.txt";
 #endif
@@ -443,8 +453,8 @@ void ProgramConfig::load() {
         brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_ZH_HANS;
 #endif
     }
-
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#ifdef IOS
+#elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     // 初始化上一次窗口位置
     loadHomeWindowState();
 #endif
@@ -482,14 +492,16 @@ void ProgramConfig::load() {
         brls::TextureCache::instance().cache.setCapacity(
             getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
 
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#ifdef IOS
+#elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
         // 设置窗口最小尺寸
         brls::Application::getPlatform()->setWindowSizeLimits(
             MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT, 0, 0);
 #endif
     });
 
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#ifdef IOS
+#elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     // 窗口将要关闭时, 保存窗口状态配置
     brls::Application::getExitEvent()->subscribe(
         [this]() { saveHomeWindowState(); });
@@ -568,7 +580,9 @@ int ProgramConfig::getStringOptionIndex(SettingItem item) {
 void ProgramConfig::save() {
     const std::string path = this->getConfigDir() + "/wiliwili_config.json";
     // fs is defined in cpr/cpr.h
+#ifndef IOS
     fs::create_directories(this->getConfigDir());
+#endif
     nlohmann::json content(*this);
     std::ofstream writeFile(path);
     if (!writeFile) {
@@ -582,6 +596,12 @@ void ProgramConfig::save() {
 
 void ProgramConfig::init() {
     brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
+
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) != nullptr) {
+        brls::Logger::info("Current working directory: {}", cwd);
+    }
+
     // load config from disk
     this->load();
 
@@ -631,6 +651,18 @@ void ProgramConfig::init() {
 std::string ProgramConfig::getConfigDir() {
 #ifdef __SWITCH__
     return "/config/wiliwili";
+#elif defined(IOS)
+    CFURLRef homeURL = CFCopyHomeDirectoryURL();
+    if (homeURL != nullptr) {
+        char buffer[PATH_MAX];
+        if (CFURLGetFileSystemRepresentation(homeURL, true,
+                                             reinterpret_cast<UInt8*>(buffer),
+                                             sizeof(buffer))) {
+        }
+        CFRelease(homeURL);
+        return std::string{buffer} + "/Library/Preferences";
+    }
+    return "../Library/Preferences";
 #else
 #ifdef _DEBUG
     char currentPathBuffer[PATH_MAX];
@@ -661,7 +693,8 @@ std::string ProgramConfig::getConfigDir() {
 }
 
 void ProgramConfig::checkRestart(char* argv[]) {
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#ifdef IOS
+#elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     if (!brls::DesktopPlatform::RESTART_APP) return;
 
 #ifdef __linux__

@@ -41,6 +41,9 @@ std::string APPVersion::getPlatform() {
 #ifdef __SWITCH__
     return "NX";
 #endif
+#ifdef IOS
+    return "iOS";
+#endif
 }
 
 std::string APPVersion::getPackageName() {

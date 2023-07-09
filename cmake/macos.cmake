@@ -16,9 +16,6 @@ if (APPLE)
     endif ()
 
     if (MAC_DOWNLOAD_DYLIB)
-        link_libraries(
-                ${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}
-        )
         set(PLATFORM_LIBS
                 ${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}/libmpv.2.dylib
                 ${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}/libwebp.7.1.6.dylib
