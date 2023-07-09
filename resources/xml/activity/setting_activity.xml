@@ -49,16 +49,16 @@
                             <brls:BooleanCell
                                     id="setting/video/hwdec"/>
 
-                            <brls:SelectorCell
+                            <SelectorCell
                                     id="setting/video/inmemory"/>
 
-                            <brls:SelectorCell
+                            <SelectorCell
                                     id="setting/video/format"/>
 
-                            <brls:SelectorCell
+                            <SelectorCell
                                     id="setting/video/codec"/>
 
-                            <brls:SelectorCell
+                            <SelectorCell
                                     id="setting/audio/quality"/>
 
                         </brls:Box>
@@ -73,10 +73,10 @@
                                 axis="column"
                                 marginBottom="30px">
 
-                            <brls:SelectorCell
+                            <SelectorCell
                                     id="setting/image/texture"/>
 
-                            <brls:SelectorCell
+                            <SelectorCell
                                     id="setting/image/threads"/>
 
                         </brls:Box>
@@ -109,13 +109,13 @@
                             <brls:BooleanCell
                                     id="setting/opencc"/>
 
-                            <brls:SelectorCell
+                            <SelectorCell
                                     id="setting/keymap"/>
 
-                            <brls:SelectorCell
+                            <SelectorCell
                                     id="setting/ui/theme"/>
 
-                            <brls:SelectorCell
+                            <SelectorCell
                                     id="setting/language"/>
                         </brls:Box>
                     </brls:Box>

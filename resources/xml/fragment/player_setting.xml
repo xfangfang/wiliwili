@@ -80,7 +80,7 @@
                     <brls:BooleanCell
                             id="setting/history/log"/>
 
-                    <brls:SelectorCell
+                    <SelectorCell
                             id="setting/sleep"/>
 
                 </brls:Box>

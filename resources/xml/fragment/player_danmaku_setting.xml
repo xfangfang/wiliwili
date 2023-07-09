@@ -48,19 +48,19 @@
                         axis="column"
                         marginBottom="30px">
 
-                    <brls:SelectorCell
+                    <SelectorCell
                             id="player/danmaku/style/area"/>
 
-                    <brls:SelectorCell
+                    <SelectorCell
                             id="player/danmaku/style/alpha"/>
 
-                    <brls:SelectorCell
+                    <SelectorCell
                             id="player/danmaku/style/fontsize"/>
 
-                    <brls:SelectorCell
+                    <SelectorCell
                             id="player/danmaku/style/lineHeight"/>
 
-                    <brls:SelectorCell
+                    <SelectorCell
                             id="player/danmaku/style/speed"/>
 
                 </brls:Box>
@@ -75,7 +75,7 @@
                         axis="column"
                         marginBottom="30px">
 
-                    <brls:SelectorCell
+                    <SelectorCell
                             id="player/danmaku/filter/level"/>
 
                     <brls:BooleanCell

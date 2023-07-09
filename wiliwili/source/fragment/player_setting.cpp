@@ -8,6 +8,7 @@
 #include "view/mpv_core.hpp"
 #include "view/subtitle_core.hpp"
 #include "view/video_view.hpp"
+#include "view/selector_cell.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/shader_helper.hpp"
 #include "utils/number_helper.hpp"

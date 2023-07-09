@@ -5,6 +5,7 @@
 #include "fragment/player_danmaku_setting.hpp"
 #include "view/danmaku_core.hpp"
 #include "view/button_close.hpp"
+#include "view/selector_cell.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/string_helper.hpp"
 

@@ -53,6 +53,7 @@
                         marginTop="20"
                         text="0"/>
                 <brls:Label
+                        singleLine="true"
                         marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
@@ -77,6 +78,7 @@
                         marginTop="20"
                         text="0"/>
                 <brls:Label
+                        singleLine="true"
                         marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
@@ -101,6 +103,7 @@
                         marginTop="20"
                         text="0"/>
                 <brls:Label
+                        singleLine="true"
                         marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"
@@ -125,6 +128,7 @@
                         marginTop="20"
                         text="0"/>
                 <brls:Label
+                        singleLine="true"
                         marginTop="4"
                         fontSize="16"
                         textColor="@theme/font/grey"

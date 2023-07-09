@@ -9,6 +9,7 @@
 #include "fragment/test_rumble.hpp"
 #include "view/text_box.hpp"
 #include "view/mpv_core.hpp"
+#include "view/selector_cell.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/vibration_helper.hpp"
 #include "utils/dialog_helper.hpp"

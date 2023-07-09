@@ -20,6 +20,7 @@
 #include "view/button_close.hpp"
 #include "view/check_box.hpp"
 #include "view/video_profile.hpp"
+#include "view/selector_cell.hpp"
 
 #include "fragment/home_tab.hpp"
 #include "fragment/dynamic_tab.hpp"
@@ -66,6 +67,7 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("VideoComment", VideoComment::create);
     brls::Application::registerXMLView("ButtonClose", ButtonClose::create);
     brls::Application::registerXMLView("CheckBox", CheckBox::create);
+    brls::Application::registerXMLView("SelectorCell", SelectorCell::create);
     brls::Application::registerXMLView("AnimationImage",
                                        AnimationImage::create);
 

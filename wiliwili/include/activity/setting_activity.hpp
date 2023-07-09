@@ -7,6 +7,7 @@
 #include <borealis.hpp>
 
 class TextBox;
+class SelectorCell;
 
 class SettingActivity : public brls::Activity {
 public:
@@ -31,18 +32,18 @@ private:
     BRLS_BIND(brls::RadioCell, btnQuit, "tools/quit");
     BRLS_BIND(brls::RadioCell, btnOpenConfig, "tools/config_dir");
     BRLS_BIND(brls::RadioCell, btnVibrationTest, "tools/vibration_test");
-    BRLS_BIND(brls::SelectorCell, selectorLang, "setting/language");
-    BRLS_BIND(brls::SelectorCell, selectorTheme, "setting/ui/theme");
-    BRLS_BIND(brls::SelectorCell, selectorTexture, "setting/image/texture");
-    BRLS_BIND(brls::SelectorCell, selectorThreads, "setting/image/threads");
-    BRLS_BIND(brls::SelectorCell, selectorKeymap, "setting/keymap");
+    BRLS_BIND(SelectorCell, selectorLang, "setting/language");
+    BRLS_BIND(SelectorCell, selectorTheme, "setting/ui/theme");
+    BRLS_BIND(SelectorCell, selectorTexture, "setting/image/texture");
+    BRLS_BIND(SelectorCell, selectorThreads, "setting/image/threads");
+    BRLS_BIND(SelectorCell, selectorKeymap, "setting/keymap");
     BRLS_BIND(brls::BooleanCell, btnOpencc, "setting/opencc");
     BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/quality");
     BRLS_BIND(brls::BooleanCell, btnHWDEC, "setting/video/hwdec");
-    BRLS_BIND(brls::SelectorCell, selectorInmemory, "setting/video/inmemory");
-    BRLS_BIND(brls::SelectorCell, selectorFormat, "setting/video/format");
-    BRLS_BIND(brls::SelectorCell, selectorCodec, "setting/video/codec");
-    BRLS_BIND(brls::SelectorCell, selectorQuality, "setting/audio/quality");
+    BRLS_BIND(SelectorCell, selectorInmemory, "setting/video/inmemory");
+    BRLS_BIND(SelectorCell, selectorFormat, "setting/video/format");
+    BRLS_BIND(SelectorCell, selectorCodec, "setting/video/codec");
+    BRLS_BIND(SelectorCell, selectorQuality, "setting/audio/quality");
     BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
     BRLS_BIND(brls::BooleanCell, cellHideBar, "cell/hideBottomBar");
     BRLS_BIND(brls::BooleanCell, cellHideFPS, "cell/hideFPS");

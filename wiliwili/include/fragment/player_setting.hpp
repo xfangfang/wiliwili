@@ -7,6 +7,7 @@
 #include <borealis.hpp>
 
 class ButtonClose;
+class SelectorCell;
 namespace brls {
 class ScrollingFrame;
 };
@@ -52,5 +53,5 @@ private:
     BRLS_BIND(brls::BooleanCell, btnAutoNextPart, "setting/auto/nextPart");
     BRLS_BIND(brls::BooleanCell, btnAutoNextRcmd, "setting/auto/nextRcmd");
     BRLS_BIND(brls::BooleanCell, btnExitFullscreen, "setting/auto/exit");
-    BRLS_BIND(brls::SelectorCell, btnSleep, "setting/sleep");
+    BRLS_BIND(SelectorCell, btnSleep, "setting/sleep");
 };
