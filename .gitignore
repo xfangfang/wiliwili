@@ -20,3 +20,5 @@ repo/
 .vs
 .DS_Store
 /winrt/AppxManifest.xml
+libromfs-generator
+build-*

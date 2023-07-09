@@ -20,6 +20,10 @@ on:
         description: 'build flatpak (aarch64)'
         required: false
         default: 'false'
+      universal_macos:
+        description: 'build macos (universal)'
+        required: false
+        default: 'false'
       release:
         description: 'Push a new release'
         required: false
@@ -248,6 +252,7 @@ jobs:
           fetch-depth: 0
 
       - name: install deps
+        if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         run: |
           brew install create-dmg dylibbundler webp boost
           brew tap xfangfang/wiliwili
@@ -261,23 +266,27 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
       - name: Update gamepad mappings
+        if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         id: gamepad
         run: |
           BRLS_GLFW="library/borealis/library/lib/extern/glfw"
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
 
       - name: Build
+        if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         id: compile
         run: |
           cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release -DMAC_${{ matrix.arch }}=ON -DMAC_DOWNLOAD_DYLIB=ON
           make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
 
       - name: Name
+        if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         id: name
         run: |
           echo "DMG=${{ needs.version.outputs.DIST_DMG_PREFIX }}-${{ matrix.arch }}-${{ needs.version.outputs.version }}"  >> $GITHUB_OUTPUT
 
       - name: Bundle
+        if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         id: bundle
         run: |
           mkdir -p dist
@@ -290,6 +299,7 @@ jobs:
             --volname "wiliwili (${{ needs.version.outputs.version }})" ${{ steps.name.outputs.DMG }}.dmg "dist/"
 
       - name: Upload dist
+        if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.name.outputs.DMG }}

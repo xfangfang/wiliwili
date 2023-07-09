@@ -296,8 +296,9 @@ public:
         const std::string path =
             ProgramConfig::instance().getConfigDir() + "/pack.json";
         // fs is defined in cpr/cpr.h
-        fs::create_directories(
-            ProgramConfig::instance().getConfigDir());
+#ifndef IOS
+        fs::create_directories(ProgramConfig::instance().getConfigDir());
+#endif
         nlohmann::json content(pack);
         std::ofstream writeFile(path);
         if (!writeFile) {

@@ -35,6 +35,7 @@ bool DialogHelper::checkLogin() {
 void DialogHelper::quitApp(bool restart) {
     auto dialog = new brls::Dialog("wiliwili/setting/quit_hint"_i18n);
     dialog->addButton("hints/ok"_i18n, [restart]() {
+#ifndef IOS
         brls::Box* container = new brls::Box();
         container->setJustifyContent(brls::JustifyContent::CENTER);
         container->setAlignItems(brls::AlignItems::CENTER);
@@ -50,6 +51,7 @@ void DialogHelper::quitApp(bool restart) {
                                         brls::TransitionAnimation::NONE);
         brls::Application::getPlatform()->exitToHomeMode(!restart);
         brls::Application::quit();
+#endif /* IOS */
     });
     dialog->setCancelable(false);
     dialog->open();

@@ -205,6 +205,10 @@ void MPVCore::init() {
                     AUTO_PLAY = false;
                 }
             });
+
+#ifdef IOS
+    glBindFramebuffer(GL_FRAMEBUFFER, 1);
+#endif
 }
 
 MPVCore::~MPVCore() {
@@ -274,7 +278,11 @@ void MPVCore::deleteShader() {
 }
 
 void MPVCore::initializeGL() {
-#if defined(MPV_NO_FB) || defined(MPV_SW_RENDER)
+#if defined(MPV_NO_FB)
+#if defined(IOS)
+    mpv_fbo.fbo = 1;
+#endif
+#elif defined(MPV_SW_RENDER)
 #else
     if (media_framebuffer != 0) return;
     brls::Logger::debug("initializeGL");
@@ -516,6 +524,9 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     if (alpha >= 1) {
         // 绘制视频
         mpv_render_context_render(this->mpv_context, mpv_params);
+#ifdef IOS
+        glBindFramebuffer(GL_FRAMEBUFFER, 1);
+#endif
         glViewport(0, 0, brls::Application::windowWidth,
                    brls::Application::windowHeight);
         mpv_render_context_report_swap(this->mpv_context);
