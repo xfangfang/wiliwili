@@ -176,5 +176,10 @@
                     type="2"/>
         </Tab>
 
+        <Tab label="@i18n/wiliwili/mine/later"
+             fontSize="18">
+            <MineLater id="mine/later"/>
+        </Tab>
+
     </AutoTabFrame>
 </brls:Box>

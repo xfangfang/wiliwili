@@ -17,6 +17,7 @@ typedef brls::Event<bilibili::LoginInfo> loginStatusEvent;
 class MineHistory;
 class MineCollection;
 class MineBangumi;
+class MineLater;
 
 class MineTab : public AttachedView, public UserHome {
 public:
@@ -42,6 +43,7 @@ private:
     BRLS_BIND(brls::Image, imageUserAvater, "mine/image/avatar");
     BRLS_BIND(brls::Label, labelUserName, "mine/label/username");
     BRLS_BIND(MineHistory, mineHistory, "mine/history");
+    BRLS_BIND(MineLater, mineLater, "mine/Later");
     BRLS_BIND(MineCollection, mineCollection, "mine/collection");
     BRLS_BIND(MineBangumi, mineAnime, "mine/anime");
     BRLS_BIND(MineBangumi, mineSeries, "mine/series");

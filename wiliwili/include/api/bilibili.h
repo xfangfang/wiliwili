@@ -5,15 +5,6 @@
 #include <vector>
 #include <future>
 #include "bilibili/api.h"
-//#include "bilibili/util/md5.hpp"
-//#include "bilibili/util/http.hpp"
-//#include "bilibili/result/home_hots_all_result.h"
-//#include "bilibili/result/home_hots_weekly_result.h"
-//#include "bilibili/result/home_hots_history_result.h"
-//#include "bilibili/result/home_hots_rank.h"
-//#include "bilibili/result/mine_result.h"
-//#include "bilibili/result/mine_history_result.h"
-//#include "bilibili/result/home_pgc_season_result.h"
 
 namespace bilibili {
 
@@ -71,6 +62,7 @@ typedef std::vector<HotsWeeklyResult> HotsWeeklyListResult;
 class HotsAllVideoResult;
 typedef std::vector<HotsAllVideoResult> HotsAllVideoListResult;
 class SearchSuggestList;
+class WatchLaterListWrapper;
 
 using Cookies       = std::map<std::string, std::string>;
 using ErrorCallback = std::function<void(const std::string&)>;
@@ -131,6 +123,11 @@ public:
         const HistoryVideoListCursor& cursor,
         const std::function<void(HistoryVideoResultWrapper)>& callback =
             nullptr,
+        const ErrorCallback& error = nullptr);
+
+    // 稍后再看 watch later
+    static void getWatchLater(
+        const std::function<void(WatchLaterListWrapper)>& callback = nullptr,
         const ErrorCallback& error = nullptr);
 
     /**

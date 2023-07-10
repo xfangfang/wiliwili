@@ -193,6 +193,8 @@ static const std::string UserUGCSeason =
 /// 用户订阅合集的视频列表
 static const std::string UserUGCSeasonVideoList =
     _apiBase + "/x/space/fav/season/list";
+// watch later
+static const std::string WatchLater = _apiBase + "/x/v2/history/toview/web";
 
 /// ===
 /// 搜索页API
