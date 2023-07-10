@@ -826,6 +826,7 @@ void MPVCore::reset() {
     this->cache_speed    = 0;  // Bps
     this->playback_time  = 0;
     this->video_progress = 0;
+    setVolume(MPVCore::VIDEO_VOLUME);
 }
 
 void MPVCore::setUrl(const std::string &url, const std::string &extra,
@@ -848,6 +849,7 @@ void MPVCore::setBackupUrl(const std::string &url, const std::string &extra) {
 void MPVCore::setVolume(int64_t value) {
     if (value < 0 || value > 100) return;
     command_str(fmt::format("set volume {}", value).c_str());
+    MPVCore::VIDEO_VOLUME = (int)value;
 }
 
 int64_t MPVCore::getVolume() { return this->volume; }

@@ -108,6 +108,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
          {200, 175, 150, 125, 100, 75, 50},
          0},
     },
+    {SettingItem::PLAYER_VOLUME, {"player_volume", {}, {}, 0}},
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
     {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
@@ -491,6 +492,9 @@ void ProgramConfig::load() {
         // 初始化纹理缓存数量
         brls::TextureCache::instance().cache.setCapacity(
             getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
+
+        // 初始化播放器音量
+        MPVCore::VIDEO_VOLUME = getSettingItem(SettingItem::PLAYER_VOLUME, 100);
 
 #ifdef IOS
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)

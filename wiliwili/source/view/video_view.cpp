@@ -367,6 +367,8 @@ VideoView::VideoView() {
                     // 几秒后自动关闭 OSD
                     this->showOSD(true);
                     container->dismiss();
+                    // 保存结果
+                    ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_VOLUME, MPVCore::VIDEO_VOLUME);
                 }));
             // 滑动条背景
             auto sliderBox = new brls::Box();
@@ -397,6 +399,8 @@ VideoView::VideoView() {
                                           // 几秒后自动关闭 OSD
                                           this->showOSD(true);
                                           container->dismiss();
+                                          // 保存结果
+                                          ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_VOLUME, MPVCore::VIDEO_VOLUME);
                                           return true;
                                       });
             brls::Application::pushActivity(new Activity(frame));
