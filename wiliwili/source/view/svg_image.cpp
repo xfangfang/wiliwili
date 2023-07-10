@@ -26,16 +26,17 @@ SVGImage::SVGImage() {
 }
 
 void SVGImage::setImageFromSVGRes(const std::string& value) {
-    filePath = value;
 #ifdef USE_LIBROMFS
-    if (checkCache("@res/" + value) > 0) return;
+    filePath = "@res/" + value;
+    if (checkCache(filePath) > 0) return;
     auto image     = romfs::get(value);
     this->document = lunasvg::Document::loadFromData(
         (const char*)image.string().data(), image.size());
     if (this->document) {
         this->updateBitmap();
     } else {
-        brls::Logger::error("cannot load svg image: {}", value);
+        brls::Logger::error("setImageFromSVGRes: cannot load svg image: {}",
+                            value);
         return;
     }
 
@@ -63,7 +64,8 @@ void SVGImage::setImageFromSVGFile(const std::string& value) {
     if (this->document) {
         this->updateBitmap();
     } else {
-        brls::Logger::error("cannot load svg image: {}", value);
+        brls::Logger::error("setImageFromSVGFile: cannot load svg image: {}",
+                            value);
         return;
     }
 
@@ -81,7 +83,8 @@ void SVGImage::setImageFromSVGString(const std::string& value) {
     if (this->document) {
         this->updateBitmap();
     } else {
-        brls::Logger::error("cannot load svg image: {}", value);
+        brls::Logger::error("setImageFromSVGString: cannot load svg image: {}",
+                            value);
     }
 }
 
