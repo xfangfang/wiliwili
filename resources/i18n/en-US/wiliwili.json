@@ -31,6 +31,8 @@
         "vibration": "Gamepad vibration",
         "hide_bottom": "Hide the hint bar below",
         "hide_fps": "Hide FPS",
+        "limited_fps": "Maximum frame limit",
+        "limited_fps_vsync": "Vertical Synchronization",
         "fullscreen": "Fullscreen",
         "tv_search": "TV style search page",
         "theme": {

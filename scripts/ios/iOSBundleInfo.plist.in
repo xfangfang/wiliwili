@@ -55,5 +55,7 @@
     <string>development</string>
     <key>com.apple.developer.networking.multicast</key>
     <true/>
+    <key>CADisableMinimumFrameDurationOnPhone</key>
+    <true/>
 </dict>
 </plist>

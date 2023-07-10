@@ -110,6 +110,9 @@
                                     id="setting/opencc"/>
 
                             <SelectorCell
+                                    id="setting/fps"/>
+
+                            <SelectorCell
                                     id="setting/keymap"/>
 
                             <SelectorCell

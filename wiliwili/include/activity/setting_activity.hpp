@@ -44,6 +44,7 @@ private:
     BRLS_BIND(SelectorCell, selectorFormat, "setting/video/format");
     BRLS_BIND(SelectorCell, selectorCodec, "setting/video/codec");
     BRLS_BIND(SelectorCell, selectorQuality, "setting/audio/quality");
+    BRLS_BIND(SelectorCell, selectorFPS, "setting/fps");
     BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
     BRLS_BIND(brls::BooleanCell, cellHideBar, "cell/hideBottomBar");
     BRLS_BIND(brls::BooleanCell, cellHideFPS, "cell/hideFPS");

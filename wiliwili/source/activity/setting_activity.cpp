@@ -246,6 +246,22 @@ void SettingActivity::onContentAvailable() {
                           brls::Application::setFPSStatus(!value);
                       });
 
+    /// Limited FPS
+    auto fpsOption = conf.getOptionData(SettingItem::LIMITED_FPS);
+    selectorFPS->init(
+        "wiliwili/setting/app/others/limited_fps"_i18n,
+        {"wiliwili/setting/app/others/limited_fps_vsync"_i18n,
+         "30",
+         "60",
+         "90",
+         "120"},
+        (size_t)conf.getIntOptionIndex(SettingItem::LIMITED_FPS), [fpsOption](int data) {
+            int fps = fpsOption.rawOptionList[data];
+            brls::Application::setLimitedFPS(fps);
+            ProgramConfig::instance().setSettingItem(SettingItem::LIMITED_FPS, fps);
+            return true;
+        });
+
     /// TV Search Mode
     cellTvSearch->init("wiliwili/setting/app/others/tv_search"_i18n,
                        conf.getBoolOption(SettingItem::SEARCH_TV_MODE),

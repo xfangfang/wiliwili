@@ -31,6 +31,8 @@
         "vibration": "手柄振動",
         "hide_bottom": "隱藏下方提示欄",
         "hide_fps": "隱藏 FPS",
+        "limited_fps": "最高幀數限制",
+        "limited_fps_vsync": "垂直同步",
         "fullscreen": "全荧幕顯示",
         "tv_search": "電視風格搜尋頁",
         "theme": {
