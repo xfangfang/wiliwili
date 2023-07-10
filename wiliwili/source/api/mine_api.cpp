@@ -13,6 +13,7 @@
 #include "bilibili/result/mine_bangumi_result.h"
 #include "bilibili/result/mine_result.h"
 #include "bilibili/result/mine_history_result.h"
+#include "bilibili/result/mine_later_result.h"
 
 namespace bilibili {
 
@@ -154,8 +155,22 @@ void BilibiliClient::get_my_history(
          {"view_at", std::to_string(cursor.view_at)},
          {"business", cursor.business},
          {"ps", std::to_string(cursor.ps)}},
-        [callback](auto data) { callback(data); }, error);
+        callback, error);
 }
+
+// get watch later list
+void BilibiliClient::getWatchLater(
+    const std::function<void(WatchLaterListWrapper)>& callback,
+    const bilibili::ErrorCallback& error) {
+    HTTP::getResultAsync<WatchLaterListWrapper>(
+        Api::WatchLater, {},
+        callback, error);
+}
+
+//
+//static void getWatchLater(
+//    const std::function<void(WatchLaterList)>& callback = nullptr,
+//    const ErrorCallback& error = nullptr);
 
 void BilibiliClient::get_my_collection_list(
     const int64_t mid, int index, int num, int type,

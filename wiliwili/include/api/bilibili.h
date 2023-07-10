@@ -64,6 +64,7 @@ typedef std::vector<HotsWeeklyResult> HotsWeeklyListResult;
 class HotsAllVideoResult;
 typedef std::vector<HotsAllVideoResult> HotsAllVideoListResult;
 class SearchSuggestList;
+class WatchLaterListWrapper;
 
 using Cookies       = std::map<std::string, std::string>;
 using ErrorCallback = std::function<void(const std::string&)>;
@@ -124,6 +125,11 @@ public:
         const HistoryVideoListCursor& cursor,
         const std::function<void(HistoryVideoResultWrapper)>& callback =
             nullptr,
+        const ErrorCallback& error = nullptr);
+
+    // 稍后再看 watch later
+    static void getWatchLater(
+        const std::function<void(WatchLaterListWrapper)>& callback = nullptr,
         const ErrorCallback& error = nullptr);
 
     /**

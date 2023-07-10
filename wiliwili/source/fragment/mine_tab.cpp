@@ -12,6 +12,7 @@
 #include "fragment/mine_history.hpp"
 #include "fragment/mine_bangumi.hpp"
 #include "fragment/dynamic_tab.hpp"
+#include "fragment/mine_later.hpp"
 
 #include "bilibili/result/mine_result.h"
 
@@ -41,6 +42,10 @@ MineTab::MineTab() {
             try {
                 this->mineSeries->requestData(true);
             } catch (...) {
+            }
+            try {
+                this->mineLater->requestData();
+            } catch (...){
             }
             try {
                 //动态页刷新
