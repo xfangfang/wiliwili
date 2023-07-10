@@ -3,7 +3,7 @@
   "github": "https://github.com/xfangfang/wiliwili",
   "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
   "setting": {
-    "quit_hint": "即將退出應用, 設定內容將在下次啟動後生效",
+    "quit_hint": "設定的內容將在下次啟動後生效",
     "app": {
       "tab": "應用設定",
       "playback": {
@@ -51,7 +51,7 @@
         },
         "opencc": "自動轉換簡體中文 (需要重啓)",
         "keymap": {
-          "header": "鍵位風格",
+          "header": "鍵位風格 (需要重啟)",
           "xbox": "Xbox",
           "ps": "PlayStation",
           "keyboard": "鍵盤"

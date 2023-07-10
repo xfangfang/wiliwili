@@ -135,7 +135,7 @@ void SettingActivity::onContentAvailable() {
     btnTutorialError->setVisibility(brls::Visibility::GONE);
 #endif
 
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#if defined(__APPLE__) && !defined(IOS) || defined(__linux__) || defined(_WIN32)
     btnOpenConfig->registerClickAction([](...) -> bool {
         auto* p = (brls::DesktopPlatform*)brls::Application::getPlatform();
         p->openBrowser(ProgramConfig::instance().getConfigDir());
@@ -194,6 +194,11 @@ void SettingActivity::onContentAvailable() {
     });
     labelAboutVersion->setText(version);
     labelOpensource->setText(OPENSOURCE);
+
+    /// Quit APP
+#ifdef IOS
+    btnQuit->setVisibility(brls::Visibility::GONE);
+#else
     btnQuit->registerClickAction([](...) -> bool {
         auto dialog = new brls::Dialog("hints/exit_hint"_i18n);
         dialog->addButton("hints/cancel"_i18n, []() {});
@@ -201,6 +206,7 @@ void SettingActivity::onContentAvailable() {
         dialog->open();
         return true;
     });
+#endif
 
     auto& conf = ProgramConfig::instance();
 
@@ -280,14 +286,15 @@ void SettingActivity::onContentAvailable() {
 #endif
 
     /// App theme
-    int themeData = conf.getStringOptionIndex(SettingItem::APP_THEME);
+    static int themeData = conf.getStringOptionIndex(SettingItem::APP_THEME);
     selectorTheme->init(
         "wiliwili/setting/app/others/theme/header"_i18n,
         {"wiliwili/setting/app/others/theme/1"_i18n,
          "wiliwili/setting/app/others/theme/2"_i18n,
          "wiliwili/setting/app/others/theme/3"_i18n},
-        themeData, [themeData](int data) {
+        themeData, [](int data) {
             if (themeData == data) return false;
+            themeData = data;
             auto optionData =
                 ProgramConfig::instance().getOptionData(SettingItem::APP_THEME);
             ProgramConfig::instance().setSettingItem(
@@ -298,7 +305,7 @@ void SettingActivity::onContentAvailable() {
 
     /// App Keymap
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
-    int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
+    static int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
     selectorKeymap->init(
         "wiliwili/setting/app/others/keymap/header"_i18n,
         {
@@ -306,8 +313,9 @@ void SettingActivity::onContentAvailable() {
             "wiliwili/setting/app/others/keymap/ps"_i18n,
             "wiliwili/setting/app/others/keymap/keyboard"_i18n,
         },
-        keyIndex, [keyIndex](int data) {
+        keyIndex, [](int data) {
             if (keyIndex == data) return false;
+            keyIndex = data;
             auto optionData =
                 ProgramConfig::instance().getOptionData(SettingItem::KEYMAP);
             ProgramConfig::instance().setSettingItem(
@@ -320,7 +328,7 @@ void SettingActivity::onContentAvailable() {
 #endif
 
     /// App language
-    int langIndex = conf.getStringOptionIndex(SettingItem::APP_LANG);
+    static int langIndex = conf.getStringOptionIndex(SettingItem::APP_LANG);
     selectorLang->init(
         "wiliwili/setting/app/others/language/header"_i18n,
         {
@@ -334,8 +342,9 @@ void SettingActivity::onContentAvailable() {
             "wiliwili/setting/app/others/language/chinese_s"_i18n,
             "wiliwili/setting/app/others/language/korean"_i18n,
         },
-        langIndex, [langIndex](int data) {
+        langIndex, [](int data) {
             if (langIndex == data) return false;
+            langIndex = data;
             auto optionData =
                 ProgramConfig::instance().getOptionData(SettingItem::APP_LANG);
             ProgramConfig::instance().setSettingItem(
@@ -403,6 +412,9 @@ void SettingActivity::onContentAvailable() {
     }
 
     /// Opencc
+#ifdef IOS
+    btnOpencc->setVisibility(brls::Visibility::GONE);
+#else
     if (brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
         brls::Application::getLocale() == brls::LOCALE_ZH_TW) {
         btnOpencc->init("wiliwili/setting/app/others/opencc"_i18n,
@@ -415,6 +427,7 @@ void SettingActivity::onContentAvailable() {
     } else {
         btnOpencc->setVisibility(brls::Visibility::GONE);
     }
+#endif
 
     selectorTexture->init(
         "wiliwili/setting/app/image/texture"_i18n,

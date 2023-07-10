@@ -392,6 +392,13 @@ VideoView::VideoView() {
             frame->setHeaderVisibility(brls::Visibility::GONE);
             frame->setFooterVisibility(brls::Visibility::GONE);
             frame->setBackgroundColor(theme.getColor("brls/backdrop"));
+            container->registerAction("hints/back"_i18n, BUTTON_B,
+                                      [this, container](...) {
+                                          // 几秒后自动关闭 OSD
+                                          this->showOSD(true);
+                                          container->dismiss();
+                                          return true;
+                                      });
             brls::Application::pushActivity(new Activity(frame));
 
             // 手动将焦点赋给音量组件

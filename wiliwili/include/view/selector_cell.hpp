@@ -16,7 +16,6 @@ public:
             BaseDropdown::text(
                 this->title->getFullText(), data, [this](int selected) {
                     this->setSelection(selected);
-                    this->event.fire(selected);
                 },
                 selection);
             return true;
