@@ -268,6 +268,12 @@ public:
         subGrid->registerCell("Cell",
                               []() { return GridSubAreaCell::create(); });
 
+        applet->addGestureRecognizer(new brls::TapGestureRecognizer(
+            [this](brls::TapGestureStatus status, ...) {
+                if (status.position.y < this->content->getY())
+                    this->applet->dismiss();
+            }));
+
         if (result.empty()) return;
 
         // 获取默认选中的主分区序号

@@ -21,6 +21,12 @@
                 justifyContent="flexEnd">
 
             <brls:Box
+                    id="grid_dropdown/cancel"
+                    width="100%"
+                    hideClickAnimation="true"
+                    grow="1"/>
+
+            <brls:Box
                     id="grid_dropdown/content"
                     width="100%"
                     height="330"

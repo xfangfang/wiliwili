@@ -31,6 +31,7 @@ protected:
     BRLS_BIND(brls::Box, header, "grid_dropdown/header");
     BRLS_BIND(brls::Label, title, "grid_dropdown/title_label");
     BRLS_BIND(brls::Box, content, "grid_dropdown/content");
+    BRLS_BIND(brls::Box, cancel, "grid_dropdown/cancel");
     BRLS_BIND(brls::AppletFrame, applet, "grid_dropdown/applet");
 
     brls::Animatable showOffset = 0;

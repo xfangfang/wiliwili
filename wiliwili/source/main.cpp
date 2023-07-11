@@ -51,6 +51,8 @@ int main(int argc, char* argv[]) {
     Register::initCustomTheme();
     Register::initCustomStyle();
 
+    brls::Application::getPlatform()->disableScreenDimming(false);
+
     if (brls::Application::getPlatform()->isApplicationMode()) {
         Intent::openMain();
         // Use these activities to debug

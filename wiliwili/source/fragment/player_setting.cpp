@@ -29,6 +29,13 @@ PlayerSetting::PlayerSetting() {
         return true;
     });
 
+    this->cancel->registerClickAction([](...) {
+        brls::Application::popActivity();
+        return true;
+    });
+    this->cancel->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->cancel));
+
     closebtn->registerClickAction([](...) {
         brls::Application::popActivity();
         return true;

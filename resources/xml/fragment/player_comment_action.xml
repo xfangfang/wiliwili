@@ -5,6 +5,12 @@
         alignItems="center">
 
     <brls:Box
+            id="player/cancel"
+            height="100%"
+            hideClickAnimation="true"
+            grow="1"/>
+
+    <brls:Box
             id="comment/action/box"
             positionType="absolute"
             positionTop="60"

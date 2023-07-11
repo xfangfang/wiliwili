@@ -255,6 +255,13 @@ PlayerSingleComment::PlayerSingleComment() {
         return true;
     });
 
+    this->cancel->registerClickAction([this](...) {
+        this->dismiss();
+        return true;
+    });
+    this->cancel->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->cancel));
+
     this->deleteEvent.subscribe([]() {
         // 直接移除，避免关闭动画导致焦点错乱
         brls::Application::popActivity(brls::TransitionAnimation::NONE);
@@ -459,6 +466,13 @@ PlayerCommentAction::PlayerCommentAction() {
         this->dismiss();
         return true;
     });
+
+    this->cancel->registerClickAction([this](...) {
+        this->dismiss();
+        return true;
+    });
+    this->cancel->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->cancel));
 
     this->position.setTickCallback([this] {
         this->actionBox->setPositionTop(this->position);

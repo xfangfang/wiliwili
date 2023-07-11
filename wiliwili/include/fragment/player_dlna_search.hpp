@@ -68,6 +68,7 @@ private:
     BRLS_BIND(brls::ScrollingFrame, settings, "player/dlna");
     BRLS_BIND(brls::RadioCell, btnRefresh, "setting/dlna/search");
     BRLS_BIND(brls::Box, deviceBox, "setting/dlna/device/box");
+    BRLS_BIND(brls::Box, cancel, "player/cancel");
 
     RepeatDuratoinTimer searchCounter;
     DlnaRenderer currentRenderer;

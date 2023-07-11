@@ -48,6 +48,7 @@ private:
               "player/single/comment/recyclingGrid");
     BRLS_BIND(ButtonClose, closeBtn, "button/close");
     BRLS_BIND(brls::Box, backgroundBox, "box/background");
+    BRLS_BIND(brls::Box, cancel, "player/cancel");
 
     brls::Animatable position     = 0.0f;
     float commentOriginalPosition = 0.0f;
@@ -81,6 +82,7 @@ private:
     BRLS_BIND(VideoComment, comment, "comment/action/comment");
     BRLS_BIND(ButtonClose, closeBtn, "button/close");
     BRLS_BIND(brls::Box, backgroundBox, "box/background");
+    BRLS_BIND(brls::Box, cancel, "player/cancel");
 
     brls::Animatable position     = 0.0f;
     float commentOriginalPosition = 1.0f;

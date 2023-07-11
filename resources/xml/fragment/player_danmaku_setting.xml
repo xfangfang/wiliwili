@@ -5,6 +5,12 @@
         backgroundColor="@theme/brls/backdrop">
 
     <brls:Box
+            id="player/cancel"
+            height="100%"
+            hideClickAnimation="true"
+            grow="1"/>
+
+    <brls:Box
             width="460"
             height="100%"
             axis="column"

@@ -106,6 +106,13 @@ PlayerDlnaSearch::PlayerDlnaSearch() {
         return true;
     });
 
+    cancel->registerClickAction([](...) {
+        if (PlayerDlnaSearch::isRunning()) return true;
+        brls::Application::popActivity();
+        return true;
+    });
+    cancel->addGestureRecognizer(new brls::TapGestureRecognizer(this->cancel));
+
     btnRefresh->title->setText("wiliwili/home/common/refresh"_i18n);
     btnRefresh->registerClickAction([this](...) {
         this->refreshRenderer();

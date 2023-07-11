@@ -36,6 +36,7 @@ public:
 private:
     BRLS_BIND(ButtonClose, closebtn, "button/close");
     BRLS_BIND(brls::ScrollingFrame, settings, "player/settings");
+    BRLS_BIND(brls::Box, cancel, "player/cancel");
 
     // subtitle setting
     BRLS_BIND(brls::Header, subtitleHeader, "setting/video/subtitle/header");

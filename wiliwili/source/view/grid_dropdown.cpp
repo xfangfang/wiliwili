@@ -101,6 +101,13 @@ BaseDropdown::BaseDropdown(const std::string& title,
     : cb(std::move(cb)), selected(selected) {
     this->inflateFromXMLRes("xml/views/grid_dropdown.xml");
     this->title->setText(title);
+
+    this->cancel->registerClickAction([this](...) {
+        this->applet->dismiss();
+        return true;
+    });
+    this->cancel->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->cancel));
 }
 
 RecyclingGrid* BaseDropdown::getRecyclingList() { return recycler; }

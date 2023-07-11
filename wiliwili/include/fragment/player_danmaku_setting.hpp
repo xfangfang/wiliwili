@@ -43,4 +43,5 @@ private:
 
     BRLS_BIND(ButtonClose, closebtn, "button/close");
     BRLS_BIND(brls::ScrollingFrame, settings, "danmaku/settings");
+    BRLS_BIND(brls::Box, cancel, "player/cancel");
 };

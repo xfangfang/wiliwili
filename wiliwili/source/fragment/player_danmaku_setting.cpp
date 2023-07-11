@@ -25,6 +25,13 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
         return true;
     });
 
+    this->cancel->registerClickAction([](...) {
+        brls::Application::popActivity();
+        return true;
+    });
+    this->cancel->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->cancel));
+
     auto& conf = ProgramConfig::instance();
 
     this->cellTop->init("wiliwili/player/danmaku/filter/top"_i18n,
