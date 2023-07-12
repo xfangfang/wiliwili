@@ -2,7 +2,7 @@
 // Created by fang on 2022/11/19.
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "borealis.hpp"
 #include "fmt/format.h"
 #include "cpr/cpr.h"
@@ -29,20 +29,21 @@ std::string APPVersion::getVersionStr() {
 }
 
 std::string APPVersion::getPlatform() {
-#ifdef __APPLE__
-    return "macOS";
-#endif
-#ifdef __linux__
-    return "Linux";
-#endif
-#ifdef _WIN32
-    return "Windows";
-#endif
-#ifdef __SWITCH__
-    return "NX";
-#endif
 #ifdef IOS
     return "iOS";
+#elif defined(__APPLE__)
+    return "macOS";
+#elif defined(__linux__)
+    if (getenv("SteamDeck")) return "SteamDeck";
+    return "Linux";
+#elif defined(__WINRT__)
+    return "UWP";
+#elif defined(_WIN32)
+    return "Windows";
+#elif defined(__SWITCH__)
+    return "NX";
+#else
+    return "Unknown";
 #endif
 }
 
