@@ -52,8 +52,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          repository: ${{ github.repository }}
 
       - name: Debug version
         run: |
@@ -122,8 +120,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: ${{ github.repository }}
-          submodules: 'recursive'
+          submodules: recursive
           fetch-depth: 0
 
       - name: Update gamepad db
@@ -173,33 +170,30 @@ jobs:
       - name: Setup Windows 10 SDK
         uses: GuillaumeFalourd/setup-windows10-sdk-action@v1.11
         with:
-          sdk-version: 20348
+          sdk-version: 19041
       - name: Install NSIS
         shell: powershell
         run: |
           Invoke-Expression (Invoke-Webrequest 'https://xmake.io/psget.text' -UseBasicParsing).Content
-          xmake --version
       - uses: actions/checkout@v3
         with:
+          submodules: recursive
           fetch-depth: 0
-      - name: pre-repo
-        shell: powershell
-        run: |
-          $env:path+=";C:\Users\$($env:username)\xmake"
-          xmake repo -a local https://github.com/zeromake/xrepo.git
-          mkdir -p dist
-          mkdir -p build/xrepo
-          cd build/xrepo
-          git clone https://github.com/xfangfang/borealis.git -b wiliwili --depth=1
-          cd ../../
+      - name: Cache xmake packages
+        uses: actions/cache@v3
+        with:
+          key: ${{ runner.os }}-build
+          path: |
+            ${{ runner.temp }}/.xmake/packages
       - name: build
         shell: powershell
         env:
           VERSION: ${{ needs.version.outputs.VERSION }}
         run: |
-          $env:path+=";C:\Users\$($env:username)\xmake"
+          $env:path+=";$env:USERPROFILE\xmake"
+          $env:XMAKE_GLOBALDIR="${{ runner.temp }}"
           xmake f -c -y --sw=y --winrt=y --window=sdl --driver=d3d11
-          xmake build wiliwili
+          xmake b -y wiliwili
           cp winrt/key.pfx build/
           cp winrt/docs/key.pdf build/key.pdf
       - uses: actions/upload-artifact@v3
@@ -217,8 +211,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: ${{ github.repository }}
-          submodules: 'recursive'
+          submodules: recursive
           fetch-depth: 0
 
       - name: Build
@@ -247,8 +240,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: ${{ github.repository }}
-          submodules: 'recursive'
+          submodules: recursive
           fetch-depth: 0
 
       - name: install deps
@@ -327,8 +319,7 @@ jobs:
         uses: actions/checkout@v3
         if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         with:
-          repository: ${{ github.repository }}
-          submodules: 'recursive'
+          submodules: recursive
           fetch-depth: 0
 
       - name: Add OpenGL ES 2.0 build option
