@@ -16,7 +16,7 @@ if (APPLE)
     endif ()
 
     if (MAC_DOWNLOAD_DYLIB)
-        set(PLATFORM_LIBS
+        set(APP_PLATFORM_LIB
                 ${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}/libmpv.2.dylib
                 ${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}/libwebp.7.1.6.dylib
                 ${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}/libboost_filesystem-mt.dylib)
@@ -27,5 +27,6 @@ if (APPLE)
                 COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/macos_dylib_downloader.sh" "${MAC_OS_ARCH}"
         )
         add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.macos_${MAC_OS_ARCH}_deps)
+        set(MACOS_DYLIB_DIR "${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}")
     endif ()
 endif ()
