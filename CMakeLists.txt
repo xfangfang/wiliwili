@@ -17,14 +17,10 @@ endif ()
 # macOS
 # These four options are only for macOS app bundling usage.
 # Do not use it until you know what you are doing.
-cmake_dependent_option(MAC_IntelChip "Build for x86_64 (10.11)"
-        OFF "APPLE;NOT PLATFORM_IOS" OFF)
-cmake_dependent_option(MAC_AppleSilicon "Build for arm64 (11.0)"
-        OFF "APPLE;NOT PLATFORM_IOS" OFF)
-cmake_dependent_option(MAC_Universal "Support x86_64;arm64 at the same time"
-        OFF "APPLE;NOT PLATFORM_IOS" OFF)
-cmake_dependent_option(MAC_DOWNLOAD_DYLIB "Using precompiled dylib instead of system provided"
-        OFF "APPLE;NOT PLATFORM_IOS" OFF)
+cmake_dependent_option(MAC_IntelChip "Build for x86_64 (10.11)" OFF "APPLE;NOT PLATFORM_IOS" OFF)
+cmake_dependent_option(MAC_AppleSilicon "Build for arm64 (11.0)" OFF "APPLE;NOT PLATFORM_IOS" OFF)
+cmake_dependent_option(MAC_Universal "Support x86_64;arm64 at the same time" OFF "APPLE;NOT PLATFORM_IOS" OFF)
+cmake_dependent_option(MAC_DOWNLOAD_DYLIB "Using precompiled dylib instead of system provided" OFF "APPLE;NOT PLATFORM_IOS" OFF)
 
 # Linux
 # Using CMAKE_INSTALL_PREFIX specifies the location where the application is installed.
@@ -124,7 +120,7 @@ else ()
         list(APPEND APP_PLATFORM_LIB "-framework CoreMedia -framework CoreText -framework VideoToolbox")
     endif ()
 
-    pkg_search_module(LIBWEBP QUIET NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH libwebp)
+    pkg_search_module(LIBWEBP QUIET libwebp)
     if (LIBWEBP_FOUND)
         message(STATUS "Found libwebp: ${LIBWEBP_INCLUDE_DIRS} ${LIBWEBP_LIBRARIES}")
         list(APPEND APP_PLATFORM_INCLUDE ${LIBWEBP_INCLUDE_DIRS})
