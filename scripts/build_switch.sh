@@ -27,5 +27,5 @@ fi
 
 dkp-pacman -U --noconfirm ${LIBASS} ${FFMPEG} ${MPV} ${NSPMINI}
 
-cmake -B ${BUILD_DIR} -DCMAKE_BUILD_TYPE=Release -DBUILTIN_NSP=ON
+cmake -B ${BUILD_DIR} -DCMAKE_BUILD_TYPE=Release -DBUILTIN_NSP=ON -DPLATFORM_SWITCH=ON
 make -C ${BUILD_DIR} wiliwili.nro -j$(nproc)

@@ -293,7 +293,7 @@ sudo dkp-pacman -U \
 # 按上述配置后，从相册打开wiliwili时会增加一个安装NSP Forwarder的按钮
 
 # 5. build
-cmake -B cmake-build-switch
+cmake -B cmake-build-switch -DPLATFORM_SWITCH=ON
 make -C cmake-build-switch wiliwili.nro -j$(nproc)
 ```
 
