@@ -69,13 +69,13 @@ include(${BOREALIS_LIBRARY}/cmake/toolchain.cmake)
 
 # Git Info
 git_info(GIT_TAG_VERSION GIT_TAG_SHORT)
-list(APPEND APP_PLATFORM_OPTION -DBUILD_TAG_VERSION=${GIT_TAG_VERSION} -DBUILD_TAG_SHORT=${GIT_TAG_SHORT})
 
 # Project Info
 project(wiliwili)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "0")
 set(VERSION_REVISION "1")
+set(VERSION_BUILD "0")
 set(PROJECT_AUTHOR "xfangfang")
 set(PACKAGE_NAME cn.xfangfang.wiliwili)
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.jpg)
@@ -99,6 +99,11 @@ if (PLATFORM_DESKTOP)
         list(APPEND APP_PLATFORM_OPTION -DUSE_WEBP)
         list(APPEND APP_PLATFORM_INCLUDE ${WebP_INCLUDE_DIRS})
         list(APPEND APP_PLATFORM_LIB ${WebP_LIBRARY})
+    endif ()
+
+    if (WIN32)
+        configure_file("${CMAKE_SOURCE_DIR}/wiliwili/app_win32.rc.in" "${CMAKE_BINARY_DIR}/app_win32.rc")
+        list(APPEND MAIN_SRC ${CMAKE_BINARY_DIR}/app_win32.rc)
     endif ()
 elseif (APP_PLATFORM_CUSTOM_LIBS)
     message(STATUS "Using custom libraries for mpv and webp")
@@ -132,15 +137,11 @@ else ()
     endif ()
 endif ()
 
-list(APPEND APP_PLATFORM_OPTION
-   -DBUILD_PACKAGE_NAME=${PACKAGE_NAME}
-   -DBUILD_VERSION_MAJOR=${VERSION_MAJOR}
-   -DBUILD_VERSION_MINOR=${VERSION_MINOR}
-   -DBUILD_VERSION_REVISION=${VERSION_REVISION}
-)
-
 if (USE_LIBROMFS)
-    add_libromfs(${PROJECT_NAME} ${PROJECT_RESOURCES})
+    message(STATUS "USE LIBROMFS")
+    add_definitions(-DUSE_LIBROMFS)
+    set(LIBROMFS_PROJECT_NAME ${PROJECT_NAME} PARENT_SCOPE)
+    set(LIBROMFS_RESOURCE_LOCATION "${PROJECT_RESOURCES}" PARENT_SCOPE)
 endif ()
 
 # set resources dir
@@ -154,7 +155,10 @@ endif ()
 
 # source cpp
 file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
-if (PLATFORM_SWITCH)
+if (WIN32)
+    configure_file("${CMAKE_SOURCE_DIR}/wiliwili/app_win32.rc.in" "${CMAKE_BINARY_DIR}/app_win32.rc")
+    list(APPEND MAIN_SRC ${CMAKE_BINARY_DIR}/app_win32.rc)
+elseif (PLATFORM_SWITCH)
     # System service initialization functions required for libnx
     list(APPEND MAIN_SRC ${BOREALIS_LIBRARY}/lib/platforms/switch/switch_wrapper.c)
 endif ()
@@ -163,17 +167,23 @@ endif ()
 add_subdirectory(library)
 
 # Main Target
-main_target(${PROJECT_NAME} "${MAIN_SRC}" "${CMAKE_CURRENT_SOURCE_DIR}/app_win32.rc")
+if (WIN32 AND NOT WIN32_TERMINAL)
+    add_executable(${PROJECT_NAME} WIN32 ${MAIN_SRC})
+elseif (PLATFORM_ANDROID)
+    add_library(${PROJECT_NAME} SHARED)
+    target_sources(${PROJECT_NAME} PRIVATE ${MAIN_SRC})
+else ()
+    add_executable(${PROJECT_NAME} ${MAIN_SRC})
+endif ()
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 # building release file
 if (PLATFORM_DESKTOP)
     # Copy resources to build dir
-    add_custom_target(${PROJECT_NAME}.data
-        COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_SOURCE_DIR}/resources
-            ${CMAKE_CURRENT_BINARY_DIR}/resources)
     if (NOT USE_LIBROMFS)
-        add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${PROJECT_BINARY_DIR}/resources
+        )
     endif ()
 
     if (APPLE)
@@ -214,11 +224,8 @@ elseif (PLATFORM_SWITCH)
         DEPENDS ${PROJECT_NAME}
         COMMAND ${NX_NACPTOOL_EXE} --create ${PROJECT_NAME} ${PROJECT_AUTHOR} ${APP_VERSION} ${PROJECT_NAME}.nacp
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/resources
-        COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/icon/wiliwili.ico
-        COMMAND ${CMAKE_COMMAND} -E remove -f ${BUILD_FONT_DIR}/*.txt ${BUILD_FONT_DIR}/switch_font.ttf
-            ${BUILD_FONT_DIR}/keymap*.ttf
-        COMMAND ${NX_ELF2NRO_EXE} ${PROJECT_NAME}.elf ${PROJECT_NAME}.nro --icon=${PROJECT_ICON}
-            --nacp=${PROJECT_NAME}.nacp --romfsdir=${CMAKE_BINARY_DIR}/resources
+        COMMAND ${CMAKE_COMMAND} -E remove -f ${BUILD_FONT_DIR}/*.txt ${BUILD_FONT_DIR}/switch_font.ttf ${BUILD_FONT_DIR}/keymap*.ttf
+        COMMAND ${NX_ELF2NRO_EXE} ${PROJECT_NAME}.elf ${PROJECT_NAME}.nro --icon=${PROJECT_ICON} --nacp=${PROJECT_NAME}.nacp --romfsdir=${CMAKE_BINARY_DIR}/resources
         ALL
     )
 endif ()
@@ -227,3 +234,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE wiliwili/include wiliwili/inc
 target_compile_options(${PROJECT_NAME} PRIVATE -ffunction-sections -fdata-sections -Wunused-variable ${APP_PLATFORM_OPTION})
 target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr qrcode borealis lunasvg pystring mongoose z ${APP_PLATFORM_LIB})
 target_link_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_LINK_OPTION})
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    BUILD_PACKAGE_NAME=${PACKAGE_NAME}
+    BUILD_VERSION_MAJOR=${VERSION_MAJOR}
+    BUILD_VERSION_MINOR=${VERSION_MINOR}
+    BUILD_VERSION_REVISION=${VERSION_REVISION}
+    BUILD_TAG_VERSION=${GIT_TAG_VERSION}
+    BUILD_TAG_SHORT=${GIT_TAG_SHORT}
+)

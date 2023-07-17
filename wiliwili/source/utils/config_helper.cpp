@@ -601,7 +601,7 @@ void ProgramConfig::save() {
 void ProgramConfig::init() {
     brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
 
-#ifndef __WINRT__
+#ifndef _WIN32
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) != nullptr) {
         brls::Logger::info("Current working directory: {}", cwd);

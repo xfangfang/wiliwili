@@ -49,6 +49,7 @@ package("borealis")
     add_includedirs("include")
     if is_plat("windows") then
         add_includedirs("include/compat")
+        add_syslinks("Wlanapi", "iphlpapi", "Ws2_32")
     end
     on_load(function (package)
         local window = package:config("window")
@@ -211,7 +212,6 @@ target("wiliwili")
         "zlib"
     )
     if is_plat("windows", "mingw") then
-        add_files("app_win32.rc")
         after_build(function (target) 
             if get_config("winrt") then
                 import("uwp")(target)
@@ -238,6 +238,7 @@ target("wiliwili")
             add_cxflags("-Wl,--subsystem,windows", {force = true})
             add_ldflags("-Wl,--subsystem,windows", {force = true})
         elseif is_plat("windows") then
-            add_ldflags("-subsystem:windows -entry:mainCRTStartup", {force = true})
+            add_ldflags("/MANIFEST:EMBED", "/MANIFESTINPUT:wiliwili/source/resource.manifest", {force = true})
+            add_ldflags("/SUBSYSTEM:WINDOWS", "/ENTRY:mainCRTStartup", {force = true})
         end
     end
