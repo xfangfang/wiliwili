@@ -225,5 +225,5 @@ endif ()
 
 target_include_directories(${PROJECT_NAME} PRIVATE wiliwili/include wiliwili/include/api ${APP_PLATFORM_INCLUDE})
 target_compile_options(${PROJECT_NAME} PRIVATE -ffunction-sections -fdata-sections -Wunused-variable ${APP_PLATFORM_OPTION})
-target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr qrcode borealis lunasvg pystring mongoose z ${APP_PLATFORM_LIB})
+target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr qrcode borealis lunasvg pystring libpdr mongoose z ${APP_PLATFORM_LIB})
 target_link_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_LINK_OPTION})

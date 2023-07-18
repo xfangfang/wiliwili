@@ -32,4 +32,7 @@ public:
 
     // 浏览图片
     static void openGallery(const std::vector<std::string>& data);
+
+    // 开启 DLNA
+    static void openDLNA();
 };

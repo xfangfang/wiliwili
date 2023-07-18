@@ -53,6 +53,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
     {SettingItem::KEYMAP, {"keymap", {"xbox", "ps", "keyboard"}, {}, 0}},
     {SettingItem::HOME_WINDOW_STATE, {"home_window_state", {}, {}, 0}},
+    {SettingItem::DLNA_IP, {"dlna_ip", {}, {}, 0}},
+    {SettingItem::DLNA_NAME, {"dlna_name", {}, {}, 0}},
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -153,9 +155,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"0.5", "0.75", "1.0", "1.25", "1.5"},
       {150, 125, 100, 75, 50},
       2}},
-    {SettingItem::LIMITED_FPS, {"limited_fps", {"0","30","60","90","120"}, {0,30,60,90,120}, 0}},
+    {SettingItem::LIMITED_FPS,
+     {"limited_fps", {"0", "30", "60", "90", "120"}, {0, 30, 60, 90, 120}, 0}},
     {SettingItem::DEACTIVATED_TIME, {"deactivated_time", {}, {}, 0}},
     {SettingItem::DEACTIVATED_FPS, {"deactivated_fps", {}, {}, 0}},
+    {SettingItem::DLNA_PORT, {"dlna_port", {}, {}, 0}},
 };
 
 ProgramConfig::ProgramConfig() = default;

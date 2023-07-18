@@ -12,6 +12,7 @@
 #include "activity/pgc_index_activity.hpp"
 #include "activity/main_activity.hpp"
 #include "activity/gallery_activity.hpp"
+#include "activity/dlna_activity.hpp"
 #include "utils/activity_helper.hpp"
 
 #include "presenter/video_detail.hpp"
@@ -64,5 +65,10 @@ void Intent::openMain() { brls::Application::pushActivity(new MainActivity()); }
 
 void Intent::openGallery(const std::vector<std::string>& data) {
     brls::Application::pushActivity(new GalleryActivity(data),
+                                    brls::TransitionAnimation::NONE);
+}
+
+void Intent::openDLNA() {
+    brls::Application::pushActivity(new DLNAActivity(),
                                     brls::TransitionAnimation::NONE);
 }
