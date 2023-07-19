@@ -191,6 +191,7 @@ jobs:
           mkdir -p build/xrepo
           cd build/xrepo
           git clone https://github.com/xfangfang/borealis.git -b wiliwili --depth=1
+          git clone https://github.com/xfangfang/libpdr.git -b master --depth=1
           cd ../../
       - name: build
         shell: powershell
