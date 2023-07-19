@@ -42,7 +42,14 @@ DLNAActivity::DLNAActivity() {
             brls::sync([this]() {
                 MPVCore::instance().stop();
                 this->video->showOSD(false);
-                video->setTitle("wiliwili/setting/tools/others/dlna_waiting"_i18n);
+                video->setTitle(
+                    "wiliwili/setting/tools/others/dlna_waiting"_i18n);
+            });
+        } else if (event == "Error") {
+            std::string msg = std::string{(const char*)data};
+            brls::sync([this, msg]() {
+                this->video->showOSD(false);
+                video->setTitle("[Error] " + msg);
             });
         }
     });
