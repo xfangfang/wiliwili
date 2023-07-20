@@ -29,6 +29,12 @@ DLNAActivity::DLNAActivity() {
 
     dlna = std::make_shared<pdr::DLNA>(ip, port, uuid);
     dlna->setDeviceInfo("friendlyName", name);
+    dlna->setDeviceInfo("manufacturer", "xfangfang");
+    dlna->setDeviceInfo("manufacturerURL", "https://github.com/xfangfang");
+    dlna->setDeviceInfo("modelDescription", "wiliwili DMR");
+    dlna->setDeviceInfo("modelName", "wiliwili");
+    dlna->setDeviceInfo("modelNumber", APPVersion::instance().getVersionStr());
+    dlna->setDeviceInfo("modelURL", "https://github.com/xfangfang/wiliwili");
     dlna->start();
 
     dlnaEventSubscribeID = DLNA_EVENT.subscribe([this](const std::string& event,
@@ -38,8 +44,8 @@ DLNAActivity::DLNAActivity() {
             brls::Logger::info("CurrentURI: {}", url);
             brls::sync([this, url]() {
                 video->setTitle("wiliwili/setting/tools/others/dlna"_i18n);
-                video->setUrl(url);
                 video->showOSD(true);
+                MPVCore::instance().setUrl(url);
             });
         } else if (event == "CurrentURIMetaData") {
             std::string name = std::string{(char*)data};
