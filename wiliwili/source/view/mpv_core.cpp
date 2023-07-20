@@ -802,7 +802,7 @@ void MPVCore::eventMainLoop() {
                                 mpvCoreEvent.fire(VIDEO_MUTE);
                             }
                             volume = *(int64_t *)data;
-                            mpvCoreEvent.fire(VIDEO_SPEED_CHANGE);
+                            mpvCoreEvent.fire(VIDEO_VOLUME_CHANGE);
                         }
                         break;
                     default:
