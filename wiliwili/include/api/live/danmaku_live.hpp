@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
 
@@ -15,8 +14,6 @@
 #include <mutex>
 #include <functional>
 
-#define MG_ENABLE_HTTP 1
-#define MG_ENABLE_HTTP_WEBSOCKET 1
 #include "mongoose.h"  // Include Mongoose header file
 
 class LiveDanmaku : public brls::Singleton<LiveDanmaku> {
@@ -49,7 +46,4 @@ public:
     std::mutex mongoose_mutex;
     mg_mgr *mgr;
     mg_connection *nc;
-    
-    //人气值
-    int popularity = 0;
 };

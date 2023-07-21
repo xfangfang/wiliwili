@@ -30,14 +30,6 @@ LiveDanmaku::LiveDanmaku() {
         printf("WSAStartup failed with error: %d\n", result);
     }
 #endif
-    heartbeat_thread = std::thread([this]() {
-        while (true) {
-            std::this_thread::sleep_for(std::chrono::seconds(20));
-            if (this->is_connected() and this->is_evOK()) {
-                this->send_heartbeat();
-            }
-        }
-    });
 }
 
 LiveDanmaku::~LiveDanmaku() {
@@ -88,6 +80,17 @@ void LiveDanmaku::connect(int room_id, int uid) {
                 break;
             }
             this->mongoose_mutex.unlock();
+
+            mg_timer_add(
+                this->mgr, 20000, MG_TIMER_REPEAT,
+                [](void *param) {
+                    auto liveDanmaku = static_cast<LiveDanmaku *>(param);
+                    if (liveDanmaku->is_connected() and
+                        liveDanmaku->is_evOK()) {
+                        liveDanmaku->send_heartbeat();
+                    }
+                },
+                this);
             mg_mgr_poll(this->mgr, wait_time);
         }
         mg_mgr_free(this->mgr);

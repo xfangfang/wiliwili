@@ -19,11 +19,22 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
     size_t data_len = data.size();
     size_t offset = 0;
 
+    uint32_t packet_length;
+    uint16_t header_length;
+    uint16_t protocol_version;
+    uint32_t operation;
     while (offset < data_len) {
-        uint32_t packet_length = ntohl(*reinterpret_cast<const uint32_t*>(data.data() + offset));
-        uint16_t header_length = ntohs(*reinterpret_cast<const uint16_t*>(data.data() + offset + 4));
-        uint16_t protocol_version = ntohs(*reinterpret_cast<const uint16_t*>(data.data() + offset + 6));
-        uint32_t operation = ntohl(*reinterpret_cast<const uint32_t*>(data.data() + offset + 8));
+        std::memcpy(&packet_length, data.data() + offset, sizeof(uint32_t));
+        std::memcpy(&header_length, data.data() + offset + 4, sizeof(uint16_t));
+        std::memcpy(&protocol_version, data.data() + offset + 6,
+                    sizeof(uint16_t));
+        std::memcpy(&operation, data.data() + offset + 8, sizeof(uint32_t));
+
+        packet_length    = ntohl(packet_length);
+        header_length    = ntohs(header_length);
+        protocol_version = ntohs(protocol_version);
+        operation        = ntohl(operation);
+
         offset += header_length;
 
         //| 3 | 服务器 | 数据类型为Int 32 Big Endian | 心跳回应 | Body 内容为房间人气值 |
