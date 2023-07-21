@@ -66,19 +66,9 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
 }
 
-
-
 void LiveActivity::setCommonData() {
-    // 临时关闭底部进度条与弹幕
-    globalShowDanmaku                 = DanmakuCore::DANMAKU_ON;
-    globalBottomBar                   = MPVCore::BOTTOM_BAR;
-    globalExitFullscreen              = VideoView::EXIT_FULLSCREEN_ON_END;
-    DanmakuCore::DANMAKU_ON           = true;
-    MPVCore::BOTTOM_BAR               = false;
-    VideoView::EXIT_FULLSCREEN_ON_END = false;
-
     DanmakuCore::instance().reset();
-    LiveDanmaku::instance().connect(liveData.roomid, 0/*liveData.uid*/);
+    LiveDanmaku::instance().connect(liveData.roomid, 0 /*liveData.uid*/);
 
     // 清空字幕
     SubtitleCore::instance().reset();
@@ -120,7 +110,12 @@ void LiveActivity::onContentAvailable() {
         "toggleDanmaku", brls::ControllerButton::BUTTON_X,
         [](brls::View* view) -> bool { return true; }, true);
 
-    this->video->hideActionButtons();
+    this->video->hideDLNAButton();
+    this->video->hideSubtitleSetting();
+    this->video->hideVideoRelatedSetting();
+    this->video->hideVideoSpeedButton();
+    this->video->hideBottomLineSetting();
+    this->video->disableCloseOnEndOfFile();
     this->video->setFullscreenIcon(true);
     this->video->setTitle(liveData.title);
     this->video->setOnlineCount(liveData.watched_show.text_large);
@@ -177,9 +172,6 @@ LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     this->video->stop();
     LiveDanmaku::instance().disconnect();
-    DanmakuCore::DANMAKU_ON           = globalShowDanmaku;
-    MPVCore::BOTTOM_BAR               = globalBottomBar;
-    VideoView::EXIT_FULLSCREEN_ON_END = globalExitFullscreen;
     // 取消监控mpv
     MPV_CE->unsubscribe(eventSubscribeID);
     MPVCore::instance().command_str("set loop-playlist 1");

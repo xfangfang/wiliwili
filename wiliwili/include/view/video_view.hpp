@@ -66,7 +66,7 @@ public:
 
     void hideOSD();
 
-    bool isOSDShown();
+    bool isOSDShown() const;
 
     void onOSDStateChanged(bool state);
 
@@ -78,10 +78,25 @@ public:
 
     void hideLoading();
 
-    /**
-     * 隐藏一部分视频播放相关的按钮，在直播页面调用此函数用来隐藏不需要的 UI
-     */
-    void hideActionButtons();
+    void hideDanmakuButton();
+
+    void hideDLNAButton();
+
+    void hideVideoQualityButton();
+
+    void hideVideoSpeedButton();
+
+    void disableCloseOnEndOfFile();
+
+    void disableBottomBar();
+
+    void hideHistorySetting();
+
+    void hideVideoRelatedSetting();
+
+    void hideSubtitleSetting();
+
+    void hideBottomLineSetting();
 
     void setTitle(const std::string& title);
 
@@ -158,12 +173,28 @@ public:
     // 当自动跳转下一集时不退出全屏
     inline static bool EXIT_FULLSCREEN_ON_END = true;
 
+    // Bottom progress bar
+    inline static bool BOTTOM_BAR = true;
+
 private:
     bool allowFullscreen  = true;
     bool registerMPVEvent = false;
+    bool showDanmaku      = true;
+    // 和前面的 EXIT_FULLSCREEN_ON_END 共同控制，closeOnEndOfFile用来控制单个VideoView行为
+    bool closeOnEndOfFile = true;
+    // 播放设置中显示 上传历史记录
+    bool showHistorySetting = true;
+    // 播放设置中显示 播放结束行为相关的设置
+    bool showVideoRelatedSetting = true;
+    // 播放设置中显示 字幕选择
+    bool showSubtitleSetting = true;
+    // 播放设置中显示 底部进度条
+    bool showBottomLineSetting = true;
     MPVEvent::Subscription eventSubscribeID;
     MPVCustomEvent::Subscription customEventSubscribeID;
     brls::InputManager* input;
+    NVGcolor bottomBarColor =
+        brls::Application::getTheme().getColor("color/bilibili");
 
     ///OSD
     BRLS_BIND(brls::Label, videoTitleLabel, "video/osd/title");

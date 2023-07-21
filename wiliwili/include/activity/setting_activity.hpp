@@ -32,6 +32,7 @@ private:
     BRLS_BIND(brls::RadioCell, btnQuit, "tools/quit");
     BRLS_BIND(brls::RadioCell, btnOpenConfig, "tools/config_dir");
     BRLS_BIND(brls::RadioCell, btnVibrationTest, "tools/vibration_test");
+    BRLS_BIND(brls::RadioCell, btnDLNA, "tools/dlna");
     BRLS_BIND(SelectorCell, selectorLang, "setting/language");
     BRLS_BIND(SelectorCell, selectorTheme, "setting/ui/theme");
     BRLS_BIND(SelectorCell, selectorTexture, "setting/image/texture");

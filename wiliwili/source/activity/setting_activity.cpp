@@ -135,6 +135,11 @@ void SettingActivity::onContentAvailable() {
     btnTutorialError->setVisibility(brls::Visibility::GONE);
 #endif
 
+    btnDLNA->registerClickAction([](...) -> bool {
+        Intent::openDLNA();
+        return true;
+    });
+
 #if defined(__APPLE__) && !defined(IOS) || defined(__linux__) || defined(_WIN32)
     btnOpenConfig->registerClickAction([](...) -> bool {
         auto* p = (brls::DesktopPlatform*)brls::Application::getPlatform();

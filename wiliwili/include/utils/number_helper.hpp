@@ -41,6 +41,10 @@ std::string getRandomHex(int length, bool lowerCase = true);
 //4180 => 01:09:40
 std::string sec2Time(size_t t);
 
+// 100 => 0:01:40
+// 4180 => 1:09:40
+std::string sec2TimeDLNA(size_t t);
+
 //4180 => 69:40
 std::string sec2MinSec(size_t t);
 

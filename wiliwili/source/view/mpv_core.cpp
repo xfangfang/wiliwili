@@ -77,7 +77,6 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "ytdl", "no");
     mpv_set_option_string(mpv, "terminal", "yes");
     mpv_set_option_string(mpv, "audio-channels", "stereo");
-    mpv_set_option_string(mpv, "referrer", "https://www.bilibili.com/");
     mpv_set_option_string(mpv, "idle", "yes");
     mpv_set_option_string(mpv, "loop-file", "no");
     mpv_set_option_string(mpv, "osd-level", "0");
@@ -567,16 +566,6 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 #endif
-
-    if (BOTTOM_BAR) {
-        NVGcontext *vg   = brls::Application::getNVGContext();
-        bottomBarColor.a = alpha;
-        nvgFillColor(vg, bottomBarColor);
-        nvgBeginPath(vg);
-        nvgRect(vg, rect.getMinX(), rect.getMaxY() - 2,
-                rect.getWidth() * percent_pos / 100, 2);
-        nvgFill(vg);
-    }
 }
 
 mpv_render_context *MPVCore::getContext() { return this->mpv_context; }
@@ -802,7 +791,7 @@ void MPVCore::eventMainLoop() {
                                 mpvCoreEvent.fire(VIDEO_MUTE);
                             }
                             volume = *(int64_t *)data;
-                            mpvCoreEvent.fire(VIDEO_SPEED_CHANGE);
+                            mpvCoreEvent.fire(VIDEO_VOLUME_CHANGE);
                         }
                         break;
                     default:

@@ -201,6 +201,10 @@
                                 marginBottom="0px"/>
 
                         <brls:RadioCell
+                                id="tools/dlna"
+                                title="@i18n/wiliwili/setting/tools/others/dlna"/>
+
+                        <brls:RadioCell
                                 id="tools/config_dir"
                                 title="@i18n/wiliwili/setting/tools/others/config"/>
 

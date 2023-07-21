@@ -68,6 +68,14 @@ std::string wiliwili::sec2Time(size_t t) {
            wiliwili::pre0(sec, 2);
 }
 
+std::string wiliwili::sec2TimeDLNA(size_t t) {
+    size_t hour   = t / 3600;
+    size_t minute = t / 60 % 60;
+    size_t sec    = t % 60;
+    return std::to_string(hour) + ":" + wiliwili::pre0(minute, 2) + ":" +
+           wiliwili::pre0(sec, 2);
+}
+
 std::string wiliwili::sec2MinSec(size_t t) {
     return wiliwili::pre0(t / 60, 2) + ":" + wiliwili::pre0(t % 60, 2);
 }

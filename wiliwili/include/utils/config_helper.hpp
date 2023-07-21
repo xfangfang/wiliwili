@@ -61,6 +61,9 @@ enum class SettingItem {
     LIMITED_FPS,
     DEACTIVATED_TIME,
     DEACTIVATED_FPS,
+    DLNA_IP,
+    DLNA_PORT,
+    DLNA_NAME,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {

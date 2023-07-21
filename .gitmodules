@@ -19,3 +19,6 @@
 [submodule "library/mongoose"]
 	path = library/mongoose
 	url = https://github.com/xfangfang/mongoose.git
+[submodule "library/libpdr"]
+	path = library/libpdr
+	url = https://github.com/xfangfang/libpdr.git
