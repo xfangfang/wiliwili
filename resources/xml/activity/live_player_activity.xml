@@ -1,6 +1,0 @@
-<VideoView
-        id="live/video"
-        hideHighlight="true"
-        allowFullscreen="true"
-        width="1280"
-        height="720"/>

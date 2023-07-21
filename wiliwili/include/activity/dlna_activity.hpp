@@ -13,7 +13,7 @@
 class VideoView;
 class DLNAActivity : public brls::Activity {
 public:
-    CONTENT_FROM_XML_RES("activity/dlna_activity.xml");
+    CONTENT_FROM_XML_RES("activity/video_activity.xml");
 
     DLNAActivity();
 
@@ -22,7 +22,7 @@ public:
     ~DLNAActivity() override;
 
 private:
-    BRLS_BIND(VideoView, video, "dlna/video");
+    BRLS_BIND(VideoView, video, "fullscreen/video");
 
     // 监控mpv事件
     MPVEvent::Subscription mpvEventSubscribeID;

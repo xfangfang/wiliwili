@@ -13,7 +13,7 @@ class VideoView;
 class LiveActivity : public brls::Activity, public LiveDataRequest {
 public:
     // Declare that the content of this activity is the given XML file
-    CONTENT_FROM_XML_RES("activity/live_player_activity.xml");
+    CONTENT_FROM_XML_RES("activity/video_activity.xml");
 
     explicit LiveActivity(const bilibili::LiveVideoResult& live);
     LiveActivity(int roomid, const std::string& name = "",
@@ -34,15 +34,10 @@ public:
     ~LiveActivity() override;
 
 private:
-    BRLS_BIND(VideoView, video, "live/video");
+    BRLS_BIND(VideoView, video, "fullscreen/video");
 
     bilibili::LiveVideoResult liveData;
 
     // 监控mpv事件
     MPVCustomEvent::Subscription eventSubscribeID;
-
-    // 用于缓存全局状态，进入直播时关闭弹幕与底部进度条，退出时恢复
-    bool globalShowDanmaku    = false;
-    bool globalBottomBar      = false;
-    bool globalExitFullscreen = false;
 };

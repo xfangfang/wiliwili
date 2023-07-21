@@ -3,6 +3,7 @@
 //
 
 #include "view/video_view.hpp"
+#include "view/subtitle_core.hpp"
 #include "activity/dlna_activity.hpp"
 #include "bilibili/util/uuid.hpp"
 #include "utils/config_helper.hpp"
@@ -13,6 +14,8 @@ using namespace brls::literals;
 #define GET_SETTING ProgramConfig::instance().getSettingItem
 
 DLNAActivity::DLNAActivity() {
+    SubtitleCore::instance().reset();
+
     ip = brls::Application::getPlatform()->getIpAddress();
     ip = GET_SETTING(SettingItem::DLNA_IP, ip);
     brls::Logger::info("DLNA IP: {}", ip);
@@ -24,8 +27,9 @@ DLNAActivity::DLNAActivity() {
     uuid = "uuid:" + bilibili::genUUID(ProgramConfig::instance().getClientID());
     brls::Logger::info("DLNA UUID: {}", uuid);
 
-    std::string name =
-        GET_SETTING(SettingItem::DLNA_NAME, std::string{"wiliwili"});
+    std::string defaultName =
+        "wiliwili " + APPVersion::instance().getPlatform();
+    std::string name = GET_SETTING(SettingItem::DLNA_NAME, defaultName);
 
     dlna = std::make_shared<pdr::DLNA>(ip, port, uuid);
     dlna->setDeviceInfo("friendlyName", name);
@@ -162,11 +166,20 @@ void DLNAActivity::onContentAvailable() {
         return true;
     });
 
-    this->video->hideActionButtons();
+    this->video->hideDLNAButton();
+    this->video->hideDanmakuButton();
+    this->video->hideVideoQualityButton();
+    this->video->hideSubtitleSetting();
+    this->video->hideVideoRelatedSetting();
+    this->video->hideHistorySetting();
+    this->video->disableCloseOnEndOfFile();
     this->video->setFullscreenIcon(true);
     this->video->setTitle("wiliwili/setting/tools/others/dlna_waiting"_i18n);
     this->video->showOSD(false);
     this->video->setOnlineCount(fmt::format("http://{}:{}", ip, port));
+
+    // 手动将焦点 赋给video组件，这将允许焦点进入video组件内部
+    brls::sync([this]() { brls::Application::giveFocus(video); });
 }
 
 DLNAActivity::~DLNAActivity() {

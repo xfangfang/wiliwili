@@ -160,7 +160,7 @@ void PlayerSetting::setupCommonSetting() {
                       [](bool value) {
                           ProgramConfig::instance().setSettingItem(
                               SettingItem::PLAYER_BOTTOM_BAR, value);
-                          MPVCore::BOTTOM_BAR = value;
+                          VideoView::BOTTOM_BAR = value;
                       });
 
     /// Auto Sleep
@@ -250,4 +250,23 @@ void PlayerSetting::draw(NVGcontext* vg, float x, float y, float width,
         }
     }
     Box::draw(vg, x, y, width, height, style, ctx);
+}
+
+void PlayerSetting::hideHistoryCell() {
+    btnHistory->setVisibility(brls::Visibility::GONE);
+}
+
+void PlayerSetting::hideVideoRelatedCells() {
+    btnAutoNextPart->setVisibility(brls::Visibility::GONE);
+    btnAutoNextRcmd->setVisibility(brls::Visibility::GONE);
+    btnExitFullscreen->setVisibility(brls::Visibility::GONE);
+}
+
+void PlayerSetting::hideSubtitleCells() {
+    subtitleBox->setVisibility(brls::Visibility::GONE);
+    subtitleHeader->setVisibility(brls::Visibility::GONE);
+}
+
+void PlayerSetting::hideBottomLineCells() {
+    btnProgress->setVisibility(brls::Visibility::GONE);
 }

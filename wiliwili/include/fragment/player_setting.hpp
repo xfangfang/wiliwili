@@ -33,6 +33,14 @@ public:
 
     void setupSubtitle();
 
+    void hideHistoryCell();
+
+    void hideVideoRelatedCells();
+
+    void hideSubtitleCells();
+
+    void hideBottomLineCells();
+
 private:
     BRLS_BIND(ButtonClose, closebtn, "button/close");
     BRLS_BIND(brls::ScrollingFrame, settings, "player/settings");

@@ -566,16 +566,6 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 #endif
-
-    if (BOTTOM_BAR) {
-        NVGcontext *vg   = brls::Application::getNVGContext();
-        bottomBarColor.a = alpha;
-        nvgFillColor(vg, bottomBarColor);
-        nvgBeginPath(vg);
-        nvgRect(vg, rect.getMinX(), rect.getMaxY() - 2,
-                rect.getWidth() * percent_pos / 100, 2);
-        nvgFill(vg);
-    }
 }
 
 mpv_render_context *MPVCore::getContext() { return this->mpv_context; }

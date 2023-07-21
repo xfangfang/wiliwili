@@ -343,8 +343,21 @@ VideoView::VideoView() {
             this->btnDanmakuSettingIcon->getParent()));
 
     /// 播放器设置按钮
-    this->btnSettingIcon->getParent()->registerClickAction([](...) {
+    this->btnSettingIcon->getParent()->registerClickAction([this](...) {
         auto setting = new PlayerSetting();
+        // 不显示弹幕则认为不是在播放B站视频，此时隐藏设置菜单中的上传历史记录
+        if (!showHistorySetting) {
+            setting->hideHistoryCell();
+        }
+        if (!showVideoRelatedSetting) {
+            setting->hideVideoRelatedCells();
+        }
+        if (!showSubtitleSetting) {
+            setting->hideSubtitleCells();
+        }
+        if (!showBottomLineSetting) {
+            setting->hideBottomLineCells();
+        }
         brls::Application::pushActivity(new Activity(setting));
         // 手动将焦点赋给设置页面
         brls::sync([setting]() { brls::Application::giveFocus(setting); });
@@ -368,7 +381,8 @@ VideoView::VideoView() {
                     this->showOSD(true);
                     container->dismiss();
                     // 保存结果
-                    ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_VOLUME, MPVCore::VIDEO_VOLUME);
+                    ProgramConfig::instance().setSettingItem(
+                        SettingItem::PLAYER_VOLUME, MPVCore::VIDEO_VOLUME);
                 }));
             // 滑动条背景
             auto sliderBox = new brls::Box();
@@ -376,7 +390,10 @@ VideoView::VideoView() {
             sliderBox->setHeight(60);
             sliderBox->setCornerRadius(4);
             sliderBox->setBackgroundColor(theme.getColor("color/grey_1"));
-            sliderBox->setTranslationX(view->getX() - 120);
+            float sliderX = view->getX() - 120;
+            if (sliderX < 0) sliderX = 20;
+            if (sliderX > 948) sliderX = 928;
+            sliderBox->setTranslationX(sliderX);
             sliderBox->setTranslationY(view->getY() - 70);
             // 滑动条
             auto slider = new brls::Slider();
@@ -525,8 +542,19 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
     // draw video
     mpvCore->openglDraw(this->getFrame(), this->getAlpha());
 
+    // draw bottom bar
+    if (BOTTOM_BAR && showBottomLineSetting) {
+        bottomBarColor.a = alpha;
+        nvgFillColor(vg, bottomBarColor);
+        nvgBeginPath(vg);
+        nvgRect(vg, x, y + height - 2, width * mpvCore->percent_pos / 100, 2);
+        nvgFill(vg);
+    }
+
     // draw danmaku
-    DanmakuCore::instance().drawDanmaku(vg, x, y, width, height, getAlpha());
+    if (showDanmaku)
+        DanmakuCore::instance().drawDanmaku(vg, x, y, width, height,
+                                            getAlpha());
 
     // draw osd
     time_t current = wiliwili::unix_time();
@@ -541,8 +569,9 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         osdTopBox->frame(ctx);
 
         // draw subtitle (upon osd)
-        SubtitleCore::instance().drawSubtitle(vg, x, y, width, height - 120,
-                                              getAlpha());
+        if (showSubtitleSetting)
+            SubtitleCore::instance().drawSubtitle(vg, x, y, width, height - 120,
+                                                  getAlpha());
     } else {
         if (is_osd_shown) {
             is_osd_shown = false;
@@ -552,8 +581,9 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         osdBottomBox->setVisibility(brls::Visibility::INVISIBLE);
 
         // draw subtitle (without osd)
-        SubtitleCore::instance().drawSubtitle(vg, x, y, width, height,
-                                              getAlpha());
+        if (showSubtitleSetting)
+            SubtitleCore::instance().drawSubtitle(vg, x, y, width, height,
+                                                  getAlpha());
     }
     if (current > this->hintLastShowTime &&
         this->hintBox->getVisibility() == brls::Visibility::VISIBLE) {
@@ -703,7 +733,7 @@ void VideoView::hideOSD() {
     this->osd_state       = OSDState::HIDDEN;
 }
 
-bool VideoView::isOSDShown() { return this->is_osd_shown; }
+bool VideoView::isOSDShown() const { return this->is_osd_shown; }
 
 void VideoView::onOSDStateChanged(bool state) {
     // 当焦点位于video组件内部重新赋予焦点，用来隐藏屏幕上的高亮框
@@ -743,14 +773,38 @@ void VideoView::hideLoading() {
     osdCenterBox->setVisibility(brls::Visibility::GONE);
 }
 
-void VideoView::hideActionButtons() {
+void VideoView::hideDanmakuButton() {
+    showDanmaku = false;
+    btnDanmakuIcon->setVisibility(brls::Visibility::GONE);
     btnDanmakuIcon->getParent()->setVisibility(brls::Visibility::GONE);
+    btnDanmakuSettingIcon->setVisibility(brls::Visibility::GONE);
     btnDanmakuSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
-    btnSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
-    btnCastIcon->getParent()->setVisibility(brls::Visibility::GONE);
-    videoSpeed->getParent()->setVisibility(brls::Visibility::GONE);
-    btnVolumeIcon->getParent()->setVisibility(brls::Visibility::GONE);
 }
+
+void VideoView::hideDLNAButton() {
+    btnCastIcon->setVisibility(brls::Visibility::GONE);
+    btnCastIcon->getParent()->setVisibility(brls::Visibility::GONE);
+}
+
+void VideoView::hideVideoQualityButton() {
+    videoQuality->setVisibility(brls::Visibility::GONE);
+    videoQuality->getParent()->setVisibility(brls::Visibility::GONE);
+}
+
+void VideoView::hideVideoSpeedButton() {
+    videoSpeed->setVisibility(brls::Visibility::GONE);
+    videoSpeed->getParent()->setVisibility(brls::Visibility::GONE);
+}
+
+void VideoView::disableCloseOnEndOfFile() { closeOnEndOfFile = false; }
+
+void VideoView::hideHistorySetting() { showHistorySetting = false; }
+
+void VideoView::hideVideoRelatedSetting() { showVideoRelatedSetting = false; }
+
+void VideoView::hideSubtitleSetting() { showSubtitleSetting = false; }
+
+void VideoView::hideBottomLineSetting() { showBottomLineSetting = false; }
 
 void VideoView::setTitle(const std::string& title) {
     this->videoTitleLabel->setText(title);
@@ -1100,7 +1154,8 @@ void VideoView::registerMpvEvent() {
                     this->showOSD(false);
                     this->btnToggleIcon->setImageFromSVGRes(
                         "svg/bpx-svg-sprite-play.svg");
-                    if (EXIT_FULLSCREEN_ON_END && this->isFullscreen()) {
+                    if (EXIT_FULLSCREEN_ON_END && closeOnEndOfFile &&
+                        this->isFullscreen()) {
                         this->setFullScreen(false);
                     }
                     break;

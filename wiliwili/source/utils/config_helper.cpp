@@ -420,7 +420,7 @@ void ProgramConfig::load() {
         getBoolOption(SettingItem::AUTO_NEXT_RCMD);
 
     // 初始化是否固定显示底部进度条
-    MPVCore::BOTTOM_BAR = getBoolOption(SettingItem::PLAYER_BOTTOM_BAR);
+    VideoView::BOTTOM_BAR = getBoolOption(SettingItem::PLAYER_BOTTOM_BAR);
 
     // 初始化是否使用硬件加速 （仅限非switch设备）
     MPVCore::HARDWARE_DEC = getBoolOption(SettingItem::PLAYER_HWDEC);
