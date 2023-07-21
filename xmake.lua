@@ -93,9 +93,9 @@ package("borealis")
 package_end()
 
 package("mongoose")
-    set_urls("https://github.com/xfangfang/mongoose/archive/6cb500ca1e2cb2be36e5e2592547cd0803a6a90b.zip")
+    set_urls("https://github.com/xfangfang/mongoose/archive/8a9b6556816cd5ec8b90f451af7bafd93b000b89.zip")
 
-    add_versions("latest", "4b72b2aa0a18a4fb4161e60d6d1d16d2dd595f2b9b97a0fd9cd7fb80a68fb12f")
+    add_versions("latest", "01baf387a982e0c1ab32b12b41969d9f7ff05b5c834c1bc82a910572c119d115")
     
     on_install(function (package)
         io.writefile("xmake.lua", [[
