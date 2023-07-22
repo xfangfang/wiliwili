@@ -3,6 +3,7 @@
 //
 
 #include <pystring.h>
+#include <utility>
 
 #include "view/danmaku_core.hpp"
 #include "view/mpv_core.hpp"
@@ -71,6 +72,16 @@ void DanmakuCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
 void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
     danmakuMutex.lock();
     this->danmakuData.emplace_back(item);
+    this->danmakuLoaded = true;
+    danmakuMutex.unlock();
+
+    // 通过mpv来通知弹幕加载完成
+    MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
+}
+
+void DanmakuCore::addSingleDanmaku(DanmakuItem &&item) {
+    danmakuMutex.lock();
+    this->danmakuData.emplace_back(std::move(item));
     this->danmakuLoaded = true;
     danmakuMutex.unlock();
 

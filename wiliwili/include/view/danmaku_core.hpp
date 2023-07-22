@@ -89,6 +89,7 @@ public:
      * @param item 单条弹幕
      */
     void addSingleDanmaku(const DanmakuItem &item);
+    void addSingleDanmaku(DanmakuItem &&item);
 
     /**
      * 获取弹幕数据

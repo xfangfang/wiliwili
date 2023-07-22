@@ -32,16 +32,13 @@ void onDanmakuReceived(std::string&& message) {
     std::vector<std::string> danmaku_list = std::move(extract_danmu_messages(messages));
 
     double time;
-    std::string time_str;
     std::string combined_attr;
 
     std::string tem = ",1,25,16777215,0,0,0,0,9";//临时方案
     for(auto &dan : danmaku_list){
         time = MPVCore::instance().getPlaybackTime() + 0.3;
-        time_str = std::to_string(time);
-        combined_attr = time_str + tem;
-        DanmakuItem item(dan, combined_attr.c_str());
-        DanmakuCore::instance().addSingleDanmaku(item);
+        combined_attr = std::move(std::to_string(time) + tem);
+        DanmakuCore::instance().addSingleDanmaku(std::move(DanmakuItem(dan, combined_attr.c_str())));
     }
 }
 
