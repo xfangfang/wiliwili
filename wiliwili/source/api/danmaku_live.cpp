@@ -111,7 +111,7 @@ void LiveDanmaku::disconnect() {
     }
 
     if (heartbeat_timer_id != nullptr) {
-        mg_timer_free(heartbeat_timer_id);
+        mg_timer_free(&heartbeat_timer_id, nullptr);
         heartbeat_timer_id = nullptr;
     }
 }
