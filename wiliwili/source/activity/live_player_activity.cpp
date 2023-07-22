@@ -34,7 +34,7 @@ void onDanmakuReceived(std::string&& message) {
     for(auto &&dan : std::move(extract_danmu_messages(messages))){
         double time = MPVCore::instance().getPlaybackTime() + 0.3;
         std::string combined_attr = std::move(std::to_string(time) + tem);
-        DanmakuCore::instance().addSingleDanmaku(std::move(DanmakuItem(std::move(dan), combined_attr.c_str())));
+        DanmakuCore::instance().addSingleDanmaku(std::move(DanmakuItem(std::move(dan), combined_attr)));
     }
 }
 

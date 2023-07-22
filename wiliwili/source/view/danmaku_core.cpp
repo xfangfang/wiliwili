@@ -44,16 +44,16 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     }
 }
 
-DanmakuItem::DanmakuItem(std::string &&content, const char *attributes){
+DanmakuItem::DanmakuItem(std::string &&content, const std::string &attributes){
     msg = std::move(content);
-    
+
 #ifdef OPENCC
     static bool ZH_T = brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
                        brls::Application::getLocale() == brls::LOCALE_ZH_TW;
     if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
 #endif
     std::vector<std::string> attrs;
-    pystring::split(attributes, attrs, ",");
+    pystring::split(attributes.c_str(), attrs, ",");
     if (attrs.size() < 9) {
         brls::Logger::error("error decode danmaku: {} {}", msg, attributes);
         type = -1;
