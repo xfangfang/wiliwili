@@ -169,7 +169,7 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_da
                     heartbeat_timer, user_data);
     } else if (ev == MG_EV_WS_MSG) {
         struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
-        liveDanmaku->onMessage(std::move(std::string(wm->data.ptr, wm->data.len)));
+        liveDanmaku->onMessage(std::string(wm->data.ptr, wm->data.len));
     } else if(ev == MG_EV_CLOSE) {
         //liveDanmaku->disconnect();
         liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);

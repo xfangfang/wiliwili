@@ -40,7 +40,7 @@ std::vector<std::string> extract_danmu_messages(const std::vector<std::string>& 
 
         //try {
             // 直接解析到JSON对象,不需要复制到新的变量
-            nlohmann::json json_message = std::move(nlohmann::json::parse(message)); 
+            nlohmann::json json_message = nlohmann::json::parse(message); 
 
             auto it = json_message.find("cmd");
             if (it != json_message.end() && it->get<std::string>() == "DANMU_MSG") {

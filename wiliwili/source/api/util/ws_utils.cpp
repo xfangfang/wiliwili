@@ -133,7 +133,7 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
         //| 3 | 服务器 | 数据类型为Int 32 Big Endian | 心跳回应 | Body 内容为房间人气值 |
         if (operation == 3){
             uint32_t body = ntohl(*reinterpret_cast<const uint32_t*>(data.data() + offset));
-            messages.emplace_back(std::move("heartbeat reply: " + std::to_string(body))); 
+            messages.emplace_back("heartbeat reply: " + std::to_string(body)); 
             break;
         }
         //| 5 | 服务器 | 数据类型为JSON纯文本 | 通知 | 弹幕、广播等全部信息 |
@@ -162,7 +162,7 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
 
                 inflateEnd(&strm);
 
-                messages.emplace_back(std::move(parse_packet(decompressed)));
+                messages.emplace_back(parse_packet(decompressed));
             }
 
         }
