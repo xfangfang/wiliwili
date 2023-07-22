@@ -20,7 +20,7 @@ static std::string tem = ",1,25,16777215,0,0,0,0,9";//临时方案
 void onDanmakuReceived(std::string&& message) {
     const std::string& msg = message;
     std::vector<uint8_t> payload(msg.begin(), msg.end());
-    std::vector<std::string> messages = std::move(parse_packet(payload));
+    std::vector<std::string> messages = parse_packet(payload);
 
     if(messages.size() == 0){
         return;
@@ -33,8 +33,8 @@ void onDanmakuReceived(std::string&& message) {
 
     for(auto &&dan : extract_danmu_messages(messages)){
         double time = MPVCore::instance().getPlaybackTime() + 0.3;
-        std::string combined_attr = std::move(std::to_string(time) + tem);
-        DanmakuCore::instance().addSingleDanmaku(std::move(DanmakuItem(std::move(dan), combined_attr)));
+        std::string combined_attr = std::to_string(time) + tem;
+        DanmakuCore::instance().addSingleDanmaku(DanmakuItem(std::move(dan), combined_attr));
     }
 }
 
