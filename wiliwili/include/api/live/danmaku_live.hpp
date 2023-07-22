@@ -28,7 +28,7 @@ public:
     void send_text_message(const std::string &message);
 
     void setonMessage(std::function<void(std::string&&)> func);
-    std::function<void(std::string)> onMessage;
+    std::function<void(std::string&&)> onMessage;
 
     void set_wait_time(int time);
     int wait_time = 600;
