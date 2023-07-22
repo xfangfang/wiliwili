@@ -13,14 +13,14 @@
 //#include <brotli/decode.h>
 
 //buffer
-static uint8_t buffer[16384];
+static uint8_t buffer[1024 * 256];
 // 解析数据包
 std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
     std::vector<std::string> messages;
-    messages.reserve(16);
+    messages.reserve(128);
 
     std::vector<uint8_t> decompressed;
-    decompressed.reserve(3200);
+    decompressed.reserve(1024 * 256);
 
     z_stream strm;
     strm.zalloc = Z_NULL;
