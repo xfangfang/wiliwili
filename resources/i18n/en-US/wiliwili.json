@@ -80,6 +80,7 @@
         "header": "Others",
         "dlna": "DLNA Renderer",
         "dlna_waiting": "Waiting for DLNA casting...",
+        "dlna_quit": "Exit the DLNA casting?",
         "up2date": "App is up to date",
         "release": "Check for updates",
         "config": "Open config directory"

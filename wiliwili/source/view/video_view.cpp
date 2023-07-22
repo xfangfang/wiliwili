@@ -845,6 +845,8 @@ void VideoView::setFullscreenIcon(bool fs) {
     }
 }
 
+brls::View* VideoView::getFullscreenIcon() { return btnFullscreenIcon; }
+
 void VideoView::refreshDanmakuIcon() {
     if (DanmakuCore::DANMAKU_ON) {
         this->btnDanmakuIcon->setImageFromSVGRes(

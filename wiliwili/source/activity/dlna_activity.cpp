@@ -2,6 +2,8 @@
 // Created by fang on 2023/7/18.
 //
 
+#include <borealis/views/dialog.hpp>
+
 #include "view/video_view.hpp"
 #include "view/subtitle_core.hpp"
 #include "activity/dlna_activity.hpp"
@@ -178,8 +180,32 @@ void DLNAActivity::onContentAvailable() {
     this->video->showOSD(false);
     this->video->setOnlineCount(fmt::format("http://{}:{}", ip, port));
 
+    this->video->getFullscreenIcon()->getParent()->registerClickAction(
+        [this](...) {
+            this->dismiss();
+            return true;
+        });
+    this->video->registerAction(
+        "cancel", brls::ControllerButton::BUTTON_B,
+        [this](brls::View* view) -> bool {
+            this->dismiss();
+            return true;
+        },
+        true);
+
     // 手动将焦点 赋给video组件，这将允许焦点进入video组件内部
     brls::sync([this]() { brls::Application::giveFocus(video); });
+}
+
+void DLNAActivity::dismiss() {
+    auto dialog =
+        new brls::Dialog("wiliwili/setting/tools/others/dlna_quit"_i18n);
+    dialog->addButton("hints/cancel"_i18n, []() {});
+    dialog->addButton("hints/ok"_i18n, []() {
+        brls::Application::popActivity(brls::TransitionAnimation::NONE);
+    });
+    dialog->open();
+    brls::sync([dialog]() { brls::Application::giveFocus(dialog); });
 }
 
 DLNAActivity::~DLNAActivity() {

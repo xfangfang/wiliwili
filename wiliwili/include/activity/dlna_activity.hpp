@@ -21,6 +21,8 @@ public:
 
     ~DLNAActivity() override;
 
+    void dismiss();
+
 private:
     BRLS_BIND(VideoView, video, "fullscreen/video");
 

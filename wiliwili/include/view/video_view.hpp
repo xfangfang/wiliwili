@@ -115,6 +115,8 @@ public:
     // 手动设置osd右下角的全屏图标
     void setFullscreenIcon(bool fs);
 
+    brls::View* getFullscreenIcon();
+
     // 手动刷新osd左下角的播放图标
     void refreshToggleIcon();
 

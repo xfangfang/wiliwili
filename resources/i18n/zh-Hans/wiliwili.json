@@ -80,6 +80,7 @@
         "header": "其他",
         "dlna": "DLNA 投屏",
         "dlna_waiting": "等待 DLNA 投屏中...",
+        "dlna_quit": "确定要退出投屏?",
         "up2date": "应用已经是最新版",
         "release": "检查更新",
         "config": "打开配置目录"
