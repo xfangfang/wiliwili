@@ -162,7 +162,8 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
 
                 inflateEnd(&strm);
 
-                messages.emplace_back(parse_packet(decompressed));
+                auto nested_messages = std::move(parse_packet(decompressed));
+                messages.insert(messages.end(), nested_messages.begin(), nested_messages.end());
             }
 
         }
