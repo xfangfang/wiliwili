@@ -88,9 +88,6 @@ void LiveDanmaku::connect(int room_id, int uid) {
                 break;
             }
             this->mongoose_mutex.unlock();
-
-            mg_timer_add(this->mgr, 20000, MG_TIMER_REPEAT, heartbeat_timer,
-                         this);
             mg_mgr_poll(this->mgr, wait_time);
         }
         mg_mgr_free(this->mgr);
@@ -111,6 +108,11 @@ void LiveDanmaku::disconnect() {
     // Stop Mongoose event loop thread
     if(mongoose_thread.joinable()) {
         mongoose_thread.join();
+    }
+
+    if (heartbeat_timer_id != nullptr) {
+        mg_timer_delete(heartbeat_timer_id);
+        heartbeat_timer_id = nullptr;
     }
 }
 
@@ -168,6 +170,8 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_da
         liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);
     } else if (ev == MG_EV_WS_OPEN) {
         liveDanmaku->send_join_request(liveDanmaku->room_id, liveDanmaku->uid);
+        liveDanmaku->heartbeat_timer_id = mg_timer_add(liveDanmaku->mgr, 30000, MG_TIMER_REPEAT, 
+                heartbeat_timer, user_data);
     } else if (ev == MG_EV_WS_MSG) {
         struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
         std::string message(wm->data.ptr, wm->data.len);
