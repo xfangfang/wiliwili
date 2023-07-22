@@ -12,6 +12,7 @@
 class DanmakuItem {
 public:
     DanmakuItem(std::string content, const char *attributes);
+    DanmakuItem(std::string &&content, const std::string &attributes);
 
     std::string msg;  // 弹幕内容
     float time;       // 弹幕出现的时间
@@ -89,6 +90,7 @@ public:
      * @param item 单条弹幕
      */
     void addSingleDanmaku(const DanmakuItem &item);
+    void addSingleDanmaku(DanmakuItem &&item);
 
     /**
      * 获取弹幕数据

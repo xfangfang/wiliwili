@@ -16,8 +16,10 @@
 
 using namespace brls::literals;
 
-void onDanmakuReceived(std::string message) {
-    std::vector<uint8_t> payload(message.begin(), message.end());
+static std::string tem = ",1,25,16777215,0,0,0,0,9";//临时方案
+void onDanmakuReceived(std::string&& message) {
+    const std::string& msg = message;
+    std::vector<uint8_t> payload(msg.begin(), msg.end());
     std::vector<std::string> messages = parse_packet(payload);
 
     if(messages.size() == 0){
@@ -29,19 +31,10 @@ void onDanmakuReceived(std::string message) {
         return;
     }
 
-    std::vector<std::string> danmaku_list = extract_danmu_messages(messages);
-
-    double time;
-    std::string time_str;
-    std::string combined_attr;
-
-    std::string tem = ",1,25,16777215,0,0,0,0,9";//临时方案
-    for(auto &dan : danmaku_list){
-        time = MPVCore::instance().getPlaybackTime() + 0.3;
-        time_str = std::to_string(time);
-        combined_attr = time_str + tem;
-        DanmakuItem item(dan, combined_attr.c_str());
-        DanmakuCore::instance().addSingleDanmaku(item);
+    for(auto &&dan : extract_danmu_messages(messages)){
+        double time = MPVCore::instance().getPlaybackTime() + 0.1;
+        std::string combined_attr = std::to_string(time) + tem;
+        DanmakuCore::instance().addSingleDanmaku(DanmakuItem(std::move(dan), combined_attr));
     }
 }
 
