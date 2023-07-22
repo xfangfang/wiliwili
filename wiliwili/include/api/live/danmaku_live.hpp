@@ -46,5 +46,4 @@ public:
     std::mutex mongoose_mutex;
     mg_mgr *mgr;
     mg_connection *nc;
-    mg_timer *heartbeat_timer_id;
 };

@@ -18,7 +18,7 @@ using namespace brls::literals;
 
 void onDanmakuReceived(std::string&& message) {
     std::vector<uint8_t> payload(message.begin(), message.end());
-    std::vector<std::string> messages = parse_packet(payload);
+    std::vector<std::string> messages = std::move(parse_packet(payload));
 
     if(messages.size() == 0){
         return;
@@ -29,7 +29,7 @@ void onDanmakuReceived(std::string&& message) {
         return;
     }
 
-    std::vector<std::string> danmaku_list = extract_danmu_messages(messages);
+    std::vector<std::string> danmaku_list = std::move(extract_danmu_messages(messages));
 
     double time;
     std::string time_str;
