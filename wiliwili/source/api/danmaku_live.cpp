@@ -39,7 +39,15 @@ LiveDanmaku::~LiveDanmaku() {
 #endif
 }
 
-static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_data, void *user_data);
+static void mongoose_event_handler(struct mg_connection *nc, int ev,
+                                   void *ev_data, void *user_data);
+
+static void heartbeat_timer(void *param) {
+    auto liveDanmaku = static_cast<LiveDanmaku *>(param);
+    if (liveDanmaku->is_connected() and liveDanmaku->is_evOK()) {
+        liveDanmaku->send_heartbeat();
+    }
+}
 
 void LiveDanmaku::connect(int room_id, int uid) {
     if (connected.load(std::memory_order_acquire)) {
@@ -81,16 +89,8 @@ void LiveDanmaku::connect(int room_id, int uid) {
             }
             this->mongoose_mutex.unlock();
 
-            mg_timer_add(
-                this->mgr, 20000, MG_TIMER_REPEAT,
-                [](void *param) {
-                    auto liveDanmaku = static_cast<LiveDanmaku *>(param);
-                    if (liveDanmaku->is_connected() and
-                        liveDanmaku->is_evOK()) {
-                        liveDanmaku->send_heartbeat();
-                    }
-                },
-                this);
+            mg_timer_add(this->mgr, 20000, MG_TIMER_REPEAT, heartbeat_timer,
+                         this);
             mg_mgr_poll(this->mgr, wait_time);
         }
         mg_mgr_free(this->mgr);
