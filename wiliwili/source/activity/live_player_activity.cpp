@@ -16,7 +16,7 @@
 
 using namespace brls::literals;
 
-void onDanmakuReceived(std::string message) {
+void onDanmakuReceived(std::string&& message) {
     std::vector<uint8_t> payload(message.begin(), message.end());
     std::vector<std::string> messages = parse_packet(payload);
 
