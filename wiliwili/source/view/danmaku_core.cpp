@@ -44,6 +44,42 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     }
 }
 
+DanmakuItem::DanmakuItem(std::string &&content, const char *attributes){
+    msg = std::move(content);
+    
+#ifdef OPENCC
+    static bool ZH_T = brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
+                       brls::Application::getLocale() == brls::LOCALE_ZH_TW;
+    if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
+#endif
+    std::vector<std::string> attrs;
+    pystring::split(attributes, attrs, ",");
+    if (attrs.size() < 9) {
+        brls::Logger::error("error decode danmaku: {} {}", msg, attributes);
+        type = -1;
+        return;
+    }
+    time      = atof(attrs[0].c_str());
+    type      = atoi(attrs[1].c_str());
+    fontSize  = atoi(attrs[2].c_str());
+    fontColor = atoi(attrs[3].c_str());
+    level     = atoi(attrs[8].c_str());
+
+    int r          = (fontColor >> 16) & 0xff;
+    int g          = (fontColor >> 8) & 0xff;
+    int b          = fontColor & 0xff;
+    isDefaultColor = (r & g & b) == 0xff;
+    color          = nvgRGB(r, g, b);
+    color.a        = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.01;
+    borderColor.a  = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.005;
+
+    // 判断是否添加浅色边框
+    if ((r * 299 + g * 587 + b * 114) < 60000) {
+        borderColor   = nvgRGB(255, 255, 255);
+        borderColor.a = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.5;
+    }
+}
+
 void DanmakuCore::reset() {
     danmakuMutex.lock();
     lineNum     = 20;
