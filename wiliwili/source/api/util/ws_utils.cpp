@@ -12,12 +12,21 @@
 #include <zlib.h>
 //#include <brotli/decode.h>
 
-
+//buffer
 static uint8_t buffer[16384];
 // 解析数据包
 std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
     std::vector<std::string> messages;
     messages.reserve(16);
+
+    std::vector<uint8_t> decompressed;
+    decompressed.reserve(3200);
+
+    z_stream strm;
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+
     size_t data_len = data.size();
     size_t offset = 0;
 
@@ -47,17 +56,12 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
                 break;
             }
             else if (protocol_version == 2){
-                z_stream strm;
-                strm.zalloc = Z_NULL;
-                strm.zfree = Z_NULL;
-                strm.opaque = Z_NULL;
                 strm.avail_in = body.size();
                 strm.next_in = const_cast<Bytef*>(reinterpret_cast<const Bytef*>(body.data()));
                 if (inflateInit(&strm) != Z_OK) {
                     //std::cerr << "Failed to initialize zlib" << std::endl;
                     break;
                 }
-                std::vector<uint8_t> decompressed;
                 do {
                     strm.avail_out = sizeof(buffer);
                     strm.next_out = buffer;
@@ -78,74 +82,6 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
     return messages;
 }
 
-// std::vector<std::string> parse_packet_o(const std::vector<uint8_t>& data) {
-
-//     std::vector<std::string> messages;
-//     messages.reserve(16); // 预分配容量
-
-//     size_t offset = 0;
-//     size_t data_len = data.size();
-
-//     z_stream strm;
-//     strm.zalloc = Z_NULL;
-//     strm.zfree = Z_NULL;
-//     strm.opaque = Z_NULL;
-
-//     while (offset < data_len) {
-        
-//         uint32_t packet_length = *reinterpret_cast<const uint32_t*>(data.data() + offset);
-//         uint16_t header_length = *reinterpret_cast<const uint16_t*>(data.data() + offset + 4);
-//         uint16_t protocol_version = *reinterpret_cast<const uint16_t*>(data.data() + offset + 6);  
-//         uint32_t operation = *reinterpret_cast<const uint32_t*>(data.data() + offset + 8);
-
-//         offset += header_length;
-
-//         //| 3 | 服务器 | 数据类型为Int 32 Big Endian | 心跳回应 | Body 内容为房间人气值 |
-//         if (operation == 3){
-//             uint32_t body = ntohl(*reinterpret_cast<const uint32_t*>(data.data() + offset));
-//             messages.emplace_back("heartbeat reply: " + std::to_string(body)); 
-//             break;
-//         }
-//         //| 5 | 服务器 | 数据类型为JSON纯文本 | 通知 | 弹幕、广播等全部信息 |
-//         else if (operation == 5) {
-
-//             std::string body(reinterpret_cast<const char*>(data.data() + offset), packet_length - header_length);
-//             if(protocol_version == 0){
-//                 messages.emplace_back(std::move(body));
-//             }
-//             else if (protocol_version == 2) {
-                
-//                 std::vector<uint8_t> decompressed;
-//                 decompressed.reserve(1024 * 1024); // 预分配大容量
-
-//                 strm.avail_in = body.size();
-//                 strm.next_in = const_cast<Bytef*>(reinterpret_cast<const Bytef*>(body.data()));  
-
-//                 inflateInit2(&strm, 32 + MAX_WBITS); // 自动解析头部
-
-//                 do {
-//                     decompressed.resize(decompressed.size() + 1024 * 1024); // 分配大块内存 
-//                     strm.avail_out = decompressed.size() - strm.total_out;
-//                     strm.next_out = decompressed.data() + strm.total_out;
-//                     inflate(&strm, Z_SYNC_FLUSH); 
-//                 } while (strm.avail_out == 0);
-
-//                 inflateEnd(&strm);
-
-//                 auto nested_messages = parse_packet(decompressed);
-//                 messages.insert(messages.end(), nested_messages.begin(), nested_messages.end());
-//             }
-
-//         }
-
-//         offset += (packet_length - header_length);
-
-//     }
-
-//     return messages;
-// }
-
-// 编码数据包
 // 编码数据包
 std::vector<uint8_t> encode_packet(uint16_t protocol_version, uint32_t operation, const std::string& body) {
     std::vector<uint8_t> packet;
