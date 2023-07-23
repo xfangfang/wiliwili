@@ -342,11 +342,16 @@ jobs:
         run: |
           echo "FLATPAK_NAME=wiliwili-Linux-${{ needs.version.outputs.version }}-${{ matrix.driver }}.flatpak"  >> $GITHUB_ENV
 
+      - name: Install docker
+        if: ${{ matrix.arch == 'aarch64' }}
+        run: |
+          dnf -y install docker
+
       - name: Install deps
         id: dep
         if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         run: |
-          dnf -y install docker cmake
+          dnf -y install cmake
           BRLS_GLFW="library/borealis/library/lib/extern/glfw/"
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
           echo "FLATPAK_NAME=${FLATPAK_NAME}"  >> $GITHUB_OUTPUT
@@ -359,10 +364,11 @@ jobs:
         with:
           platforms: arm64
 
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@v5
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.1
         if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         with:
           bundle: ${{ steps.dep.outputs.FLATPAK_NAME }}
           manifest-path: .flatpak-manifest.yml
-          cache-key: flatpak-builder-${{ matrix.arch }}
+          cache-key: wiliwili-flatpak-${{ matrix.driver }}-${{ hashFiles('.flatpak-manifest.yml') }}
+          verbose: true
           arch: ${{ matrix.arch }}
