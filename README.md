@@ -5,13 +5,13 @@
   一个专为手柄用户设计的第三方 <a href="https://www.bilibili.com">B站</a> 客户端
 </p>
 <p align="center">
-<b><a href="https://github.com/xfangfang/wiliwili#特点">特点</a></b>
+<b><a href="#特点">特点</a></b>
 |
-<b><a href="https://github.com/xfangfang/wiliwili#安装">安装</a></b>
+<b><a href="#安装">安装</a></b>
 |
-<b><a href="https://github.com/xfangfang/wiliwili#文档">文档</a></b>
+<b><a href="#文档">文档</a></b>
 |
-<b><a href="https://github.com/xfangfang/wiliwili#开发">开发</a></b>
+<b><a href="#开发">开发</a></b>
 </p>
 
 - - -
