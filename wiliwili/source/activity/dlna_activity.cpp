@@ -16,6 +16,8 @@ using namespace brls::literals;
 #define GET_SETTING ProgramConfig::instance().getSettingItem
 
 DLNAActivity::DLNAActivity() {
+    GA("open_dlna")
+
     SubtitleCore::instance().reset();
 
     ip = brls::Application::getPlatform()->getIpAddress();

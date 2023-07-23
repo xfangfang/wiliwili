@@ -5,11 +5,13 @@
 #include "fragment/season_evaluate.hpp"
 #include "view/mpv_core.hpp"
 #include "utils/string_helper.hpp"
+#include "analytics.h"
 
 SeasonEvaluate::SeasonEvaluate() {
     this->inflateFromXMLRes("xml/fragment/season_evaluate.xml");
 
     btnDouban->registerClickAction([this](...) {
+        GA("open_douban")
         MPVCore::instance().pause();
         brls::Application::getPlatform()->openBrowser(
             "https://search.douban.com/movie/subject_search?search_text=" +
@@ -18,6 +20,7 @@ SeasonEvaluate::SeasonEvaluate() {
     });
 
     btnZhihu->registerClickAction([this](...) {
+        GA("open_zhihu")
         MPVCore::instance().pause();
         brls::Application::getPlatform()->openBrowser(
             "https://www.zhihu.com/search?type=content&q=" +
@@ -26,6 +29,7 @@ SeasonEvaluate::SeasonEvaluate() {
     });
 
     btnBaidu->registerClickAction([this](...) {
+        GA("open_baidu")
         MPVCore::instance().pause();
         brls::Application::getPlatform()->openBrowser(
             "https://www.baidu.com/s?wd=" + wiliwili::urlEncode(this->keyword));
@@ -33,6 +37,7 @@ SeasonEvaluate::SeasonEvaluate() {
     });
 
     btnBing->registerClickAction([this](...) {
+        GA("open_bing")
         MPVCore::instance().pause();
         brls::Application::getPlatform()->openBrowser(
             "https://cn.bing.com/search?q=" +
