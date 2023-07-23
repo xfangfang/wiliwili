@@ -31,6 +31,8 @@
         "vibration": "게임패드 진동",
         "hide_bottom": "아래 힌트 바 숨기기",
         "hide_fps": "FPS 숨김",
+        "limited_fps": "최대 프레임 제한",
+        "limited_fps_vsync": "수직 동기화",
         "fullscreen": "전체화면",
         "tv_search": "TV 스타일 검색 페이지",
         "theme": {
@@ -76,6 +78,9 @@
       },
       "others": {
         "header": "기타",
+        "dlna": "DLNA 렌더러",
+        "dlna_waiting": "DLNA 캐스팅을 기다리는 중...",
+        "dlna_quit": "DLNA 캐스팅을 종료하겠습니까?",
         "up2date": "앱이 최신 상태임",
         "release": "업데이트 확인",
         "config": "구성 디렉토리 열기"
@@ -292,6 +297,17 @@
       "shader": {
         "header": "셰이더"
       }
+    },
+    "cast": {
+      "header": "DLNA",
+      "device": "장치",
+      "request_url": "비디오 링크 요청 중...",
+      "cast_to_renderer": "렌더러로 캐스팅...",
+      "casting": "캐스팅...",
+      "cancel": "비디오 캐스팅 취소",
+      "err_connect": "DLNA 렌더러에 연결 비활성화",
+      "err_url": "동영상 링크 얻기 실패",
+      "countdown": "카운트다운 검색"
     },
     "danmaku": {
       "header": "탄막 설정",
