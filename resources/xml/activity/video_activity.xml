@@ -1,9 +1,7 @@
-<brls:Box
-        width="1280"
-        height="720">
+<brls:Box>
         <VideoView
             id="fullscreen/video"
             hideHighlight="true"
-            width="1280"
-            height="720"/>
+            width="100%"
+            height="100%"/>
 </brls:Box>
