@@ -31,6 +31,8 @@
         "vibration": "ゲームパッドの振動",
         "hide_bottom": "下のヒントバーを隠す",
         "hide_fps": "FPSを非表示",
+        "limited_fps": "最大フレーム数制限",
+        "limited_fps_vsync": "垂直同期",
         "fullscreen": "フルスクリーン",
         "tv_search": "テレビスタイルの検索ページ",
         "theme": {
@@ -76,6 +78,9 @@
       },
       "others": {
         "header": "その他",
+        "dlna": "DLNAレンダラー",
+        "dlna_waiting": "DLNAキャストを待機中...",
+        "dlna_quit": "DLNAキャストを終了しますか？",
         "up2date": "アプリは最新です",
         "release": "更新を確認",
         "config": "設定ディレクトリを開く"
@@ -292,6 +297,17 @@
       "shader": {
         "header": "シェーダー"
       }
+    },
+    "cast": {
+      "header": "DLNA",
+      "device": "デバイス",
+      "request_url": "動画リンクをリクエストしています...",
+      "cast_to_renderer": "レンダラーにキャスト中...",
+      "casting": "キャスト中...",
+      "cancel": "ビデオキャストをキャンセル",
+      "err_connect": "DLNAレンダラーに接続できません",
+      "err_url": "動画リンクの取得に失敗しました",
+      "countdown": "カウントダウンを検索"
     },
     "danmaku": {
       "header": "弾幕の設定",

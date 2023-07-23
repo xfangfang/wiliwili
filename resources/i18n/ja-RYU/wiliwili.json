@@ -31,6 +31,8 @@
         "vibration": "ゲームパッドぬ振動",
         "hide_bottom": "しちゃぬヒントバーくゎっくゎすん",
         "hide_fps": "FPS非表示",
+        "limited_fps": "さいだいフレームすーいるゆいぎん",
+        "limited_fps_vsync": "しーさるちょくちゃーき",
         "fullscreen": "フルスクリーン",
         "tv_search": "テレビスタイルぬ検索ページ",
         "theme": {
@@ -76,6 +78,9 @@
       },
       "others": {
         "header": "すぬ他",
+        "dlna": "DLNAレンダラー",
+        "dlna_waiting": "DLNAキャストたいきちゅう...",
+        "dlna_quit": "DLNAキャストしーゅうりょうさびーが？",
         "up2date": "アプリー最新やいびーん",
         "release": "更新確認",
         "config": "設定ディレクトリふぃらちゅん"
@@ -292,6 +297,17 @@
       "shader": {
         "header": "シェーダー"
       }
+    },
+    "cast": {
+      "header": "DLNA",
+      "device": "デバイス",
+      "request_url": "ちゃーしがリンクリクエストそーいびーる...",
+      "cast_to_renderer": "レンダラーんかいキャストちゅう...",
+      "casting": "キャストちゅう...",
+      "cancel": "ビデオキャストキャンセル",
+      "err_connect": "DLNAレンダラーなさちどーくなやびらん",
+      "err_url": "ちゃーがリンクぬしゅうとぅくんかいしっぺーさびたん",
+      "countdown": "カウントダウンきんさく"
     },
     "danmaku": {
       "header": "弾幕ぬ設定",
