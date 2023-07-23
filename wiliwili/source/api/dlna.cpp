@@ -9,6 +9,7 @@
 #include <pystring.h>
 #include <borealis/core/logger.hpp>
 #include "utils/string_helper.hpp"
+#include "utils/config_helper.hpp"
 #include "dlna/dlna.h"
 
 static std::string AVTransport =
@@ -153,6 +154,8 @@ void DlnaRenderer::play(const std::string& url, const std::string& title,
 
     std::string urlEncode = pystring::replace(url, "&", "&amp;");
     std::string data      = wiliwili::format(AVTransport, urlEncode, "", title);
+    std::string server    = "System/1.0 UPnP/1.0 wiliwili/" +
+                         APPVersion::instance().getVersionStr();
 
     cpr::PostCallback(
         [callback, error](const cpr::Response& r) {
@@ -168,7 +171,7 @@ void DlnaRenderer::play(const std::string& url, const std::string& title,
             {"SOAPACTION",
              "\"urn:schemas-upnp-org:service:AVTransport:1#"
              "SetAVTransportURI\""},
-            {"User-Agent", "macOS/1.0 UPnP/1.0 wiliwili/1.0.1"},
+            {"User-Agent", server},
         },
         cpr::Body{data});
 
@@ -182,6 +185,8 @@ void DlnaRenderer::stop(const std::function<void()>& callback,
         brls::Logger::error("renderer not support AVTransport");
         return;
     }
+    std::string server = "System/1.0 UPnP/1.0 wiliwili/" +
+                         APPVersion::instance().getVersionStr();
 
     cpr::PostCallback(
         [callback, error](const cpr::Response& r) {
@@ -196,7 +201,7 @@ void DlnaRenderer::stop(const std::function<void()>& callback,
             {"Content-Type", "text/xml; charset=\"utf-8\""},
             {"SOAPACTION",
              "\"urn:schemas-upnp-org:service:AVTransport:1#Stop\""},
-            {"User-Agent", "macOS/1.0 UPnP/1.0 wiliwili/1.0.1"},
+            {"User-Agent", server},
         },
         cpr::Body{Stop});
 

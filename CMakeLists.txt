@@ -74,8 +74,8 @@ list(APPEND APP_PLATFORM_OPTION -DBUILD_TAG_VERSION=${GIT_TAG_VERSION} -DBUILD_T
 # Project Info
 project(wiliwili)
 set(VERSION_MAJOR "1")
-set(VERSION_MINOR "0")
-set(VERSION_REVISION "1")
+set(VERSION_MINOR "1")
+set(VERSION_REVISION "0")
 set(PROJECT_AUTHOR "xfangfang")
 set(PACKAGE_NAME cn.xfangfang.wiliwili)
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.jpg)
