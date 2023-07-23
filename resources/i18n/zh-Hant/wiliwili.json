@@ -80,8 +80,8 @@
         "header": "其他",
         "dlna": "DLNA 投映",
         "dlna_waiting": "等待 DLNA 投映中...",
-        "up2date": "應用程式為最新版本。",
         "dlna_quit": "確定要退出投映?",
+        "up2date": "應用程式為最新版本。",
         "release": "檢查更新",
         "config": "開啟設定檔目錄"
       }

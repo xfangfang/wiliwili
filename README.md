@@ -58,7 +58,13 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验
 3. 在主页 `按住` R键打开任意游戏进入 hbmenu，在列表中选择 wiliwili 点击打开即可。
 4. [可选] 在应用内安装桌面图标，入口：设置/实用工具/使用教程
 
-🔔: 桌面图标会优先尝试打开 `switch/wiliwili.nro`，如果其不存在，则尝试打开 `switch/wiliwili/wiliwili.nro`，如果这两个路径都不存在，则打开 hbmenu 自行选择路径。
+<details>
+
+<br>
+
+桌面图标会优先尝试打开 `switch/wiliwili.nro`，如果其不存在，则尝试打开 `switch/wiliwili/wiliwili.nro`，如果这两个路径都不存在，则打开 hbmenu 自行选择路径。
+
+</details>
 
 ### PC
 
@@ -250,11 +256,8 @@ mingw32-make -C build wiliwili -j$(nproc)
 ⚠️：PC 平台非测试所需请不要使用此方式构建，没有经过太多的测试，且不支持 PC 系统输入法。
 
 ```shell
-# macOS
-brew install sdl2 mpv
-
 cmake -B build -DPLATFORM_DESKTOP=ON -DUSE_SDL2=ON
-make -C build wiliwili -j$(sysctl -n hw.ncpu)
+cmake --build build
 ```
 
 </details>
@@ -319,9 +322,10 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 - natinusala and XITRIX
     - https://github.com/natinusala/borealis
     - https://github.com/XITRIX/borealis
-- Cpasjuste and proconsule
+- Cpasjuste, proconsule and averne
     - https://github.com/Cpasjuste/pplay
     - https://github.com/proconsule/nxmp
+    - https://github.com/averne
 - https://github.com/libcpr/cpr
 - https://github.com/nlohmann/json
 - https://github.com/nayuki/QR-Code-generator
