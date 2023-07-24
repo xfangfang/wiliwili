@@ -72,6 +72,7 @@ project(wiliwili)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "1")
 set(VERSION_REVISION "1")
+set(VERSION_BUILD "0")
 set(PROJECT_AUTHOR "xfangfang")
 set(PACKAGE_NAME cn.xfangfang.wiliwili)
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.jpg)
@@ -156,7 +157,10 @@ endif ()
 
 # source cpp
 file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
-if (PLATFORM_SWITCH)
+if (WIN32)
+    configure_file("${CMAKE_SOURCE_DIR}/wiliwili/app_win32.rc.in" "${CMAKE_BINARY_DIR}/app_win32.rc")
+    list(APPEND MAIN_SRC ${CMAKE_BINARY_DIR}/app_win32.rc)
+elseif (PLATFORM_SWITCH)
     # System service initialization functions required for libnx
     list(APPEND MAIN_SRC ${BOREALIS_LIBRARY}/lib/platforms/switch/switch_wrapper.c)
 endif ()
@@ -165,17 +169,16 @@ endif ()
 add_subdirectory(library)
 
 # Main Target
-main_target(${PROJECT_NAME} "${MAIN_SRC}" "${CMAKE_CURRENT_SOURCE_DIR}/app_win32.rc")
+program_target(${PROJECT_NAME} "${MAIN_SRC}")
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 # building release file
 if (PLATFORM_DESKTOP)
     # Copy resources to build dir
-    add_custom_target(${PROJECT_NAME}.data
-        COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_SOURCE_DIR}/resources
-            ${CMAKE_CURRENT_BINARY_DIR}/resources)
     if (NOT USE_LIBROMFS)
-        add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${PROJECT_BINARY_DIR}/resources
+        )
     endif ()
 
     if (APPLE)
@@ -219,7 +222,6 @@ elseif (PLATFORM_SWITCH)
         DEPENDS ${PROJECT_NAME}
         COMMAND ${NX_NACPTOOL_EXE} --create ${PROJECT_NAME} ${PROJECT_AUTHOR} ${APP_VERSION} ${PROJECT_NAME}.nacp
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/resources
-        COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/resources/icon/wiliwili.ico
         COMMAND ${CMAKE_COMMAND} -E remove -f ${BUILD_FONT_DIR}/*.txt ${BUILD_FONT_DIR}/switch_font.ttf
             ${BUILD_FONT_DIR}/keymap*.ttf
         COMMAND ${NX_ELF2NRO_EXE} ${PROJECT_NAME}.elf ${PROJECT_NAME}.nro --icon=${PROJECT_ICON}
