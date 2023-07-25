@@ -9,10 +9,6 @@ include(${BOREALIS_LIBRARY}/cmake/commonOption.cmake)
 
 # NintendoSwitch
 cmake_dependent_option(BUILTIN_NSP "Built in NSP forwarder" OFF "PLATFORM_SWITCH" OFF)
-if (BUILTIN_NSP)
-    list(APPEND APP_PLATFORM_LIB nsp)
-    list(APPEND APP_PLATFORM_OPTION -DBUILTIN_NSP)
-endif ()
 
 # macOS
 # These four options are only for macOS app bundling usage.
@@ -139,6 +135,12 @@ list(APPEND APP_PLATFORM_OPTION
    -DBUILD_VERSION_REVISION=${VERSION_REVISION}
 )
 
+if (BUILTIN_NSP)
+    list(APPEND APP_PLATFORM_LIB nsp)
+    list(APPEND APP_PLATFORM_OPTION -DBUILTIN_NSP)
+    add_subdirectory(scripts/switch-forwarder)
+endif ()
+
 if (USE_LIBROMFS)
     add_libromfs(${PROJECT_NAME} ${PROJECT_RESOURCES})
 endif ()
@@ -209,6 +211,9 @@ elseif (PLATFORM_SWITCH)
     set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)
     if (GIT_TAG_VERSION)
         string(SUBSTRING ${GIT_TAG_VERSION} 1 -1 APP_VERSION)
+    endif ()
+    if (BUILTIN_NSP)
+        add_dependencies(${PROJECT_NAME} nsp_forwarder.nsp)
     endif ()
     add_custom_target(${PROJECT_NAME}.nro
         DEPENDS ${PROJECT_NAME}
