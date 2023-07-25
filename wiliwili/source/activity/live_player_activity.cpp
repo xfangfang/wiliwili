@@ -99,9 +99,6 @@ void LiveActivity::onContentAvailable() {
         brls::Application::popActivity();
         return true;
     });
-    this->video->registerAction(
-        "toggleDanmaku", brls::ControllerButton::BUTTON_X,
-        [](brls::View* view) -> bool { return true; }, true);
 
     this->video->hideDLNAButton();
     this->video->hideSubtitleSetting();

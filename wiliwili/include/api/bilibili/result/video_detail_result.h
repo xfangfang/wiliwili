@@ -176,9 +176,12 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("reply_control")
             .get_to(nlohmann_json_t.reply_control);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, ctime, content,
+    if (!nlohmann_json_j.at("content").is_null()) {
+        nlohmann_json_j.at("content").get_to(nlohmann_json_t.content);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, ctime, action,
                                              rcount, like, rpid, parent, root,
-                                             oid, action));
+                                             oid));
 }
 typedef std::vector<VideoCommentResult> VideoCommentListResult;
 
@@ -487,12 +490,12 @@ public:
     VideoDetailResult View;
     UserDetailResultWrapper Card;
     VideoDetailListResult Related;
-    VideoDetailReplyResult Reply;
+    //    VideoDetailReplyResult Reply; 暂时未使用的值
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoDetailAllResult& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, View, Card, Related, Reply));
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, View, Card, Related));
 }
 
 class VideoDUrl {
