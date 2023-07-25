@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 BUILD_DIR=cmake-build-switch
@@ -14,7 +15,11 @@ PKGS=(
     "switch-libmpv-0.35.1-1-any.pkg.tar.zst"
     "switch-nspmini-48d4fc2-1-any.pkg.tar.xz"
 )
-for PKG in "${PKGS[@]}"; do dkp-pacman -U --noconfirm ${BASE_URL}${PKG}; done
+for PKG in "${PKGS[@]}"; do
+    [ -f "${PKG}" ] || curl -LO ${BASE_URL}${PKG}
+    dkp-pacman -U --noconfirm ${PKG}
+done
+
 curl -sL https://github.com/dragonflylee/hacBrewPack/releases/download/v3.06/hacbrewpack-v3.06_linux-amd64.tar.gz | tar zxf - -C /usr/local/bin
 
 cmake -B ${BUILD_DIR} -DCMAKE_BUILD_TYPE=Release -DBUILTIN_NSP=ON -DPLATFORM_SWITCH=ON

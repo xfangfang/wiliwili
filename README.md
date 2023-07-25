@@ -272,7 +272,7 @@ cmake --build build
 
 ```shell
 docker run --rm -v $(pwd):/data devkitpro/devkita64:20230622 \
-  sh -c "/data/scripts/build_switch.sh"
+  bash -c "/data/scripts/build_switch.sh"
 ```
 
 #### 本地编译
