@@ -225,10 +225,8 @@ jobs:
       - name: Build
         id: compile
         run: |
-          wget https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/nsp_forwarder.nsp -P resources
-          docker run --rm -v $(pwd):/data devkitpro/devkita64:20230622 sh -c "/data/scripts/build_switch.sh"
-          cd cmake-build-switch
-          tar -czvf ../${{ needs.version.outputs.DIST_NRO }}.tar.gz wiliwili.nro
+          docker run --rm -v $(pwd):/data devkitpro/devkita64:20230622 bash -c "/data/scripts/build_switch.sh"
+          tar -czvf ${{ needs.version.outputs.DIST_NRO }}.tar.gz -C cmake-build-switch wiliwili.nro
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
