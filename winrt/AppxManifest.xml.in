@@ -33,5 +33,6 @@
   </Applications>
   <Capabilities>
     <Capability Name="internetClient" />
+    <DeviceCapability Name="wiFiControl" />
   </Capabilities>
 </Package>
