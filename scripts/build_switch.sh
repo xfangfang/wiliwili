@@ -20,7 +20,9 @@ for PKG in "${PKGS[@]}"; do
     dkp-pacman -U --noconfirm ${PKG}
 done
 
-curl -sL https://github.com/dragonflylee/hacBrewPack/releases/download/v3.06/hacbrewpack-v3.06_linux-amd64.tar.gz | tar zxf - -C /usr/local/bin
+HACBREWPACK="hacbrewpack-v3.06_linux-amd64.tar.gz"
+[ -f "${HACBREWPACK}" ] || curl -LO https://github.com/dragonflylee/hacBrewPack/releases/download/v3.06/${HACBREWPACK}
+tar zxf ${HACBREWPACK} -C /usr/local/bin
 
 cmake -B ${BUILD_DIR} -DCMAKE_BUILD_TYPE=Release -DBUILTIN_NSP=ON -DPLATFORM_SWITCH=ON
 make -C ${BUILD_DIR} wiliwili.nro -j$(nproc)
