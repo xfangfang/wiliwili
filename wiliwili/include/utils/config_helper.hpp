@@ -165,6 +165,8 @@ public:
 
     std::string getConfigDir();
 
+    std::string getHomePath();
+
     void checkRestart(char* argv[]);
 
     Cookie cookie = {{"DedeUserID", "0"}};

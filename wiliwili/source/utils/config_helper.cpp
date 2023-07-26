@@ -658,6 +658,16 @@ void ProgramConfig::init() {
         5000);
 }
 
+std::string ProgramConfig::getHomePath() {
+#if defined(__SWITCH__)
+    return "/";
+#elif defined(_WIN32)
+    return std::string(getenv("HOMEPATH"));
+#else
+    return std::string(getenv("HOME"));
+#endif
+}
+
 std::string ProgramConfig::getConfigDir() {
 #ifdef __SWITCH__
     return "/config/wiliwili";
