@@ -31,6 +31,7 @@ typedef enum MpvEventEnum {
     MPV_PAUSE,
     MPV_RESUME,
     MPV_STOP,
+    MPV_FILE_ERROR,
     LOADING_START,
     LOADING_END,
     UPDATE_DURATION,

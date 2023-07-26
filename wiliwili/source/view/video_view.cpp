@@ -652,25 +652,39 @@ void VideoView::onLayout() {
 
 std::string VideoView::genExtraUrlParam(int progress,
                                         const std::string& audio) {
+    return genExtraUrlParam(progress, {audio});
+}
+
+std::string VideoView::genExtraUrlParam(
+    int progress, const std::vector<std::string>& audios) {
     std::string extra =
         "referrer=\"https://www.bilibili.com\",network-timeout=5";
     if (progress > 0) {
         extra += fmt::format(",start={}", progress);
     }
-    if (!audio.empty()) {
+    for (auto& audio : audios)
         extra += fmt::format(",audio-file=\"{}\"", audio);
-    }
     return extra;
 }
 
 void VideoView::setUrl(const std::string& url, int progress,
                        const std::string& audio) {
-    mpvCore->setUrl(url, genExtraUrlParam(progress, audio));
+    setUrl(url, progress, std::vector{audio});
+}
+
+void VideoView::setUrl(const std::string& url, int progress,
+                       const std::vector<std::string>& audios) {
+    mpvCore->setUrl(url, genExtraUrlParam(progress, audios));
 }
 
 void VideoView::setBackupUrl(const std::string& url, int progress,
                              const std::string& audio) {
-    mpvCore->setBackupUrl(url, genExtraUrlParam(progress, audio));
+    setBackupUrl(url, progress, std::vector{audio});
+}
+
+void VideoView::setBackupUrl(const std::string& url, int progress,
+                             const std::vector<std::string>& audios) {
+    mpvCore->setBackupUrl(url, genExtraUrlParam(progress, audios));
 }
 
 void VideoView::setUrl(const std::vector<EDLUrl>& edl_urls, int progress) {

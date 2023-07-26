@@ -42,9 +42,18 @@ public:
     void setBackupUrl(const std::string& url, int progress = 0,
                       const std::string& audio = "");
 
+    void setUrl(const std::string& url, int progress,
+                const std::vector<std::string>& audios);
+
+    void setBackupUrl(const std::string& url, int progress,
+                      const std::vector<std::string>& audios);
+
     void setUrl(const std::vector<EDLUrl>& edl_urls, int progress = 0);
 
     static std::string genExtraUrlParam(int progress, const std::string& audio);
+
+    static std::string genExtraUrlParam(
+        int progress, const std::vector<std::string>& audios = {});
 
     void resume();
 

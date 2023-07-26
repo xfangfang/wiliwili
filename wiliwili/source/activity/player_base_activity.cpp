@@ -540,22 +540,17 @@ void BasePlayerActivity::onVideoPlayUrl(
                     break;
                 }
             }
-            this->video->setUrl(v.base_url, progress, a.base_url);
 
-            // 设置使用备用视频链接 (mpv 只判断视频来决定能否播放)
-            if (v.backup_url.size() == a.backup_url.size()) {
-                // 默认情况：视频音频备用链接各两条，第一条均为 mcdn，第二条为其他链接
-                for (size_t i = 0; i < v.backup_url.size(); ++i) {
-                    this->video->setBackupUrl(v.backup_url[i], progress,
-                                              a.backup_url[i]);
-                }
-            } else {
-                // 其他情况：可能在港澳台或者国外cdn情况有不同，这种情况下简单的尝试所有组合
-                for (auto& videoUrl : v.backup_url) {
-                    for (auto& audioUrl : a.backup_url) {
-                        this->video->setBackupUrl(videoUrl, progress, audioUrl);
-                    }
-                }
+            // 将主音频和备份音频链接合并，当作不同的音轨传给播放器，在播放失败时自动切换
+            std::vector<std::string> audios = {a.base_url};
+            audios.insert(audios.end(), a.backup_url.begin(),
+                          a.backup_url.end());
+
+            this->video->setUrl(v.base_url, progress, audios);
+
+            // 设置备份视频链接
+            for (size_t i = 0; i < v.backup_url.size(); ++i) {
+                this->video->setBackupUrl(v.backup_url[i], progress, audios);
             }
             brls::Logger::debug("Dash quality: {}; video: {}; audio: {}",
                                 videoUrlResult.quality, v.codecid, a.id);

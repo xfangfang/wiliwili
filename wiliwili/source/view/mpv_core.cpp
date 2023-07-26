@@ -623,12 +623,25 @@ void MPVCore::eventMainLoop() {
                 else
                     this->pause();
                 break;
-            case MPV_EVENT_END_FILE:
+            case MPV_EVENT_END_FILE: {
                 // event 7: 文件播放结束
                 disableDimming(false);
                 brls::Logger::info("========> MPV_STOP");
                 mpvCoreEvent.fire(MpvEventEnum::MPV_STOP);
+                mpv_node dst;
+                mpv_event_to_node(&dst, event);
+                std::unordered_map<std::string, mpv_node> node_map;
+                for (int i = 0; i < dst.u.list->num; i++) {
+                    node_map.insert(
+                        std::make_pair(std::string(dst.u.list->keys[i]),
+                                       dst.u.list->values[i]));
+                }
+                if (node_map.count("file_error") != 0) {
+                    mpvCoreEvent.fire(MpvEventEnum::MPV_FILE_ERROR);
+                }
+
                 break;
+            }
             case MPV_EVENT_PROPERTY_CHANGE: {
                 auto *data = ((mpv_event_property *)event->data)->data;
                 switch (event->reply_userdata) {
