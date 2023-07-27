@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <borealis.hpp>
 #include "presenter/video_detail.hpp"
 
@@ -124,6 +125,7 @@ protected:
 
 private:
     bool activityShown = false;
+    std::chrono::system_clock::time_point videoDeadline{};
 };
 
 class PlayerActivity : public BasePlayerActivity {

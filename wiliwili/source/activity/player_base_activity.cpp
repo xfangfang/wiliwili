@@ -299,7 +299,7 @@ void BasePlayerActivity::setCommonData() {
         // 上一次报告历史记录的时间点
         static int64_t lastProgress = MPVCore::instance().video_progress;
         switch (event) {
-            case MpvEventEnum::UPDATE_PROGRESS:
+            case MpvEventEnum::UPDATE_PROGRESS: {
                 // 每15秒同步一次进度
                 if (lastProgress + 15 < MPVCore::instance().video_progress) {
                     lastProgress = MPVCore::instance().video_progress;
@@ -310,7 +310,32 @@ void BasePlayerActivity::setCommonData() {
                     // 发生于向前拖拽进度的时候，此时重置lastProgress的值
                     lastProgress = MPVCore::instance().video_progress;
                 }
+                // 检查视频链接是否有效
+                auto timeNow = std::chrono::system_clock::now();
+                if (timeNow > videoDeadline) {
+                    // 向后跳转5秒
+                    setProgress(MPVCore::instance().video_progress + 5);
+
+                    // 暂停播放
+                    MPVCore::instance().pause();
+
+                    // 10s 后重新尝试
+                    videoDeadline = timeNow + std::chrono::seconds(10);
+
+                    // 有效期已过，重新请求视频链接
+                    auto self = dynamic_cast<PlayerSeasonActivity*>(this);
+                    if (self) {
+                        this->requestSeasonVideoUrl(episodeResult.bvid,
+                                                    episodeResult.cid, false);
+                    } else {
+                        this->requestVideoUrl(videoDetailResult.bvid,
+                                              videoDetailPage.cid, false);
+                    }
+
+                    //todo: 如果有选择的字幕加载对应的字幕
+                }
                 break;
+            }
             case MpvEventEnum::END_OF_FILE:
                 // 尝试自动加载下一分集
                 // 如果当前最顶层是Dialog就放弃自动播放，因为有可能是用户点开了收藏或者投币对话框
@@ -472,6 +497,10 @@ void BasePlayerActivity::onVideoPlayUrl(
     const bilibili::VideoUrlResult& result) {
     brls::Logger::debug("onVideoPlayUrl quality: {}", result.quality);
 
+    // 有效期 110 分钟
+    videoDeadline =
+        std::chrono::system_clock::now() + std::chrono::seconds(6600);
+
     // 进度向前回退5秒，避免当前进度过于接近结尾出现一加载就结束的情况
     int progress = this->getProgress() - 5;
 
@@ -522,16 +551,9 @@ void BasePlayerActivity::onVideoPlayUrl(
             }
         }
 
-        // 给播放器设置链接
-        if (result.dash.audio.empty()) {
-            // 无音频视频
-            this->video->setUrl(v.base_url, progress);
-            for (auto& url : v.backup_url) {
-                this->video->setBackupUrl(url, progress);
-            }
-            brls::Logger::debug("Dash quality: {}; video: {}",
-                                videoUrlResult.quality, v.codecid);
-        } else {
+        // 将主音频和备份音频链接合并，当作不同的音轨传给播放器，可以实现在播放失败时自动切换
+        std::vector<std::string> audios;
+        if (!result.dash.audio.empty()) {
             // 匹配当前设定的音频码率
             bilibili::DashMedia a = result.dash.audio[0];  // High
             for (auto& i : result.dash.audio) {
@@ -540,20 +562,20 @@ void BasePlayerActivity::onVideoPlayUrl(
                     break;
                 }
             }
-
-            // 将主音频和备份音频链接合并，当作不同的音轨传给播放器，在播放失败时自动切换
-            std::vector<std::string> audios = {a.base_url};
+            // 生成音频列表
+            audios.emplace_back(a.base_url);
             audios.insert(audios.end(), a.backup_url.begin(),
                           a.backup_url.end());
-
-            this->video->setUrl(v.base_url, progress, audios);
-
-            // 设置备份视频链接
-            for (size_t i = 0; i < v.backup_url.size(); ++i) {
-                this->video->setBackupUrl(v.backup_url[i], progress, audios);
-            }
             brls::Logger::debug("Dash quality: {}; video: {}; audio: {}",
                                 videoUrlResult.quality, v.codecid, a.id);
+        }
+
+        // 给播放器设置链接
+        this->video->setUrl(v.base_url, progress, audios);
+
+        // 设置备份视频链接
+        for (const auto& backup_url : v.backup_url) {
+            this->video->setBackupUrl(backup_url, progress, audios);
         }
     } else {
         // flv
@@ -564,8 +586,9 @@ void BasePlayerActivity::onVideoPlayUrl(
             this->video->setUrl(result.durl[0].url, progress);
         } else {
             std::vector<EDLUrl> urls;
+            urls.reserve(result.durl.size());
             for (auto& i : result.durl) {
-                urls.emplace_back(EDLUrl(i.url, i.length / 1000.0f));
+                urls.emplace_back(i.url, i.length / 1000.0f);
             }
             this->video->setUrl(urls, progress);
         }

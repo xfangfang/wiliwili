@@ -283,7 +283,8 @@ void VideoDetail::requestVideoInfo(const std::string& bvid) {
 }
 
 /// 获取视频地址
-void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
+void VideoDetail::requestVideoUrl(std::string bvid, int cid,
+                                  bool requestHistoryInfo) {
     // 重置MPV
     MPVCore::instance().reset();
     ASYNC_RETAIN
@@ -312,11 +313,12 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid) {
     // 请求弹幕
     this->requestVideoDanmaku(cid);
     // 请求分P详情 （字幕链接/历史播放记录）
-    this->requestVideoPageDetail(bvid, cid);
+    this->requestVideoPageDetail(bvid, cid, requestHistoryInfo);
 }
 
 /// 获取番剧地址
-void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
+void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid,
+                                        bool requestHistoryInfo) {
     // 重置MPV
     MPVCore::instance().reset();
 
@@ -345,7 +347,7 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid) {
     // 请求弹幕
     this->requestVideoDanmaku(cid);
     // 请求分P详情 （字幕链接/历史播放记录）
-    this->requestVideoPageDetail(bvid, cid);
+    this->requestVideoPageDetail(bvid, cid, requestHistoryInfo);
 }
 
 /// 获取投屏地址
@@ -584,13 +586,15 @@ void VideoDetail::requestVideoDanmaku(int cid) {
 }
 
 /// 获取视频分P详情
-void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid) {
+void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid,
+                                         bool requestVideoHistory) {
     brls::Logger::debug("请求字幕：bvid: {} cid: {}", bvid, cid);
     ASYNC_RETAIN
     BILI::get_page_detail(
         bvid, cid,
-        [ASYNC_TOKEN](const bilibili::VideoPageResult& result) {
-            brls::sync([ASYNC_TOKEN, result]() {
+        [ASYNC_TOKEN,
+         requestVideoHistory](const bilibili::VideoPageResult& result) {
+            brls::sync([ASYNC_TOKEN, result, requestVideoHistory]() {
                 ASYNC_RELEASE
                 SubtitleCore::instance().setSubtitleList(result);
                 // 存在UP主设置的字幕
@@ -598,6 +602,8 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid) {
                     pystring::count(result.subtitles[0].lan, "ai") <= 0) {
                     SubtitleCore::instance().selectSubtitle(0);
                 }
+
+                if (!requestVideoHistory) return;
 
                 brls::Logger::debug("历史播放进度：{}/{}", result.last_play_cid,
                                     result.last_play_time);

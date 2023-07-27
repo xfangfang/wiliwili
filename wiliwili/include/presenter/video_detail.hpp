@@ -64,11 +64,19 @@ public:
     /// 获取视频信息：标题、作者、简介、分P等
     void requestVideoInfo(const std::string& bvid);
 
-    /// 获取视频地址
-    void requestVideoUrl(std::string bvid, int cid);
+    /**
+     * 获取视频地址
+     * @param requestHistoryInfo 是否获取历史播放进度
+     */
+    void requestVideoUrl(std::string bvid, int cid,
+                         bool requestHistoryInfo = true);
 
-    /// 获取番剧地址
-    void requestSeasonVideoUrl(const std::string& bvid, int cid);
+    /**
+     * 获取番剧地址
+     * @param requestHistoryInfo 是否获取历史播放进度
+     */
+    void requestSeasonVideoUrl(const std::string& bvid, int cid,
+                               bool requestHistoryInfo = true);
 
     /// 获取投屏地址
     void requestCastVideoUrl(int oid, int cid, int type);
@@ -105,7 +113,8 @@ public:
     void requestVideoDanmaku(int cid);
 
     /// 获取视频分P详情
-    void requestVideoPageDetail(const std::string& bvid, int cid);
+    void requestVideoPageDetail(const std::string& bvid, int cid,
+                                bool requestHistoryInfo = true);
 
     /// 上报播放进度
     void reportHistory(unsigned int aid, unsigned int cid,
