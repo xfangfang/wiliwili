@@ -8,6 +8,7 @@ files=(libass.9.dylib
        libavutil.57.28.100.dylib
        libboost_atomic-mt.dylib
        libboost_filesystem-mt.dylib
+       libcrypto.3.dylib
        libdav1d.6.dylib
        libfontconfig.1.dylib
        libfreetype.6.dylib
@@ -26,6 +27,7 @@ files=(libass.9.dylib
        libpcre2-8.0.dylib
        libpng16.16.dylib
        libsharpyuv.0.0.0.dylib
+       libssl.3.dylib
        libswresample.4.7.100.dylib
        libswscale.6.7.100.dylib
        libtasn1.6.dylib
