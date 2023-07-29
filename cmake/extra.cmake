@@ -11,6 +11,11 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif ()
 
 if (APPLE AND PLATFORM_DESKTOP)
+    execute_process(COMMAND sw_vers -productVersion
+            TIMEOUT 5
+            OUTPUT_VARIABLE MACOS_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    message(STATUS "compiling on macOS: ${MACOS_VERSION}")
     if (MAC_IntelChip)
         message(STATUS "CMAKE_OSX_ARCHITECTURES: x86_64")
         message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: 10.11")
@@ -35,8 +40,7 @@ if (APPLE AND PLATFORM_DESKTOP)
 
         set(USE_BOOST_FILESYSTEM ON)
         set(USE_SYSTEM_CURL OFF)
-    elseif (CMAKE_HOST_SYSTEM_VERSION VERSION_GREATER_EQUAL 19) # macOS 10.15
-            message(STATUS "compiling on darwin: ${CMAKE_HOST_SYSTEM_VERSION}, using system curl")
+    elseif (MACOS_VERSION VERSION_GREATER_EQUAL 10.15)
             set(USE_SYSTEM_CURL ON)
             set(CPR_FORCE_DARWINSSL_BACKEND ON)
     else ()
