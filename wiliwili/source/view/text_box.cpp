@@ -6,12 +6,9 @@
 
 #include <utility>
 #include <codecvt>
-#include <cstring>
-#include <iostream>
 #include <locale>
 
 #include "view/text_box.hpp"
-#include "bilibili/result/video_detail_result.h"
 
 const char* TEXTBOX_MORE = "更多";
 

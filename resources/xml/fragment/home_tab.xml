@@ -5,6 +5,7 @@
             defaultTab="1"
             tabHeight="70"
             tabItemActiveTextColor="@theme/color/bilibili"
+            disableNavigationRight="true"
             sidebarPosition="top">
 
         <Tab label="@i18n/wiliwili/home/live/tab"
@@ -28,7 +29,8 @@
         </Tab>
 
         <Tab label="@i18n/wiliwili/home/cinema/tab"
-             fontSize="22">
+             fontSize="22"
+             focusRight="home/search">
             <HomeCinema/>
         </Tab>
 
@@ -41,8 +43,11 @@
             height="70"
             alignItems="center"
             wireframe="false">
-        <brls:Box
+        <CustomButton
                 id="home/search"
+                focusable="true"
+                highlightCornerRadius="8"
+                hideHighlightBackground="true"
                 width="300"
                 height="35"
                 backgroundColor="#E3E5E7"
@@ -59,6 +64,6 @@
                     fontSize="14"
                     textColor="#18191c"
                     text=""/>
-        </brls:Box>
+        </CustomButton>
     </brls:Box>
 </brls:Box>

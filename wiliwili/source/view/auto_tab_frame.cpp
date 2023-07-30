@@ -92,6 +92,14 @@ AutoTabFrame::AutoTabFrame() {
     this->registerBoolXMLAttribute(
         "demandMode", [this](bool value) { this->setDemandMode(value); });
 
+    this->registerBoolXMLAttribute(
+        "disableNavigationRight",
+        [this](bool value) { disableNavigationRight = value; });
+
+    this->registerBoolXMLAttribute("disableNavigationDown", [this](bool value) {
+        disableNavigationDown = value;
+    });
+
     this->sidebar->setAxis(brls::Axis::COLUMN);
     this->sidebar->setPadding(32, 10, 47, 10);
 
@@ -120,6 +128,7 @@ void AutoTabFrame::setRefreshAction(const std::function<void()>& event) {
 void AutoTabFrame::setDemandMode(bool value) { this->isDemandMode = value; }
 
 void AutoTabFrame::setSideBarPosition(AutoTabBarPosition position) {
+    this->tabBarPosition = position;
     switch (position) {
         case AutoTabBarPosition::TOP:
             this->setAxis(brls::Axis::COLUMN);
@@ -142,6 +151,10 @@ void AutoTabFrame::setSideBarPosition(AutoTabBarPosition position) {
         default:;
     }
     this->invalidate();
+}
+
+AutoTabBarPosition AutoTabFrame::getSideBarPosition() {
+    return this->tabBarPosition;
 }
 
 int AutoTabFrame::getActiveIndex() { return this->group.getActiveIndex(); }
@@ -372,10 +385,15 @@ size_t AutoTabFrame::getDefaultTabIndex() {
 
 brls::View* AutoTabFrame::getNextFocus(brls::FocusDirection direction,
                                        brls::View* currentView) {
-    // Do not navigate down, except through sidebar area
-    if (direction == brls::FocusDirection::DOWN &&
-        currentView != this->sidebar) {
-        return nullptr;
+    // Do not navigate, except through sidebar area
+    if (currentView != this->sidebar) {
+        if (disableNavigationDown && direction == brls::FocusDirection::DOWN) {
+            return nullptr;
+        }
+        if (disableNavigationRight &&
+            direction == brls::FocusDirection::RIGHT) {
+            return nullptr;
+        }
     }
 
     void* parentUserData = currentView->getParentUserData();

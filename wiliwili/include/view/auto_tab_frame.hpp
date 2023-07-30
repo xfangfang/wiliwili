@@ -211,6 +211,8 @@ public:
      */
     void setSideBarPosition(AutoTabBarPosition position);
 
+    AutoTabBarPosition getSideBarPosition();
+
     int getActiveIndex();
 
     void refresh();
@@ -228,6 +230,9 @@ private:
     bool isDemandMode  = true;  // load pages on demand
     float itemFontSize = 22;
     float sidebarWidth = 100;
+
+    bool disableNavigationRight = false;
+    bool disableNavigationDown  = false;
 
     ButtonRefresh* refreshButton        = nullptr;
     std::function<void()> refreshAction = nullptr;

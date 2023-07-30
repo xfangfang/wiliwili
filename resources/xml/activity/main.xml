@@ -11,6 +11,7 @@
                 grow="1"
                 tabBackgroundColor="@theme/color/grey_1"
                 tabItemActiveTextColor="@theme/color/bilibili"
+                disableNavigationDown="true"
                 defaultTab="0"
                 sidebarPosition="left">
 

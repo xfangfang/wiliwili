@@ -6,17 +6,20 @@
 
 #include "view/auto_tab_frame.hpp"
 
+class CustomButton;
 class HomeTab : AttachedView {
 public:
     HomeTab();
 
-    ~HomeTab();
+    ~HomeTab() override;
+
+    static void openSearch();
 
     static View* create();
 
-    void onCreate();
+    void onCreate() override;
 
 private:
     BRLS_BIND(AutoTabFrame, tabFrame, "home/tab/frame");
-    BRLS_BIND(brls::Box, search, "home/search");
+    BRLS_BIND(CustomButton, search, "home/search");
 };

@@ -58,13 +58,21 @@ void MainActivity::onContentAvailable() {
 
     this->settingBtn->setCustomNavigation(
         [this](brls::FocusDirection direction) {
+        if (tabFrame->getSideBarPosition() == AutoTabBarPosition::LEFT) {
             if (direction == brls::FocusDirection::RIGHT) {
                 return (brls::View*)this->tabFrame->getActiveTab();
             } else if (direction == brls::FocusDirection::UP) {
                 return (brls::View*)this->tabFrame->getSidebar();
             }
-            return (brls::View*)nullptr;
-        });
+        } else if (tabFrame->getSideBarPosition() == AutoTabBarPosition::TOP) {
+            if (direction == brls::FocusDirection::DOWN) {
+                return (brls::View*)this->tabFrame->getActiveTab();
+            } else if (direction == brls::FocusDirection::LEFT) {
+                return (brls::View*)this->tabFrame->getSidebar();
+            }
+        }
+        return (brls::View*)nullptr;
+    });
     this->settingBtn->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->settingBtn));
 }
