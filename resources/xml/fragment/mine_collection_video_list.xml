@@ -4,6 +4,7 @@
         width="auto"
         height="auto">
     <brls:AppletFrame
+            id="collection/appletFrame"
             iconInterpolation="linear"
             headerHidden="true"
             footerHidden="false"

@@ -760,7 +760,11 @@ void ProgramConfig::loadCustomThemes() {
 
     for (const auto& entry :
          fs::directory_iterator(getConfigDir() + "/theme")) {
+#if USE_BOOST_FILESYSTEM
+        if (!fs::is_directory(entry)) continue;
+#else
         if (!entry.is_directory()) continue;
+#endif
         std::string subDirectory = entry.path().string();
         std::string jsonFilePath = subDirectory + "/resources_meta.json";
         if (!fs::exists(jsonFilePath)) continue;

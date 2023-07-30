@@ -73,6 +73,10 @@ MineCollectionVideoList::MineCollectionVideoList() {
         this->collectionData.id = std::stoll(value);
         this->requestCollectionList();
     });
+    registerBoolXMLAttribute("footerHidden", [this](bool value) {
+        this->appletFrame->setFooterVisibility(
+            value ? brls::Visibility::GONE : brls::Visibility::VISIBLE);
+    });
 
     // 初始化列表
     recyclingGrid->registerCell(
