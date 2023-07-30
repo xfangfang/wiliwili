@@ -41,6 +41,9 @@
           "2": "Light",
           "3": "Dark"
         },
+        "custom_theme": {
+          "header": "Custom Layout (restart required)"
+        },
         "language": {
           "header": "Language (restart required)",
           "auto": "Auto",

@@ -24,6 +24,7 @@ enum class SettingItem {
     FULLSCREEN,
     APP_THEME,
     APP_LANG,
+    APP_RESOURCES,
     HISTORY_REPORT,
     AUTO_NEXT_PART,
     AUTO_NEXT_RCMD,
@@ -86,6 +87,31 @@ public:
 
     void checkUpdate(int delay = 2000, bool showUpToDateDialog = false);
 };
+
+class CustomTheme {
+public:
+    std::string id;
+    std::string name;
+    std::string desc;
+    std::string version;
+    std::string author;
+    std::string path;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      CustomTheme& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("name") &&
+        nlohmann_json_j.at("name").is_string())
+        nlohmann_json_j.at("name").get_to(nlohmann_json_t.name);
+    if (nlohmann_json_j.contains("desc") &&
+        nlohmann_json_j.at("desc").is_string())
+        nlohmann_json_j.at("desc").get_to(nlohmann_json_t.desc);
+    if (nlohmann_json_j.contains("version") &&
+        nlohmann_json_j.at("version").is_string())
+        nlohmann_json_j.at("version").get_to(nlohmann_json_t.version);
+    if (nlohmann_json_j.contains("author") &&
+        nlohmann_json_j.at("author").is_string())
+        nlohmann_json_j.at("author").get_to(nlohmann_json_t.author);
+}
 
 typedef struct ProgramOption {
     /// 保存在配置文件中的选项明
@@ -169,6 +195,11 @@ public:
 
     void checkRestart(char* argv[]);
 
+    void loadCustomThemes();
+
+    std::vector<CustomTheme> getCustomThemes();
+
+    std::vector<CustomTheme> customThemes;
     Cookie cookie = {{"DedeUserID", "0"}};
     std::string refreshToken;
     nlohmann::json setting;

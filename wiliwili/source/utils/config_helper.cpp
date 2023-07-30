@@ -51,6 +51,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       4}},
 #endif
     {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
+    {SettingItem::APP_RESOURCES, {"app_resources", {}, {}, 0}},
     {SettingItem::KEYMAP, {"keymap", {"xbox", "ps", "keyboard"}, {}, 0}},
     {SettingItem::HOME_WINDOW_STATE, {"home_window_state", {}, {}, 0}},
     {SettingItem::DLNA_IP, {"dlna_ip", {}, {}, 0}},
@@ -348,6 +349,21 @@ void ProgramConfig::load() {
         getConfigDir() + "/gamecontrollerdb.txt";
 #endif
 
+    // 初始化自定义布局
+    std::string customThemeID =
+        getSettingItem(SettingItem::APP_RESOURCES, std::string{""});
+    if (!customThemeID.empty()) {
+        for (auto& theme : customThemes) {
+            if (theme.id == customThemeID) {
+                brls::View::CUSTOM_RESOURCES_PATH = theme.path;
+                break;
+            }
+        }
+        if (brls::View::CUSTOM_RESOURCES_PATH.empty()) {
+            brls::Logger::warning("Custom theme not found: {}", customThemeID);
+        }
+    }
+
     // 初始化视频清晰度
     VideoDetail::defaultQuality =
         getSettingItem(SettingItem::VIDEO_QUALITY, 116);
@@ -612,6 +628,9 @@ void ProgramConfig::init() {
     }
 #endif
 
+    // load custom theme
+    this->loadCustomThemes();
+
     // load config from disk
     this->load();
 
@@ -732,4 +751,41 @@ void ProgramConfig::checkRestart(char* argv[]) {
 
     execv(filePath, argv);
 #endif
+}
+
+void ProgramConfig::loadCustomThemes() {
+    customThemes.clear();
+    std::string directoryPath = getConfigDir() + "/theme";
+    if (!fs::exists(directoryPath)) return;
+
+    for (const auto& entry :
+         fs::directory_iterator(getConfigDir() + "/theme")) {
+        if (!entry.is_directory()) continue;
+        std::string subDirectory = entry.path().string();
+        std::string jsonFilePath = subDirectory + "/resources_meta.json";
+        if (!fs::exists(jsonFilePath)) continue;
+
+        std::ifstream readFile(jsonFilePath);
+        if (readFile) {
+            try {
+                nlohmann::json content;
+                readFile >> content;
+                readFile.close();
+                CustomTheme customTheme;
+                customTheme.path = subDirectory + "/";
+                customTheme.id   = entry.path().filename().string();
+                content.get_to(customTheme);
+                customThemes.emplace_back(customTheme);
+                brls::Logger::info("Load custom theme \"{}\" from: {}",
+                                   customTheme.name, jsonFilePath);
+            } catch (const std::exception& e) {
+                brls::Logger::error("CustomTheme::load: {}", e.what());
+                continue;
+            }
+        }
+    }
+}
+
+std::vector<CustomTheme> ProgramConfig::getCustomThemes() {
+    return customThemes;
 }

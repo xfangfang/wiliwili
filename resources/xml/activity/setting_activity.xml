@@ -113,6 +113,9 @@
                                     id="setting/fps"/>
 
                             <SelectorCell
+                                    id="setting/custom/theme"/>
+
+                            <SelectorCell
                                     id="setting/keymap"/>
 
                             <SelectorCell

@@ -324,6 +324,41 @@ void SettingActivity::onContentAvailable() {
             return true;
         });
 
+    /// App custom theme
+    std::string customThemeID =
+        conf.getSettingItem(SettingItem::APP_RESOURCES, std::string{""});
+    conf.loadCustomThemes();
+    auto customThemeList = conf.getCustomThemes();
+    if (customThemeList.empty()) {
+        selectorCustomTheme->setVisibility(brls::Visibility::GONE);
+    } else {
+        std::vector<std::string> customThemeNameList = {"hints/off"_i18n};
+        size_t customThemeIndex                      = 0;
+        for (size_t index = 0; index < customThemeList.size(); index++) {
+            customThemeNameList.emplace_back(customThemeList[index].name);
+            if (customThemeID == customThemeList[index].id) {
+                customThemeIndex = index + 1;
+            }
+        }
+        selectorCustomTheme->init(
+            "wiliwili/setting/app/others/custom_theme/header"_i18n,
+            customThemeNameList, (int)customThemeIndex,
+            [customThemeIndex, customThemeList](int data) {
+                if (customThemeIndex == data) return false;
+                if (data <= 0) {
+                    ProgramConfig::instance().setSettingItem(
+                        SettingItem::APP_RESOURCES, "");
+                } else {
+                    ProgramConfig::instance().setSettingItem(
+                        SettingItem::APP_RESOURCES,
+                        customThemeList[data - 1].id);
+                }
+
+                DialogHelper::quitApp();
+                return true;
+            });
+    }
+
     /// App Keymap
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     static int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
