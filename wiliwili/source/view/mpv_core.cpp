@@ -628,15 +628,11 @@ void MPVCore::eventMainLoop() {
                 disableDimming(false);
                 brls::Logger::info("========> MPV_STOP");
                 mpvCoreEvent.fire(MpvEventEnum::MPV_STOP);
-                mpv_node dst;
-                mpv_event_to_node(&dst, event);
-                std::unordered_map<std::string, mpv_node> node_map;
-                for (int i = 0; i < dst.u.list->num; i++) {
-                    node_map.insert(
-                        std::make_pair(std::string(dst.u.list->keys[i]),
-                                       dst.u.list->values[i]));
-                }
-                if (node_map.count("file_error") != 0) {
+
+                auto node = (mpv_event_end_file *)event->data;
+                if (node->reason == MPV_END_FILE_REASON_ERROR) {
+                    brls::Logger::error("mpv error: {}",
+                                        mpv_error_string(node->error));
                     mpvCoreEvent.fire(MpvEventEnum::MPV_FILE_ERROR);
                 }
 
