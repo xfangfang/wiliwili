@@ -6,7 +6,7 @@ set -e
 mkdir -p deps
 
 BASEURL="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
-PACKAGE="macos_dylib_$1.tar.gz"
+PACKAGE="macos_dylib_ffmpeg6_mpv36_$1.tar.gz"
 DOWNLOAD_FLAG="${PACKAGE}.done"
 
 if [ ! -f "${DOWNLOAD_FLAG}" ];then

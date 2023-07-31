@@ -1,13 +1,14 @@
 set -e
 
 files=(libass.9.dylib
-       libavcodec.59.37.100.dylib
-       libavdevice.59.7.100.dylib
-       libavfilter.8.44.100.dylib
-       libavformat.59.27.100.dylib
-       libavutil.57.28.100.dylib
+       libavcodec.60.3.100.dylib
+       libavdevice.60.1.100.dylib
+       libavfilter.9.3.100.dylib
+       libavformat.60.3.100.dylib
+       libavutil.58.2.100.dylib
        libboost_atomic-mt.dylib
        libboost_filesystem-mt.dylib
+       libcrypto.3.dylib
        libdav1d.6.dylib
        libfontconfig.1.dylib
        libfreetype.6.dylib
@@ -25,13 +26,14 @@ files=(libass.9.dylib
        libp11-kit.0.dylib
        libpcre2-8.0.dylib
        libpng16.16.dylib
-       libsharpyuv.0.0.0.dylib
-       libswresample.4.7.100.dylib
-       libswscale.6.7.100.dylib
+       libsharpyuv.0.0.1.dylib
+       libssl.3.dylib
+       libswresample.4.10.100.dylib
+       libswscale.7.1.100.dylib
        libtasn1.6.dylib
        libunibreak.5.dylib
        libunistring.5.dylib
-       libwebp.7.1.6.dylib)
+       libwebp.7.1.7.dylib)
 
 for file in "${files[@]}"; do
   echo "$file"
