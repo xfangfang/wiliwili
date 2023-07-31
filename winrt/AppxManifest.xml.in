@@ -5,11 +5,10 @@
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   IgnorableNamespaces="uap mp build"
   xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build">
-  <Identity Name="a430d85b-5cf1-4705-9fe1-7da520f91d4b" Publisher="CN=ljh" Version="$(VERISON)" ProcessorArchitecture="x64" />
-  <mp:PhoneIdentity PhoneProductId="a430d85b-5cf1-4705-9fe1-7da520f91d4b" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
+  <Identity Name="a430d85b-5cf1-4705-9fe1-7da520f91d4b" Publisher="CN=xfangfang" Version="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}.${VERSION_BUILD}" ProcessorArchitecture="x64" />
   <Properties>
     <DisplayName>wiliwili</DisplayName>
-    <PublisherDisplayName>Daniel</PublisherDisplayName>
+    <PublisherDisplayName>xfangfang</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>

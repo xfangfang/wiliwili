@@ -32,17 +32,8 @@ else
 end
 
 package("borealis")
-    local sourcedirs = {
-        path.join(path.directory(os.projectfile()),"../borealis"),
-        path.join(path.directory(os.projectfile()), "./build/xrepo/borealis"),
-        path.join(path.directory(os.projectfile()), "./library/borealis"),
-    }
-    for _, sourcedir in ipairs(sourcedirs) do
-        if os.exists(sourcedir) and os.isdir(sourcedir) then
-            set_sourcedir(sourcedir)
-            break
-        end
-    end
+    set_sourcedir(path.join(os.projectdir(), "library/borealis"))
+
     add_configs("window", {description = "use window lib", default = "glfw", type = "string"})
     add_configs("driver", {description = "use driver lib", default = "opengl", type = "string"})
     add_configs("winrt", {description = "use winrt api", default = false, type = "boolean"})
@@ -58,6 +49,7 @@ package("borealis")
     add_includedirs("include")
     if is_plat("windows") then
         add_includedirs("include/compat")
+        add_syslinks("Wlanapi", "iphlpapi", "Ws2_32")
     end
     on_load(function (package)
         local window = package:config("window")
@@ -79,12 +71,9 @@ package("borealis")
     end)
     on_install(function (package)
         local configs = {}
-        local window = package:config("window")
-        local driver = package:config("driver")
-        configs["window"] = window
-        configs["driver"] = driver
-        local winrt = package:config("winrt")
-        configs["winrt"] = winrt and "y" or "n"
+        configs["window"] = package:config("window")
+        configs["driver"] = package:config("driver")
+        configs["winrt"] = package:config("winrt") and "y" or "n"
         import("package.tools.xmake").install(package, configs)
         os.cp("library/include/*", package:installdir("include").."/")
         os.rm(package:installdir("include/borealis/extern"))
@@ -112,17 +101,7 @@ package("mongoose")
 package_end()
 
 package("pdr")
-    local sourcedirs = {
-        path.join(path.directory(os.projectfile()),"../libpdr"),
-        path.join(path.directory(os.projectfile()), "./build/xrepo/libpdr"),
-        path.join(path.directory(os.projectfile()), "./library/libpdr"),
-    }
-    for _, sourcedir in ipairs(sourcedirs) do
-        if os.exists(sourcedir) and os.isdir(sourcedir) then
-            set_sourcedir(sourcedir)
-            break
-        end
-    end
+    set_sourcedir(path.join(os.projectdir(), "library/libpdr"))
     add_deps("mongoose", "tinyxml2")
     on_install(function (package)
         io.writefile("xmake.lua", [[
@@ -170,25 +149,20 @@ package("mpv")
                     io.writefile("mpv.def", format("EXPORTS\n%s", def_context))
                 end
             end
-            local vs = find_vstudio()["2022"]["vcvarsall"]["x64"]
-            local libExec = path.join(
-                vs["VSInstallDir"],
-                "VC",
-                "Tools",
-                "MSVC",
-                vs["VCToolsVersion"],
-                "bin",
-                "HostX64",
-                "x64",
-                "lib.exe"
-            )
-            os.execv(libExec, {"/name:libmpv-2.dll", "/def:mpv.def", "/out:mpv.lib", "/MACHINE:X64"})
+            for _, vsinfo in pairs(find_vstudio()) do
+                if vsinfo.vcvarsall then
+                    os.setenv("PATH", vsinfo.vcvarsall[os.arch()]["PATH"])
+                end
+            end
+
+            os.execv("lib.exe", {"/name:libmpv-2.dll", "/def:mpv.def", "/out:mpv.lib", "/MACHINE:X64"})
             os.cp("*.lib", package:installdir("lib").."/")
             os.cp("*.exp", package:installdir("lib").."/")
         end
     end)
 package_end()
 
+add_repositories("zeromake https://github.com/zeromake/xrepo.git")
 if get_config("winrt") then
     add_requires("sdl2", {configs={shared=true,winrt=true}})
     add_requireconfs("**.sdl2", {configs={shared=true,winrt=true}})
@@ -212,18 +186,22 @@ target("wiliwili")
     add_includedirs("wiliwili/include", "wiliwili/include/api")
     add_files("wiliwili/source/**.cpp")
     add_defines("BRLS_RESOURCES=\"./resources/\"")
-    before_build(function (target)
-        local GIT_TAG_VERSION = vformat("$(shell git describe --tags)")
-        local GIT_TAG_SHORT = vformat("$(shell git rev-parse --short HEAD)")
+    on_config(function (target)
         local cmakefile = io.readfile("CMakeLists.txt")
         local VERSION_MAJOR = string.match(cmakefile, "set%(VERSION_MAJOR \"(%d)\"%)")
         local VERSION_MINOR = string.match(cmakefile, "set%(VERSION_MINOR \"(%d)\"%)")
         local VERSION_REVISION = string.match(cmakefile, "set%(VERSION_REVISION \"(%d)\"%)")
         local PACKAGE_NAME = string.match(cmakefile, "set%(PACKAGE_NAME ([^%)]+)%)")
+
+        target:set("configvar", "VERSION_MAJOR", VERSION_MAJOR)
+        target:set("configvar", "VERSION_MINOR", VERSION_MINOR)
+        target:set("configvar", "VERSION_REVISION", VERSION_REVISION)
+        target:set("configvar", "VERSION_BUILD", "$(shell git rev-list --count --all)")
+        
         target:add(
             "defines",
-            "BUILD_TAG_VERSION="..GIT_TAG_VERSION,
-            "DBUILD_TAG_SHORT="..GIT_TAG_SHORT,
+            "BUILD_TAG_VERSION=$(shell git describe --tags)",
+            "DBUILD_TAG_SHORT=$(shell git rev-parse --short HEAD)",
             "BUILD_VERSION_MAJOR="..VERSION_MAJOR,
             "BUILD_VERSION_MINOR="..VERSION_MINOR,
             "BUILD_VERSION_REVISION="..VERSION_REVISION,
@@ -247,6 +225,7 @@ target("wiliwili")
     end
     if get_config("winrt") then
         add_defines("__WINRT__=1")
+        add_configfiles("winrt/AppxManifest.xml.in")
     end
     if get_config("sw") then
         add_defines("MPV_SW_RENDER=1")
@@ -265,8 +244,6 @@ target("wiliwili")
         "pdr"
     )
     if is_plat("windows", "mingw") then
-        add_files("app_win32.rc")
-        add_syslinks("Wlanapi", "iphlpapi")
         after_build(function (target) 
             if get_config("winrt") then
                 import("uwp")(target)
@@ -293,6 +270,7 @@ target("wiliwili")
             add_cxflags("-Wl,--subsystem,windows", {force = true})
             add_ldflags("-Wl,--subsystem,windows", {force = true})
         elseif is_plat("windows") then
-            add_ldflags("/SUBSYSTEM:WINDOWS")
+            add_ldflags("/MANIFEST:EMBED", "/MANIFESTINPUT:wiliwili/source/resource.manifest", {force = true})
+            add_ldflags("/SUBSYSTEM:WINDOWS", "/ENTRY:mainCRTStartup", {force = true})
         end
     end
