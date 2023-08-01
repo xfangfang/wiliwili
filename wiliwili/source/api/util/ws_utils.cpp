@@ -12,8 +12,6 @@
 #include <zlib.h>
 //#include <brotli/decode.h>
 
-//buffer
-static uint8_t buffer[1024 * 256];
 // 解析数据包
 std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
     std::vector<std::string> messages;
@@ -40,13 +38,13 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
         offset += header_length;
 
         //| 3 | 服务器 | 数据类型为Int 32 Big Endian | 心跳回应 | Body 内容为房间人气值 |
-        if (operation == 3){
-            uint32_t body = ntohl(*reinterpret_cast<const uint32_t*>(data.data() + offset));
-            messages.emplace_back("heartbeat reply: " + std::to_string(body)); 
-            break;
-        }
+        // if (operation == 3){
+        //     uint32_t body = ntohl(*reinterpret_cast<const uint32_t*>(data.data() + offset));
+        //     messages.emplace_back("heartbeat reply: " + std::to_string(body)); 
+        //     break;
+        // }
         //| 5 | 服务器 | 数据类型为JSON纯文本 | 通知 | 弹幕、广播等全部信息 |
-        else if (operation == 5) {
+        if (operation == 5) {
             std::string body(
                     reinterpret_cast<const char*>(data.data() + offset), 
                     packet_length - header_length);
@@ -59,17 +57,18 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
                 strm.avail_in = body.size();
                 strm.next_in = const_cast<Bytef*>(reinterpret_cast<const Bytef*>(body.data()));
                 if (inflateInit(&strm) != Z_OK) {
-                    //std::cerr << "Failed to initialize zlib" << std::endl;
+                    std::cerr << "Failed to initialize zlib" << std::endl;
                     break;
                 }
                 do {
-                    strm.avail_out = sizeof(buffer);
-                    strm.next_out = buffer;
+                    std::vector<uint8_t> buffer(body.size() * 3);
+                    strm.avail_out = buffer.size();
+                    strm.next_out = buffer.data();
                     if (inflate(&strm, Z_NO_FLUSH) == Z_STREAM_ERROR) {
-                        //std::cerr << "Failed to inflate zlib stream" << std::endl;
+                        std::cerr << "Failed to inflate zlib stream" << std::endl;
                         break;
                     }
-                    decompressed.insert(decompressed.end(), buffer, buffer + sizeof(buffer) - strm.avail_out);
+                    decompressed.insert(decompressed.end(), buffer.begin(), buffer.begin() + buffer.size() - strm.avail_out);
                 } while (strm.avail_out == 0);
                 inflateEnd(&strm);
                 auto nested_messages = parse_packet(decompressed);

@@ -12,7 +12,6 @@
 
 #include "live/danmaku_live.hpp"
 #include "live/ws_utils.hpp"
-#include "live/extract_messages.hpp"
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -127,7 +126,7 @@ void LiveDanmaku::send_join_request(int room_id, int uid) {
     json join_request = {
         {"clientver", "1.6.3"},
         {"platform", "web"},
-        {"protover", 0},
+        {"protover", 2},
         {"roomid", room_id},
         {"uid", uid},
         {"type", 2}

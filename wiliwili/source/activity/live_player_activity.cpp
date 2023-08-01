@@ -16,8 +16,22 @@
 
 using namespace brls::literals;
 
-static std::string tem = ",1,25,16777215,0,0,0,0,9";//临时方案
-void onDanmakuReceived(std::string&& message) {
+static char comma = ',';
+static std::string tem = "0,0,0,0,";//临时方案
+#define t_s(x) std::to_string(x)
+static void process_danmaku(danmaku_t *dan){
+    //做其他处理
+    //...
+
+    //弹幕加载到视频中去
+    double time = MPVCore::instance().getPlaybackTime() + 0.1;
+    std::string combined_attr = t_s(time) + comma + t_s(dan->dan_type) + comma
+                                + t_s(dan->dan_size) + comma + t_s(dan->dan_color) + comma
+                                + tem + t_s(dan->user_level);
+    DanmakuCore::instance().addSingleDanmaku(DanmakuItem(std::move(dan->dan), combined_attr));
+}
+
+static void onDanmakuReceived(std::string&& message) {
     const std::string& msg = message;
     std::vector<uint8_t> payload(msg.begin(), msg.end());
     std::vector<std::string> messages = parse_packet(payload);
@@ -25,16 +39,13 @@ void onDanmakuReceived(std::string&& message) {
     if(messages.size() == 0){
         return;
     }
-    // Check if it's a heartbeat reply
-    else if (messages.size() == 1 && messages[0].substr(0,17) == "heartbeat reply: "){
-        //popularity = std::stoi(messages[0].substr(17));
-        return;
-    }
 
-    for(auto &&dan : extract_danmu_messages(messages)){
-        double time = MPVCore::instance().getPlaybackTime() + 0.1;
-        std::string combined_attr = std::to_string(time) + tem;
-        DanmakuCore::instance().addSingleDanmaku(DanmakuItem(std::move(dan), combined_attr));
+    for(auto &&live_msg : extract_messages(messages)){
+        if(live_msg.type == danmaku){
+            process_danmaku((danmaku_t *)live_msg.ptr);
+            free(live_msg.ptr);
+        }
+        
     }
 }
 
