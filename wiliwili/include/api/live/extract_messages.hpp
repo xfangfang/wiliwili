@@ -6,7 +6,7 @@
 
 #include <string>
 #include <vector>
-
+#include <cstdint>
 
 typedef enum {
     watched_change,//在线人数更新，xx人看过
@@ -37,7 +37,7 @@ typedef struct{
     //头像
     void *face_photo[10];
     //名字
-    std::string user_name[10];
+    char * user_name[10];
     //暂时先写这俩
 }online_v2_t;
 
@@ -46,15 +46,15 @@ typedef struct{
 //很多重复内容，感觉不是同一批人写的，或者可能b站想换协议，
 typedef struct{
     //用户名字
-    std::string user_name;
+    char * user_name;
     //用户名字颜色，一般为舰长以上有，即vip等级1以上
-    std::string user_name_color;
+    char * user_name_color;
     //弹幕内容
-    std::string dan;
+    char * dan;
     //粉丝牌子名字
-    std::string fan_medal_name;
+    char * fan_medal_name;
     //粉丝牌子对应主播名字
-    std::string fan_medal_liveuser_name;
+    char * fan_medal_liveuser_name;
     //用户uid
     int user_uid;
     //弹幕颜色
@@ -90,6 +90,9 @@ typedef struct{
     uint8_t glory_v;
 }danmaku_t; //Maye174: 为了对齐内存，乱序排
 
+danmaku_t* danmaku_t_init();
+void danmaku_t_free(danmaku_t* p);
+
 typedef struct{
     //todo
 }super_chat_t;
@@ -98,7 +101,7 @@ typedef struct{
 //这里b站的接口命名更混乱，感觉b站后面会逐步换掉
 typedef struct{
     //用户名字
-    std::string user_name;
+    char * user_name;
     //牌子字体颜色 目前应该都是白色
     int fan_medal_font_color;
     //牌子边框颜色
@@ -112,6 +115,8 @@ typedef struct{
     //牌子等级
     uint8_t fan_medal_level;
 }initeract_word_t; 
+
+initeract_word_t *initeract_word_t_init();
 
 typedef struct{
     //todo
@@ -130,7 +135,7 @@ typedef struct{
     //todo
 }like_info_click_t;
 
-typedef struct live_t{
+typedef struct{
     message_t type;
     void *ptr;
 }live_t;

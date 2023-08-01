@@ -18,17 +18,19 @@ using namespace brls::literals;
 
 static char comma = ',';
 static std::string tem = "0,0,0,0,";//临时方案
-#define t_s(x) std::to_string(x)
+#define tostr(x) std::to_string(x)
 static void process_danmaku(danmaku_t *dan){
     //做其他处理
     //...
 
     //弹幕加载到视频中去
     double time = MPVCore::instance().getPlaybackTime() + 0.1;
-    std::string combined_attr = t_s(time) + comma + t_s(dan->dan_type) + comma
-                                + t_s(dan->dan_size) + comma + t_s(dan->dan_color) + comma
-                                + tem + t_s(dan->user_level);
-    DanmakuCore::instance().addSingleDanmaku(DanmakuItem(std::move(dan->dan), combined_attr));
+    std::string combined_attr = tostr(time) + comma + tostr(dan->dan_type) + comma
+                                + tostr(dan->dan_size) + comma + tostr(dan->dan_color) + comma
+                                + tem + tostr(dan->user_level);
+    DanmakuCore::instance().addSingleDanmaku(DanmakuItem(dan->dan, combined_attr));
+
+    danmaku_t_free(dan);
 }
 
 static void onDanmakuReceived(std::string&& message) {
@@ -42,10 +44,13 @@ static void onDanmakuReceived(std::string&& message) {
 
     for(auto &&live_msg : extract_messages(messages)){
         if(live_msg.type == danmaku){
+            if(!live_msg.ptr) continue;
             process_danmaku((danmaku_t *)live_msg.ptr);
             free(live_msg.ptr);
+        } else if (live_msg.type == watched_change) {
+            //todo
+            free(live_msg.ptr);
         }
-        
     }
 }
 
