@@ -16,10 +16,10 @@
 
 using namespace brls::literals;
 
-static char comma = ',';
-static std::string tem = "0,0,0,0,";//临时方案
 #define tostr(x) std::to_string(x)
 static void process_danmaku(danmaku_t *dan){
+    char comma = ',';
+    std::string tem = "0,0,0,0,";
     //做其他处理
     //...
 
