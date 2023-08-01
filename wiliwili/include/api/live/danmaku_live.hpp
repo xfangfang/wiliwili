@@ -32,7 +32,7 @@ public:
     std::function<void(std::string&&)> onMessage;
 
     void set_wait_time(int time);
-    int wait_time = 80;
+    int wait_time = 800;
 
     LiveDanmaku();
     ~LiveDanmaku();
