@@ -10,6 +10,7 @@
 #include <iostream>
 #include <chrono>
 #include <queue>
+#include <condition_variable>
 
 #include "live/danmaku_live.hpp"
 #include "live/ws_utils.hpp"
