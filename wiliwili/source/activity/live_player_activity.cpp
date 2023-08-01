@@ -24,7 +24,7 @@ static void process_danmaku(danmaku_t *dan){
     //...
 
     //弹幕加载到视频中去
-    double time = MPVCore::instance().getPlaybackTime() + 0.1;
+    double time = MPVCore::instance().getPlaybackTime() + 0.3;
     std::string combined_attr = tostr(time) + comma + tostr(dan->dan_type) + comma
                                 + tostr(dan->dan_size) + comma + tostr(dan->dan_color) + comma
                                 + tem + tostr(dan->user_level);
