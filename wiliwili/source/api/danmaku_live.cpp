@@ -108,7 +108,7 @@ void LiveDanmaku::connect(int room_id, int uid) {
                 break;
             }
             this->mongoose_mutex.unlock();
-            mg_mgr_poll(this->mgr, wait_time);
+            mg_mgr_poll(this->mgr, this->wait_time);
         }
         mg_mgr_free(this->mgr);
         delete this->mgr;

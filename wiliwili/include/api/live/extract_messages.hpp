@@ -14,7 +14,8 @@ typedef enum {
     online_v2,//待确定，似乎是当前在线高能用户
     danmaku,//弹幕
     super_chat,//sc，醒目留言
-    initeract_word,//用户的进场消息，似乎现在vip也走这个
+    initeract_word,//普通用户的进场消息
+    entry_effect,//舰长进场消息
     send_gift,//发送的礼物
     combo_send,//连击礼物
     like_info_update,//人气值(助力值)
