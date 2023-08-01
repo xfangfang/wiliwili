@@ -2,7 +2,7 @@
 #include "live/extract_messages.hpp"
 
 #include <nlohmann/json.hpp>
-#include <corecrt_malloc.h>
+#include <stdlib.h>
 
 
 danmaku_t* danmaku_t_init(){
