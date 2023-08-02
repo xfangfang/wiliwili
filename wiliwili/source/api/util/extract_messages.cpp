@@ -12,6 +12,22 @@ danmaku_t* danmaku_t_init(){
     ret->dan = nullptr;
     ret->fan_medal_name = nullptr;
     ret->fan_medal_liveuser_name = nullptr;
+    ret->user_uid = 0;
+    ret->dan_color = 16777215;
+    ret->fan_medal_roomid = 0;
+    ret->fan_medal_font_color = 0;
+    ret->fan_medal_border_color = 0;
+    ret->fan_medal_start_color = 0;
+    ret->fan_medal_end_color = 0;
+    ret->fan_medal_liveuser_uid = 0;
+    ret->dan_type = 1;
+    ret->dan_size = 25;
+    ret->user_level = 1;
+    ret->user_vip_level = 0;
+    ret->fan_medal_level = 0;
+    ret->fan_medal_vip_level = 0;
+    ret->is_guard = 0;
+    ret->glory_v = 0;
     return ret;
 }
 
@@ -85,60 +101,62 @@ std::vector<live_t> extract_messages(const std::vector<std::string>& messages) {
             if(info[1].is_string()){
                 dan->dan = to_cstr(info[1].get_ref<const std::string&>());
             }
-            if(!info[2].is_array() || info[2].size() != 8) 
-                continue;
-            auto& user = info[2];
-            if(user[0].is_number())
-                dan->user_uid = user[0].get<int>();
 
-            if(user[1].is_string()) 
-                dan->user_name = to_cstr(user[1].get_ref<const std::string&>());
+            if(info[2].is_array() && info[2].size() == 8) {
+                auto& user = info[2];
+                if(user[0].is_number())
+                    dan->user_uid = user[0].get<int>();
 
-            if(user[2].is_number())
-                dan->is_guard = user[2].get<int>();
+                if(user[1].is_string()) 
+                    dan->user_name = to_cstr(user[1].get_ref<const std::string&>());
 
-            if(user[7].is_string()) 
-                dan->user_name_color = to_cstr(user[7].get_ref<const std::string&>());
-            
-            if(info[3].is_array() && info[3].size() == 13)
-                continue;
-            
-            auto& fan = info[3];
-            if(fan[0].is_number())
-                dan->fan_medal_level = fan[0].get<int>();
+                if(user[2].is_number())
+                    dan->is_guard = user[2].get<int>();
 
-            if(fan[1].is_string()) 
-                dan->fan_medal_name = to_cstr(fan[1].get_ref<const std::string&>());
+                if(user[7].is_string()) 
+                    dan->user_name_color = to_cstr(user[7].get_ref<const std::string&>());
+            }
 
-            if(fan[2].is_string()) 
-                dan->fan_medal_liveuser_name = to_cstr(fan[2].get_ref<const std::string&>());
+            if(info[3].is_array() && info[3].size() == 13) {
 
-            if(fan[3].is_number())
-                dan->fan_medal_roomid = fan[3].get<int>();
+                auto& fan = info[3];
+                if(fan[0].is_number())
+                    dan->fan_medal_level = fan[0].get<int>();
 
-            if(fan[6].is_number())
-                dan->fan_medal_font_color = fan[6].get<int>();
+                if(fan[1].is_string()) 
+                    dan->fan_medal_name = to_cstr(fan[1].get_ref<const std::string&>());
 
-            if(fan[7].is_number())
-                dan->fan_medal_border_color = fan[7].get<int>();
+                if(fan[2].is_string()) 
+                    dan->fan_medal_liveuser_name = to_cstr(fan[2].get_ref<const std::string&>());
 
-            if(fan[8].is_number())
-                dan->fan_medal_end_color = fan[8].get<int>();
+                if(fan[3].is_number())
+                    dan->fan_medal_roomid = fan[3].get<int>();
 
-            if(fan[9].is_number())
-                dan->fan_medal_start_color = fan[9].get<int>();
+                if(fan[6].is_number())
+                    dan->fan_medal_font_color = fan[6].get<int>();
 
-            if(fan[10].is_number())
-                dan->fan_medal_vip_level = fan[10].get<int>();
+                if(fan[7].is_number())
+                    dan->fan_medal_border_color = fan[7].get<int>();
 
-            if(fan[12].is_number())
-                dan->fan_medal_liveuser_uid = fan[12].get<int>();
+                if(fan[8].is_number())
+                    dan->fan_medal_end_color = fan[8].get<int>();
 
-            
+                if(fan[9].is_number())
+                    dan->fan_medal_start_color = fan[9].get<int>();
+
+                if(fan[10].is_number())
+                    dan->fan_medal_vip_level = fan[10].get<int>();
+
+                if(fan[12].is_number())
+                    dan->fan_medal_liveuser_uid = fan[12].get<int>();
+
+            }
+
             if(info[4].is_array() && info[4].size() > 0){
                 if(info[4][0].is_number())
                     dan->user_level = info[4][0].get<int>();
             }
+            
             if(info[7].is_number()){
                 dan->user_vip_level = info[7].get<int>();
             }
