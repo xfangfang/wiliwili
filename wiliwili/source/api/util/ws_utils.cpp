@@ -51,14 +51,14 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
 
             if (protocol_version == 0) {
                 messages.emplace_back(std::move(body));
-                break;
+                //break;
             }
             else if (protocol_version == 2){
                 strm.avail_in = body.size();
                 strm.next_in = const_cast<Bytef*>(reinterpret_cast<const Bytef*>(body.data()));
                 if (inflateInit(&strm) != Z_OK) {
                     std::cerr << "Failed to initialize zlib" << std::endl;
-                    break;
+                    continue;
                 }
                 do {
                     std::vector<uint8_t> buffer(body.size() * 3);
@@ -66,7 +66,7 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
                     strm.next_out = buffer.data();
                     if (inflate(&strm, Z_NO_FLUSH) == Z_STREAM_ERROR) {
                         std::cerr << "Failed to inflate zlib stream" << std::endl;
-                        break;
+                        continue;
                     }
                     decompressed.insert(decompressed.end(), buffer.begin(), buffer.begin() + buffer.size() - strm.avail_out);
                 } while (strm.avail_out == 0);
