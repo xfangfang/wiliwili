@@ -86,21 +86,20 @@ std::vector<live_t> extract_messages(const std::vector<std::string>& messages) {
                 continue;
             }
 
-            if (!info[0].is_array() || info[0].size() < 4) 
-                continue;
-            auto& attribute = info[0];
-            if(attribute[1].is_number())
-                dan->dan_type = attribute[1].get<int>();
+            if (info[0].is_array() && info[0].size() > 12) {
+                auto& attribute = info[0];
+                if(attribute[1].is_number())
+                    dan->dan_type = attribute[1].get<int>();
 
-            if(attribute[2].is_number())
-                dan->dan_size = attribute[2].get<int>();
+                if(attribute[2].is_number())
+                    dan->dan_size = attribute[2].get<int>();
 
-            if(attribute[3].is_number())
-                dan->dan_color = attribute[3].get<int>();
-                
-            if(attribute[12].is_number())
-                dan->is_emoticon = attribute[12].get<int>();
+                if(attribute[3].is_number())
+                    dan->dan_color = attribute[3].get<int>();
 
+                if(attribute[12].is_number())
+                    dan->is_emoticon = attribute[12].get<int>();
+            }
             
             if(info[1].is_string()){
                 dan->dan = to_cstr(info[1].get_ref<const std::string&>());
