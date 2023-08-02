@@ -66,7 +66,7 @@ std::vector<std::string> parse_packet(const std::vector<uint8_t>& data) {
                     strm.next_out = buffer.data();
                     if (inflate(&strm, Z_NO_FLUSH) == Z_STREAM_ERROR) {
                         std::cerr << "Failed to inflate zlib stream" << std::endl;
-                        continue;
+                        break;
                     }
                     decompressed.insert(decompressed.end(), buffer.begin(), buffer.begin() + buffer.size() - strm.avail_out);
                 } while (strm.avail_out == 0);
