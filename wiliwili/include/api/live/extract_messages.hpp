@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -72,6 +73,8 @@ typedef struct{
     int fan_medal_end_color;
     //牌子对应主播uid
     int fan_medal_liveuser_uid;
+    //是否为表情
+    uint8_t is_emoticon;
     //弹幕类型
     uint8_t dan_type;
     //弹幕尺寸

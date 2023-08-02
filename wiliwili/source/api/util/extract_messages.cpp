@@ -20,6 +20,7 @@ danmaku_t* danmaku_t_init(){
     ret->fan_medal_start_color = 0;
     ret->fan_medal_end_color = 0;
     ret->fan_medal_liveuser_uid = 0;
+    ret->is_emoticon = 0;
     ret->dan_type = 1;
     ret->dan_size = 25;
     ret->user_level = 1;
@@ -96,6 +97,9 @@ std::vector<live_t> extract_messages(const std::vector<std::string>& messages) {
 
             if(attribute[3].is_number())
                 dan->dan_color = attribute[3].get<int>();
+                
+            if(attribute[12].is_number())
+                dan->is_emoticon = attribute[12].get<int>();
 
             
             if(info[1].is_string()){
