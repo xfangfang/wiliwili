@@ -32,7 +32,7 @@ public:
     std::function<void(std::string&&)> onMessage;
 
     void set_wait_time(int time);
-    int wait_time = 600;
+    int wait_time = 800;
 
     LiveDanmaku();
     ~LiveDanmaku();
@@ -43,7 +43,7 @@ public:
     std::atomic_bool ms_ev_ok{false};
 
     std::thread mongoose_thread;
-    std::thread heartbeat_thread;
+    std::thread task_thread;
     std::mutex mongoose_mutex;
     mg_mgr *mgr;
     mg_connection *nc;

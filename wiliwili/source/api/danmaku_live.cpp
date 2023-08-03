@@ -9,10 +9,11 @@
 #include <cstring>
 #include <iostream>
 #include <chrono>
+#include <queue>
+#include <condition_variable>
 
 #include "live/danmaku_live.hpp"
 #include "live/ws_utils.hpp"
-#include "live/extract_messages.hpp"
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -47,6 +48,25 @@ static void heartbeat_timer(void *param) {
     if (liveDanmaku->is_connected() and liveDanmaku->is_evOK()) {
         liveDanmaku->send_heartbeat();
     }
+}
+
+typedef struct task {
+    // 函数
+    std::function<void(std::string&&)> onMessage;
+    // 参数
+    std::string arg;
+    // 优先级，暂时都设置0
+    int priority;
+}task;
+
+static std::queue<task> task_q;
+static std::condition_variable cv;
+static std::mutex task_mutex;
+
+static void add_task(std::function<void(std::string&&)> &func, std::string &&a){
+    std::lock_guard<std::mutex> lock(task_mutex);
+    task_q.emplace(task{func, a, 0});
+    cv.notify_one();
 }
 
 void LiveDanmaku::connect(int room_id, int uid) {
@@ -88,10 +108,24 @@ void LiveDanmaku::connect(int room_id, int uid) {
                 break;
             }
             this->mongoose_mutex.unlock();
-            mg_mgr_poll(this->mgr, wait_time);
+            mg_mgr_poll(this->mgr, this->wait_time);
         }
         mg_mgr_free(this->mgr);
         delete this->mgr;
+    });
+
+    task_thread = std::thread([this](){
+        while (true) {
+            std::unique_lock<std::mutex> lock(task_mutex);
+            cv.wait(lock, [this]{return !task_q.empty() or !this->is_connected();});
+            if (!this->is_connected()) 
+                break;
+            auto task = task_q.front();
+            task_q.pop();
+            lock.unlock();
+
+            task.onMessage(std::move(task.arg));
+        }
     });
 }
 
@@ -109,6 +143,13 @@ void LiveDanmaku::disconnect() {
     if(mongoose_thread.joinable()) {
         mongoose_thread.join();
     }
+
+    cv.notify_one();
+
+    if(task_thread.joinable()){
+        task_thread.join();
+    }
+
 }
 
 void LiveDanmaku::set_wait_time(int time){
@@ -127,7 +168,7 @@ void LiveDanmaku::send_join_request(int room_id, int uid) {
     json join_request = {
         {"clientver", "1.6.3"},
         {"platform", "web"},
-        {"protover", 0},
+        {"protover", 2},
         {"roomid", room_id},
         {"uid", uid},
         {"type", 2}
@@ -154,6 +195,9 @@ void LiveDanmaku::send_text_message(const std::string &message) {
 //暂时不用
 }
 
+
+
+
 static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_data, void *user_data) {
     LiveDanmaku *liveDanmaku = static_cast<LiveDanmaku *>(user_data);
     liveDanmaku->ms_ev_ok.store(true, std::memory_order_release);
@@ -169,7 +213,8 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_da
                     heartbeat_timer, user_data);
     } else if (ev == MG_EV_WS_MSG) {
         struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
-        liveDanmaku->onMessage(std::string(wm->data.ptr, wm->data.len));
+        //liveDanmaku->onMessage(std::string(wm->data.ptr, wm->data.len));
+        add_task(liveDanmaku->onMessage, std::string(wm->data.ptr, wm->data.len));
     } else if(ev == MG_EV_CLOSE) {
         //liveDanmaku->disconnect();
         liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);
