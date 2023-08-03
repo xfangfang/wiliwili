@@ -75,6 +75,8 @@ set(VERSION_REVISION "1")
 set(VERSION_BUILD "0")
 set(PROJECT_AUTHOR "xfangfang")
 set(PACKAGE_NAME cn.xfangfang.wiliwili)
+set(VITA_TITLEID "WILIWILI0")
+set(VITA_VERSION "01.11")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}")
@@ -210,6 +212,16 @@ elseif (PLATFORM_IOS)
             "${CMAKE_CURRENT_SOURCE_DIR}/scripts/ios/iOSBundleInfo.plist.in"
             "wiliwili"
             "${APP_VERSION}")
+elseif (PLATFORM_PSV)
+    set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d ATTRIBUTE2=12") # max heap size mode
+    vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE)
+    vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
+            VERSION ${VITA_VERSION}
+            NAME ${PROJECT_NAME}
+            FILE ${CMAKE_SOURCE_DIR}/resources resources
+            FILE ${CMAKE_SOURCE_DIR}/library/borealis/psv/sce_sys sce_sys
+            FILE ${CMAKE_SOURCE_DIR}/library/borealis/psv/module/ module
+            )
 elseif (PLATFORM_SWITCH)
     set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)
     if (GIT_TAG_VERSION)

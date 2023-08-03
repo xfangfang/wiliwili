@@ -360,7 +360,7 @@ void SettingActivity::onContentAvailable() {
     }
 
     /// App Keymap
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#if !defined(__SWITCH__)
     static int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
     selectorKeymap->init(
         "wiliwili/setting/app/others/keymap/header"_i18n,

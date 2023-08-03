@@ -42,6 +42,8 @@ std::string APPVersion::getPlatform() {
     return "Windows";
 #elif defined(__SWITCH__)
     return "NX";
+#elif defined(__PSV__)
+    return "PSVita";
 #else
     return "Unknown";
 #endif

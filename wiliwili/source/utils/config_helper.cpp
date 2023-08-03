@@ -26,6 +26,10 @@
 #include "activity/player_activity.hpp"
 #include "activity/search_activity_tv.hpp"
 
+#ifndef PATH_MAX
+#define PATH_MAX 256
+#endif
+
 using namespace brls::literals;
 
 std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
@@ -621,7 +625,9 @@ void ProgramConfig::save() {
 void ProgramConfig::init() {
     brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
 
-#ifndef _MSC_VER
+#if defined(_MSC_VER)
+#elif defined(__PSV__)
+#else
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) != nullptr) {
         brls::Logger::info("Current working directory: {}", cwd);
@@ -727,12 +733,16 @@ std::string ProgramConfig::getConfigDir() {
 #ifdef _WIN32
     return std::string(getenv("LOCALAPPDATA")) + "\\xfangfang\\wiliwili";
 #endif
+#ifdef __PSV__
+    return "ux0:/data/wiliwili";
+#endif
 #endif /* _DEBUG */
 #endif /* __SWITCH__ */
 }
 
 void ProgramConfig::checkRestart(char* argv[]) {
 #ifdef IOS
+#elif __PSV__
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     if (!brls::DesktopPlatform::RESTART_APP) return;
 

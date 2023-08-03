@@ -10,7 +10,11 @@
 #include <mpv/render.h>
 #ifndef MPV_SW_RENDER
 #include <mpv/render_gl.h>
+#ifdef __PSV__
+#include <GLES2/gl2.h>
+#else
 #include <glad/glad.h>
+#endif
 #ifdef __SDL2__
 #include <SDL2/SDL.h>
 #else

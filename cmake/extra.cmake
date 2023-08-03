@@ -9,6 +9,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined,address")
     endif ()
 endif ()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=pedantic")
 
 if (APPLE AND PLATFORM_DESKTOP)
     execute_process(COMMAND sw_vers -productVersion
@@ -55,7 +56,7 @@ if (APPLE AND PLATFORM_DESKTOP)
         set(CURL_USE_LIBSSH2 OFF)
         set(CMAKE_USE_LIBSSH2 OFF)
     endif ()
-endif()
+endif ()
 
 if (USE_BOOST_FILESYSTEM)
     set(CPR_USE_BOOST_FILESYSTEM ON)
