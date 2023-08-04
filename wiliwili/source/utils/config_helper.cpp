@@ -680,7 +680,11 @@ void ProgramConfig::init() {
             // 用户登录后，将默认清晰度设置为 1080P 60FPS
             VideoDetail::defaultQuality = 116;
         },
+#ifdef __PSV__
+        10000);
+#else
         5000);
+#endif
 }
 
 std::string ProgramConfig::getHomePath() {
@@ -696,6 +700,8 @@ std::string ProgramConfig::getHomePath() {
 std::string ProgramConfig::getConfigDir() {
 #ifdef __SWITCH__
     return "/config/wiliwili";
+#elif defined(__PSV__)
+    return "ux0:/data/wiliwili";
 #elif defined(IOS)
     CFURLRef homeURL = CFCopyHomeDirectoryURL();
     if (homeURL != nullptr) {
@@ -732,9 +738,6 @@ std::string ProgramConfig::getConfigDir() {
 #endif
 #ifdef _WIN32
     return std::string(getenv("LOCALAPPDATA")) + "\\xfangfang\\wiliwili";
-#endif
-#ifdef __PSV__
-    return "ux0:/data/wiliwili";
 #endif
 #endif /* _DEBUG */
 #endif /* __SWITCH__ */

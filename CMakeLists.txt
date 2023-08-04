@@ -214,7 +214,14 @@ elseif (PLATFORM_IOS)
             "${APP_VERSION}")
 elseif (PLATFORM_PSV)
     set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d ATTRIBUTE2=12") # max heap size mode
-    vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE)
+    # I don't know why, but only manually specifying the link libraries in this order will not cause the program to crash
+    set(APP_PLATFORM_LIB
+            stdc++;mpv;
+            avfilter;swscale;avdevice;avformat;avcodec;swresample;avutil;
+            ass;harfbuzz;fribidi;freetype;bz2;png16;
+            webp;sharpyuv;
+            m;z;)
+    vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE NOASLR)
     vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
             VERSION ${VITA_VERSION}
             NAME ${PROJECT_NAME}

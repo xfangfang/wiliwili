@@ -652,7 +652,11 @@ void VideoView::onLayout() {
 
 std::string VideoView::genExtraUrlParam(int progress,
                                         const std::string& audio) {
-    return genExtraUrlParam(progress, {audio});
+    std::vector<std::string> audios;
+    if (!audio.empty()) {
+        audios.emplace_back(audio);
+    }
+    return genExtraUrlParam(progress, audios);
 }
 
 std::string VideoView::genExtraUrlParam(
@@ -669,7 +673,11 @@ std::string VideoView::genExtraUrlParam(
 
 void VideoView::setUrl(const std::string& url, int progress,
                        const std::string& audio) {
-    setUrl(url, progress, std::vector{audio});
+    std::vector<std::string> audios;
+    if (!audio.empty()) {
+        audios.emplace_back(audio);
+    }
+    setUrl(url, progress, audios);
 }
 
 void VideoView::setUrl(const std::string& url, int progress,
