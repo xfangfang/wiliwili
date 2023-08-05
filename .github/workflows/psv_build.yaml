@@ -88,7 +88,7 @@ jobs:
       - name: Build Dependencies
         if: ${{ !steps.restore-common-deps-cache.outputs.cache-hit }}
         run: |
-          mdkir -p /vita/common_deps
+          mkdir -p /vita/common_deps
           apk add patch
           adduser --gecos '' --disabled-password builder
           echo 'builder ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/builder
