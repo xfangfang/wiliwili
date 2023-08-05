@@ -2,9 +2,6 @@ name: Build (Sony Playstation Vita)
 
 on:
   push:
-    branches:
-      - yoga
-      - dev
   pull_request:
 
 defaults:
