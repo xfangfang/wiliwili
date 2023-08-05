@@ -6,3 +6,4 @@ libmpv-*
 switch-forwarder/wiliwili*
 !switch-forwarder/wiliwili.json
 *.nsp
+*.suprx

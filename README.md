@@ -308,6 +308,19 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 
 <br>
 
+### 交叉编译 PSV 可执行文件
+
+目前在 psv 上运行卡顿严重，仅推荐开发者编译运行。
+
+参考 `.github/workflows/psv_build.yaml` 、[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv)
+和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
+
+注意在编译前将需要的四个 suprx 文件放入 `scripts/psv/module` 目录下。
+
+```shell
+vdpm 
+```
+
 # 应用截图
 
 <p align="center">

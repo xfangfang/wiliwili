@@ -43,6 +43,7 @@ cmake_dependent_option(USE_SYSTEM_PYSTRING "" OFF "NOT USE_SHARED_LIB" ON)
 cmake_dependent_option(USE_SYSTEM_OPENCC "" OFF "NOT USE_SHARED_LIB" ON)
 cmake_dependent_option(USE_SYSTEM_FMT "" OFF "NOT USE_SHARED_LIB" ON)
 cmake_dependent_option(USE_SYSTEM_TINYXML2 "" OFF "NOT USE_SHARED_LIB" ON)
+cmake_dependent_option(USE_SYSTEM_SDL2 "Only for PSV" OFF "PLATFORM_PSV" OFF)
 
 # mpv related
 # If your system does not support OpenGL(ES), you can use software rendering, but it will affect performance.
@@ -115,8 +116,8 @@ else ()
     pkg_search_module(MPV REQUIRED mpv)
     message(STATUS "Found libmpv: ${MPV_VERSION} ${MPV_INCLUDE_DIRS} ${MPV_STATIC_LIBRARIES}")
     list(APPEND APP_PLATFORM_INCLUDE ${MPV_INCLUDE_DIRS})
-    list(APPEND APP_PLATFORM_LIB ${MPV_STATIC_LIBRARIES} )
-    list(APPEND APP_PLATFORM_LINK_OPTION -L${MPV_LIBRARY_DIRS})
+    list(APPEND APP_PLATFORM_LIB ${MPV_STATIC_LIBRARIES})
+    link_directories(${MPV_LIBRARY_DIRS})
     if (PLATFORM_IOS)
         list(APPEND APP_PLATFORM_LIB "-framework CoreMedia -framework CoreText -framework VideoToolbox")
     endif ()
@@ -127,7 +128,7 @@ else ()
         list(APPEND APP_PLATFORM_INCLUDE ${LIBWEBP_INCLUDE_DIRS})
         list(APPEND APP_PLATFORM_LIB ${LIBWEBP_LIBRARIES})
         list(APPEND APP_PLATFORM_OPTION -DUSE_WEBP)
-        list(APPEND APP_PLATFORM_LINK_OPTION -L${LIBWEBP_LIBRARY_DIRS})
+        link_directories(${LIBWEBP_LIBRARY_DIRS})
     endif ()
 endif ()
 
@@ -226,8 +227,8 @@ elseif (PLATFORM_PSV)
             VERSION ${VITA_VERSION}
             NAME ${PROJECT_NAME}
             FILE ${CMAKE_SOURCE_DIR}/resources resources
-            FILE ${CMAKE_SOURCE_DIR}/library/borealis/psv/sce_sys sce_sys
-            FILE ${CMAKE_SOURCE_DIR}/library/borealis/psv/module/ module
+            FILE ${CMAKE_SOURCE_DIR}/scripts/psv/sce_sys sce_sys
+            FILE ${CMAKE_SOURCE_DIR}/scripts/psv/module/ module
             )
 elseif (PLATFORM_SWITCH)
     set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)

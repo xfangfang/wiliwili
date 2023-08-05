@@ -1,0 +1,61 @@
+pkgname=ffmpeg
+pkgver=6.0
+pkgrel=1
+url="https://ffmpeg.org/"
+source=("https://ffmpeg.org/releases/ffmpeg-$pkgver.tar.xz")
+sha256sums=('57be87c22d9b49c112b6d24bc67d42508660e6b718b3db89c44e47e289137082')
+depends=('mbedtls')
+
+prepare() {
+  cd $pkgname-$pkgver
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=$VITASDK/arm-vita-eabi \
+		--enable-cross-compile \
+		--cross-prefix=$VITASDK/bin/arm-vita-eabi- \
+		--disable-shared \
+		--disable-runtime-cpudetect \
+		--disable-armv5te \
+		--disable-programs \
+		--disable-doc \
+		--enable-network \
+		--disable-autodetect \
+		--disable-encoders \
+		--enable-swscale \
+		--enable-swresample \
+		--disable-protocols \
+		--enable-protocol='file,http,tcp,tls,hls,https' \
+		--enable-static \
+		--enable-small \
+		--disable-debug \
+		--arch=armv7-a \
+		--cpu=cortex-a9 \
+		--disable-armv6t2 \
+		--target-os=none \
+		--enable-demuxer=hls \
+		--extra-cflags=" -Wl,-q -O2 -ftree-vectorize -fomit-frame-pointer -ffast-math -D_BSD_SOURCE" \
+		--extra-cxxflags=" -Wl,-q -O2 -ftree-vectorize -fomit-frame-pointer -ffast-math -fno-rtti -fno-exceptions -std=gnu++11 -D_BSD_SOURCE" \
+		--extra-ldflags=" -L$VITASDK/lib " \
+		--disable-bzlib \
+		--disable-iconv \
+		--disable-lzma \
+		--disable-sdl2 \
+		--disable-securetransport \
+		--disable-xlib \
+		--disable-avdevice \
+		--enable-mbedtls --enable-version3 \
+		--enable-pthreads
+
+  sed 's/#define HAVE_GETADDRINFO 1/#define HAVE_GETADDRINFO 0/g' -i config.h
+  sed 's/#define HAVE_STRUCT_POLLFD 1/#define HAVE_STRUCT_POLLFD 0/g' -i config.h
+  sed 's/#define HAVE_POLL_H 1/#define HAVE_POLL_H 0/g' -i config.h
+
+  make -j$(nproc)
+}
+
+package () {
+  cd $pkgname-$pkgver
+  make DESTDIR=$pkgdir install
+}
