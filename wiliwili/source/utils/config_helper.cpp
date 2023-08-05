@@ -79,7 +79,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(__PSV__)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
@@ -107,7 +107,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
      {"player_inmemory_cache",
       {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
       {0, 10, 20, 50, 100, 200, 500},
+#if defined(__PSV__)
+      0}},
+#else
       1}},
+#endif
     {
         SettingItem::PLAYER_DEFAULT_SPEED,
         {"player_default_speed",
@@ -120,7 +124,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads",
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(__PSV__)
       {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
 #else
       {"1", "2", "3", "4", "8", "12", "16"},
@@ -369,8 +373,12 @@ void ProgramConfig::load() {
     }
 
     // 初始化视频清晰度
-    VideoDetail::defaultQuality =
-        getSettingItem(SettingItem::VIDEO_QUALITY, 116);
+    VideoDetail::defaultQuality = getSettingItem(SettingItem::VIDEO_QUALITY,
+#ifdef __PSV__
+                                                 16);
+#else
+                                                 116);
+#endif
     if (!hasLoginInfo()) {
         // 用户未登录时跟随官方将默认清晰度设置到 360P
         VideoDetail::defaultQuality = 16;

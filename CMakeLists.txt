@@ -217,7 +217,7 @@ elseif (PLATFORM_PSV)
     # I don't know why, but only manually specifying the link libraries in this order will not cause the program to crash
     set(APP_PLATFORM_LIB
             stdc++;mpv;
-            avfilter;swscale;avdevice;avformat;avcodec;swresample;avutil;
+            avfilter;swscale;avformat;avcodec;swresample;avutil;
             ass;harfbuzz;fribidi;freetype;bz2;png16;
             webp;sharpyuv;
             m;z;)
