@@ -130,7 +130,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_FLAGS="-Wno-error=pedantic -Wno-psabi"
           cmake --build build --verbose
-          mv wiliwili.self eboot.bin
+          mv build/wiliwili.self build/eboot.bin
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
