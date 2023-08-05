@@ -19,7 +19,7 @@ jobs:
       - name: Install build requirements
         run: |
           apk update
-          apk add cmake ninja meson pkgconf bash git zstd
+          apk add cmake ninja meson pkgconf bash git zstd tar
 
       - uses: actions/checkout@v3
         with:
