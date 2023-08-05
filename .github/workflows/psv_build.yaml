@@ -83,7 +83,7 @@ jobs:
         id: restore-common-deps-cache
         with:
           path: /vita/common_deps
-          key: Dep-vita-${{ hashFiles('scripts/psv/curl/VITABUILD.yml') }}-${{ hashFiles('scripts/psv/ffmpeg/VITABUILD.yml') }}-${{ hashFiles('scripts/psv/mpv/VITABUILD.yml') }}-${{ hashFiles('scripts/psv/sdl2/VITABUILD.yml') }}
+          key: Dep-vita-${{ hashFiles('**/VITABUILD') }}
 
       - name: Install VDPM Dependencies
         run: vdpm mbedtls libass harfbuzz fribidi freetype libpng libwebp
@@ -114,7 +114,7 @@ jobs:
         if: ${{ !steps.restore-common-deps-cache.outputs.cache-hit }}
         with:
           path: /vita/common_deps
-          key: Dep-vita-${{ hashFiles('scripts/psv/curl/VITABUILD.yml') }}-${{ hashFiles('scripts/psv/ffmpeg/VITABUILD.yml') }}-${{ hashFiles('scripts/psv/mpv/VITABUILD.yml') }}-${{ hashFiles('scripts/psv/sdl2/VITABUILD.yml') }}
+          key: Dep-vita-${{ hashFiles('**/VITABUILD') }}
 
       - name: Install Dependencies
         run: vdpm /vita/common_deps/*-arm.tar.xz
