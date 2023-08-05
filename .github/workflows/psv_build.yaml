@@ -16,15 +16,15 @@ jobs:
       image: vitasdk/vitasdk:latest
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-          fetch-depth: 0
-
       - name: Install build requirements
         run: |
           apk update 
           apk add cmake ninja meson pkgconf bash git
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - uses: actions/cache/restore@v3
         id: restore-pvr-cache
