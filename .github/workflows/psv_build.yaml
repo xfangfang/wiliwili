@@ -18,9 +18,8 @@ jobs:
     steps:
       - name: Install build requirements
         run: |
-          apk update 
-          apk add cmake ninja meson pkgconf bash git
-          vdpm mbedtls
+          apk update
+          apk add cmake ninja meson pkgconf bash git zstd
 
       - uses: actions/checkout@v3
         with:
@@ -87,7 +86,7 @@ jobs:
           key: Dep-vita-${{ hashFiles('scripts/psv/curl/VITABUILD.yml') }}-${{ hashFiles('scripts/psv/ffmpeg/VITABUILD.yml') }}-${{ hashFiles('scripts/psv/mpv/VITABUILD.yml') }}-${{ hashFiles('scripts/psv/sdl2/VITABUILD.yml') }}
 
       - name: Install VDPM Dependencies
-        run: vdpm libass harfbuzz fribidi freetype libpng libwebp
+        run: vdpm mbedtls libass harfbuzz fribidi freetype libpng libwebp
 
       - name: Build Dependencies
         if: ${{ !steps.restore-common-deps-cache.outputs.cache-hit }}
