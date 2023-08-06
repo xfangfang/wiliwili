@@ -26,6 +26,12 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: Git version
+        id: git-version
+        run: |
+          export VERSION=`git rev-parse --short HEAD`
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+
       - uses: actions/cache/restore@v3
         id: restore-pvr-cache
         with:
@@ -132,13 +138,13 @@ jobs:
           cmake --build build --verbose
           mv build/wiliwili.self build/eboot.bin
 
-      - name: Upload dist
+      - name: Upload vpk
         uses: actions/upload-artifact@v3
         with:
-          name: wiliwili.vpk
+          name: wiliwili-${{ steps.git-version.outputs.VERSION }}.vpk
           path: build/wiliwili.vpk
 
-      - name: Upload dist
+      - name: Upload eboot
         uses: actions/upload-artifact@v3
         with:
           name: eboot.bin
