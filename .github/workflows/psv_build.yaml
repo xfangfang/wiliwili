@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: vitasdk/vitasdk:latest
-      options: --privileged
 
     steps:
       - name: Install build requirements
@@ -30,6 +29,7 @@ jobs:
       - name: Git version
         id: git-version
         run: |
+          git config --global --add safe.directory $(pwd)
           export VERSION=`git rev-parse --short HEAD`
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
 
