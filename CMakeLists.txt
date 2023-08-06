@@ -179,9 +179,11 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 if (PLATFORM_DESKTOP)
     # Copy resources to build dir
     if (NOT USE_LIBROMFS)
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${PROJECT_BINARY_DIR}/resources
+        add_custom_target(${PROJECT_NAME}.data
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/resources
+            COMMAND "echo" "copy resources"
         )
+        add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
     endif ()
 
     if (APPLE)

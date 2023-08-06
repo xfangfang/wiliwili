@@ -21,6 +21,7 @@
 #include "view/check_box.hpp"
 #include "view/video_profile.hpp"
 #include "view/selector_cell.hpp"
+#include "view/hint_label.hpp"
 
 #include "fragment/home_tab.hpp"
 #include "fragment/dynamic_tab.hpp"
@@ -61,6 +62,7 @@ void Register::initCustomView() {
                                        VideoProgressSlider::create);
     brls::Application::registerXMLView("GalleryView", GalleryView::create);
     brls::Application::registerXMLView("CustomButton", CustomButton::create);
+    brls::Application::registerXMLView("HintLabel", HintLabel::create);
 
     //     Register custom views
     brls::Application::registerXMLView("UserInfoView", UserInfoView::create);

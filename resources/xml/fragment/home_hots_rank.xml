@@ -41,13 +41,13 @@
                     fontSize="13"
                     singleLine="true"
                     text="榜单：全站"/>
-            <brls:Label
+            <HintLabel
                     culled="false"
                     height="35"
                     positionType="absolute"
                     positionRight="4"
                     fontSize="14"
-                    text=""/>
+                    text="x"/>
         </brls:Box>
     </brls:Box>
     <RecyclingGrid

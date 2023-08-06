@@ -25,14 +25,14 @@
                     fontSize="13"
                     singleLine="true"
                     maxWidth="140"/>
-            <brls:Label
+            <HintLabel
                     positionType="absolute"
                     positionRight="15"
                     culled="false"
                     height="35"
                     marginLeft="4"
                     fontSize="14"
-                    text=""/>
+                    text="x"/>
         </brls:Box>
 
     </brls:Box>
