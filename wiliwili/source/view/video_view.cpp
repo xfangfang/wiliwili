@@ -662,7 +662,11 @@ std::string VideoView::genExtraUrlParam(int progress,
 std::string VideoView::genExtraUrlParam(
     int progress, const std::vector<std::string>& audios) {
     std::string extra =
+#ifdef __PSV__
+        "referrer=\"https://www.bilibili.com\",network-timeout=10";
+#else
         "referrer=\"https://www.bilibili.com\",network-timeout=5";
+#endif
     if (progress > 0) {
         extra += fmt::format(",start={}", progress);
     }

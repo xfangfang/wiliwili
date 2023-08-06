@@ -114,8 +114,12 @@ void MPVCore::init() {
 #endif
 
     // Making the loading process faster
-#if defined(__SWITCH__) || defined(__PSV__)
+#if defined(__SWITCH__)
     mpv_set_option_string(mpv, "vd-lavc-dr", "no");
+    mpv_set_option_string(mpv, "vd-lavc-threads", "4");
+#elif defined(__PSV__)
+    mpv_set_option_string(mpv, "vd-lavc-dr", "no");
+    mpv_set_option_string(mpv, "framedrop", "decoder");
     mpv_set_option_string(mpv, "vd-lavc-threads", "4");
 #endif
     mpv_set_option_string(mpv, "demuxer-lavf-analyzeduration", "0.1");
