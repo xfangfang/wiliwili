@@ -218,13 +218,12 @@ jobs:
         id: compile
         run: |
           docker run --rm -v $(pwd):/data devkitpro/devkita64:20230622 bash -c "/data/scripts/build_switch.sh"
-          tar -czvf ${{ needs.version.outputs.DIST_NRO }}.tar.gz -C cmake-build-switch wiliwili.nro
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
         with:
           name: ${{ needs.version.outputs.DIST_NRO }}
-          path: "${{ needs.version.outputs.DIST_NRO }}.tar.gz"
+          path: "cmake-build-switch/wiliwili.nro"
 
   build-macos:
     needs: [ version ]
