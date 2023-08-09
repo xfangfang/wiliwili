@@ -119,8 +119,10 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "vd-lavc-threads", "4");
 #elif defined(__PSV__)
     mpv_set_option_string(mpv, "vd-lavc-dr", "no");
-    mpv_set_option_string(mpv, "framedrop", "decoder");
     mpv_set_option_string(mpv, "vd-lavc-threads", "4");
+    
+    // Fix vo_wait_frame() cannot be wakeup
+    mpv_set_option_string(mpv, "video-latency-hacks", "yes");
 #endif
     mpv_set_option_string(mpv, "demuxer-lavf-analyzeduration", "0.1");
     mpv_set_option_string(mpv, "demuxer-lavf-probe-info", "nostreams");
