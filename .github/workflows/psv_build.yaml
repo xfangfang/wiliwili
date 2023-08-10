@@ -135,6 +135,7 @@ jobs:
             -DMPV_NO_FB=ON \
             -DVERIFY_SSL=OFF \
             -DCMAKE_BUILD_TYPE=Release \
+            -DDISABLE_OPENCC=ON \
             -DCMAKE_CXX_FLAGS="-Wno-error=pedantic -Wno-psabi"
           cmake --build build --verbose
           mv build/wiliwili.self build/eboot.bin

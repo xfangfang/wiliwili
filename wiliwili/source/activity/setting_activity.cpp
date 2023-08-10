@@ -388,7 +388,7 @@ void SettingActivity::onContentAvailable() {
     selectorLang->init(
         "wiliwili/setting/app/others/language/header"_i18n,
         {
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(__PSV__)
             "wiliwili/setting/app/others/language/auto"_i18n,
 #endif
             "wiliwili/setting/app/others/language/english"_i18n,
@@ -468,7 +468,7 @@ void SettingActivity::onContentAvailable() {
     }
 
     /// Opencc
-#ifdef IOS
+#if defined(IOS) || defined(__PSV__) || defined(DISABLE_OPENCC)
     btnOpencc->setVisibility(brls::Visibility::GONE);
 #else
     if (brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
@@ -485,6 +485,9 @@ void SettingActivity::onContentAvailable() {
     }
 #endif
 
+#ifdef __PSV__
+    selectorTexture->setVisibility(brls::Visibility::GONE);
+#else
     selectorTexture->init(
         "wiliwili/setting/app/image/texture"_i18n,
         {"100", "200 (" + "hints/preset"_i18n + ")", "300", "400", "500"},
@@ -495,6 +498,7 @@ void SettingActivity::onContentAvailable() {
                 SettingItem::TEXTURE_CACHE_NUM, num);
             brls::TextureCache::instance().cache.setCapacity(num);
         });
+#endif
 
     /// Image request threads
     auto threadOption = conf.getOptionData(SettingItem::IMAGE_REQUEST_THREADS);

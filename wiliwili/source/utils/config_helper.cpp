@@ -38,7 +38,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::APP_LANG,
      {"app_lang",
       {
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(__PSV__)
           brls::LOCALE_AUTO,
 #endif
           brls::LOCALE_EN_US,
@@ -140,7 +140,14 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::VIDEO_CODEC,
      {"video_codec", {"AVC/H.264", "HEVC/H.265", "AV1"}, {7, 12, 13}, 0}},
     {SettingItem::AUDIO_QUALITY,
-     {"audio_quality", {"High", "Medium", "Low"}, {30280, 30232, 30216}, 0}},
+     {"audio_quality",
+      {"High", "Medium", "Low"},
+      {30280, 30232, 30216},
+#if defined(__PSV__)
+      2}},
+#else
+      0}},
+#endif
     {SettingItem::DANMAKU_FILTER_LEVEL,
      {"danmaku_filter_level",
       {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
@@ -486,7 +493,7 @@ void ProgramConfig::load() {
     if (langData != brls::LOCALE_AUTO && i18nData.count(langData)) {
         brls::Platform::APP_LOCALE_DEFAULT = langData;
     } else {
-#ifndef __SWITCH__
+#if !defined(__SWITCH__) && !defined(__PSV__)
         brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_ZH_HANS;
 #endif
     }
@@ -526,15 +533,19 @@ void ProgramConfig::load() {
         }
 
         // 初始化纹理缓存数量
+#ifdef __PSV__
+        brls::TextureCache::instance().cache.setCapacity(100);
+#else
         brls::TextureCache::instance().cache.setCapacity(
             getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
+#endif
 
         // 初始化播放器音量
         MPVCore::VIDEO_VOLUME = getSettingItem(SettingItem::PLAYER_VOLUME, 100);
 
+        // 设置窗口最小尺寸
 #ifdef IOS
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
-        // 设置窗口最小尺寸
         brls::Application::getPlatform()->setWindowSizeLimits(
             MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT, 0, 0);
 #endif
@@ -666,8 +677,12 @@ void ProgramConfig::init() {
         } else if (icon == "ps") {
             brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
         } else {
+#ifdef __PSV__
+            brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
+#else
             brls::FontLoader::USER_ICON_PATH =
                 BRLS_ASSET("font/keymap_keyboard.ttf");
+#endif
         }
     }
 

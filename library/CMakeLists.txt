@@ -28,7 +28,8 @@ else ()
 endif ()
 
 # add libopencc
-if (NOT USE_LIBROMFS)
+if (NOT USE_LIBROMFS AND NOT DISABLE_OPENCC AND NOT PLATFORM_IOS AND NOT PLATFORM_PSV)
+    set(BRLS_USE_OPENCC ON)
     if (USE_SYSTEM_OPENCC)
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(opencc REQUIRED IMPORTED_TARGET opencc)
@@ -41,6 +42,8 @@ if (NOT USE_LIBROMFS)
         target_compile_options(libopencc PRIVATE -w)
         set(BRLS_OPENCC_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/OpenCC/src)
     endif ()
+else ()
+    set(BRLS_USE_OPENCC OFF)
 endif ()
 
 # add QR-Code-generator
@@ -76,9 +79,6 @@ add_subdirectory(lunasvg EXCLUDE_FROM_ALL)
 add_subdirectory(mongoose EXCLUDE_FROM_ALL)
 
 # add borealis
-if (NOT ${USE_LIBROMFS})
-    set(BRLS_USE_OPENCC ON)
-endif ()
 add_subdirectory(borealis/library)
 
 # add libpdr (不使用项目内的 cmake 配置，因为 wiliwili 使用支持 switch 的 mongoose)

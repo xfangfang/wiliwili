@@ -45,6 +45,8 @@ cmake_dependent_option(USE_SYSTEM_FMT "" OFF "NOT USE_SHARED_LIB" ON)
 cmake_dependent_option(USE_SYSTEM_TINYXML2 "" OFF "NOT USE_SHARED_LIB" ON)
 cmake_dependent_option(USE_SYSTEM_SDL2 "Only for PSV" OFF "PLATFORM_PSV" OFF)
 
+option(DISABLE_OPENCC "Disable Chinese Simplified and Chinese Traditional Conversion " OFF)
+
 # mpv related
 # If your system does not support OpenGL(ES), you can use software rendering, but it will affect performance.
 option(MPV_SW_RENDER "Using CPU to draw videos" OFF)
