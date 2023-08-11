@@ -463,9 +463,9 @@ jobs:
           adduser --gecos '' --disabled-password builder
           echo 'builder ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/builder
           chown -R builder:builder $(pwd)/scripts/psv
+          su - builder -c "cd $(pwd)/scripts/psv/ffmpeg && vita-makepkg"
           su - builder -c "cd $(pwd)/scripts/psv/curl && vita-makepkg"
           su - builder -c "cd $(pwd)/scripts/psv/sdl2 && vita-makepkg"
-          su - builder -c "cd $(pwd)/scripts/psv/ffmpeg && vita-makepkg"
           vdpm $(pwd)/scripts/psv/ffmpeg/*-arm.tar.xz
           vdpm $(pwd)/scripts/psv/sdl2/*-arm.tar.xz
           touch /tmp/vdpm_install_ffmpeg

@@ -7,11 +7,11 @@ sha256sums=('SKIP')
 depends=('mbedtls')
 
 prepare() {
-  cd $pkgname-$pkgver
+  cd FFmpeg-vita-vita
 }
 
 build() {
-  cd $pkgname-$pkgver
+  cd FFmpeg-vita-vita
   ./configure --prefix=$VITASDK/arm-vita-eabi \
         --enable-vita \
         --target-os=vita \
@@ -47,6 +47,6 @@ build() {
 }
 
 package () {
-  cd $pkgname-$pkgver
+  cd FFmpeg-vita-vita
   make DESTDIR=$pkgdir install
 }
