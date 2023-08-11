@@ -276,7 +276,7 @@ void DanmakuCore::drawDanmaku(NVGcontext *vg, float x, float y, float width,
             }
             //滑动弹幕
             float position = 0;
-            if (MPVCore::instance().core_idle) {
+            if (MPVCore::instance().isPaused()) {
                 // 暂停状态弹幕也要暂停
                 position = i.speed * (playbackTime - i.time);
                 i.startTime =

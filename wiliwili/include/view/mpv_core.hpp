@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include "borealis.hpp"
-#include "borealis/core/singleton.hpp"
+#include <borealis.hpp>
+#include <borealis/core/singleton.hpp>
 #include <mpv/client.h>
 #include <mpv/render.h>
+#include <fmt/format.h>
 #ifndef MPV_SW_RENDER
 #include <mpv/render_gl.h>
 #ifdef __PSV__
@@ -60,57 +61,55 @@ public:
 
     ~MPVCore();
 
-    void restart();
+    /// Get MPV States
 
-    void init();
+    bool isStopped() const;
 
-    void clean();
+    bool isPaused() const;
 
-    static void on_update(void *self);
+    double getSpeed() const;
 
-    static void on_wakeup(void *self);
+    double getPlaybackTime() const;
 
-    void deleteFrameBuffer();
+    std::string getCacheSpeed() const;
 
-    void deleteShader();
+    int64_t getVolume() const;
 
-    void initializeGL();
+    bool isValid();
 
-    void command_str(const char *args);
+    // todo: remove these sync function
+    std::string getString(const std::string &key);
+    double getDouble(const std::string &key);
+    int64_t getInt(const std::string &key);
+    std::unordered_map<std::string, mpv_node> getNodeMap(
+        const std::string &key);
 
-    void command(const char **args);
+    /// Set MPV States
 
-    void command_async(const char **args);
-
-    int get_property(const char *name, mpv_format format, void *data);
-
-    bool isStopped();
-
-    bool isPaused();
-
-    double getSpeed();
-
-    double getPlaybackTime();
-
-    std::string getCacheSpeed();
-
+    /**
+     * 设置播放链接
+     * @param url  播放链接
+     * @param extra 额外的参数，如 referrer、audio 等，详情见 mpv 文档
+     * @param method 行为，默认为替换当前视频，详情见 mpv 文档
+     */
     void setUrl(const std::string &url, const std::string &extra = "",
                 const std::string &method = "replace");
 
+    /**
+     * 设置备用链接（可多次调用）
+     * 内部使用 mpv 的播放列表实现。当前链接无法播放时，自动跳转到播放列表的下一项
+     *
+     * 注：如果是dash链接，同时存在备用的音频链接，可以将音频列表通过 extra 逐项传入，
+     * 这样就能实现无论是音频还是视频，在播放失败时自动切换到备用链接
+     *
+     *
+     * @param url 备用播放链接
+     * @param extra 额外的参数，定义同上
+     */
     void setBackupUrl(const std::string &url, const std::string &extra = "");
 
-    std::string getString(const std::string &key);
-
-    double getDouble(const std::string &key);
-
-    int64_t getInt(const std::string &key);
-
     void setVolume(int64_t value);
-
-    int64_t getVolume();
-
-    std::unordered_map<std::string, mpv_node> getNodeMap(
-        const std::string &key);
+    void setVolume(const std::string& value);
 
     void resume();
 
@@ -118,14 +117,42 @@ public:
 
     void stop();
 
+    /**
+     * 跳转视频
+     * @param p 秒
+     */
     void seek(int64_t p);
+    void seek(const std::string& p);
 
+    /**
+     * 相对于当前播放的时间点跳转视频
+     * @param p 秒
+     */
+    void seekRelative(int64_t p);
+
+    /**
+     * 跳转视频到指定百分比位置
+     * @param value 0-1
+     */
+    void seekPercent(double value);
+
+    /**
+     * 设置视频播放速度
+     * @param value 1.0 为元速
+     */
     void setSpeed(double value);
 
+    /**
+     * 设置视频渲染区域大小
+     * @param rect 视频区域
+     */
     void setFrameSize(brls::Rect rect);
 
-    bool isValid();
+    void showOsdText(const std::string &value, int duration = 2000);
 
+    /**
+     * 禁用系统锁屏
+     */
     static void disableDimming(bool disable);
 
     void openglDraw(brls::Rect rect, float alpha = 1.0);
@@ -146,6 +173,11 @@ public:
      */
     MPVCustomEvent *getCustomEvent();
 
+    /**
+     * 重启 MPV，用于某些需要重启才能设置的选项
+     */
+    void restart();
+
     void reset();
 
     void setShader(const std::string &profile, const std::string &shaders,
@@ -153,12 +185,30 @@ public:
 
     void clearShader(bool showHint = true);
 
+    /// Send command to mpv
+    template <typename... Args>
+    void command_async(Args &&...args) {
+        std::vector<std::string> commands = {
+            fmt::format("{}", std::forward<Args>(args))...};
+
+        std::vector<const char *> res;
+        res.reserve(commands.size() + 1);
+        for (auto &i : commands) {
+            res.emplace_back(i.c_str());
+        }
+        res.emplace_back(nullptr);
+
+        mpv_command_async(mpv, 0, res.data());
+    }
+
     // core states
-    int core_idle          = 0;
     int64_t duration       = 0;  // second
     int64_t cache_speed    = 0;  // Bps
     int64_t volume         = 100;
     double video_speed     = 0;
+    bool video_paused      = false;
+    bool video_stopped     = false;
+    bool video_seeking     = false;
     double playback_time   = 0;
     double percent_pos     = 0;
     int64_t video_progress = 0;
@@ -234,4 +284,20 @@ private:
 
     /// Will be called in main thread to get events from mpv core
     void eventMainLoop();
+
+    void deleteFrameBuffer();
+
+    void deleteShader();
+
+    void initializeGL();
+
+    void init();
+
+    void clean();
+
+    /// MPV callbacks
+
+    static void on_update(void *self);
+
+    static void on_wakeup(void *self);
 };

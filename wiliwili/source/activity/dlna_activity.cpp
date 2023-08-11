@@ -76,17 +76,13 @@ DLNAActivity::DLNAActivity() {
         } else if (event == "Seek") {
             std::string position = std::string{(char*)data};
             brls::sync([position]() {
-                const char* cmd[] = {"seek", position.c_str(), "absolute",
-                                     nullptr};
-                MPVCore::instance().command(cmd);
+                MPVCore::instance().seek(position);
             });
         } else if (event == "SetVolume") {
             std::string volume = std::string{(const char*)data};
             brls::sync([volume]() {
-                const char* cmd[] = {"set", "volume", volume.c_str(), nullptr};
-                MPVCore::instance().command(cmd);
-                std::string text = "show-text \"Volume: " + volume + "\" 2000";
-                MPVCore::instance().command_str(text.c_str());
+                MPVCore::instance().setVolume(volume);
+                MPVCore::instance().showOsdText("Volume: " + volume);
             });
         } else if (event == "Error") {
             std::string msg = std::string{(const char*)data};

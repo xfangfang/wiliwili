@@ -107,8 +107,7 @@ VideoView::VideoView() {
     osdSlider->getProgressSetEvent()->subscribe([this](float progress) {
         brls::Logger::verbose("Set progress: {}", progress);
         this->showOSD(true);
-        mpvCore->command_str(
-            fmt::format("seek {} absolute-percent", progress * 100).c_str());
+        mpvCore->seekPercent(progress);
     });
 
     osdSlider->getProgressEvent()->subscribe([this](float progress) {
@@ -522,7 +521,7 @@ void VideoView::requestSeeking() {
     ASYNC_RETAIN
     seeking_iter = brls::delay(400, [ASYNC_TOKEN]() {
         ASYNC_RELEASE
-        mpvCore->command_str(fmt::format("seek {}", seeking_range).c_str());
+        mpvCore->seekRelative(seeking_range);
         seeking_range = 0;
         is_seeking    = false;
     });

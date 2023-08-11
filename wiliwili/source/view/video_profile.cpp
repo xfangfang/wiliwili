@@ -5,8 +5,6 @@
 #include "view/video_profile.hpp"
 #include "view/mpv_core.hpp"
 
-#include "borealis/core/cache_helper.hpp"
-
 VideoProfile::VideoProfile() {
     this->inflateFromXMLRes("xml/views/video_profile.xml");
     brls::Logger::debug("View VideoProfile: create");
@@ -37,8 +35,6 @@ void VideoProfile::update() {
         cache["eof-cached"].u.flag,
         cache["file-cache-bytes"].u.int64 / 1048576.0,
         cache["raw-input-rate"].u.int64 / 1048576.0);
-
-    brls::TextureCache::instance().debug();
 
     // video
     labelVideoRes->setText(fmt::format(

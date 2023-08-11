@@ -57,7 +57,7 @@ static void onDanmakuReceived(std::string&& message) {
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
-    MPVCore::instance().command_str("set loop-playlist force");
+    MPVCore::instance().command_async("set", "loop-playlist", "force");
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(live.roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
@@ -66,7 +66,7 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
 LiveActivity::LiveActivity(int roomid, const std::string& name,
                            const std::string& views) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
-    MPVCore::instance().command_str("set loop-playlist force");
+    MPVCore::instance().command_async("set", "loop-playlist", "force");
     this->liveData.roomid                  = roomid;
     this->liveData.title                   = name;
     this->liveData.watched_show.text_large = views;
@@ -180,5 +180,5 @@ LiveActivity::~LiveActivity() {
     LiveDanmaku::instance().disconnect();
     // 取消监控mpv
     MPV_CE->unsubscribe(eventSubscribeID);
-    MPVCore::instance().command_str("set loop-playlist 1");
+    MPVCore::instance().command_async("set", "loop-playlist", "1");
 }

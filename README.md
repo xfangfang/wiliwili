@@ -22,6 +22,7 @@
 ![GitHub forks](https://img.shields.io/github/forks/xfangfang/wiliwili)
 [![Crowdin](https://badges.crowdin.net/wiliwili/localized.svg)](https://crowdin.com/project/wiliwili)
 ![NS](https://img.shields.io/badge/-Nintendo%20Switch-e4000f?style=flat&logo=Nintendo%20Switch)
+![PSV](https://img.shields.io/badge/-PSVita-003791?style=flat&logo=PlayStation)
 ![MS](https://img.shields.io/badge/-Windows%207+-357ec7?style=flat&logo=Windows)
 ![mac](https://img.shields.io/badge/-macOS%2010.11+-black?style=flat&logo=Apple)
 ![Linux](https://img.shields.io/badge/-Linux-lightgrey?style=flat&logo=Linux&logoColor=white)
@@ -67,6 +68,12 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验
 桌面图标会优先尝试打开 `switch/wiliwili.nro`，如果其不存在，则尝试打开 `switch/wiliwili/wiliwili.nro`，如果这两个路径都不存在，则打开 hbmenu 自行选择路径。
 
 </details>
+
+### PSVita
+
+下载 `wiliwili-PSVita.vpk` 安装即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
+
+拥有不是很稳定的硬解支持，目前推荐使用软解搭配 360P 分辨率使用。
 
 ### PC
 
@@ -306,20 +313,14 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 
 </details>
 
-<br>
-
 ### 交叉编译 PSV 可执行文件
 
-目前在 psv 上运行卡顿严重，仅推荐开发者编译运行。
-
-参考 `.github/workflows/psv_build.yaml` 、[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv)
+按顺序参考 `.github/workflows/build.yaml` 、[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv)
 和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
 
-注意在编译前将需要的四个 suprx 文件放入 `scripts/psv/module` 目录下。
+注意不要忘记在编译前将需要的四个 suprx 文件放入 `scripts/psv/module` 目录下。
 
-```shell
-vdpm 
-```
+<br>
 
 # 应用截图
 
