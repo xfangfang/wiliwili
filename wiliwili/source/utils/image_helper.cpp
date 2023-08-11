@@ -124,6 +124,7 @@ void ImageHelper::requestImage() {
 
     uint8_t* imageData = nullptr;
     int imageW = 0, imageH = 0;
+    bool isWebp = false;
 
 #ifdef USE_WEBP
     if (imageUrl.size() > 5 &&
@@ -131,6 +132,7 @@ void ImageHelper::requestImage() {
         imageData =
             WebPDecodeRGBA((const uint8_t*)r.text.c_str(),
                            (size_t)r.downloaded_bytes, &imageW, &imageH);
+        isWebp = true;
     } else {
 #endif
         int n;
@@ -141,7 +143,7 @@ void ImageHelper::requestImage() {
     }
 #endif
 
-    brls::sync([this, r, imageData, imageW, imageH]() {
+    brls::sync([this, r, imageData, imageW, imageH, isWebp]() {
         // 再检查一遍缓存
         int tex = brls::TextureCache::instance().getCache(this->imageUrl);
         if (tex > 0) {
@@ -165,10 +167,11 @@ void ImageHelper::requestImage() {
         }
         if (imageData) {
 #ifdef USE_WEBP
-            WebPFree(imageData);
-#else
-            stbi_image_free(imageData);
+            if (isWebp)
+                WebPFree(imageData);
+            else
 #endif
+                stbi_image_free(imageData);
         }
         this->clean();
     });
