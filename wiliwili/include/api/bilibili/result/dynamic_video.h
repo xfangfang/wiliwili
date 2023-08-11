@@ -17,7 +17,7 @@ public:
     std::string pic;
     std::string title;
     int duration = 0;
-    int pubdate = 0;
+    int pubdate  = 0;
     UserSimpleResult owner;
     VideoSimpleStateResult stat;
 };
@@ -39,8 +39,8 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     if (nlohmann_json_j.at("pubdate").is_number()) {
         nlohmann_json_j.at("pubdate").get_to(nlohmann_json_t.pubdate);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, aid, bvid, pic,
-                                             title, stat));
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, aid, bvid, pic, title, stat));
 }
 
 typedef std::vector<DynamicVideoResult> DynamicVideoListResult;
@@ -54,9 +54,14 @@ public:
     unsigned int update_num;
     unsigned int page;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicVideoListResultWrapper, items,
-                                   has_more, offset, update_baseline,
-                                   update_num);
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      DynamicVideoListResultWrapper& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("items") && nlohmann_json_j.at("items").is_array()) {
+        nlohmann_json_j.at("items").get_to(nlohmann_json_t.items);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
+        NLOHMANN_JSON_FROM, has_more, offset, update_baseline, update_num));
+}
 
 class DynamicUp {
 public:
@@ -79,5 +84,10 @@ class DynamicUpListResultWrapper {
 public:
     DynamicUpListResult items;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicUpListResultWrapper, items);
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      DynamicUpListResultWrapper& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("items") && nlohmann_json_j.at("items").is_array()) {
+        nlohmann_json_j.at("items").get_to(nlohmann_json_t.items);
+    }
+}
 };  // namespace bilibili
