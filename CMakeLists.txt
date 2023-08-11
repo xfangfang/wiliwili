@@ -225,7 +225,9 @@ elseif (PLATFORM_PSV)
             avfilter;swscale;avformat;avcodec;swresample;avutil;
             ass;harfbuzz;fribidi;freetype;bz2;png16;
             webp;sharpyuv;
-            m;z;)
+            m;z;
+            SceVideodec_stub
+            SceAudiodec_stub)
     vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE NOASLR)
     vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
             VERSION ${VITA_VERSION}

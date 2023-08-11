@@ -1,9 +1,9 @@
 pkgname=ffmpeg
-pkgver=6.0
+pkgver=vita
 pkgrel=1
 url="https://ffmpeg.org/"
-source=("https://ffmpeg.org/releases/ffmpeg-$pkgver.tar.xz")
-sha256sums=('57be87c22d9b49c112b6d24bc67d42508660e6b718b3db89c44e47e289137082')
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/fish47/FFmpeg-vita/archive/refs/heads/vita.tar.gz")
+sha256sums=('SKIP')
 depends=('mbedtls')
 
 prepare() {
@@ -13,44 +13,35 @@ prepare() {
 build() {
   cd $pkgname-$pkgver
   ./configure --prefix=$VITASDK/arm-vita-eabi \
-		--enable-cross-compile \
-		--cross-prefix=$VITASDK/bin/arm-vita-eabi- \
-		--disable-shared \
-		--disable-runtime-cpudetect \
-		--disable-armv5te \
-		--disable-programs \
-		--disable-doc \
-		--enable-network \
-		--disable-autodetect \
-		--disable-encoders \
-		--enable-swscale \
-		--enable-swresample \
-		--disable-protocols \
-		--enable-protocol='file,http,tcp,tls,hls,https' \
-		--enable-static \
-		--enable-small \
-		--disable-debug \
-		--arch=armv7-a \
-		--cpu=cortex-a9 \
-		--disable-armv6t2 \
-		--target-os=none \
-		--enable-demuxer=hls \
-		--extra-cflags=" -Wl,-q -O2 -ftree-vectorize -fomit-frame-pointer -ffast-math -D_BSD_SOURCE" \
-		--extra-cxxflags=" -Wl,-q -O2 -ftree-vectorize -fomit-frame-pointer -ffast-math -fno-rtti -fno-exceptions -std=gnu++11 -D_BSD_SOURCE" \
-		--extra-ldflags=" -L$VITASDK/lib " \
-		--disable-bzlib \
-		--disable-iconv \
-		--disable-lzma \
-		--disable-sdl2 \
-		--disable-securetransport \
-		--disable-xlib \
-		--disable-avdevice \
-		--enable-mbedtls --enable-version3 \
-		--enable-pthreads
+        --enable-vita \
+        --target-os=vita \
+        --disable-shared \
+        --enable-static \
+        --disable-programs \
+        --disable-doc \
+        --disable-autodetect \
+        --enable-swscale \
+        --enable-swresample \
+        --disable-encoders \
+        --disable-muxers \
+        --disable-demuxers \
+        --enable-demuxer='hls,flac,flv,aac,h264,hevc,mp3,wav,mov,matroska' \
+        --disable-parsers \
+        --enable-parser='aac,aac_latm,bmp,flac,h264,hdr,hevc,mpeg4video,mpeg4audio,mpegvideo' \
+        --disable-decoders \
+        --enable-decoder='h264,aac,bmp,flv,flac,aac_vita,mp3_vita,h264_vita' \
+        --enable-network \
+        --disable-protocols \
+        --enable-protocol='file,http,tcp,tls,hls,https' \
+        --disable-iconv \
+        --disable-lzma \
+        --disable-sdl2 \
+        --disable-xlib \
+        --disable-avdevice \
+        --enable-mbedtls --enable-version3 \
+        --enable-pthreads
 
   sed 's/#define HAVE_GETADDRINFO 1/#define HAVE_GETADDRINFO 0/g' -i config.h
-  sed 's/#define HAVE_STRUCT_POLLFD 1/#define HAVE_STRUCT_POLLFD 0/g' -i config.h
-  sed 's/#define HAVE_POLL_H 1/#define HAVE_POLL_H 0/g' -i config.h
 
   make -j$(nproc)
 }

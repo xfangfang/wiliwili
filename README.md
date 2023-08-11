@@ -348,6 +348,7 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 - https://github.com/BYVoid/OpenCC
 - https://github.com/imageworks/pystring
 - https://github.com/sammycage/lunasvg
+- https://github.com/fish47/FFmpeg-vita
 
 # Special thanks
 
