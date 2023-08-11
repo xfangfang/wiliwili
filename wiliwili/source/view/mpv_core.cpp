@@ -693,9 +693,17 @@ void MPVCore::eventMainLoop() {
                         break;
                     case 7:
                         // 发生了缓存等待
-                        brls::Logger::info("========> VIDEO PAUSED FOR CACHE");
-                        mpvCoreEvent.fire(MpvEventEnum::LOADING_START);
-                        disableDimming(false);
+                        if (!data) break;
+
+                        if (*(int *)data) {
+                            brls::Logger::info("========> VIDEO PAUSED FOR CACHE");
+                            mpvCoreEvent.fire(MpvEventEnum::LOADING_START);
+                            disableDimming(false);
+                        } else {
+                            brls::Logger::info("========> VIDEO RESUME FROM CACHE");
+                            mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
+                            disableDimming(true);
+                        }
                         break;
                     case 8:
                         // 缓存时间
