@@ -49,6 +49,19 @@ public:
 
     /// 图片请求后缀，用来控制图片大小
 #ifdef USE_WEBP
+#ifdef __PSV__
+    inline static std::string h_ext           = "@224w_126h_1c.webp";
+    inline static std::string v_ext           = "@104w_140h_1c.webp";
+    inline static std::string face_ext        = "@32w_32h_1c_1s.webp";
+    inline static std::string face_large_ext  = "@60w_60h_1c_1s.webp";
+    inline static std::string emoji_size1_ext = "@16w_16h.webp";
+    inline static std::string emoji_size2_ext = "@324w_24h.webp";
+    inline static std::string note_ext =
+        "@180w_180h_85q_!note-comment-multiple.webp";
+    inline static std::string note_custom_ext =
+        "@{}w_{}h_85q_!note-comment-multiple.webp";
+    inline static std::string note_raw_ext = "@!web-comment-note.webp";
+#else
     inline static std::string h_ext           = "@672w_378h_1c.webp";
     inline static std::string v_ext           = "@312w_420h_1c.webp";
     inline static std::string face_ext        = "@96w_96h_1c_1s.webp";
@@ -60,6 +73,7 @@ public:
     inline static std::string note_custom_ext =
         "@{}w_{}h_85q_!note-comment-multiple.webp";
     inline static std::string note_raw_ext = "@!web-comment-note.webp";
+#endif
 #else
     inline static std::string h_ext           = "@672w_378h_1c.jpg";
     inline static std::string v_ext           = "@312w_420h_1c.jpg";

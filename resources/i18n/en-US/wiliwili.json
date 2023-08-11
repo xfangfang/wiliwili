@@ -268,7 +268,7 @@
     "coin": {
       "title": "Coin",
       "hint": "Choose your coin num",
-      "like": "Like at the same time \uE0E3",
+      "like": "Like at the same time",
       "own": "You can't give yourself a coin",
       "run_out": "The number of coins for this video has been used up",
       "exp": "Experience + {}（Today {}/50）",

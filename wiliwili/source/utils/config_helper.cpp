@@ -26,6 +26,10 @@
 #include "activity/player_activity.hpp"
 #include "activity/search_activity_tv.hpp"
 
+#ifndef PATH_MAX
+#define PATH_MAX 256
+#endif
+
 using namespace brls::literals;
 
 std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
@@ -34,7 +38,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::APP_LANG,
      {"app_lang",
       {
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(__PSV__)
           brls::LOCALE_AUTO,
 #endif
           brls::LOCALE_EN_US,
@@ -75,7 +79,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(__PSV__)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
@@ -91,7 +95,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
+#ifdef __PSV__
+    {SettingItem::DANMAKU_ON, {"danmaku", {}, {}, 0}},
+#else
     {SettingItem::DANMAKU_ON, {"danmaku", {}, {}, 1}},
+#endif
     {SettingItem::DANMAKU_FILTER_BOTTOM, {"danmaku_filter_bottom", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_TOP, {"danmaku_filter_top", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_SCROLL, {"danmaku_filter_scroll", {}, {}, 1}},
@@ -103,7 +111,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
      {"player_inmemory_cache",
       {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
       {0, 10, 20, 50, 100, 200, 500},
+#if defined(__PSV__)
+      0}},
+#else
       1}},
+#endif
     {
         SettingItem::PLAYER_DEFAULT_SPEED,
         {"player_default_speed",
@@ -116,7 +128,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::VIDEO_QUALITY, {"video_quality", {}, {}, 116}},
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads",
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(__PSV__)
       {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
 #else
       {"1", "2", "3", "4", "8", "12", "16"},
@@ -128,7 +140,14 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::VIDEO_CODEC,
      {"video_codec", {"AVC/H.264", "HEVC/H.265", "AV1"}, {7, 12, 13}, 0}},
     {SettingItem::AUDIO_QUALITY,
-     {"audio_quality", {"High", "Medium", "Low"}, {30280, 30232, 30216}, 0}},
+     {"audio_quality",
+      {"High", "Medium", "Low"},
+      {30280, 30232, 30216},
+#if defined(__PSV__)
+      2}},
+#else
+      0}},
+#endif
     {SettingItem::DANMAKU_FILTER_LEVEL,
      {"danmaku_filter_level",
       {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
@@ -365,8 +384,12 @@ void ProgramConfig::load() {
     }
 
     // 初始化视频清晰度
-    VideoDetail::defaultQuality =
-        getSettingItem(SettingItem::VIDEO_QUALITY, 116);
+    VideoDetail::defaultQuality = getSettingItem(SettingItem::VIDEO_QUALITY,
+#ifdef __PSV__
+                                                 16);
+#else
+                                                 116);
+#endif
     if (!hasLoginInfo()) {
         // 用户未登录时跟随官方将默认清晰度设置到 360P
         VideoDetail::defaultQuality = 16;
@@ -470,7 +493,7 @@ void ProgramConfig::load() {
     if (langData != brls::LOCALE_AUTO && i18nData.count(langData)) {
         brls::Platform::APP_LOCALE_DEFAULT = langData;
     } else {
-#ifndef __SWITCH__
+#if !defined(__SWITCH__) && !defined(__PSV__)
         brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_ZH_HANS;
 #endif
     }
@@ -510,15 +533,19 @@ void ProgramConfig::load() {
         }
 
         // 初始化纹理缓存数量
+#ifdef __PSV__
+        brls::TextureCache::instance().cache.setCapacity(100);
+#else
         brls::TextureCache::instance().cache.setCapacity(
             getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
+#endif
 
         // 初始化播放器音量
         MPVCore::VIDEO_VOLUME = getSettingItem(SettingItem::PLAYER_VOLUME, 100);
 
+        // 设置窗口最小尺寸
 #ifdef IOS
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
-        // 设置窗口最小尺寸
         brls::Application::getPlatform()->setWindowSizeLimits(
             MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT, 0, 0);
 #endif
@@ -621,7 +648,9 @@ void ProgramConfig::save() {
 void ProgramConfig::init() {
     brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
 
-#ifndef _MSC_VER
+#if defined(_MSC_VER)
+#elif defined(__PSV__)
+#else
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) != nullptr) {
         brls::Logger::info("Current working directory: {}", cwd);
@@ -648,8 +677,12 @@ void ProgramConfig::init() {
         } else if (icon == "ps") {
             brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
         } else {
+#ifdef __PSV__
+            brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
+#else
             brls::FontLoader::USER_ICON_PATH =
                 BRLS_ASSET("font/keymap_keyboard.ttf");
+#endif
         }
     }
 
@@ -674,7 +707,11 @@ void ProgramConfig::init() {
             // 用户登录后，将默认清晰度设置为 1080P 60FPS
             VideoDetail::defaultQuality = 116;
         },
+#ifdef __PSV__
+        10000);
+#else
         5000);
+#endif
 }
 
 std::string ProgramConfig::getHomePath() {
@@ -690,6 +727,8 @@ std::string ProgramConfig::getHomePath() {
 std::string ProgramConfig::getConfigDir() {
 #ifdef __SWITCH__
     return "/config/wiliwili";
+#elif defined(__PSV__)
+    return "ux0:/data/wiliwili";
 #elif defined(IOS)
     CFURLRef homeURL = CFCopyHomeDirectoryURL();
     if (homeURL != nullptr) {
@@ -733,6 +772,7 @@ std::string ProgramConfig::getConfigDir() {
 
 void ProgramConfig::checkRestart(char* argv[]) {
 #ifdef IOS
+#elif __PSV__
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     if (!brls::DesktopPlatform::RESTART_APP) return;
 

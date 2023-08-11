@@ -43,6 +43,9 @@ cmake_dependent_option(USE_SYSTEM_PYSTRING "" OFF "NOT USE_SHARED_LIB" ON)
 cmake_dependent_option(USE_SYSTEM_OPENCC "" OFF "NOT USE_SHARED_LIB" ON)
 cmake_dependent_option(USE_SYSTEM_FMT "" OFF "NOT USE_SHARED_LIB" ON)
 cmake_dependent_option(USE_SYSTEM_TINYXML2 "" OFF "NOT USE_SHARED_LIB" ON)
+cmake_dependent_option(USE_SYSTEM_SDL2 "Only for PSV" OFF "PLATFORM_PSV" OFF)
+
+option(DISABLE_OPENCC "Disable Chinese Simplified and Chinese Traditional Conversion " OFF)
 
 # mpv related
 # If your system does not support OpenGL(ES), you can use software rendering, but it will affect performance.
@@ -75,6 +78,8 @@ set(VERSION_REVISION "1")
 set(VERSION_BUILD "0")
 set(PROJECT_AUTHOR "xfangfang")
 set(PACKAGE_NAME cn.xfangfang.wiliwili)
+set(VITA_TITLEID "WILIWILI0")
+set(VITA_VERSION "01.11")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}")
@@ -113,8 +118,8 @@ else ()
     pkg_search_module(MPV REQUIRED mpv)
     message(STATUS "Found libmpv: ${MPV_VERSION} ${MPV_INCLUDE_DIRS} ${MPV_STATIC_LIBRARIES}")
     list(APPEND APP_PLATFORM_INCLUDE ${MPV_INCLUDE_DIRS})
-    list(APPEND APP_PLATFORM_LIB ${MPV_STATIC_LIBRARIES} )
-    list(APPEND APP_PLATFORM_LINK_OPTION -L${MPV_LIBRARY_DIRS})
+    list(APPEND APP_PLATFORM_LIB ${MPV_STATIC_LIBRARIES})
+    link_directories(${MPV_LIBRARY_DIRS})
     if (PLATFORM_IOS)
         list(APPEND APP_PLATFORM_LIB "-framework CoreMedia -framework CoreText -framework VideoToolbox")
     endif ()
@@ -125,7 +130,7 @@ else ()
         list(APPEND APP_PLATFORM_INCLUDE ${LIBWEBP_INCLUDE_DIRS})
         list(APPEND APP_PLATFORM_LIB ${LIBWEBP_LIBRARIES})
         list(APPEND APP_PLATFORM_OPTION -DUSE_WEBP)
-        list(APPEND APP_PLATFORM_LINK_OPTION -L${LIBWEBP_LIBRARY_DIRS})
+        link_directories(${LIBWEBP_LIBRARY_DIRS})
     endif ()
 endif ()
 
@@ -176,9 +181,11 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 if (PLATFORM_DESKTOP)
     # Copy resources to build dir
     if (NOT USE_LIBROMFS)
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${PROJECT_BINARY_DIR}/resources
+        add_custom_target(${PROJECT_NAME}.data
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/resources
+            COMMAND "echo" "copy resources"
         )
+        add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
     endif ()
 
     if (APPLE)
@@ -210,6 +217,23 @@ elseif (PLATFORM_IOS)
             "${CMAKE_CURRENT_SOURCE_DIR}/scripts/ios/iOSBundleInfo.plist.in"
             "wiliwili"
             "${APP_VERSION}")
+elseif (PLATFORM_PSV)
+    set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d ATTRIBUTE2=12") # max heap size mode
+    # I don't know why, but only manually specifying the link libraries in this order will not cause the program to crash
+    set(APP_PLATFORM_LIB
+            stdc++;mpv;
+            avfilter;swscale;avformat;avcodec;swresample;avutil;
+            ass;harfbuzz;fribidi;freetype;bz2;png16;
+            webp;sharpyuv;
+            m;z;)
+    vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE NOASLR)
+    vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
+            VERSION ${VITA_VERSION}
+            NAME ${PROJECT_NAME}
+            FILE ${CMAKE_SOURCE_DIR}/resources resources
+            FILE ${CMAKE_SOURCE_DIR}/scripts/psv/sce_sys sce_sys
+            FILE ${CMAKE_SOURCE_DIR}/scripts/psv/module/ module
+            )
 elseif (PLATFORM_SWITCH)
     set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)
     if (GIT_TAG_VERSION)

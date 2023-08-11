@@ -1,0 +1,201 @@
+diff --git a/crossfile.txt b/crossfile.txt
+new file mode 100644
+index 0000000000..f0f78df8c4
+--- /dev/null
++++ b/crossfile.txt
+@@ -0,0 +1,15 @@
++[built-in options]
++buildtype = 'release'
++default_library = 'static'
++wrap_mode = 'nodownload'
++[binaries]
++c = 'arm-vita-eabi-gcc'
++cpp = 'arm-vita-eabi-g++'
++ar = 'arm-vita-eabi-ar'
++strip = 'arm-vita-eabi-strip'
++pkgconfig = 'arm-vita-eabi-pkg-config'
++[host_machine]
++system = 'psvita'
++cpu_family = 'arm'
++cpu = 'armv7a'
++endian = 'little'
+diff --git a/meson.build b/meson.build
+index f9fe4e7263..4f93764b08 100644
+--- a/meson.build
++++ b/meson.build
+@@ -230,8 +230,6 @@ sources = files(
+     'video/out/vo_lavc.c',
+     'video/out/vo_libmpv.c',
+     'video/out/vo_null.c',
+-    'video/out/vo_tct.c',
+-    'video/out/vo_kitty.c',
+     'video/out/win_state.c',
+     'video/repack.c',
+     'video/sws_utils.c',
+@@ -292,6 +290,7 @@ if cc.get_id() == 'clang'
+     flags += clang_flags
+ endif
+ 
++psvita = host_machine.system() == 'psvita'
+ darwin = host_machine.system() == 'darwin'
+ win32 = host_machine.system() == 'cygwin' or host_machine.system() == 'windows'
+ posix = not win32
+@@ -311,6 +310,10 @@ if host_machine.system() == 'cygwin'
+     flags += [mswin_flags, '-mwin32']
+ endif
+ 
++if psvita
++    flags += ['-D__PSV__']
++endif
++
+ noexecstack = false
+ if cc.has_link_argument('-Wl,-z,noexecstack')
+     link_flags += '-Wl,-z,noexecstack'
+@@ -331,11 +334,7 @@ endif
+ 
+ features += {'ta-leak-report': get_option('ta-leak-report')}
+ 
+-libdl = dependency('dl', required: false)
+-features += {'libdl': libdl.found()}
+-if features['libdl']
+-    dependencies += libdl
+-endif
++features += {'libdl': false}
+ 
+ cplugins = get_option('cplugins').require(
+     features['libdl'] and not win32 and cc.has_link_argument('-rdynamic'),
+@@ -366,6 +365,10 @@ if features['win32-internal-pthreads']
+     sources += files('osdep/win32/pthread.c')
+ endif
+ 
++if psvita
++    includedir += include_directories('osdep/vita/include')
++endif
++
+ pthread_debug = get_option('pthread-debug').require(
+     win32_pthreads.disabled(),
+     error_message: 'win32-internal-pthreads was found!',
+@@ -398,6 +401,10 @@ if features['cocoa']
+                      'video/out/cocoa/window.m')
+ endif
+ 
++if psvita
++    path_source = files('osdep/path-unix.c')
++    sources += path_source + files('osdep/terminal-dummy.c')
++else
+ if posix
+     path_source = files('osdep/path-unix.c')
+     subprocess_source = files('osdep/subprocess-posix.c')
+@@ -407,6 +414,7 @@ if posix
+                      'osdep/terminal-unix.c',
+                      'sub/filter_regex.c')
+ endif
++endif
+ 
+ if posix and not features['cocoa']
+     sources += files('osdep/main-fn-unix.c',
+@@ -503,7 +511,7 @@ if features['win32-desktop']
+                      'video/out/win32/droptarget.c')
+ endif
+ 
+-if not posix and not features['win32-desktop']
++if psvita or not posix and not features['win32-desktop']
+     subprocess_source = files('osdep/subprocess-dummy.c')
+     sources += subprocess_source + files('input/ipc-dummy.c')
+ endif
+@@ -870,6 +878,9 @@ if features['wasapi']
+                      'audio/out/ao_wasapi_utils.c')
+ endif
+ 
++# if psvita
++#    sources += files('audio/out/ao_vita.c')
++# endif
+ 
+ # video output dependencies
+ caca_opt = get_option('caca').require(
+@@ -1713,7 +1724,7 @@ major = client_h_define.split('|')[0].split('<<')[0].strip('() ')
+ minor = client_h_define.split('|')[1].strip('() ')
+ client_api_version = major + '.' + minor + '.0'
+ 
+-libmpv = library('mpv', sources, dependencies: dependencies, gnu_symbol_visibility: 'hidden',
++libmpv = library('mpv', sources, pic: false, dependencies: dependencies, gnu_symbol_visibility: 'hidden',
+                  version: client_api_version, include_directories: includedir,
+                  install: get_option('libmpv'), build_by_default: get_option('libmpv'))
+ 
+diff --git a/osdep/vita/include/sys/mman.h b/osdep/vita/include/sys/mman.h
+new file mode 100644
+index 0000000000..365bed89a7
+--- /dev/null
++++ b/osdep/vita/include/sys/mman.h
+@@ -0,0 +1,16 @@
++#ifndef _MEMMAP_H_
++#define _MEMMAP_H_
++
++#include <stdio.h>
++#include <stdint.h>
++#include <stdlib.h>
++
++#define PROT_READ       0x1
++#define PROT_WRITE      0x2
++#define MAP_SHARED      0x01
++#define MAP_FAILED      ((void *) -1)
++
++#define mmap(a, b, c, d, e, f) malloc(b)
++#define munmap(a, b) free(a)
++
++#endif
+\ No newline at end of file
+diff --git a/sub/filter_regex.c b/sub/filter_regex.c
+index 8e299918ce..c7b08f5273 100644
+--- a/sub/filter_regex.c
++++ b/sub/filter_regex.c
+@@ -1,5 +1,5 @@
+-#include <regex.h>
+ #include <sys/types.h>
++#include <regex.h>
+ 
+ #include "common/common.h"
+ #include "common/msg.h"
+diff --git a/sub/sd_ass.c b/sub/sd_ass.c
+index e4e5652875..10a05494e1 100644
+--- a/sub/sd_ass.c
++++ b/sub/sd_ass.c
+@@ -67,7 +67,7 @@ static void fill_plaintext(struct sd *sd, double pts);
+ static const struct sd_filter_functions *const filters[] = {
+     // Note: list order defines filter order.
+     &sd_filter_sdh,
+-#if HAVE_POSIX
++#if HAVE_POSIX && !defined(__PSV__)
+     &sd_filter_regex,
+ #endif
+ #if HAVE_JAVASCRIPT
+diff --git a/video/out/vo.c b/video/out/vo.c
+index c53cec36a1..4765dc4867 100644
+--- a/video/out/vo.c
++++ b/video/out/vo.c
+@@ -65,9 +65,7 @@ extern const struct vo_driver video_out_vaapi;
+ extern const struct vo_driver video_out_dmabuf_wayland;
+ extern const struct vo_driver video_out_wlshm;
+ extern const struct vo_driver video_out_rpi;
+-extern const struct vo_driver video_out_tct;
+ extern const struct vo_driver video_out_sixel;
+-extern const struct vo_driver video_out_kitty;
+ 
+ static const struct vo_driver *const video_out_drivers[] =
+ {
+@@ -106,7 +104,6 @@ static const struct vo_driver *const video_out_drivers[] =
+     &video_out_null,
+     // should not be auto-selected
+     &video_out_image,
+-    &video_out_tct,
+ #if HAVE_CACA
+     &video_out_caca,
+ #endif
+@@ -119,7 +116,6 @@ static const struct vo_driver *const video_out_drivers[] =
+ #if HAVE_SIXEL
+     &video_out_sixel,
+ #endif
+-    &video_out_kitty,
+     &video_out_lavc,
+ };
+ 

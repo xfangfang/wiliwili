@@ -1,0 +1,37 @@
+pkgname=mpv
+pkgver=0.36.0
+pkgrel=1
+url="https://mpv.io/"
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/mpv-player/mpv/archive/v${pkgver}.tar.gz" "mpv.patch")
+sha256sums=('SKIP' 'SKIP')
+depends=('sdl2' 'libass' 'ffmpeg')
+
+prepare() {
+  cd $pkgname-$pkgver
+  rm -rf crossfile.txt
+  rm -rf osdep/vita/include/sys/mman.h
+  patch --strip=1 --input=${srcdir}/mpv.patch
+}
+
+build() {
+  cd $pkgname-$pkgver
+  meson setup build --prefix=$prefix --cross-file crossfile.txt  \
+      --default-library static \
+      -Diconv=disabled \
+      -Dlua=disabled  \
+      -Djpeg=disabled \
+      -Dopensles=disabled \
+      -Dlibavdevice=disabled \
+      -Dmanpage-build=disabled \
+      -Dhtml-build=disabled \
+      -Dsdl2=enabled \
+      -Dlibmpv=true \
+      -Dcplayer=false
+
+  meson compile -C build
+}
+
+package () {
+  cd $pkgname-$pkgver
+  DESTDIR=$pkgdir meson install -C build
+}

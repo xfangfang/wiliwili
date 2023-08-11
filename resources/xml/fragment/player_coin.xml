@@ -85,6 +85,11 @@
                 fontSize="16"
                 height="16"
                 text="@i18n/wiliwili/player/coin/like"/>
+        <HintLabel
+                marginLeft="8"
+                height="16"
+                fontSize="16"
+                text="y"/>
     </brls:Box>
 
 </brls:Box>
