@@ -369,7 +369,8 @@ jobs:
           verbose: true
           arch: ${{ matrix.arch }}
 
-  vita:
+  build-vita:
+    needs: [ version ]
     name: psv
     runs-on: ubuntu-latest
     container:
@@ -503,7 +504,7 @@ jobs:
       - name: Upload vpk
         uses: actions/upload-artifact@v3
         with:
-          name: wiliwili-${{ steps.git-version.outputs.VERSION }}.vpk
+          name: wiliwili-PSVita-${{ steps.git-version.outputs.VERSION }}.vpk
           path: build/wiliwili.vpk
 
       - name: Upload eboot
