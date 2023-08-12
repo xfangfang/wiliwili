@@ -9,7 +9,7 @@
             itemHeight="214"
             grow="1"
             preFetchLine="1"
-            spanCount="4"
+            spanCount="@style/wiliwili/grid/span/4"
             wireframe="false"
             id="mine/collection/recyclingGrid"/>
 </brls:Box>

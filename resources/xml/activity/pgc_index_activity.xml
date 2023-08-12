@@ -31,7 +31,7 @@
                 itemSpace="30"
                 grow="1"
                 preFetchLine="2"
-                spanCount="5"
+                spanCount="@style/wiliwili/grid/span/5"
                 wireframe="false"
                 id="pgc/recyclingGrid"/>
 

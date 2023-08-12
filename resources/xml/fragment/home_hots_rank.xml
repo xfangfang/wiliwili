@@ -12,6 +12,7 @@
             alignItems="center"
             height="50">
         <SVGImage
+                id="home/hots/rank/note/icon"
                 culled="false"
                 width="12"
                 height="13"
@@ -54,7 +55,7 @@
             paddingLeft="20"
             paddingRight="20"
             grow="1"
-            spanCount="4"
+            spanCount="@style/wiliwili/grid/span/4"
             itemHeight="237.5"
             wireframe="false"
             id="home/hots/rank/recyclingGrid"/>

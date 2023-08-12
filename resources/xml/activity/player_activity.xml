@@ -13,7 +13,7 @@
         <brls:Box
                 id="video_detail_left_box"
                 margin="10"
-                width="800"
+                width="@style/wiliwili/player/width"
                 height="auto"
                 wireframe="false"
                 axis="column">
@@ -23,7 +23,7 @@
                     focusable="true"
                     focusDown="video_detail_info_box"
                     grow="1"
-                    width="800"
+                    width="@style/wiliwili/player/width"
                     height="auto"/>
 
             <!--                        视频下方相关信息-->
@@ -207,7 +207,7 @@
                             marginTop="1"
                             textColor="@theme/font/grey"
                             id="video/count"
-                            fontSize="13"
+                            fontSize="@style/wiliwili/player/bottom/font"
                             text=""/>
                     <SVGImage
                             width="16"
@@ -219,7 +219,7 @@
                             marginTop="1"
                             id="video/danmaku"
                             textColor="@theme/font/grey"
-                            fontSize="13"
+                            fontSize="@style/wiliwili/player/bottom/font"
                             text=""/>
                     <brls:Box
                             visibility="gone"
@@ -233,7 +233,7 @@
                                 marginLeft="4"
                                 marginRight="4"
                                 textColor="@theme/font/grey"
-                                fontSize="13"
+                                fontSize="@style/wiliwili/player/bottom/font"
                                 text=""/>
                     </brls:Box>
                     <SVGImage
@@ -246,7 +246,7 @@
                             marginTop="1"
                             id="video/people"
                             textColor="@theme/font/grey"
-                            fontSize="13"
+                            fontSize="@style/wiliwili/player/bottom/font"
                             text="N人正在看"/>
                     <SVGImage
                             width="16"
@@ -258,7 +258,7 @@
                             marginTop="1"
                             id="video/time"
                             textColor="@theme/font/grey"
-                            fontSize="13"
+                            fontSize="@style/wiliwili/player/bottom/font"
                             text="2022-01-01 20:00:00"/>
 
                     <brls:Label
@@ -266,7 +266,7 @@
                             marginLeft="4"
                             marginRight="4"
                             textColor="@theme/font/grey"
-                            fontSize="13"
+                            fontSize="@style/wiliwili/player/bottom/font"
                             text="WILIWILI"/>
 
                     <brls:Box
@@ -283,7 +283,7 @@
                                 marginRight="4"
                                 marginTop="1"
                                 textColor="@theme/font/grey"
-                                fontSize="13"
+                                fontSize="@style/wiliwili/player/bottom/font"
                                 text="@i18n/wiliwili/player/rights"/>
                     </brls:Box>
                 </brls:Box>

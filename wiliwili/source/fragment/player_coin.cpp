@@ -12,7 +12,11 @@
 using namespace brls::literals;
 
 PlayerCoin::PlayerCoin() {
+#ifdef __PSV__
+    this->inflateFromXMLRes("xml/fragment/player_coin_psv.xml");
+#else
     this->inflateFromXMLRes("xml/fragment/player_coin.xml");
+#endif
     brls::Logger::debug("Fragment PlayerCoin: create");
 
     this->img1->registerClickAction([this](brls::View* v) -> bool {

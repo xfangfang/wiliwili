@@ -21,7 +21,7 @@
             paddingLeft="20"
             paddingRight="20"
             grow="1"
-            spanCount="4"
+            spanCount="@style/wiliwili/grid/span/4"
             itemHeight="260.5"
             wireframe="false"
             id="home/hots/history/recyclingGrid"/>

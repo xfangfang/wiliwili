@@ -78,7 +78,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
+#ifdef __PSV__
+    {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 0}},
+#else
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
+#endif
 #if defined(__SWITCH__) || defined(__PSV__)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else
@@ -95,25 +99,25 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
     {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
-#ifdef __PSV__
-    {SettingItem::DANMAKU_ON, {"danmaku", {}, {}, 0}},
-#else
     {SettingItem::DANMAKU_ON, {"danmaku", {}, {}, 1}},
-#endif
     {SettingItem::DANMAKU_FILTER_BOTTOM, {"danmaku_filter_bottom", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_TOP, {"danmaku_filter_top", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_SCROLL, {"danmaku_filter_scroll", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
     {SettingItem::SEARCH_TV_MODE, {"search_tv_mode", {}, {}, 1}},
 
-    /// number
+/// number
+#if defined(__PSV__)
+    {SettingItem::PLAYER_INMEMORY_CACHE,
+     {"player_inmemory_cache",
+      {"0MB", "5MB", "10MB"},
+      {0, 5, 10},
+      0}},
+#else
     {SettingItem::PLAYER_INMEMORY_CACHE,
      {"player_inmemory_cache",
       {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
       {0, 10, 20, 50, 100, 200, 500},
-#if defined(__PSV__)
-      0}},
-#else
       1}},
 #endif
     {
@@ -129,7 +133,9 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::IMAGE_REQUEST_THREADS,
      {"image_request_threads",
 #if defined(__SWITCH__) || defined(__PSV__)
-      {"1", "2", "3", "4"}, {1, 2, 3, 4}, 1}},
+      {"1", "2", "3", "4"},
+      {1, 2, 3, 4},
+      1}},
 #else
       {"1", "2", "3", "4", "8", "12", "16"},
       {1, 2, 3, 4, 8, 12, 16},
@@ -336,7 +342,7 @@ void ProgramConfig::saveHomeWindowState() {
     int xPos        = VideoContext::posX;
     int yPos        = VideoContext::posY;
 
-    int monitor     = videoContext->getCurrentMonitorIndex();
+    int monitor = videoContext->getCurrentMonitorIndex();
     if (width == 0) width = brls::ORIGINAL_WINDOW_WIDTH;
     if (height == 0) height = brls::ORIGINAL_WINDOW_HEIGHT;
     brls::Logger::info("Save window state: {},{}x{},{}x{}", monitor, width,
@@ -534,7 +540,7 @@ void ProgramConfig::load() {
 
         // 初始化纹理缓存数量
 #ifdef __PSV__
-        brls::TextureCache::instance().cache.setCapacity(100);
+        brls::TextureCache::instance().cache.setCapacity(1);
 #else
         brls::TextureCache::instance().cache.setCapacity(
             getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
@@ -669,6 +675,9 @@ void ProgramConfig::init() {
 
     if (access(brls::FontLoader::USER_ICON_PATH.c_str(), F_OK) == -1) {
         // 自定义字体不存在，使用内置字体
+#ifdef __PSV__
+        brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
+#else
         std::string icon =
             getSettingItem(SettingItem::KEYMAP, std::string{"xbox"});
         if (icon == "xbox") {
@@ -677,13 +686,10 @@ void ProgramConfig::init() {
         } else if (icon == "ps") {
             brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
         } else {
-#ifdef __PSV__
-            brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
-#else
             brls::FontLoader::USER_ICON_PATH =
                 BRLS_ASSET("font/keymap_keyboard.ttf");
-#endif
         }
+#endif
     }
 
     brls::FontLoader::USER_EMOJI_PATH = getConfigDir() + "/emoji.ttf";

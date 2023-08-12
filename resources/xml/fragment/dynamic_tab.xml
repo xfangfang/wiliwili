@@ -27,7 +27,7 @@
                     itemHeight="250"
                     grow="1"
                     preFetchLine="2"
-                    spanCount="3"
+                    spanCount="@style/wiliwili/grid/span/3"
                     wireframe="false"
                     id="dynamic/videoList"/>
     </brls:Box>

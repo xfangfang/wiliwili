@@ -8,6 +8,7 @@
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "view/grid_dropdown.hpp"
+#include "view/svg_image.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
 
@@ -112,6 +113,11 @@ void HomeHotsRank::onCreate() {
             this->switchChannel();
             return true;
         }));
+
+#ifdef PSV_BIG_PICTURE
+    this->rank_note->setVisibility(brls::Visibility::GONE);
+    this->rank_note_icon->setVisibility(brls::Visibility::GONE);
+#endif
 }
 
 void HomeHotsRank::switchChannel() {

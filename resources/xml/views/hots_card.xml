@@ -22,5 +22,6 @@
             id="hots/icon"
             wireframe="false"
             height="20"
+            shrink="0"
             scalingType="fit"/>
 </brls:Box>

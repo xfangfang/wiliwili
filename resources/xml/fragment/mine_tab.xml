@@ -20,7 +20,7 @@
                 margin="10"
                 image="@res/pictures/default_avatar.png"/>
         <brls:Box
-                marginLeft="40"
+                marginLeft="30"
                 axis="column"
                 width="35%">
             <brls:Label
@@ -38,7 +38,7 @@
                     text=""/>
         </brls:Box>
         <brls:Box
-                marginRight="100"
+                marginRight="75"
                 alignItems="center"
                 grow="1">
             <brls:Box
@@ -49,13 +49,13 @@
                     axis="column">
                 <brls:Label
                         id="mine/label/dynamic"
-                        fontSize="24"
+                        fontSize="@style/wiliwili/mine/num"
                         marginTop="20"
                         text="0"/>
                 <brls:Label
                         singleLine="true"
                         marginTop="4"
-                        fontSize="16"
+                        fontSize="@style/wiliwili/mine/type"
                         textColor="@theme/font/grey"
                         text="@i18n/wiliwili/mine/activity"/>
             </brls:Box>
@@ -74,13 +74,13 @@
                     axis="column">
                 <brls:Label
                         id="mine/label/following"
-                        fontSize="24"
+                        fontSize="@style/wiliwili/mine/num"
                         marginTop="20"
                         text="0"/>
                 <brls:Label
                         singleLine="true"
                         marginTop="4"
-                        fontSize="16"
+                        fontSize="@style/wiliwili/mine/type"
                         textColor="@theme/font/grey"
                         text="@i18n/wiliwili/mine/following"/>
             </brls:Box>
@@ -99,13 +99,13 @@
                     axis="column">
                 <brls:Label
                         id="mine/label/follower"
-                        fontSize="24"
+                        fontSize="@style/wiliwili/mine/num"
                         marginTop="20"
                         text="0"/>
                 <brls:Label
                         singleLine="true"
                         marginTop="4"
-                        fontSize="16"
+                        fontSize="@style/wiliwili/mine/type"
                         textColor="@theme/font/grey"
                         text="@i18n/wiliwili/mine/follower"/>
             </brls:Box>
@@ -124,13 +124,13 @@
                     axis="column">
                 <brls:Label
                         id="mine/label/coins"
-                        fontSize="24"
+                        fontSize="@style/wiliwili/mine/num"
                         marginTop="20"
                         text="0"/>
                 <brls:Label
                         singleLine="true"
                         marginTop="4"
-                        fontSize="16"
+                        fontSize="@style/wiliwili/mine/type"
                         textColor="@theme/font/grey"
                         text="@i18n/wiliwili/mine/coin"/>
             </brls:Box>

@@ -4,6 +4,7 @@
 
 #include "fragment/season_evaluate.hpp"
 #include "view/mpv_core.hpp"
+#include "view/button_close.hpp"
 #include "utils/string_helper.hpp"
 #include "analytics.h"
 
@@ -45,6 +46,15 @@ SeasonEvaluate::SeasonEvaluate() {
 
         return true;
     });
+
+#ifdef __PSV__
+    btnDouban->getParent()->setVisibility(brls::Visibility::GONE);
+    btnZhihu->setFocusable(false);
+    btnBaidu->setFocusable(false);
+    btnBing->setFocusable(false);
+    btnDouban->setFocusable(false);
+    btnClose->setFocusable(true);
+#endif
 }
 
 void SeasonEvaluate::setKeyword(const std::string& value) {

@@ -107,6 +107,9 @@ public:
 
     void hideBottomLineSetting();
 
+    /// 隐藏左下角的播放时间
+    void hideStatusLabel();
+
     void setTitle(const std::string& title);
 
     std::string getTitle();
@@ -217,6 +220,7 @@ private:
     BRLS_BIND(VideoProgressSlider, osdSlider, "video/osd/bottom/progress");
     BRLS_BIND(brls::Label, centerLabel, "video/osd/center/label");
     BRLS_BIND(brls::Label, leftStatusLabel, "video/left/status");
+    BRLS_BIND(brls::Label, centerStatusLabel, "video/center/status");
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
     BRLS_BIND(brls::Label, videoQuality, "video/quality");
     BRLS_BIND(brls::Label, videoSpeed, "video/speed");

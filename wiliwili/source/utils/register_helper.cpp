@@ -176,4 +176,34 @@ void Register::initCustomTheme() {
 void Register::initCustomStyle() {
     // Add custom values to the style
     brls::getStyle().addMetric("brls/animations/highlight", 200);
+
+#ifdef PSV_BIG_PICTURE
+    brls::getStyle().addMetric("wiliwili/grid/span/5", 4);
+    brls::getStyle().addMetric("wiliwili/grid/span/4", 3);
+    brls::getStyle().addMetric("wiliwili/grid/span/3", 2);
+    brls::getStyle().addMetric("wiliwili/player/width", 600);
+    brls::getStyle().addMetric("wiliwili/player/bottom/font", 10);
+    brls::getStyle().addMetric("wiliwili/comment/level/x", 30);
+    brls::getStyle().addMetric("wiliwili/margin/20", 10);
+    brls::getStyle().addMetric("wiliwili/about/qr", 150);
+    brls::getStyle().addMetric("wiliwili/about/speech/width", 430);
+    brls::getStyle().addMetric("wiliwili/about/speech/header", 495);
+    brls::getStyle().addMetric("wiliwili/tab_frame/content_padding_top_bottom", 30);
+    brls::getStyle().addMetric("wiliwili/mine/num", 18);
+    brls::getStyle().addMetric("wiliwili/mine/type", 12);
+#else
+    brls::getStyle().addMetric("wiliwili/grid/span/5", 5);
+    brls::getStyle().addMetric("wiliwili/grid/span/4", 4);
+    brls::getStyle().addMetric("wiliwili/grid/span/3", 3);
+    brls::getStyle().addMetric("wiliwili/player/width", 800);
+    brls::getStyle().addMetric("wiliwili/player/bottom/font", 13);
+    brls::getStyle().addMetric("wiliwili/comment/level/x", 45);
+    brls::getStyle().addMetric("wiliwili/margin/20", 20);
+    brls::getStyle().addMetric("wiliwili/about/qr", 200);
+    brls::getStyle().addMetric("wiliwili/about/speech/width", 660);
+    brls::getStyle().addMetric("wiliwili/about/speech/header", 760);
+    brls::getStyle().addMetric("wiliwili/tab_frame/content_padding_top_bottom", 42);
+    brls::getStyle().addMetric("wiliwili/mine/num", 24);
+    brls::getStyle().addMetric("wiliwili/mine/type", 16);
+#endif
 }

@@ -11,6 +11,7 @@
 
 #include <borealis.hpp>
 
+class ButtonClose;
 class SeasonEvaluate : public brls::Box {
 public:
     SeasonEvaluate();
@@ -29,6 +30,7 @@ private:
     BRLS_BIND(brls::Button, btnZhihu, "evaluate/zhihu");
     BRLS_BIND(brls::Button, btnBaidu, "evaluate/baidu");
     BRLS_BIND(brls::Button, btnBing, "evaluate/bing");
+    BRLS_BIND(ButtonClose, btnClose, "button/close");
 
     std::string keyword;
 };

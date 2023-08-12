@@ -1,0 +1,95 @@
+<brls:Box
+        axis="column"
+        width="auto"
+        height="auto">
+
+    <ButtonClose
+            positionType="absolute"
+            positionTop="4"
+            positionRight="4"/>
+
+    <brls:Label
+            width="100%"
+            horizontalAlign="center"
+            fontSize="32"
+            marginTop="40"
+            marginBottom="30"
+            text="@i18n/wiliwili/player/coin/title"/>
+
+    <brls:Box
+            justifyContent="center">
+        <brls:Label
+                text="@i18n/wiliwili/player/coin/hint"/>
+        <brls:Label
+                id="coin/num"
+                marginLeft="4"
+                width="60"
+                textColor="@theme/color/bilibili"/>
+    </brls:Box>
+
+    <brls:Box
+            marginTop="20"
+            marginBottom="30"
+            justifyContent="spaceEvenly"
+            height="300">
+
+        <AnimationImage
+                id="coin/img/1"
+                focusable="true"
+                height="300"
+                width="200"
+                frame="24"
+                backgroundColor="#8F8F8F30"
+                cornerRadius="8"
+                image="@res/pictures/22-coin-ani-small.png"/>
+
+        <AnimationImage
+                id="coin/img/2"
+                focusable="true"
+                height="300"
+                width="200"
+                frame="24"
+                backgroundColor="#8F8F8F30"
+                cornerRadius="8"
+                image="@res/pictures/33-coin-ani-small.png"/>
+
+    </brls:Box>
+
+    <brls:Label
+            marginBottom="20"
+            width="100%"
+            fontSize="16"
+            height="16"
+            textColor="@theme/font/grey"
+            horizontalAlign="center"
+            id="coin/hint"/>
+
+    <brls:Box
+            id="coin/like"
+            focusable="true"
+            positionBottom="10"
+            positionRight="20"
+            height="38"
+            alignItems="center"
+            paddingLeft="10"
+            paddingRight="10"
+            positionType="absolute">
+        <CheckBox
+                width="18"
+                height="18"
+                marginRight="10"
+                cornerRadius="3"
+                checked="true"
+                id="coin/checkbox"/>
+        <brls:Label
+                fontSize="16"
+                height="16"
+                text="@i18n/wiliwili/player/coin/like"/>
+        <HintLabel
+                marginLeft="8"
+                height="16"
+                fontSize="16"
+                text="y"/>
+    </brls:Box>
+
+</brls:Box>

@@ -10,13 +10,13 @@
             wireframe="false"
             paddingLeft="60"
             paddingRight="60"
-            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
-            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+            paddingTop="@style/wiliwili/tab_frame/content_padding_top_bottom"
+            paddingBottom="@style/wiliwili/tab_frame/content_padding_top_bottom">
 
         <brls:Box
                 justifyContent="center"
                 alignItems="flexEnd"
-                marginBottom="20px">
+                marginBottom="@style/wiliwili/margin/20">
             <brls:Label
                     fontSize="60"
                     marginRight="10"
@@ -32,25 +32,25 @@
 
         <brls:Header
                 title="@i18n/wiliwili/setting/about/brief_header"
-                marginBottom="20"/>
+                marginBottom="@style/wiliwili/margin/20"/>
 
         <brls:Label
                 marginLeft="20"
-                marginBottom="20"
+                marginBottom="@style/wiliwili/margin/20"
                 text="@i18n/wiliwili/setting/about/brief"/>
         <brls:Header
                 title="@i18n/wiliwili/setting/about/repo_header"
-                marginBottom="20"/>
+                marginBottom="@style/wiliwili/margin/20"/>
         <brls:Label
                 textColor="#6693B6"
                 marginLeft="20"
-                marginBottom="20"
+                marginBottom="@style/wiliwili/margin/20"
                 text="@i18n/wiliwili/github"/>
 
         <brls:Header
-                width="760"
+                width="@style/wiliwili/about/speech/header"
                 title="@i18n/wiliwili/setting/about/author_header"
-                marginBottom="20"/>
+                marginBottom="@style/wiliwili/margin/20"/>
 
         <brls:Box
                 wireframe="false">
@@ -67,9 +67,9 @@
                     marginRight="8"
                     image="@res/pictures/icon-quotation.png"/>
             <brls:Label
-                    width="660"
+                    width="@style/wiliwili/about/speech/width"
                     fontSize="18"
-                    marginTop="20"
+                    marginTop="@style/wiliwili/margin/20"
                     textColor="@theme/font/grey"
                     text="@i18n/wiliwili/setting/about/author"/>
         </brls:Box>
@@ -84,8 +84,8 @@
             alignItems="center"
             positionRight="30">
         <QRImage
-                width="200"
-                height="200"
+                width="@style/wiliwili/about/qr"
+                height="@style/wiliwili/about/qr"
                 cornerRadius="6"
                 QRContent="https://github.com/xfangfang/wiliwili"/>
         <brls:Label

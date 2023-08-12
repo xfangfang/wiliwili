@@ -8,7 +8,7 @@
             itemHeight="320"
             grow="1"
             preFetchLine="1"
-            spanCount="5"
+            spanCount="@style/wiliwili/grid/span/5"
             itemSpace="31.4"
             wireframe="false"
             id="mine/bangumi/recyclingGrid"/>

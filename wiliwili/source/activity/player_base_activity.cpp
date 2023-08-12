@@ -364,6 +364,10 @@ void BasePlayerActivity::setCommonData() {
                 this->requestCastUrl();
             }
         });
+
+#ifdef PSV_BIG_PICTURE
+    video->hideStatusLabel();
+#endif
 }
 
 void BasePlayerActivity::showShareDialog(const std::string& link) {

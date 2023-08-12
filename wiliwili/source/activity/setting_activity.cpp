@@ -360,7 +360,7 @@ void SettingActivity::onContentAvailable() {
     }
 
     /// App Keymap
-#if !defined(__SWITCH__)
+#if !defined(__SWITCH__) && !defined(__PSV__)
     static int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
     selectorKeymap->init(
         "wiliwili/setting/app/others/keymap/header"_i18n,
@@ -514,8 +514,12 @@ void SettingActivity::onContentAvailable() {
 
     selectorInmemory->init(
         "wiliwili/setting/app/playback/in_memory_cache"_i18n,
+#ifdef __PSV__
+        {"0MB (" + "hints/off"_i18n + ")", "5MB", "10MB"},
+#else
         {"0MB (" + "hints/off"_i18n + ")", "10MB", "20MB", "50MB", "100MB",
          "200MB", "500MB"},
+#endif
         conf.getIntOptionIndex(SettingItem::PLAYER_INMEMORY_CACHE),
         [](int data) {
             auto inmemoryOption = ProgramConfig::instance().getOptionData(

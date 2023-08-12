@@ -262,7 +262,11 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
         }
         auto item = std::make_shared<RichTextImage>(
             picture.img_src + wiliwili::format(ImageHelper::note_custom_ext,
+#ifdef __PSV__
+                                          (int)(w * 0.5), (int)(h * 0.5)),
+#else
                                           (int)(w * 5), (int)(h * 5)),
+#endif
             w, h);
         item->t_margin = 8;
         d.emplace_back(item);

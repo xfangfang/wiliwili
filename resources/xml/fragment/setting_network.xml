@@ -6,7 +6,7 @@
     <brls:Header
             id="setting/net/test/header"
             title="@i18n/wiliwili/setting/net/test/header"
-            marginBottom="20"/>
+            marginBottom="@style/wiliwili/margin/20"/>
     <brls:Box
             marginLeft="20"
             marginRight="20">
@@ -21,8 +21,8 @@
     <brls:Header
             title="@i18n/wiliwili/setting/net/time/header"
             subtitle="@i18n/wiliwili/setting/net/time/subtitle"
-            marginTop="20"
-            marginBottom="20"/>
+            marginTop="@style/wiliwili/margin/20"
+            marginBottom="@style/wiliwili/margin/20"/>
     <brls:Box
             marginBottom="20"
             marginLeft="20"
@@ -37,7 +37,7 @@
     </brls:Box>
     <brls:Box
             marginLeft="20"
-            marginBottom="20"
+            marginBottom="@style/wiliwili/margin/20"
             marginRight="20">
         <brls:Label
                 grow="1"
@@ -51,8 +51,8 @@
     <brls:Header
             title="@i18n/wiliwili/setting/net/profile/header"
             subtitle="@i18n/wiliwili/setting/net/profile/subtitle"
-            marginBottom="20"
-            marginTop="20"/>
+            marginBottom="@style/wiliwili/margin/20"
+            marginTop="@style/wiliwili/margin/20"/>
     <brls:Box
             marginBottom="20"
             marginLeft="20"
@@ -66,7 +66,7 @@
                 text="@i18n/hints/on"/>
     </brls:Box>
     <brls:Box
-            marginBottom="20"
+            marginBottom="@style/wiliwili/margin/20"
             marginLeft="20"
             marginRight="20">
         <brls:Label

@@ -13,7 +13,7 @@
             height="60"/>
     <SVGImage
             id="comment/user/level"
-            detachedX="45"
+            detachedX="@style/wiliwili/comment/level/x"
             detachedY="45"
             width="30"
             height="30"/>

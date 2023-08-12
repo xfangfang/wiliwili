@@ -43,6 +43,7 @@
     </brls:Box>
 
     <ButtonClose
+            id="button/close"
             positionType="absolute"
             positionTop="10"
             positionRight="10"/>

@@ -61,13 +61,16 @@ void HomeBangumi::onBangumiList(const bilibili::PGCResultWrapper& result) {
     }
 
     brls::sync([this, result]() {
+        int span4 = brls::Application::getStyle().getMetric("wiliwili/grid/span/4");
+        int span5 = brls::Application::getStyle().getMetric("wiliwili/grid/span/5");
+
         for (const auto& i : result.modules) {
             if (i.items.empty()) continue;
             auto* item = new AutoSidebarItem();
             item->setTabStyle(AutoTabBarStyle::PLAIN);
             item->setLabel(i.title);
             item->setFontSize(18);
-            this->tabFrame->addTab(item, [this, i]() {
+            this->tabFrame->addTab(item, [this, i, span4, span5]() {
                 auto container = new AttachedView();
                 container->setMarginTop(12);
                 auto grid = new RecyclingGrid();
@@ -76,7 +79,7 @@ void HomeBangumi::onBangumiList(const bilibili::PGCResultWrapper& result) {
                 if (i.style == "double_feed" || i.style == "follow") {
                     // 封面横图
                     grid->applyXMLAttribute("itemSpace", "20");
-                    grid->applyXMLAttribute("spanCount", "4");
+                    grid->spanCount = span4;
                     grid->applyXMLAttribute("itemHeight", "200");
                     grid->registerCell("Cell", []() {
                         return RecyclingGridItemPGCVideoCard::create(false);
@@ -93,7 +96,7 @@ void HomeBangumi::onBangumiList(const bilibili::PGCResultWrapper& result) {
                 } else {
                     // 封面竖图
                     grid->applyXMLAttribute("itemSpace", "31.4");
-                    grid->applyXMLAttribute("spanCount", "5");
+                    grid->spanCount = span5;
                     grid->applyXMLAttribute("itemHeight", "320");
                     grid->registerCell("Cell", []() {
                         return RecyclingGridItemPGCVideoCard::create(true);

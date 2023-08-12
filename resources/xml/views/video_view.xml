@@ -171,6 +171,7 @@
                     grow="1"/>
             <brls:Box
                     width="100%"
+                    height="80"
                     alignItems="center"
                     grow="1">
                 <brls:Label
@@ -182,6 +183,7 @@
                         textColor="#FFFFFF"
                         text="00:00"/>
                 <brls:Label
+                        id="video/center/status"
                         horizontalAlign="center"
                         height="100%"
                         textColor="#FFFFFF"

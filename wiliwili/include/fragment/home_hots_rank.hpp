@@ -16,6 +16,7 @@ namespace brls {
 class Label;
 }
 class RecyclingGrid;
+class SVGImage;
 
 class HomeHotsRank : public AttachedView, public HomeHotsRankRequest {
 public:
@@ -42,6 +43,7 @@ public:
 
 private:
     BRLS_BIND(brls::Label, rank_note, "home/hots/rank/note");
+    BRLS_BIND(SVGImage, rank_note_icon, "home/hots/rank/note/icon");
     BRLS_BIND(brls::Label, rank_label, "home/hots/rank/label");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "home/hots/rank/recyclingGrid");
     BRLS_BIND(brls::Box, rank_box, "home/hots/rank/box");
