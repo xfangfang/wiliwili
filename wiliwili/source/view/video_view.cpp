@@ -751,7 +751,11 @@ void VideoView::showOSD(bool temp) {
             wiliwili::unix_time() + VideoView::OSD_SHOW_TIME;
         this->osd_state = OSDState::SHOWN;
     } else {
+#ifdef __WINRT__
+        this->osdLastShowTime = 0xffffffff;
+#else
         this->osdLastShowTime = std::numeric_limits<std::time_t>::max();
+#endif
         this->osd_state       = OSDState::ALWAYS_ON;
     }
 }
