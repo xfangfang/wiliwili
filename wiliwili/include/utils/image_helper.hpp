@@ -60,7 +60,7 @@ public:
         "@180w_180h_85q_!note-comment-multiple.webp";
     inline static std::string note_custom_ext =
         "@{}w_{}h_85q_!note-comment-multiple.webp";
-    inline static std::string note_raw_ext = "@!web-comment-note.webp";
+    inline static std::string note_raw_ext = "@300h.webp";
 #else
     inline static std::string h_ext           = "@672w_378h_1c.webp";
     inline static std::string v_ext           = "@312w_420h_1c.webp";
@@ -72,7 +72,7 @@ public:
         "@540w_540h_85q_!note-comment-multiple.webp";
     inline static std::string note_custom_ext =
         "@{}w_{}h_85q_!note-comment-multiple.webp";
-    inline static std::string note_raw_ext = "@300h.webp";
+    inline static std::string note_raw_ext = "@!web-comment-note.webp";
 #endif
 #else
     inline static std::string h_ext           = "@672w_378h_1c.jpg";
