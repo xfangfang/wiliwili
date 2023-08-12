@@ -2,6 +2,8 @@
 // Created by fang on 2022/4/23.
 //
 
+#include <limits>
+
 #include "pystring.h"
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
@@ -749,7 +751,7 @@ void VideoView::showOSD(bool temp) {
             wiliwili::unix_time() + VideoView::OSD_SHOW_TIME;
         this->osd_state = OSDState::SHOWN;
     } else {
-        this->osdLastShowTime = 0xffffffff;
+        this->osdLastShowTime = std::numeric_limits<std::time_t>::max();
         this->osd_state       = OSDState::ALWAYS_ON;
     }
 }
@@ -1045,6 +1047,8 @@ void VideoView::buttonProcessing() {
         if (this->osd_state == OSDState::SHOWN) this->showOSD(true);
     }
 
+#ifndef __PSV__
+
     static int click_state        = ClickState::IDLE;
     static int64_t rsb_press_time = 0;
     if (click_state == ClickState::IDLE && !state.buttons[BUTTON_RSB]) return;
@@ -1118,6 +1122,8 @@ void VideoView::buttonProcessing() {
         default:
             break;
     }
+
+#endif
 }
 
 void VideoView::registerMpvEvent() {
