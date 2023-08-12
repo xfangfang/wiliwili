@@ -88,8 +88,10 @@ const std::string OPENSOURCE =
     "Copyright (c) Google Inc. All Rights Reserved.\n\n"
     "Licensed under BSD 3-Clause \"New\" or \"Revised\" License\n\n\n"
 #endif
+#ifdef __SWITCH__
     "--------------------------------\n"
-    "nx\n--------------------------------\n"
+    "nx\n"
+    "--------------------------------\n"
     "https://github.com/switchbrew/libnx\n\n"
     "Copyright 2017-2018 libnx Authors.\n\nPublic domain\n\n\n"
     "--------------------------------\n"
@@ -98,6 +100,15 @@ const std::string OPENSOURCE =
     "https://devkitpro.org\n\n"
     "Copyright devkitPro Authors.\n\n"
     "Public domain\n"
+#endif
+#ifdef __PSV__
+    "--------------------------------\n"
+    "vitasdk\n"
+    "--------------------------------\n"
+    "https://github.com/vitasdk\n\n"
+    "Copyright vitasdk Authors.\n\n"
+    "Public domain\n"
+#endif
     "\n";
 
 SettingActivity::SettingActivity() {

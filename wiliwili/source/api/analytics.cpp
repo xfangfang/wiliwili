@@ -50,8 +50,7 @@ void Analytics::send() {
 
     package.client_id = this->client_id;
     package.user_id   = ProgramConfig::instance().getUserID();
-    package.timestamp_micros =
-        std::to_string(wiliwili::getUnixTime() * 1000000);
+    package.timestamp_micros = std::to_string(wiliwili::getUnixTime()) + "000000";
     nlohmann::json content(package);
     brls::Logger::verbose("report event: {}", content.dump());
 
