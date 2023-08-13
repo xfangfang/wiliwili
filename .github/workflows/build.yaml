@@ -380,6 +380,7 @@ jobs:
         run: |
           apk update
           apk add cmake ninja meson pkgconf bash git zstd tar
+          git config --global --add safe.directory $(pwd)
 
       - uses: actions/checkout@v3
         with:

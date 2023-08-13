@@ -63,7 +63,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
-#ifdef IOS
+#if defined(IOS) || defined(__PSV__)
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 1}},
 #else
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 0}},
@@ -78,11 +78,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
-#ifdef __PSV__
-    {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 0}},
-#else
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
-#endif
 #if defined(__SWITCH__) || defined(__PSV__)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else

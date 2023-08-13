@@ -223,7 +223,13 @@
 
             <Tab label="@i18n/wiliwili/setting/about/tab"
                  fontSize="22">
-                <brls:View xml="@res/xml/fragment/settings_about.xml"/>
+                <brls:ScrollingFrame
+                        width="auto"
+                        height="auto"
+                        marginTop="10"
+                        grow="1.0">
+                    <brls:View xml="@res/xml/fragment/settings_about.xml"/>
+                </brls:ScrollingFrame>
             </Tab>
 
             <Tab label="@i18n/wiliwili/setting/opensource/tab"
