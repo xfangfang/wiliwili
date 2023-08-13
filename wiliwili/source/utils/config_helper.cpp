@@ -49,7 +49,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
           brls::LOCALE_Ko,
       },
       {},
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(__PSV__)
       0}},
 #else
       4}},
