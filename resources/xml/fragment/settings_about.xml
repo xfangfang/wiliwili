@@ -11,7 +11,8 @@
             paddingLeft="60"
             paddingRight="60"
             paddingTop="@style/wiliwili/tab_frame/content_padding_top_bottom"
-            paddingBottom="@style/wiliwili/tab_frame/content_padding_top_bottom">
+            paddingBottom="@style/wiliwili/tab_frame/content_padding_top_bottom"
+            marginBottom="@style/wiliwili/setting/about/bottom">
 
         <brls:Box
                 justifyContent="center"

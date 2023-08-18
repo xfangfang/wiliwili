@@ -116,6 +116,9 @@
                                     id="setting/custom/theme"/>
 
                             <SelectorCell
+                                    id="setting/ui/scale"/>
+
+                            <SelectorCell
                                     id="setting/keymap"/>
 
                             <SelectorCell

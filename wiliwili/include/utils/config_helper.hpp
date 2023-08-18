@@ -22,9 +22,10 @@ enum class SettingItem {
     HIDE_BOTTOM_BAR,
     HIDE_FPS,
     FULLSCREEN,
-    APP_THEME,
-    APP_LANG,
-    APP_RESOURCES,
+    APP_THEME,      // 深浅主题色
+    APP_LANG,       // 应用语言
+    APP_RESOURCES,  // 自定义界面布局
+    APP_UI_SCALE,   // 界面缩放
     HISTORY_REPORT,
     AUTO_NEXT_PART,
     AUTO_NEXT_RCMD,

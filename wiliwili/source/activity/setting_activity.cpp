@@ -151,12 +151,15 @@ void SettingActivity::onContentAvailable() {
         return true;
     });
 
-#if defined(__APPLE__) && !defined(IOS) || defined(__linux__) || defined(_WIN32)
+#if !defined(__SWITCH__) && !defined(IOS) && !defined(__PSV__)
     btnOpenConfig->registerClickAction([](...) -> bool {
         auto* p = (brls::DesktopPlatform*)brls::Application::getPlatform();
         p->openBrowser(ProgramConfig::instance().getConfigDir());
         return true;
     });
+#else
+    btnOpenConfig->setVisibility(brls::Visibility::GONE);
+#endif
     btnTutorialFont->registerClickAction([](...) -> bool {
         auto dialog =
             new brls::Dialog((brls::Box*)brls::View::createFromXMLResource(
@@ -165,10 +168,6 @@ void SettingActivity::onContentAvailable() {
         dialog->open();
         return true;
     });
-#else
-    btnOpenConfig->setVisibility(brls::Visibility::GONE);
-    btnTutorialFont->setVisibility(brls::Visibility::GONE);
-#endif
 
     btnHotKey->registerClickAction([](...) -> bool {
         auto dialog =
@@ -369,6 +368,28 @@ void SettingActivity::onContentAvailable() {
                 return true;
             });
     }
+
+    // APP UI Scale
+    static int UIScaleIndex =
+        conf.getStringOptionIndex(SettingItem::APP_UI_SCALE);
+    selectorUIScale->init(
+        "wiliwili/setting/app/others/scale/header"_i18n,
+        {
+            "wiliwili/setting/app/others/scale/544p"_i18n,
+            "wiliwili/setting/app/others/scale/720p"_i18n,
+            "wiliwili/setting/app/others/scale/900p"_i18n,
+            "wiliwili/setting/app/others/scale/1080p"_i18n,
+        },
+        UIScaleIndex, [](int data) {
+            if (UIScaleIndex == data) return false;
+            UIScaleIndex    = data;
+            auto optionData = ProgramConfig::instance().getOptionData(
+                SettingItem::APP_UI_SCALE);
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::APP_UI_SCALE, optionData.optionList[data]);
+            DialogHelper::quitApp();
+            return true;
+        });
 
     /// App Keymap
 #if !defined(__SWITCH__) && !defined(__PSV__)

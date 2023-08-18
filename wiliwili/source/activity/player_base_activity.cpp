@@ -365,9 +365,8 @@ void BasePlayerActivity::setCommonData() {
             }
         });
 
-#ifdef PSV_BIG_PICTURE
-    video->hideStatusLabel();
-#endif
+    if (brls::Application::ORIGINAL_WINDOW_HEIGHT < 720)
+        video->hideStatusLabel();
 }
 
 void BasePlayerActivity::showShareDialog(const std::string& link) {

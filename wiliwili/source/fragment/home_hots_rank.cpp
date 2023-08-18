@@ -114,10 +114,10 @@ void HomeHotsRank::onCreate() {
             return true;
         }));
 
-#ifdef PSV_BIG_PICTURE
-    this->rank_note->setVisibility(brls::Visibility::GONE);
-    this->rank_note_icon->setVisibility(brls::Visibility::GONE);
-#endif
+    if (brls::Application::ORIGINAL_WINDOW_HEIGHT < 720) {
+        this->rank_note->setVisibility(brls::Visibility::GONE);
+        this->rank_note_icon->setVisibility(brls::Visibility::GONE);
+    }
 }
 
 void HomeHotsRank::switchChannel() {

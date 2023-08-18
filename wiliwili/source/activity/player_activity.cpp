@@ -263,11 +263,7 @@ void PlayerActivity::onUpInfo(const bilibili::UserDetailResultWrapper& user) {
     this->videoUserInfo->setUserInfo(
         user.card.face + ImageHelper::face_ext, user.card.name,
         wiliwili::num2w(user.follower) + "粉丝" +
-#ifdef __PSV__
-            "\n"
-#else
-            " · "
-#endif
+            (brls::Application::ORIGINAL_WINDOW_HEIGHT < 720 ? "\n" : " · ")
             + wiliwili::num2w(user.like_num) + "点赞");
     if (user.card.mid == ProgramConfig::instance().getUserID()) {
         this->videoUserInfo->setHintType(InfoHintType::NONE);

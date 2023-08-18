@@ -393,8 +393,8 @@ VideoView::VideoView() {
             sliderBox->setBackgroundColor(theme.getColor("color/grey_1"));
             float sliderX = view->getX() - 120;
             if (sliderX < 0) sliderX = 20;
-            if (sliderX > brls::ORIGINAL_WINDOW_WIDTH - 332)
-                sliderX = brls::ORIGINAL_WINDOW_WIDTH - 332;
+            if (sliderX > brls::Application::ORIGINAL_WINDOW_WIDTH - 332)
+                sliderX = brls::Application::ORIGINAL_WINDOW_WIDTH - 332;
             sliderBox->setTranslationX(sliderX);
             sliderBox->setTranslationY(view->getY() - 70);
             // 滑动条

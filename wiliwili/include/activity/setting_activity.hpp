@@ -36,6 +36,7 @@ private:
     BRLS_BIND(SelectorCell, selectorLang, "setting/language");
     BRLS_BIND(SelectorCell, selectorTheme, "setting/ui/theme");
     BRLS_BIND(SelectorCell, selectorCustomTheme, "setting/custom/theme");
+    BRLS_BIND(SelectorCell, selectorUIScale, "setting/ui/scale");
     BRLS_BIND(SelectorCell, selectorTexture, "setting/image/texture");
     BRLS_BIND(SelectorCell, selectorThreads, "setting/image/threads");
     BRLS_BIND(SelectorCell, selectorKeymap, "setting/keymap");

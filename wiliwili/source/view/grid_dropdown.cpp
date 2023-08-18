@@ -109,7 +109,7 @@ BaseDropdown::BaseDropdown(const std::string& title,
     this->cancel->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->cancel));
 
-    this->setWidth(brls::ORIGINAL_WINDOW_WIDTH);
+    this->setWidth(brls::Application::ORIGINAL_WINDOW_WIDTH);
 }
 
 RecyclingGrid* BaseDropdown::getRecyclingList() { return recycler; }

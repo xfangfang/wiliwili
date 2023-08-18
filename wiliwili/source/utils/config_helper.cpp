@@ -56,6 +56,13 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
     {SettingItem::APP_RESOURCES, {"app_resources", {}, {}, 0}},
+    {SettingItem::APP_UI_SCALE,
+     {"app_ui_scale", {"544p", "720p", "900p", "1080p"}, {},
+#ifdef __PSV__
+      0}},
+#else
+      1}},
+#endif
     {SettingItem::KEYMAP, {"keymap", {"xbox", "ps", "keyboard"}, {}, 0}},
     {SettingItem::HOME_WINDOW_STATE, {"home_window_state", {}, {}, 0}},
     {SettingItem::DLNA_IP, {"dlna_ip", {}, {}, 0}},
@@ -105,10 +112,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 /// number
 #if defined(__PSV__)
     {SettingItem::PLAYER_INMEMORY_CACHE,
-     {"player_inmemory_cache",
-      {"0MB", "5MB", "10MB"},
-      {0, 5, 10},
-      0}},
+     {"player_inmemory_cache", {"0MB", "5MB", "10MB"}, {0, 5, 10}, 0}},
 #else
     {SettingItem::PLAYER_INMEMORY_CACHE,
      {"player_inmemory_cache",
@@ -339,8 +343,8 @@ void ProgramConfig::saveHomeWindowState() {
     int yPos        = VideoContext::posY;
 
     int monitor = videoContext->getCurrentMonitorIndex();
-    if (width == 0) width = brls::ORIGINAL_WINDOW_WIDTH;
-    if (height == 0) height = brls::ORIGINAL_WINDOW_HEIGHT;
+    if (width == 0) width = brls::Application::ORIGINAL_WINDOW_WIDTH;
+    if (height == 0) height = brls::Application::ORIGINAL_WINDOW_HEIGHT;
     brls::Logger::info("Save window state: {},{}x{},{}x{}", monitor, width,
                        height, xPos, yPos);
     setSettingItem(
@@ -383,6 +387,31 @@ void ProgramConfig::load() {
         if (brls::View::CUSTOM_RESOURCES_PATH.empty()) {
             brls::Logger::warning("Custom theme not found: {}", customThemeID);
         }
+    }
+
+    // 初始化 UI 缩放
+    std::string UIScale =
+        getSettingItem(SettingItem::APP_UI_SCALE, std::string{""});
+    if (UIScale == "544p") {
+        brls::Application::ORIGINAL_WINDOW_WIDTH  = 960;
+        brls::Application::ORIGINAL_WINDOW_HEIGHT = 544;
+    } else if (UIScale == "720p") {
+        brls::Application::ORIGINAL_WINDOW_WIDTH  = 1280;
+        brls::Application::ORIGINAL_WINDOW_HEIGHT = 720;
+    } else if (UIScale == "900p") {
+        brls::Application::ORIGINAL_WINDOW_WIDTH  = 1600;
+        brls::Application::ORIGINAL_WINDOW_HEIGHT = 900;
+    } else if (UIScale == "1080p") {
+        brls::Application::ORIGINAL_WINDOW_WIDTH  = 1920;
+        brls::Application::ORIGINAL_WINDOW_HEIGHT = 1080;
+    } else {
+#ifdef __PSV__
+        brls::Application::ORIGINAL_WINDOW_WIDTH  = 960;
+        brls::Application::ORIGINAL_WINDOW_HEIGHT = 544;
+#else
+        brls::Application::ORIGINAL_WINDOW_WIDTH  = 1280;
+        brls::Application::ORIGINAL_WINDOW_HEIGHT = 720;
+#endif
     }
 
     // 初始化视频清晰度
