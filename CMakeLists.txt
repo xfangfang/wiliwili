@@ -226,6 +226,7 @@ elseif (PLATFORM_PSV)
             ass;harfbuzz;fribidi;freetype;bz2;png16;
             webp;sharpyuv;
             m;z;
+            SceCodecEngine_stub
             SceVideodec_stub
             SceAudiodec_stub)
     vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE NOASLR)

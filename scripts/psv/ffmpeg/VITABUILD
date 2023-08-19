@@ -1,17 +1,17 @@
 pkgname=ffmpeg
-pkgver=vita
+pkgver=7900d3684acc8e5e98fd39cbb12cb7ab73e6d4a5
 pkgrel=1
 url="https://ffmpeg.org/"
-source=("${pkgname}-${pkgver}.tar.gz::https://github.com/fish47/FFmpeg-vita/archive/refs/heads/vita.tar.gz")
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/fish47/FFmpeg-vita/archive/${pkgver}.tar.gz")
 sha256sums=('SKIP')
 depends=('mbedtls')
 
 prepare() {
-  cd FFmpeg-vita-vita
+  cd FFmpeg-vita-$pkgver
 }
 
 build() {
-  cd FFmpeg-vita-vita
+  cd FFmpeg-vita-$pkgver
   ./configure --prefix=$VITASDK/arm-vita-eabi \
         --enable-vita \
         --target-os=vita \
@@ -47,6 +47,6 @@ build() {
 }
 
 package () {
-  cd FFmpeg-vita-vita
+  cd FFmpeg-vita-$pkgver
   make DESTDIR=$pkgdir install
 }
