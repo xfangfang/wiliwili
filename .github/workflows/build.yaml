@@ -219,7 +219,6 @@ jobs:
           fetch-depth: 0
 
       - name: Build OpenGL
-        id: compile
         if: matrix.driver == 'opengl'
         run: |
           docker run --rm -v $(pwd):/data devkitpro/devkita64:20230622 bash -c "/data/scripts/build_switch.sh"
@@ -232,7 +231,6 @@ jobs:
           path: "cmake-build-switch/wiliwili.nro"
 
       - name: Build Deko3d
-        id: compile
         if: matrix.driver == 'deko3d'
         run: |
           docker run --rm -v $(pwd):/data devkitpro/devkita64:20230622 bash -c "/data/scripts/build_switch_deko3d.sh"
