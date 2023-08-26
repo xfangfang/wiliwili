@@ -12,6 +12,7 @@ BASE_URL="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/"
 PKGS=(
     "deko3d-8939ff80f94d061dbc7d107e08b8e3be53e2938b-1-any.pkg.tar.zst"
     "libuam-f8c9eef01ffe06334d530393d636d69e2b52744b-1-any.pkg.tar.zst"
+    "switch-dav1d-1.2.1-1-any.pkg.tar.zst"
     "switch-libass-0.17.1-1-any.pkg.tar.zst"
     "switch-ffmpeg-6.0-1-deko3d.pkg.tar.zst"
     "switch-libmpv-0.35.1-2-deko3d.pkg.tar.zst"
