@@ -55,7 +55,11 @@ brls::View* PlayerSetting::getDefaultFocus() {
 }
 
 void PlayerSetting::setupCustomShaders() {
-    if (!ShaderHelper::instance().isAvailable()) {
+    // TODO Fix: shaders cannot work with deko3d
+#if defined(_DEBUG) || !defined(BOREALIS_USE_DEKO3D)
+    if (!ShaderHelper::instance().isAvailable())
+#endif
+    {
         auto* cell = new brls::RadioCell();
         cell->title->setText("wiliwili/player/setting/common/wiki"_i18n);
         cell->registerClickAction([](...) {

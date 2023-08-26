@@ -566,9 +566,6 @@ void SettingActivity::onContentAvailable() {
         });
 
 /// Hardware decode
-#ifdef __SWITCH__
-    btnHWDEC->setVisibility(brls::Visibility::GONE);
-#else
     btnHWDEC->init("wiliwili/setting/app/playback/hwdec"_i18n,
                    conf.getBoolOption(SettingItem::PLAYER_HWDEC),
                    [](bool value) {
@@ -578,7 +575,6 @@ void SettingActivity::onContentAvailable() {
                        MPVCore::HARDWARE_DEC = value;
                        MPVCore::instance().restart();
                    });
-#endif
 
     /// Decode quality
     btnQuality->init("wiliwili/setting/app/playback/low_quality"_i18n,

@@ -11,7 +11,7 @@
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
 
-#if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER)
+#if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER) && !defined(BOREALIS_USE_DEKO3D)
 const char *vertexShaderSource =
     "#version 150 core\n"
     "in vec3 aPos;\n"
@@ -35,13 +35,18 @@ const char *fragmentShaderSource =
     "}\n\0";
 #endif
 
+#ifdef BOREALIS_USE_DEKO3D
+#include <borealis/platforms/switch/switch_video.hpp>
+#endif
+
+
 static inline void check_error(int status) {
     if (status < 0) {
         brls::Logger::error("MPV ERROR ====> {}", mpv_error_string(status));
     }
 }
 
-#ifndef MPV_SW_RENDER
+#if !defined(MPV_SW_RENDER) && !defined(BOREALIS_USE_DEKO3D)
 static void *get_proc_address(void *unused, const char *name) {
 #ifdef __SDL2__
     SDL_GL_GetCurrentContext();
@@ -108,6 +113,7 @@ void MPVCore::init() {
     // hardware decoding
     if (HARDWARE_DEC) {
 #ifdef __SWITCH__
+        mpv_set_option_string(mpv, "hwdec", "auto");
 #elif defined(__PSV__)
         mpv_set_option_string(mpv, "hwdec", "vita-copy");
         brls::Logger::info("MPV hardware decode: vita-copy");
@@ -170,6 +176,13 @@ void MPVCore::init() {
 #ifdef MPV_SW_RENDER
     mpv_render_param params[]{
         {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_SW)},
+        {MPV_RENDER_PARAM_INVALID, nullptr}};
+#elif defined(BOREALIS_USE_DEKO3D)
+    auto switchPlatform = (brls::SwitchVideoContext *)brls::Application::getPlatform()->getVideoContext();
+    mpv_deko3d_init_params deko_init_params{switchPlatform->getDeko3dDevice()};
+    mpv_render_param params[]{
+        {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_DEKO3D)},
+        {MPV_RENDER_PARAM_DEKO3D_INIT_PARAMS, &deko_init_params},
         {MPV_RENDER_PARAM_INVALID, nullptr}};
 #else
     mpv_opengl_init_params gl_init_params{get_proc_address, nullptr};
@@ -269,6 +282,7 @@ void MPVCore::restart() {
 
 void MPVCore::deleteFrameBuffer() {
 #if defined(MPV_NO_FB) || defined(MPV_SW_RENDER)
+#elif defined(BOREALIS_USE_DEKO3D)
 #else
     if (this->media_framebuffer != 0) {
         glDeleteFramebuffers(1, &this->media_framebuffer);
@@ -283,6 +297,7 @@ void MPVCore::deleteFrameBuffer() {
 
 void MPVCore::deleteShader() {
 #if defined(MPV_NO_FB) || defined(MPV_SW_RENDER)
+#elif defined(BOREALIS_USE_DEKO3D)
 #else
     if (shader.vao != 0) glDeleteVertexArrays(1, &shader.vao);
     if (shader.vbo != 0) glDeleteBuffers(1, &shader.vbo);
@@ -297,6 +312,7 @@ void MPVCore::initializeGL() {
     mpv_fbo.fbo = 1;
 #endif
 #elif defined(MPV_SW_RENDER)
+#elif defined(BOREALIS_USE_DEKO3D)
 #else
     if (media_framebuffer != 0) return;
     brls::Logger::debug("initializeGL");
@@ -431,12 +447,11 @@ void MPVCore::setFrameSize(brls::Rect rect) {
     nvg_image = nvgCreateImageRGBA(brls::Application::getNVGContext(),
                                    drawWidth, drawHeight, mpvImageFlags,
                                    (const unsigned char *)pixels);
-    brls::Logger::error("=======> {}/{}", drawWidth, drawHeight);
 
     sw_size[0] = drawWidth;
     sw_size[1] = drawHeight;
     pitch      = PIXCEL_SIZE * drawWidth;
-#elif defined(MPV_NO_FB)
+#elif defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D)
     // Using default framebuffer
     this->mpv_fbo.w = brls::Application::windowWidth;
     this->mpv_fbo.h = brls::Application::windowHeight;
@@ -509,17 +524,25 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     nvgFillPaint(vg, nvgImagePattern(vg, 0, 0, rect.getWidth(),
                                      rect.getHeight(), 0, nvg_image, alpha));
     nvgFill(vg);
-
-#elif defined(MPV_NO_FB)
+#elif defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D)
     // 只在非透明时绘制视频，可以避免退出页面时视频画面残留
     if (alpha >= 1) {
+#ifdef BOREALIS_USE_DEKO3D
+        static auto videoContext = (brls::SwitchVideoContext *)brls::Application::getPlatform()->getVideoContext();
+        mpv_fbo.tex = videoContext->getFramebuffer();
+        videoContext->queueSignalFence(&readyFence);
+#endif
         // 绘制视频
         mpv_render_context_render(this->mpv_context, mpv_params);
 #ifdef IOS
         glBindFramebuffer(GL_FRAMEBUFFER, 1);
 #endif
+#ifdef BOREALIS_USE_DEKO3D
+        videoContext->queueWaitFence(&doneFence);
+#else
         glViewport(0, 0, brls::Application::windowWidth,
                    brls::Application::windowHeight);
+#endif
         mpv_render_context_report_swap(this->mpv_context);
 
         // 画背景来覆盖mpv的黑色边框

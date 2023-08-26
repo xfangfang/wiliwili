@@ -245,6 +245,9 @@ elseif (PLATFORM_SWITCH)
     if (BUILTIN_NSP)
         add_dependencies(${PROJECT_NAME} nsp_forwarder.nsp)
     endif ()
+    if (USE_DEKO3D)
+        gen_dksh("${PROJECT_RESOURCES}/shaders")
+    endif ()
     add_custom_target(${PROJECT_NAME}.nro
         DEPENDS ${PROJECT_NAME}
         COMMAND ${NX_NACPTOOL_EXE} --create ${PROJECT_NAME} ${PROJECT_AUTHOR} ${APP_VERSION} ${PROJECT_NAME}.nacp

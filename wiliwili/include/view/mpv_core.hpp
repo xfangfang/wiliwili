@@ -9,7 +9,10 @@
 #include <mpv/client.h>
 #include <mpv/render.h>
 #include <fmt/format.h>
-#ifndef MPV_SW_RENDER
+#if defined(MPV_SW_RENDER)
+#elif defined(BOREALIS_USE_DEKO3D)
+#include <mpv/render_dk3d.h>
+#else
 #include <mpv/render_gl.h>
 #ifdef __PSV__
 #include <GLES2/gl2.h>
@@ -109,7 +112,7 @@ public:
     void setBackupUrl(const std::string &url, const std::string &extra = "");
 
     void setVolume(int64_t value);
-    void setVolume(const std::string& value);
+    void setVolume(const std::string &value);
 
     void resume();
 
@@ -122,7 +125,7 @@ public:
      * @param p 秒
      */
     void seek(int64_t p);
-    void seek(const std::string& p);
+    void seek(const std::string &p);
 
     /**
      * 相对于当前播放的时间点跳转视频
@@ -252,6 +255,14 @@ private:
         {MPV_RENDER_PARAM_SW_POINTER, pixels},
         { MPV_RENDER_PARAM_INVALID,
           nullptr }};
+#elif defined(BOREALIS_USE_DEKO3D)
+    DkFence doneFence;
+    DkFence readyFence;
+    mpv_deko3d_fbo mpv_fbo{nullptr, &readyFence, &doneFence,
+                           1280,    720,         DkImageFormat_RGBA8_Unorm};
+    mpv_render_param mpv_params[3] = {{MPV_RENDER_PARAM_DEKO3D_FBO, &mpv_fbo},
+                                      { MPV_RENDER_PARAM_INVALID,
+                                        nullptr }};
 #elif defined(MPV_NO_FB)
     mpv_opengl_fbo mpv_fbo{0, 1920, 1080};
     int flip_y{1};
