@@ -67,7 +67,20 @@ void MPVCore::on_wakeup(void *self) {
     brls::sync([]() { MPVCore::instance().eventMainLoop(); });
 }
 
-MPVCore::MPVCore() { this->init(); }
+MPVCore::MPVCore() {
+    this->init();
+    // Destroy mpv when application exit
+    brls::Application::getExitDoneEvent()->subscribe([]() {
+        MPVCore::instance().clean();
+#ifdef MPV_SW_RENDER
+        if (pixels) {
+            free(pixels);
+            pixels             = nullptr;
+            mpv_params[3].data = nullptr;
+        }
+#endif
+    });
+}
 
 void MPVCore::init() {
     this->mpv = mpv_create();
@@ -239,16 +252,7 @@ void MPVCore::init() {
 #endif
 }
 
-MPVCore::~MPVCore() {
-    this->clean();
-#ifdef MPV_SW_RENDER
-    if (pixels) {
-        free(pixels);
-        pixels             = nullptr;
-        mpv_params[3].data = nullptr;
-    }
-#endif
-}
+MPVCore::~MPVCore() = default;
 
 void MPVCore::clean() {
     check_error(mpv_command_string(this->mpv, "quit"));

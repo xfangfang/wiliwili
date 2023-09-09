@@ -191,6 +191,10 @@ public:
     /// Send command to mpv
     template <typename... Args>
     void command_async(Args &&...args) {
+        if (!mpv) {
+            brls::Logger::error("mpv is not initialized");
+            return ;
+        }
         std::vector<std::string> commands = {
             fmt::format("{}", std::forward<Args>(args))...};
 
