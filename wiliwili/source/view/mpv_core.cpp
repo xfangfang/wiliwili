@@ -535,6 +535,7 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
         static auto videoContext = (brls::SwitchVideoContext *)brls::Application::getPlatform()->getVideoContext();
         mpv_fbo.tex = videoContext->getFramebuffer();
         videoContext->queueSignalFence(&readyFence);
+        videoContext->queueFlush();
 #endif
         // 绘制视频
         mpv_render_context_render(this->mpv_context, mpv_params);
