@@ -31,8 +31,8 @@ done
 base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 sudo dkp-pacman -U \
     $base_url/switch-libass-0.17.1-1-any.pkg.tar.zst \
-    $base_url/switch-ffmpeg-4.4.4-1-any.pkg.tar.zst \
-    $base_url/switch-libmpv-0.35.1-1-any.pkg.tar.zst
+    $base_url/switch-ffmpeg-6.0-2-deko3d.pkg.tar.zst \
+    $base_url/switch-libmpv-0.35.1-2-any.pkg.tar.zst
 ```
 
 # Acknowledgement

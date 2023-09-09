@@ -1,0 +1,53 @@
+diff --git a/meson.build b/meson.build
+index 1104aef..17b804b 100644
+--- a/meson.build
++++ b/meson.build
+@@ -178,6 +178,11 @@ if host_machine.system() == 'linux'
+     endif
+ endif
+ 
++libnx_dependency = []
++if host_machine.system() == 'horizon'
++    libnx_dependency = cc.find_library('nx', required : false)
++endif
++
+ libm_dependency = cc.find_library('m', required: false)
+ 
+ 
+diff --git a/src/cpu.c b/src/cpu.c
+index d24148c..152fc4b 100644
+--- a/src/cpu.c
++++ b/src/cpu.c
+@@ -36,6 +36,9 @@
+ #elif defined(__APPLE__)
+ #include <sys/sysctl.h>
+ #include <sys/types.h>
++#elif defined(__SWITCH__)
++#undef PACKED // libdav1d's definition is incompatible with libnx' usage of the macro
++#include <switch.h>
+ #else
+ #include <pthread.h>
+ #include <unistd.h>
+@@ -83,6 +86,10 @@ COLD int dav1d_num_logical_processors(Dav1dContext *const c) {
+     GetNativeSystemInfo(&system_info);
+     return system_info.dwNumberOfProcessors;
+ #endif
++#elif defined(__SWITCH__)
++    u64 core_mask = 0;
++    Result rc = svcGetInfo(&core_mask, InfoType_CoreMask, CUR_PROCESS_HANDLE, 0);
++    return R_SUCCEEDED(rc) ? __builtin_popcountll(core_mask) : 3;
+ #elif defined(HAVE_PTHREAD_GETAFFINITY_NP) && defined(CPU_COUNT)
+     cpu_set_t affinity;
+     if (!pthread_getaffinity_np(pthread_self(), sizeof(affinity), &affinity))
+diff --git a/src/meson.build b/src/meson.build
+index 3a34e76..b88f026 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -327,6 +327,7 @@ libdav1d = library('dav1d',
+         thread_dependency,
+         thread_compat_dep,
+         libdl_dependency,
++        libnx_dependency,
+         ],
+     c_args : [libdav1d_flags, api_export_flags],
+     version : dav1d_soname_version,

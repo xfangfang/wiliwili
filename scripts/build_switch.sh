@@ -11,8 +11,8 @@ BASE_URL="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/"
 
 PKGS=(
     "switch-libass-0.17.1-1-any.pkg.tar.zst"
-    "switch-ffmpeg-4.4.4-1-any.pkg.tar.zst"
-    "switch-libmpv-0.35.1-1-any.pkg.tar.zst"
+    "switch-ffmpeg-6.0-2-any.pkg.tar.zst"
+    "switch-libmpv-0.35.1-2-any.pkg.tar.zst"
     "switch-nspmini-48d4fc2-1-any.pkg.tar.xz"
 )
 for PKG in "${PKGS[@]}"; do
