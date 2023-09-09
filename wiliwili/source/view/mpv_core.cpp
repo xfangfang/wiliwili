@@ -70,8 +70,8 @@ void MPVCore::on_wakeup(void *self) {
 MPVCore::MPVCore() {
     this->init();
     // Destroy mpv when application exit
-    brls::Application::getExitDoneEvent()->subscribe([]() {
-        MPVCore::instance().clean();
+    brls::Application::getExitDoneEvent()->subscribe([this]() {
+        this->clean();
 #ifdef MPV_SW_RENDER
         if (pixels) {
             free(pixels);
