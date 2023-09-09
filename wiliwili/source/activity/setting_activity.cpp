@@ -207,7 +207,16 @@ void SettingActivity::onContentAvailable() {
         APPVersion::instance().checkUpdate(0, true);
         return true;
     });
-    labelAboutVersion->setText(version);
+
+    labelAboutVersion->setText(version
+#ifdef __SWITCH__
+#ifdef BOREALIS_USE_DEKO3D
+                               + " (deko3d)"
+#else
+                               + " (OpenGL)"
+#endif
+#endif
+    );
     labelOpensource->setText(OPENSOURCE);
 
     /// Quit APP
