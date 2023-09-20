@@ -15,6 +15,7 @@
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/clipboard_helper.hpp"
 #include "presenter/comment_related.hpp"
 
 class DataSourceCommentList : public RecyclingGridDataSource,
@@ -382,11 +383,11 @@ void BasePlayerActivity::showShareDialog(const std::string& link) {
     hint->setText("wiliwili/player/qr"_i18n);
     hint->setMargins(0, 10, 10, 10);
     container->addView(hint);
-    auto addr = new brls::Label()
-    addr->setText(&link)
-    container->addView(addr)
     auto dialog = new brls::Dialog(container);
     dialog->addButton("hints/ok"_i18n, []() {});
+    dialog->addButton("分享", [link](){
+        wiliwili::toClipboard(link);
+    });
     dialog->open();
 }
 
