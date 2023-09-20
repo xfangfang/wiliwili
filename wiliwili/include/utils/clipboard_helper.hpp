@@ -9,6 +9,7 @@
 namespace wiliwili{
 
     void toClipboard(const std::string& link) {
+        #ifdef _WIN32
         auto hwnd = GetDesktopWindow();
         auto len = link.c_str();
         auto size = link.size();
@@ -24,7 +25,7 @@ namespace wiliwili{
         SetClipboardData(CF_TEXT, hg);
         CloseClipboard();
         GlobalFree(hg);
-
+        #endif
     }
 
 }
