@@ -3,6 +3,8 @@
 //
 
 #include <utility>
+#include <array>
+
 
 #include "activity/player_activity.hpp"
 #include "fragment/player_collection.hpp"
@@ -371,18 +373,49 @@ void BasePlayerActivity::setCommonData() {
 }
 
 void BasePlayerActivity::showShareDialog(const std::string& link) {
-    auto container = new brls::Box(brls::Axis::COLUMN);
+    auto container = new brls::Box(brls::Axis::ROW);
     container->setJustifyContent(brls::JustifyContent::CENTER);
     container->setAlignItems(brls::AlignItems::CENTER);
+    container->setDirection(brls::Direction::LEFT_TO_RIGHT);
+    auto left = new brls::Box(brls::Axis::COLUMN);
+    left->setJustifyContent(brls::JustifyContent::CENTER);
+    left->setAlignItems(brls::AlignItems::CENTER);
+    container->addView(left);
+    auto right = new brls::Box(brls::Axis::COLUMN);
+    right->setJustifyContent(brls::JustifyContent::FLEX_START);
+    right->setAlignItems(brls::AlignItems::FLEX_START);
+    container->addView(right);
     auto qr = new QRImage();
     qr->setSize(brls::Size(256, 256));
     qr->setImageFromQRContent(link);
     qr->setMargins(20, 10, 10, 10);
-    container->addView(qr);
+    left->addView(qr);
     auto hint = new brls::Label();
     hint->setText("wiliwili/player/qr"_i18n);
     hint->setMargins(0, 10, 10, 10);
-    container->addView(hint);
+    left->addView(hint);
+
+    std::array<brls::Box*, 8> shareButtons = {
+        new brls::Box(brls::Axis::COLUMN),
+        new brls::Box(brls::Axis::COLUMN),
+        new brls::Box(brls::Axis::COLUMN),
+        new brls::Box(brls::Axis::COLUMN),
+        new brls::Box(brls::Axis::COLUMN),
+        new brls::Box(brls::Axis::COLUMN),
+        new brls::Box(brls::Axis::COLUMN),
+        new brls::Box(brls::Axis::COLUMN),
+       
+    };
+    for(auto button: shareButtons) {
+        auto image = new brls::Image();
+        image->setImageFromFile("resources/img/sys/battery_back_dark.png");
+        button->setJustifyContent(brls::JustifyContent::CENTER);
+        button->setAlignItems(brls::AlignItems::CENTER);
+        button->setDirection(brls::Direction::LEFT_TO_RIGHT);
+        button->addView(image);
+        right->addView(button);
+    }
+
     auto dialog = new brls::Dialog(container);
     dialog->addButton("hints/ok"_i18n, []() {});
     dialog->addButton("分享", [link](){
