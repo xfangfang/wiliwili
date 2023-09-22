@@ -4,7 +4,7 @@
 
 #include <utility>
 #include <array>
-
+#include <map>
 
 #include "activity/player_activity.hpp"
 #include "fragment/player_collection.hpp"
@@ -208,7 +208,7 @@ public:
 
     size_t getItemCount() override {
         return (std::min)(data.accept_quality.size(),
-                        data.accept_description.size());
+                          data.accept_description.size());
     }
 
     void clearData() override {}
@@ -373,54 +373,66 @@ void BasePlayerActivity::setCommonData() {
 }
 
 void BasePlayerActivity::showShareDialog(const std::string& link) {
-    auto container = new brls::Box(brls::Axis::ROW);
+    auto container = new brls::Box(brls::Axis::COLUMN);
     container->setJustifyContent(brls::JustifyContent::CENTER);
     container->setAlignItems(brls::AlignItems::CENTER);
     container->setDirection(brls::Direction::LEFT_TO_RIGHT);
-    auto left = new brls::Box(brls::Axis::COLUMN);
-    left->setJustifyContent(brls::JustifyContent::CENTER);
-    left->setAlignItems(brls::AlignItems::CENTER);
-    container->addView(left);
-    auto right = new brls::Box(brls::Axis::COLUMN);
-    right->setJustifyContent(brls::JustifyContent::FLEX_START);
-    right->setAlignItems(brls::AlignItems::FLEX_START);
-    container->addView(right);
+    auto top = new brls::Box(brls::Axis::COLUMN);
+    top->setJustifyContent(brls::JustifyContent::CENTER);
+    top->setAlignItems(brls::AlignItems::CENTER);
+    container->addView(top);
+    auto bottom = new brls::Box(brls::Axis::ROW);
+    bottom->setJustifyContent(brls::JustifyContent::FLEX_START);
+    bottom->setAlignItems(brls::AlignItems::FLEX_START);
+
     auto qr = new QRImage();
     qr->setSize(brls::Size(256, 256));
     qr->setImageFromQRContent(link);
     qr->setMargins(20, 10, 10, 10);
-    left->addView(qr);
+    top->addView(qr);
     auto hint = new brls::Label();
     hint->setText("wiliwili/player/qr"_i18n);
     hint->setMargins(0, 10, 10, 10);
-    left->addView(hint);
+    top->addView(hint);
+    container->addView(bottom);
 
-    std::array<brls::Box*, 8> shareButtons = {
-        new brls::Box(brls::Axis::COLUMN),
-        new brls::Box(brls::Axis::COLUMN),
-        new brls::Box(brls::Axis::COLUMN),
-        new brls::Box(brls::Axis::COLUMN),
-        new brls::Box(brls::Axis::COLUMN),
-        new brls::Box(brls::Axis::COLUMN),
-        new brls::Box(brls::Axis::COLUMN),
-        new brls::Box(brls::Axis::COLUMN),
-       
-    };
-    for(auto button: shareButtons) {
-        auto image = new brls::Image();
-        image->setImageFromFile("resources/img/sys/battery_back_dark.png");
-        button->setJustifyContent(brls::JustifyContent::CENTER);
-        button->setAlignItems(brls::AlignItems::CENTER);
-        button->setDirection(brls::Direction::LEFT_TO_RIGHT);
-        button->addView(image);
-        right->addView(button);
-    }
+    // std::unordered_map<std::string, brls::BoundView<SVGImage>*> shareButtons;
+
+    // BRLS_BIND(SVGImage, share_qq, "share/qq");
+    // BRLS_BIND(SVGImage, share_qzone, "share/qzone");
+    // BRLS_BIND(SVGImage, share_wechat, "share/wechat");
+    // BRLS_BIND(SVGImage, share_dynamic, "share/dynamic");
+    // BRLS_BIND(SVGImage, share_tieba, "share/tieba");
+    // BRLS_BIND(SVGImage, share_weibo, "share/weibo");
+    // shareButtons["qq"]  = &share_qq;
+    // shareButtons["qzone"]  = &share_qzone;
+    // shareButtons["wechat"]  = &share_wechat;
+    // shareButtons["dynamic"] = &share_dynamic;
+    // shareButtons["tieba"]   = &share_tieba;
+    // shareButtons["weibo"]   = &share_weibo;
+    auto share_qq = new SVGImage();
+    share_qq->setImageFromSVGFile("resources/svg/share/qq.svg");
+    auto share_qzone = new SVGImage();
+    share_qzone->setImageFromSVGFile("resources/svg/share/qzone.svg");
+    auto share_wechat = new SVGImage();
+    share_wechat->setImageFromSVGFile("resources/svg/share/wechat.svg");
+    auto share_dynamic = new SVGImage();
+    share_dynamic->setImageFromSVGFile("resources/svg/share/dynamic.svg");
+    auto share_tieba = new SVGImage();
+    share_tieba->setImageFromSVGFile("resources/svg/share/tieba.svg");
+    auto share_weibo = new SVGImage();
+    share_weibo->setImageFromSVGFile("resources/svg/share/weibo.svg");
+
+    bottom->addView(share_qq);
+    bottom->addView(share_qzone);
+    bottom->addView(share_wechat);
+    bottom->addView(share_dynamic);
+    bottom->addView(share_tieba);
+    bottom->addView(share_weibo);
 
     auto dialog = new brls::Dialog(container);
     dialog->addButton("hints/ok"_i18n, []() {});
-    dialog->addButton("分享", [link](){
-        wiliwili::toClipboard(link);
-    });
+    dialog->addButton("分享", [link]() { wiliwili::toClipboard(link); });
     dialog->open();
 }
 
