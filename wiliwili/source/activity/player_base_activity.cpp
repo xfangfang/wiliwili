@@ -432,7 +432,7 @@ void BasePlayerActivity::showShareDialog(const std::string& link) {
 
     auto dialog = new brls::Dialog(container);
     dialog->addButton("hints/ok"_i18n, []() {});
-    dialog->addButton("分享", [link]() { wiliwili::toClipboard(link); });
+    dialog->addButton("复制链接", [link]() { wiliwili::toClipboard(link); });
     dialog->open();
 }
 
