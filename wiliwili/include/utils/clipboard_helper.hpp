@@ -9,7 +9,7 @@
 
 
 
-namespace wiliwili{
+namespace brls{
 
     enum shareTarget{
         clipboard,

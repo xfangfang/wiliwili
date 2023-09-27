@@ -427,7 +427,7 @@ void BasePlayerActivity::showShareDialog(const std::string& link) {
     share_qq->addView(share_qq_img);
     share_qq_img->setImageFromSVGFile("resources/svg/share/qq.svg");
     share_qq->registerClickAction([this, link](...) -> bool {
-        wiliwili::toClipboard(link, wiliwili::shareTarget::clipboard);
+        brls::toClipboard(link, brls::shareTarget::clipboard);
         return true;
     });
 
@@ -436,7 +436,7 @@ void BasePlayerActivity::showShareDialog(const std::string& link) {
     share_qzone->addView(share_qzone_img);
     share_qzone_img->setImageFromSVGFile("resources/svg/share/qzone.svg");
     share_qzone->registerClickAction([this, link](...) -> bool {
-        wiliwili::toClipboard(link, wiliwili::shareTarget::qzone);
+        brls::toClipboard(link, brls::shareTarget::qzone);
         return true;
     });
 
@@ -445,7 +445,7 @@ void BasePlayerActivity::showShareDialog(const std::string& link) {
     share_wechat->addView(share_wechat_img);
     share_wechat_img->setImageFromSVGFile("resources/svg/share/wechat.svg");
     share_wechat->registerClickAction([this, link](...) -> bool {
-        wiliwili::toClipboard(link, wiliwili::shareTarget::wechat);
+        brls::toClipboard(link, brls::shareTarget::wechat);
         return true;
     });
 
@@ -454,7 +454,7 @@ void BasePlayerActivity::showShareDialog(const std::string& link) {
     share_dynamic->addView(share_dynamic_img);
     share_dynamic_img->setImageFromSVGFile("resources/svg/share/dynamic.svg");
     share_dynamic->registerClickAction([this, link](...) -> bool {
-        wiliwili::toClipboard(link, wiliwili::shareTarget::dynamic);
+        brls::toClipboard(link, brls::shareTarget::dynamic);
         return true;
     });
 
@@ -463,7 +463,7 @@ void BasePlayerActivity::showShareDialog(const std::string& link) {
     share_tieba->addView(share_tieba_img);
     share_tieba_img->setImageFromSVGFile("resources/svg/share/tieba.svg");
     share_tieba->registerClickAction([this, link](...) -> bool {
-        wiliwili::toClipboard(link, wiliwili::shareTarget::tieba);
+        brls::toClipboard(link, brls::shareTarget::tieba);
         return true;
     });
 
@@ -472,7 +472,7 @@ void BasePlayerActivity::showShareDialog(const std::string& link) {
     share_weibo->addView(share_weibo_img);
     share_weibo_img->setImageFromSVGFile("resources/svg/share/weibo.svg");
     share_weibo->registerClickAction([this, link](...) -> bool {
-        wiliwili::toClipboard(link, wiliwili::shareTarget::weibo);
+        brls::toClipboard(link, brls::shareTarget::weibo);
         return true;
     });
 
@@ -486,7 +486,7 @@ void BasePlayerActivity::showShareDialog(const std::string& link) {
     auto dialog = new brls::Dialog(container);
     dialog->addButton("hints/ok"_i18n, []() {});
     dialog->addButton("复制链接", [link]() {
-        wiliwili::toClipboard(link, wiliwili::shareTarget::clipboard);
+        brls::toClipboard(link, brls::shareTarget::clipboard);
     });
     dialog->open();
 }
