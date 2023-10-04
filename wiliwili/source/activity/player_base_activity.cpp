@@ -5,6 +5,7 @@
 #include <utility>
 #include <array>
 #include <map>
+#include <string>
 
 #include "activity/player_activity.hpp"
 #include "fragment/player_collection.hpp"
@@ -372,6 +373,21 @@ void BasePlayerActivity::setCommonData() {
         video->hideStatusLabel();
 }
 
+brls::Box* share_box(const std::string link, const brls::shareTarget target, const std::string img){
+    auto shareImg = new SVGImage();
+    auto shareWrapper     = new brls::Box();
+    shareWrapper->addView(shareImg);
+    shareImg->setImageFromSVGFile(img);
+    shareWrapper->addGestureRecognizer(
+        new brls::TapGestureRecognizer([link, target](...) -> void {
+            brls::toClipboard(link, target);
+        })
+    );
+    shareWrapper->setMargins(20, 10, 10, 10);
+    return shareWrapper;
+};
+
+
 void BasePlayerActivity::showShareDialog(const std::string& link) {
     auto container = new brls::Box(brls::Axis::ROW);
     container->setJustifyContent(brls::JustifyContent::CENTER);
@@ -405,76 +421,12 @@ void BasePlayerActivity::showShareDialog(const std::string& link) {
     top->addView(hint);
     container->addView(share_buttons);
 
-    // std::unordered_map<std::string, brls::BoundView<SVGImage>*> shareButtons;
-
-    // BRLS_BIND(SVGImage, share_qq, "share/qq");
-    // BRLS_BIND(SVGImage, share_qzone, "share/qzone");
-    // BRLS_BIND(SVGImage, share_wechat, "share/wechat");
-    // BRLS_BIND(SVGImage, share_dynamic, "share/dynamic");
-    // BRLS_BIND(SVGImage, share_tieba, "share/tieba");
-    // BRLS_BIND(SVGImage, share_weibo, "share/weibo");
-    // shareButtons["qq"]  = &share_qq;
-    // shareButtons["qzone"]  = &share_qzone;
-    // shareButtons["wechat"]  = &share_wechat;
-    // shareButtons["dynamic"] = &share_dynamic;
-    // shareButtons["tieba"]   = &share_tieba;
-    // shareButtons["weibo"]   = &share_weibo;
-
-    auto share_qq = new brls::Button();
-    share_qq->setId("share/qq");
-    auto share_qq_img = new SVGImage();
-    share_qq_img->setParent(share_qq);
-    share_qq->addView(share_qq_img);
-    share_qq_img->setImageFromSVGFile("resources/svg/share/qq.svg");
-    share_qq->registerClickAction([this, link](...) -> bool {
-        brls::toClipboard(link, brls::shareTarget::clipboard);
-        return true;
-    });
-
-    auto share_qzone     = new brls::Button();
-    auto share_qzone_img = new SVGImage();
-    share_qzone->addView(share_qzone_img);
-    share_qzone_img->setImageFromSVGFile("resources/svg/share/qzone.svg");
-    share_qzone->registerClickAction([this, link](...) -> bool {
-        brls::toClipboard(link, brls::shareTarget::qzone);
-        return true;
-    });
-
-    auto share_wechat     = new brls::Button();
-    auto share_wechat_img = new SVGImage();
-    share_wechat->addView(share_wechat_img);
-    share_wechat_img->setImageFromSVGFile("resources/svg/share/wechat.svg");
-    share_wechat->registerClickAction([this, link](...) -> bool {
-        brls::toClipboard(link, brls::shareTarget::wechat);
-        return true;
-    });
-
-    auto share_dynamic     = new brls::Button();
-    auto share_dynamic_img = new SVGImage();
-    share_dynamic->addView(share_dynamic_img);
-    share_dynamic_img->setImageFromSVGFile("resources/svg/share/dynamic.svg");
-    share_dynamic->registerClickAction([this, link](...) -> bool {
-        brls::toClipboard(link, brls::shareTarget::dynamic);
-        return true;
-    });
-
-    auto share_tieba     = new brls::Button();
-    auto share_tieba_img = new SVGImage();
-    share_tieba->addView(share_tieba_img);
-    share_tieba_img->setImageFromSVGFile("resources/svg/share/tieba.svg");
-    share_tieba->registerClickAction([this, link](...) -> bool {
-        brls::toClipboard(link, brls::shareTarget::tieba);
-        return true;
-    });
-
-    auto share_weibo     = new brls::Button();
-    auto share_weibo_img = new SVGImage();
-    share_weibo->addView(share_weibo_img);
-    share_weibo_img->setImageFromSVGFile("resources/svg/share/weibo.svg");
-    share_weibo->registerClickAction([this, link](...) -> bool {
-        brls::toClipboard(link, brls::shareTarget::weibo);
-        return true;
-    });
+    auto share_qq = share_box(link, brls::shareTarget::qq, "resources/svg/share/qq.svg");
+    auto share_wechat = share_box(link, brls::shareTarget::wechat, "resources/svg/share/wechat.svg");
+    auto share_qzone = share_box(link, brls::shareTarget::qzone, "resources/svg/share/qzone.svg");
+    auto share_dynamic = share_box(link, brls::shareTarget::dynamic, "resources/svg/share/dynamic.svg");
+    auto share_tieba = share_box(link, brls::shareTarget::tieba, "resources/svg/share/tieba.svg");
+    auto share_weibo = share_box(link, brls::shareTarget::clipboard, "resources/svg/share/weibo.svg");
 
     top_buttons->addView(share_qq);
     top_buttons->addView(share_qzone);
