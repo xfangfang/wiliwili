@@ -4,9 +4,10 @@
 #ifdef _WIN32
 #include <Windows.h>
 #include <winuser.h>
+#include <shellapi.h>
 #endif
 
-
+void openBrowser(const std::string&);
 
 
 namespace brls{
@@ -21,7 +22,10 @@ namespace brls{
         weibo,
     };
 
+
+
     void toClipboard(const std::string& link, const shareTarget target) {
+        auto share_address = &link;
         switch(target){
             
             case clipboard:
@@ -43,7 +47,7 @@ namespace brls{
                 CloseClipboard();
                 GlobalFree(hg);
                 #endif
-                break;
+                return;
             }
 
             case dynamic:
@@ -54,7 +58,7 @@ namespace brls{
 
             case qq:
             {
-                return;
+                ;
                 break;
             }
 
@@ -81,10 +85,16 @@ namespace brls{
                 return;
                 break;
             }
-
         }
+        openBrowser(*share_address);
+        
     }
-        
-        
+    
 
+}
+
+void openBrowser(const std::string& link){
+    #ifdef _WIN32
+        ShellExecute(0, 0, link.c_str(), 0, 0 , SW_SHOW );
+    #endif
 }
