@@ -201,8 +201,7 @@ void PlayerActivity::onContentAvailable() {
 
     // 二维码按钮
     this->btnQR->getParent()->registerClickAction([this](...) {
-        this->showShareDialog("https://www.bilibili.com/video/" +
-                              this->videoDetailResult.bvid);
+        this->showShareDialog(videoDetailResult);
         return true;
     });
 

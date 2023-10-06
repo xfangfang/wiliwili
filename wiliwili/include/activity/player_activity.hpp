@@ -45,7 +45,9 @@ public:
     void setRelationButton(bool liked, bool coin, bool favorite);
 
     // 展示二维码共享对话框
-    void showShareDialog(const std::string& link);
+    // void showShareDialog(const std::string& link);
+
+    void showShareDialog(const bilibili::VideoDetailResult &videoDetail);
 
     // 展示收藏列表对话框
     void showCollectionDialog(int64_t id, int videoType);

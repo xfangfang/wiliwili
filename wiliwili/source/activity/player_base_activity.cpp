@@ -21,6 +21,7 @@
 #include "utils/clipboard_helper.hpp"
 #include "presenter/comment_related.hpp"
 
+
 class DataSourceCommentList : public RecyclingGridDataSource,
                               public CommentRequest {
 public:
@@ -388,7 +389,8 @@ brls::Box* share_box(const std::string link, const brls::shareTarget target, con
 };
 
 
-void BasePlayerActivity::showShareDialog(const std::string& link) {
+void BasePlayerActivity::showShareDialog(const bilibili::VideoDetailResult &videoDetail) {
+    auto link = "https://www.bilibili.com/video/" + videoDetail.bvid;
     auto container = new brls::Box(brls::Axis::ROW);
     container->setJustifyContent(brls::JustifyContent::CENTER);
     container->setAlignItems(brls::AlignItems::CENTER);

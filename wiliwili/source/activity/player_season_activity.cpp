@@ -110,7 +110,7 @@ void PlayerSeasonActivity::onContentAvailable() {
 
     // 二维码按钮
     this->btnQR->getParent()->registerClickAction([this](...) {
-        this->showShareDialog(this->episodeResult.link);
+        // this->showShareDialog(this->episodeResult.link);
         return true;
     });
 
