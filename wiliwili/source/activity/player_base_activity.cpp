@@ -21,7 +21,6 @@
 #include "utils/clipboard_helper.hpp"
 #include "presenter/comment_related.hpp"
 
-
 class DataSourceCommentList : public RecyclingGridDataSource,
                               public CommentRequest {
 public:
@@ -374,23 +373,28 @@ void BasePlayerActivity::setCommonData() {
         video->hideStatusLabel();
 }
 
-brls::Box* share_box(const std::string link, const brls::shareTarget target, const std::string img){
-    auto shareImg = new SVGImage();
-    auto shareWrapper     = new brls::Box();
+brls::Box* share_box(const std::string link, const brls::shareTarget target,
+                     const std::string img,
+                     const bilibili::VideoDetailResult& videoDetail) {
+    auto shareImg     = new SVGImage();
+    auto shareWrapper = new brls::Box();
     shareWrapper->addView(shareImg);
     shareImg->setImageFromSVGFile(img);
     shareWrapper->addGestureRecognizer(
-        new brls::TapGestureRecognizer([link, target](...) -> void {
-            brls::toClipboard(link, target);
-        })
-    );
+        new brls::TapGestureRecognizer(
+            [link, target, videoDetail](brls::TapGestureStatus status,
+                                        ...) -> void {
+                if (status.state == brls::GestureState::END) {
+                    brls::toClipboard(link, target, videoDetail);
+                }
+            }));
     shareWrapper->setMargins(20, 10, 10, 10);
     return shareWrapper;
 };
 
-
-void BasePlayerActivity::showShareDialog(const bilibili::VideoDetailResult &videoDetail) {
-    auto link = "https://www.bilibili.com/video/" + videoDetail.bvid;
+void BasePlayerActivity::showShareDialog(
+    const bilibili::VideoDetailResult& videoDetail) {
+    auto link      = "https://www.bilibili.com/video/" + videoDetail.bvid;
     auto container = new brls::Box(brls::Axis::ROW);
     container->setJustifyContent(brls::JustifyContent::CENTER);
     container->setAlignItems(brls::AlignItems::CENTER);
@@ -423,12 +427,20 @@ void BasePlayerActivity::showShareDialog(const bilibili::VideoDetailResult &vide
     top->addView(hint);
     container->addView(share_buttons);
 
-    auto share_qq = share_box(link, brls::shareTarget::qq, "resources/svg/share/qq.svg");
-    auto share_wechat = share_box(link, brls::shareTarget::wechat, "resources/svg/share/wechat.svg");
-    auto share_qzone = share_box(link, brls::shareTarget::qzone, "resources/svg/share/qzone.svg");
-    auto share_dynamic = share_box(link, brls::shareTarget::dynamic, "resources/svg/share/dynamic.svg");
-    auto share_tieba = share_box(link, brls::shareTarget::tieba, "resources/svg/share/tieba.svg");
-    auto share_weibo = share_box(link, brls::shareTarget::clipboard, "resources/svg/share/weibo.svg");
+    auto share_qq = share_box(link, brls::shareTarget::qq,
+                              "resources/svg/share/qq.svg", videoDetail);
+    auto share_wechat =
+        share_box(link, brls::shareTarget::wechat,
+                  "resources/svg/share/wechat.svg", videoDetail);
+    auto share_qzone = share_box(link, brls::shareTarget::qzone,
+                                 "resources/svg/share/qzone.svg", videoDetail);
+    auto share_dynamic =
+        share_box(link, brls::shareTarget::dynamic,
+                  "resources/svg/share/dynamic.svg", videoDetail);
+    auto share_tieba = share_box(link, brls::shareTarget::tieba,
+                                 "resources/svg/share/tieba.svg", videoDetail);
+    auto share_weibo = share_box(link, brls::shareTarget::clipboard,
+                                 "resources/svg/share/weibo.svg", videoDetail);
 
     top_buttons->addView(share_qq);
     top_buttons->addView(share_qzone);
@@ -439,8 +451,8 @@ void BasePlayerActivity::showShareDialog(const bilibili::VideoDetailResult &vide
 
     auto dialog = new brls::Dialog(container);
     dialog->addButton("hints/ok"_i18n, []() {});
-    dialog->addButton("复制链接", [link]() {
-        brls::toClipboard(link, brls::shareTarget::clipboard);
+    dialog->addButton("复制链接", [link, videoDetail]() {
+        brls::toClipboard(link, brls::shareTarget::clipboard, videoDetail);
     });
     dialog->open();
 }
