@@ -5,7 +5,7 @@
 pkgbasename=libmpv
 pkgname=switch-${pkgbasename}
 pkgver=0.35.1
-pkgrel=2
+pkgrel=3
 pkgdesc='Command line video player (library only)'
 arch=('any')
 url='https://mpv.io/'

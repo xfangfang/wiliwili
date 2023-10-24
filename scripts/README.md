@@ -16,8 +16,8 @@ PATH="`brew --prefix coreutils`/libexec/gnubin:$PATH"
 sudo dkp-pacman -S switch-pkg-config dkp-toolchain-vars switch-zlib \
     switch-bzip2 switch-libass switch-libfribidi switch-freetype \
     switch-harfbuzz switch-mesa switch-mbedtls
-    
-libs=(libass ffmpeg mpv)
+
+libs=(libuam deko3d dav1d libass ffmpeg mpv)
 for lib in ${libs[@]}; do
     pushd switch/$lib
     dkp-makepkg -i
@@ -31,8 +31,8 @@ done
 base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 sudo dkp-pacman -U \
     $base_url/switch-libass-0.17.1-1-any.pkg.tar.zst \
-    $base_url/switch-ffmpeg-6.0-3-any.pkg.tar.zst \
-    $base_url/switch-libmpv-0.35.1-2-any.pkg.tar.zst
+    $base_url/switch-ffmpeg-6.0-4-any.pkg.tar.zst \
+    $base_url/switch-libmpv-0.35.1-3-any.pkg.tar.zst
 ```
 
 # Acknowledgement

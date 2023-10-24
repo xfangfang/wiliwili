@@ -6,7 +6,7 @@
 
 pkgname=switch-ffmpeg
 pkgver=6.0
-pkgrel=3
+pkgrel=4
 pkgdesc='ffmpeg port (for Nintendo Switch homebrew development)'
 arch=('any')
 url='https://ffmpeg.org/'
