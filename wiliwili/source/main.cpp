@@ -15,7 +15,6 @@
 #include <borealis.hpp>
 
 #include "utils/config_helper.hpp"
-#include "utils/thread_helper.hpp"
 #include "utils/activity_helper.hpp"
 
 #ifdef IOS
@@ -23,11 +22,6 @@
 #endif
 
 int main(int argc, char* argv[]) {
-    // Set min_threads and max_threads of http thread pool
-    curl_global_init(CURL_GLOBAL_DEFAULT);
-    cpr::async::startup(THREAD_POOL_MIN_THREAD_NUM, THREAD_POOL_MAX_THREAD_NUM,
-                        std::chrono::milliseconds(5000));
-
     // Set log level
     brls::Logger::setLogLevel(brls::LogLevel::LOG_INFO);
 
@@ -63,6 +57,7 @@ int main(int argc, char* argv[]) {
         //        Intent::openBV("BV18W4y1q72C");  // wiliwili介绍
         //        Intent::openBV("BV1dx411c7Av");  // flv拼接视频
         //        Intent::openBV("BV15z4y1Z734");  // 4K HDR 视频
+        //        Intent::openBV("BV1qM4y1w716");  // 8K
         //        Intent::openBV("BV1PN4y1G7u2");  // up主视频自动跳转番剧
         //        Intent::openBV("BV1sK411s7zq");  // 多P视频测试
         //        Intent::openBV("BV1Cg411j76F");  // 多字幕测试
@@ -91,11 +86,9 @@ int main(int argc, char* argv[]) {
     }
 
     brls::Logger::info("mainLoop done");
-    cpr::async::cleanup();
-    curl_global_cleanup();
 
-    // Check whether restart is required
-    ProgramConfig::instance().checkRestart(argv);
+    // Cleanup curl and Check whether restart is required
+    ProgramConfig::instance().exit(argv);
 
     // Exit
     return EXIT_SUCCESS;

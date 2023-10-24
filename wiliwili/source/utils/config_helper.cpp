@@ -14,6 +14,7 @@
 #include "bilibili.h"
 #include "borealis/core/cache_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/thread_helper.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/vibration_helper.hpp"
@@ -679,6 +680,11 @@ void ProgramConfig::save() {
 void ProgramConfig::init() {
     brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
 
+    // Set min_threads and max_threads of http thread pool
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    cpr::async::startup(THREAD_POOL_MIN_THREAD_NUM, THREAD_POOL_MAX_THREAD_NUM,
+                        std::chrono::milliseconds(5000));
+
 #if defined(_MSC_VER)
 #elif defined(__PSV__)
 #else
@@ -801,7 +807,10 @@ std::string ProgramConfig::getConfigDir() {
 #endif /* __SWITCH__ */
 }
 
-void ProgramConfig::checkRestart(char* argv[]) {
+void ProgramConfig::exit(char* argv[]) {
+    cpr::async::cleanup();
+    curl_global_cleanup();
+
 #ifdef IOS
 #elif __PSV__
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
