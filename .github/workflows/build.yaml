@@ -123,10 +123,6 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Update gamepad db
-        run: |
-          cmake -P library/borealis/library/lib/extern/glfw//CMake/GenerateMappings.cmake library/borealis/library/lib/extern/glfw//src/mappings.h.in library/borealis/library/lib/extern/glfw//src/mappings.h
-
       - name: Install dependency
         uses: msys2/setup-msys2@v2
         with:
@@ -139,6 +135,11 @@ jobs:
             mingw-w64-x86_64-libwebp
             git
             p7zip
+
+      - name: Update gamepad db
+        shell: msys2 {0}
+        run: |
+          cmake -P library/borealis/library/lib/extern/glfw//CMake/GenerateMappings.cmake library/borealis/library/lib/extern/glfw//src/mappings.h.in library/borealis/library/lib/extern/glfw//src/mappings.h
 
       - name: Build
         shell: msys2 {0}
