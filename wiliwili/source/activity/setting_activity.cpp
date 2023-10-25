@@ -207,7 +207,16 @@ void SettingActivity::onContentAvailable() {
         APPVersion::instance().checkUpdate(0, true);
         return true;
     });
-    labelAboutVersion->setText(version);
+
+    labelAboutVersion->setText(version
+#ifdef __SWITCH__
+#ifdef BOREALIS_USE_DEKO3D
+                               + " (deko3d)"
+#else
+                               + " (OpenGL)"
+#endif
+#endif
+    );
     labelOpensource->setText(OPENSOURCE);
 
     /// Quit APP
@@ -566,9 +575,6 @@ void SettingActivity::onContentAvailable() {
         });
 
 /// Hardware decode
-#ifdef __SWITCH__
-    btnHWDEC->setVisibility(brls::Visibility::GONE);
-#else
     btnHWDEC->init("wiliwili/setting/app/playback/hwdec"_i18n,
                    conf.getBoolOption(SettingItem::PLAYER_HWDEC),
                    [](bool value) {
@@ -578,7 +584,6 @@ void SettingActivity::onContentAvailable() {
                        MPVCore::HARDWARE_DEC = value;
                        MPVCore::instance().restart();
                    });
-#endif
 
     /// Decode quality
     btnQuality->init("wiliwili/setting/app/playback/low_quality"_i18n,

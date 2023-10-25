@@ -123,10 +123,6 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Update gamepad db
-        run: |
-          cmake -P library/borealis/library/lib/extern/glfw//CMake/GenerateMappings.cmake library/borealis/library/lib/extern/glfw//src/mappings.h.in library/borealis/library/lib/extern/glfw//src/mappings.h
-
       - name: Install dependency
         uses: msys2/setup-msys2@v2
         with:
@@ -139,6 +135,11 @@ jobs:
             mingw-w64-x86_64-libwebp
             git
             p7zip
+
+      - name: Update gamepad db
+        shell: msys2 {0}
+        run: |
+          cmake -P library/borealis/library/lib/extern/glfw//CMake/GenerateMappings.cmake library/borealis/library/lib/extern/glfw//src/mappings.h.in library/borealis/library/lib/extern/glfw//src/mappings.h
 
       - name: Build
         shell: msys2 {0}
@@ -207,6 +208,10 @@ jobs:
   build-switch:
     needs: [ version ]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        driver: [opengl, deko3d]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -214,15 +219,28 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Build
-        id: compile
+      - name: Build OpenGL
+        if: matrix.driver == 'opengl'
         run: |
-          docker run --rm -v $(pwd):/data devkitpro/devkita64:20230622 bash -c "/data/scripts/build_switch.sh"
+          docker run --rm -v $(pwd):/data devkitpro/devkita64:20230910 bash -c "/data/scripts/build_switch.sh"
 
-      - name: Upload dist
+      - name: Upload dist OpenGL
         uses: actions/upload-artifact@v3
+        if: matrix.driver == 'opengl'
         with:
           name: ${{ needs.version.outputs.DIST_NRO }}
+          path: "cmake-build-switch/wiliwili.nro"
+
+      - name: Build Deko3d
+        if: matrix.driver == 'deko3d'
+        run: |
+          docker run --rm -v $(pwd):/data devkitpro/devkita64:20230910 bash -c "/data/scripts/build_switch_deko3d.sh"
+
+      - name: Upload dist Deko3d
+        uses: actions/upload-artifact@v3
+        if: matrix.driver == 'deko3d'
+        with:
+          name: ${{ needs.version.outputs.DIST_NRO }}_deko3d
           path: "cmake-build-switch/wiliwili.nro"
 
   build-macos:

@@ -14,6 +14,7 @@
 #include "bilibili.h"
 #include "borealis/core/cache_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/thread_helper.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/vibration_helper.hpp"
@@ -86,12 +87,12 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
-#if defined(__SWITCH__) || defined(__PSV__)
+#if defined(__PSV__)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
 #endif
-#ifdef IOS
+#if defined(IOS) || defined(__PSV__) || defined(__SWITCH__)
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 1}},
 #else
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
@@ -492,7 +493,7 @@ void ProgramConfig::load() {
     // 初始化是否固定显示底部进度条
     VideoView::BOTTOM_BAR = getBoolOption(SettingItem::PLAYER_BOTTOM_BAR);
 
-    // 初始化是否使用硬件加速 （仅限非switch设备）
+    // 初始化是否使用硬件加速
     MPVCore::HARDWARE_DEC = getBoolOption(SettingItem::PLAYER_HWDEC);
 
     // 初始化自定义的硬件加速方案
@@ -679,6 +680,11 @@ void ProgramConfig::save() {
 void ProgramConfig::init() {
     brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
 
+    // Set min_threads and max_threads of http thread pool
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    cpr::async::startup(THREAD_POOL_MIN_THREAD_NUM, THREAD_POOL_MAX_THREAD_NUM,
+                        std::chrono::milliseconds(5000));
+
 #if defined(_MSC_VER)
 #elif defined(__PSV__)
 #else
@@ -801,7 +807,10 @@ std::string ProgramConfig::getConfigDir() {
 #endif /* __SWITCH__ */
 }
 
-void ProgramConfig::checkRestart(char* argv[]) {
+void ProgramConfig::exit(char* argv[]) {
+    cpr::async::cleanup();
+    curl_global_cleanup();
+
 #ifdef IOS
 #elif __PSV__
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)

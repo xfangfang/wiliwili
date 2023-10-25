@@ -1,0 +1,28 @@
+pkgname=('libuam')
+pkgver=f8c9eef01ffe06334d530393d636d69e2b52744b
+pkgrel=1
+pkgdesc="Shader compiler for Nintendo Switch (Nvidia Tegra X1)"
+arch=('any')
+license=('custom')
+url="http://github.com/averne/${pkgname}"
+options=(!strip libtool staticlibs)
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/${pkgver}.tar.gz" "crossfile.txt")
+sha256sums=('SKIP' 'SKIP')
+makedepends=('devkitA64' 'dkp-toolchain-vars')
+
+depends=('libnx')
+
+groups=('switch-dev')
+
+build() {
+  cd $pkgname-$pkgver
+  source /opt/devkitpro/switchvars.sh
+
+  meson setup build --cross-file $srcdir/crossfile.txt --prefix="${PORTLIBS_PREFIX}"
+  meson compile -C build
+}
+
+package() {
+  cd $pkgname-$pkgver
+  DESTDIR=$pkgdir meson install -C build
+}

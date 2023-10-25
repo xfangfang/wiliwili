@@ -1,11 +1,12 @@
 # Maintainer: Dave Murphy <davem@devkitpro.org>
+# Contributor: averne <averne381@gmail.com>
 # Contributor: Ezekiel Bethel <stary@9net.org>
 # Contributor: carstene1ns <dev f4ke de>
 # Contributor: jakibaki <jakibaki live com>
 
 pkgname=switch-ffmpeg
-pkgver=4.4.4
-pkgrel=1
+pkgver=6.0
+pkgrel=4
 pkgdesc='ffmpeg port (for Nintendo Switch homebrew development)'
 arch=('any')
 url='https://ffmpeg.org/'
@@ -13,7 +14,7 @@ license=('LGPL' 'GPL', 'GPL3')
 options=(!strip staticlibs)
 makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
 depends=('switch-zlib' 'switch-bzip2' 'switch-libass' 'switch-libfribidi'
-         'switch-freetype' 'switch-harfbuzz' 'switch-mbedtls')
+         'switch-freetype' 'switch-harfbuzz' 'switch-mbedtls' 'switch-dav1d')
 source=("https://ffmpeg.org/releases/ffmpeg-$pkgver.tar.xz" "ffmpeg.patch")
 sha256sums=(
  'SKIP'
@@ -31,35 +32,20 @@ build() {
 
   source /opt/devkitpro/switchvars.sh
 
-  ./configure --prefix=$PORTLIBS_PREFIX --disable-shared --enable-static \
-    --cross-prefix=aarch64-none-elf- \
-    --enable-cross-compile \
-    --arch=aarch64 \
-    --target-os=horizon \
-    --enable-pic \
+  ./configure --prefix=$PORTLIBS_PREFIX --enable-gpl --disable-shared --enable-static \
+    --cross-prefix=aarch64-none-elf- --enable-cross-compile \
+    --arch=aarch64 --cpu=cortex-a57 --target-os=horizon --enable-pic \
     --extra-cflags='-D__SWITCH__ -D_GNU_SOURCE -O2 -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec' \
     --extra-cxxflags='-D__SWITCH__ -D_GNU_SOURCE -O2 -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIC -ftls-model=local-exec' \
     --extra-ldflags='-fPIE -L${PORTLIBS_PREFIX}/lib -L${DEVKITPRO}/libnx/lib' \
-    --disable-runtime-cpudetect \
-    --disable-programs \
-    --disable-debug \
-    --disable-doc \
-    --disable-autodetect \
-    --disable-avdevice \
-    --disable-hwaccels \
-    --disable-encoders \
-    --enable-swscale \
-    --enable-swresample \
-    --enable-network \
-    --disable-protocols \
-    --enable-protocol='file,http,tcp,udp,rtmp,hls,https,tls,ftp' \
+    --disable-runtime-cpudetect --disable-programs --disable-debug --disable-doc --disable-autodetect \
     --enable-asm --enable-neon \
-    --enable-zlib --enable-bzlib \
-    --enable-libass --enable-libfreetype \
-    --enable-libfribidi --enable-mbedtls \
-    --enable-version3 --enable-demuxer=hls
-  
-  sed 's/#define HAVE_GETNAMEINFO 1/#define HAVE_GETNAMEINFO 0/g' -i config.h
+    --disable-postproc --disable-avdevice --disable-encoders --disable-muxers \
+    --enable-swscale --enable-swresample --enable-network  \
+    --disable-protocols --enable-protocol=file,http,tcp,udp,rtmp,hls,https,tls,ftp \
+    --enable-zlib --enable-bzlib --enable-libass --enable-libfreetype --enable-libfribidi --enable-libdav1d \
+    --enable-gpl --enable-tx1 \
+    --enable-version3 --enable-mbedtls
 
   make -j$(nproc)
 }

@@ -9,10 +9,23 @@
 #include <map>
 #include <vector>
 #include <nlohmann/json.hpp>
-#include <cpr/cpr.h>
 #include "analytics.h"
 #include "borealis/core/singleton.hpp"
 #include "borealis/core/logger.hpp"
+
+#ifdef USE_BOOST_FILESYSTEM
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+#elif __has_include(<filesystem>)
+#include <filesystem>
+namespace fs = std::filesystem;
+#elif __has_include("experimental/filesystem")
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#elif !defined(USE_LIBROMFS)
+#error "Failed to include <filesystem> header!"
+#endif
+
 
 typedef std::map<std::string, std::string> Cookie;
 constexpr uint32_t MINIMUM_WINDOW_WIDTH  = 640;
@@ -194,7 +207,7 @@ public:
 
     std::string getHomePath();
 
-    void checkRestart(char* argv[]);
+    void exit(char* argv[]);
 
     void loadCustomThemes();
 

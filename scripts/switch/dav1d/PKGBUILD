@@ -1,0 +1,40 @@
+# Contributor:  averne <averne381@gmail.com>
+
+pkgbasename=dav1d
+pkgname=switch-$pkgbasename
+pkgver=1.2.1
+pkgrel=1
+pkgdesc="dav1d is an AV1 cross-platform decoder, open-source, and focused on speed and correctness."
+arch=("any")
+url="https://code.videolan.org/videolan/${pkgbasename}"
+license=("BSD")
+options=(!strip libtool staticlibs)
+source=(
+  "${url}/-/archive/${pkgver}/${pkgbasename}-${pkgver}.tar.gz"
+  "dav1d.patch"
+)
+
+makedepends=("dkp-toolchain-vars" "dkp-meson-scripts")
+groups=("switch-portlibs")
+
+prepare() {
+  cd ${pkgbasename}-${pkgver}
+
+  patch -Np1 -i "$srcdir/dav1d.patch"
+}
+
+build() {
+  cd ${pkgbasename}-${pkgver}
+
+  /opt/devkitpro/meson-cross.sh switch ../crossfile.txt build -Dc_std=gnu11 -Db_ndebug=true -Denable_asm=true \
+    -Denable_tools=false -Denable_examples=false -Denable_tests=false -Denable_docs=false
+  meson compile -C build
+}
+
+package() {
+  cd ${pkgbasename}-${pkgver}
+
+  DESTDIR="$pkgdir" meson install -C build
+}
+sha256sums=('2dd85860d213479672b1c708e31593446e8c2b53ff41e2ca25a2eafb718424e2'
+            '424e132380ea9afb0e13fcdf5d2893a7895094fff4ee297cdb30ead422256542')

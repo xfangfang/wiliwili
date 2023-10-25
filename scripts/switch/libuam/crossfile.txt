@@ -1,0 +1,15 @@
+[built-in options]
+buildtype = 'release'
+default_library = 'static'
+wrap_mode = 'nodownload'
+[binaries]
+c = 'aarch64-none-elf-gcc'
+cpp = 'aarch64-none-elf-g++'
+ar = 'aarch64-none-elf-ar'
+strip = 'aarch64-none-elf-strip'
+pkgconfig = '/opt/devkitpro/portlibs/switch/bin/aarch64-none-elf-pkg-config'
+[host_machine]
+system = 'hos'
+cpu_family = 'aarch64'
+cpu = 'armv8a'
+endian = 'little'

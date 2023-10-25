@@ -11,22 +11,18 @@ arch=('any')
 url='https://mpv.io/'
 license=('GPL')
 options=(!strip libtool staticlibs)
-source=("${pkgbasename}-${pkgver}.tar.gz::https://github.com/mpv-player/mpv/archive/v${pkgver}.tar.gz" "mpv.patch" "mp_image.patch")
+source=("${pkgbasename}-${pkgver}.tar.gz::https://github.com/mpv-player/mpv/archive/v${pkgver}.tar.gz" "mpv.patch")
 sha256sums=(
-  'SKIP'
   'SKIP'
   'SKIP'
 )
 makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
-depends=('switch-ffmpeg' 'switch-mesa')
+depends=('switch-ffmpeg' 'deko3d' 'libuam')
 groups=('switch-portlibs')
 
 prepare() {
   cd mpv-$pkgver
-  rm -rf audio/out/ao_hos.c
-  rm -rf osdep/switch/sys/mman.h
   patch -Np1 -i "$srcdir/mpv.patch"
-  patch -Np1 -i "$srcdir/mp_image.patch"
 }
 
 build() {
@@ -38,7 +34,9 @@ build() {
   export CFLAGS="$CFLAGS -D_POSIX_VERSION=200809L -DNDEBUG -I`pwd`/osdep/switch"
   LIBDIR=${PORTLIBS_PREFIX}/lib TARGET=aarch64-none-elf ./waf configure \
     --prefix="${PORTLIBS_PREFIX}" --disable-libmpv-shared \
-    --enable-libmpv-static --disable-cplayer --disable-sdl2 --enable-hos-audio \
+    --enable-libmpv-static --disable-cplayer --disable-sdl2 \
+    --disable-gl --disable-plain-gl \
+    --enable-deko3d --enable-hos-audio --enable-hos-video \
     --disable-iconv --disable-jpeg --disable-libavdevice --disable-debug-build
   sed -i 's/#define HAVE_POSIX 1/#define HAVE_POSIX 0/' build/config.h
   ./waf build
