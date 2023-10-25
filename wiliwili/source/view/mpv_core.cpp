@@ -35,6 +35,11 @@ const char *fragmentShaderSource =
     "}\n\0";
 #endif
 
+#ifdef __PS4__
+extern "C" int ps4_mpv_use_precompiled_shaders;
+extern "C" int ps4_mpv_dump_shaders;
+#endif
+
 #ifdef BOREALIS_USE_DEKO3D
 #include <borealis/platforms/switch/switch_video.hpp>
 #endif
@@ -68,6 +73,10 @@ void MPVCore::on_wakeup(void *self) {
 }
 
 MPVCore::MPVCore() {
+#ifdef __PS4__
+    ps4_mpv_use_precompiled_shaders = 1;
+    ps4_mpv_dump_shaders = 0;
+#endif
     this->init();
     // Destroy mpv when application exit
     brls::Application::getExitDoneEvent()->subscribe([this]() {
@@ -130,6 +139,8 @@ void MPVCore::init() {
 #elif defined(__PSV__)
         mpv_set_option_string(mpv, "hwdec", "vita-copy");
         brls::Logger::info("MPV hardware decode: vita-copy");
+#elif defined(PS4)
+        mpv_set_option_string(mpv, "hwdec", "no");
 #else
         mpv_set_option_string(mpv, "hwdec", PLAYER_HWDEC_METHOD.c_str());
         brls::Logger::info("MPV hardware decode: {}", PLAYER_HWDEC_METHOD);

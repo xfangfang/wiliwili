@@ -109,6 +109,20 @@ const std::string OPENSOURCE =
     "Copyright vitasdk Authors.\n\n"
     "Public domain\n"
 #endif
+#ifdef PS4
+    "--------------------------------\n"
+    "pacbrew\n"
+    "--------------------------------\n"
+    "https://github.com/PacBrew/pacbrew-packages\n\n"
+    "Copyright PacBrew Authors.\n\n"
+    "Public domain\n\n\n"
+    "--------------------------------\n"
+    "OpenOrbis-PS4-Toolchain\n"
+    "--------------------------------\n"
+    "https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain\n\n"
+    "Copyright OpenOrbis Authors.\n\n"
+    "Licensed under GPL-3.0\n"
+#endif
     "\n";
 
 SettingActivity::SettingActivity() {
@@ -151,7 +165,7 @@ void SettingActivity::onContentAvailable() {
         return true;
     });
 
-#if !defined(__SWITCH__) && !defined(IOS) && !defined(__PSV__)
+#if !defined(__SWITCH__) && !defined(IOS) && !defined(__PSV__) && !defined(PS4)
     btnOpenConfig->registerClickAction([](...) -> bool {
         auto* p = (brls::DesktopPlatform*)brls::Application::getPlatform();
         p->openBrowser(ProgramConfig::instance().getConfigDir());
@@ -401,7 +415,7 @@ void SettingActivity::onContentAvailable() {
         });
 
     /// App Keymap
-#if !defined(__SWITCH__) && !defined(__PSV__)
+#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4)
     static int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
     selectorKeymap->init(
         "wiliwili/setting/app/others/keymap/header"_i18n,
@@ -429,7 +443,7 @@ void SettingActivity::onContentAvailable() {
     selectorLang->init(
         "wiliwili/setting/app/others/language/header"_i18n,
         {
-#if defined(__SWITCH__) || defined(__PSV__)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
             "wiliwili/setting/app/others/language/auto"_i18n,
 #endif
             "wiliwili/setting/app/others/language/english"_i18n,
@@ -575,6 +589,9 @@ void SettingActivity::onContentAvailable() {
         });
 
 /// Hardware decode
+#ifdef PS4
+    btnHWDEC->setVisibility(brls::Visibility::GONE);
+#else
     btnHWDEC->init("wiliwili/setting/app/playback/hwdec"_i18n,
                    conf.getBoolOption(SettingItem::PLAYER_HWDEC),
                    [](bool value) {
@@ -584,6 +601,7 @@ void SettingActivity::onContentAvailable() {
                        MPVCore::HARDWARE_DEC = value;
                        MPVCore::instance().restart();
                    });
+#endif
 
     /// Decode quality
     btnQuality->init("wiliwili/setting/app/playback/low_quality"_i18n,

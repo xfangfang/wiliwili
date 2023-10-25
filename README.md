@@ -317,10 +317,23 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 
 ### 交叉编译 PSV 可执行文件
 
-按顺序参考 `.github/workflows/build.yaml` 、[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv)
-和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
+分别参考 `.github/workflows/build.yaml` 、[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv) 和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
 
 注意不要忘记在编译前将需要的四个 suprx 文件放入 `scripts/psv/module` 目录下。
+
+<br>
+
+### 交叉编译 PS4 可执行文件
+
+参考 `.github/workflows/build.yaml`
+
+```shell
+docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
+    "cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON  \
+        -DDISABLE_OPENCC=ON -DMPV_NO_FB=ON \
+        -DVERIFY_SSL=OFF -DUSE_SYSTEM_CPR=ON && \
+        make -C cmake-build-ps4  -j$(nproc)"
+```
 
 <br>
 

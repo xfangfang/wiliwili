@@ -14,7 +14,7 @@
 #include <mpv/render_dk3d.h>
 #else
 #include <mpv/render_gl.h>
-#ifdef __PSV__
+#if defined(__PSV__) || defined(PS4)
 #include <GLES2/gl2.h>
 #else
 #include <glad/glad.h>

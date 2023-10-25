@@ -33,6 +33,8 @@ std::string APPVersion::getPlatform() {
     return "iOS";
 #elif defined(__APPLE__)
     return "macOS";
+#elif defined(PS4)
+    return "PS4";
 #elif defined(__linux__)
     if (getenv("SteamDeck")) return "SteamDeck";
     return "Linux";

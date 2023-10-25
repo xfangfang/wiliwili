@@ -42,6 +42,7 @@ jobs:
       DIST_EXE: ${{ steps.info.outputs.DIST_EXE }}
       DIST_UWP: ${{ steps.info.outputs.DIST_UWP }}
       DIST_NRO: ${{ steps.info.outputs.DIST_NRO }}
+      DIST_PS4: ${{ steps.info.outputs.DIST_PS4 }}
       DIST_DMG_PREFIX: ${{ steps.info.outputs.DIST_DMG_PREFIX }}
       DIST_INTEL_DMG: ${{ steps.info.outputs.DIST_INTEL_DMG }}
       DIST_ARM_DMG: ${{ steps.info.outputs.DIST_ARM_DMG }}
@@ -73,6 +74,7 @@ jobs:
           echo "DIST_EXE=wiliwili-Windows-x64-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_UWP=wiliwili-windows-x64-uwp-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_NRO=wiliwili-NintendoSwitch-${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_PS4=wiliwili-PS4-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_DMG_PREFIX=wiliwili-macOS" >> $GITHUB_OUTPUT
           echo "DIST_INTEL_DMG=wiliwili-macOS-IntelChip-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_ARM_DMG=wiliwili-macOS-AppleSilicon-${VERSION}" >> $GITHUB_OUTPUT
@@ -262,6 +264,31 @@ jobs:
         with:
           name: ${{ needs.version.outputs.DIST_NRO }}_deko3d
           path: "cmake-build-switch/wiliwili.nro"
+
+
+  build-ps4:
+    needs: [ version ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Build
+        run: |
+          docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
+            "cmake -B cmake-build-ps4  -DPLATFORM_PS4=ON  \
+                -DDISABLE_OPENCC=ON -DMPV_NO_FB=ON \
+                -DVERIFY_SSL=OFF -DUSE_SYSTEM_CPR=ON && \
+                make -C cmake-build-ps4 -j$(nproc)"
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ needs.version.outputs.DIST_PS4 }}
+          path: "cmake-build-ps4/*.pkg"
 
   build-macos:
     needs: [ version ]

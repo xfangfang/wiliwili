@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(BOREALIS_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/library/borealis/library)
+set(BOREALIS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/library/borealis)
+set(BOREALIS_LIBRARY ${BOREALIS_DIR}/library)
 
 # Include Platform common options
 # wiliwili only support PLATFORM_DESKTOP and PLATFORM_SWITCH
@@ -79,6 +80,7 @@ set(VERSION_BUILD "0")
 set(PROJECT_AUTHOR "xfangfang")
 set(PACKAGE_NAME cn.xfangfang.wiliwili)
 set(VITA_TITLEID "WILIWILI0")
+set(PS4_TITLEID "WILI00000")
 set(VITA_VERSION "01.11")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
@@ -241,6 +243,27 @@ elseif (PLATFORM_PSV)
             FILE ${CMAKE_SOURCE_DIR}/scripts/psv/sce_sys sce_sys
             FILE ${CMAKE_SOURCE_DIR}/scripts/psv/module/ module
             )
+elseif (PLATFORM_PS4)
+    if (PS4)
+        add_self(${PROJECT_NAME})
+        add_pkg(${PROJECT_NAME}
+                ${CMAKE_BINARY_DIR}/ps4
+                ${PS4_TITLEID}
+                "wiliwili"
+                ${VITA_VERSION}
+                8388608
+        )
+    endif()
+    add_custom_target(${PROJECT_NAME}.data
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${BOREALIS_DIR}/ps4/sce_module ${CMAKE_BINARY_DIR}/ps4/sce_module
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_SOURCE_DIR}/scripts/ps4/sce_sys ${CMAKE_BINARY_DIR}/ps4/sce_sys
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${BOREALIS_DIR}/ps4/sce_sys/about ${CMAKE_BINARY_DIR}/ps4/sce_sys/about
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${CMAKE_BINARY_DIR}/ps4/resources
+            # Rename ja-RYU to RYU, as there may be a bug in PkgTool that not allow dirs with the same prefix exist.
+            COMMAND "${CMAKE_COMMAND}" -E remove_directory ${CMAKE_BINARY_DIR}/ps4/resources/i18n/RYU
+            COMMAND "${CMAKE_COMMAND}" -E rename ${CMAKE_BINARY_DIR}/ps4/resources/i18n/ja-RYU ${CMAKE_BINARY_DIR}/ps4/resources/i18n/RYU
+    )
+    add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
 elseif (PLATFORM_SWITCH)
     set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)
     if (GIT_TAG_VERSION)
@@ -266,5 +289,5 @@ endif ()
 
 target_include_directories(${PROJECT_NAME} PRIVATE wiliwili/include wiliwili/include/api ${APP_PLATFORM_INCLUDE})
 target_compile_options(${PROJECT_NAME} PRIVATE -ffunction-sections -fdata-sections -Wunused-variable ${APP_PLATFORM_OPTION})
-target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr qrcode borealis lunasvg pystring pdr mongoose z ${APP_PLATFORM_LIB})
+target_link_libraries(${PROJECT_NAME} PRIVATE wiliwiliLibExtra ${APP_PLATFORM_LIB})
 target_link_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_LINK_OPTION})

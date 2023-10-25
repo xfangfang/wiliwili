@@ -8,103 +8,103 @@ namespace bilibili {
 
 namespace Api {
 
-static const std::string _apiBase     = "https://api.bilibili.com";
-static const std::string _appBase     = "https://app.bilibili.com";
-static const std::string _vcBase      = "https://api.vc.bilibili.com";
-static const std::string _liveBase    = "https://api.live.bilibili.com";
-static const std::string _passBase    = "https://passport.bilibili.com";
-static const std::string _bangumiBase = "https://bangumi.bilibili.com";
-static const std::string _grpcBase    = "https://grpc.biliapi.net";
+const std::string _apiBase     = "https://api.bilibili.com";
+const std::string _appBase     = "https://app.bilibili.com";
+const std::string _vcBase      = "https://api.vc.bilibili.com";
+const std::string _liveBase    = "https://api.live.bilibili.com";
+const std::string _passBase    = "https://passport.bilibili.com";
+const std::string _bangumiBase = "https://bangumi.bilibili.com";
+const std::string _grpcBase    = "https://grpc.biliapi.net";
 
 /// ===
 /// 视频API
 /// ===
 
 /// 视频详情. gRPC
-static const std::string DetailGRPC =
+const std::string DetailGRPC =
     _grpcBase + "/bilibili.app.view.v1.View/View";
 /// 视频详情.
-static const std::string Detail    = _apiBase + "/x/web-interface/view";
-static const std::string DetailAll = _apiBase + "/x/web-interface/view/detail";
+const std::string Detail    = _apiBase + "/x/web-interface/view";
+const std::string DetailAll = _apiBase + "/x/web-interface/view/detail";
 /// 视频分P详情
-static const std::string PageDetail = _apiBase + "/x/player/v2";
+const std::string PageDetail = _apiBase + "/x/player/v2";
 /// 番剧详情.
-static const std::string SeasonDetail = _apiBase + "/pgc/view/pc/season";
+const std::string SeasonDetail = _apiBase + "/pgc/view/pc/season";
 /// 番剧推荐.
-static const std::string SeasonRCMD =
+const std::string SeasonRCMD =
     _apiBase + "/pgc/season/web/related/recommend";
 /// 番剧播放进度
-static const std::string SeasonStatus =
+const std::string SeasonStatus =
     _apiBase + "/pgc/view/web/season/user/status";
 /// 在线观看人数.
-static const std::string OnlineViewerCount =
+const std::string OnlineViewerCount =
     _apiBase + "/x/player/online/total";
 /// 视频播放信息.
-static const std::string PlayInformation = _apiBase + "/x/player/playurl";
+const std::string PlayInformation = _apiBase + "/x/player/playurl";
 /// 视频播放地址 TV.
-static const std::string PlayUrlTV = _apiBase + "/x/tv/card/view_v2";
+const std::string PlayUrlTV = _apiBase + "/x/tv/card/view_v2";
 /// 视频播放地址 投屏
-static const std::string PlayUrlCast = _apiBase + "/x/tv/playurl";
+const std::string PlayUrlCast = _apiBase + "/x/tv/playurl";
 /// 番剧播放地址
-static const std::string SeasonUrl = _apiBase + "/pgc/player/web/playurl";
+const std::string SeasonUrl = _apiBase + "/pgc/player/web/playurl";
 /// 视频分P列表.
-static const std::string PlayPageList = _apiBase + "/x/player/pagelist";
+const std::string PlayPageList = _apiBase + "/x/player/pagelist";
 /// 视频播放信息.
-static const std::string PlayConfig =
+const std::string PlayConfig =
     _appBase + "/bilibili.app.playurl.v1.PlayURL/PlayConf";
 /// 弹幕元数据.
-static const std::string DanmakuMetaData =
+const std::string DanmakuMetaData =
     _grpcBase + "/bilibili.community.service.dm.v1.DM/DmView";
 /// 分段弹幕.
-static const std::string SegmentDanmaku =
+const std::string SegmentDanmaku =
     _grpcBase + "/bilibili.community.service.dm.v1.DM/DmSegMobile";
 /// 历史记录.
-static const std::string ProgressReport = _apiBase + "/x/v2/history/report";
+const std::string ProgressReport = _apiBase + "/x/v2/history/report";
 /// 点赞视频.
-static const std::string Like    = _appBase + "/x/v2/view/like";
-static const std::string LikeWeb = _apiBase + "/x/web-interface/archive/like";
+const std::string Like    = _appBase + "/x/v2/view/like";
+const std::string LikeWeb = _apiBase + "/x/web-interface/archive/like";
 /// 给视频投币.
-static const std::string Coin    = _appBase + "/x/v2/view/coin/add";
-static const std::string CoinWeb = _apiBase + "/x/web-interface/coin/add";
+const std::string Coin    = _appBase + "/x/v2/view/coin/add";
+const std::string CoinWeb = _apiBase + "/x/web-interface/coin/add";
 /// 投币经验值
-static const std::string CoinExp = _apiBase + "/x/web-interface/coin/today/exp";
+const std::string CoinExp = _apiBase + "/x/web-interface/coin/today/exp";
 /// 添加或删除视频收藏.
-static const std::string ModifyFavorite = _apiBase + "/x/v3/fav/resource/deal";
+const std::string ModifyFavorite = _apiBase + "/x/v3/fav/resource/deal";
 /// 添加视频合集订阅
-static const std::string UGCSeasonSubscribe = _apiBase + "/x/v3/season/fav";
+const std::string UGCSeasonSubscribe = _apiBase + "/x/v3/season/fav";
 /// 移除视频合集订阅
-static const std::string UGCSeasonUnsubscribe = _apiBase + "/x/v3/season/unfav";
+const std::string UGCSeasonUnsubscribe = _apiBase + "/x/v3/season/unfav";
 /// 一键三连.
-static const std::string Triple = _appBase + "/x/v2/view/like/triple";
-static const std::string TripleWeb =
+const std::string Triple = _appBase + "/x/v2/view/like/triple";
+const std::string TripleWeb =
     _apiBase + "x/web-interface/archive/like/triple";
 /// 关注 取关
-static const std::string Follow = _apiBase + "/x/relation/modify";
+const std::string Follow = _apiBase + "/x/relation/modify";
 /// 番剧 追剧/取消追剧
-static const std::string FollowSeason     = _apiBase + "/pgc/app/follow/add";
-static const std::string UndoFollowSeason = _apiBase + "/pgc/app/follow/del";
+const std::string FollowSeason     = _apiBase + "/pgc/app/follow/add";
+const std::string UndoFollowSeason = _apiBase + "/pgc/app/follow/del";
 /// 发送弹幕.
-static const std::string SendDanmaku = _apiBase + "/x/v2/dm/post";
+const std::string SendDanmaku = _apiBase + "/x/v2/dm/post";
 /// 获取视频字幕.
-static const std::string Subtitle = _apiBase + "/x/player.so";
+const std::string Subtitle = _apiBase + "/x/player.so";
 /// 获取互动视频选项.
-static const std::string InteractionEdge = _apiBase + "/x/stein/edgeinfo_v2";
+const std::string InteractionEdge = _apiBase + "/x/stein/edgeinfo_v2";
 /// 获取视频参数.
-static const std::string Stat = _apiBase + "/x/web-interface/archive/stat";
+const std::string Stat = _apiBase + "/x/web-interface/archive/stat";
 /// 获取视频点赞收藏情况
-static const std::string VideoRelation =
+const std::string VideoRelation =
     _apiBase + "/x/web-interface/archive/relation";
 /// 获取番剧视频点赞收藏情况
-static const std::string VideoEpisodeRelation =
+const std::string VideoEpisodeRelation =
     _apiBase + "/pgc/season/episode/web/info";
 /// 获取视频弹幕
-static const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
+const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
 /// 直播API
-static const std::string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
+const std::string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
 /// 直播历史记录
-static const std::string LiveReport =
+const std::string LiveReport =
     _liveBase + "/xlive/web-room/v1/index/roomEntryAction";
-static const std::string LiveAreaList =
+const std::string LiveAreaList =
     _liveBase + "/xlive/app-interface/v2/index/getAreaList";
 
 /// ===
@@ -112,118 +112,118 @@ static const std::string LiveAreaList =
 /// ===
 
 /// 主页 推荐
-static const std::string Recommend =
+const std::string Recommend =
     _apiBase + "/x/web-interface/index/top/feed/rcmd";
 /// 主页 热门 热门综合
-static const std::string HotsAll = _apiBase + "/x/web-interface/popular";
+const std::string HotsAll = _apiBase + "/x/web-interface/popular";
 /// 主页 热门 每周推荐列表
-static const std::string HotsWeeklyList =
+const std::string HotsWeeklyList =
     _apiBase + "/x/web-interface/popular/series/list";
 /// 主页 热门 每周推荐
-static const std::string HotsWeekly =
+const std::string HotsWeekly =
     _apiBase + "/x/web-interface/popular/series/one";
 /// 主页 热门 入站必刷
-static const std::string HotsHistory =
+const std::string HotsHistory =
     _apiBase + "/x/web-interface/popular/precious";
 /// 主页 热门 用户投稿排行榜
-static const std::string HotsRank = _apiBase + "/x/web-interface/ranking/v2";
+const std::string HotsRank = _apiBase + "/x/web-interface/ranking/v2";
 /// 主页 热门 官方视频(番剧 电影...)排行榜
-static const std::string HotsRankPGC = _apiBase + "/pgc/season/rank/web/list";
+const std::string HotsRankPGC = _apiBase + "/pgc/season/rank/web/list";
 /// 主页 直播推荐
-static const std::string LiveFeed =
+const std::string LiveFeed =
     _liveBase + "/xlive/app-interface/v2/index/feedV2";
 /// 主页 直播推荐 second
-static const std::string LiveFeedSecond =
+const std::string LiveFeedSecond =
     _liveBase + "/xlive/app-interface/v2/second/getList";
 /// 主页 追番
-static const std::string Bangumi = _apiBase + "/pgc/page/pc/bangumi/tab";
+const std::string Bangumi = _apiBase + "/pgc/page/pc/bangumi/tab";
 /// 主页 影视
-static const std::string Cinema = _apiBase + "/pgc/page/pc/cinema/tab";
+const std::string Cinema = _apiBase + "/pgc/page/pc/cinema/tab";
 /// 主页 追番/影视 分类检索
-static const std::string PGCIndex = _apiBase + "/pgc/page/index/result";
+const std::string PGCIndex = _apiBase + "/pgc/page/index/result";
 /// 主页 追番/影视 分类检索过滤器列表
-static const std::string PGCIndexFilter =
+const std::string PGCIndexFilter =
     _apiBase + "/pgc/page/index/condition";
 /// 视频 评论
-static const std::string Comment = _apiBase + "/x/v2/reply/main";
+const std::string Comment = _apiBase + "/x/v2/reply/main";
 /// 单条评论详情
-static const std::string CommentDetail = _apiBase + "/x/v2/reply/detail";
+const std::string CommentDetail = _apiBase + "/x/v2/reply/detail";
 /// 点赞评论
-static const std::string CommentLike = _apiBase + "/x/v2/reply/action";
+const std::string CommentLike = _apiBase + "/x/v2/reply/action";
 /// 发布评论
-static const std::string CommentAdd = _apiBase + "/x/v2/reply/add";
+const std::string CommentAdd = _apiBase + "/x/v2/reply/add";
 /// 删除评论
-static const std::string CommentDel = _apiBase + "/x/v2/reply/del";
+const std::string CommentDel = _apiBase + "/x/v2/reply/del";
 /// 热门 - gRPC.
-static const std::string PopularGRPC =
+const std::string PopularGRPC =
     _grpcBase + "/bilibili.app.show.v1.Popular/Index";
 /// 排行榜 - Web.
-static const std::string Ranking = _apiBase + "/x/web-interface/ranking/v2";
+const std::string Ranking = _apiBase + "/x/web-interface/ranking/v2";
 /// 排行榜 - gRPC.
-static const std::string RankingGRPC =
+const std::string RankingGRPC =
     _grpcBase + "/bilibili.app.show.v1.Rank/RankRegion";
 
 /// ===
 /// 个人页API
 /// ===
-static const std::string QrLoginUrl  = _passBase + "/qrcode/getLoginUrl";
-static const std::string QrLoginInfo = _passBase + "/qrcode/getLoginInfo";
-static const std::string QrLoginUrlV2 =
+const std::string QrLoginUrl  = _passBase + "/qrcode/getLoginUrl";
+const std::string QrLoginInfo = _passBase + "/qrcode/getLoginInfo";
+const std::string QrLoginUrlV2 =
     _passBase + "/x/passport-login/web/qrcode/generate";
-static const std::string QrLoginInfoV2 =
+const std::string QrLoginInfoV2 =
     _passBase + "/x/passport-login/web/qrcode/poll";
-static const std::string CheckRefreshToken =
+const std::string CheckRefreshToken =
     _passBase + "/x/passport-login/web/cookie/info";
-static const std::string MyInfo = _apiBase + "/x/space/myinfo";
-static const std::string HistoryVideo =
+const std::string MyInfo = _apiBase + "/x/space/myinfo";
+const std::string HistoryVideo =
     _apiBase + "/x/web-interface/history/cursor";
-static const std::string CollectionList =
+const std::string CollectionList =
     _apiBase + "/x/v3/fav/folder/created/list";
-static const std::string CollectionListAll =
+const std::string CollectionListAll =
     _apiBase + "/x/v3/fav/folder/created/list-all";
-static const std::string CollectionVideoList =
+const std::string CollectionVideoList =
     _apiBase + "/x/v3/fav/resource/list";
-static const std::string CollectionVideoListSave =
+const std::string CollectionVideoListSave =
     _apiBase + "/x/v3/fav/resource/deal";
-static const std::string UserUploadedVideo = _apiBase + "/x/space/arc/search";
-static const std::string UserRelationStat  = _apiBase + "/x/relation/stat";
-static const std::string UserDynamicStat =
+const std::string UserUploadedVideo = _apiBase + "/x/space/arc/search";
+const std::string UserRelationStat  = _apiBase + "/x/relation/stat";
+const std::string UserDynamicStat =
     _vcBase + "/dynamic_svr/v1/dynamic_svr/space_num_ex";
 /// 用户追番/追剧
-static const std::string UserBangumiCollection =
+const std::string UserBangumiCollection =
     _apiBase + "/x/space/bangumi/follow/list";
 /// 用户订阅合集列表
-static const std::string UserUGCSeason =
+const std::string UserUGCSeason =
     _apiBase + "/x/v3/fav/folder/collected/list";
 /// 用户订阅合集的视频列表
-static const std::string UserUGCSeasonVideoList =
+const std::string UserUGCSeasonVideoList =
     _apiBase + "/x/space/fav/season/list";
 // watch later
-static const std::string WatchLater = _apiBase + "/x/v2/history/toview/web";
+const std::string WatchLater = _apiBase + "/x/v2/history/toview/web";
 
 /// ===
 /// 搜索页API
 /// ===
-static const std::string Search    = _apiBase + "/x/web-interface/search/type";
-static const std::string TVSuggest = _apiBase + "/x/tv/suggest";
-static const std::string SearchHots =
+const std::string Search    = _apiBase + "/x/web-interface/search/type";
+const std::string TVSuggest = _apiBase + "/x/tv/suggest";
+const std::string SearchHots =
     _apiBase + "/x/web-interface/search/square";
 
 /// ===
 /// 动态页API
 /// ===
-static const std::string DynamicVideo =
+const std::string DynamicVideo =
     _apiBase + "/x/polymer/web-dynamic/desktop/v1/feed/video";
-static const std::string DynamicUpList =
+const std::string DynamicUpList =
     _vcBase + "/dynamic_svr/v1/dynamic_svr/w_dyn_uplist";
-static const std::string UserDynamicVideo = _apiBase + "/x/space/arc/list";
+const std::string UserDynamicVideo = _apiBase + "/x/space/arc/list";
 
 /// ===
 /// 设置页API
 /// ===
 
 //使用http协议避免因为系统时间错误导致https请求失败
-static const std::string UnixTime =
+const std::string UnixTime =
     "http://api.bilibili.com/x/click-interface/click/now";
 }  // namespace Api
 }  // namespace bilibili

@@ -1,0 +1,40 @@
+# Maintainer: xfangfang <xfangfang@126.com>
+
+pkgname=ps4-openorbis-cares
+pkgver=1.18.1
+pkgrel=3
+pkgdesc='An URL retrieval utility and library'
+arch=('any')
+url='https://c-ares.org'
+license=('MIT')
+source=("https://c-ares.org/download/c-ares-${pkgver}.tar.gz")
+sha256sums=('SKIP')
+options=(!strip libtool staticlibs)
+depends=('ps4-openorbis-zlib')
+makedepends=('ps4-openorbis-pkg-config' 'ps4-openorbis-vars')
+groups=('ps4-openorbis-portlibs')
+
+build() {
+  cd c-ares-$pkgver
+
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  autoreconf -fi
+
+  LIBS="${LIBS} -lSceNet" \
+  ./configure --prefix="${OPENORBIS}/usr" --host=x86_64 --disable-shared --enable-static
+
+  make -j$(nproc)
+
+}
+
+package() {
+  cd c-ares-$pkgver
+
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  make DESTDIR="$pkgdir" install
+
+  # remove doc
+  rm -r "$pkgdir"${OPENORBIS}/usr/share
+}

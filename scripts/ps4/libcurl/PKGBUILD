@@ -1,0 +1,50 @@
+# Maintainer: cpasjuste <cpasjuste@gmail.com>
+
+# With c-ares, curl can using custom DNS server,
+# You can also use musl with custom DNS support to do similar things (Recommended)
+
+pkgname=ps4-openorbis-libcurl
+pkgver=7.80.0
+pkgrel=4
+pkgdesc='An URL retrieval utility and library'
+arch=('any')
+url='https://curl.haxx.se/'
+license=('curl')
+source=("https://curl.haxx.se/download/curl-${pkgver}.tar.xz")
+sha256sums=('SKIP')
+options=(!strip libtool staticlibs)
+depends=('ps4-openorbis-zlib' 'ps4-openorbis-mbedtls' 'ps4-openorbis-cares')
+makedepends=('ps4-openorbis-pkg-config' 'ps4-openorbis-vars')
+groups=('ps4-openorbis-portlibs')
+
+build() {
+  cd curl-$pkgver
+
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  autoreconf -fi
+
+  CFLAGS="${CFLAGS} -DSOL_IP=0" LIBS="${LIBS} -lSceNet" \
+  ./configure --prefix="${OPENORBIS}/usr" --host=x86_64 \
+    --disable-shared --enable-static --disable-unix-sockets \
+    --with-mbedtls --disable-manual --enable-ares
+
+  # TODO: fix this (use proper patch)...
+  sed -i 's|#include <osreldate.h>|//#include <osreldate.h>|g' include/curl/curl.h
+
+  # Seems that ps4 doesn't have TCP_KEEPINTVL
+  sed -i 's|#ifdef TCP_KEEPINTVL|#ifndef TCP_KEEPINTVL|g' lib/connect.c
+
+  make -j$(nproc) -C lib
+
+}
+
+package() {
+  cd curl-$pkgver
+
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  make DESTDIR="$pkgdir" -C lib install
+  make DESTDIR="$pkgdir" -C include install
+  make DESTDIR="$pkgdir" install-binSCRIPTS
+}
