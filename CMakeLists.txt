@@ -102,6 +102,10 @@ if (PLATFORM_DESKTOP)
         list(APPEND APP_PLATFORM_INCLUDE ${WebP_INCLUDE_DIRS})
         list(APPEND APP_PLATFORM_LIB ${WebP_LIBRARY})
     endif ()
+
+    if (MINGW)
+        set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static" CACHE STRING "" FORCE)
+    endif ()
 elseif (APP_PLATFORM_CUSTOM_LIBS)
     message(STATUS "Using custom libraries for mpv and webp")
     # If you want to manually specify dependencies:

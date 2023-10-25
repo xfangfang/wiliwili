@@ -106,7 +106,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
           artifacts: >
-            ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.tar.gz
+            ${{ needs.version.outputs.DIST_EXE }}/${{ needs.version.outputs.DIST_EXE }}.7z
             ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz
             ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg
             ${{ needs.version.outputs.DIST_ARM_DMG }}/${{ needs.version.outputs.DIST_ARM_DMG }}.dmg
@@ -115,54 +115,74 @@ jobs:
 
   build-win-x64:
     needs: [ version ]
-    runs-on: windows-2022
+    runs-on: windows-2019
+    env:
+      MSYSTEM: MINGW64
+      MSYS2_PATH_TYPE: inherit
+    defaults:
+      run:
+        shell: C:\shells\msys2bash.cmd {0}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
           fetch-depth: 0
-
       - name: Install dependency
-        uses: msys2/setup-msys2@v2
-        with:
-#          update: true
-          install: >-
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-make
-            mingw-w64-x86_64-mpv
-            mingw-w64-x86_64-libwebp
-            git
-            p7zip
+        run: |
+          pacman -S --needed --noconfirm --noprogressbar \
+            ${MINGW_PACKAGE_PREFIX}-gcc \
+            ${MINGW_PACKAGE_PREFIX}-ninja
 
+          curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.36.0-3-any.pkg.tar.zst
+          pacman -U --noconfirm *.pkg.tar.zst
       - name: Update gamepad db
-        shell: msys2 {0}
         run: |
-          cmake -P library/borealis/library/lib/extern/glfw//CMake/GenerateMappings.cmake library/borealis/library/lib/extern/glfw//src/mappings.h.in library/borealis/library/lib/extern/glfw//src/mappings.h
-
+          BRLS_GLFW=library/borealis/library/lib/extern/glfw
+          cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake ${BRLS_GLFW}/src/mappings.h.in ${BRLS_GLFW}/src/mappings.h
+      - name: Build dependency
+        run: |
+          curl -sL https://github.com/webmproject/libwebp/archive/v1.3.1.tar.gz | tar zxf - -C /tmp
+          cd /tmp/libwebp-1.3.1
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DWEBP_BUILD_ANIM_UTILS=OFF \
+            -DWEBP_BUILD_CWEBP=OFF \
+            -DWEBP_BUILD_DWEBP=OFF \
+            -DWEBP_BUILD_GIF2WEBP=OFF \
+            -DWEBP_BUILD_IMG2WEBP=OFF \
+            -DWEBP_BUILD_VWEBP=OFF \
+            -DWEBP_BUILD_WEBPINFO=OFF \
+            -DWEBP_BUILD_WEBPMUX=OFF \
+            -DWEBP_BUILD_LIBWEBPMUX=OFF \
+            -DWEBP_BUILD_EXTRAS=OFF
+          cmake --build build
+          cmake --install build
       - name: Build
-        shell: msys2 {0}
-        id: compile
         run: |
-          mkdir -p build && pushd build
-          cmake .. -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON -DWIN32_TERMINAL=OFF -DCMAKE_BUILD_TYPE=Release
-          mingw32-make wiliwili -j4
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPLATFORM_DESKTOP=ON \
+            -DWIN32_TERMINAL=OFF \
+            -DCURL_DISABLE_PROGRESS_METER=ON \
+            -DUSE_LIBIDN2=OFF \
+            -DUSE_WIN32_IDN=ON \
+            -DCURL_USE_LIBSSH2=OFF \
+            -DCURL_USE_LIBPSL=OFF \
+            -DZLIB_USE_STATIC_LIBS=ON
+          cmake --build build
+          cd build
+
           strip wiliwili.exe
-          mkdir wiliwili && mv wiliwili.exe wiliwili && mv resources wiliwili
-          for i in {libwinpthread-1,libgcc_s_seh-1,zlib1,libssh2-1,libstdc++-6,libcrypto-3-x64,libwebp-7,libsharpyuv-0}; do
-          cp /mingw64/bin/${i}.dll wiliwili
-          done
-          wget https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/mpv-dev-x86_64-20221204-git-4574dd5.7z -O mpv.7z
-          7z e mpv.7z -ompv
-          cp mpv/mpv-2.dll wiliwili/libmpv-2.dll
-          tar -czvf ../${{ needs.version.outputs.DIST_EXE }}.tar.gz wiliwili
+          7z a -mx=9 ../${{ needs.version.outputs.DIST_EXE }}.7z wiliwili.exe resources ${MINGW_PREFIX}/bin/libmpv-2.dll
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
         with:
           name: ${{ needs.version.outputs.DIST_EXE }}
-          path: "${{ needs.version.outputs.DIST_EXE }}.tar.gz"
+          path: "${{ needs.version.outputs.DIST_EXE }}.7z"
 
   build-win-uwp:
     needs: [ version ]
