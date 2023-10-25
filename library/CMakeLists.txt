@@ -104,4 +104,4 @@ elseif (PLATFORM_PSV)
 endif ()
 
 add_library(wiliwiliLibExtra INTERFACE)
-target_link_libraries(wiliwiliLibExtra INTERFACE cpr::cpr qrcode borealis lunasvg pystring pdr mongoose z)
+target_link_libraries(wiliwiliLibExtra INTERFACE cpr::cpr qrcode)
