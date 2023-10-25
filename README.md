@@ -321,18 +321,17 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 
 注意不要忘记在编译前将需要的四个 suprx 文件放入 `scripts/psv/module` 目录下。
 
-<br>
-
 ### 交叉编译 PS4 可执行文件
 
-参考 `.github/workflows/build.yaml`
+参考 `.github/workflows/build.yaml` 使用 docker 来编译。  
+或本地安装 [PacBrew](https://github.com/PacBrew/pacbrew-packages) 环境（只支持 Linux），并手动添加依赖库，请参考：[scripts/ps4/Dockerfile](https://github.com/xfangfang/wiliwili/blob/ps4/scripts/ps4/Dockerfile)
 
 ```shell
 docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
     "cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON  \
         -DDISABLE_OPENCC=ON -DMPV_NO_FB=ON \
         -DVERIFY_SSL=OFF -DUSE_SYSTEM_CPR=ON && \
-        make -C cmake-build-ps4  -j$(nproc)"
+        make -C cmake-build-ps4 -j$(nproc)"
 ```
 
 <br>
@@ -346,10 +345,13 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
 
 # Acknowledgement
 
-- devkitpro and switchbrew
+- devkitpro, switchbrew, vitasdk OpenOrbis and PacBrew
     - https://github.com/devkitPro/pacman/releases
     - https://github.com/devkitPro/pacman-packages
     - https://github.com/switchbrew/libnx
+    - https://github.com/vitasdk
+    - https://github.com/OpenOrbis
+    - https://github.com/PacBrew
 - natinusala and XITRIX
     - https://github.com/natinusala/borealis
     - https://github.com/XITRIX/borealis
@@ -363,6 +365,7 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
 - https://github.com/BYVoid/OpenCC
 - https://github.com/imageworks/pystring
 - https://github.com/sammycage/lunasvg
+- https://github.com/cesanta/mongoose
 - https://github.com/fish47/FFmpeg-vita
 
 # Special thanks
