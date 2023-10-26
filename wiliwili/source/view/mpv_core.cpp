@@ -153,6 +153,8 @@ void MPVCore::init() {
 #if defined(__SWITCH__)
     mpv_set_option_string(mpv, "vd-lavc-dr", "no");
     mpv_set_option_string(mpv, "vd-lavc-threads", "4");
+#elif defined(PS4)
+    mpv_set_option_string(mpv, "vd-lavc-threads", "6");
 #elif defined(__PSV__)
     mpv_set_option_string(mpv, "vd-lavc-dr", "no");
     mpv_set_option_string(mpv, "vd-lavc-threads", "4");

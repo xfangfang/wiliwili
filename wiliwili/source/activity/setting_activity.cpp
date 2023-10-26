@@ -28,29 +28,30 @@ const std::string OPENSOURCE =
     "--------------------------------\n"
     "FFmpeg\n"
     "--------------------------------\n"
-    "Official site:    https://www.ffmpeg.org\n"
+    "Official site:    https://www.ffmpeg.org\n\n"
     "Copyright (c) FFmpeg developers and contributors.\n\n"
     "Licensed under LGPLv2.1 or later\n\n\n"
     "--------------------------------\n"
     "mpv\n"
     "--------------------------------\n"
-    "Official site:    https://mpv.io\n"
+    "Official site:    https://mpv.io\n\n"
     "Copyright (c) mpv developers and contributors.\n\n"
     "Licensed under GPL-2.0 or LGPLv2.1\n\n\n"
     "--------------------------------\n"
     "borealis\n"
     "--------------------------------\n"
-    "https://github.com/natinusala/borealis\n"
-    "Copyright (c) 2019-2022, natinusala and contributors.\n\n"
-    "Modifications for touch and recycler list support.\n"
-    "https://github.com/XITRIX/borealis\n"
+    "https://github.com/natinusala/borealis\n\n"
+    "Modifications for touch and recycler list support:\n"
+    "https://github.com/XITRIX/borealis\n\n"
+    "Modified version for more system support:\n"
+    "https://github.com/xfangfang/borealis\n\n"
+    "Copyright (c) 2019-2022, natinusala and contributors.\n"
     "Copyright (c) XITRIX.\n\n"
-    "Modified version: https://github.com/xfangfang/borealis\n\n"
     "Licensed under Apache-2.0 license\n\n\n"
     "--------------------------------\n"
     "OpenCC\n"
     "--------------------------------\n"
-    "https://github.com/BYVoid/OpenCC\n"
+    "https://github.com/BYVoid/OpenCC\n\n"
     "Copyright (c) Carbo Kuo and contributors.\n\n"
     "Modified version: https://github.com/xfangfang/OpenCC\n\n"
     "Licensed under Apache-2.0 license\n\n\n"
@@ -80,6 +81,14 @@ const std::string OPENSOURCE =
     "Copyright (c) 2017-2021 Huu Nguyen.\n"
     "Copyright (c) 2022 libcpr and many other contributors.\n\n"
     "Licensed under MIT license\n\n\n"
+    "--------------------------------\n"
+    "mongoose\n"
+    "--------------------------------\n"
+    "Official site:    https://mongoose.ws\n"
+    "https://github.com/cesanta/mongoose\n\n"
+    "Copyright (c) 2004-2013 Sergey Lyubka\n"
+    "Copyright (c) 2013-2023 Cesanta Software Limited\n\n"
+    "Licensed under GPL-2.0 or GPL without warranty\n\n\n"
 #ifdef USE_WEBP
     "--------------------------------\n"
     "libwebp\n"
@@ -540,7 +549,7 @@ void SettingActivity::onContentAvailable() {
     }
 #endif
 
-#ifdef __PSV__
+#if defined(__PSV__) || defined(PS4)
     selectorTexture->setVisibility(brls::Visibility::GONE);
 #else
     selectorTexture->init(

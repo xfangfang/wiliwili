@@ -28,6 +28,7 @@
 #include "activity/search_activity_tv.hpp"
 
 #ifdef PS4
+#include <orbis/SystemService.h>
 #include <orbis/Sysmodule.h>
 #include <orbis/Net.h>
 #include <netdb.h>
@@ -578,7 +579,7 @@ void ProgramConfig::load() {
         }
 
         // 初始化纹理缓存数量
-#ifdef __PSV__
+#if defined(__PSV__) || defined(PS4)
         brls::TextureCache::instance().cache.setCapacity(1);
 #else
         brls::TextureCache::instance().cache.setCapacity(
@@ -701,10 +702,14 @@ void ProgramConfig::init() {
 #if defined(_MSC_VER)
 #elif defined(__PSV__)
 #elif defined(PS4)
-    if(sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0 || sceNetInit() != 0)
+    if(sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0)
         brls::Logger::error("cannot load net module");
-    primary_dns = inet_addr("223.5.5.5");
-    secondary_dns = inet_addr("1.1.1.1");
+    primary_dns = inet_addr(primaryDNSStr.c_str());
+    secondary_dns = inet_addr(secondaryDNSStr.c_str());
+    // 在加载第一帧之后隐藏启动画面
+    brls::sync([](){
+        sceSystemServiceHideSplashScreen();
+    });
 #else
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) != nullptr) {

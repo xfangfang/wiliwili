@@ -80,7 +80,7 @@ set(VERSION_BUILD "0")
 set(PROJECT_AUTHOR "xfangfang")
 set(PACKAGE_NAME cn.xfangfang.wiliwili)
 set(VITA_TITLEID "WILIWILI0")
-set(PS4_TITLEID "WILI00000")
+set(PSN_TITLE_ID "WILI00000")
 set(VITA_VERSION "01.11")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
@@ -248,7 +248,7 @@ elseif (PLATFORM_PS4)
         add_self(${PROJECT_NAME})
         add_pkg(${PROJECT_NAME}
                 ${CMAKE_BINARY_DIR}/ps4
-                ${PS4_TITLEID}
+                ${PSN_TITLE_ID}
                 "wiliwili"
                 ${VITA_VERSION}
                 8388608

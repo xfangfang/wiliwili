@@ -25,7 +25,13 @@ SettingNetwork::SettingNetwork() {
         labelWIFI->setText("hints/off"_i18n);
     }
     labelIP->setText(brls::Application::getPlatform()->getIpAddress());
+#ifdef PS4
+    // 因为 PS4 用户通常会设置屏蔽用的 DNS，可能存在无法解析部分域名的问题，
+    // 所以 wiliwili 使用自定义的 DNS 服务器来请求网络
+    labelDNS->setText(primaryDNSStr + "\n" + secondaryDNSStr);
+#else
     labelDNS->setText(brls::Application::getPlatform()->getDnsServer());
+#endif
 
     headerTest->setSubtitle(APPVersion::instance().git_tag);
 }

@@ -43,7 +43,11 @@ std::string APPVersion::getPlatform() {
 #elif defined(_WIN32)
     return "Windows";
 #elif defined(__SWITCH__)
+#ifdef BOREALIS_USE_DEKO3D
+    return "NX-deko3d";
+#else
     return "NX";
+#endif
 #elif defined(__PSV__)
     return "PSVita";
 #else

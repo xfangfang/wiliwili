@@ -52,7 +52,7 @@ public:
 
     static bool isRunning();
 
-    inline static int TIMEOUT = 3;
+    const int TIMEOUT = 3;
 
     // 是否正在搜索中
     inline static std::atomic<bool> running = false;

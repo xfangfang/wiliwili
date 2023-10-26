@@ -328,7 +328,7 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 
 ```shell
 docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
-    "cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON  \
+    "cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON \
         -DDISABLE_OPENCC=ON -DMPV_NO_FB=ON \
         -DVERIFY_SSL=OFF -DUSE_SYSTEM_CPR=ON && \
         make -C cmake-build-ps4 -j$(nproc)"
@@ -345,28 +345,32 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
 
 # Acknowledgement
 
-- devkitpro, switchbrew, vitasdk OpenOrbis and PacBrew
+The development of wiliwili cannot do without the support of the following open source projects.
+
+- Toolchain: devkitpro, switchbrew, vitasdk OpenOrbis and PacBrew
     - https://github.com/devkitPro/pacman/releases
     - https://github.com/devkitPro/pacman-packages
     - https://github.com/switchbrew/libnx
     - https://github.com/vitasdk
     - https://github.com/OpenOrbis
     - https://github.com/PacBrew
-- natinusala and XITRIX
+- UI Library: natinusala and XITRIX
     - https://github.com/natinusala/borealis
     - https://github.com/XITRIX/borealis
-- Cpasjuste, proconsule and averne
+- Video Player: Cpasjuste, proconsule fish47 and averne
     - https://github.com/Cpasjuste/pplay
     - https://github.com/proconsule/nxmp
+    - https://github.com/fish47/FFmpeg-vita
     - https://github.com/averne
-- https://github.com/libcpr/cpr
-- https://github.com/nlohmann/json
-- https://github.com/nayuki/QR-Code-generator
-- https://github.com/BYVoid/OpenCC
-- https://github.com/imageworks/pystring
-- https://github.com/sammycage/lunasvg
-- https://github.com/cesanta/mongoose
-- https://github.com/fish47/FFmpeg-vita
+- Misc
+  - https://github.com/libcpr/cpr
+  - https://github.com/nlohmann/json
+  - https://github.com/nayuki/QR-Code-generator
+  - https://github.com/BYVoid/OpenCC
+  - https://github.com/imageworks/pystring
+  - https://github.com/sammycage/lunasvg
+  - https://github.com/cesanta/mongoose
+  - https://chromium.googlesource.com/webm/libwebp
 
 # Special thanks
 

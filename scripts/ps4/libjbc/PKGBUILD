@@ -1,0 +1,31 @@
+# Maintainer: xfangfang <xfangfang@126.com>
+
+pkgname=ps4-libjbc
+pkgver=f9b00ba55b567c110d42aee09127a1ea18541b92
+pkgrel=1
+pkgdesc='Firmware-agnostic PS4 sandbox escape'
+arch=('any')
+url='https://github.com/sleirsgoevy/ps4-libjbc'
+license=('public domain')
+options=(!strip libtool staticlibs)
+source=( "https://github.com/xfangfang/ps4-libjbc/archive/${pkgver}.tar.gz" )
+sha256sums=( 'SKIP' )
+makedepends=( 'ps4-openorbis-vars' )
+groups=( 'ps4-openorbis-portlibs' )
+
+build() {
+  cd $pkgname-$pkgver
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  mkdir -p $pkgdir${OO_PS4_TOOLCHAIN}/include
+  mkdir -p $pkgdir${OO_PS4_TOOLCHAIN}/lib
+
+  cp libjbc.h $pkgdir${OO_PS4_TOOLCHAIN}/include/
+  cp libjbc.a $pkgdir${OO_PS4_TOOLCHAIN}/lib/
+}
