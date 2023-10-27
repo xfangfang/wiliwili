@@ -132,7 +132,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
      {"player_inmemory_cache",
       {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
       {0, 10, 20, 50, 100, 200, 500},
+#ifdef PS4
+      0}},
+#else
       1}},
+#endif
 #endif
     {
         SettingItem::PLAYER_DEFAULT_SPEED,
@@ -704,16 +708,14 @@ void ProgramConfig::init() {
 #if defined(_MSC_VER)
 #elif defined(__PSV__)
 #elif defined(PS4)
-    if(sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0)
+    if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0)
         brls::Logger::error("cannot load net module");
-    primary_dns = inet_addr(primaryDNSStr.c_str());
-    secondary_dns = inet_addr(secondaryDNSStr.c_str());
+    primary_dns                     = inet_addr(primaryDNSStr.c_str());
+    secondary_dns                   = inet_addr(secondaryDNSStr.c_str());
     ps4_mpv_use_precompiled_shaders = 1;
     ps4_mpv_dump_shaders            = 0;
     // 在加载第一帧之后隐藏启动画面
-    brls::sync([](){
-        sceSystemServiceHideSplashScreen();
-    });
+    brls::sync([]() { sceSystemServiceHideSplashScreen(); });
 #else
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) != nullptr) {
