@@ -361,6 +361,7 @@
     }
   },
   "dialog": {
+    "not_supported": "Not Supported",
     "quit_hint": "Exiting app..."
   }
 }

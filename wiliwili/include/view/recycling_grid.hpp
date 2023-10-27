@@ -101,7 +101,7 @@ public:
 
     RecyclingGridDataSource* getDataSource() const;
 
-    void showSkeleton(unsigned int num = 12);
+    void showSkeleton(unsigned int num = 30);
 
     void refresh();
 
