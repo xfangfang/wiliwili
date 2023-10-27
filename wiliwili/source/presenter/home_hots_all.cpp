@@ -8,12 +8,11 @@
 
 void HomeHotsAllRequest::requestData(bool refresh) {
     CHECK_REQUEST
-    static int current_page = 1;
     if (refresh) {
-        current_page = 1;
+        requestPage = 1;
     }
-    this->requestHotsAllVideoList(current_page, 40);
-    current_page++;
+    this->requestHotsAllVideoList(requestPage, 40);
+    requestPage++;
 }
 
 void HomeHotsAllRequest::requestHotsAllVideoList(int index, int num) {

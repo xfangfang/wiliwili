@@ -39,7 +39,7 @@ SettingNetwork::SettingNetwork() {
 void SettingNetwork::networkTest() {
     ASYNC_RETAIN
     bilibili::BilibiliClient::get_recommend(
-        1, 1,
+        1, 1, 0, "V1", 3, 4,
         [ASYNC_TOKEN](const auto& result) {
             brls::sync([ASYNC_TOKEN]() {
                 ASYNC_RELEASE
