@@ -26,6 +26,8 @@ public:
     void hide(std::function<void(void)> cb, bool animated,
               float animationDuration) override;
 
+    void dismiss(std::function<void(void)> cb = [] {}) override;
+
     bool isTranslucent() override;
 
 protected:
