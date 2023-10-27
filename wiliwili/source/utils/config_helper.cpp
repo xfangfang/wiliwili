@@ -30,12 +30,14 @@
 #ifdef PS4
 #include <orbis/SystemService.h>
 #include <orbis/Sysmodule.h>
-#include <orbis/Net.h>
-#include <netdb.h>
 #include <arpa/inet.h>
 
+extern "C" {
+extern int ps4_mpv_use_precompiled_shaders;
+extern int ps4_mpv_dump_shaders;
 extern in_addr_t primary_dns;
 extern in_addr_t secondary_dns;
+}
 #endif
 
 #ifndef PATH_MAX
@@ -706,6 +708,8 @@ void ProgramConfig::init() {
         brls::Logger::error("cannot load net module");
     primary_dns = inet_addr(primaryDNSStr.c_str());
     secondary_dns = inet_addr(secondaryDNSStr.c_str());
+    ps4_mpv_use_precompiled_shaders = 1;
+    ps4_mpv_dump_shaders            = 0;
     // 在加载第一帧之后隐藏启动画面
     brls::sync([](){
         sceSystemServiceHideSplashScreen();

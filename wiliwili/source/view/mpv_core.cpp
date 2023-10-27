@@ -11,7 +11,8 @@
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
 
-#if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER) && !defined(BOREALIS_USE_DEKO3D)
+#if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER) && \
+    !defined(BOREALIS_USE_DEKO3D)
 const char *vertexShaderSource =
     "#version 150 core\n"
     "in vec3 aPos;\n"
@@ -35,15 +36,9 @@ const char *fragmentShaderSource =
     "}\n\0";
 #endif
 
-#ifdef __PS4__
-extern "C" int ps4_mpv_use_precompiled_shaders;
-extern "C" int ps4_mpv_dump_shaders;
-#endif
-
 #ifdef BOREALIS_USE_DEKO3D
 #include <borealis/platforms/switch/switch_video.hpp>
 #endif
-
 
 static inline void check_error(int status) {
     if (status < 0) {
@@ -64,8 +59,29 @@ static void *get_proc_address(void *unused, const char *name) {
 #endif
 
 void MPVCore::on_update(void *self) {
-    brls::sync(
-        []() { mpv_render_context_update(MPVCore::instance().getContext()); });
+    brls::sync([]() {
+        uint64_t flags =
+            mpv_render_context_update(MPVCore::instance().getContext());
+#if defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D)
+        (void)flags;
+#else
+        MPVCore::instance().redraw = flags & MPV_RENDER_UPDATE_FRAME;
+        if (MPVCore::instance().redraw) {
+#ifdef MPV_SW_RENDER
+            if (!MPVCore::instance().pixels) return;
+            mpv_render_context_render(MPVCore::instance().mpv_context,
+                                      MPVCore::instance().mpv_params);
+            mpv_render_context_report_swap(MPVCore::instance().mpv_context);
+#else
+            mpv_render_context_render(MPVCore::instance().mpv_context,
+                                      MPVCore::instance().mpv_params);
+            glViewport(0, 0, (GLsizei)brls::Application::windowWidth,
+                       (GLsizei)brls::Application::windowHeight);
+            mpv_render_context_report_swap(MPVCore::instance().mpv_context);
+#endif
+        }
+#endif
+    });
 }
 
 void MPVCore::on_wakeup(void *self) {
@@ -73,10 +89,6 @@ void MPVCore::on_wakeup(void *self) {
 }
 
 MPVCore::MPVCore() {
-#ifdef __PS4__
-    ps4_mpv_use_precompiled_shaders = 1;
-    ps4_mpv_dump_shaders = 0;
-#endif
     this->init();
     // Destroy mpv when application exit
     brls::Application::getExitDoneEvent()->subscribe([this]() {
@@ -204,18 +216,25 @@ void MPVCore::init() {
         {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_SW)},
         {MPV_RENDER_PARAM_INVALID, nullptr}};
 #elif defined(BOREALIS_USE_DEKO3D)
-    auto switchPlatform = (brls::SwitchVideoContext *)brls::Application::getPlatform()->getVideoContext();
+    int advanced_control{1};
+    auto switchPlatform =
+        (brls::SwitchVideoContext *)brls::Application::getPlatform()
+            ->getVideoContext();
     mpv_deko3d_init_params deko_init_params{switchPlatform->getDeko3dDevice()};
     mpv_render_param params[]{
-        {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_DEKO3D)},
+        {MPV_RENDER_PARAM_API_TYPE,
+         const_cast<char *>(MPV_RENDER_API_TYPE_DEKO3D)},
         {MPV_RENDER_PARAM_DEKO3D_INIT_PARAMS, &deko_init_params},
+        {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
         {MPV_RENDER_PARAM_INVALID, nullptr}};
 #else
+    int advanced_control{1};
     mpv_opengl_init_params gl_init_params{get_proc_address, nullptr};
     mpv_render_param params[]{
         {MPV_RENDER_PARAM_API_TYPE,
          const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
         {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
+        {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
         {MPV_RENDER_PARAM_INVALID, nullptr}};
 #endif
 
@@ -435,7 +454,10 @@ void MPVCore::initializeGL() {
 #endif
 }
 
-void MPVCore::setFrameSize(brls::Rect rect) {
+void MPVCore::setFrameSize(brls::Rect r) {
+    rect = r;
+    if (isnan(rect.getWidth()) || isnan(rect.getHeight())) return;
+
 #ifdef MPV_SW_RENDER
 #ifdef BOREALIS_USE_D3D11
     // 使用 dx11 的拷贝交换，否则视频渲染异常
@@ -468,20 +490,24 @@ void MPVCore::setFrameSize(brls::Rect rect) {
     sw_size[0] = drawWidth;
     sw_size[1] = drawHeight;
     pitch      = PIXCEL_SIZE * drawWidth;
+
+    // 在视频暂停时调整纹理尺寸，视频画面会被清空为黑色，强制重新绘制一次，避免这个问题
+    mpv_render_context_render(mpv_context, mpv_params);
+    mpv_render_context_report_swap(mpv_context);
 #elif defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D)
     // Using default framebuffer
     this->mpv_fbo.w = brls::Application::windowWidth;
     this->mpv_fbo.h = brls::Application::windowHeight;
-    command_async("set", "video-margin-ratio-left",
-                  rect.getMinX() / brls::Application::contentWidth);
     command_async("set", "video-margin-ratio-right",
                   (brls::Application::contentWidth - rect.getMaxX()) /
                       brls::Application::contentWidth);
-    command_async("set", "video-margin-ratio-top",
-                  rect.getMinY() / brls::Application::contentHeight);
     command_async("set", "video-margin-ratio-bottom",
                   (brls::Application::contentHeight - rect.getMaxY()) /
                       brls::Application::contentHeight);
+    command_async("set", "video-margin-ratio-top",
+                  rect.getMinY() / brls::Application::contentHeight);
+    command_async("set", "video-margin-ratio-left",
+                  rect.getMinX() / brls::Application::contentWidth);
 #else
     if (this->media_texture == 0) return;
     int drawWidth  = rect.getWidth() * brls::Application::windowScale;
@@ -511,25 +537,32 @@ void MPVCore::setFrameSize(brls::Rect rect) {
 
     glBindBuffer(GL_ARRAY_BUFFER, this->shader.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // 在视频暂停时调整纹理尺寸，视频画面会被清空为黑色，强制重新绘制一次，避免这个问题
+    mpv_render_context_render(mpv_context, mpv_params);
+    glViewport(0, 0, (GLsizei)brls::Application::windowWidth,
+               (GLsizei)brls::Application::windowHeight);
+    mpv_render_context_report_swap(mpv_context);
 #endif
 }
 
 bool MPVCore::isValid() { return mpv_context != nullptr; }
 
-void MPVCore::openglDraw(brls::Rect rect, float alpha) {
+void MPVCore::draw(brls::Rect area, float alpha) {
     if (mpv_context == nullptr) return;
+    if (!(this->rect == area)) setFrameSize(area);
 
 #ifdef MPV_SW_RENDER
     if (!pixels) return;
-    mpv_render_context_render(this->mpv_context, mpv_params);
-    mpv_render_context_report_swap(this->mpv_context);
 
     auto *vg = brls::Application::getNVGContext();
     nvgUpdateImage(vg, nvg_image, (const unsigned char *)pixels);
 
     // draw black background
     nvgBeginPath(vg);
-    nvgFillColor(vg, NVGcolor{0, 0, 0, alpha});
+    NVGcolor bg{};
+    bg.a = alpha;
+    nvgFillColor(vg, bg);
     nvgRect(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(),
             rect.getHeight());
     nvgFill(vg);
@@ -545,7 +578,9 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
     // 只在非透明时绘制视频，可以避免退出页面时视频画面残留
     if (alpha >= 1) {
 #ifdef BOREALIS_USE_DEKO3D
-        static auto videoContext = (brls::SwitchVideoContext *)brls::Application::getPlatform()->getVideoContext();
+        static auto videoContext =
+            (brls::SwitchVideoContext *)brls::Application::getPlatform()
+                ->getVideoContext();
         mpv_fbo.tex = videoContext->getFramebuffer();
         videoContext->queueSignalFence(&readyFence);
         videoContext->queueFlush();
@@ -581,11 +616,6 @@ void MPVCore::openglDraw(brls::Rect rect, float alpha) {
         }
     }
 #else
-    mpv_render_context_render(this->mpv_context, mpv_params);
-    glViewport(0, 0, brls::Application::windowWidth,
-               brls::Application::windowHeight);
-    mpv_render_context_report_swap(this->mpv_context);
-
     // shader draw
     glUseProgram(shader.prog);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
@@ -651,12 +681,11 @@ void MPVCore::eventMainLoop() {
                 brls::Logger::info("========> MPV_EVENT_PLAYBACK_RESTART");
                 mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
                 DanmakuCore::instance().refresh();
-                if (AUTO_PLAY){
+                if (AUTO_PLAY) {
                     mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);
                     this->resume();
                     disableDimming(true);
-                }
-                else{
+                } else {
                     mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
                     this->pause();
                     disableDimming(false);
@@ -829,7 +858,7 @@ void MPVCore::eventMainLoop() {
                         break;
                     case 14:
                         if (data) video_seeking = *(int *)data;
-                        if (video_seeking){
+                        if (video_seeking) {
                             brls::Logger::info("========> VIDEO SEEKING");
                             mpvCoreEvent.fire(MpvEventEnum::LOADING_START);
                             disableDimming(false);
@@ -855,6 +884,10 @@ void MPVCore::reset() {
     this->cache_speed    = 0;  // Bps
     this->playback_time  = 0;
     this->video_progress = 0;
+
+    // 软硬解切换后应该手动设置一次渲染尺寸
+    // 切换视频前设置渲染尺寸可以顺便将上一条视频的最后一帧画面清空
+    setFrameSize(rect);
 }
 
 void MPVCore::setUrl(const std::string &url, const std::string &extra,
@@ -877,7 +910,7 @@ void MPVCore::setVolume(int64_t value) {
     MPVCore::VIDEO_VOLUME = (int)value;
 }
 
-void MPVCore::setVolume(const std::string& value) {
+void MPVCore::setVolume(const std::string &value) {
     command_async("set", "volume", value);
     MPVCore::VIDEO_VOLUME = std::stoi(value);
 }
@@ -892,7 +925,9 @@ void MPVCore::stop() { command_async("stop"); }
 
 void MPVCore::seek(int64_t p) { command_async("seek", p, "absolute"); }
 
-void MPVCore::seek(const std::string& p) { command_async("seek", p, "absolute"); }
+void MPVCore::seek(const std::string &p) {
+    command_async("seek", p, "absolute");
+}
 
 void MPVCore::seekRelative(int64_t p) { command_async("seek", p, "relative"); }
 

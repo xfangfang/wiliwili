@@ -145,12 +145,6 @@ public:
      */
     void setSpeed(double value);
 
-    /**
-     * 设置视频渲染区域大小
-     * @param rect 视频区域
-     */
-    void setFrameSize(brls::Rect rect);
-
     void showOsdText(const std::string &value, int duration = 2000);
 
     /**
@@ -158,7 +152,22 @@ public:
      */
     static void disableDimming(bool disable);
 
-    void openglDraw(brls::Rect rect, float alpha = 1.0);
+    /**
+     * 绘制视频
+     *
+     * 支持三种绘制方式 （通过编译参数切换）
+     * 1. MPV_SW_RENDER: CPU绘制；优点：适合任意图形API，缺点：效率低。
+     *    wiliwili 的 UWP 版本因为用了dx12，所以使用此方式绘制。
+     *    在向新的平台移植时推荐优先使用此方式绘制，便于移植，之后再考虑优化问题。
+     * 2. MPV_NO_FB: 绘制到默认的 framebuffer 上； 性能适中。
+     *    适合 树莓派、PSV 等 OpenGL <ES> 2.0 的平台；因为不支持独立创建 framebuffer，所以让 mpv 先绘制到整个屏幕上，再用UI来覆盖。
+     *    使用 deko3d (switch only) 时，采用 MPV_NO_FB 方式绘制，因为实现起来比较简单。
+     *    使用 OpenGL ES 3.0 时，也需要采用 MPV_NO_FB 方式绘制，因为独立绘制的 GLSL 脚本没有做适配。
+     * 3. 默认绘制方式: 将视频绘制到独立的 framebuffer 上，需要显示在屏幕上时再贴到默认的 framebuffer 上的某个位置；性能最佳。
+     *    支持图形API OpenGL 3.2+。
+     *    在部分平台上支持 direct rendering, 减少 CPU 和 GPU 间的拷贝进一步提升了性能。
+     */
+    void draw(brls::Rect rect, float alpha = 1.0);
 
     mpv_render_context *getContext();
 
@@ -214,7 +223,7 @@ public:
     int64_t volume         = 100;
     double video_speed     = 0;
     bool video_paused      = false;
-    bool video_stopped     = false;
+    bool video_stopped     = true;
     bool video_seeking     = false;
     double playback_time   = 0;
     double percent_pos     = 0;
@@ -245,6 +254,7 @@ public:
 private:
     mpv_handle *mpv                 = nullptr;
     mpv_render_context *mpv_context = nullptr;
+    brls::Rect rect = {0, 0, 1920, 1080};
 #ifdef MPV_SW_RENDER
     const int PIXCEL_SIZE          = 4;
     int nvg_image                  = 0;
@@ -252,6 +262,7 @@ private:
     int sw_size[2]                 = {1920, 1080};
     size_t pitch                   = PIXCEL_SIZE * sw_size[0];
     void *pixels                   = nullptr;
+    bool redraw                    = false;
     mpv_render_param mpv_params[5] = {
         {MPV_RENDER_PARAM_SW_SIZE, &sw_size[0]},
         {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
@@ -280,6 +291,7 @@ private:
     GLShader shader{0};
     mpv_opengl_fbo mpv_fbo{0, 1920, 1080};
     int flip_y{1};
+    bool redraw = false;
     mpv_render_param mpv_params[3] = {{MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
                                       {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
                                       {MPV_RENDER_PARAM_INVALID, nullptr}};
@@ -309,6 +321,12 @@ private:
     void init();
 
     void clean();
+
+    /**
+     * 设置视频渲染区域大小
+     * @param rect 视频区域
+     */
+    void setFrameSize(brls::Rect rect);
 
     /// MPV callbacks
 
