@@ -279,7 +279,8 @@ jobs:
       - name: Build
         run: |
           docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
-            "cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON -DCMAKE_BUILD_TYPE=Release \
+            "git config --global --add safe.directory /src &&
+             cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON -DCMAKE_BUILD_TYPE=Release \
                 -DDISABLE_OPENCC=ON -DMPV_NO_FB=ON \
                 -DVERIFY_SSL=OFF -DUSE_SYSTEM_CPR=ON && \
                 make -C cmake-build-ps4 -j$(nproc)"
