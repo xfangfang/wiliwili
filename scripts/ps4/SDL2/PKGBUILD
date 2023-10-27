@@ -2,7 +2,7 @@
 
 pkgname=ps4-openorbis-sdl2
 pkgver=2.0.18
-pkgrel=16
+pkgrel=17
 pkgdesc="A library for portable low-level access to video, audio, joysticks..."
 gitcommit=bf797a5315c7dbc0757d8ae7228e2dff1bf370cb
 arch=('any')
@@ -11,7 +11,7 @@ license=("LGPL")
 options=(!strip libtool staticlibs)
 depends=('ps4-openorbis-libsamplerate')
 makedepends=('ps4-openorbis-pkg-config' 'ps4-openorbis-vars')
-source=("https://github.com/PacBrew/SDL/archive/$gitcommit.zip")
+source=("https://github.com/PacBrew/SDL/archive/$gitcommit.tar.gz")
 sha256sums=('97b6ed13fb3aa49dfa35737981458c6cecf8baae5fa87ae7216bcb2a09df70a9')
 groups=('ps4-openorbis-portlibs' 'ps4-openorbis-sdl2')
 
@@ -26,6 +26,9 @@ build() {
   # Change gamepad mapping
   sed -i s'|out->back.target = 4;|out->back.target = 6;|'g src/joystick/ps4/SDL_sysjoystick.c
   sed -i s'|out->start.target = 6;|out->start.target = 4;|'g src/joystick/ps4/SDL_sysjoystick.c
+
+  # Change default video memory size
+  sed -i s'|videoSharedMemorySize = 256 \* 1024 \* 1024;|videoSharedMemorySize = 512 \* 1024 \* 1024;|'g src/video/ps4/SDL_ps4piglet.c
 
   mkdir -p build && cd build
 
