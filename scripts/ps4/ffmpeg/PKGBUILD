@@ -1,8 +1,8 @@
 # Maintainer: cpasjuste <cpasjuste@gmail.com>
 
 pkgname=ps4-openorbis-ffmpeg
-pkgver=5.0
-pkgrel=5
+pkgver=6.0
+pkgrel=1
 pkgdesc='ffmpeg port'
 arch=('any')
 url='https://ffmpeg.org/'
@@ -11,7 +11,7 @@ options=(!strip staticlibs)
 makedepends=('ps4-openorbis-pkg-config' 'ps4-openorbis-vars' 'ps4-openorbis-mbedtls')
 depends=('ps4-openorbis-zlib' 'ps4-openorbis-bzip2' 'ps4-openorbis-libass' 'ps4-openorbis-libfribidi' 'ps4-openorbis-freetype')
 source=("https://ffmpeg.org/releases/ffmpeg-$pkgver.tar.xz")
-sha256sums=('51e919f7d205062c0fd4fae6243a84850391115104ccf1efc451733bc0ac7298')
+sha256sums=('SKIP')
 groups=('ps4-openorbis-portlibs')
 
 build() {
@@ -33,6 +33,8 @@ build() {
 
   # TODO: fix this
   sed -i s'|#define HAVE_SYSCTL 1|//#define HAVE_SYSCTL 1|'g config.h
+
+  sed -i s'|#define HAVE_GETADDRINFO 0|#define HAVE_GETADDRINFO 1|'g config.h
 
   make --quiet -j$(nproc)
 }
