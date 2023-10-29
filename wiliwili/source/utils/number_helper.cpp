@@ -17,6 +17,7 @@
 #elif defined(PS4)
 #include <borealis/platforms/ps4/ps4_sysmodule.hpp>
 
+#pragma clang optimize off
 static inline void convertUtcToLocalTime(const struct tm* utc, struct tm* local_time)
 {
     brls::OrbisDateTime utc_sce, local_sce;
@@ -40,6 +41,7 @@ static inline void convertUtcToLocalTime(const struct tm* utc, struct tm* local_
     local_time->tm_min  = local_sce.minute;
     local_time->tm_sec  = local_sce.second;
 }
+#pragma clang optimize on
 
 #define GET_TIME                                     \
     struct tm tm, tm_utc, curTm, curTm_utc;          \
