@@ -540,9 +540,10 @@ VideoView::~VideoView() {
 void VideoView::draw(NVGcontext* vg, float x, float y, float width,
                      float height, Style style, FrameContext* ctx) {
     if (!mpvCore->isValid()) return;
+    float alpha = this->getAlpha();
 
     // draw video
-    mpvCore->draw(brls::Rect(x, y, width, height), this->getAlpha());
+    mpvCore->draw(brls::Rect(x, y, width, height), alpha);
 
     // draw bottom bar
     if (BOTTOM_BAR && showBottomLineSetting) {
