@@ -100,7 +100,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
-#if defined(__PSV__)
+#if defined(__PSV__) || defined(PS4)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
@@ -132,11 +132,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
      {"player_inmemory_cache",
       {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
       {0, 10, 20, 50, 100, 200, 500},
-#ifdef PS4
-      0}},
-#else
       1}},
-#endif
 #endif
     {
         SettingItem::PLAYER_DEFAULT_SPEED,
