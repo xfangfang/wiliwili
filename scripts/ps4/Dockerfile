@@ -11,6 +11,5 @@ RUN BASE_URL="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0" &&
     pacbrew-pacman -U --needed --noconfirm $BASE_URL/ps4-openorbis-cpr-1.10.5-1-any.pkg.tar.xz && \
     pacbrew-pacman -U --needed --noconfirm $BASE_URL/ps4-openorbis-ffmpeg-6.0-1-any.pkg.tar.xz && \
     pacbrew-pacman -U --needed --noconfirm $BASE_URL/ps4-openorbis-libmpv-0.36.0-1-any.pkg.tar.xz && \
-    pacbrew-pacman -S --needed --noconfirm ps4-openorbis-libmpv && \
     pacbrew-pacman -S --needed --noconfirm ps4-openorbis-libwebp && \
     yes | pacbrew-pacman -Scc
