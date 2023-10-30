@@ -291,6 +291,12 @@ jobs:
           name: ${{ needs.version.outputs.DIST_PS4 }}
           path: "cmake-build-ps4/*.pkg"
 
+      - name: Upload oelf
+        uses: actions/upload-artifact@v3
+        with:
+          name: ps4_dev_oelf
+          path: "cmake-build-ps4/*.oelf"
+
   build-macos:
     needs: [ version ]
     runs-on: macos-11
