@@ -156,6 +156,8 @@ public:
     // 如果缓存列表为空则生成一个新的
     RecyclingGridItem* dequeueReusableCell(std::string identifier);
 
+    brls::View* getDefaultFocus() override;
+
     ~RecyclingGrid() override;
 
     static View* create();

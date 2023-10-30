@@ -172,5 +172,10 @@ class SearchSuggestList {
 public:
     std::vector<SearchSuggest> tag;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SearchSuggestList, tag);
+inline void from_json(const nlohmann::json &nlohmann_json_j,
+                      SearchSuggestList &nlohmann_json_t) {
+    if (nlohmann_json_j.contains("tag") && nlohmann_json_j.at("tag").is_array()) {
+        nlohmann_json_j.at("tag").get_to(nlohmann_json_t.tag);
+    }
+}
 }  // namespace bilibili

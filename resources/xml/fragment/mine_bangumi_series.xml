@@ -18,7 +18,7 @@
                     singleLine="true"
                     focusable="true"
                     text="@i18n/wiliwili/mine/series"
-                    width="1170"/>
+                    marginRight="60"/>
             <MineBangumi
                     id="mine/series"
                     marginTop="20"

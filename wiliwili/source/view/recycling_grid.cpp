@@ -732,6 +732,12 @@ void RecyclingGrid::setPaddingLeft(float left) {
     this->reloadData();
 }
 
+brls::View* RecyclingGrid::getDefaultFocus() {
+    if (this->dataSource && this->dataSource->getItemCount() > 0)
+        return ScrollingFrame::getDefaultFocus();
+    return nullptr;
+}
+
 brls::View* RecyclingGrid::create() { return new RecyclingGrid(); }
 
 RecyclingGridItem* RecyclingGrid::dequeueReusableCell(std::string identifier) {
