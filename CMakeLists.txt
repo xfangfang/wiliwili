@@ -174,6 +174,9 @@ if (WIN32)
 elseif (PLATFORM_SWITCH)
     # System service initialization functions required for libnx
     list(APPEND MAIN_SRC ${BOREALIS_LIBRARY}/lib/platforms/switch/switch_wrapper.c)
+elseif (PLATFORM_PS4)
+    # Show Backtrace when app crash
+    list(APPEND MAIN_SRC ${BOREALIS_LIBRARY}/lib/platforms/ps4/crashlog.c)
 endif ()
 
 # build borealis qrcode and other third party libraries
