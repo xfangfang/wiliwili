@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "api/live/extract_messages.hpp"
+
 #include <mutex>
 #include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
@@ -12,7 +14,7 @@
 class DanmakuItem {
 public:
     DanmakuItem(std::string content, const char *attributes);
-    DanmakuItem(std::string &&content, const std::string &attributes);
+    DanmakuItem(const float _time, danmaku_t *dan);
 
     std::string msg;  // 弹幕内容
     float time;       // 弹幕出现的时间

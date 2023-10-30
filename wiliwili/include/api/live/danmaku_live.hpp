@@ -4,18 +4,15 @@
 
 #pragma once
 
-#include <borealis.hpp>
-#include <borealis/core/singleton.hpp>
-
 #include <string>
 #include <atomic>
-#include <vector>
 #include <thread>
 #include <mutex>
 #include <functional>
-#include <utility>
 
-#include "mongoose.h"  // Include Mongoose header file
+#include <borealis.hpp>
+#include <borealis/core/singleton.hpp>
+#include "mongoose.h"
 
 class LiveDanmaku : public brls::Singleton<LiveDanmaku> {
 public:
@@ -28,8 +25,8 @@ public:
     void send_heartbeat();
     void send_text_message(const std::string &message);
 
-    void setonMessage(std::function<void(std::string&&)> func);
-    std::function<void(std::string&&)> onMessage;
+    void setonMessage(std::function<void(std::string &&)> func);
+    std::function<void(std::string &&)> onMessage;
 
     void set_wait_time(int time);
     int wait_time = 800;

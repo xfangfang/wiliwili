@@ -16,19 +16,13 @@
 
 using namespace brls::literals;
 
-#define tostr(x) std::to_string(x)
-static void process_danmaku(danmaku_t *dan){
-    char comma = ',';
-    std::string tem = "0,0,0,0,";
+static void process_danmaku(danmaku_t* dan) {
     //做其他处理
     //...
 
     //弹幕加载到视频中去
-    double time = MPVCore::instance().getPlaybackTime() + 0.3;
-    std::string combined_attr = tostr(time) + comma + tostr(dan->dan_type) + comma
-                                + tostr(dan->dan_size) + comma + tostr(dan->dan_color) + comma
-                                + tem + tostr(dan->user_level);
-    DanmakuCore::instance().addSingleDanmaku(DanmakuItem(dan->dan, combined_attr));
+    float time = MPVCore::instance().getPlaybackTime() + 0.1;
+    DanmakuCore::instance().addSingleDanmaku(DanmakuItem(time, dan));
 
     danmaku_t_free(dan);
 }
@@ -38,14 +32,14 @@ static void onDanmakuReceived(std::string&& message) {
     std::vector<uint8_t> payload(msg.begin(), msg.end());
     std::vector<std::string> messages = parse_packet(payload);
 
-    if(messages.size() == 0){
+    if (messages.size() == 0) {
         return;
     }
 
-    for(auto &&live_msg : extract_messages(messages)){
-        if(live_msg.type == danmaku){
-            if(!live_msg.ptr) continue;
-            process_danmaku((danmaku_t *)live_msg.ptr);
+    for (const auto& live_msg : extract_messages(messages)) {
+        if (live_msg.type == danmaku) {
+            if (!live_msg.ptr) continue;
+            process_danmaku((danmaku_t*)live_msg.ptr);
             free(live_msg.ptr);
         } else if (live_msg.type == watched_change) {
             //todo

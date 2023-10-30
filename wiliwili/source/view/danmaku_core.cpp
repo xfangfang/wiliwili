@@ -44,26 +44,20 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     }
 }
 
-DanmakuItem::DanmakuItem(std::string &&content, const std::string &attributes){
-    msg = std::move(content);
+DanmakuItem::DanmakuItem(const float _time, danmaku_t *dan) {
+    msg = std::string(dan->dan);
 
 #ifdef OPENCC
     static bool ZH_T = brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
                        brls::Application::getLocale() == brls::LOCALE_ZH_TW;
     if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
 #endif
-    std::vector<std::string> attrs;
-    pystring::split(attributes.c_str(), attrs, ",");
-    if (attrs.size() < 9) {
-        brls::Logger::error("error decode danmaku: {} {}", msg, attributes);
-        type = -1;
-        return;
-    }
-    time      = atof(attrs[0].c_str());
-    type      = atoi(attrs[1].c_str());
-    fontSize  = atoi(attrs[2].c_str());
-    fontColor = atoi(attrs[3].c_str());
-    level     = atoi(attrs[8].c_str());
+
+    time      = _time;
+    type      = dan->dan_type;
+    fontSize  = dan->dan_size;
+    fontColor = dan->dan_color;
+    level     = dan->user_level;
 
     int r          = (fontColor >> 16) & 0xff;
     int g          = (fontColor >> 8) & 0xff;
