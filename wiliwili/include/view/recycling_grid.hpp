@@ -101,7 +101,7 @@ public:
 
     RecyclingGridDataSource* getDataSource() const;
 
-    void showSkeleton(unsigned int num = 12);
+    void showSkeleton(unsigned int num = 30);
 
     void refresh();
 
@@ -155,6 +155,8 @@ public:
     // 如果缓存列表中存在就从中取出一个
     // 如果缓存列表为空则生成一个新的
     RecyclingGridItem* dequeueReusableCell(std::string identifier);
+
+    brls::View* getDefaultFocus() override;
 
     ~RecyclingGrid() override;
 

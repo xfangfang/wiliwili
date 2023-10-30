@@ -14,6 +14,42 @@
     localtime_s(&curTm, &curTime); \
     struct tm tm;                  \
     localtime_s(&tm, &sec);
+#elif defined(PS4)
+#include <borealis/platforms/ps4/ps4_sysmodule.hpp>
+
+#pragma clang optimize off
+static inline void convertUtcToLocalTime(const struct tm* utc, struct tm* local_time)
+{
+    brls::OrbisDateTime utc_sce, local_sce;
+    utc_sce.day    = utc->tm_mday;
+    utc_sce.month  = utc->tm_mon + 1;
+    utc_sce.year   = utc->tm_year + 1900;
+    utc_sce.hour   = utc->tm_hour;
+    utc_sce.minute = utc->tm_min;
+    utc_sce.second = utc->tm_sec;
+
+    brls::OrbisTick utc_tick;
+    brls::OrbisTick local_tick;
+    brls::sceRtcGetTick(&utc_sce, &utc_tick);
+    brls::sceRtcConvertUtcToLocalTime(&utc_tick, &local_tick);
+    brls::sceRtcSetTick(&local_sce, &local_tick);
+
+    local_time->tm_year = local_sce.year - 1900;
+    local_time->tm_mon  = local_sce.month - 1;
+    local_time->tm_mday = local_sce.day;
+    local_time->tm_hour = local_sce.hour;
+    local_time->tm_min  = local_sce.minute;
+    local_time->tm_sec  = local_sce.second;
+}
+#pragma clang optimize on
+
+#define GET_TIME                                     \
+    struct tm tm, tm_utc, curTm, curTm_utc;          \
+    time_t curTime = time(NULL);                     \
+    localtime_r(&curTime, &curTm_utc);               \
+    convertUtcToLocalTime(&curTm_utc, &curTm); \
+    localtime_r(&sec, &tm_utc);                      \
+    convertUtcToLocalTime(&tm_utc, &tm);
 #else
 #define GET_TIME                   \
     time_t curTime = time(NULL);   \
@@ -23,7 +59,7 @@
     localtime_r(&sec, &tm);
 #endif
 
-char seed[64] = {'0', '1', '2', '3', '4', '5', '6', '7',  '8', '9', 'A',
+const char seed[64] = {'0', '1', '2', '3', '4', '5', '6', '7',  '8', '9', 'A',
                  'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',  'J', 'K', 'L',
                  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',  'U', 'V', 'W',
                  'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e',  'f', 'g', 'h',

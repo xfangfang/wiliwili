@@ -289,9 +289,19 @@ public:
         const std::function<void(LiveUrlResultWrapper)>& callback = nullptr,
         const ErrorCallback& error                                = nullptr);
 
-    /// 主页 推荐
+    /**
+     * 主页 推荐
+     * @param index 页号，从1开始
+     * @param num 每页数量 （手动刷新 30， 自动加载 15， 初始加载 10， 精选 10）
+     * @param fresh_type 刷新类似（手动刷新是 3， 自动加载是 4，初始加载是 0）
+     * @param feed_version 数据类型 （首页是 V1，精选是 CLIENT_SELECTED）
+     * @param x_num 一行几个视频 （固定为 3）
+     * @param y_num 一列几个视频 （默认为 4）
+     * @param callback
+     * @param error
+     */
     static void get_recommend(
-        int index = 1, int num = 24,
+        int index = 1, int num = 24, int fresh_type = 4, std::string feed_version = "V1", int x_num = 3, int y_num = 4,
         const std::function<void(RecommendVideoListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);

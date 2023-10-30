@@ -27,6 +27,19 @@
 #include "activity/player_activity.hpp"
 #include "activity/search_activity_tv.hpp"
 
+#ifdef PS4
+#include <orbis/SystemService.h>
+#include <orbis/Sysmodule.h>
+#include <arpa/inet.h>
+
+extern "C" {
+extern int ps4_mpv_use_precompiled_shaders;
+extern int ps4_mpv_dump_shaders;
+extern in_addr_t primary_dns;
+extern in_addr_t secondary_dns;
+}
+#endif
+
 #ifndef PATH_MAX
 #define PATH_MAX 256
 #endif
@@ -39,7 +52,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::APP_LANG,
      {"app_lang",
       {
-#if defined(__SWITCH__) || defined(__PSV__)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
           brls::LOCALE_AUTO,
 #endif
           brls::LOCALE_EN_US,
@@ -50,7 +63,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
           brls::LOCALE_Ko,
       },
       {},
-#if defined(__SWITCH__) || defined(__PSV__)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
       0}},
 #else
       4}},
@@ -87,7 +100,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
-#if defined(__PSV__)
+#if defined(__PSV__) || defined(PS4)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
@@ -427,6 +440,9 @@ void ProgramConfig::load() {
         VideoDetail::defaultQuality = 16;
     }
 
+    // 加载完成后自动播放
+    MPVCore::AUTO_PLAY = true;
+
     // 初始化默认的倍速设定
     MPVCore::VIDEO_SPEED = getIntOption(SettingItem::PLAYER_DEFAULT_SPEED);
 
@@ -525,7 +541,7 @@ void ProgramConfig::load() {
     if (langData != brls::LOCALE_AUTO && i18nData.count(langData)) {
         brls::Platform::APP_LOCALE_DEFAULT = langData;
     } else {
-#if !defined(__SWITCH__) && !defined(__PSV__)
+#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4)
         brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_ZH_HANS;
 #endif
     }
@@ -565,7 +581,7 @@ void ProgramConfig::load() {
         }
 
         // 初始化纹理缓存数量
-#ifdef __PSV__
+#if defined(__PSV__) || defined(PS4)
         brls::TextureCache::instance().cache.setCapacity(1);
 #else
         brls::TextureCache::instance().cache.setCapacity(
@@ -687,6 +703,15 @@ void ProgramConfig::init() {
 
 #if defined(_MSC_VER)
 #elif defined(__PSV__)
+#elif defined(PS4)
+    if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0)
+        brls::Logger::error("cannot load net module");
+    primary_dns                     = inet_addr(primaryDNSStr.c_str());
+    secondary_dns                   = inet_addr(secondaryDNSStr.c_str());
+    ps4_mpv_use_precompiled_shaders = 1;
+    ps4_mpv_dump_shaders            = 0;
+    // 在加载第一帧之后隐藏启动画面
+    brls::sync([]() { sceSystemServiceHideSplashScreen(); });
 #else
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) != nullptr) {
@@ -706,7 +731,7 @@ void ProgramConfig::init() {
 
     if (access(brls::FontLoader::USER_ICON_PATH.c_str(), F_OK) == -1) {
         // 自定义字体不存在，使用内置字体
-#ifdef __PSV__
+#if defined(__PSV__) || defined(PS4)
         brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
 #else
         std::string icon =
@@ -764,6 +789,8 @@ std::string ProgramConfig::getHomePath() {
 std::string ProgramConfig::getConfigDir() {
 #ifdef __SWITCH__
     return "/config/wiliwili";
+#elif defined(PS4)
+    return "/data/wiliwili";
 #elif defined(__PSV__)
     return "ux0:/data/wiliwili";
 #elif defined(IOS)
@@ -812,10 +839,10 @@ void ProgramConfig::exit(char* argv[]) {
     curl_global_cleanup();
 
 #ifdef IOS
+#elif defined(PS4)
 #elif __PSV__
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     if (!brls::DesktopPlatform::RESTART_APP) return;
-
 #ifdef __linux__
     char filePath[PATH_MAX + 1];
     ssize_t count = readlink("/proc/self/exe", filePath, PATH_MAX);

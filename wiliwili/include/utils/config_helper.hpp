@@ -26,6 +26,11 @@ namespace fs = std::experimental::filesystem;
 #error "Failed to include <filesystem> header!"
 #endif
 
+#ifdef PS4
+const std::string primaryDNSStr = "223.5.5.5";
+const std::string secondaryDNSStr = "1.1.1.1";
+#endif
+
 
 typedef std::map<std::string, std::string> Cookie;
 constexpr uint32_t MINIMUM_WINDOW_WIDTH  = 640;

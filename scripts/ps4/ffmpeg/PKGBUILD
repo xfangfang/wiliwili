@@ -1,0 +1,51 @@
+# Maintainer: cpasjuste <cpasjuste@gmail.com>
+
+pkgname=ps4-openorbis-ffmpeg
+pkgver=6.0
+pkgrel=1
+pkgdesc='ffmpeg port'
+arch=('any')
+url='https://ffmpeg.org/'
+license=('LGPL' 'GPL')
+options=(!strip staticlibs)
+makedepends=('ps4-openorbis-pkg-config' 'ps4-openorbis-vars' 'ps4-openorbis-mbedtls')
+depends=('ps4-openorbis-zlib' 'ps4-openorbis-bzip2' 'ps4-openorbis-libass' 'ps4-openorbis-libfribidi' 'ps4-openorbis-freetype')
+source=("https://ffmpeg.org/releases/ffmpeg-$pkgver.tar.xz")
+sha256sums=('SKIP')
+groups=('ps4-openorbis-portlibs')
+
+build() {
+  cd ffmpeg-$pkgver
+
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  ./configure --prefix="${OPENORBIS}/usr" \
+    --enable-cross-compile --cross-prefix=${OPENORBIS}/bin/ \
+    --arch=x86_64 --target-os=freebsd \
+    --disable-shared --enable-static \
+    --pkg-config=openorbis-pkg-config \
+    --disable-programs --disable-debug --disable-doc \
+    --disable-avdevice --disable-hwaccels --disable-encoders --disable-muxers \
+    --enable-swscale --enable-swresample --enable-network  \
+    --disable-protocols --enable-protocol=file,http,https,ftp,tcp,udp,rtmp --enable-version3 \
+    --enable-zlib --enable-bzlib --enable-libass --enable-libfreetype --enable-libfribidi --enable-mbedtls \
+    --cc=$CC --cxx=$CXX --nm=$NM --strip=$STRIP --ar=$AR --ranlib=$RANLIB
+
+  # TODO: fix this
+  sed -i s'|#define HAVE_SYSCTL 1|//#define HAVE_SYSCTL 1|'g config.h
+
+  sed -i s'|#define HAVE_GETADDRINFO 0|#define HAVE_GETADDRINFO 1|'g config.h
+
+  make --quiet -j$(nproc)
+}
+
+package() {
+  cd ffmpeg-$pkgver
+
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  make DESTDIR="$pkgdir" install
+
+  # remove examples
+  rm -r "$pkgdir"${OPENORBIS}/usr/share
+}

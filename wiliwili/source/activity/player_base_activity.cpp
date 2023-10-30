@@ -479,6 +479,13 @@ void BasePlayerActivity::setVideoQuality() {
     recycler->registerCell("Cell", []() { return new QualityCell(); });
     dropdown->setDataSource(
         new QualityDataSource(this->videoUrlResult, dropdown));
+    dropdown->registerAction(
+        "", brls::ControllerButton::BUTTON_START,
+        [dropdown](...) {
+            dropdown->dismiss();
+            return true;
+        },
+        true);
 
     // 因为触摸的问题 视频组件上开启新的 activity 需要同步执行
     // 不然在某些情况下焦点会错乱

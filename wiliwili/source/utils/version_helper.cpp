@@ -33,6 +33,8 @@ std::string APPVersion::getPlatform() {
     return "iOS";
 #elif defined(__APPLE__)
     return "macOS";
+#elif defined(PS4)
+    return "PS4";
 #elif defined(__linux__)
     if (getenv("SteamDeck")) return "SteamDeck";
     return "Linux";
@@ -41,7 +43,11 @@ std::string APPVersion::getPlatform() {
 #elif defined(_WIN32)
     return "Windows";
 #elif defined(__SWITCH__)
+#ifdef BOREALIS_USE_DEKO3D
+    return "NX-deko3d";
+#else
     return "NX";
+#endif
 #elif defined(__PSV__)
     return "PSVita";
 #else

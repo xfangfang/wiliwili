@@ -317,10 +317,22 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 
 ### 交叉编译 PSV 可执行文件
 
-按顺序参考 `.github/workflows/build.yaml` 、[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv)
-和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
+分别参考 `.github/workflows/build.yaml` 、[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv) 和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
 
 注意不要忘记在编译前将需要的四个 suprx 文件放入 `scripts/psv/module` 目录下。
+
+### 交叉编译 PS4 可执行文件
+
+参考 `.github/workflows/build.yaml` 使用 docker 来编译。  
+或本地安装 [PacBrew](https://github.com/PacBrew/pacbrew-packages) 环境（只支持 Linux），并手动添加依赖库，请参考：[scripts/ps4/Dockerfile](https://github.com/xfangfang/wiliwili/blob/ps4/scripts/ps4/Dockerfile)
+
+```shell
+docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
+    "cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON \
+        -DDISABLE_OPENCC=ON -DMPV_NO_FB=ON \
+        -DVERIFY_SSL=OFF -DUSE_SYSTEM_CPR=ON && \
+        make -C cmake-build-ps4 -j$(nproc)"
+```
 
 <br>
 
@@ -333,24 +345,32 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 
 # Acknowledgement
 
-- devkitpro and switchbrew
+The development of wiliwili cannot do without the support of the following open source projects.
+
+- Toolchain: devkitpro, switchbrew, vitasdk OpenOrbis and PacBrew
     - https://github.com/devkitPro/pacman/releases
     - https://github.com/devkitPro/pacman-packages
     - https://github.com/switchbrew/libnx
-- natinusala and XITRIX
+    - https://github.com/vitasdk
+    - https://github.com/OpenOrbis
+    - https://github.com/PacBrew
+- UI Library: natinusala and XITRIX
     - https://github.com/natinusala/borealis
     - https://github.com/XITRIX/borealis
-- Cpasjuste, proconsule and averne
+- Video Player: Cpasjuste, proconsule fish47 and averne
     - https://github.com/Cpasjuste/pplay
     - https://github.com/proconsule/nxmp
+    - https://github.com/fish47/FFmpeg-vita
     - https://github.com/averne
-- https://github.com/libcpr/cpr
-- https://github.com/nlohmann/json
-- https://github.com/nayuki/QR-Code-generator
-- https://github.com/BYVoid/OpenCC
-- https://github.com/imageworks/pystring
-- https://github.com/sammycage/lunasvg
-- https://github.com/fish47/FFmpeg-vita
+- Misc
+  - https://github.com/libcpr/cpr
+  - https://github.com/nlohmann/json
+  - https://github.com/nayuki/QR-Code-generator
+  - https://github.com/BYVoid/OpenCC
+  - https://github.com/imageworks/pystring
+  - https://github.com/sammycage/lunasvg
+  - https://github.com/cesanta/mongoose
+  - https://chromium.googlesource.com/webm/libwebp
 
 # Special thanks
 

@@ -12,7 +12,7 @@
 using namespace brls::literals;
 
 PlayerCoin::PlayerCoin() {
-#ifdef __PSV__
+#if defined(__PSV__) || defined(PS4)
     this->inflateFromXMLRes("xml/fragment/player_coin_psv.xml");
 #else
     this->inflateFromXMLRes("xml/fragment/player_coin.xml");

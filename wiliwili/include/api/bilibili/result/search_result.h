@@ -67,7 +67,8 @@ public:
 
 inline void from_json(const nlohmann::json &nlohmann_json_j,
                       VideoItemSearchResult &nlohmann_json_t) {
-    if (nlohmann_json_j.at("type") == "video") {
+    auto video_type = nlohmann_json_j.at("type").get<std::string>();
+    if (video_type == "video") {
         nlohmann_json_j.at("aid").get_to(nlohmann_json_t.aid);
         nlohmann_json_j.at("bvid").get_to(nlohmann_json_t.bvid);
         nlohmann_json_j.at("author").get_to(nlohmann_json_t.subtitle);
@@ -80,7 +81,14 @@ inline void from_json(const nlohmann::json &nlohmann_json_j,
         if (pystring::startswith(nlohmann_json_t.cover, "//")) {
             nlohmann_json_t.cover = "http:" + nlohmann_json_t.cover;
         }
-    } else {
+    } else if (video_type == "ketang") {
+        nlohmann_json_j.at("aid").get_to(nlohmann_json_t.aid);
+        nlohmann_json_j.at("pic").get_to(nlohmann_json_t.cover);
+        nlohmann_json_j.at("author").get_to(nlohmann_json_t.subtitle);
+        nlohmann_json_j.at("play").get_to(nlohmann_json_t.play);
+    } else if (video_type == "media_bangumi" || video_type == "media_ft" ){
+        // media_bangumi: 番剧
+        // media_ft: 影视
         nlohmann_json_j.at("season_id").get_to(nlohmann_json_t.season_id);
         nlohmann_json_j.at("pubtime").get_to(nlohmann_json_t.pubdate);
         nlohmann_json_j.at("cover").get_to(nlohmann_json_t.cover);
@@ -164,5 +172,10 @@ class SearchSuggestList {
 public:
     std::vector<SearchSuggest> tag;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SearchSuggestList, tag);
+inline void from_json(const nlohmann::json &nlohmann_json_j,
+                      SearchSuggestList &nlohmann_json_t) {
+    if (nlohmann_json_j.contains("tag") && nlohmann_json_j.at("tag").is_array()) {
+        nlohmann_json_j.at("tag").get_to(nlohmann_json_t.tag);
+    }
+}
 }  // namespace bilibili

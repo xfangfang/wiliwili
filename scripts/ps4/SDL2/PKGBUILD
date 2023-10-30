@@ -1,0 +1,48 @@
+# Maintainer:  cpasjuste <cpasjuste@gmail.com>
+
+pkgname=ps4-openorbis-sdl2
+pkgver=2.0.18
+pkgrel=18
+pkgdesc="A library for portable low-level access to video, audio, joysticks..."
+gitcommit=bf797a5315c7dbc0757d8ae7228e2dff1bf370cb
+arch=('any')
+url="https://libsdl.org"
+license=("LGPL")
+options=(!strip libtool staticlibs)
+depends=('ps4-openorbis-libsamplerate')
+makedepends=('ps4-openorbis-pkg-config' 'ps4-openorbis-vars')
+source=("https://github.com/PacBrew/SDL/archive/$gitcommit.tar.gz" "sdl2.patch")
+sha256sums=('SKIP' 'SKIP')
+groups=('ps4-openorbis-portlibs' 'ps4-openorbis-sdl2')
+
+build() {
+  cd SDL-$gitcommit
+
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  # 1. Handle sceSystemServiceHideSplashScreen in our own application
+  # 2. Change gamepad mapping
+  # 3. Change default video memory size
+  # 4. Allow 4k
+  patch -Np1 -i $srcdir/sdl2.patch
+
+  mkdir -p build && cd build
+
+  openorbis-cmake -G "Unix Makefiles" \
+    -DCMAKE_INSTALL_PREFIX=${OPENORBIS}/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    ..
+
+  make --quiet -j $(getconf _NPROCESSORS_ONLN)
+}
+
+package() {
+  cd SDL-$gitcommit/build
+
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  make DESTDIR="$pkgdir" install
+
+  # remove useless stuff
+  rm -r "$pkgdir"${OPENORBIS}/usr/share
+}

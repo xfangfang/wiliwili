@@ -540,9 +540,10 @@ VideoView::~VideoView() {
 void VideoView::draw(NVGcontext* vg, float x, float y, float width,
                      float height, Style style, FrameContext* ctx) {
     if (!mpvCore->isValid()) return;
+    float alpha = this->getAlpha();
 
     // draw video
-    mpvCore->openglDraw(this->getFrame(), this->getAlpha());
+    mpvCore->draw(brls::Rect(x, y, width, height), alpha);
 
     // draw bottom bar
     if (BOTTOM_BAR && showBottomLineSetting) {
@@ -635,21 +636,6 @@ void VideoView::invalidate() { View::invalidate(); }
 
 void VideoView::onLayout() {
     brls::View::onLayout();
-
-    brls::Rect rect = getFrame();
-
-    if (oldRect.getWidth() == -1) {
-        //初始化
-        this->oldRect = rect;
-    }
-
-    if (!(rect == oldRect)) {
-        brls::Logger::debug("Video view: {} size: {} / {} scale: {}",
-                            (int64_t)this, rect.getWidth(), rect.getHeight(),
-                            Application::windowScale);
-        this->mpvCore->setFrameSize(rect);
-    }
-    oldRect = rect;
 }
 
 std::string VideoView::genExtraUrlParam(int progress,
@@ -1015,8 +1001,6 @@ void VideoView::setFullScreen(bool fs) {
                     } else {
                         video->showLoading();
                     }
-                    // 立刻准确地显示视频尺寸
-                    this->mpvCore->setFrameSize(video->getFrame());
                 }
                 break;
             }

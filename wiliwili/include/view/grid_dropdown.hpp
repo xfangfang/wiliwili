@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <cstdlib>
 #include <cmath>
 #include <borealis.hpp>
 #include <borealis/views/cells/cell_radio.hpp>
@@ -24,6 +25,8 @@ public:
 
     void hide(std::function<void(void)> cb, bool animated,
               float animationDuration) override;
+
+    void dismiss(std::function<void(void)> cb = [] {}) override;
 
     bool isTranslucent() override;
 

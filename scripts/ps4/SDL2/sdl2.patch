@@ -1,0 +1,98 @@
+diff --git a/src/joystick/ps4/SDL_sysjoystick.c b/src/joystick/ps4/SDL_sysjoystick.c
+index 7fb06514d..c4b46d1d9 100644
+--- a/src/joystick/ps4/SDL_sysjoystick.c
++++ b/src/joystick/ps4/SDL_sysjoystick.c
+@@ -392,11 +392,11 @@ PS4_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out) {
+     out->y.kind = EMappingKind_Button;
+     out->y.target = 3;
+     out->back.kind = EMappingKind_Button;
+-    out->back.target = 4;
++    out->back.target = 6;
+     //out->guide.kind = EMappingKind_Button;
+     //out->guide.target = 5;
+     out->start.kind = EMappingKind_Button;
+-    out->start.target = 6;
++    out->start.target = 4;
+     out->leftstick.kind = EMappingKind_Button;
+     out->leftstick.target = 7;
+     out->rightstick.kind = EMappingKind_Button;
+diff --git a/src/video/ps4/SDL_ps4piglet.c b/src/video/ps4/SDL_ps4piglet.c
+index 17016e3c0..1987b4f95 100644
+--- a/src/video/ps4/SDL_ps4piglet.c
++++ b/src/video/ps4/SDL_ps4piglet.c
+@@ -180,11 +180,16 @@ int PS4_PigletInit() {
+     ps4_pgl_config.size = sizeof(ps4_pgl_config);
+     ps4_pgl_config.flags = 0;
+     ps4_pgl_config.systemSharedMemorySize = 256 * 1024 * 1024;
+-    ps4_pgl_config.videoSharedMemorySize = 256 * 1024 * 1024;
++    ps4_pgl_config.videoSharedMemorySize = 512 * 1024 * 1024;
+     ps4_pgl_config.drawCommandBufferSize = 1 * 1024 * 1024;
+     ps4_pgl_config.lcueResourceBufferSize = 1 * 1024 * 1024;
+-    ps4_pgl_config.dbgPosCmd_0x40 = 1920;
+-    ps4_pgl_config.dbgPosCmd_0x44 = 1080;
++    if (sceKernelIsNeoMode()) {
++        ps4_pgl_config.dbgPosCmd_0x40 = 3840;
++        ps4_pgl_config.dbgPosCmd_0x44 = 2160;
++    } else {
++        ps4_pgl_config.dbgPosCmd_0x40 = 1920;
++        ps4_pgl_config.dbgPosCmd_0x44 = 1080;
++    }
+     ps4_pgl_config.unk_0x5C = 2;
+ 
+     if (!scePigletSetConfigurationVSH(&ps4_pgl_config)) {
+diff --git a/src/video/ps4/SDL_ps4video.c b/src/video/ps4/SDL_ps4video.c
+index 47b93aa80..5c9e29d8a 100644
+--- a/src/video/ps4/SDL_ps4video.c
++++ b/src/video/ps4/SDL_ps4video.c
+@@ -95,9 +95,6 @@ PS4_LoadModules() {
+         return SDL_SetError("PS4_LoadModules: sceUserServiceInitialize failed (0x%08x)", ret);
+     }
+ 
+-    // hide splash screen (is this mandatory ?)
+-    sceSystemServiceHideSplashScreen();
+-
+     ps4_init_done = true;
+     return 0;
+ }
+@@ -201,8 +198,15 @@ PS4_VideoInit(_THIS) {
+     SDL_DisplayMode current_mode;
+ 
+     SDL_zero(current_mode);
+-    current_mode.w = 1920;
+-    current_mode.h = 1080;
++    if (sceKernelIsNeoMode()) {
++        // ps4 pro
++        current_mode.w = 3840;
++        current_mode.h = 2160;
++    } else {
++        // ps4
++        current_mode.w = 1920;
++        current_mode.h = 1080;
++    }
+     current_mode.refresh_rate = 60;
+     current_mode.format = SDL_PIXELFORMAT_RGBA8888;
+     current_mode.driverdata = NULL;
+@@ -247,8 +251,21 @@ PS4_GetDisplayModes(_THIS, SDL_VideoDisplay *display) {
+ 
+     SDL_DisplayMode mode;
+ 
+-    // 1920x1080 RGBA8888, default mode
+-    SDL_AddDisplayMode(display, &display->current_mode);
++    // 3840x2160 RGBA8888, ps4 pro default mode
++    SDL_zero(mode);
++    mode.w = 3840;
++    mode.h = 2160;
++    mode.refresh_rate = 60;
++    mode.format = SDL_PIXELFORMAT_RGBA8888;
++    SDL_AddDisplayMode(display, &mode);
++
++    // 1920x1080 RGBA8888, ps4 default mode
++    SDL_zero(mode);
++    mode.w = 1920;
++    mode.h = 1080;
++    mode.refresh_rate = 60;
++    mode.format = SDL_PIXELFORMAT_RGBA8888;
++    SDL_AddDisplayMode(display, &mode);
+ 
+     // 1280x720 RGBA8888
+     SDL_zero(mode);

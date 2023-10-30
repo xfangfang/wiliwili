@@ -1,0 +1,26 @@
+diff --git a/cpr/session.cpp b/cpr/session.cpp
+index f4944b6..945ced7 100644
+--- a/cpr/session.cpp
++++ b/cpr/session.cpp
+@@ -97,7 +97,7 @@ Session::Session() : curl_(new CurlHolder()) {
+     curl_easy_setopt(curl_->handle, CURLOPT_NOSIGNAL, 1L);
+ #endif
+ 
+-#if LIBCURL_VERSION_NUM >= 0x071900
++#if LIBCURL_VERSION_NUM >= 0x071900 && !defined(__PS4__)
+     curl_easy_setopt(curl_->handle, CURLOPT_TCP_KEEPALIVE, 1L);
+ #endif
+ }
+diff --git a/include/CMakeLists.txt b/include/CMakeLists.txt
+index 3f14410..09b74e8 100644
+--- a/include/CMakeLists.txt
++++ b/include/CMakeLists.txt
+@@ -60,7 +60,7 @@ if(CPR_USE_BOOST_FILESYSTEM)
+   endif()
+ endif()
+ 
+-if (((CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1) OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND NOT WIN32)) AND NOT CPR_USE_BOOST_FILESYSTEM)
++if (((CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1) OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND NOT WIN32)) AND NOT CPR_USE_BOOST_FILESYSTEM AND NOT ANDROID AND NOT PS4)
+     target_link_libraries(cpr PUBLIC stdc++fs)
+ endif()
+ 

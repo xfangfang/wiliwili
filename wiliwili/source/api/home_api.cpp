@@ -15,25 +15,30 @@ namespace bilibili {
 
 /// 主页 推荐
 void BilibiliClient::get_recommend(
-    int index, int num,
+    int index, int num, int fresh_type, std::string feed_version, int x_num, int y_num,
     const std::function<void(RecommendVideoListResultWrapper)>& callback,
     const ErrorCallback& error) {
-    //        BilibiliClient::pool.enqueue([=]{
+    cpr::Parameters parameters = {{"fresh_idx", std::to_string(index)}, // 手动刷新后重新计数，从1开始
+        {"ps", std::to_string(num)}, // 手动刷新 30， 自动加载 15， 初始加载 10， 精选 10
+        {"feed_version", feed_version}, // 首页是 V1，精选是 CLIENT_SELECTED
+        {"fresh_type", std::to_string(fresh_type)}, // 手动刷新是 3， 自动加载是 4，初始加载是 0
+        {"plat", "1"},
+    };
+    if (feed_version == "V1") {
+        parameters.Add({
+            {"x_num", std::to_string(x_num)}, // 只在首页存在，固定为 3
+            {"y_num", std::to_string(y_num)}, // 只在首页存在，根据同屏卡片列数设置数字，默认为 4
+        });
+    }
+
     HTTP::getResultAsync<RecommendVideoListResultWrapper>(
         Api::Recommend,
-        {
-            {"fresh_idx", std::to_string(index)},
-            {"ps", std::to_string(num)},
-            {"feed_version", "V1"},
-            {"fresh_type", "4"},
-            {"plat", "1"},
-        },
+        parameters,
         [callback, index](RecommendVideoListResultWrapper wrapper) {
             wrapper.requestIndex = index;
             callback(wrapper);
         },
         error);
-    //        });
 }
 
 /// 主页 热门 热门综合

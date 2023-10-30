@@ -49,6 +49,10 @@ void EmptyDropdown::hide(std::function<void(void)> cb, bool animated,
     Box::hide(cb, animated, animationDuration);
 }
 
+void EmptyDropdown::dismiss(std::function<void(void)> cb) {
+    this->applet->dismiss(cb);
+}
+
 bool EmptyDropdown::isTranslucent() { return true; }
 
 /// GridRadioCell

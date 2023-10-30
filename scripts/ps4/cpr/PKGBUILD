@@ -1,0 +1,40 @@
+# Maintainer: xfangfang <xfangfang@126.com>
+
+# musl with custom DNS support
+
+pkgname=ps4-openorbis-cpr
+pkgver=1.10.5
+pkgrel=1
+pkgdesc='C++ Requests: Curl for People, a spiritual port of Python Requests.'
+arch=('any')
+url='https://github.com/libcpr/cpr'
+license=('MIT')
+options=(!strip libtool)
+source=("https://github.com/libcpr/cpr/archive/refs/tags/${pkgver}.tar.gz" "cpr.patch")
+sha256sums=('SKIP' 'SKIP')
+depends=('ps4-openorbis-libcurl' 'ps4-openorbis-mbedtls')
+groups=('ps4-openorbis')
+
+prepare() {
+  cd cpr-${pkgver}
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+  patch -Np1 -i $srcdir/cpr.patch
+}
+
+build() {
+  cd cpr-${pkgver}
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  openorbis-cmake -B build -DBUILD_SHARED_LIBS=OFF \
+    -DCPR_USE_SYSTEM_CURL=ON -DCPR_FORCE_MBEDTLS_BACKEND=ON \
+    -DCMAKE_INSTALL_PREFIX="${OPENORBIS}/usr" -DCMAKE_BUILD_TYPE=Release
+
+  make -j$(nproc) -C build
+}
+
+package() {
+  cd cpr-${pkgver}
+  source /opt/pacbrew/ps4/openorbis/ps4vars.sh
+
+  make -C build DESTDIR="${pkgdir}" install
+}

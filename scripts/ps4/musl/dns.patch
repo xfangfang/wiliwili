@@ -1,0 +1,75 @@
+diff --git a/include/netdb.h b/include/netdb.h
+index d096c781..63d0c386 100644
+--- a/include/netdb.h
++++ b/include/netdb.h
+@@ -51,6 +51,9 @@ struct addrinfo {
+ #define EAI_SYSTEM     -11
+ #define EAI_OVERFLOW   -12
+ 
++extern in_addr_t primary_dns;
++extern in_addr_t secondary_dns;
++
+ int getaddrinfo (const char *__restrict, const char *__restrict, const struct addrinfo *__restrict, struct addrinfo **__restrict);
+ void freeaddrinfo (struct addrinfo *);
+ int getnameinfo (const struct sockaddr *__restrict, socklen_t, char *__restrict, socklen_t, char *__restrict, socklen_t, int);
+diff --git a/src/network/resolvconf.c b/src/network/resolvconf.c
+index acc57fb9..e3689487 100644
+--- a/src/network/resolvconf.c
++++ b/src/network/resolvconf.c
+@@ -15,6 +15,9 @@ application won't have to link to libSceNet if it doesn't use the dynamic
+ resolver.
+ */
+ 
++in_addr_t primary_dns = 0;
++in_addr_t secondary_dns = 0;
++
+ typedef struct OrbisNetDnsInfo {
+ 	in_addr_t primary_dns;
+ 	in_addr_t secondary_dns;
+@@ -27,20 +30,34 @@ int __get_resolv_conf(struct resolvconf *conf, char *search, size_t search_sz)
+ 	conf->ndots = 1;
+ 	conf->timeout = 5;
+ 	conf->attempts = 2;
+-	OrbisNetDnsInfo i;
+-	int ndns = sceNetGetDnsInfo(&i, 0);
+-	if(ndns < 0 || ndns > 2)
+-		return -1;
+-	conf->nns = ndns;
+-	if(ndns >= 1) {
++	if (primary_dns != 0) {
++		conf->nns = 1;
+ 		conf->ns[0].family = AF_INET;
+ 		conf->ns[0].scopeid = 0;
+-		memcpy(&conf->ns[0].addr, &i.primary_dns, sizeof(i.primary_dns));
+-	}
+-	if(ndns >= 2) {
+-		conf->ns[1].family = AF_INET;
+-		conf->ns[1].scopeid = 0;
+-		memcpy(&conf->ns[1].addr, &i.secondary_dns, sizeof(i.secondary_dns));
++		memcpy(&conf->ns[0].addr, &primary_dns, sizeof(primary_dns));
++
++		if (secondary_dns != 0) {
++			conf->nns = 2;
++			conf->ns[1].family = AF_INET;
++			conf->ns[1].scopeid = 0;
++			memcpy(&conf->ns[1].addr, &secondary_dns, sizeof(secondary_dns));
++		}
++	} else {
++		OrbisNetDnsInfo i;
++		int ndns = sceNetGetDnsInfo(&i, 0);
++		if(ndns < 0 || ndns > 2)
++			return -1;
++		conf->nns = ndns;
++		if(ndns >= 1) {
++			conf->ns[0].family = AF_INET;
++			conf->ns[0].scopeid = 0;
++			memcpy(&conf->ns[0].addr, &i.primary_dns, sizeof(i.primary_dns));
++		}
++		if(ndns >= 2) {
++			conf->ns[1].family = AF_INET;
++			conf->ns[1].scopeid = 0;
++			memcpy(&conf->ns[1].addr, &i.secondary_dns, sizeof(i.secondary_dns));
++		}
+ 	}
+ 	return 0;
+ }

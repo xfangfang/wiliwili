@@ -361,6 +361,7 @@
     }
   },
   "dialog": {
+    "not_supported": "不支援此功能",
     "quit_hint": "正在退出軟體..."
   }
 }

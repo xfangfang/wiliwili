@@ -97,13 +97,21 @@ void LiveActivity::setVideoQuality() {
     if (this->liveUrl.quality_description.empty()) return;
 
     brls::sync([this]() {
-        BaseDropdown::text(
+        auto dropdown = BaseDropdown::text(
             "wiliwili/player/quality"_i18n, this->getQualityDescriptionList(),
             [this](int selected) {
                 defaultQuality = liveUrl.quality_description[selected].qn;
                 this->requestData(this->liveData.roomid);
             },
             this->getCurrentQualityIndex());
+
+        dropdown->registerAction(
+            "", brls::ControllerButton::BUTTON_START,
+            [dropdown](...) {
+                dropdown->dismiss();
+                return true;
+            },
+            true);
     });
 }
 

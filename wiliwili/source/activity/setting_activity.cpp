@@ -28,29 +28,30 @@ const std::string OPENSOURCE =
     "--------------------------------\n"
     "FFmpeg\n"
     "--------------------------------\n"
-    "Official site:    https://www.ffmpeg.org\n"
+    "Official site:    https://www.ffmpeg.org\n\n"
     "Copyright (c) FFmpeg developers and contributors.\n\n"
     "Licensed under LGPLv2.1 or later\n\n\n"
     "--------------------------------\n"
     "mpv\n"
     "--------------------------------\n"
-    "Official site:    https://mpv.io\n"
+    "Official site:    https://mpv.io\n\n"
     "Copyright (c) mpv developers and contributors.\n\n"
     "Licensed under GPL-2.0 or LGPLv2.1\n\n\n"
     "--------------------------------\n"
     "borealis\n"
     "--------------------------------\n"
-    "https://github.com/natinusala/borealis\n"
-    "Copyright (c) 2019-2022, natinusala and contributors.\n\n"
-    "Modifications for touch and recycler list support.\n"
-    "https://github.com/XITRIX/borealis\n"
+    "https://github.com/natinusala/borealis\n\n"
+    "Modifications for touch and recycler list support:\n"
+    "https://github.com/XITRIX/borealis\n\n"
+    "Modified version for more system support:\n"
+    "https://github.com/xfangfang/borealis\n\n"
+    "Copyright (c) 2019-2022, natinusala and contributors.\n"
     "Copyright (c) XITRIX.\n\n"
-    "Modified version: https://github.com/xfangfang/borealis\n\n"
     "Licensed under Apache-2.0 license\n\n\n"
     "--------------------------------\n"
     "OpenCC\n"
     "--------------------------------\n"
-    "https://github.com/BYVoid/OpenCC\n"
+    "https://github.com/BYVoid/OpenCC\n\n"
     "Copyright (c) Carbo Kuo and contributors.\n\n"
     "Modified version: https://github.com/xfangfang/OpenCC\n\n"
     "Licensed under Apache-2.0 license\n\n\n"
@@ -80,6 +81,14 @@ const std::string OPENSOURCE =
     "Copyright (c) 2017-2021 Huu Nguyen.\n"
     "Copyright (c) 2022 libcpr and many other contributors.\n\n"
     "Licensed under MIT license\n\n\n"
+    "--------------------------------\n"
+    "mongoose\n"
+    "--------------------------------\n"
+    "Official site:    https://mongoose.ws\n"
+    "https://github.com/cesanta/mongoose\n\n"
+    "Copyright (c) 2004-2013 Sergey Lyubka\n"
+    "Copyright (c) 2013-2023 Cesanta Software Limited\n\n"
+    "Licensed under GPL-2.0 or GPL without warranty\n\n\n"
 #ifdef USE_WEBP
     "--------------------------------\n"
     "libwebp\n"
@@ -108,6 +117,20 @@ const std::string OPENSOURCE =
     "https://github.com/vitasdk\n\n"
     "Copyright vitasdk Authors.\n\n"
     "Public domain\n"
+#endif
+#ifdef PS4
+    "--------------------------------\n"
+    "pacbrew\n"
+    "--------------------------------\n"
+    "https://github.com/PacBrew/pacbrew-packages\n\n"
+    "Copyright PacBrew Authors.\n\n"
+    "Public domain\n\n\n"
+    "--------------------------------\n"
+    "OpenOrbis-PS4-Toolchain\n"
+    "--------------------------------\n"
+    "https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain\n\n"
+    "Copyright OpenOrbis Authors.\n\n"
+    "Licensed under GPL-3.0\n"
 #endif
     "\n";
 
@@ -151,7 +174,7 @@ void SettingActivity::onContentAvailable() {
         return true;
     });
 
-#if !defined(__SWITCH__) && !defined(IOS) && !defined(__PSV__)
+#if !defined(__SWITCH__) && !defined(IOS) && !defined(__PSV__) && !defined(PS4)
     btnOpenConfig->registerClickAction([](...) -> bool {
         auto* p = (brls::DesktopPlatform*)brls::Application::getPlatform();
         p->openBrowser(ProgramConfig::instance().getConfigDir());
@@ -401,7 +424,7 @@ void SettingActivity::onContentAvailable() {
         });
 
     /// App Keymap
-#if !defined(__SWITCH__) && !defined(__PSV__)
+#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4)
     static int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
     selectorKeymap->init(
         "wiliwili/setting/app/others/keymap/header"_i18n,
@@ -429,7 +452,7 @@ void SettingActivity::onContentAvailable() {
     selectorLang->init(
         "wiliwili/setting/app/others/language/header"_i18n,
         {
-#if defined(__SWITCH__) || defined(__PSV__)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
             "wiliwili/setting/app/others/language/auto"_i18n,
 #endif
             "wiliwili/setting/app/others/language/english"_i18n,
@@ -526,7 +549,7 @@ void SettingActivity::onContentAvailable() {
     }
 #endif
 
-#ifdef __PSV__
+#if defined(__PSV__) || defined(PS4)
     selectorTexture->setVisibility(brls::Visibility::GONE);
 #else
     selectorTexture->init(
@@ -575,6 +598,9 @@ void SettingActivity::onContentAvailable() {
         });
 
 /// Hardware decode
+#ifdef PS4
+    btnHWDEC->setVisibility(brls::Visibility::GONE);
+#else
     btnHWDEC->init("wiliwili/setting/app/playback/hwdec"_i18n,
                    conf.getBoolOption(SettingItem::PLAYER_HWDEC),
                    [](bool value) {
@@ -584,6 +610,7 @@ void SettingActivity::onContentAvailable() {
                        MPVCore::HARDWARE_DEC = value;
                        MPVCore::instance().restart();
                    });
+#endif
 
     /// Decode quality
     btnQuality->init("wiliwili/setting/app/playback/low_quality"_i18n,
