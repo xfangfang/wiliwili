@@ -1,23 +1,16 @@
-diff --git a/RELEASE b/RELEASE
-index e0ea36feef..238679db50 100644
---- a/RELEASE
-+++ b/RELEASE
-@@ -1 +1 @@
--6.0
-+5.1.git
 diff --git a/configure b/configure
-index b6616f00b6..ee420b4adc 100755
+index f494da204c..c2461c8a3c 100755
 --- a/configure
 +++ b/configure
-@@ -353,6 +353,7 @@ External library support:
-   --disable-vaapi          disable Video Acceleration API (mainly Unix/Intel) code [autodetect]
+@@ -351,6 +351,7 @@ External library support:
    --disable-vdpau          disable Nvidia Video Decode and Presentation API for Unix code [autodetect]
    --disable-videotoolbox   disable VideoToolbox code [autodetect]
+   --disable-vulkan         disable Vulkan code [autodetect]
 +  --enable-tx1             enable tx1 nvdec video decoding
  
  Toolchain options:
    --arch=ARCH              select architecture [$arch]
-@@ -1913,6 +1914,7 @@ HWACCEL_LIBRARY_LIST="
+@@ -1952,6 +1953,7 @@ HWACCEL_LIBRARY_LIST="
      mmal
      omx
      opencl
@@ -25,7 +18,7 @@ index b6616f00b6..ee420b4adc 100755
  "
  
  DOCUMENT_LIST="
-@@ -3003,6 +3005,7 @@ vaapi_x11_deps="xlib_x11"
+@@ -3049,6 +3051,7 @@ vaapi_x11_deps="xlib_x11"
  videotoolbox_hwaccel_deps="videotoolbox pthreads"
  videotoolbox_hwaccel_extralibs="-framework QuartzCore"
  vulkan_deps_any="libdl LoadLibrary"
@@ -33,19 +26,19 @@ index b6616f00b6..ee420b4adc 100755
  
  av1_d3d11va_hwaccel_deps="d3d11va DXVA_PicParams_AV1"
  av1_d3d11va_hwaccel_select="av1_decoder"
-@@ -3034,6 +3037,8 @@ h264_vdpau_hwaccel_deps="vdpau"
- h264_vdpau_hwaccel_select="h264_decoder"
- h264_videotoolbox_hwaccel_deps="videotoolbox"
+@@ -3084,6 +3087,8 @@ h264_videotoolbox_hwaccel_deps="videotoolbox"
  h264_videotoolbox_hwaccel_select="h264_decoder"
+ h264_vulkan_hwaccel_deps="vulkan"
+ h264_vulkan_hwaccel_select="h264_decoder"
 +h264_tx1_hwaccel_deps="tx1"
 +h264_tx1_hwaccel_select="h264_decoder"
  hevc_d3d11va_hwaccel_deps="d3d11va DXVA_PicParams_HEVC"
  hevc_d3d11va_hwaccel_select="hevc_decoder"
  hevc_d3d11va2_hwaccel_deps="d3d11va DXVA_PicParams_HEVC"
-@@ -3048,16 +3053,22 @@ hevc_vdpau_hwaccel_deps="vdpau VdpPictureInfoHEVC"
- hevc_vdpau_hwaccel_select="hevc_decoder"
- hevc_videotoolbox_hwaccel_deps="videotoolbox"
+@@ -3100,16 +3105,22 @@ hevc_videotoolbox_hwaccel_deps="videotoolbox"
  hevc_videotoolbox_hwaccel_select="hevc_decoder"
+ hevc_vulkan_hwaccel_deps="vulkan"
+ hevc_vulkan_hwaccel_select="hevc_decoder"
 +hevc_tx1_hwaccel_deps="tx1"
 +hevc_tx1_hwaccel_select="hevc_decoder"
  mjpeg_nvdec_hwaccel_deps="nvdec"
@@ -65,7 +58,7 @@ index b6616f00b6..ee420b4adc 100755
  mpeg2_d3d11va_hwaccel_deps="d3d11va"
  mpeg2_d3d11va_hwaccel_select="mpeg2video_decoder"
  mpeg2_d3d11va2_hwaccel_deps="d3d11va"
-@@ -3072,6 +3083,8 @@ mpeg2_vdpau_hwaccel_deps="vdpau"
+@@ -3124,6 +3135,8 @@ mpeg2_vdpau_hwaccel_deps="vdpau"
  mpeg2_vdpau_hwaccel_select="mpeg2video_decoder"
  mpeg2_videotoolbox_hwaccel_deps="videotoolbox"
  mpeg2_videotoolbox_hwaccel_select="mpeg2video_decoder"
@@ -74,7 +67,7 @@ index b6616f00b6..ee420b4adc 100755
  mpeg4_nvdec_hwaccel_deps="nvdec"
  mpeg4_nvdec_hwaccel_select="mpeg4_decoder"
  mpeg4_vaapi_hwaccel_deps="vaapi"
-@@ -3082,6 +3095,8 @@ mpeg4_videotoolbox_hwaccel_deps="videotoolbox"
+@@ -3134,6 +3147,8 @@ mpeg4_videotoolbox_hwaccel_deps="videotoolbox"
  mpeg4_videotoolbox_hwaccel_select="mpeg4_decoder"
  prores_videotoolbox_hwaccel_deps="videotoolbox"
  prores_videotoolbox_hwaccel_select="prores_decoder"
@@ -83,7 +76,7 @@ index b6616f00b6..ee420b4adc 100755
  vc1_d3d11va_hwaccel_deps="d3d11va"
  vc1_d3d11va_hwaccel_select="vc1_decoder"
  vc1_d3d11va2_hwaccel_deps="d3d11va"
-@@ -3094,10 +3109,14 @@ vc1_vaapi_hwaccel_deps="vaapi"
+@@ -3146,10 +3161,14 @@ vc1_vaapi_hwaccel_deps="vaapi"
  vc1_vaapi_hwaccel_select="vc1_decoder"
  vc1_vdpau_hwaccel_deps="vdpau"
  vc1_vdpau_hwaccel_select="vc1_decoder"
@@ -98,7 +91,7 @@ index b6616f00b6..ee420b4adc 100755
  vp9_d3d11va_hwaccel_deps="d3d11va DXVA_PicParams_VP9"
  vp9_d3d11va_hwaccel_select="vp9_decoder"
  vp9_d3d11va2_hwaccel_deps="d3d11va DXVA_PicParams_VP9"
-@@ -3112,12 +3131,15 @@ vp9_vdpau_hwaccel_deps="vdpau VdpPictureInfoVP9"
+@@ -3164,12 +3183,15 @@ vp9_vdpau_hwaccel_deps="vdpau VdpPictureInfoVP9"
  vp9_vdpau_hwaccel_select="vp9_decoder"
  vp9_videotoolbox_hwaccel_deps="videotoolbox"
  vp9_videotoolbox_hwaccel_select="vp9_decoder"
@@ -114,7 +107,7 @@ index b6616f00b6..ee420b4adc 100755
  
  # hardware-accelerated codecs
  mediafoundation_deps="mftransform_h MFCreateAlignedMemoryBuffer"
-@@ -5731,6 +5753,10 @@ case $target_os in
+@@ -5800,6 +5822,10 @@ case $target_os in
          ;;
      minix)
          ;;
@@ -125,138 +118,30 @@ index b6616f00b6..ee420b4adc 100755
      none)
          ;;
      *)
-diff --git a/doc/Doxyfile b/doc/Doxyfile
-index db677f2994..572c532da5 100644
---- a/doc/Doxyfile
-+++ b/doc/Doxyfile
-@@ -38,7 +38,7 @@ PROJECT_NAME           = FFmpeg
- # could be handy for archiving the generated documentation or if some version
- # control system is used.
- 
--PROJECT_NUMBER         = 6.0
-+PROJECT_NUMBER         =
- 
- # Using the PROJECT_BRIEF tag one can provide an optional one line description
- # for a project that appears at the top of each page and should give viewer a
-diff --git a/doc/encoders.texi b/doc/encoders.texi
-index b02737b9df..727f12a59d 100644
---- a/doc/encoders.texi
-+++ b/doc/encoders.texi
-@@ -1949,6 +1949,22 @@ Set the number of slices, used in parallelized encoding. Default value
- is 0. This is only used when @option{slice_mode} is set to
- @samp{fixed}.
- 
-+@item slice_mode
-+Set slice mode. Can assume one of the following possible values:
-+
-+@table @samp
-+@item fixed
-+a fixed number of slices
-+@item rowmb
-+one slice per row of macroblocks
-+@item auto
-+automatic number of slices according to number of threads
-+@item dyn
-+dynamic slicing
-+@end table
-+
-+Default value is @samp{auto}.
-+
- @item loopfilter
- Enable loop filter, if set to 1 (automatically enabled). To disable
- set a value of 0.
-diff --git a/doc/filters.texi b/doc/filters.texi
-index 47e92b9269..381a15a17d 100644
---- a/doc/filters.texi
-+++ b/doc/filters.texi
-@@ -26943,6 +26943,11 @@ Specify the frame rate expected for the video stream.
- @item pixel_aspect, sar
- The sample (pixel) aspect ratio of the input video.
- 
-+@item sws_param
-+This option is deprecated and ignored. Prepend @code{sws_flags=@var{flags};}
-+to the filtergraph description to specify swscale flags for automatically
-+inserted scalers. See @ref{Filtergraph syntax}.
-+
- @item hw_frames_ctx
- When using a hardware pixel format, this should be a reference to an
- AVHWFramesContext describing input frames.
-diff --git a/doc/muxers.texi b/doc/muxers.texi
-index 79dd864182..ed5341be39 100644
---- a/doc/muxers.texi
-+++ b/doc/muxers.texi
-@@ -795,6 +795,12 @@ deletes them. Increase this to allow continue clients to download segments which
- were recently referenced in the playlist. Default value is 1, meaning segments older than
- @code{hls_list_size+1} will be deleted.
- 
-+@item hls_ts_options @var{options_list}
-+Set output format options using a :-separated list of key=value
-+parameters. Values containing @code{:} special characters must be
-+escaped.
-+@code{hls_ts_options} is deprecated, use hls_segment_options instead of it..
-+
- @item hls_start_number_source
- Start the playlist sequence number (@code{#EXT-X-MEDIA-SEQUENCE}) according to the specified source.
- Unless @code{hls_flags single_file} is set, it also specifies source of starting sequence numbers of
-diff --git a/doc/resampler.texi b/doc/resampler.texi
-index a6224eefb3..5ed3f4377a 100644
---- a/doc/resampler.texi
-+++ b/doc/resampler.texi
-@@ -11,8 +11,18 @@ programmatic use.
- 
- @table @option
- 
--@item uchl, used_chlayout
--Set used input channel layout. Default is unset. This option is
-+@item ich, in_channel_count
-+Set the number of input channels. Default value is 0. Setting this
-+value is not mandatory if the corresponding channel layout
-+@option{in_channel_layout} is set.
-+
-+@item och, out_channel_count
-+Set the number of output channels. Default value is 0. Setting this
-+value is not mandatory if the corresponding channel layout
-+@option{out_channel_layout} is set.
-+
-+@item uch, used_channel_count
-+Set the number of used input channels. Default value is 0. This option is
- only used for special remapping.
- 
- @item isr, in_sample_rate
-@@ -31,8 +41,8 @@ Specify the output sample format. It is set by default to @code{none}.
- Set the internal sample format. Default value is @code{none}.
- This will automatically be chosen when it is not explicitly set.
- 
--@item ichl, in_chlayout
--@item ochl, out_chlayout
-+@item icl, in_channel_layout
-+@item ocl, out_channel_layout
- Set the input/output channel layout.
- 
- See @ref{channel layout syntax,,the Channel Layout section in the ffmpeg-utils(1) manual,ffmpeg-utils}
 diff --git a/libavcodec/Makefile b/libavcodec/Makefile
-index 389253f5d0..334a0887c4 100644
+index 580a8d6b54..945f9b0282 100644
 --- a/libavcodec/Makefile
 +++ b/libavcodec/Makefile
-@@ -977,6 +977,7 @@ OBJS-$(CONFIG_NVDEC)                      += nvdec.o
- OBJS-$(CONFIG_VAAPI)                      += vaapi_decode.o
+@@ -987,6 +987,7 @@ OBJS-$(CONFIG_VAAPI)                      += vaapi_decode.o
  OBJS-$(CONFIG_VIDEOTOOLBOX)               += videotoolbox.o
  OBJS-$(CONFIG_VDPAU)                      += vdpau.o
+ OBJS-$(CONFIG_VULKAN)                     += vulkan.o vulkan_video.o
 +OBJS-$(CONFIG_TX1)                        += tx1_decode.o
  
  OBJS-$(CONFIG_AV1_D3D11VA_HWACCEL)        += dxva2_av1.o
  OBJS-$(CONFIG_AV1_DXVA2_HWACCEL)          += dxva2_av1.o
-@@ -992,17 +993,21 @@ OBJS-$(CONFIG_H264_QSV_HWACCEL)           += qsvdec.o
- OBJS-$(CONFIG_H264_VAAPI_HWACCEL)         += vaapi_h264.o
+@@ -1004,6 +1005,7 @@ OBJS-$(CONFIG_H264_VAAPI_HWACCEL)         += vaapi_h264.o
  OBJS-$(CONFIG_H264_VDPAU_HWACCEL)         += vdpau_h264.o
  OBJS-$(CONFIG_H264_VIDEOTOOLBOX_HWACCEL)  += videotoolbox.o
+ OBJS-$(CONFIG_H264_VULKAN_HWACCEL)        += vulkan_decode.o vulkan_h264.o
 +OBJS-$(CONFIG_H264_TX1_HWACCEL)           += tx1_h264.o
  OBJS-$(CONFIG_HEVC_D3D11VA_HWACCEL)       += dxva2_hevc.o
  OBJS-$(CONFIG_HEVC_DXVA2_HWACCEL)         += dxva2_hevc.o
  OBJS-$(CONFIG_HEVC_NVDEC_HWACCEL)         += nvdec_hevc.o
- OBJS-$(CONFIG_HEVC_QSV_HWACCEL)           += qsvdec.o
+@@ -1011,11 +1013,14 @@ OBJS-$(CONFIG_HEVC_QSV_HWACCEL)           += qsvdec.o
  OBJS-$(CONFIG_HEVC_VAAPI_HWACCEL)         += vaapi_hevc.o h265_profile_level.o
  OBJS-$(CONFIG_HEVC_VDPAU_HWACCEL)         += vdpau_hevc.o h265_profile_level.o
+ OBJS-$(CONFIG_HEVC_VULKAN_HWACCEL)        += vulkan_decode.o vulkan_hevc.o
 +OBJS-$(CONFIG_HEVC_TX1_HWACCEL)           += tx1_hevc.o
  OBJS-$(CONFIG_MJPEG_NVDEC_HWACCEL)        += nvdec_mjpeg.o
  OBJS-$(CONFIG_MJPEG_VAAPI_HWACCEL)        += vaapi_mjpeg.o
@@ -268,7 +153,7 @@ index 389253f5d0..334a0887c4 100644
  OBJS-$(CONFIG_MPEG2_D3D11VA_HWACCEL)      += dxva2_mpeg2.o
  OBJS-$(CONFIG_MPEG2_DXVA2_HWACCEL)        += dxva2_mpeg2.o
  OBJS-$(CONFIG_MPEG2_NVDEC_HWACCEL)        += nvdec_mpeg12.o
-@@ -1010,24 +1015,29 @@ OBJS-$(CONFIG_MPEG2_QSV_HWACCEL)          += qsvdec.o
+@@ -1023,24 +1028,29 @@ OBJS-$(CONFIG_MPEG2_QSV_HWACCEL)          += qsvdec.o
  OBJS-$(CONFIG_MPEG2_VAAPI_HWACCEL)        += vaapi_mpeg2.o
  OBJS-$(CONFIG_MPEG2_VDPAU_HWACCEL)        += vdpau_mpeg12.o
  OBJS-$(CONFIG_MPEG2_VIDEOTOOLBOX_HWACCEL) += videotoolbox.o
@@ -298,75 +183,19 @@ index 389253f5d0..334a0887c4 100644
  OBJS-$(CONFIG_VP8_QSV_HWACCEL)            += qsvdec.o
  
  # Objects duplicated from other libraries for shared builds
-@@ -1287,6 +1297,7 @@ SKIPHEADERS-$(CONFIG_VDPAU)            += vdpau.h vdpau_internal.h
- SKIPHEADERS-$(CONFIG_VIDEOTOOLBOX)     += videotoolbox.h vt_internal.h
+@@ -1309,6 +1319,7 @@ SKIPHEADERS-$(CONFIG_VIDEOTOOLBOX)     += videotoolbox.h vt_internal.h
+ SKIPHEADERS-$(CONFIG_VULKAN)           += vulkan.h vulkan_video.h vulkan_decode.h vulkan_video_codec_av1std_decode.h
  SKIPHEADERS-$(CONFIG_V4L2_M2M)         += v4l2_buffers.h v4l2_context.h v4l2_m2m.h
  SKIPHEADERS-$(CONFIG_ZLIB)             += zlib_wrapper.h
 +SKIPHEADERS-$(CONFIG_TX1)              += tx1_decode.h
  
  TESTPROGS = avcodec                                                     \
              avpacket                                                    \
-diff --git a/libavcodec/bink.c b/libavcodec/bink.c
-index 15fc9d29ed..e3971e557a 100644
---- a/libavcodec/bink.c
-+++ b/libavcodec/bink.c
-@@ -870,7 +870,7 @@ static int binkb_decode_plane(BinkContext *c, AVFrame *frame, GetBitContext *gb,
- 
-     binkb_init_bundles(c);
-     ref_start = frame->data[plane_idx];
--    ref_end   = frame->data[plane_idx] + ((bh - 1) * frame->linesize[plane_idx] + bw - 1) * 8;
-+    ref_end   = frame->data[plane_idx] + (bh * frame->linesize[plane_idx] + bw) * 8;
- 
-     for (i = 0; i < 64; i++)
-         coordmap[i] = (i & 7) + (i >> 3) * stride;
-@@ -926,7 +926,7 @@ static int binkb_decode_plane(BinkContext *c, AVFrame *frame, GetBitContext *gb,
-                 xoff = binkb_get_value(c, BINKB_SRC_X_OFF);
-                 yoff = binkb_get_value(c, BINKB_SRC_Y_OFF) + ybias;
-                 ref = dst + xoff + yoff * stride;
--                if (ref < ref_start || ref > ref_end) {
-+                if (ref < ref_start || ref + 8*stride > ref_end) {
-                     av_log(c->avctx, AV_LOG_WARNING, "Reference block is out of bounds\n");
-                 } else if (ref + 8*stride < dst || ref >= dst + 8*stride) {
-                     c->put_pixels_tab(dst, ref, stride, 8);
-@@ -942,7 +942,7 @@ static int binkb_decode_plane(BinkContext *c, AVFrame *frame, GetBitContext *gb,
-                 xoff = binkb_get_value(c, BINKB_SRC_X_OFF);
-                 yoff = binkb_get_value(c, BINKB_SRC_Y_OFF) + ybias;
-                 ref = dst + xoff + yoff * stride;
--                if (ref < ref_start || ref > ref_end) {
-+                if (ref < ref_start || ref + 8 * stride > ref_end) {
-                     av_log(c->avctx, AV_LOG_WARNING, "Reference block is out of bounds\n");
-                 } else if (ref + 8*stride < dst || ref >= dst + 8*stride) {
-                     c->put_pixels_tab(dst, ref, stride, 8);
-@@ -974,7 +974,7 @@ static int binkb_decode_plane(BinkContext *c, AVFrame *frame, GetBitContext *gb,
-                 xoff = binkb_get_value(c, BINKB_SRC_X_OFF);
-                 yoff = binkb_get_value(c, BINKB_SRC_Y_OFF) + ybias;
-                 ref = dst + xoff + yoff * stride;
--                if (ref < ref_start || ref > ref_end) {
-+                if (ref < ref_start || ref + 8 * stride > ref_end) {
-                     av_log(c->avctx, AV_LOG_WARNING, "Reference block is out of bounds\n");
-                 } else if (ref + 8*stride < dst || ref >= dst + 8*stride) {
-                     c->put_pixels_tab(dst, ref, stride, 8);
-diff --git a/libavcodec/ffv1dec.c b/libavcodec/ffv1dec.c
-index 180d24e695..d74786cec3 100644
---- a/libavcodec/ffv1dec.c
-+++ b/libavcodec/ffv1dec.c
-@@ -475,11 +475,6 @@ static int read_extra_header(FFV1Context *f)
-         return AVERROR_INVALIDDATA;
-     }
- 
--    if (f->num_h_slices > MAX_SLICES / f->num_v_slices) {
--        av_log(f->avctx, AV_LOG_ERROR, "slice count unsupported\n");
--        return AVERROR_PATCHWELCOME;
--    }
--
-     f->quant_table_count = get_symbol(c, state, 0);
-     if (f->quant_table_count > (unsigned)MAX_QUANT_TABLES || !f->quant_table_count) {
-         av_log(f->avctx, AV_LOG_ERROR, "quant table count %d is invalid\n", f->quant_table_count);
 diff --git a/libavcodec/h263dec.c b/libavcodec/h263dec.c
-index f4e7048a5f..937a8e759b 100644
+index eb1d87a2fe..eaa930449e 100644
 --- a/libavcodec/h263dec.c
 +++ b/libavcodec/h263dec.c
-@@ -682,6 +682,9 @@ const enum AVPixelFormat ff_h263_hwaccel_pixfmt_list_420[] = {
+@@ -671,6 +671,9 @@ const enum AVPixelFormat ff_h263_hwaccel_pixfmt_list_420[] = {
  #endif
  #if CONFIG_H263_VIDEOTOOLBOX_HWACCEL || CONFIG_MPEG4_VIDEOTOOLBOX_HWACCEL
      AV_PIX_FMT_VIDEOTOOLBOX,
@@ -376,7 +205,7 @@ index f4e7048a5f..937a8e759b 100644
  #endif
      AV_PIX_FMT_YUV420P,
      AV_PIX_FMT_NONE
-@@ -697,6 +700,9 @@ static const AVCodecHWConfigInternal *const h263_hw_config_list[] = {
+@@ -686,6 +689,9 @@ static const AVCodecHWConfigInternal *const h263_hw_config_list[] = {
  #if CONFIG_MPEG4_VDPAU_HWACCEL
      HWACCEL_VDPAU(mpeg4),
  #endif
@@ -387,20 +216,20 @@ index f4e7048a5f..937a8e759b 100644
      HWACCEL_VIDEOTOOLBOX(h263),
  #endif
 diff --git a/libavcodec/h264_slice.c b/libavcodec/h264_slice.c
-index 7767e16cf1..4d9026fdb9 100644
+index 5c17edf9a4..2a9172b8b6 100644
 --- a/libavcodec/h264_slice.c
 +++ b/libavcodec/h264_slice.c
-@@ -780,7 +780,8 @@ static enum AVPixelFormat get_pixel_format(H264Context *h, int force_callback)
-                      CONFIG_H264_NVDEC_HWACCEL + \
+@@ -789,7 +789,8 @@ static enum AVPixelFormat get_pixel_format(H264Context *h, int force_callback)
                       CONFIG_H264_VAAPI_HWACCEL + \
                       CONFIG_H264_VIDEOTOOLBOX_HWACCEL + \
--                     CONFIG_H264_VDPAU_HWACCEL)
-+                     CONFIG_H264_VDPAU_HWACCEL + \
+                      CONFIG_H264_VDPAU_HWACCEL + \
+-                     CONFIG_H264_VULKAN_HWACCEL)
++                     CONFIG_H264_VULKAN_HWACCEL + \
 +                     CONFIG_H264_TX1_HWACCEL)
      enum AVPixelFormat pix_fmts[HWACCEL_MAX + 2], *fmt = pix_fmts;
-     const enum AVPixelFormat *choices = pix_fmts;
-     int i;
-@@ -867,6 +868,9 @@ static enum AVPixelFormat get_pixel_format(H264Context *h, int force_callback)
+ 
+     switch (h->ps.sps->bit_depth_luma) {
+@@ -890,6 +891,9 @@ static enum AVPixelFormat get_pixel_format(H264Context *h, int force_callback)
  #endif
  #if CONFIG_H264_VAAPI_HWACCEL
              *fmt++ = AV_PIX_FMT_VAAPI;
@@ -408,16 +237,16 @@ index 7767e16cf1..4d9026fdb9 100644
 +#if CONFIG_H264_TX1_HWACCEL
 +        *fmt++ = AV_PIX_FMT_TX1;
  #endif
-             if (h->avctx->codec->pix_fmts)
-                 choices = h->avctx->codec->pix_fmts;
+             if (h->avctx->color_range == AVCOL_RANGE_JPEG)
+                 *fmt++ = AV_PIX_FMT_YUVJ420P;
 diff --git a/libavcodec/h264dec.c b/libavcodec/h264dec.c
-index 2d691731c5..70d2d8f6c0 100644
+index f346c65b20..fafc7f425e 100644
 --- a/libavcodec/h264dec.c
 +++ b/libavcodec/h264dec.c
-@@ -1093,6 +1093,9 @@ const FFCodec ff_h264_decoder = {
+@@ -1135,6 +1135,9 @@ const FFCodec ff_h264_decoder = {
  #endif
- #if CONFIG_H264_VIDEOTOOLBOX_HWACCEL
-                                HWACCEL_VIDEOTOOLBOX(h264),
+ #if CONFIG_H264_VULKAN_HWACCEL
+                                HWACCEL_VULKAN(h264),
 +#endif
 +#if CONFIG_H264_TX1_HWACCEL
 +                               HWACCEL_TX1(h264),
@@ -425,30 +254,30 @@ index 2d691731c5..70d2d8f6c0 100644
                                 NULL
                             },
 diff --git a/libavcodec/hevcdec.c b/libavcodec/hevcdec.c
-index 567e8d81d4..cd9db2c7a2 100644
+index b267f6ebcf..5f4e9263c4 100644
 --- a/libavcodec/hevcdec.c
 +++ b/libavcodec/hevcdec.c
-@@ -405,7 +405,8 @@ static enum AVPixelFormat get_format(HEVCContext *s, const HEVCSPS *sps)
-                      CONFIG_HEVC_NVDEC_HWACCEL + \
+@@ -404,7 +404,8 @@ static enum AVPixelFormat get_format(HEVCContext *s, const HEVCSPS *sps)
                       CONFIG_HEVC_VAAPI_HWACCEL + \
                       CONFIG_HEVC_VIDEOTOOLBOX_HWACCEL + \
--                     CONFIG_HEVC_VDPAU_HWACCEL)
-+                     CONFIG_HEVC_VDPAU_HWACCEL + \
+                      CONFIG_HEVC_VDPAU_HWACCEL + \
+-                     CONFIG_HEVC_VULKAN_HWACCEL)
++                     CONFIG_HEVC_VULKAN_HWACCEL + \
 +                     CONFIG_HEVC_TX1_HWACCEL)
      enum AVPixelFormat pix_fmts[HWACCEL_MAX + 2], *fmt = pix_fmts;
  
      switch (sps->pix_fmt) {
-@@ -429,6 +430,9 @@ static enum AVPixelFormat get_format(HEVCContext *s, const HEVCSPS *sps)
+@@ -431,6 +432,9 @@ static enum AVPixelFormat get_format(HEVCContext *s, const HEVCSPS *sps)
  #endif
- #if CONFIG_HEVC_VIDEOTOOLBOX_HWACCEL
-         *fmt++ = AV_PIX_FMT_VIDEOTOOLBOX;
+ #if CONFIG_HEVC_VULKAN_HWACCEL
+         *fmt++ = AV_PIX_FMT_VULKAN;
 +#endif
 +#if CONFIG_HEVC_TX1_HWACCEL
 +        *fmt++ = AV_PIX_FMT_TX1;
  #endif
          break;
      case AV_PIX_FMT_YUV420P10:
-@@ -450,6 +454,9 @@ static enum AVPixelFormat get_format(HEVCContext *s, const HEVCSPS *sps)
+@@ -455,6 +459,9 @@ static enum AVPixelFormat get_format(HEVCContext *s, const HEVCSPS *sps)
  #endif
  #if CONFIG_HEVC_NVDEC_HWACCEL
          *fmt++ = AV_PIX_FMT_CUDA;
@@ -458,7 +287,7 @@ index 567e8d81d4..cd9db2c7a2 100644
  #endif
          break;
      case AV_PIX_FMT_YUV444P:
-@@ -572,6 +579,7 @@ static int hls_slice_header(HEVCContext *s)
+@@ -590,6 +597,7 @@ static int hls_slice_header(HEVCContext *s)
      GetBitContext *gb = &s->HEVClc->gb;
      SliceHeader *sh   = &s->sh;
      int i, ret;
@@ -466,7 +295,7 @@ index 567e8d81d4..cd9db2c7a2 100644
  
      // Coded parameters
      sh->first_slice_in_pic_flag = get_bits1(gb);
-@@ -673,6 +681,8 @@ static int hls_slice_header(HEVCContext *s)
+@@ -692,6 +700,8 @@ static int hls_slice_header(HEVCContext *s)
              return AVERROR_INVALIDDATA;
          }
  
@@ -475,7 +304,7 @@ index 567e8d81d4..cd9db2c7a2 100644
          // when flag is not present, picture is inferred to be output
          sh->pic_output_flag = 1;
          if (s->ps.pps->output_flag_present_flag)
-@@ -726,6 +736,7 @@ static int hls_slice_header(HEVCContext *s)
+@@ -745,6 +755,7 @@ static int hls_slice_header(HEVCContext *s)
              }
              sh->long_term_ref_pic_set_size = pos - get_bits_left(gb);
  
@@ -483,18 +312,18 @@ index 567e8d81d4..cd9db2c7a2 100644
              if (s->ps.sps->sps_temporal_mvp_enabled_flag)
                  sh->slice_temporal_mvp_enabled_flag = get_bits1(gb);
              else
-@@ -733,6 +744,7 @@ static int hls_slice_header(HEVCContext *s)
-         } else {
-             s->sh.short_term_rps = NULL;
-             s->poc               = 0;
-+            sh->nvidia_skip_length = nvidia_skip_len_start - get_bits_left(gb);
+@@ -757,6 +768,7 @@ static int hls_slice_header(HEVCContext *s)
+             sh->short_term_rps                  = NULL;
+             sh->long_term_ref_pic_set_size      = 0;
+             sh->slice_temporal_mvp_enabled_flag = 0;
++            sh->nvidia_skip_length              = nvidia_skip_len_start - get_bits_left(gb);
          }
  
          /* 8.3.1 */
-@@ -3739,6 +3751,9 @@ const FFCodec ff_hevc_decoder = {
+@@ -3728,6 +3740,9 @@ const FFCodec ff_hevc_decoder = {
  #endif
- #if CONFIG_HEVC_VIDEOTOOLBOX_HWACCEL
-                                HWACCEL_VIDEOTOOLBOX(hevc),
+ #if CONFIG_HEVC_VULKAN_HWACCEL
+                                HWACCEL_VULKAN(hevc),
 +#endif
 +#if CONFIG_HEVC_TX1_HWACCEL
 +                               HWACCEL_TX1(hevc),
@@ -502,10 +331,10 @@ index 567e8d81d4..cd9db2c7a2 100644
                                 NULL
                             },
 diff --git a/libavcodec/hevcdec.h b/libavcodec/hevcdec.h
-index 9d3f4adbb3..657e7b0074 100644
+index 6ef7d4f60f..5d9dd1a9ea 100644
 --- a/libavcodec/hevcdec.h
 +++ b/libavcodec/hevcdec.h
-@@ -324,6 +324,8 @@ typedef struct SliceHeader {
+@@ -329,6 +329,8 @@ typedef struct SliceHeader {
      int16_t chroma_offset_l1[16][2];
  
      int slice_ctb_addr_rs;
@@ -515,76 +344,77 @@ index 9d3f4adbb3..657e7b0074 100644
  
  typedef struct CodingUnit {
 diff --git a/libavcodec/hwaccels.h b/libavcodec/hwaccels.h
-index aca55831f3..09ce5ac42e 100644
+index c4630718cf..bf5e923e65 100644
 --- a/libavcodec/hwaccels.h
 +++ b/libavcodec/hwaccels.h
-@@ -36,6 +36,7 @@ extern const AVHWAccel ff_h264_nvdec_hwaccel;
- extern const AVHWAccel ff_h264_vaapi_hwaccel;
- extern const AVHWAccel ff_h264_vdpau_hwaccel;
- extern const AVHWAccel ff_h264_videotoolbox_hwaccel;
-+extern const AVHWAccel ff_h264_tx1_hwaccel;
- extern const AVHWAccel ff_hevc_d3d11va_hwaccel;
- extern const AVHWAccel ff_hevc_d3d11va2_hwaccel;
- extern const AVHWAccel ff_hevc_dxva2_hwaccel;
-@@ -43,11 +44,14 @@ extern const AVHWAccel ff_hevc_nvdec_hwaccel;
- extern const AVHWAccel ff_hevc_vaapi_hwaccel;
- extern const AVHWAccel ff_hevc_vdpau_hwaccel;
- extern const AVHWAccel ff_hevc_videotoolbox_hwaccel;
-+extern const AVHWAccel ff_hevc_tx1_hwaccel;
- extern const AVHWAccel ff_mjpeg_nvdec_hwaccel;
- extern const AVHWAccel ff_mjpeg_vaapi_hwaccel;
-+extern const AVHWAccel ff_mjpeg_tx1_hwaccel;
- extern const AVHWAccel ff_mpeg1_nvdec_hwaccel;
- extern const AVHWAccel ff_mpeg1_vdpau_hwaccel;
- extern const AVHWAccel ff_mpeg1_videotoolbox_hwaccel;
-+extern const AVHWAccel ff_mpeg1_tx1_hwaccel;
- extern const AVHWAccel ff_mpeg2_d3d11va_hwaccel;
- extern const AVHWAccel ff_mpeg2_d3d11va2_hwaccel;
- extern const AVHWAccel ff_mpeg2_nvdec_hwaccel;
-@@ -55,19 +59,23 @@ extern const AVHWAccel ff_mpeg2_dxva2_hwaccel;
- extern const AVHWAccel ff_mpeg2_vaapi_hwaccel;
- extern const AVHWAccel ff_mpeg2_vdpau_hwaccel;
- extern const AVHWAccel ff_mpeg2_videotoolbox_hwaccel;
-+extern const AVHWAccel ff_mpeg2_tx1_hwaccel;
- extern const AVHWAccel ff_mpeg4_nvdec_hwaccel;
- extern const AVHWAccel ff_mpeg4_vaapi_hwaccel;
- extern const AVHWAccel ff_mpeg4_vdpau_hwaccel;
- extern const AVHWAccel ff_mpeg4_videotoolbox_hwaccel;
- extern const AVHWAccel ff_prores_videotoolbox_hwaccel;
-+extern const AVHWAccel ff_mpeg4_tx1_hwaccel;
- extern const AVHWAccel ff_vc1_d3d11va_hwaccel;
- extern const AVHWAccel ff_vc1_d3d11va2_hwaccel;
- extern const AVHWAccel ff_vc1_dxva2_hwaccel;
- extern const AVHWAccel ff_vc1_nvdec_hwaccel;
- extern const AVHWAccel ff_vc1_vaapi_hwaccel;
- extern const AVHWAccel ff_vc1_vdpau_hwaccel;
-+extern const AVHWAccel ff_vc1_tx1_hwaccel;
- extern const AVHWAccel ff_vp8_nvdec_hwaccel;
- extern const AVHWAccel ff_vp8_vaapi_hwaccel;
-+extern const AVHWAccel ff_vp8_tx1_hwaccel;
- extern const AVHWAccel ff_vp9_d3d11va_hwaccel;
- extern const AVHWAccel ff_vp9_d3d11va2_hwaccel;
- extern const AVHWAccel ff_vp9_dxva2_hwaccel;
-@@ -75,11 +83,13 @@ extern const AVHWAccel ff_vp9_nvdec_hwaccel;
- extern const AVHWAccel ff_vp9_vaapi_hwaccel;
- extern const AVHWAccel ff_vp9_vdpau_hwaccel;
- extern const AVHWAccel ff_vp9_videotoolbox_hwaccel;
-+extern const AVHWAccel ff_vp9_tx1_hwaccel;
- extern const AVHWAccel ff_wmv3_d3d11va_hwaccel;
- extern const AVHWAccel ff_wmv3_d3d11va2_hwaccel;
- extern const AVHWAccel ff_wmv3_dxva2_hwaccel;
- extern const AVHWAccel ff_wmv3_nvdec_hwaccel;
- extern const AVHWAccel ff_wmv3_vaapi_hwaccel;
- extern const AVHWAccel ff_wmv3_vdpau_hwaccel;
-+extern const AVHWAccel ff_wmv3_tx1_hwaccel;
+@@ -35,6 +35,7 @@ extern const struct FFHWAccel ff_h264_nvdec_hwaccel;
+ extern const struct FFHWAccel ff_h264_vaapi_hwaccel;
+ extern const struct FFHWAccel ff_h264_vdpau_hwaccel;
+ extern const struct FFHWAccel ff_h264_videotoolbox_hwaccel;
++extern const struct FFHWAccel ff_h264_tx1_hwaccel;
+ extern const struct FFHWAccel ff_h264_vulkan_hwaccel;
+ extern const struct FFHWAccel ff_hevc_d3d11va_hwaccel;
+ extern const struct FFHWAccel ff_hevc_d3d11va2_hwaccel;
+@@ -43,12 +44,15 @@ extern const struct FFHWAccel ff_hevc_nvdec_hwaccel;
+ extern const struct FFHWAccel ff_hevc_vaapi_hwaccel;
+ extern const struct FFHWAccel ff_hevc_vdpau_hwaccel;
+ extern const struct FFHWAccel ff_hevc_videotoolbox_hwaccel;
++extern const struct FFHWAccel ff_hevc_tx1_hwaccel;
+ extern const struct FFHWAccel ff_hevc_vulkan_hwaccel;
+ extern const struct FFHWAccel ff_mjpeg_nvdec_hwaccel;
+ extern const struct FFHWAccel ff_mjpeg_vaapi_hwaccel;
++extern const struct FFHWAccel ff_mjpeg_tx1_hwaccel;
+ extern const struct FFHWAccel ff_mpeg1_nvdec_hwaccel;
+ extern const struct FFHWAccel ff_mpeg1_vdpau_hwaccel;
+ extern const struct FFHWAccel ff_mpeg1_videotoolbox_hwaccel;
++extern const struct FFHWAccel ff_mpeg1_tx1_hwaccel;
+ extern const struct FFHWAccel ff_mpeg2_d3d11va_hwaccel;
+ extern const struct FFHWAccel ff_mpeg2_d3d11va2_hwaccel;
+ extern const struct FFHWAccel ff_mpeg2_dxva2_hwaccel;
+@@ -56,19 +60,23 @@ extern const struct FFHWAccel ff_mpeg2_nvdec_hwaccel;
+ extern const struct FFHWAccel ff_mpeg2_vaapi_hwaccel;
+ extern const struct FFHWAccel ff_mpeg2_vdpau_hwaccel;
+ extern const struct FFHWAccel ff_mpeg2_videotoolbox_hwaccel;
++extern const struct FFHWAccel ff_mpeg2_tx1_hwaccel;
+ extern const struct FFHWAccel ff_mpeg4_nvdec_hwaccel;
+ extern const struct FFHWAccel ff_mpeg4_vaapi_hwaccel;
+ extern const struct FFHWAccel ff_mpeg4_vdpau_hwaccel;
+ extern const struct FFHWAccel ff_mpeg4_videotoolbox_hwaccel;
+ extern const struct FFHWAccel ff_prores_videotoolbox_hwaccel;
++extern const struct FFHWAccel ff_mpeg4_tx1_hwaccel;
+ extern const struct FFHWAccel ff_vc1_d3d11va_hwaccel;
+ extern const struct FFHWAccel ff_vc1_d3d11va2_hwaccel;
+ extern const struct FFHWAccel ff_vc1_dxva2_hwaccel;
+ extern const struct FFHWAccel ff_vc1_nvdec_hwaccel;
+ extern const struct FFHWAccel ff_vc1_vaapi_hwaccel;
+ extern const struct FFHWAccel ff_vc1_vdpau_hwaccel;
++extern const struct FFHWAccel ff_vc1_tx1_hwaccel;
+ extern const struct FFHWAccel ff_vp8_nvdec_hwaccel;
+ extern const struct FFHWAccel ff_vp8_vaapi_hwaccel;
++extern const struct FFHWAccel ff_vp8_tx1_hwaccel;
+ extern const struct FFHWAccel ff_vp9_d3d11va_hwaccel;
+ extern const struct FFHWAccel ff_vp9_d3d11va2_hwaccel;
+ extern const struct FFHWAccel ff_vp9_dxva2_hwaccel;
+@@ -76,11 +84,13 @@ extern const struct FFHWAccel ff_vp9_nvdec_hwaccel;
+ extern const struct FFHWAccel ff_vp9_vaapi_hwaccel;
+ extern const struct FFHWAccel ff_vp9_vdpau_hwaccel;
+ extern const struct FFHWAccel ff_vp9_videotoolbox_hwaccel;
++extern const struct FFHWAccel ff_vp9_tx1_hwaccel;
+ extern const struct FFHWAccel ff_wmv3_d3d11va_hwaccel;
+ extern const struct FFHWAccel ff_wmv3_d3d11va2_hwaccel;
+ extern const struct FFHWAccel ff_wmv3_dxva2_hwaccel;
+ extern const struct FFHWAccel ff_wmv3_nvdec_hwaccel;
+ extern const struct FFHWAccel ff_wmv3_vaapi_hwaccel;
+ extern const struct FFHWAccel ff_wmv3_vdpau_hwaccel;
++extern const struct FFHWAccel ff_wmv3_tx1_hwaccel;
  
  #endif /* AVCODEC_HWACCELS_H */
 diff --git a/libavcodec/hwconfig.h b/libavcodec/hwconfig.h
-index 721424912c..aead6dfbd0 100644
+index e164722a94..cee6f09a1a 100644
 --- a/libavcodec/hwconfig.h
 +++ b/libavcodec/hwconfig.h
-@@ -78,6 +78,8 @@ typedef struct AVCodecHWConfigInternal {
-     HW_CONFIG_HWACCEL(1, 1, 1, VIDEOTOOLBOX, VIDEOTOOLBOX, ff_ ## codec ## _videotoolbox_hwaccel)
+@@ -77,6 +77,8 @@ void ff_hwaccel_uninit(AVCodecContext *avctx);
+     HW_CONFIG_HWACCEL(1, 1, 1, VULKAN,       VULKAN,       ff_ ## codec ## _vulkan_hwaccel)
  #define HWACCEL_D3D11VA(codec) \
      HW_CONFIG_HWACCEL(0, 0, 1, D3D11VA_VLD,  NONE,         ff_ ## codec ## _d3d11va_hwaccel)
 +#define HWACCEL_TX1(codec) \
@@ -593,10 +423,10 @@ index 721424912c..aead6dfbd0 100644
  #define HW_CONFIG_ENCODER(device, frames, ad_hoc, format, device_type_) \
      &(const AVCodecHWConfigInternal) { \
 diff --git a/libavcodec/mjpegdec.c b/libavcodec/mjpegdec.c
-index c833d66c4d..7d2f931d8f 100644
+index 8676155ecf..322064445c 100644
 --- a/libavcodec/mjpegdec.c
 +++ b/libavcodec/mjpegdec.c
-@@ -708,6 +708,9 @@ int ff_mjpeg_decode_sof(MJpegDecodeContext *s)
+@@ -733,6 +733,9 @@ int ff_mjpeg_decode_sof(MJpegDecodeContext *s)
  #endif
  #if CONFIG_MJPEG_VAAPI_HWACCEL
                  AV_PIX_FMT_VAAPI,
@@ -606,7 +436,7 @@ index c833d66c4d..7d2f931d8f 100644
  #endif
                  s->avctx->pix_fmt,
                  AV_PIX_FMT_NONE,
-@@ -2967,6 +2970,9 @@ const FFCodec ff_mjpeg_decoder = {
+@@ -3019,6 +3022,9 @@ const FFCodec ff_mjpeg_decoder = {
  #endif
  #if CONFIG_MJPEG_VAAPI_HWACCEL
                          HWACCEL_VAAPI(mjpeg),
@@ -616,24 +446,11 @@ index c833d66c4d..7d2f931d8f 100644
  #endif
                          NULL
                      },
-diff --git a/libavcodec/motionpixels.c b/libavcodec/motionpixels.c
-index a947ca05de..4141c5a495 100644
---- a/libavcodec/motionpixels.c
-+++ b/libavcodec/motionpixels.c
-@@ -185,7 +185,7 @@ static YuvPixel mp_get_yuv_from_rgb(MotionPixelsContext *mp, int x, int y)
-     int color;
- 
-     color = *(uint16_t *)&mp->frame->data[0][y * mp->frame->linesize[0] + x * 2];
--    return mp_rgb_yuv_table[color & 0x7FFF];
-+    return mp_rgb_yuv_table[color];
- }
- 
- static void mp_set_rgb_from_yuv(MotionPixelsContext *mp, int x, int y, const YuvPixel *p)
 diff --git a/libavcodec/mpeg12dec.c b/libavcodec/mpeg12dec.c
-index 457d985265..654fd3c8c0 100644
+index 5dac83ebcd..644aa7f390 100644
 --- a/libavcodec/mpeg12dec.c
 +++ b/libavcodec/mpeg12dec.c
-@@ -1110,6 +1110,9 @@ static const enum AVPixelFormat mpeg1_hwaccel_pixfmt_list_420[] = {
+@@ -1096,6 +1096,9 @@ static const enum AVPixelFormat mpeg1_hwaccel_pixfmt_list_420[] = {
  #endif
  #if CONFIG_MPEG1_VDPAU_HWACCEL
      AV_PIX_FMT_VDPAU,
@@ -643,7 +460,7 @@ index 457d985265..654fd3c8c0 100644
  #endif
      AV_PIX_FMT_YUV420P,
      AV_PIX_FMT_NONE
-@@ -1134,6 +1137,9 @@ static const enum AVPixelFormat mpeg2_hwaccel_pixfmt_list_420[] = {
+@@ -1120,6 +1123,9 @@ static const enum AVPixelFormat mpeg2_hwaccel_pixfmt_list_420[] = {
  #endif
  #if CONFIG_MPEG2_VIDEOTOOLBOX_HWACCEL
      AV_PIX_FMT_VIDEOTOOLBOX,
@@ -653,7 +470,7 @@ index 457d985265..654fd3c8c0 100644
  #endif
      AV_PIX_FMT_YUV420P,
      AV_PIX_FMT_NONE
-@@ -2878,6 +2884,9 @@ const FFCodec ff_mpeg1video_decoder = {
+@@ -2855,6 +2861,9 @@ const FFCodec ff_mpeg1video_decoder = {
  #endif
  #if CONFIG_MPEG1_VIDEOTOOLBOX_HWACCEL
                                 HWACCEL_VIDEOTOOLBOX(mpeg1),
@@ -663,7 +480,7 @@ index 457d985265..654fd3c8c0 100644
  #endif
                                 NULL
                             },
-@@ -2919,6 +2928,9 @@ const FFCodec ff_mpeg2video_decoder = {
+@@ -2896,6 +2905,9 @@ const FFCodec ff_mpeg2video_decoder = {
  #endif
  #if CONFIG_MPEG2_VIDEOTOOLBOX_HWACCEL
                          HWACCEL_VIDEOTOOLBOX(mpeg2),
@@ -674,10 +491,10 @@ index 457d985265..654fd3c8c0 100644
                          NULL
                      },
 diff --git a/libavcodec/mpeg4videodec.c b/libavcodec/mpeg4videodec.c
-index d456e5dd11..0e9dcd40ff 100644
+index 97aec68981..0ab31058ed 100644
 --- a/libavcodec/mpeg4videodec.c
 +++ b/libavcodec/mpeg4videodec.c
-@@ -3881,6 +3881,9 @@ const FFCodec ff_mpeg4_decoder = {
+@@ -3887,6 +3887,9 @@ const FFCodec ff_mpeg4_decoder = {
  #endif
  #if CONFIG_MPEG4_VIDEOTOOLBOX_HWACCEL
                                 HWACCEL_VIDEOTOOLBOX(mpeg4),
@@ -687,67 +504,6 @@ index d456e5dd11..0e9dcd40ff 100644
  #endif
                                 NULL
                             },
-diff --git a/libavcodec/pngdec.c b/libavcodec/pngdec.c
-index d63640345b..0d969decf2 100644
---- a/libavcodec/pngdec.c
-+++ b/libavcodec/pngdec.c
-@@ -329,7 +329,7 @@ void ff_png_filter_row(PNGDSPContext *dsp, uint8_t *dst, int filter_type,
- static void deloco_ ## NAME(TYPE *dst, int size, int alpha) \
- { \
-     int i; \
--    for (i = 0; i < size - 2; i += 3 + alpha) { \
-+    for (i = 0; i < size; i += 3 + alpha) { \
-         int g = dst [i + 1]; \
-         dst[i + 0] += g; \
-         dst[i + 2] += g; \
-@@ -1238,7 +1238,6 @@ static int decode_frame_common(AVCodecContext *avctx, PNGDecContext *s,
-                 }
-                 av_log(avctx, AV_LOG_ERROR, ", skipping\n");
-                 bytestream2_skip(&s->gb, length + 8); /* tag */
--                continue;
-             }
-         }
-         tag = bytestream2_get_le32(&s->gb);
-diff --git a/libavcodec/rka.c b/libavcodec/rka.c
-index 2212e3f930..461baf1e1f 100644
---- a/libavcodec/rka.c
-+++ b/libavcodec/rka.c
-@@ -691,7 +691,7 @@ static int decode_filter(RKAContext *s, ChContext *ctx, ACoder *ac, int off, uns
-     else
-         split = size >> 4;
- 
--    if (size <= 1)
-+    if (size <= 0)
-         return 0;
- 
-     for (int x = 0; x < size;) {
-@@ -723,21 +723,21 @@ static int decode_filter(RKAContext *s, ChContext *ctx, ACoder *ac, int off, uns
-             last_val = val;
-             src = &ctx->buf1[off + -1];
-             for (int i = 0; i < filt.size && i < 15; i++)
--                sum += filt.coeffs[i] * (unsigned)src[-i];
--            sum = sum * 2U;
-+                sum += filt.coeffs[i] * src[-i];
-+            sum = sum * 2;
-             for (int i = 15; i < filt.size; i++)
--                sum += filt.coeffs[i] * (unsigned)src[-i];
-+                sum += filt.coeffs[i] * src[-i];
-             sum = sum >> 6;
-             if (ctx->cmode == 0) {
-                 if (bits == 0) {
-                     ctx->buf1[off] = sum + val;
-                 } else {
--                    ctx->buf1[off] = (val + (sum >> bits)) * (1 << bits) +
-+                    ctx->buf1[off] = (val + (sum >> bits) << bits) +
-                         (((1U << bits) - 1U) & ctx->buf1[off + -1]);
-                 }
-                 ctx->buf0[off] = ctx->buf1[off] + ctx->buf0[off + -1];
-             } else {
--                val *= 1 << ctx->cmode;
-+                val <<= ctx->cmode;
-                 sum += ctx->buf0[off + -1] + val;
-                 switch (s->bps) {
-                 case 16: sum = av_clip_int16(sum); break;
 diff --git a/libavcodec/tx1_decode.c b/libavcodec/tx1_decode.c
 new file mode 100644
 index 0000000000..9980e0fbf4
@@ -1269,10 +1025,10 @@ index 0000000000..596806f194
 +#endif /* AVCODEC_TX1_H */
 diff --git a/libavcodec/tx1_h264.c b/libavcodec/tx1_h264.c
 new file mode 100644
-index 0000000000..c5fa8cbfa3
+index 0000000000..c45deed971
 --- /dev/null
 +++ b/libavcodec/tx1_h264.c
-@@ -0,0 +1,512 @@
+@@ -0,0 +1,513 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -1299,6 +1055,7 @@ index 0000000000..c5fa8cbfa3
 +#include "config_components.h"
 +
 +#include "avcodec.h"
++#include "hwaccel_internal.h"
 +#include "internal.h"
 +#include "hwconfig.h"
 +#include "h264dec.h"
@@ -1770,11 +1527,11 @@ index 0000000000..c5fa8cbfa3
 +}
 +
 +#if CONFIG_H264_TX1_HWACCEL
-+const AVHWAccel ff_h264_tx1_hwaccel = {
-+    .name                 = "h264_tx1",
-+    .type                 = AVMEDIA_TYPE_VIDEO,
-+    .id                   = AV_CODEC_ID_H264,
-+    .pix_fmt              = AV_PIX_FMT_TX1,
++const FFHWAccel ff_h264_tx1_hwaccel = {
++    .p.name               = "h264_tx1",
++    .p.type               = AVMEDIA_TYPE_VIDEO,
++    .p.id                 = AV_CODEC_ID_H264,
++    .p.pix_fmt            = AV_PIX_FMT_TX1,
 +    .start_frame          = &tx1_h264_start_frame,
 +    .end_frame            = &tx1_h264_end_frame,
 +    .decode_slice         = &tx1_h264_decode_slice,
@@ -1787,10 +1544,10 @@ index 0000000000..c5fa8cbfa3
 +#endif
 diff --git a/libavcodec/tx1_hevc.c b/libavcodec/tx1_hevc.c
 new file mode 100644
-index 0000000000..30a23afc68
+index 0000000000..c132cb383a
 --- /dev/null
 +++ b/libavcodec/tx1_hevc.c
-@@ -0,0 +1,628 @@
+@@ -0,0 +1,629 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -1814,6 +1571,7 @@ index 0000000000..30a23afc68
 +#include "config_components.h"
 +
 +#include "avcodec.h"
++#include "hwaccel_internal.h"
 +#include "internal.h"
 +#include "hwconfig.h"
 +#include "hevcdec.h"
@@ -2404,11 +2162,11 @@ index 0000000000..30a23afc68
 +}
 +
 +#if CONFIG_HEVC_TX1_HWACCEL
-+const AVHWAccel ff_hevc_tx1_hwaccel = {
-+    .name                 = "hevc_tx1",
-+    .type                 = AVMEDIA_TYPE_VIDEO,
-+    .id                   = AV_CODEC_ID_HEVC,
-+    .pix_fmt              = AV_PIX_FMT_TX1,
++const FFHWAccel ff_hevc_tx1_hwaccel = {
++    .p.name               = "hevc_tx1",
++    .p.type               = AVMEDIA_TYPE_VIDEO,
++    .p.id                 = AV_CODEC_ID_HEVC,
++    .p.pix_fmt            = AV_PIX_FMT_TX1,
 +    .start_frame          = &tx1_hevc_start_frame,
 +    .end_frame            = &tx1_hevc_end_frame,
 +    .decode_slice         = &tx1_hevc_decode_slice,
@@ -2421,10 +2179,10 @@ index 0000000000..30a23afc68
 +#endif
 diff --git a/libavcodec/tx1_mjpeg.c b/libavcodec/tx1_mjpeg.c
 new file mode 100644
-index 0000000000..a457b363d7
+index 0000000000..03d2a2706c
 --- /dev/null
 +++ b/libavcodec/tx1_mjpeg.c
-@@ -0,0 +1,321 @@
+@@ -0,0 +1,322 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -2448,6 +2206,7 @@ index 0000000000..a457b363d7
 +#include "config_components.h"
 +
 +#include "avcodec.h"
++#include "hwaccel_internal.h"
 +#include "internal.h"
 +#include "hwconfig.h"
 +#include "mjpegdec.h"
@@ -2731,11 +2490,11 @@ index 0000000000..a457b363d7
 +}
 +
 +#if CONFIG_MJPEG_TX1_HWACCEL
-+const AVHWAccel ff_mjpeg_tx1_hwaccel = {
-+    .name                 = "mjpeg_tx1",
-+    .type                 = AVMEDIA_TYPE_VIDEO,
-+    .id                   = AV_CODEC_ID_MJPEG,
-+    .pix_fmt              = AV_PIX_FMT_TX1,
++const FFHWAccel ff_mjpeg_tx1_hwaccel = {
++    .p.name               = "mjpeg_tx1",
++    .p.type               = AVMEDIA_TYPE_VIDEO,
++    .p.id                 = AV_CODEC_ID_MJPEG,
++    .p.pix_fmt            = AV_PIX_FMT_TX1,
 +    .start_frame          = &tx1_mjpeg_start_frame,
 +    .end_frame            = &tx1_mjpeg_end_frame,
 +    .decode_slice         = &tx1_mjpeg_decode_slice,
@@ -2748,10 +2507,10 @@ index 0000000000..a457b363d7
 +#endif
 diff --git a/libavcodec/tx1_mpeg12.c b/libavcodec/tx1_mpeg12.c
 new file mode 100644
-index 0000000000..d2db568528
+index 0000000000..ec94697200
 --- /dev/null
 +++ b/libavcodec/tx1_mpeg12.c
-@@ -0,0 +1,316 @@
+@@ -0,0 +1,317 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -2777,6 +2536,7 @@ index 0000000000..d2db568528
 +#include <string.h>
 +
 +#include "avcodec.h"
++#include "hwaccel_internal.h"
 +#include "internal.h"
 +#include "hwconfig.h"
 +#include "mpegvideo.h"
@@ -3036,11 +2796,11 @@ index 0000000000..d2db568528
 +}
 +
 +#if CONFIG_MPEG1_TX1_HWACCEL
-+const AVHWAccel ff_mpeg1_tx1_hwaccel = {
-+    .name                 = "mpeg1_tx1",
-+    .type                 = AVMEDIA_TYPE_VIDEO,
-+    .id                   = AV_CODEC_ID_MPEG1VIDEO,
-+    .pix_fmt              = AV_PIX_FMT_TX1,
++const FFHWAccel ff_mpeg1_tx1_hwaccel = {
++    .p.name               = "mpeg1_tx1",
++    .p.type               = AVMEDIA_TYPE_VIDEO,
++    .p.id                 = AV_CODEC_ID_MPEG1VIDEO,
++    .p.pix_fmt            = AV_PIX_FMT_TX1,
 +    .start_frame          = &tx1_mpeg12_start_frame,
 +    .end_frame            = &tx1_mpeg12_end_frame,
 +    .decode_slice         = &tx1_mpeg12_decode_slice,
@@ -3053,11 +2813,11 @@ index 0000000000..d2db568528
 +#endif
 +
 +#if CONFIG_MPEG2_TX1_HWACCEL
-+const AVHWAccel ff_mpeg2_tx1_hwaccel = {
-+    .name                 = "mpeg2_tx1",
-+    .type                 = AVMEDIA_TYPE_VIDEO,
-+    .id                   = AV_CODEC_ID_MPEG2VIDEO,
-+    .pix_fmt              = AV_PIX_FMT_TX1,
++const FFHWAccel ff_mpeg2_tx1_hwaccel = {
++    .p.name               = "mpeg2_tx1",
++    .p.type               = AVMEDIA_TYPE_VIDEO,
++    .p.id                 = AV_CODEC_ID_MPEG2VIDEO,
++    .p.pix_fmt            = AV_PIX_FMT_TX1,
 +    .start_frame          = &tx1_mpeg12_start_frame,
 +    .end_frame            = &tx1_mpeg12_end_frame,
 +    .decode_slice         = &tx1_mpeg12_decode_slice,
@@ -3070,10 +2830,10 @@ index 0000000000..d2db568528
 +#endif
 diff --git a/libavcodec/tx1_mpeg4.c b/libavcodec/tx1_mpeg4.c
 new file mode 100644
-index 0000000000..a8dea8a354
+index 0000000000..bf207c8daf
 --- /dev/null
 +++ b/libavcodec/tx1_mpeg4.c
-@@ -0,0 +1,347 @@
+@@ -0,0 +1,348 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -3097,6 +2857,7 @@ index 0000000000..a8dea8a354
 +#include "config_components.h"
 +
 +#include "avcodec.h"
++#include "hwaccel_internal.h"
 +#include "internal.h"
 +#include "hwconfig.h"
 +#include "mpeg4video.h"
@@ -3406,11 +3167,11 @@ index 0000000000..a8dea8a354
 +}
 +
 +#if CONFIG_MPEG4_TX1_HWACCEL
-+const AVHWAccel ff_mpeg4_tx1_hwaccel = {
-+    .name                 = "mpeg4_tx1",
-+    .type                 = AVMEDIA_TYPE_VIDEO,
-+    .id                   = AV_CODEC_ID_MPEG4,
-+    .pix_fmt              = AV_PIX_FMT_TX1,
++const FFHWAccel ff_mpeg4_tx1_hwaccel = {
++    .p.name               = "mpeg4_tx1",
++    .p.type               = AVMEDIA_TYPE_VIDEO,
++    .p.id                 = AV_CODEC_ID_MPEG4,
++    .p.pix_fmt            = AV_PIX_FMT_TX1,
 +    .start_frame          = &tx1_mpeg4_start_frame,
 +    .end_frame            = &tx1_mpeg4_end_frame,
 +    .decode_slice         = &tx1_mpeg4_decode_slice,
@@ -3423,10 +3184,10 @@ index 0000000000..a8dea8a354
 +#endif
 diff --git a/libavcodec/tx1_vc1.c b/libavcodec/tx1_vc1.c
 new file mode 100644
-index 0000000000..2025e297de
+index 0000000000..8b32302a87
 --- /dev/null
 +++ b/libavcodec/tx1_vc1.c
-@@ -0,0 +1,474 @@
+@@ -0,0 +1,475 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -3452,6 +3213,7 @@ index 0000000000..2025e297de
 +#include "config_components.h"
 +
 +#include "avcodec.h"
++#include "hwaccel_internal.h"
 +#include "internal.h"
 +#include "hwconfig.h"
 +#include "vc1.h"
@@ -3869,11 +3631,11 @@ index 0000000000..2025e297de
 +}
 +
 +#if CONFIG_VC1_TX1_HWACCEL
-+const AVHWAccel ff_vc1_tx1_hwaccel = {
-+    .name                 = "vc1_tx1",
-+    .type                 = AVMEDIA_TYPE_VIDEO,
-+    .id                   = AV_CODEC_ID_VC1,
-+    .pix_fmt              = AV_PIX_FMT_TX1,
++const FFHWAccel ff_vc1_tx1_hwaccel = {
++    .p.name               = "vc1_tx1",
++    .p.type               = AVMEDIA_TYPE_VIDEO,
++    .p.id                 = AV_CODEC_ID_VC1,
++    .p.pix_fmt            = AV_PIX_FMT_TX1,
 +    .start_frame          = &tx1_vc1_start_frame,
 +    .end_frame            = &tx1_vc1_end_frame,
 +    .decode_slice         = &tx1_vc1_decode_slice,
@@ -3886,11 +3648,11 @@ index 0000000000..2025e297de
 +#endif
 +
 +#if CONFIG_WMV3_TX1_HWACCEL
-+const AVHWAccel ff_wmv3_tx1_hwaccel = {
-+    .name                 = "wmv3_tx1",
-+    .type                 = AVMEDIA_TYPE_VIDEO,
-+    .id                   = AV_CODEC_ID_WMV3,
-+    .pix_fmt              = AV_PIX_FMT_TX1,
++const FFHWAccel ff_wmv3_tx1_hwaccel = {
++    .p.name               = "wmv3_tx1",
++    .p.type               = AVMEDIA_TYPE_VIDEO,
++    .p.id                 = AV_CODEC_ID_WMV3,
++    .p.pix_fmt            = AV_PIX_FMT_TX1,
 +    .start_frame          = &tx1_vc1_start_frame,
 +    .end_frame            = &tx1_vc1_end_frame,
 +    .decode_slice         = &tx1_vc1_decode_slice,
@@ -3903,10 +3665,10 @@ index 0000000000..2025e297de
 +#endif
 diff --git a/libavcodec/tx1_vp8.c b/libavcodec/tx1_vp8.c
 new file mode 100644
-index 0000000000..e8c9950867
+index 0000000000..78d23a4a27
 --- /dev/null
 +++ b/libavcodec/tx1_vp8.c
-@@ -0,0 +1,339 @@
+@@ -0,0 +1,340 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -3930,6 +3692,7 @@ index 0000000000..e8c9950867
 +#include "config_components.h"
 +
 +#include "avcodec.h"
++#include "hwaccel_internal.h"
 +#include "internal.h"
 +#include "hwconfig.h"
 +#include "vp8.h"
@@ -4231,11 +3994,11 @@ index 0000000000..e8c9950867
 +}
 +
 +#if CONFIG_VP8_TX1_HWACCEL
-+const AVHWAccel ff_vp8_tx1_hwaccel = {
-+    .name                 = "vp8_tx1",
-+    .type                 = AVMEDIA_TYPE_VIDEO,
-+    .id                   = AV_CODEC_ID_VP8,
-+    .pix_fmt              = AV_PIX_FMT_TX1,
++const FFHWAccel ff_vp8_tx1_hwaccel = {
++    .p.name               = "vp8_tx1",
++    .p.type               = AVMEDIA_TYPE_VIDEO,
++    .p.id                 = AV_CODEC_ID_VP8,
++    .p.pix_fmt            = AV_PIX_FMT_TX1,
 +    .start_frame          = &tx1_vp8_start_frame,
 +    .end_frame            = &tx1_vp8_end_frame,
 +    .decode_slice         = &tx1_vp8_decode_slice,
@@ -4248,10 +4011,10 @@ index 0000000000..e8c9950867
 +#endif
 diff --git a/libavcodec/tx1_vp9.c b/libavcodec/tx1_vp9.c
 new file mode 100644
-index 0000000000..39c5023f8b
+index 0000000000..8bd98e2a39
 --- /dev/null
 +++ b/libavcodec/tx1_vp9.c
-@@ -0,0 +1,667 @@
+@@ -0,0 +1,668 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -4277,6 +4040,7 @@ index 0000000000..39c5023f8b
 +#include "config_components.h"
 +
 +#include "avcodec.h"
++#include "hwaccel_internal.h"
 +#include "internal.h"
 +#include "hwconfig.h"
 +#include "vp9data.h"
@@ -4904,11 +4668,11 @@ index 0000000000..39c5023f8b
 +}
 +
 +#if CONFIG_VP9_TX1_HWACCEL
-+const AVHWAccel ff_vp9_tx1_hwaccel = {
-+    .name                 = "vp9_tx1",
-+    .type                 = AVMEDIA_TYPE_VIDEO,
-+    .id                   = AV_CODEC_ID_VP9,
-+    .pix_fmt              = AV_PIX_FMT_TX1,
++const FFHWAccel ff_vp9_tx1_hwaccel = {
++    .p.name               = "vp9_tx1",
++    .p.type               = AVMEDIA_TYPE_VIDEO,
++    .p.id                 = AV_CODEC_ID_VP9,
++    .p.pix_fmt            = AV_PIX_FMT_TX1,
 +    .start_frame          = &tx1_vp9_start_frame,
 +    .end_frame            = &tx1_vp9_end_frame,
 +    .decode_slice         = &tx1_vp9_decode_slice,
@@ -4919,33 +4683,11 @@ index 0000000000..39c5023f8b
 +    .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
 +};
 +#endif
-diff --git a/libavcodec/utils.c b/libavcodec/utils.c
-index 599da21dba..3b58c8a2ed 100644
---- a/libavcodec/utils.c
-+++ b/libavcodec/utils.c
-@@ -323,7 +323,6 @@ void avcodec_align_dimensions2(AVCodecContext *s, int *width, int *height,
-     *width  = FFALIGN(*width, w_align);
-     *height = FFALIGN(*height, h_align);
-     if (s->codec_id == AV_CODEC_ID_H264 || s->lowres ||
--        s->codec_id == AV_CODEC_ID_VC1  || s->codec_id == AV_CODEC_ID_WMV3 ||
-         s->codec_id == AV_CODEC_ID_VP5  || s->codec_id == AV_CODEC_ID_VP6 ||
-         s->codec_id == AV_CODEC_ID_VP6F || s->codec_id == AV_CODEC_ID_VP6A
-     ) {
-@@ -337,9 +336,6 @@ void avcodec_align_dimensions2(AVCodecContext *s, int *width, int *height,
-         // the next rounded up width is 32
-         *width = FFMAX(*width, 32);
-     }
--    if (s->codec_id == AV_CODEC_ID_SVQ3) {
--        *width = FFMAX(*width, 32);
--    }
- 
-     for (i = 0; i < 4; i++)
-         linesize_align[i] = STRIDE_ALIGN;
 diff --git a/libavcodec/vc1dec.c b/libavcodec/vc1dec.c
-index 5cb4c544c9..ffc1c7c511 100644
+index 534128d6ee..e3b7551b88 100644
 --- a/libavcodec/vc1dec.c
 +++ b/libavcodec/vc1dec.c
-@@ -1386,6 +1386,9 @@ static const enum AVPixelFormat vc1_hwaccel_pixfmt_list_420[] = {
+@@ -1411,6 +1411,9 @@ static const enum AVPixelFormat vc1_hwaccel_pixfmt_list_420[] = {
  #endif
  #if CONFIG_VC1_VDPAU_HWACCEL
      AV_PIX_FMT_VDPAU,
@@ -4955,7 +4697,7 @@ index 5cb4c544c9..ffc1c7c511 100644
  #endif
      AV_PIX_FMT_YUV420P,
      AV_PIX_FMT_NONE
-@@ -1421,6 +1424,9 @@ const FFCodec ff_vc1_decoder = {
+@@ -1446,6 +1449,9 @@ const FFCodec ff_vc1_decoder = {
  #endif
  #if CONFIG_VC1_VDPAU_HWACCEL
                          HWACCEL_VDPAU(vc1),
@@ -4965,7 +4707,7 @@ index 5cb4c544c9..ffc1c7c511 100644
  #endif
                          NULL
                      },
-@@ -1458,6 +1464,9 @@ const FFCodec ff_wmv3_decoder = {
+@@ -1483,6 +1489,9 @@ const FFCodec ff_wmv3_decoder = {
  #endif
  #if CONFIG_WMV3_VDPAU_HWACCEL
                          HWACCEL_VDPAU(wmv3),
@@ -4975,33 +4717,11 @@ index 5cb4c544c9..ffc1c7c511 100644
  #endif
                          NULL
                      },
-diff --git a/libavcodec/videodsp_template.c b/libavcodec/videodsp_template.c
-index d653f4d524..324d70f2cb 100644
---- a/libavcodec/videodsp_template.c
-+++ b/libavcodec/videodsp_template.c
-@@ -64,7 +64,7 @@ void FUNC(ff_emulated_edge_mc)(uint8_t *buf, const uint8_t *src,
-     av_assert2(start_x < end_x && block_w);
- 
-     w    = end_x - start_x;
--    src += start_y * src_linesize + start_x * (ptrdiff_t)sizeof(pixel);
-+    src += start_y * src_linesize + start_x * sizeof(pixel);
-     buf += start_x * sizeof(pixel);
- 
-     // top
-@@ -87,7 +87,7 @@ void FUNC(ff_emulated_edge_mc)(uint8_t *buf, const uint8_t *src,
-         buf += buf_linesize;
-     }
- 
--    buf -= block_h * buf_linesize + start_x * (ptrdiff_t)sizeof(pixel);
-+    buf -= block_h * buf_linesize + start_x * sizeof(pixel);
-     while (block_h--) {
-         pixel *bufp = (pixel *) buf;
- 
 diff --git a/libavcodec/vp8.c b/libavcodec/vp8.c
-index db2419deaf..c6dfb71937 100644
+index ffc430dd32..171e017115 100644
 --- a/libavcodec/vp8.c
 +++ b/libavcodec/vp8.c
-@@ -206,6 +206,9 @@ static enum AVPixelFormat get_pixel_format(VP8Context *s)
+@@ -197,6 +197,9 @@ static enum AVPixelFormat get_pixel_format(VP8Context *s)
  #endif
  #if CONFIG_VP8_NVDEC_HWACCEL
          AV_PIX_FMT_CUDA,
@@ -5011,7 +4731,7 @@ index db2419deaf..c6dfb71937 100644
  #endif
          AV_PIX_FMT_YUV420P,
          AV_PIX_FMT_NONE,
-@@ -3007,6 +3010,9 @@ const FFCodec ff_vp8_decoder = {
+@@ -3002,6 +3005,9 @@ const FFCodec ff_vp8_decoder = {
  #endif
  #if CONFIG_VP8_NVDEC_HWACCEL
                                 HWACCEL_NVDEC(vp8),
@@ -5021,24 +4741,11 @@ index db2419deaf..c6dfb71937 100644
  #endif
                                 NULL
                             },
-diff --git a/libavcodec/vp8data.h b/libavcodec/vp8data.h
-index 1fcce134eb..ac4af5f733 100644
---- a/libavcodec/vp8data.h
-+++ b/libavcodec/vp8data.h
-@@ -353,7 +353,7 @@ static const uint8_t vp8_dct_cat6_prob[] = {
- };
- 
- // only used for cat3 and above; cat 1 and 2 are referenced directly
--const uint8_t *const ff_vp8_dct_cat_prob[] = {
-+static const uint8_t *const ff_vp8_dct_cat_prob[] = {
-     vp8_dct_cat3_prob,
-     vp8_dct_cat4_prob,
-     vp8_dct_cat5_prob,
 diff --git a/libavcodec/vp9.c b/libavcodec/vp9.c
-index 7c0a246446..edf74abaf9 100644
+index 885500fdb4..48f020a34a 100644
 --- a/libavcodec/vp9.c
 +++ b/libavcodec/vp9.c
-@@ -187,7 +187,8 @@ static int update_size(AVCodecContext *avctx, int w, int h)
+@@ -179,7 +179,8 @@ static int update_size(AVCodecContext *avctx, int w, int h)
                       CONFIG_VP9_NVDEC_HWACCEL + \
                       CONFIG_VP9_VAAPI_HWACCEL + \
                       CONFIG_VP9_VDPAU_HWACCEL + \
@@ -5048,7 +4755,7 @@ index 7c0a246446..edf74abaf9 100644
      enum AVPixelFormat pix_fmts[HWACCEL_MAX + 2], *fmtp = pix_fmts;
      VP9Context *s = avctx->priv_data;
      uint8_t *p;
-@@ -202,6 +203,10 @@ static int update_size(AVCodecContext *avctx, int w, int h)
+@@ -194,6 +195,10 @@ static int update_size(AVCodecContext *avctx, int w, int h)
  
          switch (s->pix_fmt) {
          case AV_PIX_FMT_YUV420P:
@@ -5059,7 +4766,7 @@ index 7c0a246446..edf74abaf9 100644
          case AV_PIX_FMT_YUV420P10:
  #if CONFIG_VP9_DXVA2_HWACCEL
              *fmtp++ = AV_PIX_FMT_DXVA2_VLD;
-@@ -1908,6 +1913,9 @@ const FFCodec ff_vp9_decoder = {
+@@ -1914,6 +1919,9 @@ const FFCodec ff_vp9_decoder = {
  #endif
  #if CONFIG_VP9_VIDEOTOOLBOX_HWACCEL
                                 HWACCEL_VIDEOTOOLBOX(vp9),
@@ -5069,235 +4776,11 @@ index 7c0a246446..edf74abaf9 100644
  #endif
                                 NULL
                             },
-diff --git a/libavcodec/wavarc.c b/libavcodec/wavarc.c
-index 8d37af9571..b626daa66e 100644
---- a/libavcodec/wavarc.c
-+++ b/libavcodec/wavarc.c
-@@ -192,8 +192,6 @@ static int decode_1dif(AVCodecContext *avctx,
-         if (block_type < 4 && block_type >= 0) {
-             k = 1 + (avctx->sample_fmt == AV_SAMPLE_FMT_S16P);
-             k = get_urice(gb, k) + 1;
--            if (k > 32)
--                return AVERROR_INVALIDDATA;
-         }
- 
-         switch (block_type) {
-@@ -284,8 +282,6 @@ static int decode_2slp(AVCodecContext *avctx,
-         if (block_type < 5 && block_type >= 0) {
-             k = 1 + (avctx->sample_fmt == AV_SAMPLE_FMT_S16P);
-             k = get_urice(gb, k) + 1;
--            if (k > 32)
--                return AVERROR_INVALIDDATA;
-         }
- 
-         switch (block_type) {
-diff --git a/libavcodec/xpmdec.c b/libavcodec/xpmdec.c
-index 2550afb9d6..ff1f51dd32 100644
---- a/libavcodec/xpmdec.c
-+++ b/libavcodec/xpmdec.c
-@@ -354,9 +354,6 @@ static int xpm_decode_frame(AVCodecContext *avctx, AVFrame *p,
-         return AVERROR_INVALIDDATA;
-     }
- 
--    if (size > SIZE_MAX / 4)
--        return AVERROR(ENOMEM);
--
-     size *= 4;
- 
-     ptr += mod_strcspn(ptr, ",") + 1;
-diff --git a/libavfilter/af_pan.c b/libavfilter/af_pan.c
-index 4672648d46..067f646805 100644
---- a/libavfilter/af_pan.c
-+++ b/libavfilter/af_pan.c
-@@ -313,7 +313,7 @@ static int config_props(AVFilterLink *link)
-             pan->channel_map[i] = ch_id;
-         }
- 
--        av_opt_set_chlayout(pan->swr, "uchl", &pan->out_channel_layout, 0);
-+        av_opt_set_int(pan->swr, "uch", pan->nb_output_channels, 0);
-         swr_set_channel_mapping(pan->swr, pan->channel_map);
-     } else {
-         // renormalize
-diff --git a/libavformat/mov.c b/libavformat/mov.c
-index 8af564ed61..6ab43b00c6 100644
---- a/libavformat/mov.c
-+++ b/libavformat/mov.c
-@@ -4192,13 +4192,6 @@ static void mov_build_index(MOVContext *mov, AVStream *st)
-                 if (keyframe)
-                     distance = 0;
-                 sample_size = sc->stsz_sample_size > 0 ? sc->stsz_sample_size : sc->sample_sizes[current_sample];
--                if (current_offset > INT64_MAX - sample_size) {
--                    av_log(mov->fc, AV_LOG_ERROR, "Current offset %"PRId64" or sample size %u is too large\n",
--                           current_offset,
--                           sample_size);
--                    return;
--                }
--
-                 if (sc->pseudo_stream_id == -1 ||
-                    sc->stsc_data[stsc_index].id - 1 == sc->pseudo_stream_id) {
-                     AVIndexEntry *e;
-diff --git a/libavformat/mpegtsenc.c b/libavformat/mpegtsenc.c
-index ceed089587..00ad426086 100644
---- a/libavformat/mpegtsenc.c
-+++ b/libavformat/mpegtsenc.c
-@@ -29,8 +29,6 @@
- 
- #include "libavcodec/ac3_parser_internal.h"
- #include "libavcodec/avcodec.h"
--#include "libavcodec/bytestream.h"
--#include "libavcodec/h264.h"
- #include "libavcodec/startcode.h"
- 
- #include "avformat.h"
-@@ -1879,7 +1877,6 @@ static int mpegts_write_packet_internal(AVFormatContext *s, AVPacket *pkt)
- 
-     if (st->codecpar->codec_id == AV_CODEC_ID_H264) {
-         const uint8_t *p = buf, *buf_end = p + size;
--        const uint8_t *found_aud = NULL, *found_aud_end = NULL;
-         uint32_t state = -1;
-         int extradd = (pkt->flags & AV_PKT_FLAG_KEY) ? st->codecpar->extradata_size : 0;
-         int ret = ff_check_h264_startcode(s, st, pkt);
-@@ -1889,58 +1886,27 @@ static int mpegts_write_packet_internal(AVFormatContext *s, AVPacket *pkt)
-         if (extradd && AV_RB24(st->codecpar->extradata) > 1)
-             extradd = 0;
- 
--        /* Ensure that all pictures are prefixed with an AUD, and that
--         * IDR pictures are also prefixed with SPS and PPS. SPS and PPS
--         * are assumed to be available in 'extradata' if not found in-band. */
-         do {
-             p = avpriv_find_start_code(p, buf_end, &state);
-             av_log(s, AV_LOG_TRACE, "nal %"PRId32"\n", state & 0x1f);
--            if ((state & 0x1f) == H264_NAL_SPS)
-+            if ((state & 0x1f) == 7)
-                 extradd = 0;
--            if ((state & 0x1f) == H264_NAL_AUD) {
--                found_aud = p - 4;     // start of the 0x000001 start code.
--                found_aud_end = p + 1; // first byte past the AUD.
--                if (found_aud < buf)
--                    found_aud = buf;
--                if (buf_end < found_aud_end)
--                    found_aud_end = buf_end;
--            }
--        } while (p < buf_end
--                 && (state & 0x1f) != H264_NAL_IDR_SLICE
--                 && (state & 0x1f) != H264_NAL_SLICE
--                 && (extradd > 0 || !found_aud));
--        if ((state & 0x1f) != H264_NAL_IDR_SLICE)
--            extradd = 0;
-+        } while (p < buf_end && (state & 0x1f) != 9 &&
-+                 (state & 0x1f) != 5 && (state & 0x1f) != 1);
- 
--        if (!found_aud) {
--            /* Prefix 'buf' with the missing AUD, and extradata if needed. */
-+        if ((state & 0x1f) != 5)
-+            extradd = 0;
-+        if ((state & 0x1f) != 9) { // AUD NAL
-             data = av_malloc(pkt->size + 6 + extradd);
-             if (!data)
-                 return AVERROR(ENOMEM);
-             memcpy(data + 6, st->codecpar->extradata, extradd);
-             memcpy(data + 6 + extradd, pkt->data, pkt->size);
-             AV_WB32(data, 0x00000001);
--            data[4] = H264_NAL_AUD;
-+            data[4] = 0x09;
-             data[5] = 0xf0; // any slice type (0xe) + rbsp stop one bit
-             buf     = data;
-             size    = pkt->size + 6 + extradd;
--        } else if (extradd != 0) {
--            /* Move the AUD up to the beginning of the frame, where the H.264
--             * spec requires it to appear. Emit the extradata after it. */
--            PutByteContext pb;
--            const int new_pkt_size = pkt->size + 1 + extradd;
--            data = av_malloc(new_pkt_size);
--            if (!data)
--                return AVERROR(ENOMEM);
--            bytestream2_init_writer(&pb, data, new_pkt_size);
--            bytestream2_put_byte(&pb, 0x00);
--            bytestream2_put_buffer(&pb, found_aud, found_aud_end - found_aud);
--            bytestream2_put_buffer(&pb, st->codecpar->extradata, extradd);
--            bytestream2_put_buffer(&pb, pkt->data, found_aud - pkt->data);
--            bytestream2_put_buffer(&pb, found_aud_end, buf_end - found_aud_end);
--            av_assert0(new_pkt_size == bytestream2_tell_p(&pb));
--            buf     = data;
--            size    = new_pkt_size;
-         }
-     } else if (st->codecpar->codec_id == AV_CODEC_ID_AAC) {
-         if (pkt->size < 2) {
-diff --git a/libavformat/network.h b/libavformat/network.h
-index 71c49a73fb..7c756cd5e9 100644
---- a/libavformat/network.h
-+++ b/libavformat/network.h
-@@ -219,6 +219,14 @@ int ff_getnameinfo(const struct sockaddr *sa, int salen,
- #define getnameinfo ff_getnameinfo
- #endif /* !HAVE_GETADDRINFO */
- 
-+#if HAVE_GETADDRINFO && __SWITCH__
-+#undef getnameinfo
-+int ff_getnameinfo(const struct sockaddr *sa, int salen,
-+                   char *host, int hostlen,
-+                   char *serv, int servlen, int flags);
-+#define getnameinfo ff_getnameinfo
-+#endif
-+
- #if !HAVE_GETADDRINFO || HAVE_WINSOCK2_H
- const char *ff_gai_strerror(int ecode);
- #undef gai_strerror
-diff --git a/libavformat/os_support.c b/libavformat/os_support.c
-index 15cea7fa5b..d50f1719d8 100644
---- a/libavformat/os_support.c
-+++ b/libavformat/os_support.c
-@@ -138,6 +138,10 @@ void ff_freeaddrinfo(struct addrinfo *res)
-     av_freep(&res);
- }
- 
-+#endif 
-+
-+#if HAVE_GETADDRINFO && __SWITCH__
-+
- int ff_getnameinfo(const struct sockaddr *sa, int salen,
-                    char *host, int hostlen,
-                    char *serv, int servlen, int flags)
-diff --git a/libavformat/rka.c b/libavformat/rka.c
-index 39e5b3bce1..cc55480345 100644
---- a/libavformat/rka.c
-+++ b/libavformat/rka.c
-@@ -114,7 +114,7 @@ static int rka_read_header(AVFormatContext *s)
-     par->ch_layout.nb_channels = channels;
-     par->sample_rate = samplerate;
-     par->bits_per_raw_sample = bps;
--    st->duration = 8LL*nb_samples / (channels * bps);
-+    st->duration = nb_samples / (channels * (bps >> 3));
- 
-     if (s->pb->seekable & AVIO_SEEKABLE_NORMAL)
-         ff_ape_parse_tag(s);
-diff --git a/libavformat/wavarc.c b/libavformat/wavarc.c
-index 2b5d1b99eb..208b723716 100644
---- a/libavformat/wavarc.c
-+++ b/libavformat/wavarc.c
-@@ -22,7 +22,6 @@
- #include "libavutil/channel_layout.h"
- #include "libavutil/intreadwrite.h"
- #include "avformat.h"
--#include "avio_internal.h"
- #include "demux.h"
- #include "internal.h"
- 
-@@ -85,9 +84,7 @@ static int wavarc_read_header(AVFormatContext *s)
-     if (ret < 0)
-         return ret;
-     memcpy(par->extradata, data, sizeof(data));
--    ret = ffio_read_size(pb, par->extradata + sizeof(data), fmt_len);
--    if (ret < 0)
--        return ret;
-+    avio_read(pb, par->extradata + sizeof(data), fmt_len);
- 
-     par->codec_type = AVMEDIA_TYPE_AUDIO;
-     par->codec_id   = AV_CODEC_ID_WAVARC;
 diff --git a/libavutil/Makefile b/libavutil/Makefile
-index dc9012f9a8..0ae89b4601 100644
+index 4711f8cde8..f339d6d37d 100644
 --- a/libavutil/Makefile
 +++ b/libavutil/Makefile
-@@ -50,6 +50,11 @@ HEADERS = adler32.h                                                     \
+@@ -51,6 +51,11 @@ HEADERS = adler32.h                                                     \
            hwcontext_videotoolbox.h                                      \
            hwcontext_vdpau.h                                             \
            hwcontext_vulkan.h                                            \
@@ -5309,16 +4792,15 @@ index dc9012f9a8..0ae89b4601 100644
            imgutils.h                                                    \
            intfloat.h                                                    \
            intreadwrite.h                                                \
-@@ -198,6 +203,8 @@ OBJS-$(CONFIG_VDPAU)                    += hwcontext_vdpau.o
- OBJS-$(CONFIG_VULKAN)                   += hwcontext_vulkan.o
+@@ -202,6 +207,7 @@ OBJS-$(CONFIG_VDPAU)                    += hwcontext_vdpau.o
+ OBJS-$(CONFIG_VULKAN)                   += hwcontext_vulkan.o vulkan.o
  
  OBJS-$(!CONFIG_VULKAN)                  += hwcontext_stub.o
-+OBJS-$(CONFIG_TX1)                      += hwcontext_tx1.o              \
-+                                           tx1.o
++OBJS-$(CONFIG_TX1)                      += hwcontext_tx1.o tx1.o
  
  OBJS += $(COMPAT_OBJS:%=../compat/%)
  
-@@ -218,6 +225,9 @@ SKIPHEADERS-$(CONFIG_VDPAU)            += hwcontext_vdpau.h
+@@ -222,6 +228,9 @@ SKIPHEADERS-$(CONFIG_VDPAU)            += hwcontext_vdpau.h
  SKIPHEADERS-$(CONFIG_VULKAN)           += hwcontext_vulkan.h vulkan.h   \
                                            vulkan_functions.h            \
                                            vulkan_loader.h
@@ -6261,7 +5743,7 @@ index 0000000000..cefa634164
 +#endif
 +#endif // _cle7d0_h
 diff --git a/libavutil/cpu.c b/libavutil/cpu.c
-index 2c5f7f4958..6f8856807f 100644
+index 1e0607d581..c5023d7295 100644
 --- a/libavutil/cpu.c
 +++ b/libavutil/cpu.c
 @@ -48,6 +48,9 @@
@@ -6274,7 +5756,7 @@ index 2c5f7f4958..6f8856807f 100644
  
  static atomic_int cpu_flags = ATOMIC_VAR_INIT(-1);
  static atomic_int cpu_count = ATOMIC_VAR_INIT(-1);
-@@ -244,6 +247,12 @@ int av_cpu_count(void)
+@@ -247,6 +250,12 @@ int av_cpu_count(void)
      nb_cpus = sysinfo.dwNumberOfProcessors;
  #endif
  
@@ -6288,10 +5770,10 @@ index 2c5f7f4958..6f8856807f 100644
          av_log(NULL, AV_LOG_DEBUG, "detected %d logical cores\n", nb_cpus);
  
 diff --git a/libavutil/frame.c b/libavutil/frame.c
-index 9545477acc..4f05cc38f8 100644
+index a3f07ca089..95eb9235c1 100644
 --- a/libavutil/frame.c
 +++ b/libavutil/frame.c
-@@ -151,7 +151,7 @@ static int get_video_buffer(AVFrame *frame, int align)
+@@ -152,7 +152,7 @@ static int get_video_buffer(AVFrame *frame, int align)
          total_size += sizes[i];
      }
  
@@ -6301,7 +5783,7 @@ index 9545477acc..4f05cc38f8 100644
          ret = AVERROR(ENOMEM);
          goto fail;
 diff --git a/libavutil/hwcontext.c b/libavutil/hwcontext.c
-index 3396598269..99c06994a3 100644
+index 3650d4653a..32138ed6d9 100644
 --- a/libavutil/hwcontext.c
 +++ b/libavutil/hwcontext.c
 @@ -62,6 +62,9 @@ static const HWContextType * const hw_table[] = {
@@ -9723,12 +9205,12 @@ index 0000000000..a239476a71
 +
 +#endif /* __UAPI_LINUX_NVMAP_H */
 diff --git a/libavutil/pixdesc.c b/libavutil/pixdesc.c
-index 62a2ae08d9..e0086fed6d 100644
+index 6ded9467b0..f7b9e9cbbf 100644
 --- a/libavutil/pixdesc.c
 +++ b/libavutil/pixdesc.c
-@@ -2717,6 +2717,10 @@ static const AVPixFmtDescriptor av_pix_fmt_descriptors[AV_PIX_FMT_NB] = {
-         .flags = AV_PIX_FMT_FLAG_RGB | AV_PIX_FMT_FLAG_FLOAT |
-                  AV_PIX_FMT_FLAG_ALPHA,
+@@ -2793,6 +2793,10 @@ static const AVPixFmtDescriptor av_pix_fmt_descriptors[AV_PIX_FMT_NB] = {
+         },
+         .flags = AV_PIX_FMT_FLAG_PLANAR,
      },
 +    [AV_PIX_FMT_TX1] = {
 +        .name = "tx1",
@@ -9738,7 +9220,7 @@ index 62a2ae08d9..e0086fed6d 100644
  
  static const char * const color_range_names[] = {
 diff --git a/libavutil/pixfmt.h b/libavutil/pixfmt.h
-index 37c2c79e01..ee45e7f875 100644
+index a26c72d56b..ae91ee78b5 100644
 --- a/libavutil/pixfmt.h
 +++ b/libavutil/pixfmt.h
 @@ -375,6 +375,8 @@ enum AVPixelFormat {
@@ -11029,244 +10511,3 @@ index 0000000000..65462c4058
 +} VicConfigStruct;
 +
 +#endif // __VIC_DRV_H
-diff --git a/libswresample/options.c b/libswresample/options.c
-index fb109fdbab..ffa27c590d 100644
---- a/libswresample/options.c
-+++ b/libswresample/options.c
-@@ -46,9 +46,9 @@ static const AVOption options[]={
-                                                           OFFSET(user_out_ch_count ), AV_OPT_TYPE_INT, {.i64=0                    }, 0      , SWR_CH_MAX, PARAM|DEPREC},
- {"out_channel_count"    , "set output channel count (Deprecated, use out_chlayout)",
-                                                           OFFSET(user_out_ch_count ), AV_OPT_TYPE_INT, {.i64=0                    }, 0      , SWR_CH_MAX, PARAM|DEPREC},
--{"uch"                  , "set used channel count"      , OFFSET(user_used_ch_count), AV_OPT_TYPE_INT, {.i64=0                    }, 0      , SWR_CH_MAX, PARAM|DEPREC},
--{"used_channel_count"   , "set used channel count"      , OFFSET(user_used_ch_count), AV_OPT_TYPE_INT, {.i64=0                    }, 0      , SWR_CH_MAX, PARAM|DEPREC},
- #endif
-+{"uch"                  , "set used channel count"      , OFFSET(user_used_ch_count), AV_OPT_TYPE_INT, {.i64=0                    }, 0      , SWR_CH_MAX, PARAM},
-+{"used_channel_count"   , "set used channel count"      , OFFSET(user_used_ch_count), AV_OPT_TYPE_INT, {.i64=0                    }, 0      , SWR_CH_MAX, PARAM},
- {"isr"                  , "set input sample rate"       , OFFSET( in_sample_rate), AV_OPT_TYPE_INT  , {.i64=0                     }, 0      , INT_MAX   , PARAM},
- {"in_sample_rate"       , "set input sample rate"       , OFFSET( in_sample_rate), AV_OPT_TYPE_INT  , {.i64=0                     }, 0      , INT_MAX   , PARAM},
- {"osr"                  , "set output sample rate"      , OFFSET(out_sample_rate), AV_OPT_TYPE_INT  , {.i64=0                     }, 0      , INT_MAX   , PARAM},
-@@ -73,8 +73,6 @@ static const AVOption options[]={
- {"in_chlayout"          , "set input channel layout"    , OFFSET(user_in_chlayout ), AV_OPT_TYPE_CHLAYOUT, {.str=NULL             }, 0, 0 , PARAM, "chlayout"},
- {"ochl"                 , "set output channel layout"   , OFFSET(user_out_chlayout), AV_OPT_TYPE_CHLAYOUT, {.str=NULL             }, 0, 0 , PARAM, "chlayout"},
- {"out_chlayout"         , "set output channel layout"   , OFFSET(user_out_chlayout), AV_OPT_TYPE_CHLAYOUT, {.str=NULL             }, 0, 0 , PARAM, "chlayout"},
--{"uchl"                 , "set used channel layout"     , OFFSET(user_used_chlayout), AV_OPT_TYPE_CHLAYOUT, {.str=NULL            }, 0, 0 , PARAM, "chlayout"},
--{"used_chlayout"        , "set used channel layout"     , OFFSET(user_used_chlayout), AV_OPT_TYPE_CHLAYOUT, {.str=NULL            }, 0, 0 , PARAM, "chlayout"},
- {"clev"                 , "set center mix level"        , OFFSET(clev           ), AV_OPT_TYPE_FLOAT, {.dbl=C_30DB                }, -32    , 32        , PARAM},
- {"center_mix_level"     , "set center mix level"        , OFFSET(clev           ), AV_OPT_TYPE_FLOAT, {.dbl=C_30DB                }, -32    , 32        , PARAM},
- {"slev"                 , "set surround mix level"      , OFFSET(slev           ), AV_OPT_TYPE_FLOAT, {.dbl=C_30DB                }, -32    , 32        , PARAM},
-diff --git a/libswresample/rematrix.c b/libswresample/rematrix.c
-index 79e8a43eac..0c3fff6c42 100644
---- a/libswresample/rematrix.c
-+++ b/libswresample/rematrix.c
-@@ -492,7 +492,7 @@ av_cold static int auto_matrix(SwrContext *s)
- 
- av_cold int swri_rematrix_init(SwrContext *s){
-     int i, j;
--    int nb_in  = s->used_ch_layout.nb_channels;
-+    int nb_in  = s->used_ch_count;
-     int nb_out = s->out.ch_count;
- 
-     s->mix_any_f = NULL;
-diff --git a/libswresample/swresample.c b/libswresample/swresample.c
-index 6dc329a9d0..5884f8d533 100644
---- a/libswresample/swresample.c
-+++ b/libswresample/swresample.c
-@@ -161,7 +161,6 @@ static void clear_context(SwrContext *s){
-     free_temp(&s->dither.temp);
-     av_channel_layout_uninit(&s->in_ch_layout);
-     av_channel_layout_uninit(&s->out_ch_layout);
--    av_channel_layout_uninit(&s->used_ch_layout);
-     swri_audio_convert_free(&s-> in_convert);
-     swri_audio_convert_free(&s->out_convert);
-     swri_audio_convert_free(&s->full_convert);
-@@ -177,7 +176,6 @@ av_cold void swr_free(SwrContext **ss){
-         clear_context(s);
-         av_channel_layout_uninit(&s->user_in_chlayout);
-         av_channel_layout_uninit(&s->user_out_chlayout);
--        av_channel_layout_uninit(&s->user_used_chlayout);
- 
-         if (s->resampler)
-             s->resampler->free(&s->resample);
-@@ -213,20 +211,12 @@ av_cold int swr_init(struct SwrContext *s){
-         av_log(s, AV_LOG_ERROR, "Requested output sample rate %d is invalid\n", s->out_sample_rate);
-         return AVERROR(EINVAL);
-     }
-+    s->used_ch_count = s->user_used_ch_count;
- #if FF_API_OLD_CHANNEL_LAYOUT
-     s->out.ch_count  = s-> user_out_ch_count;
-     s-> in.ch_count  = s->  user_in_ch_count;
- 
-     // if the old/new fields are set inconsistently, prefer the old ones
--    if (s->user_used_ch_count && s->user_used_ch_count != s->user_used_chlayout.nb_channels) {
--        av_channel_layout_uninit(&s->used_ch_layout);
--        s->used_ch_layout.order       = AV_CHANNEL_ORDER_UNSPEC;
--        s->used_ch_layout.nb_channels = s->user_used_ch_count;
--    } else if (av_channel_layout_check(&s->user_used_chlayout)) {
--        ret = av_channel_layout_copy(&s->used_ch_layout, &s->user_used_chlayout);
--        if (ret < 0)
--            return ret;
--    }
-     if ((s->user_in_ch_count && s->user_in_ch_count != s->user_in_chlayout.nb_channels) ||
-         (s->user_in_ch_layout && (s->user_in_chlayout.order != AV_CHANNEL_ORDER_NATIVE ||
-                                   s->user_in_chlayout.u.mask != s->user_in_ch_layout))) {
-@@ -253,9 +243,9 @@ av_cold int swr_init(struct SwrContext *s){
-     } else if (av_channel_layout_check(&s->user_out_chlayout))
-         av_channel_layout_copy(&s->out_ch_layout, &s->user_out_chlayout);
- 
--    if (!s->out.ch_count)
-+    if (!s->out.ch_count && !s->user_out_ch_layout)
-         s->out.ch_count  = s->out_ch_layout.nb_channels;
--    if (!s-> in.ch_count)
-+    if (!s-> in.ch_count && !s-> user_in_ch_layout)
-         s-> in.ch_count  = s->in_ch_layout.nb_channels;
- 
-     if (!(ret = av_channel_layout_check(&s->in_ch_layout)) || s->in_ch_layout.nb_channels > SWR_CH_MAX) {
-@@ -291,7 +281,6 @@ av_cold int swr_init(struct SwrContext *s){
- 
-     ret  = av_channel_layout_copy(&s->in_ch_layout, &s->user_in_chlayout);
-     ret |= av_channel_layout_copy(&s->out_ch_layout, &s->user_out_chlayout);
--    ret |= av_channel_layout_copy(&s->used_ch_layout, &s->user_used_chlayout);
-     if (ret < 0)
-         return ret;
- #endif
-@@ -310,19 +299,16 @@ av_cold int swr_init(struct SwrContext *s){
-             return AVERROR(EINVAL);
-     }
- 
--    if (!av_channel_layout_check(&s->used_ch_layout))
--        av_channel_layout_default(&s->used_ch_layout, s->in.ch_count);
-+    if(!s->used_ch_count)
-+        s->used_ch_count= s->in.ch_count;
- 
--    if (s->used_ch_layout.nb_channels != s->in_ch_layout.nb_channels)
-+    if (s->used_ch_count && s->in_ch_layout.order != AV_CHANNEL_ORDER_UNSPEC && s->used_ch_count != s->in_ch_layout.nb_channels) {
-+        av_log(s, AV_LOG_WARNING, "Input channel layout has a different number of channels than the number of used channels, ignoring layout\n");
-         av_channel_layout_uninit(&s->in_ch_layout);
--
--    if (s->used_ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
--        av_channel_layout_default(&s->used_ch_layout, s->used_ch_layout.nb_channels);
--    if (s->in_ch_layout.order == AV_CHANNEL_ORDER_UNSPEC) {
--        ret = av_channel_layout_copy(&s->in_ch_layout, &s->used_ch_layout);
--        if (ret < 0)
--            return ret;
-     }
-+
-+    if (s->in_ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
-+        av_channel_layout_default(&s->in_ch_layout, s->used_ch_count);
-     if (s->out_ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
-         av_channel_layout_default(&s->out_ch_layout, s->out.ch_count);
- 
-@@ -403,8 +389,8 @@ av_cold int swr_init(struct SwrContext *s){
- #define RSC 1 //FIXME finetune
-     if(!s-> in.ch_count)
-         s-> in.ch_count = s->in_ch_layout.nb_channels;
--    if (!av_channel_layout_check(&s->used_ch_layout))
--        av_channel_layout_default(&s->used_ch_layout, s->in.ch_count);
-+    if(!s->used_ch_count)
-+        s->used_ch_count= s->in.ch_count;
-     if(!s->out.ch_count)
-         s->out.ch_count = s->out_ch_layout.nb_channels;
- 
-@@ -424,23 +410,23 @@ av_cold int swr_init(struct SwrContext *s){
-     }
- #endif
-     av_channel_layout_describe(&s->in_ch_layout, l1, sizeof(l1));
--    if (s->in_ch_layout.order != AV_CHANNEL_ORDER_UNSPEC && s->used_ch_layout.nb_channels != s->in_ch_layout.nb_channels) {
--        av_log(s, AV_LOG_ERROR, "Input channel layout %s mismatches specified channel count %d\n", l1, s->used_ch_layout.nb_channels);
-+    if (s->in_ch_layout.order != AV_CHANNEL_ORDER_UNSPEC && s->used_ch_count != s->in_ch_layout.nb_channels) {
-+        av_log(s, AV_LOG_ERROR, "Input channel layout %s mismatches specified channel count %d\n", l1, s->used_ch_count);
-         ret = AVERROR(EINVAL);
-         goto fail;
-     }
- 
-     if ((   s->out_ch_layout.order == AV_CHANNEL_ORDER_UNSPEC
--         || s-> in_ch_layout.order == AV_CHANNEL_ORDER_UNSPEC) && s->used_ch_layout.nb_channels != s->out.ch_count && !s->rematrix_custom) {
-+         || s-> in_ch_layout.order == AV_CHANNEL_ORDER_UNSPEC) && s->used_ch_count != s->out.ch_count && !s->rematrix_custom) {
-         av_log(s, AV_LOG_ERROR, "Rematrix is needed between %s and %s "
-                "but there is not enough information to do it\n", l1, l2);
-         ret = AVERROR(EINVAL);
-         goto fail;
-     }
- 
--av_assert0(s->used_ch_layout.nb_channels);
-+av_assert0(s->used_ch_count);
- av_assert0(s->out.ch_count);
--    s->resample_first= RSC*s->out.ch_count/s->used_ch_layout.nb_channels - RSC < s->out_sample_rate/(float)s-> in_sample_rate - 1.0;
-+    s->resample_first= RSC*s->out.ch_count/s->used_ch_count - RSC < s->out_sample_rate/(float)s-> in_sample_rate - 1.0;
- 
-     s->in_buffer= s->in;
-     s->silence  = s->in;
-@@ -456,7 +442,7 @@ av_assert0(s->out.ch_count);
-     }
- 
-     s->in_convert = swri_audio_convert_alloc(s->int_sample_fmt,
--                                             s-> in_sample_fmt, s->used_ch_layout.nb_channels, s->channel_map, 0);
-+                                             s-> in_sample_fmt, s->used_ch_count, s->channel_map, 0);
-     s->out_convert= swri_audio_convert_alloc(s->out_sample_fmt,
-                                              s->int_sample_fmt, s->out.ch_count, NULL, 0);
- 
-@@ -471,9 +457,9 @@ av_assert0(s->out.ch_count);
- 
-     if(s->channel_map){
-         s->postin.ch_count=
--        s->midbuf.ch_count= s->used_ch_layout.nb_channels;
-+        s->midbuf.ch_count= s->used_ch_count;
-         if(s->resample)
--            s->in_buffer.ch_count= s->used_ch_layout.nb_channels;
-+            s->in_buffer.ch_count= s->used_ch_count;
-     }
-     if(!s->resample_first){
-         s->midbuf.ch_count= s->out.ch_count;
-@@ -711,7 +697,7 @@ static int swr_convert_internal(struct SwrContext *s, AudioData *out, int out_co
-     if((ret=swri_realloc_audio(&s->postin, in_count))<0)
-         return ret;
-     if(s->resample_first){
--        av_assert0(s->midbuf.ch_count == s->used_ch_layout.nb_channels);
-+        av_assert0(s->midbuf.ch_count == s->used_ch_count);
-         if((ret=swri_realloc_audio(&s->midbuf, out_count))<0)
-             return ret;
-     }else{
-diff --git a/libswresample/swresample_internal.h b/libswresample/swresample_internal.h
-index ad902d73fa..262a0e2b8c 100644
---- a/libswresample/swresample_internal.h
-+++ b/libswresample/swresample_internal.h
-@@ -99,7 +99,6 @@ struct SwrContext {
-     enum AVSampleFormat  in_sample_fmt;             ///< input sample format
-     enum AVSampleFormat int_sample_fmt;             ///< internal sample format (AV_SAMPLE_FMT_FLTP or AV_SAMPLE_FMT_S16P)
-     enum AVSampleFormat out_sample_fmt;             ///< output sample format
--    AVChannelLayout used_ch_layout;                 ///< number of used input channels (mapped channel count if channel_map, otherwise in.ch_count)
-     AVChannelLayout  in_ch_layout;                  ///< input channel layout
-     AVChannelLayout out_ch_layout;                  ///< output channel layout
-     int      in_sample_rate;                        ///< input sample rate
-@@ -112,16 +111,16 @@ struct SwrContext {
-     float rematrix_maxval;                          ///< maximum value for rematrixing output
-     int matrix_encoding;                            /**< matrixed stereo encoding */
-     const int *channel_map;                         ///< channel index (or -1 if muted channel) map
-+    int used_ch_count;                              ///< number of used input channels (mapped channel count if channel_map, otherwise in.ch_count)
-     int engine;
- 
--#if FF_API_OLD_CHANNEL_LAYOUT
-     int user_used_ch_count;                         ///< User set used channel count
-+#if FF_API_OLD_CHANNEL_LAYOUT
-     int user_in_ch_count;                           ///< User set input channel count
-     int user_out_ch_count;                          ///< User set output channel count
-     int64_t user_in_ch_layout;                      ///< User set input channel layout
-     int64_t user_out_ch_layout;                     ///< User set output channel layout
- #endif
--    AVChannelLayout user_used_chlayout;             ///< User set used channel layout
-     AVChannelLayout user_in_chlayout;               ///< User set input channel layout
-     AVChannelLayout user_out_chlayout;              ///< User set output channel layout
-     enum AVSampleFormat user_int_sample_fmt;        ///< User set internal sample format
-diff --git a/libswresample/x86/rematrix_init.c b/libswresample/x86/rematrix_init.c
-index ce794eef90..b6ed38bf67 100644
---- a/libswresample/x86/rematrix_init.c
-+++ b/libswresample/x86/rematrix_init.c
-@@ -33,7 +33,7 @@ D(int16, sse2)
- av_cold int swri_rematrix_init_x86(struct SwrContext *s){
- #if HAVE_X86ASM
-     int mm_flags = av_get_cpu_flags();
--    int nb_in  = s->used_ch_layout.nb_channels;
-+    int nb_in  = s->used_ch_count;
-     int nb_out = s->out.ch_count;
-     int num    = nb_in * nb_out;
-     int i,j;

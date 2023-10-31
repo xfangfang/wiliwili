@@ -31,7 +31,6 @@
 [![aur](https://img.shields.io/aur/version/wiliwili-git?color=blue&logo=archlinux)](https://aur.archlinux.org/packages/wiliwili-git/)
 [![nightly.link](https://img.shields.io/badge/nightly.link-%E6%B5%8B%E8%AF%95%E7%89%88-green)](https://nightly.link/xfangfang/wiliwili/workflows/build.yaml/dev)
 [![layout](https://img.shields.io/badge/wiliwili-自定义布局-yellow)](https://github.com/xfangfang/wiliwili_theme)
-[![QQ](https://img.shields.io/badge/QQ频道-wiliwili-red)](https://pd.qq.com/s/1gqqxfogy)
 
 <br>
 
@@ -67,6 +66,8 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验
 
 桌面图标会优先尝试打开 `switch/wiliwili.nro`，如果其不存在，则尝试打开 `switch/wiliwili/wiliwili.nro`，如果这两个路径都不存在，则打开 hbmenu 自行选择路径。
 
+默认提供的为 OpenGL 版本，最高只能播放 4k@30，你也可以下载到支持原生图形 api 的 [deko3d 版本](https://nightly.link/xfangfang/wiliwili/workflows/build.yaml/dev)，可以流畅播放 4k@60，不过可能会偶尔崩溃。
+
 </details>
 
 ### PSVita
@@ -74,6 +75,12 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验
 下载 `wiliwili-PSVita.vpk` 安装即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 
 拥有不是很稳定的硬解支持，目前推荐使用软解搭配 360P 分辨率使用。
+
+### PS4
+
+下载 `wiliwili-PS4.pkg` 安装即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
+
+只支持软解，对于 ps4 推荐关闭设置中的低画质解码；ps4 pro 如果想勉强播放 4k@60 需要开启低画质解码。
 
 ### PC
 
@@ -300,8 +307,8 @@ sudo dkp-pacman -S switch-glfw switch-libwebp switch-cmake switch-curl devkitA64
 base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 sudo dkp-pacman -U \
     $base_url/switch-libass-0.17.1-1-any.pkg.tar.zst \
-    $base_url/switch-ffmpeg-6.0-4-any.pkg.tar.zst \
-    $base_url/switch-libmpv-0.35.1-3-any.pkg.tar.zst
+    $base_url/switch-ffmpeg-6.1-1-any.pkg.tar.zst \
+    $base_url/switch-libmpv-0.35.1-4-any.pkg.tar.zst
 
 # 4. 可选：安装依赖库 nspmini：https://github.com/StarDustCFW/nspmini
 # (1). 在resources 目录下放置：nsp_forwarder.nsp (如何生成nsp见: scripts/switch-forwarder)
