@@ -331,7 +331,7 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 ### 交叉编译 PS4 可执行文件
 
 参考 `.github/workflows/build.yaml` 使用 docker 来编译。  
-或本地安装 [PacBrew](https://github.com/PacBrew/pacbrew-packages) 环境（只支持 Linux），并手动添加依赖库，请参考：[scripts/ps4/Dockerfile](https://github.com/xfangfang/wiliwili/blob/ps4/scripts/ps4/Dockerfile)
+或本地安装 [PacBrew](https://github.com/PacBrew/pacbrew-packages) 环境（只支持 Linux），并手动添加依赖库，请参考：[scripts/ps4/Dockerfile](https://github.com/xfangfang/wiliwili/blob/dev/scripts/ps4/Dockerfile)
 
 ```shell
 docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
