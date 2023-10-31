@@ -37,10 +37,6 @@ modules:
           - /lib/pkgconfig
           - /share/man
         buildsystem: meson
-        build-commands:
-          - python3 waf configure --prefix=/app --enable-libmpv-shared --disable-cplayer --disable-build-date --disable-alsa
-          - python3 waf build
-          - python3 waf install
         config-opts:
           - -Dlibmpv=true
           - -Dlua=disabled
