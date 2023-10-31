@@ -36,19 +36,23 @@ modules:
           - /include
           - /lib/pkgconfig
           - /share/man
-        buildsystem: simple
+        buildsystem: meson
         build-commands:
           - python3 waf configure --prefix=/app --enable-libmpv-shared --disable-cplayer --disable-build-date --disable-alsa
           - python3 waf build
           - python3 waf install
+        config-opts:
+          - -Dlibmpv=true
+          - -Dlua=disabled
+          - -Ddebug=false
+          - -Dbuild-date=false
+          - -Dalsa=disabled
+          - -Dcplayer=false
+          - -Dmanpage-build=disabled
         sources:
           - type: archive
-            url: https://github.com/mpv-player/mpv/archive/v0.35.1.tar.gz
-            sha256: 41df981b7b84e33a2ef4478aaf81d6f4f5c8b9cd2c0d337ac142fc20b387d1a9
-          - type: file
-            url: 'https://waf.io/waf-2.0.24'
-            sha256: '93909bca823a675f9f40af7c65b24887c3a3c0efdf411ff1978ba827194bdeb0'
-            dest-filename: waf
+            url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.36.0.tar.gz
+            sha256: 29abc44f8ebee013bb2f9fe14d80b30db19b534c679056e4851ceadf5a5e8bf6
         modules:
           - name: libv4l2
             cleanup:
@@ -66,8 +70,8 @@ modules:
               - '--with-udevdir=/app/lib/udev'
             sources:
               - type: archive
-                url: 'https://linuxtv.org/downloads/v4l-utils/v4l-utils-1.22.1.tar.bz2'
-                sha256: '65c6fbe830a44ca105c443b027182c1b2c9053a91d1e72ad849dfab388b94e31'
+                url: 'https://linuxtv.org/downloads/v4l-utils/v4l-utils-1.24.1.tar.bz2'
+                sha256: 'cbb7fe8a6307f5ce533a05cded70bb93c3ba06395ab9b6d007eb53b75d805f5b'
 
           - name: nv-codec-headers
             cleanup:
@@ -77,8 +81,8 @@ modules:
               - PREFIX=/app
             sources:
               - type: archive
-                url: 'https://github.com/FFmpeg/nv-codec-headers/releases/download/n11.1.5.2/nv-codec-headers-11.1.5.2.tar.gz'
-                sha256: '1442e3159e7311dd71f8fca86e615f51609998939b6a6d405d6683d8eb3af6ee'
+                url: 'https://github.com/FFmpeg/nv-codec-headers/archive/refs/tags/n12.1.14.0.tar.gz'
+                sha256: '2fefaa227d2a3b4170797796425a59d1dd2ed5fd231db9b4244468ba327acd0b'
 
           - name: ffmpeg
             cleanup:
@@ -106,8 +110,8 @@ modules:
               - '--enable-libwebp'
             sources:
               - type: archive
-                url: 'https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.gz'
-                sha256: '87fe8defa37ce5f7449e36047171fed5e4c3f4bb73eaccea8c954ee81393581c'
+                url: 'https://ffmpeg.org/releases/ffmpeg-6.0.tar.gz'
+                sha256: 'f4ccf961403752c93961927715f524576d1f4dd02cd76d8c76aed3bbe6686656'
 
           - name: libass
             cleanup:
@@ -118,8 +122,8 @@ modules:
               - '--disable-static'
             sources:
               - type: archive
-                url: 'https://github.com/libass/libass/releases/download/0.17.0/libass-0.17.0.tar.gz'
-                sha256: '72b9ba5d9dd1ac6d30b5962f38cbe7aefb180174f71d8b65c5e3c3060dbc403f'
+                url: 'https://github.com/libass/libass/releases/download/0.17.1/libass-0.17.1.tar.gz'
+                sha256: 'd653be97198a0543c69111122173c41a99e0b91426f9e17f06a858982c2fb03d'
 
           - name: uchardet
             buildsystem: cmake-ninja
