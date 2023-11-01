@@ -71,7 +71,9 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::APP_THEME, {"app_theme", {"auto", "light", "dark"}, {}, 0}},
     {SettingItem::APP_RESOURCES, {"app_resources", {}, {}, 0}},
     {SettingItem::APP_UI_SCALE,
-     {"app_ui_scale", {"544p", "720p", "900p", "1080p"}, {},
+     {"app_ui_scale",
+      {"544p", "720p", "900p", "1080p"},
+      {},
 #ifdef __PSV__
       0}},
 #else
@@ -296,6 +298,13 @@ std::string ProgramConfig::getUserID() {
         return "";
     }
     return this->cookie["DedeUserID"];
+}
+
+std::string ProgramConfig::getBuvid3() {
+    if (this->cookie.count("buvid3") == 0) {
+        return "";
+    }
+    return this->cookie["buvid3"];
 }
 
 bool ProgramConfig::hasLoginInfo() {

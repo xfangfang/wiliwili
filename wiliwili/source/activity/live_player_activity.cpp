@@ -9,6 +9,7 @@
 #include "view/subtitle_core.hpp"
 #include "view/grid_dropdown.hpp"
 #include "utils/shader_helper.hpp"
+#include "utils/config_helper.hpp"
 #include "live/danmaku_live.hpp"
 #include "live/extract_messages.hpp"
 #include "live/ws_utils.hpp"
@@ -16,19 +17,13 @@
 
 using namespace brls::literals;
 
-#define tostr(x) std::to_string(x)
-static void process_danmaku(danmaku_t *dan){
-    char comma = ',';
-    std::string tem = "0,0,0,0,";
-    //做其他处理
+static void process_danmaku(const float time, const danmaku_t* dan) {
+    //TODO:做其他处理
     //...
 
     //弹幕加载到视频中去
-    double time = MPVCore::instance().getPlaybackTime() + 0.3;
-    std::string combined_attr = tostr(time) + comma + tostr(dan->dan_type) + comma
-                                + tostr(dan->dan_size) + comma + tostr(dan->dan_color) + comma
-                                + tem + tostr(dan->user_level);
-    DanmakuCore::instance().addSingleDanmaku(DanmakuItem(dan->dan, combined_attr));
+    float _time = MPVCore::instance().getPlaybackTime() + time;
+    DanmakuCore::instance().addSingleDanmaku(DanmakuItem(_time, dan));
 
     danmaku_t_free(dan);
 }
@@ -38,17 +33,19 @@ static void onDanmakuReceived(std::string&& message) {
     std::vector<uint8_t> payload(msg.begin(), msg.end());
     std::vector<std::string> messages = parse_packet(payload);
 
-    if(messages.size() == 0){
+    if (messages.size() == 0) {
         return;
     }
 
-    for(auto &&live_msg : extract_messages(messages)){
-        if(live_msg.type == danmaku){
-            if(!live_msg.ptr) continue;
-            process_danmaku((danmaku_t *)live_msg.ptr);
+    float time = 0.1f;
+    for (const auto& live_msg : extract_messages(messages)) {
+        if (live_msg.type == danmaku) {
+            if (!live_msg.ptr) continue;
+            process_danmaku(time, (danmaku_t*)live_msg.ptr);
             free(live_msg.ptr);
+            time += 0.2f;
         } else if (live_msg.type == watched_change) {
-            //todo
+            //TODO: 更新在线人数
             free(live_msg.ptr);
         }
     }
@@ -77,7 +74,8 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
 
 void LiveActivity::setCommonData() {
     DanmakuCore::instance().reset();
-    LiveDanmaku::instance().connect(liveData.roomid, 0 /*liveData.uid*/);
+    LiveDanmaku::instance().connect(
+        liveData.roomid, std::stoi(ProgramConfig::instance().getUserID()));
 
     // 清空字幕
     SubtitleCore::instance().reset();

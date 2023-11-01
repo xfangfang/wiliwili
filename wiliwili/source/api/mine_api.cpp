@@ -77,11 +77,12 @@ void BilibiliClient::get_login_info_v2(
     const std::string& deviceID,
     const std::function<void(enum LoginInfo)>& callback,
     const ErrorCallback& error) {
+    auto buvid3   = BilibiliClient::genRandomBuvid3();
     HTTP::COOKIES = {{{"appkey", BILIBILI_APP_KEY},
                       {"mobi_app", "pc_electron"},
                       {"device", "mac"},
                       {"innersign", "0"},
-                      {"buvid3", BilibiliClient::genRandomBuvid3()},
+                      {"buvid3", buvid3},
                       {"device_id", deviceID},
                       {"device_name", deviceName}},
                      false};
@@ -89,13 +90,14 @@ void BilibiliClient::get_login_info_v2(
     HTTP::__cpr_get(
         Api::QrLoginInfoV2,
         {{"qrcode_key", qrcodeKey}, {"source", "main_electron_pc"}},
-        [callback, error](const cpr::Response& r) {
+        [callback, error, buvid3](const cpr::Response& r) {
             try {
                 HTTP::COOKIES      = {false};
                 nlohmann::json res = nlohmann::json::parse(r.text);
                 auto data          = res.at("data").get<QrLoginInfoResultV2>();
                 if (data.status) {
                     std::map<std::string, std::string> cookies;
+                    cookies["buvid3"] = buvid3;
                     for (const auto& cookie : r.cookies) {
                         cookies[cookie.GetName()] = cookie.GetValue();
                         HTTP::COOKIES.emplace_back(
@@ -162,9 +164,8 @@ void BilibiliClient::get_my_history(
 void BilibiliClient::getWatchLater(
     const std::function<void(WatchLaterListWrapper)>& callback,
     const bilibili::ErrorCallback& error) {
-    HTTP::getResultAsync<WatchLaterListWrapper>(
-        Api::WatchLater, {},
-        callback, error);
+    HTTP::getResultAsync<WatchLaterListWrapper>(Api::WatchLater, {}, callback,
+                                                error);
 }
 
 //

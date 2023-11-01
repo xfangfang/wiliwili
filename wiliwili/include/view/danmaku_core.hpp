@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "api/live/extract_messages.hpp"
+
 #include <mutex>
 #include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
@@ -12,7 +14,7 @@
 class DanmakuItem {
 public:
     DanmakuItem(std::string content, const char *attributes);
-    DanmakuItem(std::string &&content, const std::string &attributes);
+    DanmakuItem(const float _time, const danmaku_t *dan);
 
     std::string msg;  // 弹幕内容
     float time;       // 弹幕出现的时间
@@ -30,7 +32,8 @@ public:
     int64_t startTime    = 0;
     NVGcolor color       = nvgRGBA(255, 255, 255, 160);
     NVGcolor borderColor = nvgRGBA(0, 0, 0, 160);
-    int level;  // 弹幕等级 1-10
+    int level;    // 弹幕等级 1-10 直播弹幕等级0-60
+    int is_live;  // 是否为直播弹幕
     // 暂时用不到的信息，先不使用
     //    int pubDate; // 弹幕发送时间
     //    int pool; // 弹幕池类型
@@ -100,6 +103,8 @@ public:
 
     /// range: [1 - 10], 1: show all danmaku, 10: the most strong filter
     static inline int DANMAKU_FILTER_LEVEL = 1;
+    //0-60
+    static inline int DANMAKU_FILTER_LEVEL_LIVE = 0;
 
     static inline bool DANMAKU_FILTER_SHOW_TOP    = true;
     static inline bool DANMAKU_FILTER_SHOW_BOTTOM = true;
