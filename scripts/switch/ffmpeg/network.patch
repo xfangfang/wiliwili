@@ -1,0 +1,34 @@
+diff --git a/libavformat/network.h b/libavformat/network.h
+index 71c49a73fb..7c756cd5e9 100644
+--- a/libavformat/network.h
++++ b/libavformat/network.h
+@@ -219,6 +219,14 @@ int ff_getnameinfo(const struct sockaddr *sa, int salen,
+ #define getnameinfo ff_getnameinfo
+ #endif /* !HAVE_GETADDRINFO */
+ 
++#if HAVE_GETADDRINFO && __SWITCH__
++#undef getnameinfo
++int ff_getnameinfo(const struct sockaddr *sa, int salen,
++                   char *host, int hostlen,
++                   char *serv, int servlen, int flags);
++#define getnameinfo ff_getnameinfo
++#endif
++
+ #if !HAVE_GETADDRINFO || HAVE_WINSOCK2_H
+ const char *ff_gai_strerror(int ecode);
+ #undef gai_strerror
+diff --git a/libavformat/os_support.c b/libavformat/os_support.c
+index 15cea7fa5b..d50f1719d8 100644
+--- a/libavformat/os_support.c
++++ b/libavformat/os_support.c
+@@ -138,6 +138,10 @@ void ff_freeaddrinfo(struct addrinfo *res)
+     av_freep(&res);
+ }
+ 
++#endif 
++
++#if HAVE_GETADDRINFO && __SWITCH__
++
+ int ff_getnameinfo(const struct sockaddr *sa, int salen,
+                    char *host, int hostlen,
+                    char *serv, int servlen, int flags)
