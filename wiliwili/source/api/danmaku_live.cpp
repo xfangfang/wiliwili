@@ -3,11 +3,13 @@
 //
 
 #include "live/danmaku_live.hpp"
+#include "bilibili/util/http.hpp"
 #include "live/ws_utils.hpp"
 
 #include <iostream>
 #include <queue>
 #include <condition_variable>
+#include <string>
 #ifdef _WIN32
 #include <winsock2.h>
 #endif
@@ -16,7 +18,46 @@
 
 using json = nlohmann::json;
 
-const std::string url = "ws://broadcastlv.chat.bilibili.com:2244/sub";
+static std::string url   = "ws://broadcastlv.chat.bilibili.com:2244/sub";
+static std::string buvid = "";
+static std::string key   = "";
+
+void get_live_s(int room_id) {
+    for (const auto &i : bilibili::HTTP::COOKIES) {
+        if (i.GetName() == "buvid3") {
+            buvid = i.GetValue();
+            break;
+        }
+    }
+
+    auto res = bilibili::HTTP::get(
+        "https://api.live.bilibili.com/xlive/web-room/v1/index/"
+        "getDanmuInfo?type=0&id=" +
+        std::to_string(room_id));
+
+    if (res.status_code != 200) {
+        std::cout << "getDanmuInfo error" << std::endl;
+    } else {
+        std::cout << "getDanmuInfo success" << std::endl;
+        json _json;
+        try {
+            _json = json::parse(res.text);
+        } catch (const std::exception &e) {
+            std::cout << "getDanmuInfo json parse error" << std::endl;
+        }
+        if (_json["code"].get<int>() == 0) {
+            url = "ws://" +
+                  _json["data"]["host_list"][0]["host"]
+                      .get_ref<const std::string &>() +
+                  ":" +
+                  std::to_string(
+                      _json["data"]["host_list"][0]["ws_port"].get<int>()) +
+                  "/sub";
+            std::cout << url << std::endl;
+            key = _json["data"]["token"].get_ref<const std::string &>();
+        }
+    }
+}
 
 LiveDanmaku::LiveDanmaku() {
 #ifdef _WIN32
@@ -77,6 +118,8 @@ void LiveDanmaku::connect(int room_id, int uid) {
         disconnect();
         return;
     }
+
+    get_live_s(room_id);
 
     mg_log_set(MG_LL_NONE);
     mg_mgr_init(this->mgr);
@@ -154,10 +197,10 @@ bool LiveDanmaku::is_connected() {
 
 bool LiveDanmaku::is_evOK() { return ms_ev_ok.load(std::memory_order_acquire); }
 
-void LiveDanmaku::send_join_request(int room_id, int uid) {
-    json join_request            = {{"clientver", "1.6.3"}, {"platform", "web"},
-                                    {"protover", 2},        {"roomid", room_id},
-                                    {"uid", uid},           {"type", 2}};
+void LiveDanmaku::send_join_request(const int room_id, const int uid) {
+    json join_request = {{"uid", uid},     {"roomid", room_id}, {"protover", 2},
+                         {"buvid", buvid}, {"platform", "web"}, {"type", 2},
+                         {"key", key}};
     std::string join_request_str = join_request.dump();
     std::vector<uint8_t> packet  = encode_packet(0, 7, join_request_str);
     std::string packet_str(packet.begin(), packet.end());
@@ -187,10 +230,9 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev,
     LiveDanmaku *liveDanmaku = static_cast<LiveDanmaku *>(user_data);
     liveDanmaku->ms_ev_ok.store(true, std::memory_order_release);
     if (ev == MG_EV_OPEN) {
-        nc->is_hexdumping = 1;
+        nc->is_hexdumping = 0;
     } else if (ev == MG_EV_ERROR) {
-        //MG_ERROR(("%p %s", nc->fd, (char *) ev_data));
-        //liveDanmaku->disconnect();
+        MG_ERROR(("%p %s", nc->fd, (char *)ev_data));
         liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);
     } else if (ev == MG_EV_WS_OPEN) {
         liveDanmaku->send_join_request(liveDanmaku->room_id, liveDanmaku->uid);
@@ -198,11 +240,9 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev,
                      user_data);
     } else if (ev == MG_EV_WS_MSG) {
         struct mg_ws_message *wm = (struct mg_ws_message *)ev_data;
-        //liveDanmaku->onMessage(std::string(wm->data.ptr, wm->data.len));
         add_task(liveDanmaku->onMessage,
                  std::string(wm->data.ptr, wm->data.len));
     } else if (ev == MG_EV_CLOSE) {
-        //liveDanmaku->disconnect();
         liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);
     }
 }

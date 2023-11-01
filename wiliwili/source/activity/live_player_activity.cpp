@@ -16,13 +16,13 @@
 
 using namespace brls::literals;
 
-static void process_danmaku(danmaku_t* dan) {
-    //做其他处理
+static void process_danmaku(const float time, danmaku_t* dan) {
+    //TODO:做其他处理
     //...
 
     //弹幕加载到视频中去
-    float time = MPVCore::instance().getPlaybackTime() + 0.1;
-    DanmakuCore::instance().addSingleDanmaku(DanmakuItem(time, dan));
+    float _time = MPVCore::instance().getPlaybackTime() + time;
+    DanmakuCore::instance().addSingleDanmaku(DanmakuItem(_time, dan));
 
     danmaku_t_free(dan);
 }
@@ -36,13 +36,15 @@ static void onDanmakuReceived(std::string&& message) {
         return;
     }
 
+    float time = 0.1f;
     for (const auto& live_msg : extract_messages(messages)) {
         if (live_msg.type == danmaku) {
             if (!live_msg.ptr) continue;
-            process_danmaku((danmaku_t*)live_msg.ptr);
+            process_danmaku(time, (danmaku_t*)live_msg.ptr);
             free(live_msg.ptr);
+            time += 0.2f;
         } else if (live_msg.type == watched_change) {
-            //todo
+            //TODO: 更新在线人数
             free(live_msg.ptr);
         }
     }
@@ -71,7 +73,7 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
 
 void LiveActivity::setCommonData() {
     DanmakuCore::instance().reset();
-    LiveDanmaku::instance().connect(liveData.roomid, 0 /*liveData.uid*/);
+    LiveDanmaku::instance().connect(liveData.roomid, liveData.uid);
 
     // 清空字幕
     SubtitleCore::instance().reset();

@@ -28,6 +28,7 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     fontSize  = atoi(attrs[2].c_str());
     fontColor = atoi(attrs[3].c_str());
     level     = atoi(attrs[8].c_str());
+    is_live   = 0;
 
     int r          = (fontColor >> 16) & 0xff;
     int g          = (fontColor >> 8) & 0xff;
@@ -58,6 +59,7 @@ DanmakuItem::DanmakuItem(const float _time, danmaku_t *dan) {
     fontSize  = dan->dan_size;
     fontColor = dan->dan_color;
     level     = dan->user_level;
+    is_live   = 1;
 
     int r          = (fontColor >> 16) & 0xff;
     int g          = (fontColor >> 8) & 0xff;
@@ -270,7 +272,7 @@ void DanmakuCore::drawDanmaku(NVGcontext *vg, float x, float y, float width,
             }
             //滑动弹幕
             float position = 0;
-            if (MPVCore::instance().isPaused()) {
+            if (!i.is_live && MPVCore::instance().isPaused()) {
                 // 暂停状态弹幕也要暂停
                 position = i.speed * (playbackTime - i.time);
                 i.startTime =
@@ -316,7 +318,8 @@ void DanmakuCore::drawDanmaku(NVGcontext *vg, float x, float y, float width,
             /// 过滤弹幕
             i.canShow = false;
             // 1. 过滤显示的弹幕级别
-            if (i.level < DANMAKU_FILTER_LEVEL) continue;
+            if (!i.is_live && i.level < DANMAKU_FILTER_LEVEL) continue;
+            if (i.is_live && i.level < DANMAKU_FILTER_LEVEL_LIVE) continue;
 
             if (i.type == 4) {
                 // 2. 过滤底部弹幕
