@@ -31,7 +31,7 @@ danmaku_t *danmaku_t_init() {
     return ret;
 }
 
-void danmaku_t_free(danmaku_t *p) {
+void danmaku_t_free(const danmaku_t *p) {
     free(p->user_name);
     free(p->user_name_color);
     free(p->dan);

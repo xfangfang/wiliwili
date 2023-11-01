@@ -9,6 +9,7 @@
 #include "view/subtitle_core.hpp"
 #include "view/grid_dropdown.hpp"
 #include "utils/shader_helper.hpp"
+#include "utils/config_helper.hpp"
 #include "live/danmaku_live.hpp"
 #include "live/extract_messages.hpp"
 #include "live/ws_utils.hpp"
@@ -16,7 +17,7 @@
 
 using namespace brls::literals;
 
-static void process_danmaku(const float time, danmaku_t* dan) {
+static void process_danmaku(const float time, const danmaku_t* dan) {
     //TODO:做其他处理
     //...
 
@@ -73,7 +74,8 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
 
 void LiveActivity::setCommonData() {
     DanmakuCore::instance().reset();
-    LiveDanmaku::instance().connect(liveData.roomid, liveData.uid);
+    LiveDanmaku::instance().connect(
+        liveData.roomid, std::stoi(ProgramConfig::instance().getUserID()));
 
     // 清空字幕
     SubtitleCore::instance().reset();

@@ -14,7 +14,7 @@
 class DanmakuItem {
 public:
     DanmakuItem(std::string content, const char *attributes);
-    DanmakuItem(const float _time, danmaku_t *dan);
+    DanmakuItem(const float _time, const danmaku_t *dan);
 
     std::string msg;  // 弹幕内容
     float time;       // 弹幕出现的时间

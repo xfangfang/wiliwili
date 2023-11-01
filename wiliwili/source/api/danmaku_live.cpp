@@ -5,6 +5,7 @@
 #include "live/danmaku_live.hpp"
 #include "bilibili/util/http.hpp"
 #include "live/ws_utils.hpp"
+#include "utils/config_helper.hpp"
 
 #include <iostream>
 #include <queue>
@@ -18,27 +19,18 @@
 
 using json = nlohmann::json;
 
-static std::string url   = "ws://broadcastlv.chat.bilibili.com:2244/sub";
-static std::string buvid = "";
-static std::string key   = "";
+static std::string url = "ws://broadcastlv.chat.bilibili.com:2244/sub";
+static std::string key = "";
 
-void get_live_s(int room_id) {
-    for (const auto &i : bilibili::HTTP::COOKIES) {
-        if (i.GetName() == "buvid3") {
-            buvid = i.GetValue();
-            break;
-        }
-    }
-
+static void get_live_s(int room_id) {
     auto res = bilibili::HTTP::get(
         "https://api.live.bilibili.com/xlive/web-room/v1/index/"
         "getDanmuInfo?type=0&id=" +
         std::to_string(room_id));
 
     if (res.status_code != 200) {
-        std::cout << "getDanmuInfo error" << std::endl;
+        brls::Logger::error("getDanmuInfo error:{}", res.status_code);
     } else {
-        std::cout << "getDanmuInfo success" << std::endl;
         json _json;
         try {
             _json = json::parse(res.text);
@@ -53,10 +45,39 @@ void get_live_s(int room_id) {
                   std::to_string(
                       _json["data"]["host_list"][0]["ws_port"].get<int>()) +
                   "/sub";
-            std::cout << url << std::endl;
             key = _json["data"]["token"].get_ref<const std::string &>();
         }
     }
+}
+
+static void mongoose_event_handler(struct mg_connection *nc, int ev,
+                                   void *ev_data, void *user_data);
+
+static void heartbeat_timer(void *param) {
+    auto liveDanmaku = static_cast<LiveDanmaku *>(param);
+    if (liveDanmaku->is_connected() and liveDanmaku->is_evOK()) {
+        liveDanmaku->send_heartbeat();
+    }
+}
+
+typedef struct task {
+    // 函数
+    const std::function<void(std::string &&)> onMessage;
+    // 参数
+    std::string arg;
+    // 优先级，暂时都设置0
+    int priority;
+} task;
+
+static std::queue<task> task_q;
+static std::condition_variable cv;
+static std::mutex task_mutex;
+
+static void add_task(const std::function<void(std::string &&)> &func,
+                     std::string &&a) {
+    std::lock_guard<std::mutex> lock(task_mutex);
+    task_q.emplace(task{func, a, 0});
+    cv.notify_one();
 }
 
 LiveDanmaku::LiveDanmaku() {
@@ -74,36 +95,6 @@ LiveDanmaku::~LiveDanmaku() {
 #ifdef _WIN32
     WSACleanup();
 #endif
-}
-
-static void mongoose_event_handler(struct mg_connection *nc, int ev,
-                                   void *ev_data, void *user_data);
-
-static void heartbeat_timer(void *param) {
-    auto liveDanmaku = static_cast<LiveDanmaku *>(param);
-    if (liveDanmaku->is_connected() and liveDanmaku->is_evOK()) {
-        liveDanmaku->send_heartbeat();
-    }
-}
-
-typedef struct task {
-    // 函数
-    std::function<void(std::string &&)> onMessage;
-    // 参数
-    std::string arg;
-    // 优先级，暂时都设置0
-    int priority;
-} task;
-
-static std::queue<task> task_q;
-static std::condition_variable cv;
-static std::mutex task_mutex;
-
-static void add_task(std::function<void(std::string &&)> &func,
-                     std::string &&a) {
-    std::lock_guard<std::mutex> lock(task_mutex);
-    task_q.emplace(task{func, a, 0});
-    cv.notify_one();
 }
 
 void LiveDanmaku::connect(int room_id, int uid) {
@@ -167,6 +158,8 @@ void LiveDanmaku::connect(int room_id, int uid) {
             task.onMessage(std::move(task.arg));
         }
     });
+
+    brls::Logger::info("(LiveDanmaku) connect step finish");
 }
 
 void LiveDanmaku::disconnect() {
@@ -187,6 +180,7 @@ void LiveDanmaku::disconnect() {
     if (task_thread.joinable()) {
         task_thread.join();
     }
+    brls::Logger::info("(LiveDanmaku) close step finish");
 }
 
 void LiveDanmaku::set_wait_time(int time) { wait_time = time; }
@@ -198,11 +192,14 @@ bool LiveDanmaku::is_connected() {
 bool LiveDanmaku::is_evOK() { return ms_ev_ok.load(std::memory_order_acquire); }
 
 void LiveDanmaku::send_join_request(const int room_id, const int uid) {
-    json join_request = {{"uid", uid},     {"roomid", room_id}, {"protover", 2},
-                         {"buvid", buvid}, {"platform", "web"}, {"type", 2},
-                         {"key", key}};
+    json join_request = {
+        {"uid", uid},        {"roomid", room_id},
+        {"protover", 2},     {"buvid", ProgramConfig::instance().getBuvid3()},
+        {"platform", "web"}, {"type", 2},
+        {"key", key}};
     std::string join_request_str = join_request.dump();
-    std::vector<uint8_t> packet  = encode_packet(0, 7, join_request_str);
+    brls::Logger::info("(LiveDanmaku) join_request:{}", join_request_str);
+    std::vector<uint8_t> packet = encode_packet(0, 7, join_request_str);
     std::string packet_str(packet.begin(), packet.end());
     mongoose_mutex.lock();
     if (this->nc == nullptr) return;
@@ -212,6 +209,7 @@ void LiveDanmaku::send_join_request(const int room_id, const int uid) {
 }
 
 void LiveDanmaku::send_heartbeat() {
+    brls::Logger::debug("(LiveDanmaku) send_heartbeat");
     std::vector<uint8_t> packet = encode_packet(0, 2, "");
     std::string packet_str(packet.begin(), packet.end());
     mongoose_mutex.lock();
@@ -230,19 +228,27 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev,
     LiveDanmaku *liveDanmaku = static_cast<LiveDanmaku *>(user_data);
     liveDanmaku->ms_ev_ok.store(true, std::memory_order_release);
     if (ev == MG_EV_OPEN) {
+        MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
+#ifdef MONGOOSE_HEX_DUMPS
+        nc->is_hexdumping = 1;
+#else
         nc->is_hexdumping = 0;
+#endif
     } else if (ev == MG_EV_ERROR) {
         MG_ERROR(("%p %s", nc->fd, (char *)ev_data));
         liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);
     } else if (ev == MG_EV_WS_OPEN) {
+        MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         liveDanmaku->send_join_request(liveDanmaku->room_id, liveDanmaku->uid);
         mg_timer_add(liveDanmaku->mgr, 30000, MG_TIMER_REPEAT, heartbeat_timer,
                      user_data);
     } else if (ev == MG_EV_WS_MSG) {
+        MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         struct mg_ws_message *wm = (struct mg_ws_message *)ev_data;
         add_task(liveDanmaku->onMessage,
                  std::string(wm->data.ptr, wm->data.len));
     } else if (ev == MG_EV_CLOSE) {
+        MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);
     }
 }

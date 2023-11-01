@@ -27,10 +27,9 @@ namespace fs = std::experimental::filesystem;
 #endif
 
 #ifdef PS4
-const std::string primaryDNSStr = "223.5.5.5";
+const std::string primaryDNSStr   = "223.5.5.5";
 const std::string secondaryDNSStr = "1.1.1.1";
 #endif
-
 
 typedef std::map<std::string, std::string> Cookie;
 constexpr uint32_t MINIMUM_WINDOW_WIDTH  = 640;
@@ -157,6 +156,7 @@ public:
     std::string getRefreshToken() const;
     std::string getCSRF();
     std::string getUserID();
+    std::string getBuvid3();
     bool hasLoginInfo();
 
     // Google Analytics ID

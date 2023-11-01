@@ -45,7 +45,7 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     }
 }
 
-DanmakuItem::DanmakuItem(const float _time, danmaku_t *dan) {
+DanmakuItem::DanmakuItem(const float _time, const danmaku_t *dan) {
     msg = std::string(dan->dan);
 
 #ifdef OPENCC
