@@ -7,6 +7,7 @@
 #include "api/live/extract_messages.hpp"
 
 #include <mutex>
+#include <atomic>
 #include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
 #include "nanovg.h"
@@ -14,7 +15,7 @@
 class DanmakuItem {
 public:
     DanmakuItem(std::string content, const char *attributes);
-    DanmakuItem(const float _time, const danmaku_t *dan);
+    DanmakuItem(const danmaku_t *dan);
 
     std::string msg;  // 弹幕内容
     float time;       // 弹幕出现的时间
@@ -44,6 +45,8 @@ public:
         return this->time < item.time;
     }
 };
+
+typedef struct DanmakuItem_node DanmakuItem_node;
 
 class DanmakuCore : public brls::Singleton<DanmakuCore> {
 public:
@@ -81,6 +84,19 @@ public:
      */
     void drawDanmaku(NVGcontext *vg, float x, float y, float width,
                      float height, float alpha);
+    void draw_live_danmaku(NVGcontext *vg, float x, float y, float width,
+                           float height, float alpha);
+
+    /**
+     * 设置直播弹幕开关
+     */
+    void live_mode_on() {
+        _is_live_mode.store(true, std::memory_order_release);
+    }
+    void live_mode_off() {
+        _is_live_mode.store(false, std::memory_order_release);
+    }
+    void live_danmaku_reset();
 
     /**
      * 加载弹幕数据
@@ -93,7 +109,7 @@ public:
      * @param item 单条弹幕
      */
     void addSingleDanmaku(const DanmakuItem &item);
-    void addSingleDanmaku(DanmakuItem &&item);
+    void addLiveDanmaku(DanmakuItem &&item);
 
     /**
      * 获取弹幕数据
@@ -130,7 +146,11 @@ public:
 
 private:
     std::mutex danmakuMutex;
-    bool danmakuLoaded = false;
+    bool danmakuLoaded             = false;
+    std::atomic_bool _is_live_mode = false;
+
+    std::atomic<DanmakuItem_node *> head = nullptr;
+    std::atomic<DanmakuItem_node *> tail = nullptr;
 
     // 当前显示的第一条弹幕序号
     size_t danmakuIndex = 0;

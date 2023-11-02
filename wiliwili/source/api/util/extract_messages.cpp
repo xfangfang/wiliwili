@@ -50,7 +50,13 @@ std::vector<live_t> extract_messages(const std::vector<std::string> &messages) {
     live_messages.reserve(messages.size() / 5);
 
     for (auto &message : messages) {
-        nlohmann::json json_message = nlohmann::json::parse(message);
+        nlohmann::json json_message;
+
+        try {
+            json_message = nlohmann::json::parse(message);
+        } catch (nlohmann::json::parse_error &e) {
+            continue;
+        }
 
         auto it = json_message.find("cmd");
 

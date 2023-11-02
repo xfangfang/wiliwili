@@ -3,11 +3,18 @@
 //
 
 #include <pystring.h>
+#include <atomic>
+#include <cstdlib>
 #include <utility>
 
 #include "view/danmaku_core.hpp"
 #include "view/mpv_core.hpp"
 #include "utils/config_helper.hpp"
+
+struct DanmakuItem_node {
+    DanmakuItem item;
+    DanmakuItem_node *next;
+};
 
 DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     : msg(std::move(content)) {
@@ -45,7 +52,7 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     }
 }
 
-DanmakuItem::DanmakuItem(const float _time, const danmaku_t *dan) {
+DanmakuItem::DanmakuItem(const danmaku_t *dan) {
     msg = std::string(dan->dan);
 
 #ifdef OPENCC
@@ -54,7 +61,9 @@ DanmakuItem::DanmakuItem(const float _time, const danmaku_t *dan) {
     if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
 #endif
 
-    time      = _time;
+    canShow = false;
+
+    time      = 0.0f;
     type      = dan->dan_type;
     fontSize  = dan->dan_size;
     fontColor = dan->dan_color;
@@ -111,14 +120,19 @@ void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
     MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
 }
 
-void DanmakuCore::addSingleDanmaku(DanmakuItem &&item) {
-    danmakuMutex.lock();
-    this->danmakuData.emplace_back(std::move(item));
-    this->danmakuLoaded = true;
-    danmakuMutex.unlock();
-
-    // 通过mpv来通知弹幕加载完成
-    MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
+#define is_live_mode _is_live_mode.load(std::memory_order_acquire)
+void DanmakuCore::addLiveDanmaku(DanmakuItem &&item) {
+    if (!is_live_mode) return;
+    auto t = tail.load(std::memory_order_acquire);
+    if (t == nullptr) {
+        head.store(new DanmakuItem_node{std::move(item), nullptr},
+                   std::memory_order_release);
+        tail.store(head.load(std::memory_order_acquire),
+                   std::memory_order_release);
+        return;
+    }
+    t->next = new DanmakuItem_node{std::move(item), nullptr};
+    tail.store(t->next, std::memory_order_release);
 }
 
 void DanmakuCore::refresh() {
@@ -215,9 +229,193 @@ NVGcolor DanmakuCore::a(NVGcolor color, float alpha) {
     return color;
 }
 
+void DanmakuCore::live_danmaku_reset() {
+    auto h = head.load(std::memory_order_acquire);
+    auto t = tail.load(std::memory_order_acquire);
+    head.store(nullptr, std::memory_order_release);
+    tail.store(nullptr, std::memory_order_release);
+    danmakuMutex.lock();
+    while (h != nullptr) {
+        auto _p = h;
+        h       = h->next;
+        delete _p;
+    }
+    danmakuMutex.unlock();
+}
+
+void DanmakuCore::draw_live_danmaku(NVGcontext *vg, float x, float y,
+                                    float width, float height, float alpha) {
+    float SECOND        = 0.12f * DANMAKU_STYLE_SPEED;
+    float CENTER_SECOND = 0.04f * DANMAKU_STYLE_SPEED;
+
+    // Enable scissoring
+    nvgSave(vg);
+    nvgIntersectScissor(vg, x, y, width, height);
+
+    nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE);
+    nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+    nvgFontFaceId(vg, this->danmakuFont);
+    nvgTextLineHeight(vg, 1);
+
+    int LINES = lineNumCurrent;
+    if (LINES == 0) {
+        LINES = height / lineHeight * DANMAKU_STYLE_AREA * 0.01;
+    }
+
+    float back_time = MPVCore::instance().getPlaybackTime();
+    float _time     = 0.0f;
+    float bounds[4];
+    auto _head = head.load(std::memory_order_acquire);
+
+    auto can_show = [&](DanmakuItem &i, const float time,
+                        const float position) -> bool {
+        if (!i.canShow) {
+            i.time = back_time + _time;
+            _time += 0.1f;
+            if (_time >= 0.2f * LINES * 2) {
+                _time = 0.0f;
+            }
+            return true;
+        }
+
+        if (time > CENTER_SECOND) {
+            // 底部或顶部弹幕
+            if (i.type == 4) {
+                centerLines[LINES - i.line - 1] = 0;
+                return false;
+            } else if (i.type == 5) {
+                centerLines[i.line] = 0;
+                return false;
+            }
+        }
+        // 1. 过滤显示的弹幕级别
+        if (i.level < DANMAKU_FILTER_LEVEL_LIVE) return false;
+
+        if (i.type == 4 && !DANMAKU_FILTER_SHOW_BOTTOM) return false;
+
+        if (i.type == 5 && !DANMAKU_FILTER_SHOW_TOP) return false;
+
+        if (i.type != 4 && i.type != 5 && !DANMAKU_FILTER_SHOW_SCROLL)
+            return false;
+
+        // 5. 过滤彩色弹幕
+        if (!i.isDefaultColor && !DANMAKU_FILTER_SHOW_COLOR) return false;
+
+        // 6. 过滤失效弹幕
+        if (i.type < 0) return false;
+
+        // 根据位置判断是否显示弹幕
+        if (position > width + (i.length * i.length)) return false;
+
+        return true;
+    };
+
+    danmakuMutex.lock();
+    while (_head && is_live_mode) {
+        DanmakuItem &i = _head->item;
+        //滑动弹幕位置
+        float position = i.speed * (back_time - i.time);
+
+        // 溢出屏幕外或被过滤调不展示的弹幕
+        if (!can_show(i, (back_time - i.time), position)) {
+            auto _p = _head;
+            if (_head == tail.load(std::memory_order_acquire)) {
+                head.store(nullptr, std::memory_order_release);
+                tail.store(nullptr, std::memory_order_release);
+                _head = _head->next;
+            } else {
+                _head = _head->next;
+                head.store(_head, std::memory_order_release);
+            }
+            delete _p;
+            continue;
+        };
+
+        // 添加即将出现的弹幕
+        if (!i.canShow) {
+            /// 处理即将要显示的弹幕
+            nvgTextBounds(vg, 0, 0, i.msg.c_str(), nullptr, bounds);
+            i.length = bounds[2] - bounds[0];
+            i.speed  = (width + i.length) / SECOND;
+            for (int k = 0; k < LINES; ++k) {
+                if (i.type == 4) {
+                    //底部
+                    if (centerLines[LINES - k - 1]) continue;
+
+                    centerLines[LINES - k - 1] = 1;
+                    i.line                     = LINES - k - 1;
+                    i.canShow                  = true;
+                    break;
+                } else if (i.type == 5) {
+                    //顶部
+                    if (centerLines[k]) continue;
+
+                    centerLines[k] = 1;
+                    i.line         = k;
+                    i.canShow      = true;
+                    break;
+                } else {
+                    //滚动
+                    if (i.time < scrollLines[k].first ||
+                        i.time + width / i.speed < scrollLines[k].second)
+                        continue;
+                    // 一条弹幕完全展示的时间点，同一行的其他弹幕需要在这之后出现
+                    scrollLines[k].first = i.time + i.length / i.speed;
+                    // 一条弹幕展示结束的时间点，同一行的其他弹幕到达屏幕左侧的时间应该在这之后。
+                    scrollLines[k].second = i.time + SECOND;
+                    i.line                = k;
+                    i.canShow             = true;
+                    break;
+                }
+            }
+            _head = _head->next;
+            continue;
+        }
+
+        //居中弹幕
+        if (i.type == 4 || i.type == 5) {
+            // 画弹幕文字包边
+            nvgFillColor(vg, a(i.borderColor, alpha));
+            nvgText(vg, x + width / 2 - i.length / 2 + 1,
+                    y + i.line * lineHeight + 6, i.msg.c_str(), nullptr);
+
+            // 画弹幕文字
+            nvgFillColor(vg, a(i.color, alpha));
+            nvgText(vg, x + width / 2 - i.length / 2,
+                    y + i.line * lineHeight + 5, i.msg.c_str(), nullptr);
+
+            _head = _head->next;
+            continue;
+        }
+
+        if (position < 0) {
+            _head = _head->next;
+            continue;
+        }
+
+        // 画弹幕文字包边
+        nvgFillColor(vg, a(i.borderColor, alpha));
+        nvgText(vg, x + width - position + 1, y + i.line * lineHeight + 6,
+                i.msg.c_str(), nullptr);
+
+        // 画弹幕文字
+        nvgFillColor(vg, a(i.color, alpha));
+        nvgText(vg, x + width - position, y + i.line * lineHeight + 5,
+                i.msg.c_str(), nullptr);
+
+        _head = _head->next;
+    }
+    danmakuMutex.unlock();
+    nvgRestore(vg);
+}
+
 void DanmakuCore::drawDanmaku(NVGcontext *vg, float x, float y, float width,
                               float height, float alpha) {
     if (!DanmakuCore::DANMAKU_ON) return;
+    if (is_live_mode) {
+        draw_live_danmaku(vg, x, y, width, height, alpha);
+        return;
+    }
     if (!this->danmakuLoaded) return;
     if (danmakuData.empty()) return;
 

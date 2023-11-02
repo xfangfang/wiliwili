@@ -17,13 +17,14 @@
 
 using namespace brls::literals;
 
-static void process_danmaku(const float time, const danmaku_t* dan) {
+static void process_danmaku(const danmaku_t* dan) {
     //TODO:做其他处理
     //...
 
+    brls::Logger::debug("process_danmaku: {}", dan->dan);
+
     //弹幕加载到视频中去
-    float _time = MPVCore::instance().getPlaybackTime() + time;
-    DanmakuCore::instance().addSingleDanmaku(DanmakuItem(_time, dan));
+    DanmakuCore::instance().addLiveDanmaku(DanmakuItem(dan));
 
     danmaku_t_free(dan);
 }
@@ -37,13 +38,11 @@ static void onDanmakuReceived(std::string&& message) {
         return;
     }
 
-    float time = 0.1f;
     for (const auto& live_msg : extract_messages(messages)) {
         if (live_msg.type == danmaku) {
             if (!live_msg.ptr) continue;
-            process_danmaku(time, (danmaku_t*)live_msg.ptr);
+            process_danmaku((danmaku_t*)live_msg.ptr);
             free(live_msg.ptr);
-            time += 0.2f;
         } else if (live_msg.type == watched_change) {
             //TODO: 更新在线人数
             free(live_msg.ptr);
@@ -58,6 +57,7 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(live.roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
+    DanmakuCore::instance().live_mode_on();
 }
 
 LiveActivity::LiveActivity(int roomid, const std::string& name,
@@ -70,6 +70,7 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
+    DanmakuCore::instance().live_mode_on();
 }
 
 void LiveActivity::setCommonData() {
@@ -184,7 +185,9 @@ LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     this->video->stop();
     LiveDanmaku::instance().disconnect();
+    DanmakuCore::instance().live_mode_off();
     // 取消监控mpv
     MPV_CE->unsubscribe(eventSubscribeID);
     MPVCore::instance().command_async("set", "loop-playlist", "1");
+    DanmakuCore::instance().live_danmaku_reset();
 }
