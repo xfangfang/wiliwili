@@ -4,10 +4,7 @@
 
 #pragma once
 
-#include "api/live/extract_messages.hpp"
-
 #include <mutex>
-#include <atomic>
 #include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
 #include "nanovg.h"
@@ -15,7 +12,6 @@
 class DanmakuItem {
 public:
     DanmakuItem(std::string content, const char *attributes);
-    DanmakuItem(const danmaku_t *dan);
 
     std::string msg;  // 弹幕内容
     float time;       // 弹幕出现的时间
@@ -33,8 +29,7 @@ public:
     int64_t startTime    = 0;
     NVGcolor color       = nvgRGBA(255, 255, 255, 160);
     NVGcolor borderColor = nvgRGBA(0, 0, 0, 160);
-    int level;    // 弹幕等级 1-10 直播弹幕等级0-60
-    int is_live;  // 是否为直播弹幕
+    int level;  // 弹幕等级 1-10
     // 暂时用不到的信息，先不使用
     //    int pubDate; // 弹幕发送时间
     //    int pool; // 弹幕池类型
@@ -84,19 +79,6 @@ public:
      */
     void drawDanmaku(NVGcontext *vg, float x, float y, float width,
                      float height, float alpha);
-    void draw_live_danmaku(NVGcontext *vg, float x, float y, float width,
-                           float height, float alpha);
-
-    /**
-     * 设置直播弹幕开关
-     */
-    void live_mode_on() {
-        _is_live_mode.store(true, std::memory_order_release);
-    }
-    void live_mode_off() {
-        _is_live_mode.store(false, std::memory_order_release);
-    }
-    void live_danmaku_reset();
 
     /**
      * 加载弹幕数据
@@ -109,7 +91,6 @@ public:
      * @param item 单条弹幕
      */
     void addSingleDanmaku(const DanmakuItem &item);
-    void addLiveDanmaku(DanmakuItem &&item);
 
     /**
      * 获取弹幕数据
@@ -119,8 +100,6 @@ public:
 
     /// range: [1 - 10], 1: show all danmaku, 10: the most strong filter
     static inline int DANMAKU_FILTER_LEVEL = 1;
-    //0-60
-    static inline int DANMAKU_FILTER_LEVEL_LIVE = 0;
 
     static inline bool DANMAKU_FILTER_SHOW_TOP    = true;
     static inline bool DANMAKU_FILTER_SHOW_BOTTOM = true;
@@ -146,11 +125,7 @@ public:
 
 private:
     std::mutex danmakuMutex;
-    bool danmakuLoaded             = false;
-    std::atomic_bool _is_live_mode = false;
-
-    std::atomic<DanmakuItem_node *> head = nullptr;
-    std::atomic<DanmakuItem_node *> tail = nullptr;
+    bool danmakuLoaded = false;
 
     // 当前显示的第一条弹幕序号
     size_t danmakuIndex = 0;

@@ -94,6 +94,7 @@ typedef struct {
 } danmaku_t;  //Maye174: 为了对齐内存，乱序排
 
 danmaku_t* danmaku_t_init();
+danmaku_t* danmaku_t_copy(const danmaku_t* p);
 void danmaku_t_free(const danmaku_t* p);
 
 typedef struct {

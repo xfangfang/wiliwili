@@ -3,30 +3,33 @@
 //
 
 #include "activity/live_player_activity.hpp"
+#include <vector>
+
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
-#include "view/danmaku_core.hpp"
+#include "view/live_core.hpp"
 #include "view/subtitle_core.hpp"
 #include "view/grid_dropdown.hpp"
+
 #include "utils/shader_helper.hpp"
 #include "utils/config_helper.hpp"
+
 #include "live/danmaku_live.hpp"
 #include "live/extract_messages.hpp"
 #include "live/ws_utils.hpp"
+
 #include "bilibili.h"
 
 using namespace brls::literals;
 
-static void process_danmaku(const danmaku_t* dan) {
+static void process_danmaku(const std::vector<LiveDanmakuItem>& danmaku_list) {
     //TODO:做其他处理
     //...
 
-    brls::Logger::debug("process_danmaku: {}", dan->dan);
-
     //弹幕加载到视频中去
-    DanmakuCore::instance().addLiveDanmaku(DanmakuItem(dan));
+    LiveDanmakuCore::instance().add(danmaku_list);
 
-    danmaku_t_free(dan);
+    // danmaku_t_free(dan);
 }
 
 static void onDanmakuReceived(std::string&& message) {
@@ -38,16 +41,20 @@ static void onDanmakuReceived(std::string&& message) {
         return;
     }
 
+    std::vector<LiveDanmakuItem> danmaku_list;
+
     for (const auto& live_msg : extract_messages(messages)) {
         if (live_msg.type == danmaku) {
             if (!live_msg.ptr) continue;
-            process_danmaku((danmaku_t*)live_msg.ptr);
-            free(live_msg.ptr);
+            danmaku_list.emplace_back(
+                LiveDanmakuItem((danmaku_t*)live_msg.ptr));
+            // free(live_msg.ptr);
         } else if (live_msg.type == watched_change) {
             //TODO: 更新在线人数
             free(live_msg.ptr);
         }
     }
+    process_danmaku(danmaku_list);
 }
 
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
@@ -57,7 +64,7 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(live.roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
-    DanmakuCore::instance().live_mode_on();
+    LiveDanmakuCore::DANMAKU_ON = true;
 }
 
 LiveActivity::LiveActivity(int roomid, const std::string& name,
@@ -70,7 +77,7 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
-    DanmakuCore::instance().live_mode_on();
+    LiveDanmakuCore::DANMAKU_ON = true;
 }
 
 void LiveActivity::setCommonData() {
@@ -185,9 +192,9 @@ LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     this->video->stop();
     LiveDanmaku::instance().disconnect();
-    DanmakuCore::instance().live_mode_off();
+    LiveDanmakuCore::DANMAKU_ON = true;
     // 取消监控mpv
     MPV_CE->unsubscribe(eventSubscribeID);
     MPVCore::instance().command_async("set", "loop-playlist", "1");
-    DanmakuCore::instance().live_danmaku_reset();
+    LiveDanmakuCore::instance().reset();
 }

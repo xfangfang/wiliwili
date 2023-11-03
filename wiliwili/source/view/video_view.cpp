@@ -7,6 +7,7 @@
 #include "pystring.h"
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
+#include "view/live_core.hpp"
 #include "view/subtitle_core.hpp"
 #include "view/video_progress_slider.hpp"
 #include "view/svg_image.hpp"
@@ -413,15 +414,16 @@ VideoView::VideoView() {
             frame->setHeaderVisibility(brls::Visibility::GONE);
             frame->setFooterVisibility(brls::Visibility::GONE);
             frame->setBackgroundColor(theme.getColor("brls/backdrop"));
-            container->registerAction("hints/back"_i18n, BUTTON_B,
-                                      [this, container](...) {
-                                          // 几秒后自动关闭 OSD
-                                          this->showOSD(true);
-                                          container->dismiss();
-                                          // 保存结果
-                                          ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_VOLUME, MPVCore::VIDEO_VOLUME);
-                                          return true;
-                                      });
+            container->registerAction(
+                "hints/back"_i18n, BUTTON_B, [this, container](...) {
+                    // 几秒后自动关闭 OSD
+                    this->showOSD(true);
+                    container->dismiss();
+                    // 保存结果
+                    ProgramConfig::instance().setSettingItem(
+                        SettingItem::PLAYER_VOLUME, MPVCore::VIDEO_VOLUME);
+                    return true;
+                });
             brls::Application::pushActivity(new Activity(frame));
 
             // 手动将焦点赋给音量组件
@@ -558,6 +560,8 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
     if (showDanmaku)
         DanmakuCore::instance().drawDanmaku(vg, x, y, width, height,
                                             getAlpha());
+    if (showDanmaku)
+        LiveDanmakuCore::instance().draw(vg, x, y, width, height, alpha);
 
     // draw osd
     time_t current = wiliwili::unix_time();
@@ -634,9 +638,7 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
 
 void VideoView::invalidate() { View::invalidate(); }
 
-void VideoView::onLayout() {
-    brls::View::onLayout();
-}
+void VideoView::onLayout() { brls::View::onLayout(); }
 
 std::string VideoView::genExtraUrlParam(int progress,
                                         const std::string& audio) {
@@ -742,7 +744,7 @@ void VideoView::showOSD(bool temp) {
 #else
         this->osdLastShowTime = std::numeric_limits<std::time_t>::max();
 #endif
-        this->osd_state       = OSDState::ALWAYS_ON;
+        this->osd_state = OSDState::ALWAYS_ON;
     }
 }
 
@@ -1052,8 +1054,8 @@ void VideoView::buttonProcessing() {
                 rsb_press_time = getCPUTimeUsec();
                 click_state    = ClickState::PRESS;
                 // 绘制临时加速标识
-                speedHintLabel->setText(
-                    wiliwili::format("wiliwili/player/current_speed"_i18n, SPEED));
+                speedHintLabel->setText(wiliwili::format(
+                    "wiliwili/player/current_speed"_i18n, SPEED));
                 speedHintBox->setVisibility(brls::Visibility::VISIBLE);
             }
             break;
@@ -1083,8 +1085,8 @@ void VideoView::buttonProcessing() {
                     click_state    = ClickState::PRESS;
                 }
                 // 绘制临时加速标识
-                speedHintLabel->setText(
-                    wiliwili::format("wiliwili/player/current_speed"_i18n, SPEED));
+                speedHintLabel->setText(wiliwili::format(
+                    "wiliwili/player/current_speed"_i18n, SPEED));
                 speedHintBox->setVisibility(brls::Visibility::VISIBLE);
             }
             break;
