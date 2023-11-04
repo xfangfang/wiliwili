@@ -40,9 +40,6 @@ public:
         return this->time < item.time;
     }
 };
-
-typedef struct DanmakuItem_node DanmakuItem_node;
-
 class DanmakuCore : public brls::Singleton<DanmakuCore> {
 public:
     /**

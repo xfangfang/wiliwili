@@ -33,7 +33,6 @@ class LiveDanmakuCore : public brls::Singleton<LiveDanmakuCore> {
 public:
     //0-60
     static inline int DANMAKU_FILTER_LEVEL_LIVE = 0;
-    static inline bool DANMAKU_ON               = true;
 
     std::vector<std::pair<float, float>> scroll_lines;
     std::vector<int> center_lines;
@@ -42,10 +41,10 @@ public:
 
     int danmaku_font = brls::Application::getDefaultFont();
 
-    std::queue<LiveDanmakuItem> danmaku_que;
-    std::mutex que_mutex;
+    std::deque<LiveDanmakuItem> next;
+    std::mutex next_mutex;
 
-    std::map<int, std::deque<LiveDanmakuItem>> danmaku_data;
+    std::map<int, std::deque<LiveDanmakuItem>> now;
 
     void reset();
     void add(const std::vector<LiveDanmakuItem> &dan_l);

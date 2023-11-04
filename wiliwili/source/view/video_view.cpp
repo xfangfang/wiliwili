@@ -132,6 +132,7 @@ VideoView::VideoView() {
             static bool ignoreSpeed = false;
             switch (status.state) {
                 case brls::GestureState::UNSURE: {
+                    if (IN_LIVE) break;
                     // 长按加速
                     if (fabs(mpvCore->getSpeed() - 1) > 10e-2) {
                         ignoreSpeed = true;
@@ -557,11 +558,13 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
     }
 
     // draw danmaku
-    if (showDanmaku)
+    if (!IN_LIVE && showDanmaku)
         DanmakuCore::instance().drawDanmaku(vg, x, y, width, height,
                                             getAlpha());
-    if (showDanmaku)
+    else if (showDanmaku) {
         LiveDanmakuCore::instance().draw(vg, x, y, width, height, alpha);
+        // osdSlider->setVisibility(brls::Visibility::INVISIBLE);
+    }
 
     // draw osd
     time_t current = wiliwili::unix_time();
@@ -831,6 +834,10 @@ void VideoView::hideVideoRelatedSetting() { showVideoRelatedSetting = false; }
 void VideoView::hideSubtitleSetting() { showSubtitleSetting = false; }
 
 void VideoView::hideBottomLineSetting() { showBottomLineSetting = false; }
+
+void VideoView::hideVideoProgressSlider() {
+    osdSlider->setVisibility(brls::Visibility::GONE);
+}
 
 void VideoView::setTitle(const std::string& title) {
     this->videoTitleLabel->setText(title);

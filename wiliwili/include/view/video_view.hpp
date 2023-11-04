@@ -107,6 +107,8 @@ public:
 
     void hideBottomLineSetting();
 
+    void hideVideoProgressSlider();
+
     /// 隐藏左下角的播放时间
     void hideStatusLabel();
 
@@ -189,6 +191,8 @@ public:
 
     // Bottom progress bar
     inline static bool BOTTOM_BAR = true;
+
+    inline static bool IN_LIVE = false;
 
 private:
     bool allowFullscreen  = true;

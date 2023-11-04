@@ -64,7 +64,7 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(live.roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
-    LiveDanmakuCore::DANMAKU_ON = true;
+    VideoView::IN_LIVE = true;
 }
 
 LiveActivity::LiveActivity(int roomid, const std::string& name,
@@ -77,11 +77,10 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
-    LiveDanmakuCore::DANMAKU_ON = true;
+    VideoView::IN_LIVE = true;
 }
 
 void LiveActivity::setCommonData() {
-    DanmakuCore::instance().reset();
     LiveDanmaku::instance().connect(
         liveData.roomid, std::stoi(ProgramConfig::instance().getUserID()));
 
@@ -130,6 +129,7 @@ void LiveActivity::onContentAvailable() {
         return true;
     });
 
+    this->video->hideVideoProgressSlider();
     this->video->hideDLNAButton();
     this->video->hideSubtitleSetting();
     this->video->hideVideoRelatedSetting();
@@ -192,9 +192,9 @@ LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     this->video->stop();
     LiveDanmaku::instance().disconnect();
-    LiveDanmakuCore::DANMAKU_ON = true;
     // 取消监控mpv
     MPV_CE->unsubscribe(eventSubscribeID);
     MPVCore::instance().command_async("set", "loop-playlist", "1");
     LiveDanmakuCore::instance().reset();
+    VideoView::IN_LIVE = false;
 }

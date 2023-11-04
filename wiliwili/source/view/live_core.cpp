@@ -29,12 +29,12 @@ LiveDanmakuItem::LiveDanmakuItem(LiveDanmakuItem &&item) {
 void LiveDanmakuCore::reset() {
     this->scroll_lines.clear();
     this->center_lines.clear();
-    this->danmaku_data.clear();
-    while (!this->danmaku_que.empty()) {
-        this->que_mutex.lock();
-        this->danmaku_que.pop();
-        this->que_mutex.unlock();
+    this->now.clear();
+    this->next_mutex.lock();
+    while (!this->next.empty()) {
+        this->next.pop_front();
     }
+    this->next_mutex.unlock();
 }
 
 void LiveDanmakuCore::add(const std::vector<LiveDanmakuItem> &dan_l) {
@@ -52,15 +52,15 @@ void LiveDanmakuCore::add(const std::vector<LiveDanmakuItem> &dan_l) {
         if (i.danmaku->dan_color != 0xffffff &&
             !DanmakuCore::DANMAKU_FILTER_SHOW_COLOR)
             continue;
-        this->que_mutex.lock();
-        this->danmaku_que.emplace(std::move(i));
-        this->que_mutex.unlock();
+        this->next_mutex.lock();
+        this->next.emplace_front(std::move(i));
+        this->next_mutex.unlock();
     }
 }
 
 void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
                            float height, float alpha) {
-    if (!LiveDanmakuCore::DANMAKU_ON) return;
+    if (!DanmakuCore::DANMAKU_ON) return;
 
     int r, g, b;
     float SECOND        = 0.12f * DanmakuCore::DANMAKU_STYLE_SPEED;
@@ -86,23 +86,24 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     nvgTextLineHeight(vg, 1);
 
     float _time = 0.0f;
-    this->que_mutex.lock();
-    while (!this->danmaku_que.empty() &&
-           init_danmaku(vg, this->danmaku_que.front(), width, LINES, SECOND,
-                        _time)) {
-        const auto &i = danmaku_que.front();
-        if (this->danmaku_data.find(i.danmaku->dan_color) ==
-            this->danmaku_data.end())
-            this->danmaku_data.emplace(i.danmaku->dan_color,
-                                       std::deque<LiveDanmakuItem>{});
-        this->danmaku_data[i.danmaku->dan_color].emplace_back(std::move(i));
-        this->danmaku_que.pop();
+    this->next_mutex.lock();
+    while (!this->next.empty() &&
+           init_danmaku(vg, this->next.front(), width, LINES, SECOND, _time)) {
+        const auto &i = next.front();
+        if (this->now.find(i.danmaku->dan_color) == this->now.end())
+            this->now.emplace(i.danmaku->dan_color,
+                              std::deque<LiveDanmakuItem>{});
+        this->now[i.danmaku->dan_color].emplace_back(std::move(i));
+        this->next.pop_front();
         _time += 0.1f;
         if (_time > 0.1f * LINES) _time = 0.0f;
     }
-    this->que_mutex.unlock();
+    while (this->next.size() > 100) {
+        this->next.pop_back();
+    }
+    this->next_mutex.unlock();
 
-    for (const auto &[i, v] : this->danmaku_data) {
+    for (const auto &[i, v] : this->now) {
         r                     = (i >> 16) & 0xff;
         g                     = (i >> 8) & 0xff;
         b                     = i & 0xff;
@@ -144,7 +145,7 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     }
     nvgRestore(vg);
 
-    for (auto &[i, v] : this->danmaku_data) {
+    for (auto &[i, v] : this->now) {
         while (!v.empty()) {
             const auto &j = v.front();
             float position =
@@ -173,6 +174,7 @@ bool LiveDanmakuCore::init_danmaku(NVGcontext *vg, LiveDanmakuItem &i,
     if (!i.length) {
         nvgTextBounds(vg, 0, 0, i.danmaku->dan, nullptr, bounds);
         i.length = bounds[2] - bounds[0];
+        if (!i.length) i.length = 1;
     }
     i.speed = (width + i.length) / SECOND;
     i.time  = MPVCore::instance().getPlaybackTime() + time;
