@@ -104,33 +104,19 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     this->next_mutex.unlock();
 
     for (const auto &[i, v] : this->now) {
-        r                     = (i >> 16) & 0xff;
-        g                     = (i >> 8) & 0xff;
-        b                     = i & 0xff;
-        NVGcolor color        = nvgRGB(r, g, b);
-        color.a               = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.01 * alpha;
-        NVGcolor border_color = nvgRGBA(0, 0, 0, 160);
-        border_color.a        = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.005;
+        r              = (i >> 16) & 0xff;
+        g              = (i >> 8) & 0xff;
+        b              = i & 0xff;
+        NVGcolor color = nvgRGB(r, g, b);
+        color.a        = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.01 * alpha;
+        NVGcolor border_color =
+            nvgRGBA(0, 0, 0, DanmakuCore::DANMAKU_STYLE_ALPHA * 0.005 * alpha);
         if ((r * 299 + g * 587 + b * 114) < 60000) {
-            border_color   = nvgRGB(255, 255, 255);
-            border_color.a = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.5;
-        }
-        nvgFillColor(vg, color);
-
-        for (const auto &j : v) {
-            float position =
-                j.speed * (MPVCore::instance().getPlaybackTime() - j.time);
-            if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
-                nvgText(vg, x + width / 2 - j.length / 2,
-                        y + j.line * line_height + 5, j.danmaku->dan, nullptr);
-            } else if (position > 0) {
-                nvgText(vg, x + width - position, y + j.line * line_height + 5,
-                        j.danmaku->dan, nullptr);
-            }
+            border_color = nvgRGBA(
+                255, 255, 255, DanmakuCore::DANMAKU_STYLE_ALPHA * 0.5 * alpha);
         }
 
         nvgFillColor(vg, border_color);
-
         for (const auto &j : v) {
             float position =
                 j.speed * (MPVCore::instance().getPlaybackTime() - j.time);
@@ -140,6 +126,19 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
             } else if (position > 0) {
                 nvgText(vg, x + width - position - 1,
                         y + j.line * line_height + 6, j.danmaku->dan, nullptr);
+            }
+        }
+
+        nvgFillColor(vg, color);
+        for (const auto &j : v) {
+            float position =
+                j.speed * (MPVCore::instance().getPlaybackTime() - j.time);
+            if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
+                nvgText(vg, x + width / 2 - j.length / 2,
+                        y + j.line * line_height + 5, j.danmaku->dan, nullptr);
+            } else if (position > 0) {
+                nvgText(vg, x + width - position, y + j.line * line_height + 5,
+                        j.danmaku->dan, nullptr);
             }
         }
     }

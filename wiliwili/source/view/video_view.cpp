@@ -983,7 +983,7 @@ void VideoView::setFullScreen(bool fs) {
             // 因此目前需要遍历全部的 activity 找到 BasePlayerActivity
             auto activityStack = Application::getActivitiesStack();
             if (activityStack.size() <= 2) {
-                brls::Application::popActivity(brls::TransitionAnimation::NONE);
+                brls::Application::popActivity();
                 return;
             }
             for (size_t i = activityStack.size() - 2; i != 0; i--) {
