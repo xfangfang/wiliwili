@@ -211,7 +211,7 @@ jobs:
         run: |
           $env:path+=";$env:USERPROFILE\xmake"
           $env:XMAKE_GLOBALDIR="${{ runner.temp }}"
-          xmake f -c -y --sw=y --winrt=y --window=sdl --driver=d3d11
+          xmake f -c -y --sw=y --winrt=y --window=sdl --driver=d3d11 -vD
           xmake b -y wiliwili
           cp winrt/key.pfx build/
           cp winrt/docs/key.pdf build/key.pdf
