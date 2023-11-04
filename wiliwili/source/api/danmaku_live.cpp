@@ -38,13 +38,13 @@ static void get_live_s(int room_id) {
             std::cout << "getDanmuInfo json parse error" << std::endl;
         }
         if (_json["code"].get<int>() == 0) {
-            url = "ws://" +
-                  _json["data"]["host_list"][0]["host"]
-                      .get_ref<const std::string &>() +
-                  ":" +
-                  std::to_string(
-                      _json["data"]["host_list"][0]["ws_port"].get<int>()) +
-                  "/sub";
+            // url = "ws://" +
+            //       _json["data"]["host_list"][0]["host"]
+            //           .get_ref<const std::string &>() +
+            //       ":" +
+            //       std::to_string(
+            //           _json["data"]["host_list"][0]["ws_port"].get<int>()) +
+            //       "/sub";
             key = _json["data"]["token"].get_ref<const std::string &>();
         }
     }

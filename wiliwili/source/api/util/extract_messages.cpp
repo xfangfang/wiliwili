@@ -2,7 +2,8 @@
 #include "live/extract_messages.hpp"
 
 #include <nlohmann/json.hpp>
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstring>
 
 danmaku_t *danmaku_t_init() {
     danmaku_t *ret               = (danmaku_t *)malloc(sizeof(danmaku_t));
@@ -31,6 +32,27 @@ danmaku_t *danmaku_t_init() {
     return ret;
 }
 
+static char *strdup_s(const char *s) {
+    if (!s) return nullptr;
+    char *ret = (char *)malloc(strlen(s) + 1);
+    if (!ret) return nullptr;
+    strcpy(ret, s);
+    return ret;
+}
+
+danmaku_t *danmaku_t_copy(const danmaku_t *p) {
+    if (!p) return nullptr;
+    danmaku_t *ret = (danmaku_t *)malloc(sizeof(danmaku_t));
+    if (!ret) return nullptr;
+    memcpy(ret, p, sizeof(danmaku_t));
+    ret->user_name               = strdup_s(p->user_name);
+    ret->user_name_color         = strdup_s(p->user_name_color);
+    ret->dan                     = strdup_s(p->dan);
+    ret->fan_medal_name          = strdup_s(p->fan_medal_name);
+    ret->fan_medal_liveuser_name = strdup_s(p->fan_medal_liveuser_name);
+    return ret;
+}
+
 void danmaku_t_free(const danmaku_t *p) {
     free(p->user_name);
     free(p->user_name_color);
@@ -50,7 +72,13 @@ std::vector<live_t> extract_messages(const std::vector<std::string> &messages) {
     live_messages.reserve(messages.size() / 5);
 
     for (auto &message : messages) {
-        nlohmann::json json_message = nlohmann::json::parse(message);
+        nlohmann::json json_message;
+
+        try {
+            json_message = nlohmann::json::parse(message);
+        } catch (nlohmann::json::parse_error &e) {
+            continue;
+        }
 
         auto it = json_message.find("cmd");
 
