@@ -84,8 +84,8 @@ void LiveActivity::setCommonData() {
     LiveDanmaku::instance().connect(
         liveData.roomid, std::stoi(ProgramConfig::instance().getUserID()));
 
-    // 清空字幕
-    SubtitleCore::instance().reset();
+    // 重置播放器
+    MPVCore::instance().reset();
 
     // 清空自定义着色器
     ShaderHelper::instance().clearShader(false);
