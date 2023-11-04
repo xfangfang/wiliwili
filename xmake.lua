@@ -31,7 +31,8 @@ else
     set_languages("c++17")
 end
 
-add_repositories("zeromake https://github.com/zeromake/xrepo.git dev")
+-- add_repositories("zeromake https://github.com/zeromake/xrepo.git v0.1.0")
+add_repositories("zeromake https://github.com/zeromake/xrepo.git")
 
 package("borealis")
     set_sourcedir(path.join(os.projectdir(), "library/borealis"))
