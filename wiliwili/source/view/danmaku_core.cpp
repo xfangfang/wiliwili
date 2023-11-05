@@ -7,7 +7,6 @@
 #include <utility>
 
 #include "view/danmaku_core.hpp"
-#include "view/mpv_core.hpp"
 #include "utils/config_helper.hpp"
 #include "borealis/core/logger.hpp"
 
@@ -45,6 +44,18 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
         borderColor.a = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.5;
     }
 }
+
+DanmakuCore::DanmakuCore() {
+    event_id = MPV_E->subscribe([this](MpvEventEnum e) {
+        if (e == MpvEventEnum::LOADING_END) {
+            this->refresh();
+        } else if (e == MpvEventEnum::RESET) {
+            this->reset();
+        }
+    });
+}
+
+DanmakuCore::~DanmakuCore() { MPV_E->unsubscribe(event_id); }
 
 void DanmakuCore::reset() {
     danmakuMutex.lock();

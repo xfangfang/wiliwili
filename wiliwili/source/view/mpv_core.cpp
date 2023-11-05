@@ -5,8 +5,6 @@
 #include <cstdlib>
 #include <clocale>
 #include "view/mpv_core.hpp"
-#include "view/danmaku_core.hpp"
-#include "view/subtitle_core.hpp"
 #include <pystring.h>
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
@@ -680,7 +678,6 @@ void MPVCore::eventMainLoop() {
                 // event 21: 开始播放文件（一般是播放或调整进度结束之后触发）
                 brls::Logger::info("========> MPV_EVENT_PLAYBACK_RESTART");
                 mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
-                DanmakuCore::instance().refresh();
                 if (AUTO_PLAY) {
                     mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);
                     this->resume();
@@ -696,6 +693,7 @@ void MPVCore::eventMainLoop() {
                 disableDimming(false);
                 brls::Logger::info("========> MPV_STOP");
                 mpvCoreEvent.fire(MpvEventEnum::MPV_STOP);
+                video_stopped = true;
                 disableDimming(false);
                 auto node = (mpv_event_end_file *)event->data;
                 if (node->reason == MPV_END_FILE_REASON_ERROR) {
@@ -766,11 +764,13 @@ void MPVCore::eventMainLoop() {
                         if (!data) break;
 
                         if (*(int *)data) {
-                            brls::Logger::info("========> VIDEO PAUSED FOR CACHE");
+                            brls::Logger::info(
+                                "========> VIDEO PAUSED FOR CACHE");
                             mpvCoreEvent.fire(MpvEventEnum::LOADING_START);
                             disableDimming(false);
                         } else {
-                            brls::Logger::info("========> VIDEO RESUME FROM CACHE");
+                            brls::Logger::info(
+                                "========> VIDEO RESUME FROM CACHE");
                             mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
                             disableDimming(true);
                         }
@@ -846,7 +846,7 @@ void MPVCore::eventMainLoop() {
                                 mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
                             }
                             disableDimming(false);
-                        } else {
+                        } else if (!video_stopped) {
                             brls::Logger::info("========> RESUME");
                             mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);
                             disableDimming(true);
@@ -877,8 +877,7 @@ void MPVCore::eventMainLoop() {
 
 void MPVCore::reset() {
     brls::Logger::debug("MPVCore::reset");
-    DanmakuCore::instance().reset();
-    SubtitleCore::instance().reset();
+    mpvCoreEvent.fire(MpvEventEnum::RESET);
     this->percent_pos    = 0;
     this->duration       = 0;  // second
     this->cache_speed    = 0;  // Bps
