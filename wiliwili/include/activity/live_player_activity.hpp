@@ -3,10 +3,10 @@
 //
 
 #pragma once
-
-#include <borealis.hpp>
 #include "view/mpv_core.hpp"
 #include "presenter/live_data.hpp"
+
+#include <borealis.hpp>
 
 class VideoView;
 
@@ -35,9 +35,13 @@ public:
 
 private:
     BRLS_BIND(VideoView, video, "fullscreen/video");
+    BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
+    BRLS_BIND(brls::Label, timeLabel, "video/live/status");
 
     bilibili::LiveVideoResult liveData;
 
-    // 监控mpv事件
-    MPVCustomEvent::Subscription eventSubscribeID;
+    //更新timeLabel
+    MPVEvent::Subscription tl_event_id;
+    //视频清晰度
+    MPVCustomEvent::Subscription event_id;
 };

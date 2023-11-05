@@ -205,7 +205,7 @@ public:
 
     size_t getItemCount() override {
         return (std::min)(data.accept_quality.size(),
-                        data.accept_description.size());
+                          data.accept_description.size());
     }
 
     void clearData() override {}
@@ -277,6 +277,18 @@ void BasePlayerActivity::setCommonData() {
                              this->setVideoQuality();
                              return true;
                          });
+    /// 播放/暂停 按钮
+    this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
+        this->btnToggle,
+        [this]() {
+            if (MPVCore::instance().isPaused()) {
+                MPVCore::instance().resume();
+            } else {
+                MPVCore::instance().pause();
+            }
+        },
+        brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
+                               brls::SOUND_NONE)));
 
     this->btnQR->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnQR->getParent()));

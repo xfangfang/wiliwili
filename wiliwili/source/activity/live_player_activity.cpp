@@ -3,12 +3,14 @@
 //
 
 #include "activity/live_player_activity.hpp"
+#include "utils/number_helper.hpp"
+
 #include <vector>
+#include <chrono>
 
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
 #include "view/live_core.hpp"
-#include "view/subtitle_core.hpp"
 #include "view/grid_dropdown.hpp"
 
 #include "utils/shader_helper.hpp"
@@ -19,6 +21,8 @@
 #include "live/ws_utils.hpp"
 
 #include "bilibili.h"
+
+#include "borealis/core/thread.hpp"
 
 using namespace brls::literals;
 
@@ -90,12 +94,22 @@ void LiveActivity::setCommonData() {
     // 清空自定义着色器
     ShaderHelper::instance().clearShader(false);
 
-    eventSubscribeID =
-        MPV_CE->subscribe([this](const std::string& event, void* data) {
-            if (event == VideoView::QUALITY_CHANGE) {
-                this->setVideoQuality();
-            }
-        });
+    event_id = MPV_CE->subscribe([this](const std::string& event, void* data) {
+        if (event == VideoView::QUALITY_CHANGE) {
+            this->setVideoQuality();
+        }
+    });
+    tl_event_id = MPV_E->subscribe([this](MpvEventEnum e) {
+        if (e == UPDATE_PROGRESS) {
+            if (!LiveDanmaku::instance().live_time) return;
+            std::chrono::time_point<std::chrono::system_clock> _zero;
+            size_t now = std::chrono::duration_cast<std::chrono::seconds>(
+                             std::chrono::system_clock::now() - _zero)
+                             .count();
+            this->timeLabel->setText(
+                wiliwili::sec2Time(now - LiveDanmaku::instance().live_time));
+        }
+    });
 }
 
 void LiveActivity::setVideoQuality() {
@@ -130,6 +144,7 @@ void LiveActivity::onContentAvailable() {
     });
 
     this->video->hideVideoProgressSlider();
+    this->video->hideStatusLabel();
     this->video->hideDLNAButton();
     this->video->hideSubtitleSetting();
     this->video->hideVideoRelatedSetting();
@@ -147,6 +162,28 @@ void LiveActivity::onContentAvailable() {
                              this->setVideoQuality();
                              return true;
                          });
+
+    this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
+        this->btnToggle,
+        [this]() {
+            if (MPVCore::instance().isStopped()) {
+                this->onLiveData(this->liveUrl);
+            } else if (MPVCore::instance().isPaused()) {
+                MPVCore::instance().resume();
+            } else {
+                this->video->showOSD(false);
+                MPVCore::instance().pause();
+                brls::async([this]() {
+                    brls::delay(5000, [this]() {
+                        if (MPVCore::instance().isPaused()) {
+                            MPVCore::instance().stop();
+                        }
+                    });
+                });
+            }
+        },
+        brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
+                               brls::SOUND_NONE)));
 
     // 根据房间号重新获取高清播放链接
     this->requestData(liveData.roomid);
@@ -193,7 +230,8 @@ LiveActivity::~LiveActivity() {
     this->video->stop();
     LiveDanmaku::instance().disconnect();
     // 取消监控mpv
-    MPV_CE->unsubscribe(eventSubscribeID);
+    MPV_CE->unsubscribe(event_id);
+    MPV_E->unsubscribe(tl_event_id);
     MPVCore::instance().command_async("set", "loop-playlist", "1");
     LiveDanmakuCore::instance().reset();
     VideoView::IN_LIVE = false;

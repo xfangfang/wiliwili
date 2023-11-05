@@ -105,6 +105,7 @@ protected:
     BRLS_BIND(brls::Label, videoDanmakuLabel, "video/danmaku");
     BRLS_BIND(brls::Label, videoPeopleLabel, "video/people");
     BRLS_BIND(brls::Box, videoCopyRightBox, "video/right/box");
+    BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "video/comment/recyclingGrid");
     BRLS_BIND(AutoTabFrame, tabFrame, "player/tab_frame");
     BRLS_BIND(SVGImage, btnAgree, "video/btn/agree");
