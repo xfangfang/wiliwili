@@ -745,7 +745,7 @@ void VideoView::showOSD(bool temp) {
 #ifdef __WINRT__
         this->osdLastShowTime = 0xffffffff;
 #else
-        this->osdLastShowTime = std::numeric_limits<std::time_t>::max();
+        this->osdLastShowTime = (std::numeric_limits<std::time_t>::max)();
 #endif
         this->osd_state = OSDState::ALWAYS_ON;
     }

@@ -18,7 +18,7 @@ using namespace brls::literals;
 DLNAActivity::DLNAActivity() {
     GA("open_dlna")
 
-    SubtitleCore::instance().reset();
+    MPVCore::instance().reset();
 
     ip = brls::Application::getPlatform()->getIpAddress();
     ip = GET_SETTING(SettingItem::DLNA_IP, ip);
@@ -51,6 +51,7 @@ DLNAActivity::DLNAActivity() {
             std::string url = std::string{(char*)data};
             brls::Logger::info("CurrentURI: {}", url);
             brls::sync([this, url]() {
+                MPVCore::instance().reset();
                 video->setTitle("wiliwili/setting/tools/others/dlna"_i18n);
                 video->showOSD(true);
                 MPVCore::instance().setUrl(url);
@@ -60,7 +61,7 @@ DLNAActivity::DLNAActivity() {
             brls::sync([this, name]() { video->setTitle(name); });
         } else if (event == "Stop") {
             brls::sync([this]() {
-                MPVCore::instance().stop();
+                MPVCore::instance().pause();
                 video->showOSD(false);
                 video->setTitle(
                     "wiliwili/setting/tools/others/dlna_waiting"_i18n);

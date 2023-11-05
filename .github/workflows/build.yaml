@@ -190,10 +190,6 @@ jobs:
     needs: [ version ]
     runs-on: windows-2022
     steps:
-      - name: Setup Windows 10 SDK
-        uses: GuillaumeFalourd/setup-windows10-sdk-action@v1.11
-        with:
-          sdk-version: 19041
       - name: Install NSIS
         shell: powershell
         run: |
