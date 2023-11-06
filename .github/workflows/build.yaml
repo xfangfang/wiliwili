@@ -311,7 +311,8 @@ jobs:
       - name: install deps
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         run: |
-          brew install create-dmg dylibbundler webp boost
+          brew install create-dmg dylibbundler boost
+          brew reinstall webp
           brew tap xfangfang/wiliwili
           brew install -v mpv-wiliwili
 
