@@ -289,6 +289,7 @@ void BasePlayerActivity::setCommonData() {
         },
         brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
                                brls::SOUND_NONE)));
+    this->timeLabel->setVisibility(brls::Visibility::GONE);
 
     this->btnQR->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnQR->getParent()));

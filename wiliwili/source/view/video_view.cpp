@@ -950,6 +950,7 @@ void VideoView::setFullScreen(bool fs) {
         video->setFullscreenIcon(true);
         video->setHideHighlight(true);
         video->refreshToggleIcon();
+        if (!IN_LIVE) video->timeLabel->setVisibility(brls::Visibility::GONE);
         DanmakuCore::instance().refresh();
         video->setOnlineCount(this->videoOnlineCountLabel->getFullText());
         if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
