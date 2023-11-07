@@ -33,7 +33,7 @@ files=(libass.9.dylib
        libtasn1.6.dylib
        libunibreak.5.dylib
        libunistring.5.dylib
-       libwebp.7.1.7.dylib)
+       libwebp.7.1.8.dylib)
 
 for file in "${files[@]}"; do
   echo "$file"

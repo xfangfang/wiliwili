@@ -18,7 +18,7 @@ if (APPLE)
     if (MAC_DOWNLOAD_DYLIB)
         set(APP_PLATFORM_LIB
                 ${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}/libmpv.2.dylib
-                ${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}/libwebp.7.1.7.dylib
+                ${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}/libwebp.7.1.8.dylib
                 ${CMAKE_BINARY_DIR}/deps/${MAC_OS_ARCH}/libboost_filesystem-mt.dylib)
         if (NOT USE_SYSTEM_CURL)
             list(APPEND APP_PLATFORM_LIB
