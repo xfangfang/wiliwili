@@ -277,19 +277,6 @@ void BasePlayerActivity::setCommonData() {
                              this->setVideoQuality();
                              return true;
                          });
-    /// 播放/暂停 按钮
-    this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
-        this->btnToggle,
-        [this]() {
-            if (MPVCore::instance().isPaused()) {
-                MPVCore::instance().resume();
-            } else {
-                MPVCore::instance().pause();
-            }
-        },
-        brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
-                               brls::SOUND_NONE)));
-    this->timeLabel->setVisibility(brls::Visibility::GONE);
 
     this->btnQR->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnQR->getParent()));

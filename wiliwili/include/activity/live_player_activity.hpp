@@ -16,7 +16,7 @@ public:
     CONTENT_FROM_XML_RES("activity/video_activity.xml");
 
     explicit LiveActivity(const bilibili::LiveVideoResult& live);
-    LiveActivity(int roomid, const std::string& name = "",
+    explicit LiveActivity(int roomid, const std::string& name = "",
                  const std::string& views = "");
 
     void setCommonData();
@@ -35,8 +35,6 @@ public:
 
 private:
     BRLS_BIND(VideoView, video, "fullscreen/video");
-    BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
-    BRLS_BIND(brls::Label, timeLabel, "video/live/status");
 
     bilibili::LiveVideoResult liveData;
 

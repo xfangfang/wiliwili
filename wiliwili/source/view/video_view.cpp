@@ -133,7 +133,7 @@ VideoView::VideoView() {
             static bool ignoreSpeed = false;
             switch (status.state) {
                 case brls::GestureState::UNSURE: {
-                    if (IN_LIVE) break;
+                    if (isLiveMode) break;
                     // 长按加速
                     if (fabs(mpvCore->getSpeed() - 1) > 10e-2) {
                         ignoreSpeed = true;
@@ -230,6 +230,15 @@ VideoView::VideoView() {
                     break;
             }
         }));
+
+    /// 播放/暂停 按钮
+    this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
+        this->btnToggle,
+        [this]() {
+            this->togglePlay();
+        },
+        brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
+                               brls::SOUND_NONE)));
 
     /// 清晰度按钮
     this->videoQuality->getParent()->registerClickAction([](...) {
@@ -546,12 +555,10 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
     }
 
     // draw danmaku
-    if (!IN_LIVE && showDanmaku)
-        DanmakuCore::instance().drawDanmaku(vg, x, y, width, height,
-                                            getAlpha());
-    else if (showDanmaku) {
-        LiveDanmakuCore::instance().draw(vg, x, y, width, height, alpha);
-        // osdSlider->setVisibility(brls::Visibility::INVISIBLE);
+    if (showDanmaku) {
+        isLiveMode
+            ? LiveDanmakuCore::instance().draw(vg, x, y, width, height, alpha)
+            : DanmakuCore::instance().draw(vg, x, y, width, height, alpha);
     }
 
     // draw osd
@@ -710,11 +717,16 @@ void VideoView::pause() { mpvCore->pause(); }
 void VideoView::stop() { mpvCore->stop(); }
 
 void VideoView::togglePlay() {
+    if (customToggleAction != nullptr) return customToggleAction();
     if (this->mpvCore->isPaused()) {
-        this->resume();
+        this->mpvCore->resume();
     } else {
-        this->pause();
+        this->mpvCore->pause();
     }
+}
+
+void VideoView::setCustomToggleAction(std::function<void()> action) {
+    this->customToggleAction = action;
 }
 
 void VideoView::setSpeed(float speed) { mpvCore->setSpeed(speed); }
@@ -813,6 +825,20 @@ void VideoView::hideStatusLabel() {
     rightStatusLabel->setVisibility(brls::Visibility::GONE);
 }
 
+void VideoView::setLiveMode() {
+    isLiveMode = true;
+    centerStatusLabel->setVisibility(brls::Visibility::GONE);
+    rightStatusLabel->setVisibility(brls::Visibility::GONE);
+}
+
+void VideoView::setStatusLabelLeft(const std::string& value) {
+    leftStatusLabel->setText(value);
+}
+
+void VideoView::setStatusLabelRight(const std::string& value) {
+    rightStatusLabel->setText(value);
+}
+
 void VideoView::disableCloseOnEndOfFile() { closeOnEndOfFile = false; }
 
 void VideoView::hideHistorySetting() { showHistorySetting = false; }
@@ -853,6 +879,7 @@ void VideoView::setDuration(const std::string& value) {
 
 void VideoView::setPlaybackTime(const std::string& value) {
     if (this->is_seeking) return;
+    if (this->isLiveMode) return;
     this->leftStatusLabel->setText(value);
 }
 
@@ -950,7 +977,8 @@ void VideoView::setFullScreen(bool fs) {
         video->setFullscreenIcon(true);
         video->setHideHighlight(true);
         video->refreshToggleIcon();
-        if (!IN_LIVE) video->timeLabel->setVisibility(brls::Visibility::GONE);
+        if (video->isLiveMode) video->setLiveMode();
+        video->setCustomToggleAction(customToggleAction);
         DanmakuCore::instance().refresh();
         video->setOnlineCount(this->videoOnlineCountLabel->getFullText());
         if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
@@ -1009,10 +1037,10 @@ void VideoView::setFullScreen(bool fs) {
 }
 
 View* VideoView::getDefaultFocus() {
-    // if (isFullscreen() && isOSDShown())
-    //     return this->btnToggle;
-    // else
-    return this;
+    if (isFullscreen() && isOSDShown())
+        return this->btnToggle;
+    else
+        return this;
 }
 
 View* VideoView::getNextFocus(brls::FocusDirection direction,

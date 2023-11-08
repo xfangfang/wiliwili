@@ -111,6 +111,18 @@ public:
     /// 隐藏左下角的播放时间
     void hideStatusLabel();
 
+    /// 将OSD改为直播样式
+    void setLiveMode();
+
+    /// 设置播放时间 (左下角: 00:00:00/00:00:00 中左侧的值)
+    void setStatusLabelLeft(const std::string& value);
+
+    /// 设置视频时长 (左下角: 00:00:00/00:00:00 中右侧的值)
+    void setStatusLabelRight(const std::string& value);
+
+    /// 设置自定义的切换播放状态的按钮事件
+    void setCustomToggleAction(std::function<void()> action);
+
     void setTitle(const std::string& title);
 
     std::string getTitle();
@@ -123,6 +135,8 @@ public:
 
     void setDuration(const std::string& value);
 
+    /// 设置播放时间 (左下角: 00:00:00/00:00:00 中左侧的值)
+    /// 当拖拽进度或直播时，此函数无效
     void setPlaybackTime(const std::string& value);
 
     // 手动设置osd右下角的全屏图标
@@ -191,8 +205,6 @@ public:
     // Bottom progress bar
     inline static bool BOTTOM_BAR = true;
 
-    inline static bool IN_LIVE = false;
-
 private:
     bool allowFullscreen  = true;
     bool registerMPVEvent = false;
@@ -207,8 +219,11 @@ private:
     bool showSubtitleSetting = true;
     // 播放设置中显示 底部进度条
     bool showBottomLineSetting = true;
+    // 是否为直播样式
+    bool isLiveMode = false;
     MPVEvent::Subscription eventSubscribeID;
     MPVCustomEvent::Subscription customEventSubscribeID;
+    std::function<void()> customToggleAction = nullptr;
     brls::InputManager* input;
     NVGcolor bottomBarColor =
         brls::Application::getTheme().getColor("color/bilibili");
@@ -222,7 +237,6 @@ private:
     BRLS_BIND(brls::ProgressSpinner, osdSpinner, "video/osd/loading");
     BRLS_BIND(VideoProgressSlider, osdSlider, "video/osd/bottom/progress");
     BRLS_BIND(brls::Label, centerLabel, "video/osd/center/label");
-    BRLS_BIND(brls::Label, timeLabel, "video/live/status");
     BRLS_BIND(brls::Label, leftStatusLabel, "video/left/status");
     BRLS_BIND(brls::Label, centerStatusLabel, "video/center/status");
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
@@ -230,6 +244,7 @@ private:
     BRLS_BIND(brls::Label, videoSpeed, "video/speed");
     BRLS_BIND(brls::Label, speedHintLabel, "video/speed/hint/label");
     BRLS_BIND(brls::Box, speedHintBox, "video/speed/hint/box");
+    BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
     BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
     BRLS_BIND(SVGImage, btnFullscreenIcon, "video/osd/fullscreen/icon");
     BRLS_BIND(SVGImage, btnDanmakuIcon, "video/osd/danmaku/icon");

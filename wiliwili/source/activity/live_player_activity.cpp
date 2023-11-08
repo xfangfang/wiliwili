@@ -69,7 +69,6 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     GA("open_live", {{"id", std::to_string(live.roomid)}})
     GA("open_live", {{"live_id", std::to_string(live.roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
-    VideoView::IN_LIVE = true;
 }
 
 LiveActivity::LiveActivity(int roomid, const std::string& name,
@@ -83,7 +82,6 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
     GA("open_live", {{"id", std::to_string(roomid)}})
     GA("open_live", {{"live_id", std::to_string(roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
-    VideoView::IN_LIVE = true;
 }
 
 void LiveActivity::setCommonData() {
@@ -108,7 +106,7 @@ void LiveActivity::setCommonData() {
             size_t now = std::chrono::duration_cast<std::chrono::seconds>(
                              std::chrono::system_clock::now() - _zero)
                              .count();
-            this->timeLabel->setText(
+            this->video->setStatusLabelLeft(
                 wiliwili::sec2Time(now - LiveDanmaku::instance().live_time));
         }
     });
@@ -145,8 +143,8 @@ void LiveActivity::onContentAvailable() {
         return true;
     });
 
+    this->video->setLiveMode();
     this->video->hideVideoProgressSlider();
-    this->video->hideStatusLabel();
     this->video->hideDLNAButton();
     this->video->hideSubtitleSetting();
     this->video->hideVideoRelatedSetting();
@@ -156,6 +154,24 @@ void LiveActivity::onContentAvailable() {
     this->video->setFullscreenIcon(true);
     this->video->setTitle(liveData.title);
     this->video->setOnlineCount(liveData.watched_show.text_large);
+    this->video->setStatusLabelLeft("");
+    this->video->setCustomToggleAction([this]() {
+        if (MPVCore::instance().isStopped()) {
+            this->onLiveData(this->liveUrl);
+        } else if (MPVCore::instance().isPaused()) {
+            MPVCore::instance().resume();
+        } else {
+            this->video->showOSD(false);
+            MPVCore::instance().pause();
+            ASYNC_RETAIN
+            brls::delay(5000, [ASYNC_TOKEN]() {
+                ASYNC_RELEASE
+                if (MPVCore::instance().isPaused()) {
+                    MPVCore::instance().stop();
+                }
+            });
+        }
+    });
 
     // 调整清晰度
     this->registerAction("wiliwili/player/quality"_i18n,
@@ -164,28 +180,6 @@ void LiveActivity::onContentAvailable() {
                              this->setVideoQuality();
                              return true;
                          });
-
-    this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
-        this->btnToggle,
-        [this]() {
-            if (MPVCore::instance().isStopped()) {
-                this->onLiveData(this->liveUrl);
-            } else if (MPVCore::instance().isPaused()) {
-                MPVCore::instance().resume();
-            } else {
-                this->video->showOSD(false);
-                MPVCore::instance().pause();
-                brls::async([this]() {
-                    brls::delay(5000, [this]() {
-                        if (MPVCore::instance().isPaused()) {
-                            MPVCore::instance().stop();
-                        }
-                    });
-                });
-            }
-        },
-        brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
-                               brls::SOUND_NONE)));
 
     // 根据房间号重新获取高清播放链接
     this->requestData(liveData.roomid);
@@ -236,5 +230,4 @@ LiveActivity::~LiveActivity() {
     MPV_E->unsubscribe(tl_event_id);
     MPVCore::instance().command_async("set", "loop-playlist", "1");
     LiveDanmakuCore::instance().reset();
-    VideoView::IN_LIVE = false;
 }

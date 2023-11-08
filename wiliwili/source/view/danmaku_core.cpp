@@ -186,7 +186,7 @@ NVGcolor DanmakuCore::a(NVGcolor color, float alpha) {
     return color;
 }
 
-void DanmakuCore::drawDanmaku(NVGcontext *vg, float x, float y, float width,
+void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
                               float height, float alpha) {
     if (!DanmakuCore::DANMAKU_ON) return;
     if (!this->danmakuLoaded) return;
