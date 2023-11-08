@@ -240,7 +240,7 @@ jobs:
       - name: Build OpenGL
         if: matrix.driver == 'opengl'
         run: |
-          docker run --rm -v $(pwd):/data devkitpro/devkita64:20230910 bash -c "/data/scripts/build_switch.sh"
+          docker run --rm -v $(pwd):/data devkitpro/devkita64:20231108 bash -c "/data/scripts/build_switch.sh"
 
       - name: Upload dist OpenGL
         uses: actions/upload-artifact@v3
@@ -252,7 +252,7 @@ jobs:
       - name: Build Deko3d
         if: matrix.driver == 'deko3d'
         run: |
-          docker run --rm -v $(pwd):/data devkitpro/devkita64:20230910 bash -c "/data/scripts/build_switch_deko3d.sh"
+          docker run --rm -v $(pwd):/data devkitpro/devkita64:20231108 bash -c "/data/scripts/build_switch_deko3d.sh"
 
       - name: Upload dist Deko3d
         uses: actions/upload-artifact@v3
