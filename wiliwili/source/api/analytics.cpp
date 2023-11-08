@@ -9,8 +9,10 @@
 #include <cpr/cpr.h>
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
+#include <fmt/format.h>
 #include <borealis/core/thread.hpp>
-#include <borealis/core/application.hpp>
+#include <borealis/core/logger.hpp>
+#include <borealis/core/i18n.hpp>
 
 using namespace brls::literals;
 
