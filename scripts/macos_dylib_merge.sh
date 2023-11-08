@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -e
 
 files=(libass.9.dylib
@@ -33,9 +34,22 @@ files=(libass.9.dylib
        libtasn1.6.dylib
        libunibreak.5.dylib
        libunistring.5.dylib
-       libwebp.7.1.7.dylib)
+       libwebp.7.1.8.dylib)
 
+i=1
 for file in "${files[@]}"; do
-  echo "$file"
+  echo $i "$file"
+  arm64_ret=$(otool -l ./arm64/"$file" | { grep minos || true;} | { grep 11.0 || true;})
+  x86_ret=$(otool -l ./x86_64/"$file" | { grep 10.11 || true;})
+
+  if [ -z "$arm64_ret" ]; then
+      echo -e "\t\033[31m arm64 不满足 11.0 \033[0m"
+  fi
+
+  if [ -z "$x86_ret" ]; then
+      echo -e "\t\033[31m x86_64 不满足 10.11 \033[0m"
+  fi
+
   lipo -create -output ./universal/"$file" ./x86_64/"$file" ./arm64/"$file"
+  ((i++))
 done

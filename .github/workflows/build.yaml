@@ -295,7 +295,7 @@ jobs:
 
   build-macos:
     needs: [ version ]
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         arch: [ IntelChip, AppleSilicon, Universal ]
@@ -311,7 +311,8 @@ jobs:
       - name: install deps
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         run: |
-          brew install create-dmg dylibbundler webp boost
+          brew install create-dmg dylibbundler boost
+          brew list webp boost
           brew tap xfangfang/wiliwili
           brew install -v mpv-wiliwili
 
@@ -333,7 +334,7 @@ jobs:
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         id: compile
         run: |
-          cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release -DMAC_${{ matrix.arch }}=ON -DMAC_DOWNLOAD_DYLIB=ON
+          cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release -DMAC_${{ matrix.arch }}=ON -DMAC_DOWNLOAD_DYLIB=ON -DCURL_USE_LIBPSL=OFF
           make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
 
       - name: Name
