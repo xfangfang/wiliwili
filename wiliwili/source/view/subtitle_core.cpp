@@ -3,13 +3,22 @@
 //
 
 #include "view/subtitle_core.hpp"
-#include "view/mpv_core.hpp"
 #include "bilibili.h"
 
 static NVGcolor a(NVGcolor color, float alpha) {
     color.a *= alpha;
     return color;
 }
+
+SubtitleCore::SubtitleCore() {
+    event_id = MPV_E->subscribe([this](MpvEventEnum e) {
+        if (e == MpvEventEnum::RESET) {
+            this->reset();
+        }
+    });
+}
+
+SubtitleCore::~SubtitleCore() { MPV_E->unsubscribe(event_id); }
 
 void SubtitleCore::setSubtitleList(const bilibili::VideoPageResult& data) {
     videoPageData = data;

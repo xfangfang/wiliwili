@@ -183,6 +183,14 @@
                         textColor="#FFFFFF"
                         text="00:00"/>
                 <brls:Label
+                        wireframe="false"
+                        horizontalAlign="right"
+                        id="video/live/status"
+                        height="100%"
+                        width="100"
+                        textColor="#FFFFFF"
+                        text="00:00"/>
+                <brls:Label
                         id="video/center/status"
                         horizontalAlign="center"
                         height="100%"

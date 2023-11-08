@@ -3,9 +3,12 @@
 //
 
 #include "view/live_core.hpp"
-#include "nanovg.h"
 #include "view/danmaku_core.hpp"
-#include "view/mpv_core.hpp"
+
+#include <chrono>
+#include <cstddef>
+
+#include "nanovg.h"
 
 LiveDanmakuItem::LiveDanmakuItem(danmaku_t *dan) { this->danmaku = dan; }
 
@@ -72,7 +75,7 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     if (LINES < 1) LINES = 1;
 
     if (this->scroll_lines.size() < LINES) {
-        this->scroll_lines.resize(LINES, {0.0f, 0.0f});
+        this->scroll_lines.resize(LINES);
         this->center_lines.resize(LINES, 0);
     }
 
@@ -85,18 +88,20 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     nvgFontFaceId(vg, danmaku_font);
     nvgTextLineHeight(vg, 1);
 
-    float _time = 0.0f;
+    auto _now = std::chrono::system_clock::now();
+
+    int _time = 0;
     this->next_mutex.lock();
-    while (!this->next.empty() &&
-           init_danmaku(vg, this->next.front(), width, LINES, SECOND, _time)) {
+    while (!this->next.empty() && init_danmaku(vg, this->next.front(), width,
+                                               LINES, SECOND, _now, _time)) {
         const auto &i = next.front();
         if (this->now.find(i.danmaku->dan_color) == this->now.end())
             this->now.emplace(i.danmaku->dan_color,
                               std::deque<LiveDanmakuItem>{});
         this->now[i.danmaku->dan_color].emplace_back(std::move(i));
         this->next.pop_front();
-        _time += 0.1f;
-        if (_time > 0.1f * LINES) _time = 0.0f;
+        _time += 80;
+        if (_time > 80 * LINES) _time = 0;
     }
     while (this->next.size() > 100) {
         this->next.pop_back();
@@ -119,7 +124,7 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         nvgFillColor(vg, border_color);
         for (const auto &j : v) {
             float position =
-                j.speed * (MPVCore::instance().getPlaybackTime() - j.time);
+                j.speed * std::chrono::duration<float>(_now - j.time).count();
             if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
                 nvgText(vg, x + width / 2 - j.length / 2 - 1,
                         y + j.line * line_height + 6, j.danmaku->dan, nullptr);
@@ -132,7 +137,7 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         nvgFillColor(vg, color);
         for (const auto &j : v) {
             float position =
-                j.speed * (MPVCore::instance().getPlaybackTime() - j.time);
+                j.speed * std::chrono::duration<float>(_now - j.time).count();
             if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
                 nvgText(vg, x + width / 2 - j.length / 2,
                         y + j.line * line_height + 5, j.danmaku->dan, nullptr);
@@ -148,10 +153,11 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         while (!v.empty()) {
             const auto &j = v.front();
             float position =
-                j.speed * (MPVCore::instance().getPlaybackTime() - j.time);
+                j.speed * std::chrono::duration<float>(_now - j.time).count();
             if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
-                if (j.time + CENTER_SECOND <
-                    MPVCore::instance().getPlaybackTime()) {
+                if (j.time + std::chrono::milliseconds(
+                                 size_t(CENTER_SECOND * 1000.0f)) <
+                    _now) {
                     center_lines[j.line] = 0;
                     v.pop_front();
                 } else {
@@ -168,7 +174,7 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
 
 bool LiveDanmakuCore::init_danmaku(NVGcontext *vg, LiveDanmakuItem &i,
                                    float width, int LINES, float SECOND,
-                                   float time) {
+                                   time_p now, int time) {
     float bounds[4];
     if (!i.length) {
         nvgTextBounds(vg, 0, 0, i.danmaku->dan, nullptr, bounds);
@@ -176,7 +182,7 @@ bool LiveDanmakuCore::init_danmaku(NVGcontext *vg, LiveDanmakuItem &i,
         if (!i.length) i.length = 1;
     }
     i.speed = (width + i.length) / SECOND;
-    i.time  = MPVCore::instance().getPlaybackTime() + time;
+    i.time  = now + std::chrono::milliseconds(time);
 
     for (int k = 0; k < LINES; ++k) {
         if (i.danmaku->dan_type == 4 && !center_lines[LINES - k - 1]) {
@@ -190,13 +196,18 @@ bool LiveDanmakuCore::init_danmaku(NVGcontext *vg, LiveDanmakuItem &i,
             i.line          = k;
             return true;
         } else if (i.time > scroll_lines[k].first &&
-                   i.time + width / i.speed > scroll_lines[k].second) {
+                   i.time + std::chrono::milliseconds(
+                                size_t(width / i.speed * 1000.0f)) >
+                       scroll_lines[k].second) {
             //滚动
-            // 一条弹幕完全展示的时间点，同一行的其他弹幕需要在这之后出现
-            scroll_lines[k].first = i.time + i.length / i.speed;
-            // 一条弹幕展示结束的时间点，同一行的其他弹幕到达屏幕左侧的时间应该在这之后。
-            scroll_lines[k].second = i.time + SECOND;
-            i.line                 = k;
+            // 一条弹幕末尾出现的时间点
+            scroll_lines[k].first =
+                i.time +
+                std::chrono::milliseconds(size_t(i.length / i.speed * 1000.0f));
+            // 一条弹幕完全消失的时间点
+            scroll_lines[k].second =
+                i.time + std::chrono::milliseconds(size_t(SECOND * 1000.0f));
+            i.line = k;
             return true;
         }
     }

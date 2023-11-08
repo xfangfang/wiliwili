@@ -4,7 +4,10 @@
 
 #pragma once
 
+#include "view/mpv_core.hpp"
+
 #include <mutex>
+
 #include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
 #include "nanovg.h"
@@ -42,6 +45,8 @@ public:
 };
 class DanmakuCore : public brls::Singleton<DanmakuCore> {
 public:
+    DanmakuCore();
+    ~DanmakuCore();
     /**
      * 重置弹幕数据
      */
@@ -150,6 +155,8 @@ private:
 
     // 行高
     float lineHeight;
+
+    MPVEvent::Subscription event_id;
 
     static inline NVGcolor a(NVGcolor color, float alpha);
 };

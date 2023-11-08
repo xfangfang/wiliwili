@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "view/mpv_core.hpp"
+
 #include <nanovg.h>
 #include <borealis/core/singleton.hpp>
 #include <borealis/core/application.hpp>
@@ -12,6 +14,8 @@
 
 class SubtitleCore : public brls::Singleton<SubtitleCore>, public Presenter {
 public:
+    SubtitleCore();
+    ~SubtitleCore();
     /**
      * 重置字幕内容为空
      */
@@ -73,4 +77,5 @@ private:
     NVGcolor fontColor       = nvgRGB(255, 255, 255);
     NVGcolor backgroundColor = nvgRGBA(0, 0, 0, 127);
     size_t subtitleIndex     = 0;
+    MPVEvent::Subscription event_id;
 };

@@ -7,6 +7,8 @@
 #include "live/ws_utils.hpp"
 #include "utils/config_helper.hpp"
 
+#include <cstddef>
+#include <ctime>
 #include <iostream>
 #include <queue>
 #include <condition_variable>
@@ -22,7 +24,7 @@ using json = nlohmann::json;
 static std::string url = "ws://broadcastlv.chat.bilibili.com:2244/sub";
 static std::string key = "";
 
-static void get_live_s(int room_id) {
+static void get_live_s(int room_id, size_t *live_time) {
     auto res = bilibili::HTTP::get(
         "https://api.live.bilibili.com/xlive/web-room/v1/index/"
         "getDanmuInfo?type=0&id=" +
@@ -46,6 +48,39 @@ static void get_live_s(int room_id) {
             //           _json["data"]["host_list"][0]["ws_port"].get<int>()) +
             //       "/sub";
             key = _json["data"]["token"].get_ref<const std::string &>();
+        }
+    }
+
+    auto res2 = bilibili::HTTP::get(
+        "https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" +
+        std::to_string(room_id));
+
+    if (res2.status_code != 200) {
+        brls::Logger::error("get_info error:{}", res2.status_code);
+    } else {
+        json _json;
+        try {
+            _json = json::parse(res2.text);
+        } catch (const std::exception &e) {
+            std::cout << "room_init json parse error" << std::endl;
+        }
+        if (_json["code"].get<int>() == 0) {
+            //YYYY-MM-DD HH:mm:ss
+            std::string time_str =
+                _json["data"]["live_time"].get_ref<std::string &>();
+            struct tm tm = {};
+            std::istringstream ss(time_str);
+            ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+            if (ss.fail()) {
+                brls::Logger::error("get live_time error");
+                return;
+            }
+            std::time_t time = std::mktime(&tm);
+            if (time == -1) {
+                brls::Logger::error("get live_time error");
+                return;
+            }
+            *live_time = (size_t)time;
         }
     }
 }
@@ -110,7 +145,7 @@ void LiveDanmaku::connect(int room_id, int uid) {
         return;
     }
 
-    get_live_s(room_id);
+    get_live_s(room_id, &this->live_time);
 
     mg_log_set(MG_LL_NONE);
     mg_mgr_init(this->mgr);
@@ -183,7 +218,7 @@ void LiveDanmaku::disconnect() {
     brls::Logger::info("(LiveDanmaku) close step finish");
 }
 
-void LiveDanmaku::set_wait_time(int time) { wait_time = time; }
+void LiveDanmaku::set_wait_time(size_t time) { wait_time = time; }
 
 bool LiveDanmaku::is_connected() {
     return connected.load(std::memory_order_acquire);

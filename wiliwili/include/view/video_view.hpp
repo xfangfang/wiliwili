@@ -6,7 +6,6 @@
 
 #include <borealis.hpp>
 #include "view/mpv_core.hpp"
-#include "view/danmaku_core.hpp"
 
 class VideoProgressSlider;
 
@@ -223,6 +222,7 @@ private:
     BRLS_BIND(brls::ProgressSpinner, osdSpinner, "video/osd/loading");
     BRLS_BIND(VideoProgressSlider, osdSlider, "video/osd/bottom/progress");
     BRLS_BIND(brls::Label, centerLabel, "video/osd/center/label");
+    BRLS_BIND(brls::Label, timeLabel, "video/live/status");
     BRLS_BIND(brls::Label, leftStatusLabel, "video/left/status");
     BRLS_BIND(brls::Label, centerStatusLabel, "video/center/status");
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
@@ -230,7 +230,6 @@ private:
     BRLS_BIND(brls::Label, videoSpeed, "video/speed");
     BRLS_BIND(brls::Label, speedHintLabel, "video/speed/hint/label");
     BRLS_BIND(brls::Box, speedHintBox, "video/speed/hint/box");
-    BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
     BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
     BRLS_BIND(SVGImage, btnFullscreenIcon, "video/osd/fullscreen/icon");
     BRLS_BIND(SVGImage, btnDanmakuIcon, "video/osd/danmaku/icon");

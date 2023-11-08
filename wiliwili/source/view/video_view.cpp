@@ -13,6 +13,7 @@
 #include "view/svg_image.hpp"
 #include "view/grid_dropdown.hpp"
 #include "view/video_profile.hpp"
+#include "view/danmaku_core.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/string_helper.hpp"
@@ -229,19 +230,6 @@ VideoView::VideoView() {
                     break;
             }
         }));
-
-    /// 播放/暂停 按钮
-    this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
-        this->btnToggle,
-        [this]() {
-            if (mpvCore->isPaused()) {
-                mpvCore->resume();
-            } else {
-                mpvCore->pause();
-            }
-        },
-        brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
-                               brls::SOUND_NONE)));
 
     /// 清晰度按钮
     this->videoQuality->getParent()->registerClickAction([](...) {
@@ -891,7 +879,7 @@ void VideoView::refreshDanmakuIcon() {
 }
 
 void VideoView::refreshToggleIcon() {
-    if (mpvCore->isPaused()) {
+    if (mpvCore->isPaused() || mpvCore->isStopped()) {
         btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-play.svg");
     } else {
         btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-pause.svg");
@@ -962,6 +950,7 @@ void VideoView::setFullScreen(bool fs) {
         video->setFullscreenIcon(true);
         video->setHideHighlight(true);
         video->refreshToggleIcon();
+        if (!IN_LIVE) video->timeLabel->setVisibility(brls::Visibility::GONE);
         DanmakuCore::instance().refresh();
         video->setOnlineCount(this->videoOnlineCountLabel->getFullText());
         if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
@@ -1020,10 +1009,10 @@ void VideoView::setFullScreen(bool fs) {
 }
 
 View* VideoView::getDefaultFocus() {
-    if (isFullscreen() && isOSDShown())
-        return this->btnToggle;
-    else
-        return this;
+    // if (isFullscreen() && isOSDShown())
+    //     return this->btnToggle;
+    // else
+    return this;
 }
 
 View* VideoView::getNextFocus(brls::FocusDirection direction,
@@ -1134,13 +1123,11 @@ void VideoView::registerMpvEvent() {
                 case MpvEventEnum::MPV_RESUME:
                     this->showOSD(true);
                     this->hideLoading();
-                    this->btnToggleIcon->setImageFromSVGRes(
-                        "svg/bpx-svg-sprite-pause.svg");
+                    refreshToggleIcon();
                     break;
                 case MpvEventEnum::MPV_PAUSE:
                     this->showOSD(false);
-                    this->btnToggleIcon->setImageFromSVGRes(
-                        "svg/bpx-svg-sprite-play.svg");
+                    refreshToggleIcon();
                     break;
                 case MpvEventEnum::START_FILE:
                     this->showOSD(false);
