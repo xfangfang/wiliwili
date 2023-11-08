@@ -74,6 +74,8 @@ void GalleryView::setData(GalleryData value) {
         auto* item = new ImageGalleryItem();
         item->setData(v);
         item->setSize(brls::Size(getWidth(), getHeight()));
+        item->setPaddingLeft(getPaddingLeft());
+        item->setPaddingRight(getPaddingRight());
         this->addView(item, this->getChildren().size());
         brls::Logger::debug("GalleryView set Data: {}/{}", v.second, v.first);
     }
@@ -86,6 +88,8 @@ void GalleryView::setData(GalleryData value) {
 
 void GalleryView::addCustomView(GalleryItem* view) {
     view->setSize(brls::Size(getWidth(), getHeight()));
+    view->setPaddingLeft(getPaddingLeft());
+    view->setPaddingRight(getPaddingRight());
     this->addView(view, this->getChildren().size());
     if (this->getChildren().size() == 1) {
         auto* first = (GalleryItem*)this->getChildren()[0];

@@ -10,6 +10,8 @@
                 wireframe="false"
                 width="100%"
                 height="95%"
+                paddingLeft="100"
+                paddingRight="100"
                 hideHighlight="true"
                 id="hint/gallery"/>
         <brls:Label
