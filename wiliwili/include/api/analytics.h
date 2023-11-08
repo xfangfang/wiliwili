@@ -52,9 +52,9 @@ public:
 
     void report(const Event& event);
 
-    void report(std::string event);
+    void report(const std::string& event);
 
-    void report(std::string event, Params params);
+    void report(const std::string& event, const Params& params);
 
     void send();
 

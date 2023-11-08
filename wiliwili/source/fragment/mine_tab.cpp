@@ -75,6 +75,7 @@ MineTab::MineTab() {
     this->requestData();
 
     GA("user", {{"id", ProgramConfig::instance().getUserID()}})
+    GA("user", {{"user_id", ProgramConfig::instance().getUserID()}})
 }
 
 void MineTab::onCreate() {

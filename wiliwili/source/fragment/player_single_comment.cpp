@@ -280,6 +280,7 @@ PlayerSingleComment::PlayerSingleComment() {
 void PlayerSingleComment::setCommentData(
     const bilibili::VideoCommentResult& result, float y) {
     GA("single_comment", {{"id", std::to_string(result.rpid)}})
+    GA("single_comment", {{"comment_id", std::to_string(result.rpid)}})
 
     this->root = result;
     // 将楼主的root id设置为评论id，方便点击时一视同仁地判断

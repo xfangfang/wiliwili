@@ -75,9 +75,13 @@ int main(int argc, char* argv[]) {
         Intent::openHint();
     }
 
-    GA("open_app", {{"version", APPVersion::instance().getVersionStr()},
-                    {"git", APPVersion::instance().git_tag},
-                    {"platform", APPVersion::instance().getPlatform()}})
+    GA("open_app",
+       {{"version", APPVersion::instance().getVersionStr()},
+        {"language", brls::Application::getLocale()},
+        {"window", fmt::format("{}x{}", brls::Application::windowWidth,
+                               brls::Application::windowHeight)},
+        {"git", APPVersion::instance().git_tag},
+        {"platform", APPVersion::instance().getPlatform()}})
     APPVersion::instance().checkUpdate();
 
     // Run the app

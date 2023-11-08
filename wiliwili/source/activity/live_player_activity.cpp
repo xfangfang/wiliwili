@@ -67,6 +67,7 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     MPVCore::instance().command_async("set", "loop-playlist", "force");
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(live.roomid)}})
+    GA("open_live", {{"live_id", std::to_string(live.roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
     VideoView::IN_LIVE = true;
 }
@@ -80,6 +81,7 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
     this->liveData.watched_show.text_large = views;
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(roomid)}})
+    GA("open_live", {{"live_id", std::to_string(roomid)}})
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
     VideoView::IN_LIVE = true;
 }

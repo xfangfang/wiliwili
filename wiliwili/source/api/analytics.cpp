@@ -6,26 +6,20 @@
 
 #include <utility>
 
-#include "cpr/cpr.h"
+#include <cpr/cpr.h>
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
-#include "fmt/format.h"
-#include "borealis/core/thread.hpp"
-#include "borealis/core/logger.hpp"
-#include "borealis/core/i18n.hpp"
+#include <borealis/core/thread.hpp>
+#include <borealis/core/application.hpp>
 
 using namespace brls::literals;
 
 namespace analytics {
 
-void Analytics::report(std::string event) {
-    this->report(Event(std::move(event)));
-}
+void Analytics::report(const std::string& event) { this->report(Event{event}); }
 
-void Analytics::report(std::string event, Params params) {
-    Event e{event};
-    e.params = params;
-    this->report(e);
+void Analytics::report(const std::string& event, const Params& params) {
+    this->report(Event{event, params});
 }
 
 void Analytics::report(const Event& event) {
@@ -50,14 +44,26 @@ void Analytics::send() {
 
     package.client_id = this->client_id;
     package.user_id   = ProgramConfig::instance().getUserID();
-    package.timestamp_micros = std::to_string(wiliwili::getUnixTime()) + "000000";
+    package.timestamp_micros =
+        std::to_string(wiliwili::getUnixTime()) + "000000";
+    package.insertUserProperties({
+        {"git", APPVersion::instance().git_tag},
+        {"platform", APPVersion::instance().getPlatform()},
+        {"device", APPVersion::instance().getPlatform()},
+    });
+    for (auto& i : package.events) {
+        i.params["engagement_time_msec"] = 100;
+        i.params["session_id"] = this->client_id;
+    }
     nlohmann::json content(package);
-    brls::Logger::verbose("report event: {}", content.dump());
+    auto content_str = content.dump();
+    brls::Logger::debug("report event: {}", content_str);
 
     cpr::PostCallback(
         [](const cpr::Response& r) {
-            brls::Logger::verbose("report event: status code: {}",
-                                  r.status_code);
+            if (r.status_code != 204) {
+                brls::Logger::error("report event error: {}", r.status_code);
+            }
         },
         cpr::Parameters{
             {"api_secret", GA_KEY},
@@ -69,7 +75,7 @@ void Analytics::send() {
         cpr::Url{GA_URL},
         cpr::Header{{"User-Agent", "wiliwili/" + app_version},
                     {"Content-Type", "application/json"}},
-        cpr::Cookies{{"_ga", client_id}}, cpr::Body{content.dump()},
+        cpr::Cookies{{"_ga", client_id}}, cpr::Body{content_str},
         cpr::Timeout{4000});
 }
 
