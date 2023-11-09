@@ -1061,6 +1061,7 @@ void VideoView::buttonProcessing() {
 
     static int click_state        = ClickState::IDLE;
     static int64_t rsb_press_time = 0;
+    if (isLiveMode) return;
     if (click_state == ClickState::IDLE && !state.buttons[BUTTON_RSB]) return;
 
     int CHECK_TIME = 200000;

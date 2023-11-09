@@ -102,12 +102,19 @@ void LiveActivity::setCommonData() {
     tl_event_id = MPV_E->subscribe([this](MpvEventEnum e) {
         if (e == UPDATE_PROGRESS) {
             if (!liveRoomPlayInfo.live_time) return;
+            auto timeNow = std::chrono::system_clock::now();
             std::chrono::time_point<std::chrono::system_clock> _zero;
             size_t now = std::chrono::duration_cast<std::chrono::seconds>(
-                             std::chrono::system_clock::now() - _zero)
+                             timeNow - _zero)
                              .count();
             this->video->setStatusLabelLeft(
                 wiliwili::sec2Time(now - liveRoomPlayInfo.live_time));
+            if (timeNow > videoExpires) {
+                MPVCore::instance().pause();
+                // 十秒后再次检查，避免链接获取失败
+                videoExpires = timeNow + std::chrono::seconds(10);
+                requestData(liveData.roomid);
+            }
         }
     });
 }
@@ -219,6 +226,15 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
     // todo: 允许使用备用链接
     for (const auto& i : liveUrl.url_info) {
         auto url = i.host + liveUrl.base_url + i.extra;
+
+        // 查找过期时间
+        // 链接中写的超时时间为1小时，但是实际测试能播放6小时
+        // 暂时设置为固定的5小时，避免系统时间是错误的没办法直接和视频链接中的 expires 进行比较。
+        // 另外的解决办法是获取一下网络时间
+        videoExpires =
+            std::chrono::system_clock::now() + std::chrono::seconds(18000);
+
+        // 设置视频链接
         brls::Logger::debug("Live stream url: {}", url);
         this->video->setUrl(url);
         break;

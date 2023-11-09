@@ -38,6 +38,8 @@ private:
     BRLS_BIND(VideoView, video, "fullscreen/video");
 
     bilibili::LiveVideoResult liveData;
+    // 视频超时的时间戳
+    std::chrono::system_clock::time_point videoExpires{};
 
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;

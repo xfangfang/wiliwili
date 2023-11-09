@@ -661,6 +661,9 @@ void MPVCore::eventMainLoop() {
                 brls::Logger::info("========> MPV_EVENT_FILE_LOADED");
                 // event 8: 文件预加载结束，准备解码
                 mpvCoreEvent.fire(MpvEventEnum::MPV_LOADED);
+                // 发布一次进度更新事件，避免进度条在0秒时没有进度更新
+                video_progress = 0;
+                mpvCoreEvent.fire(MpvEventEnum::UPDATE_PROGRESS);
                 // 移除其他备用链接
                 command_async("playlist-clear");
                 break;
