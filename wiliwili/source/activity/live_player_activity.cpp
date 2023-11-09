@@ -64,7 +64,6 @@ static void onDanmakuReceived(std::string&& message) {
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
-    MPVCore::instance().command_async("set", "loop-playlist", "force");
     this->setCommonData();
     GA("open_live", {{"id", std::to_string(live.roomid)}})
     GA("open_live", {{"live_id", std::to_string(live.roomid)}})
@@ -74,7 +73,6 @@ LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
 LiveActivity::LiveActivity(int roomid, const std::string& name,
                            const std::string& views) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
-    MPVCore::instance().command_async("set", "loop-playlist", "force");
     this->liveData.roomid                  = roomid;
     this->liveData.title                   = name;
     this->liveData.watched_show.text_large = views;
@@ -102,19 +100,34 @@ void LiveActivity::setCommonData() {
     tl_event_id = MPV_E->subscribe([this](MpvEventEnum e) {
         if (e == UPDATE_PROGRESS) {
             if (!liveRoomPlayInfo.live_time) return;
-            auto timeNow = std::chrono::system_clock::now();
             std::chrono::time_point<std::chrono::system_clock> _zero;
             size_t now = std::chrono::duration_cast<std::chrono::seconds>(
-                             timeNow - _zero)
+                             std::chrono::system_clock::now() - _zero)
                              .count();
             this->video->setStatusLabelLeft(
                 wiliwili::sec2Time(now - liveRoomPlayInfo.live_time));
-            if (timeNow > videoExpires) {
-                MPVCore::instance().pause();
-                // 十秒后再次检查，避免链接获取失败
-                videoExpires = timeNow + std::chrono::seconds(10);
-                requestData(liveData.roomid);
+        } else if (e == MPV_FILE_ERROR) {
+            this->video->showOSD(false);
+            this->video->setStatusLabelLeft("播放错误");
+
+            switch (MPVCore::instance().mpv_error_code) {
+                case MPV_ERROR_UNKNOWN_FORMAT:
+                    this->video->setOnlineCount("暂不支持当前视频格式");
+                    break;
+                case MPV_ERROR_LOADING_FAILED:
+                    this->video->setOnlineCount("加载失败");
+                    // 加载失败时，获取直播间信息，查看是否直播间已经关闭
+                    // 如果直播间信息获取失败，则认定为断网，每隔N秒重试一次
+                    this->requestData(liveData.roomid);
+                default:
+                    this->video->setOnlineCount(
+                        {mpv_error_string(MPVCore::instance().mpv_error_code)});
             }
+        } else if (e == END_OF_FILE) {
+            // flv 直播遇到网络错误不会报错，而是输出 END_OF_FILE
+            // 直播间关闭时也可能进入这里
+            this->video->setOnlineCount("加载失败");
+            this->requestData(liveData.roomid);
         }
     });
 }
@@ -170,8 +183,9 @@ void LiveActivity::onContentAvailable() {
         } else {
             this->video->showOSD(false);
             MPVCore::instance().pause();
+            brls::cancelDelay(toggleDelayIter);
             ASYNC_RETAIN
-            brls::delay(5000, [ASYNC_TOKEN]() {
+            toggleDelayIter = brls::delay(5000, [ASYNC_TOKEN]() {
                 ASYNC_RELEASE
                 if (MPVCore::instance().isPaused()) {
                     MPVCore::instance().stop();
@@ -208,9 +222,13 @@ int LiveActivity::getCurrentQualityIndex() {
 }
 
 void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
+    // todo：定时获取在线人数
+    this->video->setOnlineCount(liveData.watched_show.text_large);
+
     if (result.live_status != 1) {
         // 未开播
         brls::Logger::error("LiveActivity: not live");
+        this->video->showOSD(false);
         this->video->setStatusLabelLeft("未开播");
         return;
     }
@@ -227,13 +245,6 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
     for (const auto& i : liveUrl.url_info) {
         auto url = i.host + liveUrl.base_url + i.extra;
 
-        // 查找过期时间
-        // 链接中写的超时时间为1小时，但是实际测试能播放6小时
-        // 暂时设置为固定的5小时，避免系统时间是错误的没办法直接和视频链接中的 expires 进行比较。
-        // 另外的解决办法是获取一下网络时间
-        videoExpires =
-            std::chrono::system_clock::now() + std::chrono::seconds(18000);
-
         // 设置视频链接
         brls::Logger::debug("Live stream url: {}", url);
         this->video->setUrl(url);
@@ -243,15 +254,27 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
 
 void LiveActivity::onError(const std::string& error) {
     brls::Logger::error("ERROR request live data: {}", error);
+    this->video->showOSD(false);
+    this->video->setOnlineCount(error);
+
+    // 每隔1秒自动重试
+    brls::cancelDelay(errorDelayIter);
+    ASYNC_RETAIN
+    errorDelayIter = brls::delay(1000, [ASYNC_TOKEN]() {
+        ASYNC_RELEASE
+        this->requestData(liveData.roomid);
+    });
 }
 
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
-    this->video->stop();
     LiveDanmaku::instance().disconnect();
     // 取消监控mpv
     MPV_CE->unsubscribe(event_id);
     MPV_E->unsubscribe(tl_event_id);
-    MPVCore::instance().command_async("set", "loop-playlist", "1");
+    // 在取消监控之后再停止播放器，避免在播放器停止时触发事件 (尤其是：END_OF_FILE)
+    this->video->stop();
     LiveDanmakuCore::instance().reset();
+    brls::cancelDelay(toggleDelayIter);
+    brls::cancelDelay(errorDelayIter);
 }

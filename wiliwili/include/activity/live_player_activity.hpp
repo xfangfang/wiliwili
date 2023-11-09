@@ -17,7 +17,7 @@ public:
 
     explicit LiveActivity(const bilibili::LiveVideoResult& live);
     explicit LiveActivity(int roomid, const std::string& name = "",
-                 const std::string& views = "");
+                          const std::string& views = "");
 
     void setCommonData();
 
@@ -37,9 +37,12 @@ public:
 private:
     BRLS_BIND(VideoView, video, "fullscreen/video");
 
+    // 暂停的延时函数 handle
+    size_t toggleDelayIter = 0;
+    // 遇到错误重试的延时函数 handle
+    size_t errorDelayIter = 0;
+
     bilibili::LiveVideoResult liveData;
-    // 视频超时的时间戳
-    std::chrono::system_clock::time_point videoExpires{};
 
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;

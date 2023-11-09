@@ -50,8 +50,10 @@ public:
                 onLiveData(liveRoomPlayInfo);
             },
             [ASYNC_TOKEN](BILI_ERR) {
-                ASYNC_RELEASE
-                this->onError(error);
+                brls::sync([ASYNC_TOKEN, error]() {
+                    ASYNC_RELEASE
+                    this->onError(error);
+                });
             });
 
         reportHistory(roomid);
@@ -66,7 +68,9 @@ public:
             [roomid]() {
                 brls::Logger::debug("report live history {}", roomid);
             },
-            [this](BILI_ERR) { this->onError(error); });
+            [](BILI_ERR) {
+                brls::Logger::error("report live history:", error);
+            });
     }
 
     std::string getQualityDescription(int qn) {

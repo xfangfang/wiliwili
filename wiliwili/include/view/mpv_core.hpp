@@ -229,6 +229,7 @@ public:
     double playback_time   = 0;
     double percent_pos     = 0;
     int64_t video_progress = 0;
+    int mpv_error_code     = 0;
 
     // 低画质解码，剔除解码过程中的部分步骤，可以用来节省cpu
     inline static bool LOW_QUALITY = false;

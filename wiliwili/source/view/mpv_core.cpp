@@ -701,6 +701,7 @@ void MPVCore::eventMainLoop() {
                 disableDimming(false);
                 auto node = (mpv_event_end_file *)event->data;
                 if (node->reason == MPV_END_FILE_REASON_ERROR) {
+                    mpv_error_code = node->error;
                     brls::Logger::error("========> MPV ERROR: {}",
                                         mpv_error_string(node->error));
                     mpvCoreEvent.fire(MpvEventEnum::MPV_FILE_ERROR);
@@ -887,6 +888,7 @@ void MPVCore::reset() {
     this->cache_speed    = 0;  // Bps
     this->playback_time  = 0;
     this->video_progress = 0;
+    this->mpv_error_code = 0;
 
     // 软硬解切换后应该手动设置一次渲染尺寸
     // 切换视频前设置渲染尺寸可以顺便将上一条视频的最后一帧画面清空
