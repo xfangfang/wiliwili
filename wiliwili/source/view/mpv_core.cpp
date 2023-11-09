@@ -190,8 +190,8 @@ void MPVCore::init() {
     }
 
     // set observe properties
-    //    check_error(mpv_observe_property(mpv, 1, "core-idle", MPV_FORMAT_FLAG));
-    check_error(mpv_observe_property(mpv, 2, "pause", MPV_FORMAT_FLAG));
+    check_error(mpv_observe_property(mpv, 1, "core-idle", MPV_FORMAT_FLAG));
+    check_error(mpv_observe_property(mpv, 2, "eof-reached", MPV_FORMAT_FLAG));
     check_error(mpv_observe_property(mpv, 3, "duration", MPV_FORMAT_INT64));
     check_error(
         mpv_observe_property(mpv, 4, "playback-time", MPV_FORMAT_DOUBLE));
@@ -654,9 +654,23 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_NONE:
                 return;
             case MPV_EVENT_SHUTDOWN:
-                brls::Logger::debug("========> MPV_EVENT_SHUTDOWN");
+                brls::Logger::info("========> MPV_EVENT_SHUTDOWN");
                 disableDimming(false);
                 return;
+            case MPV_EVENT_LOG_MESSAGE: {
+                auto log = (mpv_event_log_message *)event->data;
+                if (log->log_level <= MPV_LOG_LEVEL_ERROR) {
+                    brls::Logger::error("{}: {}", log->prefix, log->text);
+                } else if (log->log_level <= MPV_LOG_LEVEL_WARN) {
+                    brls::Logger::warning("{}: {}", log->prefix, log->text);
+                } else if (log->log_level <= MPV_LOG_LEVEL_INFO) {
+                    brls::Logger::info("{}: {}", log->prefix, log->text);
+                } else if (log->log_level <= MPV_LOG_LEVEL_V) {
+                    brls::Logger::debug("{}: {}", log->prefix, log->text);
+                } else {
+                    brls::Logger::verbose("{}: {}", log->prefix, log->text);
+                }
+            } break;
             case MPV_EVENT_FILE_LOADED:
                 brls::Logger::info("========> MPV_EVENT_FILE_LOADED");
                 // event 8: 文件预加载结束，准备解码
@@ -712,8 +726,16 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_PROPERTY_CHANGE: {
                 auto *data = ((mpv_event_property *)event->data)->data;
                 switch (event->reply_userdata) {
+                    case 1:
+                        if (data) video_playing = *(int *)data == 0;
+                        break;
                     case 2:
-                        // 播放器播放状态改变（暂停或播放）
+                        if (data) video_eof = *(int *)data;
+                        if (video_eof) {
+                            brls::Logger::info("========> END OF FILE");
+                            mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
+                            disableDimming(false);
+                        }
                         break;
                     case 3:
                         // 视频总时长更新
@@ -840,16 +862,8 @@ void MPVCore::eventMainLoop() {
                     case 12:
                         if (data) video_paused = *(int *)data;
                         if (video_paused) {
-                            if (duration > 0 &&
-                                (double)duration - playback_time < 1) {
-                                video_progress = duration;
-                                brls::Logger::info(
-                                    "========> END OF FILE (paused)");
-                                mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
-                            } else {
-                                brls::Logger::info("========> PAUSE");
-                                mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
-                            }
+                            brls::Logger::info("========> PAUSE");
+                            mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
                             disableDimming(false);
                         } else if (!video_stopped) {
                             brls::Logger::info("========> RESUME");
@@ -941,6 +955,8 @@ void MPVCore::seekPercent(double p) {
 }
 
 bool MPVCore::isStopped() const { return video_stopped; }
+
+bool MPVCore::isPlaying() const { return video_playing; }
 
 bool MPVCore::isPaused() const { return video_paused; }
 

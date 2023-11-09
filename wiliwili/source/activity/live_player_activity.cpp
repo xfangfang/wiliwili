@@ -126,8 +126,7 @@ void LiveActivity::setCommonData() {
         } else if (e == END_OF_FILE) {
             // flv 直播遇到网络错误不会报错，而是输出 END_OF_FILE
             // 直播间关闭时也可能进入这里
-            this->video->setOnlineCount("加载失败");
-            this->requestData(liveData.roomid);
+            this->retryRequestData();
         }
     });
 }
@@ -256,13 +255,17 @@ void LiveActivity::onError(const std::string& error) {
     brls::Logger::error("ERROR request live data: {}", error);
     this->video->showOSD(false);
     this->video->setOnlineCount(error);
+    this->retryRequestData();
+}
 
-    // 每隔1秒自动重试
+void LiveActivity::retryRequestData() {
+    // 每隔一段时间自动重试
     brls::cancelDelay(errorDelayIter);
     ASYNC_RETAIN
-    errorDelayIter = brls::delay(1000, [ASYNC_TOKEN]() {
+    errorDelayIter = brls::delay(2000, [ASYNC_TOKEN]() {
         ASYNC_RELEASE
-        this->requestData(liveData.roomid);
+        if (!MPVCore::instance().isPlaying())
+            this->requestData(liveData.roomid);
     });
 }
 

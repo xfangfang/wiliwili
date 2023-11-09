@@ -32,6 +32,8 @@ public:
     std::vector<std::string> getQualityDescriptionList();
     int getCurrentQualityIndex();
 
+    void retryRequestData();
+
     ~LiveActivity() override;
 
 private:
