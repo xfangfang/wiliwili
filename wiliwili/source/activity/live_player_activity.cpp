@@ -84,7 +84,7 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
 
 void LiveActivity::setCommonData() {
     LiveDanmaku::instance().connect(
-        liveData.roomid, std::stoi(ProgramConfig::instance().getUserID()));
+        liveData.roomid, std::stoll(ProgramConfig::instance().getUserID()));
 
     // 重置播放器
     MPVCore::instance().reset();
@@ -118,7 +118,8 @@ void LiveActivity::setCommonData() {
                     this->video->setOnlineCount("加载失败");
                     // 加载失败时，获取直播间信息，查看是否直播间已经关闭
                     // 如果直播间信息获取失败，则认定为断网，每隔N秒重试一次
-                    this->requestData(liveData.roomid);
+                    this->retryRequestData();
+                    break;
                 default:
                     this->video->setOnlineCount(
                         {mpv_error_string(MPVCore::instance().mpv_error_code)});

@@ -99,7 +99,7 @@ LiveDanmaku::~LiveDanmaku() {
 #endif
 }
 
-void LiveDanmaku::connect(int room_id, int uid) {
+void LiveDanmaku::connect(int room_id, int64_t uid) {
     if (connected.load(std::memory_order_acquire)) {
         return;
     }
@@ -193,7 +193,7 @@ bool LiveDanmaku::is_connected() {
 
 bool LiveDanmaku::is_evOK() { return ms_ev_ok.load(std::memory_order_acquire); }
 
-void LiveDanmaku::send_join_request(const int room_id, const int uid) {
+void LiveDanmaku::send_join_request(const int room_id, const int64_t uid) {
     json join_request = {
         {"uid", uid},        {"roomid", room_id},
         {"protover", 2},     {"buvid", ProgramConfig::instance().getBuvid3()},

@@ -19,9 +19,9 @@ class LiveDanmaku : public brls::Singleton<LiveDanmaku> {
 public:
     int room_id;
     int uid;
-    void connect(int room_id, int uid);
+    void connect(int room_id, int64_t uid);
     void disconnect();
-    void send_join_request(int room_id, int uid);
+    void send_join_request(int room_id, int64_t uid);
 
     void send_heartbeat();
     void send_text_message(const std::string &message);
