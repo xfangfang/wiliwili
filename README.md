@@ -307,8 +307,8 @@ sudo dkp-pacman -S switch-glfw switch-libwebp switch-cmake switch-curl devkitA64
 base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 sudo dkp-pacman -U \
     $base_url/switch-libass-0.17.1-1-any.pkg.tar.zst \
-    $base_url/switch-ffmpeg-6.1-1-any.pkg.tar.zst \
-    $base_url/switch-libmpv-0.35.1-4-any.pkg.tar.zst
+    $base_url/switch-ffmpeg-6.1-2-any.pkg.tar.zst \
+    $base_url/switch-libmpv-0.36.0-1-any.pkg.tar.zst
 
 # 4. 可选：安装依赖库 nspmini：https://github.com/StarDustCFW/nspmini
 # (1). 在resources 目录下放置：nsp_forwarder.nsp (如何生成nsp见: scripts/switch-forwarder)

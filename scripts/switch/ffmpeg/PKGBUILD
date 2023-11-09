@@ -7,7 +7,7 @@
 pkgname=switch-ffmpeg
 pkgver=6.1
 commit=ff3429991ec1bac1d1b71215402e3d195162e125
-pkgrel=1
+pkgrel=2
 pkgdesc='ffmpeg port (for Nintendo Switch homebrew development)'
 arch=('any')
 url='https://ffmpeg.org/'
@@ -16,8 +16,9 @@ options=(!strip staticlibs)
 makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
 depends=('switch-zlib' 'switch-bzip2' 'switch-libass' 'switch-libfribidi'
          'switch-freetype' 'switch-harfbuzz' 'switch-mbedtls' 'switch-dav1d')
-source=("https://github.com/FFmpeg/FFmpeg/archive/${commit}.tar.gz" "ffmpeg.patch" "network.patch")
+source=("https://github.com/FFmpeg/FFmpeg/archive/${commit}.tar.gz" "ffmpeg.patch" "network.patch" "ffmpeg_bad_frame.patch")
 sha256sums=(
+ 'SKIP'
  'SKIP'
  'SKIP'
  'SKIP'
@@ -26,8 +27,25 @@ groups=('switch-portlibs')
 
 prepare() {
   cd FFmpeg-$commit
+
+  rm -rf libavutil/hwcontext_tx1.c
+  rm -rf libavutil/hwcontext_tx1.h
+  rm -rf libavutil/nvdec_drv.h
+  rm -rf libavutil/nvhost_ioctl.h
+  rm -rf libavutil/nvjpg_drv.h
+  rm -rf libavutil/nvmap_ioctl.h
+  rm -rf libavutil/tx1.c
+  rm -rf libavutil/tx1.h
+  rm -rf libavutil/tx1_host1x.h
+  rm -rf libavutil/vic_drv.h
+  rm -rf libavutil/clb0b6.h
+  rm -rf libavutil/clc5b0.h
+  rm -rf libavutil/cle7d0.h
+  rm -rf libavcodec/tx1_*
+
   patch -Np1 -i "$srcdir/ffmpeg.patch"
   patch -Np1 -i "$srcdir/network.patch"
+  patch -Np1 -i "$srcdir/ffmpeg_bad_frame.patch"
 }
 
 build() {
