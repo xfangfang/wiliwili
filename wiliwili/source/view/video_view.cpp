@@ -78,7 +78,10 @@ VideoView::VideoView() {
         [this](brls::View* view) -> bool {
             ControllerState state{};
             input->updateUnifiedControllerState(&state);
-            if (state.buttons[BUTTON_Y]) {
+            bool buttonY = brls::Application::isSwapInputKeys()
+                               ? state.buttons[BUTTON_X]
+                               : state.buttons[BUTTON_Y];
+            if (buttonY) {
                 seeking_range -= getSeekRange(seeking_range);
             } else {
                 seeking_range += getSeekRange(seeking_range);
@@ -229,10 +232,7 @@ VideoView::VideoView() {
 
     /// 播放/暂停 按钮
     this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
-        this->btnToggle,
-        [this]() {
-            this->togglePlay();
-        },
+        this->btnToggle, [this]() { this->togglePlay(); },
         brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
                                brls::SOUND_NONE)));
 
