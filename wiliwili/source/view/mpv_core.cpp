@@ -677,6 +677,7 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_PLAYBACK_RESTART:
                 // event 21: 开始播放文件（一般是播放或调整进度结束之后触发）
                 brls::Logger::info("========> MPV_EVENT_PLAYBACK_RESTART");
+                video_stopped = false;
                 mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
                 if (AUTO_PLAY) {
                     mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);

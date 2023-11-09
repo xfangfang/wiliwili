@@ -32,8 +32,6 @@ public:
     void set_wait_time(size_t time);
     size_t wait_time = 800;
 
-    size_t live_time = 0;
-
     LiveDanmaku();
     ~LiveDanmaku();
 

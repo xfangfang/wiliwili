@@ -35,6 +35,75 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveUrlResultWrapper, current_qn, durl,
                                    quality_description);
+class LiveQnDesc {
+public:
+    int qn;
+    std::string desc;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveQnDesc, qn, desc);
+
+class LiveStreamUrlInfo {
+public:
+    std::string host;
+    std::string extra;
+    int stream_ttl;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveStreamUrlInfo, host, extra, stream_ttl);
+
+class LiveStreamFormatCodec {
+public:
+    std::string codec_name;
+    int current_qn;
+    std::vector<int> accept_qn;
+    std::string base_url;
+    std::vector<LiveStreamUrlInfo> url_info;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveStreamFormatCodec, codec_name,
+                                   current_qn, accept_qn, base_url, url_info);
+
+class LiveStreamFormat {
+public:
+    std::string format_name;
+    std::vector<LiveStreamFormatCodec> codec;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveStreamFormat, format_name, codec);
+
+class LiveStream {
+public:
+    std::string protocol_name;
+    std::vector<LiveStreamFormat> format;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveStream, protocol_name, format);
+
+class LivePlayUrl {
+public:
+    std::vector<LiveQnDesc> g_qn_desc;
+    std::vector<LiveStream> stream;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LivePlayUrl, g_qn_desc, stream);
+
+class LivePlayUrlInfo {
+public:
+    LivePlayUrl playurl;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LivePlayUrlInfo, playurl);
+
+class LiveRoomPlayInfo {
+public:
+    int room_id;
+    int64_t uid;
+    int live_status;
+    size_t live_time;
+    LivePlayUrlInfo playurl_info;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      LiveRoomPlayInfo& nlohmann_json_t) {
+    if (!nlohmann_json_j.at("playurl_info").is_null()) {
+        nlohmann_json_j.at("playurl_info").get_to(nlohmann_json_t.playurl_info);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, room_id, uid,
+                                             live_status, live_time));
+}
 
 class LiveAreaResult {
 public:

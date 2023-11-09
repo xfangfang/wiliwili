@@ -25,7 +25,8 @@ public:
 
     void onContentAvailable() override;
 
-    void onLiveData(const bilibili::LiveUrlResultWrapper& result) override;
+    void onLiveData(const bilibili::LiveRoomPlayInfo& result) override;
+
     void onError(const std::string& error) override;
 
     std::vector<std::string> getQualityDescriptionList();

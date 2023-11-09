@@ -101,25 +101,25 @@ void LiveActivity::setCommonData() {
     });
     tl_event_id = MPV_E->subscribe([this](MpvEventEnum e) {
         if (e == UPDATE_PROGRESS) {
-            if (!LiveDanmaku::instance().live_time) return;
+            if (!liveRoomPlayInfo.live_time) return;
             std::chrono::time_point<std::chrono::system_clock> _zero;
             size_t now = std::chrono::duration_cast<std::chrono::seconds>(
                              std::chrono::system_clock::now() - _zero)
                              .count();
             this->video->setStatusLabelLeft(
-                wiliwili::sec2Time(now - LiveDanmaku::instance().live_time));
+                wiliwili::sec2Time(now - liveRoomPlayInfo.live_time));
         }
     });
 }
 
 void LiveActivity::setVideoQuality() {
-    if (this->liveUrl.quality_description.empty()) return;
+    if (this->liveUrl.accept_qn.empty()) return;
 
     brls::sync([this]() {
         auto dropdown = BaseDropdown::text(
             "wiliwili/player/quality"_i18n, this->getQualityDescriptionList(),
             [this](int selected) {
-                defaultQuality = liveUrl.quality_description[selected].qn;
+                defaultQuality = liveUrl.accept_qn[selected];
                 this->requestData(this->liveData.roomid);
             },
             this->getCurrentQualityIndex());
@@ -157,7 +157,7 @@ void LiveActivity::onContentAvailable() {
     this->video->setStatusLabelLeft("");
     this->video->setCustomToggleAction([this]() {
         if (MPVCore::instance().isStopped()) {
-            this->onLiveData(this->liveUrl);
+            this->onLiveData(this->liveRoomPlayInfo);
         } else if (MPVCore::instance().isPaused()) {
             MPVCore::instance().resume();
         } else {
@@ -187,32 +187,40 @@ void LiveActivity::onContentAvailable() {
 
 std::vector<std::string> LiveActivity::getQualityDescriptionList() {
     std::vector<std::string> res;
-    for (auto& i : liveUrl.quality_description) {
-        res.push_back(i.desc);
+    for (auto& i : liveUrl.accept_qn) {
+        res.push_back(getQualityDescription(i));
     }
     return res;
 }
 
 int LiveActivity::getCurrentQualityIndex() {
-    for (size_t i = 0; i < liveUrl.quality_description.size(); i++) {
-        if (liveUrl.quality_description[i].qn == this->liveUrl.current_qn)
-            return i;
+    for (size_t i = 0; i < liveUrl.accept_qn.size(); i++) {
+        if (liveUrl.accept_qn[i] == this->liveUrl.current_qn) return i;
     }
     return 0;
 }
 
-void LiveActivity::onLiveData(const bilibili::LiveUrlResultWrapper& result) {
-    brls::Logger::debug("current quality: {}", result.current_qn);
-    for (auto& i : result.quality_description) {
-        brls::Logger::debug("quality: {}/{}", i.desc, i.qn);
-        if (result.current_qn == i.qn) {
-            std::string quality = i.desc + " \uE0EF";
+void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
+    if (result.live_status != 1) {
+        // 未开播
+        brls::Logger::error("LiveActivity: not live");
+        this->video->setStatusLabelLeft("未开播");
+        return;
+    }
+    brls::Logger::debug("current quality: {}", liveUrl.current_qn);
+    for (auto& i : liveUrl.accept_qn) {
+        auto desc = getQualityDescription(i);
+        brls::Logger::debug("live quality: {}/{}", desc, i);
+        if (liveUrl.current_qn == i) {
+            std::string quality = desc + " \uE0EF";
             MPV_CE->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
         }
     }
-    for (const auto& i : result.durl) {
-        brls::Logger::debug("Live stream url: {}", i.url);
-        this->video->setUrl(i.url);
+    // todo: 允许使用备用链接
+    for (const auto& i : liveUrl.url_info) {
+        auto url = i.host + liveUrl.base_url + i.extra;
+        brls::Logger::debug("Live stream url: {}", url);
+        this->video->setUrl(url);
         break;
     }
 }

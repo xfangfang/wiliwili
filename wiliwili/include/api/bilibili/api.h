@@ -101,6 +101,9 @@ const std::string VideoEpisodeRelation =
 const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
 /// 直播API
 const std::string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
+/// 直播API V2
+const std::string RoomPlayInfo =
+    _liveBase + "/xlive/web-room/v2/index/getRoomPlayInfo";
 /// 直播历史记录
 const std::string LiveReport =
     _liveBase + "/xlive/web-room/v1/index/roomEntryAction";

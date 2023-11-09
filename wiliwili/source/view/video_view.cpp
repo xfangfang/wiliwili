@@ -204,11 +204,7 @@ VideoView::VideoView() {
                             int64_t current_time = getCPUTimeUsec();
                             if (current_time - press_time < CHECK_TIME) {
                                 // 双击切换播放状态
-                                if (mpvCore->isPaused()) {
-                                    mpvCore->resume();
-                                } else {
-                                    mpvCore->pause();
-                                }
+                                togglePlay();
                                 click_state = ClickState::IDLE;
                             } else {
                                 // 单击切换 OSD，设置一个延迟用来等待双击结果
