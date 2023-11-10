@@ -78,7 +78,10 @@ VideoView::VideoView() {
         [this](brls::View* view) -> bool {
             ControllerState state{};
             input->updateUnifiedControllerState(&state);
-            if (state.buttons[BUTTON_Y]) {
+            bool buttonY = brls::Application::isSwapInputKeys()
+                               ? state.buttons[BUTTON_X]
+                               : state.buttons[BUTTON_Y];
+            if (buttonY) {
                 seeking_range -= getSeekRange(seeking_range);
             } else {
                 seeking_range += getSeekRange(seeking_range);
@@ -204,11 +207,7 @@ VideoView::VideoView() {
                             int64_t current_time = getCPUTimeUsec();
                             if (current_time - press_time < CHECK_TIME) {
                                 // 双击切换播放状态
-                                if (mpvCore->isPaused()) {
-                                    mpvCore->resume();
-                                } else {
-                                    mpvCore->pause();
-                                }
+                                togglePlay();
                                 click_state = ClickState::IDLE;
                             } else {
                                 // 单击切换 OSD，设置一个延迟用来等待双击结果
@@ -233,10 +232,7 @@ VideoView::VideoView() {
 
     /// 播放/暂停 按钮
     this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
-        this->btnToggle,
-        [this]() {
-            this->togglePlay();
-        },
+        this->btnToggle, [this]() { this->togglePlay(); },
         brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE,
                                brls::SOUND_NONE)));
 
@@ -1065,6 +1061,7 @@ void VideoView::buttonProcessing() {
 
     static int click_state        = ClickState::IDLE;
     static int64_t rsb_press_time = 0;
+    if (isLiveMode) return;
     if (click_state == ClickState::IDLE && !state.buttons[BUTTON_RSB]) return;
 
     int CHECK_TIME = 200000;

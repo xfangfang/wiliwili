@@ -1,5 +1,5 @@
 diff --git a/audio/out/ao.c b/audio/out/ao.c
-index e797ad3f9c..2b4749bb6d 100644
+index a5aa3a9402..6dd0ba6eb2 100644
 --- a/audio/out/ao.c
 +++ b/audio/out/ao.c
 @@ -53,6 +53,7 @@ extern const struct ao_driver audio_out_wasapi;
@@ -22,7 +22,7 @@ index e797ad3f9c..2b4749bb6d 100644
  #if HAVE_COREAUDIO
 diff --git a/audio/out/ao_hos.c b/audio/out/ao_hos.c
 new file mode 100644
-index 0000000000..0e35759dc9
+index 0000000000..42d3793b91
 --- /dev/null
 +++ b/audio/out/ao_hos.c
 @@ -0,0 +1,293 @@
@@ -266,8 +266,8 @@ index 0000000000..0e35759dc9
 +                    bool in = *(bool *)arg;
 +                    vol = !in;
 +                } else {
-+                    ao_control_vol_t *in = (ao_control_vol_t *)arg;
-+                    vol = (in->left + in->right) / 200.0f;
++                    float *in = (float *)arg;
++                    vol = *in / 100.0f;
 +                }
 +
 +                audrvMixSetVolume(&priv->driver, 0, vol);
@@ -282,8 +282,8 @@ index 0000000000..0e35759dc9
 +                    bool *out = (bool *)arg;
 +                    *out = !vol;
 +                } else {
-+                    ao_control_vol_t *out = (ao_control_vol_t *)arg;
-+                    out->left = out->right = vol * 100.0f;
++                    float *out = (float *)arg;
++                    *out = vol * 100.0f;
 +                }
 +            }
 +            break;
@@ -320,7 +320,7 @@ index 0000000000..0e35759dc9
 +    .options_prefix   = "ao-hos",
 +};
 diff --git a/osdep/io.c b/osdep/io.c
-index ec55aa2647..617a31d262 100644
+index 8cd6dede85..a1933888dd 100644
 --- a/osdep/io.c
 +++ b/osdep/io.c
 @@ -62,7 +62,7 @@ bool mp_set_cloexec(int fd)
@@ -375,10 +375,10 @@ index 8e299918ce..c7b08f5273 100644
  #include "common/common.h"
  #include "common/msg.h"
 diff --git a/wscript b/wscript
-index e349d4103e..9200e9344c 100644
+index 82f65b4afa..f177daf41b 100644
 --- a/wscript
 +++ b/wscript
-@@ -405,6 +405,10 @@ iconv support use --disable-iconv.",
+@@ -419,6 +419,10 @@ iconv support use --disable-iconv.",
          'name': 'rubberband-3',
          'desc': 'new engine support for librubberband',
          'func': check_pkg_config('rubberband >= 3.0.0'),
@@ -386,10 +386,10 @@ index e349d4103e..9200e9344c 100644
 +        'name': '--hos',
 +        'desc': 'Horizon OS',
 +        'func': check_statement(['switch.h'], ''),
-     }
- ]
- 
-@@ -491,6 +495,11 @@ audio_output_features = [
+     }, {
+         'name': 'zimg-st428',
+         'desc': 'ZIMG support for ZIMG_TRANSFER_ST428',
+@@ -509,6 +513,11 @@ audio_output_features = [
          'desc': 'WASAPI audio output',
          'deps': 'os-win32 || os-cygwin',
          'func': check_cc(fragment=load_fragment('wasapi.c')),
@@ -402,10 +402,10 @@ index e349d4103e..9200e9344c 100644
  ]
  
 diff --git a/wscript_build.py b/wscript_build.py
-index 16c8cf0895..6e3e6ca054 100644
+index a470808ae5..ae9d689677 100644
 --- a/wscript_build.py
 +++ b/wscript_build.py
-@@ -197,32 +197,22 @@ def build(ctx):
+@@ -234,32 +234,22 @@ def build(ctx):
  
      if ctx.dependency_satisfied('cplayer'):
          main_fn_c = ctx.pick_first_matching_dep([
@@ -438,7 +438,7 @@ index 16c8cf0895..6e3e6ca054 100644
          ( "osdep/subprocess-dummy.c" ),
      ])
  
-@@ -266,6 +256,7 @@ def build(ctx):
+@@ -309,6 +299,7 @@ def build(ctx):
          ( "audio/out/ao_wasapi.c",               "wasapi" ),
          ( "audio/out/ao_wasapi_changenotify.c",  "wasapi" ),
          ( "audio/out/ao_wasapi_utils.c",         "wasapi" ),

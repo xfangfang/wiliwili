@@ -115,10 +115,10 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         NVGcolor color = nvgRGB(r, g, b);
         color.a        = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.01 * alpha;
         NVGcolor border_color =
-            nvgRGBA(0, 0, 0, DanmakuCore::DANMAKU_STYLE_ALPHA * 0.005 * alpha);
+            nvgRGBA(0, 0, 0, DanmakuCore::DANMAKU_STYLE_ALPHA * 1.28 * alpha);
         if ((r * 299 + g * 587 + b * 114) < 60000) {
             border_color = nvgRGBA(
-                255, 255, 255, DanmakuCore::DANMAKU_STYLE_ALPHA * 0.5 * alpha);
+                255, 255, 255, DanmakuCore::DANMAKU_STYLE_ALPHA * 1.28 * alpha);
         }
 
         nvgFillColor(vg, border_color);

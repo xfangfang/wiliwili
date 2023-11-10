@@ -190,8 +190,8 @@ void MPVCore::init() {
     }
 
     // set observe properties
-    //    check_error(mpv_observe_property(mpv, 1, "core-idle", MPV_FORMAT_FLAG));
-    check_error(mpv_observe_property(mpv, 2, "pause", MPV_FORMAT_FLAG));
+    check_error(mpv_observe_property(mpv, 1, "core-idle", MPV_FORMAT_FLAG));
+    check_error(mpv_observe_property(mpv, 2, "eof-reached", MPV_FORMAT_FLAG));
     check_error(mpv_observe_property(mpv, 3, "duration", MPV_FORMAT_INT64));
     check_error(
         mpv_observe_property(mpv, 4, "playback-time", MPV_FORMAT_DOUBLE));
@@ -654,13 +654,30 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_NONE:
                 return;
             case MPV_EVENT_SHUTDOWN:
-                brls::Logger::debug("========> MPV_EVENT_SHUTDOWN");
+                brls::Logger::info("========> MPV_EVENT_SHUTDOWN");
                 disableDimming(false);
                 return;
+            case MPV_EVENT_LOG_MESSAGE: {
+                auto log = (mpv_event_log_message *)event->data;
+                if (log->log_level <= MPV_LOG_LEVEL_ERROR) {
+                    brls::Logger::error("{}: {}", log->prefix, log->text);
+                } else if (log->log_level <= MPV_LOG_LEVEL_WARN) {
+                    brls::Logger::warning("{}: {}", log->prefix, log->text);
+                } else if (log->log_level <= MPV_LOG_LEVEL_INFO) {
+                    brls::Logger::info("{}: {}", log->prefix, log->text);
+                } else if (log->log_level <= MPV_LOG_LEVEL_V) {
+                    brls::Logger::debug("{}: {}", log->prefix, log->text);
+                } else {
+                    brls::Logger::verbose("{}: {}", log->prefix, log->text);
+                }
+            } break;
             case MPV_EVENT_FILE_LOADED:
                 brls::Logger::info("========> MPV_EVENT_FILE_LOADED");
                 // event 8: 文件预加载结束，准备解码
                 mpvCoreEvent.fire(MpvEventEnum::MPV_LOADED);
+                // 发布一次进度更新事件，避免进度条在0秒时没有进度更新
+                video_progress = 0;
+                mpvCoreEvent.fire(MpvEventEnum::UPDATE_PROGRESS);
                 // 移除其他备用链接
                 command_async("playlist-clear");
                 break;
@@ -677,6 +694,7 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_PLAYBACK_RESTART:
                 // event 21: 开始播放文件（一般是播放或调整进度结束之后触发）
                 brls::Logger::info("========> MPV_EVENT_PLAYBACK_RESTART");
+                video_stopped = false;
                 mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
                 if (AUTO_PLAY) {
                     mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);
@@ -697,6 +715,7 @@ void MPVCore::eventMainLoop() {
                 disableDimming(false);
                 auto node = (mpv_event_end_file *)event->data;
                 if (node->reason == MPV_END_FILE_REASON_ERROR) {
+                    mpv_error_code = node->error;
                     brls::Logger::error("========> MPV ERROR: {}",
                                         mpv_error_string(node->error));
                     mpvCoreEvent.fire(MpvEventEnum::MPV_FILE_ERROR);
@@ -707,8 +726,16 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_PROPERTY_CHANGE: {
                 auto *data = ((mpv_event_property *)event->data)->data;
                 switch (event->reply_userdata) {
+                    case 1:
+                        if (data) video_playing = *(int *)data == 0;
+                        break;
                     case 2:
-                        // 播放器播放状态改变（暂停或播放）
+                        if (data) video_eof = *(int *)data;
+                        if (video_eof) {
+                            brls::Logger::info("========> END OF FILE");
+                            mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
+                            disableDimming(false);
+                        }
                         break;
                     case 3:
                         // 视频总时长更新
@@ -835,16 +862,8 @@ void MPVCore::eventMainLoop() {
                     case 12:
                         if (data) video_paused = *(int *)data;
                         if (video_paused) {
-                            if (duration > 0 &&
-                                (double)duration - playback_time < 1) {
-                                video_progress = duration;
-                                brls::Logger::info(
-                                    "========> END OF FILE (paused)");
-                                mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
-                            } else {
-                                brls::Logger::info("========> PAUSE");
-                                mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
-                            }
+                            brls::Logger::info("========> PAUSE");
+                            mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
                             disableDimming(false);
                         } else if (!video_stopped) {
                             brls::Logger::info("========> RESUME");
@@ -883,6 +902,7 @@ void MPVCore::reset() {
     this->cache_speed    = 0;  // Bps
     this->playback_time  = 0;
     this->video_progress = 0;
+    this->mpv_error_code = 0;
 
     // 软硬解切换后应该手动设置一次渲染尺寸
     // 切换视频前设置渲染尺寸可以顺便将上一条视频的最后一帧画面清空
@@ -935,6 +955,8 @@ void MPVCore::seekPercent(double p) {
 }
 
 bool MPVCore::isStopped() const { return video_stopped; }
+
+bool MPVCore::isPlaying() const { return video_playing; }
 
 bool MPVCore::isPaused() const { return video_paused; }
 

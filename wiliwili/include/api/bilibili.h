@@ -10,6 +10,7 @@ namespace bilibili {
 
 class LiveResultWrapper;
 class LiveUrlResultWrapper;
+class LiveRoomPlayInfo;
 class LiveFullAreaResultWrapper;  // 直播分区列表
 class LiveSecondResultWrapper;    // 直播二级分区推荐
 class SearchResult;
@@ -284,9 +285,15 @@ public:
         const ErrorCallback& error                          = nullptr);
 
     /// get live video url by roomid
+    /// @deprecated 部分直播间可能无法获取到直播地址，但可以获取到长时间有效的直播地址
     static void get_live_url(
         int roomid, int qn = 10000,
         const std::function<void(LiveUrlResultWrapper)>& callback = nullptr,
+        const ErrorCallback& error                                = nullptr);
+
+    static void get_live_room_play_info(
+        int roomid, int qn = 0,
+        const std::function<void(LiveRoomPlayInfo)>& callback = nullptr,
         const ErrorCallback& error                                = nullptr);
 
     /**

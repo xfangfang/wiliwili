@@ -41,7 +41,7 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     // 判断是否添加浅色边框
     if ((r * 299 + g * 587 + b * 114) < 60000) {
         borderColor   = nvgRGB(255, 255, 255);
-        borderColor.a = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.5;
+        borderColor.a = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.005;
     }
 }
 

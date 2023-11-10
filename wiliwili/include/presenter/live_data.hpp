@@ -12,22 +12,48 @@
 
 class LiveDataRequest : public Presenter {
 public:
-    virtual void onLiveData(const bilibili::LiveUrlResultWrapper& result) {}
+    virtual void onLiveData(const bilibili::LiveRoomPlayInfo& result) {}
 
     virtual void onError(const std::string& error) {}
 
     void requestData(int roomid) {
         ASYNC_RETAIN
-        BILI::get_live_url(
+        BILI::get_live_room_play_info(
             roomid, defaultQuality,
-            [ASYNC_TOKEN](const bilibili::LiveUrlResultWrapper& result) {
+            [ASYNC_TOKEN](const auto& result) {
                 ASYNC_RELEASE
-                liveUrl = result;
-                onLiveData(result);
+                liveRoomPlayInfo = result;
+                qualityDescriptionMap.clear();
+                for (auto& i :
+                     liveRoomPlayInfo.playurl_info.playurl.g_qn_desc) {
+                    qualityDescriptionMap[i.qn] = i.desc;
+                }
+
+                // 选择第一个 protocol 的 第一个 format 的第一个 codec 作为播放源
+                // protocol: http_stream / http_hls
+                // format: flv / ts / fmp4
+                // codec: avc / hevc / av1
+                bilibili::LiveStream stream;
+                for (auto& i : liveRoomPlayInfo.playurl_info.playurl.stream) {
+                    stream = i;
+                    break;
+                }
+                bilibili::LiveStreamFormat format;
+                for (auto& i : stream.format) {
+                    format = i;
+                    break;
+                }
+                for (auto& i : format.codec) {
+                    liveUrl = i;
+                    break;
+                }
+                onLiveData(liveRoomPlayInfo);
             },
             [ASYNC_TOKEN](BILI_ERR) {
-                ASYNC_RELEASE
-                this->onError(error);
+                brls::sync([ASYNC_TOKEN, error]() {
+                    ASYNC_RELEASE
+                    this->onError(error);
+                });
             });
 
         reportHistory(roomid);
@@ -42,9 +68,19 @@ public:
             [roomid]() {
                 brls::Logger::debug("report live history {}", roomid);
             },
-            [this](BILI_ERR) { this->onError(error); });
+            [](BILI_ERR) {
+                brls::Logger::error("report live history:", error);
+            });
     }
 
-    static inline int defaultQuality = 10000;
-    bilibili::LiveUrlResultWrapper liveUrl;
+    std::string getQualityDescription(int qn) {
+        if (qualityDescriptionMap.count(qn) == 0)
+            return "Unknown Quality " + std::to_string(qn);
+        return qualityDescriptionMap[qn];
+    }
+
+    static inline int defaultQuality = 0;
+    bilibili::LiveRoomPlayInfo liveRoomPlayInfo;
+    bilibili::LiveStreamFormatCodec liveUrl;
+    std::unordered_map<int, std::string> qualityDescriptionMap;
 };
