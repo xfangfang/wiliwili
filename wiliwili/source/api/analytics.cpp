@@ -58,6 +58,7 @@ void Analytics::send() {
         i.params["session_id"] = this->client_id;
         i.params["git"] = APPVersion::instance().git_tag;
         i.params["platform"] = APPVersion::instance().getPlatform();
+        i.params["user"] = ProgramConfig::instance().getUserID();
     }
     nlohmann::json content(package);
     auto content_str = content.dump();

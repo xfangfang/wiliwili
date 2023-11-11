@@ -1,15 +1,18 @@
 <brls:Box
         axis="column"
-        margin="20"
+        marginTop="20"
+        marginBottom="20"
         width="auto"
         height="500">
 
     <ButtonClose
             positionType="absolute"
             positionTop="-16"
-            positionRight="-16"/>
+            positionRight="4"/>
 
     <brls:Box
+            marginLeft="20"
+            marginRight="20"
             width="400"
             alignItems="center">
         <UserInfoView
@@ -19,13 +22,15 @@
 
 
     <brls:Rectangle
+            marginLeft="24"
+            marginRight="24"
+            marginTop="4"
+            marginBottom="4"
             width="auto"
             height="1"
-            margin="4"
             color="@theme/color/line"/>
 
     <brls:ScrollingFrame
-            margin="10"
             width="auto"
             height="auto"
             focusable="true"
@@ -36,8 +41,8 @@
                 height="auto"
                 minHeight="500"
                 axis="column"
-                paddingLeft="20"
-                paddingRight="20"
+                paddingLeft="40"
+                paddingRight="40"
                 paddingTop="10"
                 paddingBottom="10">
 
@@ -46,19 +51,38 @@
                     width="auto"
                     height="auto"
                     fontSize="36"
-                    marginBottom="30"/>
+                    marginTop="10"
+                    marginBottom="20"/>
 
             <brls:Label
-                    id="latest/content/label"
+                    id="latest/subtitle"
                     width="auto"
-                    margin="4"
-                    height="auto"/>
+                    height="auto"
+                    textColor="@theme/font/grey"
+                    marginBottom="10"/>
+            <brls:Box
+                    id="latest/top"
+                    marginBottom="30"/>
+
+            <brls:Box
+                    axis="column"
+                    id="latest/textbox"/>
 
             <QRImage
-                    margin="30"
+                    marginTop="30"
                     width="200"
                     height="200"
+                    alignSelf="center"
                     QRContent="https://github.com/xfangfang/wiliwili/releases"/>
+
+            <brls:Label
+                    width="auto"
+                    height="auto"
+                    textColor="@theme/font/grey"
+                    text="https://github.com/xfangfang/wiliwili/releases"
+                    horizontalAlign="center"
+                    marginTop="20"
+                    marginBottom="30"/>
 
         </brls:Box>
 

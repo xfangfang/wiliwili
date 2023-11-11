@@ -84,9 +84,8 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
             [showUpToDateDialog](cpr::Response r) {
                 try {
                     nlohmann::json res = nlohmann::json::parse(r.text);
-                    std::string latestVersion =
-                        res.at("tag_name").get<std::string>();
-                    if (!APPVersion::instance().needUpdate(latestVersion)) {
+                    auto info = res.get<ReleaseNote>();
+                    if (!APPVersion::instance().needUpdate(info.tag_name)) {
                         brls::Logger::info("App is up to date");
                         if (showUpToDateDialog) {
                             brls::sync([]() {
@@ -96,23 +95,8 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
                         }
                         return;
                     }
-
-                    brls::sync([res]() {
-                        auto updateName    = res.at("name").get<std::string>();
-                        auto updateContent = res.at("body").get<std::string>();
-                        updateContent =
-                            pystring::replace(updateContent, "\r\n", "\n");
-                        auto author_name =
-                            res.at("author").at("login").get<std::string>();
-                        auto author_avatar = res.at("author")
-                                                 .at("avatar_url")
-                                                 .get<std::string>();
-                        auto publish_date =
-                            res.at("published_at").get<std::string>();
-
-                        auto container = new LatestUpdate(
-                            updateName, updateContent, author_name,
-                            author_avatar, publish_date);
+                    brls::sync([info]() {
+                        auto container = new LatestUpdate(info);
                         auto dialog = new brls::Dialog((brls::Box*)container);
                         dialog->open();
                     });
