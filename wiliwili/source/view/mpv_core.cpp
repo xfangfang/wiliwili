@@ -207,6 +207,8 @@ void MPVCore::init() {
     check_error(
         mpv_observe_property(mpv, 13, "playback-abort", MPV_FORMAT_FLAG));
     check_error(mpv_observe_property(mpv, 14, "seeking", MPV_FORMAT_FLAG));
+    check_error(
+        mpv_observe_property(mpv, 15, "hwdec-current", MPV_FORMAT_STRING));
 
     // init renderer params
 #ifdef MPV_SW_RENDER
@@ -883,6 +885,12 @@ void MPVCore::eventMainLoop() {
                             disableDimming(false);
                         }
                         break;
+                    case 15:
+                        if (data) {
+                            hwCurrent = *(char **)data;
+                            brls::Logger::info("========> HW: {}", hwCurrent);
+                            GA("hwdec", {{"hwdec", hwCurrent}})
+                        }
                     default:
                         break;
                 }

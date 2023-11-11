@@ -56,6 +56,8 @@ void Analytics::send() {
     for (auto& i : package.events) {
         i.params["engagement_time_msec"] = 100;
         i.params["session_id"] = this->client_id;
+        i.params["git"] = APPVersion::instance().git_tag;
+        i.params["platform"] = APPVersion::instance().getPlatform();
     }
     nlohmann::json content(package);
     auto content_str = content.dump();

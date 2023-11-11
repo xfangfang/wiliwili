@@ -79,9 +79,7 @@ int main(int argc, char* argv[]) {
        {{"version", APPVersion::instance().getVersionStr()},
         {"language", brls::Application::getLocale()},
         {"window", fmt::format("{}x{}", brls::Application::windowWidth,
-                               brls::Application::windowHeight)},
-        {"git", APPVersion::instance().git_tag},
-        {"platform", APPVersion::instance().getPlatform()}})
+                               brls::Application::windowHeight)}})
     APPVersion::instance().checkUpdate();
 
     // Run the app
