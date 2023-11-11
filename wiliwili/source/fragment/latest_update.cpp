@@ -3,10 +3,12 @@
 //
 
 #include <pystring.h>
+#include <regex>
 
 #include "fragment/latest_update.hpp"
 #include "analytics.h"
 #include "utils/config_helper.hpp"
+#include "utils/image_helper.hpp"
 #include "view/text_box.hpp"
 
 static inline bool isSeparator(const std::string& text) {
@@ -33,13 +35,40 @@ static inline size_t getHeaderSize(const std::string& text) {
     return res;
 }
 
+static inline bool isImage(const std::string& text) {
+    return pystring::startswith(pystring::lstrip(text), "![");
+}
+
+#define PARSE_IMAGE_DATA(index, name, def)               \
+    if (data.size() > (index) && !data[index].empty()) { \
+        try {                                            \
+            (name) = std::stoi(data[index]);             \
+        } catch (const std::invalid_argument& e) {       \
+            (name) = def;                                \
+        }                                                \
+    } else {                                             \
+        (name) = def;                                    \
+    }
+static inline std::string getImageUrl(const std::string& test, int& maxHeight,
+                                      int& margin) {
+    std::regex re(R"(\!\[(.*)\]\((.*)\))");
+    std::smatch match;
+    if (std::regex_search(test, match, re)) {
+        auto data = pystring::split(match[1], ",");
+        PARSE_IMAGE_DATA(0, maxHeight, 200)
+        PARSE_IMAGE_DATA(1, margin, 10)
+        return match[2];
+    }
+    return "";
+}
+
 #define SHOW_REACTION(emoji, count)          \
     if ((count) > 0) {                       \
         auto reaction = new brls::Label();   \
         auto num      = new brls::Label();   \
         reaction->setText(emoji);            \
         num->setText(std::to_string(count)); \
-        num->setMarginLeft(10);             \
+        num->setMarginLeft(10);              \
         num->setMarginRight(20);             \
         topBox->addView(reaction);           \
         topBox->addView(num);                \
@@ -97,6 +126,20 @@ LatestUpdate::LatestUpdate(const ReleaseNote& info) {
             lineBox->addView(linePoint);
             lineBox->addView(line);
             textbox->addView(lineBox);
+        } else if (isImage(l)) {
+            // 图片
+            int maxHeight, margin;
+            auto url = getImageUrl(l, maxHeight, margin);
+            if (url.empty()) continue;
+            auto box   = new brls::Box();
+            auto image = new brls::Image();
+            image->setMaxHeight((float)maxHeight);
+            image->setMargins((float)margin, (float)margin, (float)margin,
+                              (float)margin);
+            ImageHelper::with(image)->load(url);
+            box->addView(image);
+            box->setJustifyContent(brls::JustifyContent::CENTER);
+            textbox->addView(box);
         } else {
             auto line = new brls::Label();
             line->setMarginBottom(10);
