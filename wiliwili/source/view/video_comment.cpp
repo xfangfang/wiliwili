@@ -260,8 +260,16 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
             w = picture.img_width / picture.img_height * h;
             if (w > maxSize) w = maxSize;
         }
+
+        const std::string custom_ext_jpg = "@{}w_{}h_85q_!note-comment-multiple.jpg";
+        std::string custom_ext = ImageHelper::note_custom_ext;
+        if (picture.img_src.size() > 4 &&
+            picture.img_src.substr(picture.img_src.size() - 4, 4) == ".gif") {
+            // gif 图片暂时按照 jpg 来解析
+            custom_ext = custom_ext_jpg;
+        }
         auto item = std::make_shared<RichTextImage>(
-            picture.img_src + wiliwili::format(ImageHelper::note_custom_ext,
+            picture.img_src + wiliwili::format(custom_ext,
 #ifdef __PSV__
                                           (int)(w * 0.5), (int)(h * 0.5)),
 #else
