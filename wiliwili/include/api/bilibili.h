@@ -8,9 +8,11 @@
 
 namespace bilibili {
 
-class LiveResultWrapper;
-class LiveUrlResultWrapper;
-class LiveRoomPlayInfo;
+class LiveResultWrapper;          // 直播推荐
+class LiveUrlResultWrapper;       // 直播链接V1
+class LiveRoomPlayInfo;           // 直播链接V2
+class LivePayInfo;                // 大航海专属直播信息
+class LivePayLink;                // 大航海专属直播付费链接
 class LiveFullAreaResultWrapper;  // 直播分区列表
 class LiveSecondResultWrapper;    // 直播二级分区推荐
 class SearchResult;
@@ -131,7 +133,7 @@ public:
     // 稍后再看 watch later
     static void getWatchLater(
         const std::function<void(WatchLaterListWrapper)>& callback = nullptr,
-        const ErrorCallback& error = nullptr);
+        const ErrorCallback& error                                 = nullptr);
 
     /**
      * 获取用户创建的收藏列表或用户订阅的合集
@@ -285,7 +287,7 @@ public:
         const ErrorCallback& error                          = nullptr);
 
     /// get live video url by roomid
-    /// @deprecated 部分直播间可能无法获取到直播地址，但可以获取到长时间有效的直播地址
+    /// @deprecated 部分直播间无法获取到直播地址
     static void get_live_url(
         int roomid, int qn = 10000,
         const std::function<void(LiveUrlResultWrapper)>& callback = nullptr,
@@ -294,7 +296,17 @@ public:
     static void get_live_room_play_info(
         int roomid, int qn = 0,
         const std::function<void(LiveRoomPlayInfo)>& callback = nullptr,
-        const ErrorCallback& error                                = nullptr);
+        const ErrorCallback& error                            = nullptr);
+
+    static void get_live_pay_info(
+        int roomid,
+        const std::function<void(LivePayInfo)>& callback = nullptr,
+        const ErrorCallback& error                            = nullptr);
+
+    static void get_live_pay_link(
+        int roomid,
+        const std::function<void(LivePayLink)>& callback = nullptr,
+        const ErrorCallback& error                            = nullptr);
 
     /**
      * 主页 推荐
@@ -308,7 +320,8 @@ public:
      * @param error
      */
     static void get_recommend(
-        int index = 1, int num = 24, int fresh_type = 4, std::string feed_version = "V1", int x_num = 3, int y_num = 4,
+        int index = 1, int num = 24, int fresh_type = 4,
+        std::string feed_version = "V1", int x_num = 3, int y_num = 4,
         const std::function<void(RecommendVideoListResultWrapper)>& callback =
             nullptr,
         const ErrorCallback& error = nullptr);

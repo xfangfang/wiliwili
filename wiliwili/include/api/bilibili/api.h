@@ -104,6 +104,12 @@ const std::string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
 /// 直播API V2
 const std::string RoomPlayInfo =
     _liveBase + "/xlive/web-room/v2/index/getRoomPlayInfo";
+/// 是否为大航海专属直播
+const std::string RoomPayInfo =
+    _liveBase + "/av/v1/PayLive/liveValidate";
+/// 大航海直播的付费链接
+const std::string RoomPayLink =
+    _liveBase + "/xlive/web-ucenter/v1/payPlay/getInfo";
 /// 直播历史记录
 const std::string LiveReport =
     _liveBase + "/xlive/web-room/v1/index/roomEntryAction";

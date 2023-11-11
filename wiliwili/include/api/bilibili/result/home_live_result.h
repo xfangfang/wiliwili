@@ -95,6 +95,8 @@ public:
     int live_status;
     size_t live_time;
     LivePlayUrlInfo playurl_info;
+    bool is_locked;  // 是否被封禁
+    int lock_till;   // 封禁解锁时间
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       LiveRoomPlayInfo& nlohmann_json_t) {
@@ -102,8 +104,27 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("playurl_info").get_to(nlohmann_json_t.playurl_info);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, room_id, uid,
-                                             live_status, live_time));
+                                             live_status, live_time, is_locked,
+                                             lock_till));
 }
+
+class LivePayInfo {
+public:
+    int permission;
+    std::string pic;
+
+    std::string message; // 额外的提示信息
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LivePayInfo, permission, pic);
+
+class LivePayLink {
+public:
+    std::string start_time;
+    std::string end_time;
+    std::string goods_link;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LivePayLink, start_time, end_time,
+                                   goods_link);
 
 class LiveAreaResult {
 public:

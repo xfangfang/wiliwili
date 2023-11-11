@@ -29,6 +29,10 @@ public:
 
     void onError(const std::string& error) override;
 
+    void onNeedPay(const std::string& msg, const std::string& link,
+                   const std::string& startTime,
+                   const std::string& endTime) override;
+
     std::vector<std::string> getQualityDescriptionList();
     int getCurrentQualityIndex();
 

@@ -2,6 +2,9 @@
 // Created by fang on 2022/8/4.
 //
 
+#include <borealis/core/thread.hpp>
+#include <borealis/views/dialog.hpp>
+
 #include "activity/live_player_activity.hpp"
 #include "utils/number_helper.hpp"
 
@@ -12,6 +15,7 @@
 #include "view/mpv_core.hpp"
 #include "view/live_core.hpp"
 #include "view/grid_dropdown.hpp"
+#include "view/qr_image.hpp"
 
 #include "utils/shader_helper.hpp"
 #include "utils/config_helper.hpp"
@@ -19,10 +23,6 @@
 #include "live/danmaku_live.hpp"
 #include "live/extract_messages.hpp"
 #include "live/ws_utils.hpp"
-
-#include "bilibili.h"
-
-#include "borealis/core/thread.hpp"
 
 using namespace brls::literals;
 
@@ -60,6 +60,36 @@ static void onDanmakuReceived(std::string&& message) {
     }
     process_danmaku(danmaku_list);
 }
+
+static void showDialog(const std::string& msg, const std::string& pic,
+                              bool forceQuit) {
+    brls::Dialog* dialog;
+    if (pic.empty()) {
+        dialog = new brls::Dialog(msg);
+    } else {
+        auto box   = new brls::Box();
+        auto img   = new brls::Image();
+        auto label = new brls::Label();
+        label->setText(msg);
+        label->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+        label->setMargins(20, 0, 10, 0);
+        img->setMaxHeight(400);
+        img->setImageFromRes(pic);
+        box->addView(img);
+        box->addView(label);
+        box->setAxis(brls::Axis::COLUMN);
+        box->setAlignItems(brls::AlignItems::CENTER);
+        box->setMargins(20, 20, 20, 20);
+        dialog = new brls::Dialog(box);
+    }
+
+    dialog->setCancelable(false);
+    dialog->addButton("hints/ok"_i18n, [forceQuit]() {
+        if (forceQuit) brls::sync([]() { brls::Application::popActivity(); });
+    });
+    dialog->open();
+}
+
 
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
@@ -204,6 +234,9 @@ void LiveActivity::onContentAvailable() {
 
     // 根据房间号重新获取高清播放链接
     this->requestData(liveData.roomid);
+
+    // 获取直播间是否为大航海专属直播
+    this->requestPayLiveInfo(liveData.roomid);
 }
 
 std::vector<std::string> LiveActivity::getQualityDescriptionList() {
@@ -225,12 +258,25 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
     // todo：定时获取在线人数
     this->video->setOnlineCount(liveData.watched_show.text_large);
 
-    if (result.live_status != 1) {
-        // 未开播
-        brls::Logger::error("LiveActivity: not live");
+    if (result.is_locked) {
+        brls::Logger::error("LiveActivity: live {} is locked", result.room_id);
         this->video->showOSD(false);
-        this->video->setStatusLabelLeft("未开播");
+        showDialog(
+            fmt::format("这个房间已经被封禁（至 {}）！(╯°口°)╯(┴—┴",
+                        wiliwili::sec2FullDate(result.lock_till)),
+            "pictures/room-block.png", true);
         return;
+    }
+    // 0: 未开播 1: 直播中 2: 轮播中
+    if (result.live_status == 0) {
+        // 未开播
+        this->video->showOSD(false);
+        showDialog("未开播", "pictures/sorry.png", true);
+        return;
+    } else if (result.live_status == 2) {
+        // todo: 支持轮播视频
+        this->video->showOSD(false);
+        showDialog("未开播", "pictures/sorry.png", true);
     }
     brls::Logger::debug("current quality: {}", liveUrl.current_qn);
     for (auto& i : liveUrl.accept_qn) {
@@ -257,6 +303,49 @@ void LiveActivity::onError(const std::string& error) {
     this->video->showOSD(false);
     this->video->setOnlineCount(error);
     this->retryRequestData();
+}
+
+void LiveActivity::onNeedPay(const std::string& msg, const std::string& link,
+               const std::string& startTime,
+               const std::string& endTime) {
+    if (link.empty()) {
+        showDialog(msg, "", true);
+        return;
+    }
+
+    auto box   = new brls::Box();
+    auto img   = new QRImage();
+    auto label = new brls::Label();
+    auto header = new brls::Label();
+    auto subtitle = new brls::Label();
+    header->setFontSize(24);
+    header->setMargins(10, 0, 20, 0);
+    header->setText(msg);
+    subtitle->setTextColor(brls::Application::getTheme().getColor("font/grey"));
+    subtitle->setText(startTime + " - " + endTime);
+    subtitle->setMarginBottom(10);
+    subtitle->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    header->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    label->setHorizontalAlign(brls::HorizontalAlign::CENTER);
+    label->setMargins(20, 0, 10, 0);
+    label->setText("请使用手机客户端扫码开通");
+    img->setHeight(240);
+    img->setWidth(240);
+    img->setImageFromQRContent(link);
+    box->setAxis(brls::Axis::COLUMN);
+    box->setAlignItems(brls::AlignItems::CENTER);
+    box->setMargins(20, 20, 20, 20);
+    box->addView(header);
+    box->addView(subtitle);
+    box->addView(img);
+    box->addView(label);
+    auto dialog = new brls::Dialog(box);
+
+    dialog->setCancelable(false);
+    dialog->addButton("hints/ok"_i18n, []() {
+        brls::sync([]() { brls::Application::popActivity(); });
+    });
+    dialog->open();
 }
 
 void LiveActivity::retryRequestData() {

@@ -208,20 +208,43 @@ void BilibiliClient::get_live_url(
 void BilibiliClient::get_live_room_play_info(
     int roomid, int qn, const std::function<void(LiveRoomPlayInfo)>& callback,
     const ErrorCallback& error) {
-    HTTP::getResultAsync<LiveRoomPlayInfo>(
-        Api::RoomPlayInfo,
-        {{"room_id", std::to_string(roomid)},
-         {"no_playurl", "0"},
-         {"mask", "1"},
-         {"qn", std::to_string(qn)},
-         {"platform", "web"},
-         {"protocol", "0,1"},
-         {"format", "0,1,2"},
-         {"codec", "0,1,2"},
-         {"dolby", "5"},
-         {"ptype", "8"},
-         {"panorama", "1"}},
-        callback, error);
+    HTTP::getResultAsync<LiveRoomPlayInfo>(Api::RoomPlayInfo,
+                                           {{"room_id", std::to_string(roomid)},
+                                            {"no_playurl", "0"},
+                                            {"mask", "1"},
+                                            {"qn", std::to_string(qn)},
+                                            {"platform", "web"},
+                                            {"protocol", "0,1"},
+                                            {"format", "0,1,2"},
+                                            {"codec", "0,1,2"},
+                                            {"dolby", "5"},
+                                            {"ptype", "8"},
+                                            {"panorama", "1"}},
+                                           callback, error);
+}
+
+void BilibiliClient::get_live_pay_info(
+    int roomid, const std::function<void(LivePayInfo)>& callback,
+    const ErrorCallback& error) {
+    HTTP::__cpr_get(Api::RoomPayInfo, {{"room_id", std::to_string(roomid)}},
+                    [callback, error](const cpr::Response& r) {
+                        try {
+                            nlohmann::json res = nlohmann::json::parse(r.text);
+                            auto ret = res.at("data").get<LivePayInfo>();
+                            ret.message = res.at("message").get<std::string>();
+                            CALLBACK(ret);
+                        } catch (const std::exception& e) {
+                            ERROR_MSG("cannot get live pay info");
+                        }
+                    }, error);
+}
+
+void BilibiliClient::get_live_pay_link(
+    int roomid, const std::function<void(LivePayLink)>& callback,
+    const ErrorCallback& error) {
+    HTTP::getResultAsync<LivePayLink>(
+        Api::RoomPayLink, {{"room_id", std::to_string(roomid)}}, callback,
+        error);
 }
 
 /// 视频页 获取单个视频播放人数

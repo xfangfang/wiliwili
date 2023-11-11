@@ -16,12 +16,15 @@ public:
 
     virtual void onError(const std::string& error) {}
 
+    virtual void onNeedPay(const std::string& msg, const std::string& link,
+                           const std::string& startTime,
+                           const std::string& endTime) {}
+
     void requestData(int roomid) {
         ASYNC_RETAIN
         BILI::get_live_room_play_info(
             roomid, defaultQuality,
             [ASYNC_TOKEN](const auto& result) {
-                ASYNC_RELEASE
                 liveRoomPlayInfo = result;
                 qualityDescriptionMap.clear();
                 for (auto& i :
@@ -47,7 +50,10 @@ public:
                     liveUrl = i;
                     break;
                 }
-                onLiveData(liveRoomPlayInfo);
+                brls::sync([ASYNC_TOKEN]() {
+                    ASYNC_RELEASE
+                    onLiveData(liveRoomPlayInfo);
+                });
             },
             [ASYNC_TOKEN](BILI_ERR) {
                 brls::sync([ASYNC_TOKEN, error]() {
@@ -69,7 +75,40 @@ public:
                 brls::Logger::debug("report live history {}", roomid);
             },
             [](BILI_ERR) {
-                brls::Logger::error("report live history:", error);
+                brls::Logger::error("report live history: {}", error);
+            });
+    }
+
+    void requestPayLiveInfo(int roomid) {
+        ASYNC_RETAIN
+        BILI::get_live_pay_info(
+            roomid,
+            [ASYNC_TOKEN, roomid](const auto& payInfo) {
+                brls::Logger::debug("get live pay info {}", payInfo.permission);
+                if (payInfo.permission != 0) return;
+                BILI::get_live_pay_link(
+                    roomid,
+                    [ASYNC_TOKEN, payInfo](const auto& payLink) {
+                        brls::Logger::debug("get live pay link {}",
+                                            payLink.goods_link);
+                        brls::sync([ASYNC_TOKEN, payInfo, payLink]() {
+                            ASYNC_RELEASE
+                            this->onNeedPay(payInfo.message, payLink.goods_link,
+                                            payLink.start_time,
+                                            payLink.end_time);
+                        });
+                    },
+                    [ASYNC_TOKEN, payInfo](BILI_ERR) {
+                        brls::Logger::error("get live pay link:", error);
+                        brls::sync([ASYNC_TOKEN, payInfo]() {
+                            ASYNC_RELEASE
+                            this->onNeedPay(payInfo.message, "", "", "");
+                        });
+                    });
+            },
+            [ASYNC_TOKEN](BILI_ERR) {
+                ASYNC_RELEASE
+                brls::Logger::error("get live pay info: {}", error);
             });
     }
 
@@ -80,7 +119,7 @@ public:
     }
 
     static inline int defaultQuality = 0;
-    bilibili::LiveRoomPlayInfo liveRoomPlayInfo;
-    bilibili::LiveStreamFormatCodec liveUrl;
-    std::unordered_map<int, std::string> qualityDescriptionMap;
+    bilibili::LiveRoomPlayInfo liveRoomPlayInfo{};
+    bilibili::LiveStreamFormatCodec liveUrl{};
+    std::unordered_map<int, std::string> qualityDescriptionMap{};
 };
