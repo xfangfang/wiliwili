@@ -71,11 +71,13 @@ std::vector<live_t> extract_messages(const std::vector<std::string> &messages) {
     std::vector<live_t> live_messages;
     live_messages.reserve(messages.size() / 5);
 
-    for (auto &message : messages) {
+    for (const auto &message : messages) {
         nlohmann::json json_message;
 
         try {
             json_message = nlohmann::json::parse(message);
+        } catch (const std::exception &e) {
+            continue;
         } catch (...) {
             continue;
         }
@@ -84,7 +86,7 @@ std::vector<live_t> extract_messages(const std::vector<std::string> &messages) {
 
         if (it == json_message.end()) continue;
 
-        if (it->get<std::string>() == "WATCHED_CHANGE") {
+        if (it->get_ref<std::string &>() == "WATCHED_CHANGE") {
             if (json_message["data"]["num"].is_number()) continue;
 
             auto num = json_message["data"]["num"].get<int>();
@@ -99,7 +101,7 @@ std::vector<live_t> extract_messages(const std::vector<std::string> &messages) {
             wc->num = num;
             live_messages.emplace_back(live_t{watched_change, wc});
 
-        } else if (it->get<std::string>() == "DANMU_MSG") {
+        } else if (it->get_ref<std::string &>() == "DANMU_MSG") {
             auto &info = json_message["info"];
 
             if (!info.is_array() || info.size() != 17) continue;

@@ -62,23 +62,13 @@ static void heartbeat_timer(void *param) {
     }
 }
 
-typedef struct task {
-    // 函数
-    const std::function<void(std::string &&)> onMessage;
-    // 参数
-    std::string arg;
-    // 优先级，暂时都设置0
-    int priority;
-} task;
-
-static std::queue<task> task_q;
+static std::queue<std::string> msg_q;
 static std::condition_variable cv;
-static std::mutex task_mutex;
+static std::mutex msg_q_mutex;
 
-static void add_task(const std::function<void(std::string &&)> &func,
-                     std::string &&a) {
-    std::lock_guard<std::mutex> lock(task_mutex);
-    task_q.emplace(task{func, a, 0});
+static void add_msg(std::string &&a) {
+    std::lock_guard<std::mutex> lock(msg_q_mutex);
+    msg_q.emplace(std::move(a));
     cv.notify_one();
 }
 
@@ -148,16 +138,15 @@ void LiveDanmaku::connect(int room_id, int64_t uid) {
 
     task_thread = std::thread([this]() {
         while (true) {
-            std::unique_lock<std::mutex> lock(task_mutex);
-            cv.wait(lock, [this] {
-                return !task_q.empty() or !this->is_connected();
-            });
+            std::unique_lock<std::mutex> lock(msg_q_mutex);
+            cv.wait(lock,
+                    [this] { return !msg_q.empty() or !this->is_connected(); });
             if (!this->is_connected()) break;
-            auto task = task_q.front();
-            task_q.pop();
+            auto msg = std::move(msg_q.front());
+            msg_q.pop();
             lock.unlock();
 
-            task.onMessage(std::move(task.arg));
+            this->onMessage(msg);
         }
     });
 
@@ -247,14 +236,11 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev,
     } else if (ev == MG_EV_WS_MSG) {
         MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         struct mg_ws_message *wm = (struct mg_ws_message *)ev_data;
-        add_task(liveDanmaku->onMessage,
-                 std::string(wm->data.ptr, wm->data.len));
+        add_msg(std::string(wm->data.ptr, wm->data.len));
     } else if (ev == MG_EV_CLOSE) {
         MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);
     }
 }
 
-void LiveDanmaku::setonMessage(std::function<void(std::string &&)> func) {
-    onMessage = func;
-}
+void LiveDanmaku::setonMessage(on_message_func_t func) { onMessage = func; }

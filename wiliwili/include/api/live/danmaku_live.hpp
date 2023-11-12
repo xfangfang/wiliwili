@@ -9,12 +9,12 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
-#include <functional>
 
 #include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
 #include "mongoose.h"
 
+typedef void (*on_message_func_t)(const std::string &);
 class LiveDanmaku : public brls::Singleton<LiveDanmaku> {
 public:
     int room_id;
@@ -26,8 +26,8 @@ public:
     void send_heartbeat();
     void send_text_message(const std::string &message);
 
-    void setonMessage(std::function<void(std::string &&)> func);
-    std::function<void(std::string &&)> onMessage;
+    void setonMessage(on_message_func_t func);
+    on_message_func_t onMessage = nullptr;
 
     void set_wait_time(size_t time);
     size_t wait_time = 800;
