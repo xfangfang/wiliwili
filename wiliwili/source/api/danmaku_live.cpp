@@ -9,7 +9,6 @@
 
 #include <cstddef>
 #include <ctime>
-#include <iostream>
 #include <queue>
 #include <condition_variable>
 #include <string>
@@ -37,7 +36,7 @@ static void get_live_s(int room_id) {
         try {
             _json = json::parse(res.text);
         } catch (...) {
-            std::cout << "getDanmuInfo json parse error" << std::endl;
+            brls::Logger::error("getDanmuInfo json parse error");
         }
         if (_json["code"].get<int>() == 0) {
             // url = "ws://" +
