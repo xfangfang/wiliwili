@@ -49,9 +49,11 @@ public:
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       ReleaseNote& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("reactions")) {
+        nlohmann_json_j.at("reactions").get_to(nlohmann_json_t.reactions);
+    }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, tag_name, name,
-                                             body, published_at, author,
-                                             reactions));
+                                             body, published_at, author));
 }
 
 class LatestUpdate : public brls::Box {

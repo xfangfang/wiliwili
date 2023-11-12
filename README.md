@@ -23,6 +23,7 @@
 [![Crowdin](https://badges.crowdin.net/wiliwili/localized.svg)](https://crowdin.com/project/wiliwili)
 ![NS](https://img.shields.io/badge/-Nintendo%20Switch-e4000f?style=flat&logo=Nintendo%20Switch)
 ![PSV](https://img.shields.io/badge/-PSVita-003791?style=flat&logo=PlayStation)
+![PS4](https://img.shields.io/badge/-PS4-003791?style=flat&logo=PlayStation)
 ![MS](https://img.shields.io/badge/-Windows%207+-357ec7?style=flat&logo=Windows)
 ![mac](https://img.shields.io/badge/-macOS%2010.11+-black?style=flat&logo=Apple)
 ![Linux](https://img.shields.io/badge/-Linux-lightgrey?style=flat&logo=Linux&logoColor=white)
