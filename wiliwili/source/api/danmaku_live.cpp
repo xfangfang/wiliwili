@@ -37,6 +37,7 @@ static void get_live_s(int room_id) {
             _json = json::parse(res.text);
         } catch (...) {
             brls::Logger::error("getDanmuInfo json parse error");
+            return;
         }
         if (_json["code"].get<int>() == 0) {
             // url = "ws://" +

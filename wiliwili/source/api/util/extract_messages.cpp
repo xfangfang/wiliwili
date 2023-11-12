@@ -76,7 +76,7 @@ std::vector<live_t> extract_messages(const std::vector<std::string> &messages) {
 
         try {
             json_message = nlohmann::json::parse(message);
-        } catch (nlohmann::json::parse_error &e) {
+        } catch (...) {
             continue;
         }
 
