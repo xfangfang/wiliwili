@@ -36,7 +36,7 @@ static void get_live_s(int room_id) {
         json _json;
         try {
             _json = json::parse(res.text);
-        } catch (const std::exception &e) {
+        } catch (...) {
             std::cout << "getDanmuInfo json parse error" << std::endl;
         }
         if (_json["code"].get<int>() == 0) {
