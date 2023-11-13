@@ -92,25 +92,23 @@ static void showDialog(const std::string& msg, const std::string& pic,
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
-    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
     this->setCommonData();
-    GA("open_live", {{"id", std::to_string(live.roomid)}})
-    GA("open_live", {{"live_id", std::to_string(live.roomid)}})
 }
 
 LiveActivity::LiveActivity(int roomid, const std::string& name,
                            const std::string& views) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
-    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
     this->liveData.roomid                  = roomid;
     this->liveData.title                   = name;
     this->liveData.watched_show.text_large = views;
     this->setCommonData();
-    GA("open_live", {{"id", std::to_string(roomid)}})
-    GA("open_live", {{"live_id", std::to_string(roomid)}})
 }
 
 void LiveActivity::setCommonData() {
+    GA("open_live", {{"id", std::to_string(this->liveData.roomid)}})
+    GA("open_live", {{"live_id", std::to_string(this->liveData.roomid)}})
+
+    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
     LiveDanmaku::instance().connect(
         liveData.roomid, std::stoll(ProgramConfig::instance().getUserID()));
 

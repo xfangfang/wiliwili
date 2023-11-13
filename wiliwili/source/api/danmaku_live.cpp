@@ -16,41 +16,34 @@
 #include <winsock2.h>
 #endif
 
-#include <nlohmann/json.hpp>
+// static void get_live_s(int room_id) {
+//     auto res = bilibili::HTTP::get(
+//         "https://api.live.bilibili.com/xlive/web-room/v1/index/"
+//         "getDanmuInfo?type=0&id=" +
+//         std::to_string(room_id));
 
-using json = nlohmann::json;
-
-static std::string url = "ws://broadcastlv.chat.bilibili.com:2244/sub";
-static std::string key = "";
-
-static void get_live_s(int room_id) {
-    auto res = bilibili::HTTP::get(
-        "https://api.live.bilibili.com/xlive/web-room/v1/index/"
-        "getDanmuInfo?type=0&id=" +
-        std::to_string(room_id));
-
-    if (res.status_code != 200) {
-        brls::Logger::error("getDanmuInfo error:{}", res.status_code);
-    } else {
-        json _json;
-        try {
-            _json = json::parse(res.text);
-        } catch (...) {
-            brls::Logger::error("getDanmuInfo json parse error");
-            return;
-        }
-        if (_json["code"].get<int>() == 0) {
-            // url = "ws://" +
-            //       _json["data"]["host_list"][0]["host"]
-            //           .get_ref<const std::string &>() +
-            //       ":" +
-            //       std::to_string(
-            //           _json["data"]["host_list"][0]["ws_port"].get<int>()) +
-            //       "/sub";
-            key = _json["data"]["token"].get_ref<const std::string &>();
-        }
-    }
-}
+//     if (res.status_code != 200) {
+//         brls::Logger::error("getDanmuInfo error:{}", res.status_code);
+//     } else {
+//         json _json;
+//         try {
+//             _json = json::parse(res.text);
+//         } catch (...) {
+//             brls::Logger::error("getDanmuInfo json parse error");
+//             return;
+//         }
+//         if (_json["code"].get<int>() == 0) {
+//             // url = "ws://" +
+//             //       _json["data"]["host_list"][0]["host"]
+//             //           .get_ref<const std::string &>() +
+//             //       ":" +
+//             //       std::to_string(
+//             //           _json["data"]["host_list"][0]["ws_port"].get<int>()) +
+//             //       "/sub";
+//             key = _json["data"]["token"].get_ref<const std::string &>();
+//         }
+//     }
+// }
 
 static void mongoose_event_handler(struct mg_connection *nc, int ev,
                                    void *ev_data, void *user_data);
@@ -102,55 +95,75 @@ void LiveDanmaku::connect(int room_id, int64_t uid) {
         return;
     }
 
-    get_live_s(room_id);
-
+    // get_live_s(room_id);
     mg_log_set(MG_LL_NONE);
-    mg_mgr_init(this->mgr);
 
-    this->nc = mg_ws_connect(this->mgr, url.c_str(), mongoose_event_handler,
-                             this, nullptr);
+    bilibili::HTTP::getResultAsync<LiveDanmakuinfo>(
+        "https://api.live.bilibili.com/xlive/web-room/v1/index/"
+        "getDanmuInfo?type=0&id=" +
+            std::to_string(room_id),
+        {},
+        [this, room_id, uid](const LiveDanmakuinfo &info) {
+            this->info.host_list = std::move(info.host_list);
+            this->info.token     = std::move(info.token);
+            mg_mgr_init(this->mgr);
 
-    if (this->nc == nullptr) {
-        std::cout << "nc is null" << std::endl;
-        disconnect();
-        mg_mgr_free(this->mgr);
-        delete this->mgr;
-        return;
-    }
+            std::string host =
+                "ws://" +
+                this->info.host_list[this->info.host_list.size() - 1].host +
+                ":" +
+                std::to_string(
+                    this->info.host_list[this->info.host_list.size() - 1]
+                        .ws_port) +
+                "/sub";
+            this->nc = mg_ws_connect(this->mgr, host.c_str(),
+                                     mongoose_event_handler, this, nullptr);
 
-    this->room_id = room_id;
-    this->uid     = uid;
-    //mg_mgr_poll(this->mgr, 10);
-
-    // Start Mongoose event loop and heartbeat thread
-    mongoose_thread = std::thread([this]() {
-        while (this->is_connected()) {
-            this->mongoose_mutex.lock();
             if (this->nc == nullptr) {
-                break;
+                brls::Logger::error("(LiveDanmaku) nc is null");
+                this->disconnect();
+                mg_mgr_free(this->mgr);
+                delete this->mgr;
+                return;
             }
-            this->mongoose_mutex.unlock();
-            mg_mgr_poll(this->mgr, this->wait_time);
-        }
-        mg_mgr_free(this->mgr);
-        delete this->mgr;
-    });
 
-    task_thread = std::thread([this]() {
-        while (true) {
-            std::unique_lock<std::mutex> lock(msg_q_mutex);
-            cv.wait(lock,
-                    [this] { return !msg_q.empty() or !this->is_connected(); });
-            if (!this->is_connected()) break;
-            auto msg = std::move(msg_q.front());
-            msg_q.pop();
-            lock.unlock();
+            this->room_id = room_id;
+            this->uid     = uid;
 
-            this->onMessage(msg);
-        }
-    });
+            // Start Mongoose event loop and heartbeat thread
+            this->mongoose_thread = std::thread([this]() {
+                while (this->is_connected()) {
+                    this->mongoose_mutex.lock();
+                    if (this->nc == nullptr) {
+                        break;
+                    }
+                    this->mongoose_mutex.unlock();
+                    mg_mgr_poll(this->mgr, this->wait_time);
+                }
+                mg_mgr_free(this->mgr);
+                delete this->mgr;
+            });
 
-    brls::Logger::info("(LiveDanmaku) connect step finish");
+            this->task_thread = std::thread([this]() {
+                while (true) {
+                    std::unique_lock<std::mutex> lock(msg_q_mutex);
+                    cv.wait(lock, [this] {
+                        return !msg_q.empty() or !this->is_connected();
+                    });
+                    if (!this->is_connected()) break;
+                    auto msg = std::move(msg_q.front());
+                    msg_q.pop();
+                    lock.unlock();
+
+                    this->onMessage(msg);
+                }
+            });
+
+            brls::Logger::info("(LiveDanmaku) connect step finish");
+        },
+        [this](const std::string &code) {
+            brls::Logger::error("getDanmuInfo error:{}", code);
+        });
 }
 
 void LiveDanmaku::disconnect() {
@@ -183,11 +196,13 @@ bool LiveDanmaku::is_connected() {
 bool LiveDanmaku::is_evOK() { return ms_ev_ok.load(std::memory_order_acquire); }
 
 void LiveDanmaku::send_join_request(const int room_id, const int64_t uid) {
-    json join_request = {
-        {"uid", uid},        {"roomid", room_id},
-        {"protover", 2},     {"buvid", ProgramConfig::instance().getBuvid3()},
-        {"platform", "web"}, {"type", 2},
-        {"key", key}};
+    json join_request            = {{"uid", uid},
+                                    {"roomid", room_id},
+                                    {"protover", 2},
+                                    {"buvid", ProgramConfig::instance().getBuvid3()},
+                                    {"platform", "web"},
+                                    {"type", 2},
+                                    {"key", this->info.token}};
     std::string join_request_str = join_request.dump();
     brls::Logger::info("(LiveDanmaku) join_request:{}", join_request_str);
     std::vector<uint8_t> packet = encode_packet(0, 7, join_request_str);
