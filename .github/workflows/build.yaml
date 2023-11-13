@@ -425,7 +425,7 @@ jobs:
         with:
           bundle: ${{ steps.dep.outputs.FLATPAK_NAME }}
           manifest-path: .flatpak-manifest.yml
-          cache: false
+          cache-key: flatpak-builder-${{ matrix.driver }}-${{ hashFiles('.flatpak-manifest.yml') }}
           verbose: true
           arch: ${{ matrix.arch }}
 
