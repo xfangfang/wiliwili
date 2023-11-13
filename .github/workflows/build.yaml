@@ -420,20 +420,12 @@ jobs:
         with:
           platforms: arm64
 
-      - name: Cache
-        id: cache
-        if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
-        uses: actions/cache@v3
-        with:
-          path: .flatpak-builder
-          key: wiliwili-flatpak-${{ matrix.driver }}-${{ hashFiles('.flatpak-manifest.yml') }}-${{ matrix.arch }}
-
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.1
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
         if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         with:
           bundle: ${{ steps.dep.outputs.FLATPAK_NAME }}
           manifest-path: .flatpak-manifest.yml
-          cache: false
+          cache-key: flatpak-builder-${{ matrix.driver }}-${{ hashFiles('.flatpak-manifest.yml') }}
           verbose: true
           arch: ${{ matrix.arch }}
 
