@@ -36,8 +36,7 @@ static void process_danmaku(const std::vector<LiveDanmakuItem>& danmaku_list) {
     // danmaku_t_free(dan);
 }
 
-static void onDanmakuReceived(std::string&& message) {
-    const std::string& msg = message;
+static void onDanmakuReceived(const std::string& msg) {
     std::vector<uint8_t> payload(msg.begin(), msg.end());
     std::vector<std::string> messages = parse_packet(payload);
 
@@ -62,7 +61,7 @@ static void onDanmakuReceived(std::string&& message) {
 }
 
 static void showDialog(const std::string& msg, const std::string& pic,
-                              bool forceQuit) {
+                       bool forceQuit) {
     brls::Dialog* dialog;
     if (pic.empty()) {
         dialog = new brls::Dialog(msg);
@@ -90,14 +89,10 @@ static void showDialog(const std::string& msg, const std::string& pic,
     dialog->open();
 }
 
-
 LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
     : liveData(live) {
     brls::Logger::debug("LiveActivity: create: {}", live.roomid);
     this->setCommonData();
-    GA("open_live", {{"id", std::to_string(live.roomid)}})
-    GA("open_live", {{"live_id", std::to_string(live.roomid)}})
-    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
 }
 
 LiveActivity::LiveActivity(int roomid, const std::string& name,
@@ -107,12 +102,13 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
     this->liveData.title                   = name;
     this->liveData.watched_show.text_large = views;
     this->setCommonData();
-    GA("open_live", {{"id", std::to_string(roomid)}})
-    GA("open_live", {{"live_id", std::to_string(roomid)}})
-    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
 }
 
 void LiveActivity::setCommonData() {
+    GA("open_live", {{"id", std::to_string(this->liveData.roomid)}})
+    GA("open_live", {{"live_id", std::to_string(this->liveData.roomid)}})
+
+    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
     LiveDanmaku::instance().connect(
         liveData.roomid, std::stoll(ProgramConfig::instance().getUserID()));
 
@@ -261,10 +257,9 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
     if (result.is_locked) {
         brls::Logger::error("LiveActivity: live {} is locked", result.room_id);
         this->video->showOSD(false);
-        showDialog(
-            fmt::format("这个房间已经被封禁（至 {}）！(╯°口°)╯(┴—┴",
-                        wiliwili::sec2FullDate(result.lock_till)),
-            "pictures/room-block.png", true);
+        showDialog(fmt::format("这个房间已经被封禁（至 {}）！(╯°口°)╯(┴—┴",
+                               wiliwili::sec2FullDate(result.lock_till)),
+                   "pictures/room-block.png", true);
         return;
     }
     // 0: 未开播 1: 直播中 2: 轮播中
@@ -306,17 +301,17 @@ void LiveActivity::onError(const std::string& error) {
 }
 
 void LiveActivity::onNeedPay(const std::string& msg, const std::string& link,
-               const std::string& startTime,
-               const std::string& endTime) {
+                             const std::string& startTime,
+                             const std::string& endTime) {
     if (link.empty()) {
         showDialog(msg, "", true);
         return;
     }
 
-    auto box   = new brls::Box();
-    auto img   = new QRImage();
-    auto label = new brls::Label();
-    auto header = new brls::Label();
+    auto box      = new brls::Box();
+    auto img      = new QRImage();
+    auto label    = new brls::Label();
+    auto header   = new brls::Label();
     auto subtitle = new brls::Label();
     header->setFontSize(24);
     header->setMargins(10, 0, 20, 0);
