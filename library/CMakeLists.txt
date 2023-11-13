@@ -86,7 +86,13 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 add_subdirectory(lunasvg EXCLUDE_FROM_ALL)
 
 # add mongoose
-add_subdirectory(mongoose EXCLUDE_FROM_ALL)
+if (USE_SYSTEM_MONGOOSE)
+    find_library(MONGOOSE_LIBRARY NAMES mongoose REQUIRED)
+    add_library(mongoose UNKNOWN IMPORTED)
+    set_property(TARGET mongoose PROPERTY IMPORTED_LOCATION ${MONGOOSE_LIBRARY})
+else ()
+    add_subdirectory(mongoose EXCLUDE_FROM_ALL)
+endif ()
 
 # add borealis
 add_subdirectory(borealis/library)
