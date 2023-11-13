@@ -86,6 +86,7 @@ modules:
               - /lib/pkgconfig
               - /share/ffmpeg/examples
             config-opts:
+              - '--disable-debug'
               - '--enable-shared'
               - '--disable-static'
               - '--enable-gnutls'
@@ -106,8 +107,8 @@ modules:
               - '--enable-libwebp'
             sources:
               - type: archive
-                url: 'https://ffmpeg.org/releases/ffmpeg-6.0.tar.gz'
-                sha256: 'f4ccf961403752c93961927715f524576d1f4dd02cd76d8c76aed3bbe6686656'
+                url: 'https://ffmpeg.org/releases/ffmpeg-6.1.tar.gz'
+                sha256: '938dd778baa04d353163ca5cb06c909c918850055f549205b29b1224e45a5316'
 
           - name: libass
             cleanup:
@@ -141,10 +142,5 @@ modules:
         cleanup: [ /share, /bin, /include ]
         sources:
           - type: archive
-            url: https://github.com/webmproject/libwebp/archive/refs/tags/v1.3.0.tar.gz
-            sha256: dc9860d3fe06013266c237959e1416b71c63b36f343aae1d65ea9c94832630e1
-            x-checker-data:
-              type: anitya
-              project-id: 1761
-              url-template: https://github.com/webmproject/libwebp/archive/refs/tags/v$version.tar.gz
-              is-important: true
+            url: https://github.com/webmproject/libwebp/archive/refs/tags/v1.3.2.tar.gz
+            sha256: c2c2f521fa468e3c5949ab698c2da410f5dce1c5e99f5ad9e70e0e8446b86505
