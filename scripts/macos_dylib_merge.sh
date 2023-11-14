@@ -2,11 +2,11 @@
 set -e
 
 files=(libass.9.dylib
-       libavcodec.60.3.100.dylib
-       libavdevice.60.1.100.dylib
-       libavfilter.9.3.100.dylib
-       libavformat.60.3.100.dylib
-       libavutil.58.2.100.dylib
+       libavcodec.60.31.102.dylib
+       libavdevice.60.3.100.dylib
+       libavfilter.9.12.100.dylib
+       libavformat.60.16.100.dylib
+       libavutil.58.29.100.dylib
        libboost_atomic-mt.dylib
        libboost_filesystem-mt.dylib
        libcrypto.3.dylib
@@ -29,12 +29,15 @@ files=(libass.9.dylib
        libpng16.16.dylib
        libsharpyuv.0.0.1.dylib
        libssl.3.dylib
-       libswresample.4.10.100.dylib
-       libswscale.7.1.100.dylib
+       libswresample.4.12.100.dylib
+       libswscale.7.5.100.dylib
        libtasn1.6.dylib
        libunibreak.5.dylib
        libunistring.5.dylib
        libwebp.7.1.8.dylib)
+
+rm -rf ./universal
+mkdir -p ./universal
 
 i=1
 for file in "${files[@]}"; do
@@ -52,4 +55,14 @@ for file in "${files[@]}"; do
 
   lipo -create -output ./universal/"$file" ./x86_64/"$file" ./arm64/"$file"
   ((i++))
+done
+
+output_name="macos_dylib_ffmpeg61_mpv36"
+arch_list=("arm64" "x86_64" "universal")
+for i in "${arch_list[@]}";
+do
+  echo "$i";
+  package_name="${output_name}_${i}.tar.gz"
+  rm -rf "$package_name"
+  tar -czvf "$package_name" "${i}"
 done
