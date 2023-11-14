@@ -705,6 +705,9 @@ void ProgramConfig::save() {
 void ProgramConfig::init() {
     brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
 
+    // Needed for MPV
+    setlocale(LC_NUMERIC, "C");
+
     // Set min_threads and max_threads of http thread pool
     curl_global_init(CURL_GLOBAL_DEFAULT);
     cpr::async::startup(THREAD_POOL_MIN_THREAD_NUM, THREAD_POOL_MAX_THREAD_NUM,
