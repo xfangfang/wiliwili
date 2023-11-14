@@ -40,7 +40,7 @@ static void onDanmakuReceived(const std::string& msg) {
     std::vector<uint8_t> payload(msg.begin(), msg.end());
     std::vector<std::string> messages = parse_packet(payload);
 
-    if (messages.size() == 0) {
+    if (messages.empty()) {
         return;
     }
 
@@ -89,12 +89,6 @@ static void showDialog(const std::string& msg, const std::string& pic,
     dialog->open();
 }
 
-LiveActivity::LiveActivity(const bilibili::LiveVideoResult& live)
-    : liveData(live) {
-    brls::Logger::debug("LiveActivity: create: {}", live.roomid);
-    this->setCommonData();
-}
-
 LiveActivity::LiveActivity(int roomid, const std::string& name,
                            const std::string& views) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
@@ -105,13 +99,6 @@ LiveActivity::LiveActivity(int roomid, const std::string& name,
 }
 
 void LiveActivity::setCommonData() {
-    GA("open_live", {{"id", std::to_string(this->liveData.roomid)}})
-    GA("open_live", {{"live_id", std::to_string(this->liveData.roomid)}})
-
-    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
-    LiveDanmaku::instance().connect(
-        liveData.roomid, std::stoll(ProgramConfig::instance().getUserID()));
-
     // 重置播放器
     MPVCore::instance().reset();
 
@@ -231,8 +218,14 @@ void LiveActivity::onContentAvailable() {
     // 根据房间号重新获取高清播放链接
     this->requestData(liveData.roomid);
 
+    // 连接直播弹幕
+    this->requestLiveDanmakuToken(this->liveData.roomid);
+
     // 获取直播间是否为大航海专属直播
     this->requestPayLiveInfo(liveData.roomid);
+
+    GA("open_live", {{"id", std::to_string(this->liveData.roomid)}})
+    GA("open_live", {{"live_id", std::to_string(this->liveData.roomid)}})
 }
 
 std::vector<std::string> LiveActivity::getQualityDescriptionList() {
@@ -291,6 +284,13 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
         this->video->setUrl(url);
         break;
     }
+}
+
+void LiveActivity::onDanmakuInfo(int roomid,
+                                 const bilibili::LiveDanmakuinfo& info) {
+    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
+    LiveDanmaku::instance().connect(
+        roomid, std::stoll(ProgramConfig::instance().getUserID()), info);
 }
 
 void LiveActivity::onError(const std::string& error) {

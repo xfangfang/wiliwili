@@ -12,32 +12,21 @@
 
 #include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
-#include "mongoose.h"
+#include <mongoose.h>
 #include <nlohmann/json.hpp>
 #include <vector>
 
+#include "bilibili/result/live_danmaku_result.h"
+
 using json = nlohmann::json;
-
-class LiveDanmakuHostinfo {
-public:
-    std::string host;
-    int ws_port;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveDanmakuHostinfo, host, ws_port);
-
-class LiveDanmakuinfo {
-public:
-    std::vector<LiveDanmakuHostinfo> host_list;
-    std::string token = "";
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveDanmakuinfo, host_list, token);
 
 typedef void (*on_message_func_t)(const std::string &);
 class LiveDanmaku : public brls::Singleton<LiveDanmaku> {
 public:
     int room_id;
     int uid;
-    void connect(int room_id, int64_t uid);
+    void connect(int room_id, int64_t uid,
+                 const bilibili::LiveDanmakuinfo &info);
     void disconnect();
     void send_join_request(int room_id, int64_t uid);
 
@@ -58,7 +47,7 @@ public:
     bool is_evOK();
     std::atomic_bool ms_ev_ok{false};
 
-    LiveDanmakuinfo info;
+    bilibili::LiveDanmakuinfo info;
 
     std::thread mongoose_thread;
     std::thread task_thread;

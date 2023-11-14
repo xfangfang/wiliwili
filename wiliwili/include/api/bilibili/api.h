@@ -99,6 +99,9 @@ const std::string VideoEpisodeRelation =
     _apiBase + "/pgc/season/episode/web/info";
 /// 获取视频弹幕
 const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
+/// 获取直播弹幕token
+const std::string LiveDanmakuInfo =
+    _liveBase + "/xlive/web-room/v1/index/getDanmuInfo";
 /// 直播API
 const std::string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
 /// 直播API V2

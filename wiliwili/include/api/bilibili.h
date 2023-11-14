@@ -11,6 +11,7 @@ namespace bilibili {
 class LiveResultWrapper;          // 直播推荐
 class LiveUrlResultWrapper;       // 直播链接V1
 class LiveRoomPlayInfo;           // 直播链接V2
+class LiveDanmakuinfo;            // 直播弹幕连接信息
 class LivePayInfo;                // 大航海专属直播信息
 class LivePayLink;                // 大航海专属直播付费链接
 class LiveFullAreaResultWrapper;  // 直播分区列表
@@ -299,14 +300,18 @@ public:
         const ErrorCallback& error                            = nullptr);
 
     static void get_live_pay_info(
+        int roomid, const std::function<void(LivePayInfo)>& callback = nullptr,
+        const ErrorCallback& error = nullptr);
+
+    /// 获取直播间弹幕服务器和连接 token
+    static void get_live_danmaku_info(
         int roomid,
-        const std::function<void(LivePayInfo)>& callback = nullptr,
-        const ErrorCallback& error                            = nullptr);
+        const std::function<void(LiveDanmakuinfo)>& callback = nullptr,
+        const ErrorCallback& error                           = nullptr);
 
     static void get_live_pay_link(
-        int roomid,
-        const std::function<void(LivePayLink)>& callback = nullptr,
-        const ErrorCallback& error                            = nullptr);
+        int roomid, const std::function<void(LivePayLink)>& callback = nullptr,
+        const ErrorCallback& error = nullptr);
 
     /**
      * 主页 推荐

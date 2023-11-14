@@ -15,7 +15,6 @@ public:
     // Declare that the content of this activity is the given XML file
     CONTENT_FROM_XML_RES("activity/video_activity.xml");
 
-    explicit LiveActivity(const bilibili::LiveVideoResult& live);
     explicit LiveActivity(int roomid, const std::string& name = "",
                           const std::string& views = "");
 
@@ -32,6 +31,9 @@ public:
     void onNeedPay(const std::string& msg, const std::string& link,
                    const std::string& startTime,
                    const std::string& endTime) override;
+
+    void onDanmakuInfo(int roomid,
+                       const bilibili::LiveDanmakuinfo& info) override;
 
     std::vector<std::string> getQualityDescriptionList();
     int getCurrentQualityIndex();

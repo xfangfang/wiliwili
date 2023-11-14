@@ -104,7 +104,7 @@ std::vector<live_t> extract_messages(const std::vector<std::string> &messages) {
         } else if (it->get_ref<std::string &>() == "DANMU_MSG") {
             auto &info = json_message["info"];
 
-            if (!info.is_array() || info.size() != 17) continue;
+            if (!info.is_array() || info.size() < 17) continue;
 
             danmaku_t *dan = danmaku_t_init();
             if (!dan) {
