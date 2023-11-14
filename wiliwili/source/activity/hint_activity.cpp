@@ -37,6 +37,8 @@ const std::string galleryItemInstallNSPXML = R"xml(
         <brls:Label
                 positionType="absolute"
                 positionBottom="4%"
+                horizontalAlign="center"
+                width="1500"
                 id="gallery/label"
                 text="@i18n/wiliwili/hints/hint4"
                 fontSize="24"/>
