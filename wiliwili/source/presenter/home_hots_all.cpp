@@ -17,7 +17,7 @@ void HomeHotsAllRequest::requestData(bool refresh) {
 
 void HomeHotsAllRequest::requestHotsAllVideoList(int index, int num) {
     CHECK_AND_SET_REQUEST
-    bilibili::BilibiliClient::get_hots_all(
+    BILI::get_hots_all(
         index, num,
         [this, index](const bilibili::HotsAllVideoListResult &result,
                       bool no_more) {
@@ -27,7 +27,7 @@ void HomeHotsAllRequest::requestHotsAllVideoList(int index, int num) {
             }
             UNSET_REQUEST
         },
-        [this](const std::string &error) {
+        [this](BILI_ERR) {
             this->onError(error);
             UNSET_REQUEST
         });

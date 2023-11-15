@@ -41,7 +41,7 @@ void DynamicVideoRequest::requestDynamicVideoList(unsigned int page,
         return;
     }
     CHECK_AND_SET_REQUEST
-    bilibili::BilibiliClient::dynamic_video(
+    BILI::dynamic_video(
         page, offset,
         [this](const bilibili::DynamicVideoListResultWrapper &result) {
             if (currentPage != result.page) {
@@ -55,7 +55,7 @@ void DynamicVideoRequest::requestDynamicVideoList(unsigned int page,
             this->onDynamicVideoList(result.items, result.page);
             UNSET_REQUEST
         },
-        [this](const std::string &error) {
+        [this](BILI_ERR) {
             this->onError(error);
             UNSET_REQUEST
         });
@@ -64,7 +64,7 @@ void DynamicVideoRequest::requestDynamicVideoList(unsigned int page,
 void DynamicVideoRequest::requestUserDynamicVideoList(int64_t mid, int pn,
                                                       int ps) {
     CHECK_AND_SET_REQUEST
-    bilibili::BilibiliClient::get_user_videos2(
+    BILI::get_user_videos2(
         mid, pn, ps,
         [this](const bilibili::UserDynamicVideoResultWrapper &result) {
             if (currentPage != result.page.pn) {
@@ -77,7 +77,7 @@ void DynamicVideoRequest::requestUserDynamicVideoList(int64_t mid, int pn,
             this->onDynamicVideoList(result.archives, result.page.pn);
             UNSET_REQUEST
         },
-        [this](const std::string &error) {
+        [this](BILI_ERR) {
             this->onError(error);
             UNSET_REQUEST
         });

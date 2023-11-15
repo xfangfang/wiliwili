@@ -29,14 +29,14 @@ void HomeBangumiRequest::requestData(bool refresh) {
 void HomeBangumiRequest::requestBangumiList(int is_refresh,
                                             const std::string& cursor) {
     CHECK_AND_SET_REQUEST
-    bilibili::BilibiliClient::get_bangumi(
+    BILI::get_bangumi(
         is_refresh, cursor,
         [this](const bilibili::PGCResultWrapper& result) {
             this->next_cursor = result.next_cursor;
             this->onBangumiList(result);
             UNSET_REQUEST
         },
-        [this](const std::string& error) {
+        [this](BILI_ERR) {
             this->onError(error);
             UNSET_REQUEST
         });
@@ -62,14 +62,14 @@ void HomeCinemaRequest::requestData(bool refresh) {
 void HomeCinemaRequest::requestCinemaList(int is_refresh,
                                           const std::string& cursor) {
     CHECK_AND_SET_REQUEST
-    bilibili::BilibiliClient::get_cinema(
+    BILI::get_cinema(
         is_refresh, cursor,
         [this](const bilibili::PGCResultWrapper& result) {
             this->next_cursor = result.next_cursor;
             this->onCinemaList(result);
             UNSET_REQUEST
         },
-        [this](const std::string& error) {
+        [this](BILI_ERR) {
             this->onError(error);
             UNSET_REQUEST
         });

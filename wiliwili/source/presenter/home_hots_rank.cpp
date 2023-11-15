@@ -24,18 +24,18 @@ void HomeHotsRankRequest::requestData(size_t index) {
 }
 
 void HomeHotsRankRequest::requestHotsRankVideoList(int rid, std::string type) {
-    bilibili::BilibiliClient::get_hots_rank(
+    BILI::get_hots_rank(
         rid, type,
         [this](auto result, auto note) { this->onHotsRankList(result, note); },
-        [this](const std::string &error) { this->onError(error); });
+        [this](BILI_ERR) { this->onError(error); });
 }
 
 void HomeHotsRankRequest::requestHotsRankPGCVideoList(int season_type,
                                                       int day) {
-    bilibili::BilibiliClient::get_hots_rank_pgc(
+    BILI::get_hots_rank_pgc(
         season_type, day,
         [this](auto result, auto explain) {
             this->onHotsRankPGCList(result, explain);
         },
-        [this](const std::string &error) { this->onError(error); });
+        [this](BILI_ERR) { this->onError(error); });
 }

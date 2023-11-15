@@ -19,9 +19,9 @@ const std::string BILIBILI_APP_KEY    = "aa1e74ee4874176e";
 const std::string BILIBILI_APP_SECRET = "54e6a9a31b911cd5fc0daa66ebf94bc4";
 const std::string BILIBILI_BUILD      = "1001011000";
 
-using ErrorCallback = std::function<void(const std::string&)>;
+using ErrorCallback = std::function<void(const std::string&, int code)>;
 #define ERROR_MSG(msg, ...) \
-    if (error) error(msg)
+    if (error) error(msg, __VA_ARGS__)
 #ifdef CALLBACK
 #undef CALLBACK
 #endif
@@ -50,10 +50,12 @@ public:
         const ErrorCallback& error                                = nullptr) {
         cpr::PostCallback(
             [callback, error](const cpr::Response& r) {
-                if (r.status_code != 200) {
+                if (r.status_code == 0) {
+                    ERROR_MSG("No network connection", -1);
+                } else if (r.status_code != 200) {
                     ERROR_MSG("Network error. [Status code: " +
                                   std::to_string(r.status_code) + " ]",
-                              -404);
+                              r.status_code);
                     return;
                 }
                 callback(r);
@@ -73,10 +75,12 @@ public:
         const ErrorCallback& error                                = nullptr) {
         cpr::GetCallback(
             [callback, error](const cpr::Response& r) {
-                if (r.status_code != 200) {
+                if (r.status_code == 0) {
+                    ERROR_MSG("No network connection", -1);
+                } else if (r.status_code != 200) {
                     ERROR_MSG("Network error. [Status code: " +
                                   std::to_string(r.status_code) + " ]",
-                              -404);
+                              r.status_code);
                     return;
                 }
                 callback(r);
@@ -114,31 +118,33 @@ public:
                     nlohmann::json res = nlohmann::json::parse(r.text);
                     int code           = res.at("code").get<int>();
                     if (code == 0) {
-                        if (res.contains("data")) {
+                        if (res.contains("data") &&
+                            res.at("data").is_object()) {
                             CALLBACK(res.at("data").get<ReturnType>());
-                        } else if (res.contains("result")) {
+                        } else if (res.contains("result") &&
+                                   res.at("result").is_object()) {
                             CALLBACK(res.at("result").get<ReturnType>());
                         } else {
                             printf("data: %s\n", r.text.c_str());
-                            ERROR_MSG("Cannot find data");
+                            ERROR_MSG("Cannot find data", -1);
                         }
                         return;
                     }
 
                     if (res.at("message").is_string()) {
-                        ERROR_MSG("error msg: " +
-                                  res.at("message").get<std::string>() +
-                                  "; error code: " + std::to_string(code));
+                        ERROR_MSG(res.at("message").get<std::string>(), code);
                     } else {
-                        ERROR_MSG("Param error");
+                        ERROR_MSG("Param error", -1);
                     }
                 } catch (const std::exception& e) {
                     if (r.status_code == 200) {
                         ERROR_MSG("Api error. \n" + std::string{e.what()}, 200);
+                    } else if (r.status_code == 0) {
+                        ERROR_MSG("No network connection", -1);
                     } else {
                         ERROR_MSG("Network error. \nStatus code: " +
                                       std::to_string(r.status_code),
-                                  -404);
+                                  r.status_code);
                     }
                     printf("data: %s\n", r.text.c_str());
                     printf("ERROR: %s\n", e.what());
@@ -172,21 +178,19 @@ public:
                     nlohmann::json res = nlohmann::json::parse(r.text);
                     int code           = res.at("code").get<int>();
                     if (code == 0) {
-                        if (res.contains("data")) {
+                        if (res.contains("data") && res.at("data").is_object()) {
                             CALLBACK(res.at("data").get<ReturnType>());
-                        } else if (res.contains("result")) {
+                        } else if (res.contains("result") && res.at("result").is_object()) {
                             CALLBACK(res.at("result").get<ReturnType>());
                         } else {
-                            ERROR_MSG("");
+                            printf("data: %s\n", r.text.c_str());
+                            ERROR_MSG("Cannot find data", -1);
                         }
                         return;
                     }
-                    ERROR_MSG("code: " + std::to_string(code) +
-                              "; msg: " + res.at("message").get<std::string>());
+                    ERROR_MSG(res.at("message").get<std::string>(), code);
                 } catch (const std::exception& e) {
-                    ERROR_MSG(
-                        "API error: code: " + std::to_string(r.status_code) +
-                        "; msg: " + std::string(e.what()));
+                    ERROR_MSG(std::string(e.what()), r.status_code);
                     printf("data: %s\n", r.text.c_str());
                     printf("ERROR: %s\n", e.what());
                 }
@@ -209,12 +213,9 @@ public:
                         if (callback) callback();
                         return;
                     }
-                    ERROR_MSG("code: " + std::to_string(code) +
-                              "; msg: " + res.at("message").get<std::string>());
+                    ERROR_MSG(res.at("message").get<std::string>(), code);
                 } catch (const std::exception& e) {
-                    ERROR_MSG(
-                        "API error: code: " + std::to_string(r.status_code) +
-                        "; msg: " + std::string(e.what()));
+                    ERROR_MSG(std::string(e.what()), r.status_code);
                     printf("data: %s\n", r.text.c_str());
                     printf("ERROR: %s\n", e.what());
                 }

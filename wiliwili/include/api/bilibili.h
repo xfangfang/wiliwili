@@ -71,10 +71,10 @@ class SearchSuggestList;
 class WatchLaterListWrapper;
 
 using Cookies       = std::map<std::string, std::string>;
-using ErrorCallback = std::function<void(const std::string&)>;
+using ErrorCallback = std::function<void(const std::string&, int code)>;
 
 #define BILI bilibili::BilibiliClient
-#define BILI_ERR const std::string& error
+#define BILI_ERR const std::string& error, int code
 
 class BilibiliClient {
     inline static std::function<void(Cookies, std::string)>

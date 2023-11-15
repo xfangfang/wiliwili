@@ -171,7 +171,7 @@ void PlayerCollection::getCollectionList(int rid, int type) {
                 this->onCollectionList(result);
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             brls::Logger::error("{}", error);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE

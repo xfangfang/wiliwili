@@ -36,14 +36,14 @@ void Home::requestRecommendVideoList(int index, int num, int fresh,
                                      FeedType type) {
     CHECK_AND_SET_REQUEST
     static int y_num = (int)brls::getStyle().getMetric("wiliwili/grid/span/4");
-    bilibili::BilibiliClient::get_recommend(
+    BILI::get_recommend(
         index, num, 0, type == FeedType::V1 ? "V1" : "CLIENT_SELECTED", 3,
         y_num,
         [this](const bilibili::RecommendVideoListResultWrapper &result) {
             this->onRecommendVideoList(result);
             UNSET_REQUEST
         },
-        [this](const std::string &error) {
+        [this](BILI_ERR) {
             this->onError(error);
             UNSET_REQUEST
         });

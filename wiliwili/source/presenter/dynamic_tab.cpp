@@ -26,13 +26,17 @@ void DynamicTabRequest::requestUpList() {
         return;
     }
     CHECK_AND_SET_REQUEST
-    bilibili::BilibiliClient::dynamic_up_list(
+    BILI::dynamic_up_list(
         [this](const bilibili::DynamicUpListResultWrapper &result) {
             this->onUpList(result);
             UNSET_REQUEST
         },
-        [this](const std::string &error) {
-            this->onError(error);
+        [this](BILI_ERR) {
+            if (code == -6) {
+                this->onError("账号未登录");
+            } else {
+                this->onError(error);
+            }
             UNSET_REQUEST
         });
 }

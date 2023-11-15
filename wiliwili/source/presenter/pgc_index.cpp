@@ -31,7 +31,7 @@ void PGCIndexRequest::requestData(UserRequestData data, bool refresh) {
 
 void PGCIndexRequest::requestPGCIndex(const std::string& param, int page) {
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_pgc_index(
+    BILI::get_pgc_index(
         param, page,
         [ASYNC_TOKEN](const bilibili::PGCIndexResultWrapper& result) {
             ASYNC_RELEASE
@@ -44,7 +44,7 @@ void PGCIndexRequest::requestPGCIndex(const std::string& param, int page) {
             this->requestIndex++;
             this->onPGCIndex(result);
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             this->onError(error);
         });
@@ -52,13 +52,13 @@ void PGCIndexRequest::requestPGCIndex(const std::string& param, int page) {
 
 void PGCIndexRequest::requestPGCFilter() {
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_pgc_all_filter(
+    BILI::get_pgc_all_filter(
         [ASYNC_TOKEN](const bilibili::PGCIndexFilters& result) {
             ASYNC_RELEASE
             INDEX_FILTERS = result;
             this->onPGCFilter(result);
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             ASYNC_RELEASE
             this->onError(error);
         });

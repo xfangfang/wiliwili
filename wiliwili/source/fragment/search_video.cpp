@@ -33,7 +33,7 @@ void SearchVideo::requestSearch(const std::string& key) {
 
 void SearchVideo::_requestSearch(const std::string& key) {
     ASYNC_RETAIN
-    bilibili::BilibiliClient::search_video(
+    BILI::search_video(
         key, "video", requestIndex, "",
         [ASYNC_TOKEN](const bilibili::SearchResult& result) {
             for (auto i : result.result) {
@@ -66,7 +66,7 @@ void SearchVideo::_requestSearch(const std::string& key) {
                 this->requestIndex = result.page + 1;
             });
         },
-        [ASYNC_TOKEN](const std::string error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             brls::Logger::error("SearchVideo: {}", error);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE

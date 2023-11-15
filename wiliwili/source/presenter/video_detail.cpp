@@ -659,7 +659,7 @@ void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
     BILI::report_history(
         mid, token, aid, cid, type, progress, duration, sid, epid,
         []() { brls::Logger::debug("reportHistory: success"); },
-        [](const std::string& err) { brls::Logger::error("{}", err); });
+        [](BILI_ERR) { brls::Logger::error("{}", error); });
 }
 
 int VideoDetail::getCoinTolerate() {

@@ -64,7 +64,7 @@ void BilibiliClient::get_login_info(
                 if (callback) callback(data.data);
                 return;
             } catch (const std::exception& e) {
-                ERROR_MSG("API error");
+                ERROR_MSG("API error", -1);
                 printf("data: %s\n", r.text.c_str());
                 printf("ERROR: %s\n", e.what());
             }
@@ -112,7 +112,7 @@ void BilibiliClient::get_login_info_v2(
                 if (callback) callback(data.data);
                 return;
             } catch (const std::exception& e) {
-                ERROR_MSG("API error");
+                ERROR_MSG("API error", -1);
                 printf("data: %s\n", r.text.c_str());
                 printf("ERROR: %s\n", e.what());
             }

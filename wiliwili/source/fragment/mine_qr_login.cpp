@@ -63,7 +63,7 @@ void MineQrLogin::onLoginError() {
 
 void MineQrLogin::getLoginUrl() {
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_login_url_v2(
+    BILI::get_login_url_v2(
         [ASYNC_TOKEN](const std::string& url, const std::string& key) {
             ASYNC_RELEASE
             this->oauthKey  = key;
@@ -71,7 +71,7 @@ void MineQrLogin::getLoginUrl() {
             this->onLoginUrlChange(url);
             this->checkLogin();
         },
-        [this](const std::string& error) { this->onError(); });
+        [this](BILI_ERR) { this->onError(); });
 }
 
 void MineQrLogin::checkLogin() {

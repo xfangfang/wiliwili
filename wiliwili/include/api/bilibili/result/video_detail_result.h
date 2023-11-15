@@ -236,7 +236,10 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     } else {
         nlohmann_json_t.upper = 0;
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor, root));
+    if (nlohmann_json_j.contains("root") && !nlohmann_json_j.at("root").is_null()) {
+        nlohmann_json_j.at("root").get_to(nlohmann_json_t.root);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor));
 }
 
 class VideoCommentAddResult {

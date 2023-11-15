@@ -38,7 +38,7 @@ SettingNetwork::SettingNetwork() {
 
 void SettingNetwork::networkTest() {
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_recommend(
+    BILI::get_recommend(
         1, 1, 0, "V1", 3, 4,
         [ASYNC_TOKEN](const auto& result) {
             brls::sync([ASYNC_TOKEN]() {
@@ -47,7 +47,7 @@ void SettingNetwork::networkTest() {
                 this->labelTest1->setText("hints/success"_i18n);
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             brls::sync([ASYNC_TOKEN]() {
                 ASYNC_RELEASE
                 this->labelTest1->setTextColor(nvgRGB(199, 84, 80));
@@ -63,14 +63,14 @@ void SettingNetwork::getUnixTime() {
 
     // 获取网络时间
     ASYNC_RETAIN
-    bilibili::BilibiliClient::get_unix_time(
+    BILI::get_unix_time(
         [ASYNC_TOKEN](const bilibili::UnixTimeResult& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
                 this->labelNetTime->setText(wiliwili::sec2FullDate(result.now));
             });
         },
-        [ASYNC_TOKEN](const std::string& error) {
+        [ASYNC_TOKEN](BILI_ERR) {
             brls::sync([ASYNC_TOKEN]() {
                 ASYNC_RELEASE
                 this->labelNetTime->setTextColor(nvgRGB(199, 84, 80));

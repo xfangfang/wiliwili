@@ -37,7 +37,7 @@ void MineCollectionRequest::requestData(bool refresh) {
 void MineCollectionRequest::requestCollectionList(std::string &mid, int i,
                                                   int num) {
     CHECK_AND_SET_REQUEST
-    bilibili::BilibiliClient::get_my_collection_list(
+    BILI::get_my_collection_list(
         mid, i, num, requestType,
         [this](const bilibili::CollectionListResultWrapper &result) {
             if (index != result.index) {
@@ -52,7 +52,7 @@ void MineCollectionRequest::requestCollectionList(std::string &mid, int i,
             this->onCollectionList(result);
             UNSET_REQUEST
         },
-        [this](const std::string &error) {
+        [this](BILI_ERR) {
             this->onError(error);
             UNSET_REQUEST
         });

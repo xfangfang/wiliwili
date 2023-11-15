@@ -234,7 +234,7 @@ void BilibiliClient::get_live_pay_info(
                             ret.message = res.at("message").get<std::string>();
                             CALLBACK(ret);
                         } catch (const std::exception& e) {
-                            ERROR_MSG("cannot get live pay info");
+                            ERROR_MSG("cannot get live pay info", -1);
                         }
                     }, error);
 }
@@ -298,7 +298,7 @@ void BilibiliClient::get_danmaku(
             } catch (const std::exception& e) {
                 ERROR_MSG("Network error. [Status code: " +
                               std::to_string(r.status_code) + " ]",
-                          -404);
+                          r.status_code);
                 printf("data: %s\n", r.text.c_str());
                 printf("ERROR: %s\n", e.what());
             }
@@ -327,7 +327,7 @@ void BilibiliClient::get_subtitle(
             } catch (const std::exception& e) {
                 ERROR_MSG("Network error. [Status code: " +
                               std::to_string(r.status_code) + " ]",
-                          -404);
+                          r.status_code);
                 printf("data: %s\n", r.text.c_str());
                 printf("ERROR: %s\n", e.what());
             }
@@ -461,7 +461,7 @@ void BilibiliClient::add_comment(
         Api::CommentAdd, {}, payload,
         [callback, error](const VideoCommentAddResult& result) {
             if (result.success_action != 0) {
-                ERROR_MSG("cannot add comment");
+                ERROR_MSG("cannot add comment", -1);
             } else {
                 CALLBACK(result);
             }

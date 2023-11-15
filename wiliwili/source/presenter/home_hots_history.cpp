@@ -17,13 +17,13 @@ void HomeHotsHistoryRequest::requestData() {
 
 void HomeHotsHistoryRequest::requestHotsHistoryVideoList() {
     CHECK_AND_SET_REQUEST
-    bilibili::BilibiliClient::get_hots_history(
+    BILI::get_hots_history(
         [this](const bilibili::HotsHistoryVideoListResult& result,
                const std::string& explain) {
             this->onHotsHistoryList(result, explain);
             UNSET_REQUEST
         },
-        [this](const std::string& error) {
+        [this](BILI_ERR) {
             this->onError(error);
             UNSET_REQUEST
         });
