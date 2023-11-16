@@ -526,10 +526,22 @@ void VideoView::requestSeeking() {
     });
 }
 
+void VideoView::disableDimming(bool disable) {
+    brls::Application::getPlatform()->disableScreenDimming(
+        disable, "Playing video", APPVersion::getPackageName());
+    static bool deactivationAvailable =
+        ProgramConfig::instance().getSettingItem(SettingItem::DEACTIVATED_TIME,
+                                                 0) > 0;
+    if (deactivationAvailable) {
+        brls::Application::setAutomaticDeactivation(!disable);
+    }
+}
+
 VideoView::~VideoView() {
     brls::Logger::debug("trying delete VideoView...");
     this->unRegisterMpvEvent();
     MPV_CE->unsubscribe(customEventSubscribeID);
+    disableDimming(false);
     brls::Logger::debug("Delete VideoView done");
 }
 
@@ -786,10 +798,12 @@ void VideoView::toggleOSD() {
 void VideoView::showLoading() {
     centerLabel->setVisibility(brls::Visibility::INVISIBLE);
     osdCenterBox->setVisibility(brls::Visibility::VISIBLE);
+    disableDimming(false);
 }
 
 void VideoView::hideLoading() {
     osdCenterBox->setVisibility(brls::Visibility::GONE);
+    disableDimming(true);
 }
 
 void VideoView::hideDanmakuButton() {
@@ -1152,6 +1166,7 @@ void VideoView::registerMpvEvent() {
                     break;
                 case MpvEventEnum::MPV_PAUSE:
                     this->showOSD(false);
+                    disableDimming(false);
                     refreshToggleIcon();
                     break;
                 case MpvEventEnum::START_FILE:
@@ -1201,6 +1216,7 @@ void VideoView::registerMpvEvent() {
                 case MpvEventEnum::END_OF_FILE:
                     // 播放结束自动取消全屏
                     this->showOSD(false);
+                    disableDimming(false);
                     this->btnToggleIcon->setImageFromSVGRes(
                         "svg/bpx-svg-sprite-play.svg");
                     if (EXIT_FULLSCREEN_ON_END && closeOnEndOfFile &&

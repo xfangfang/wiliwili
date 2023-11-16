@@ -151,11 +151,6 @@ public:
     void showOsdText(const std::string &value, int duration = 2000);
 
     /**
-     * 禁用系统锁屏
-     */
-    static void disableDimming(bool disable);
-
-    /**
      * 绘制视频
      *
      * 支持三种绘制方式 （通过编译参数切换）

@@ -276,4 +276,9 @@ private:
      * seeking_range: 相对进度，单位秒
      */
     void requestSeeking();
+
+    /**
+     * 禁用系统锁屏
+     */
+    static void disableDimming(bool disable);
 };
