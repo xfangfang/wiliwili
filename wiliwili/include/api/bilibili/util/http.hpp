@@ -52,6 +52,7 @@ public:
             [callback, error](const cpr::Response& r) {
                 if (r.status_code == 0) {
                     ERROR_MSG("No network connection", -1);
+                    return;
                 } else if (r.status_code != 200) {
                     ERROR_MSG("Network error. [Status code: " +
                                   std::to_string(r.status_code) + " ]",
@@ -77,6 +78,7 @@ public:
             [callback, error](const cpr::Response& r) {
                 if (r.status_code == 0) {
                     ERROR_MSG("No network connection", -1);
+                    return;
                 } else if (r.status_code != 200) {
                     ERROR_MSG("Network error. [Status code: " +
                                   std::to_string(r.status_code) + " ]",
