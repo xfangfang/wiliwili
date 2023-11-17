@@ -282,6 +282,10 @@ void MPVCore::init() {
 #ifdef IOS
     glBindFramebuffer(GL_FRAMEBUFFER, 1);
 #endif
+
+    brls::Application::getExitEvent()->subscribe([]() {
+        MPVCore::instance().disableDimming(false);
+    });
 }
 
 MPVCore::~MPVCore() = default;
@@ -655,10 +659,6 @@ void MPVCore::eventMainLoop() {
         switch (event->event_id) {
             case MPV_EVENT_NONE:
                 return;
-            case MPV_EVENT_SHUTDOWN:
-                brls::Logger::info("========> MPV_EVENT_SHUTDOWN");
-                disableDimming(false);
-                return;
             case MPV_EVENT_LOG_MESSAGE: {
                 auto log = (mpv_event_log_message *)event->data;
                 if (log->log_level <= MPV_LOG_LEVEL_ERROR) {
@@ -686,7 +686,6 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_START_FILE:
                 // event 6: 开始加载文件
                 brls::Logger::info("========> MPV_EVENT_START_FILE");
-                disableDimming(true);
 
                 // show osd for a really long time
                 mpvCoreEvent.fire(MpvEventEnum::START_FILE);
@@ -701,20 +700,16 @@ void MPVCore::eventMainLoop() {
                 if (AUTO_PLAY) {
                     mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);
                     this->resume();
-                    disableDimming(true);
                 } else {
                     mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
                     this->pause();
-                    disableDimming(false);
                 }
                 break;
             case MPV_EVENT_END_FILE: {
                 // event 7: 文件播放结束
-                disableDimming(false);
                 brls::Logger::info("========> MPV_STOP");
                 mpvCoreEvent.fire(MpvEventEnum::MPV_STOP);
                 video_stopped = true;
-                disableDimming(false);
                 auto node = (mpv_event_end_file *)event->data;
                 if (node->reason == MPV_END_FILE_REASON_ERROR) {
                     mpv_error_code = node->error;
@@ -729,7 +724,10 @@ void MPVCore::eventMainLoop() {
                 auto *data = ((mpv_event_property *)event->data)->data;
                 switch (event->reply_userdata) {
                     case 1:
-                        if (data) video_playing = *(int *)data == 0;
+                        if (data) {
+                            video_playing = *(int *)data == 0;
+                            disableDimming(video_playing);
+                        }
                         break;
                     case 2:
                         if (data) video_eof = *(int *)data;
@@ -738,7 +736,6 @@ void MPVCore::eventMainLoop() {
                         if (video_eof && !video_stopped) {
                             brls::Logger::info("========> END OF FILE");
                             mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
-                            disableDimming(false);
                         }
                         break;
                     case 3:
@@ -798,12 +795,10 @@ void MPVCore::eventMainLoop() {
                             brls::Logger::info(
                                 "========> VIDEO PAUSED FOR CACHE");
                             mpvCoreEvent.fire(MpvEventEnum::LOADING_START);
-                            disableDimming(false);
                         } else {
                             brls::Logger::info(
                                 "========> VIDEO RESUME FROM CACHE");
                             mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
-                            disableDimming(true);
                         }
                         break;
                     case 8:
@@ -868,11 +863,9 @@ void MPVCore::eventMainLoop() {
                         if (video_paused) {
                             brls::Logger::info("========> PAUSE");
                             mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
-                            disableDimming(false);
                         } else if (!video_stopped) {
                             brls::Logger::info("========> RESUME");
                             mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);
-                            disableDimming(true);
                         }
                         break;
                     case 13:
@@ -884,7 +877,6 @@ void MPVCore::eventMainLoop() {
                         if (video_seeking) {
                             brls::Logger::info("========> VIDEO SEEKING");
                             mpvCoreEvent.fire(MpvEventEnum::LOADING_START);
-                            disableDimming(false);
                         }
                         break;
                     case 15:
@@ -1017,6 +1009,7 @@ std::unordered_map<std::string, mpv_node> MPVCore::getNodeMap(
 double MPVCore::getPlaybackTime() const { return playback_time; }
 
 void MPVCore::disableDimming(bool disable) {
+    brls::Logger::info("disableDimming: {}", disable);
     brls::Application::getPlatform()->disableScreenDimming(
         disable, "Playing video", APPVersion::getPackageName());
     static bool deactivationAvailable =
