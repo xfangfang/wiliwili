@@ -220,6 +220,6 @@ void Register::initCustomStyle() {
         brls::getStyle().addMetric("wiliwili/tab_frame/content_padding_top_bottom", 42);
         brls::getStyle().addMetric("wiliwili/mine/num", 24);
         brls::getStyle().addMetric("wiliwili/mine/type", 16);
-        brls::getStyle().addMetric("wiliwili/setting/about/bottom", 80);
+        brls::getStyle().addMetric("wiliwili/setting/about/bottom", 50);
     }
 }

@@ -285,6 +285,7 @@ void PlayerActivity::onVideoPageListInfo(
     }
 
     changeIndexEvent.clear();
+    this->tabFrame->clearTab("wiliwili/player/p"_i18n);
     auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
@@ -357,6 +358,7 @@ void PlayerActivity::onVideoPageListInfo(
 void PlayerActivity::onUGCSeasonInfo(const bilibili::UGCSeason& result) {
     brls::Logger::debug("UGC Season: {}/{}", result.title, result.id);
 
+    this->tabFrame->clearTab("wiliwili/player/ugc_season"_i18n);
     auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
@@ -441,6 +443,7 @@ void PlayerActivity::onUploadedVideos(
     }
 
     if (result.page.pn == 1) {
+        this->tabFrame->clearTab("wiliwili/player/uploaded"_i18n);
         // 加载第一页，添加tab
         auto* item = new AutoSidebarItem();
         item->setTabStyle(AutoTabBarStyle::ACCENT);
@@ -486,6 +489,7 @@ void PlayerActivity::onRelatedVideoList(
     if (result.size() <= 1) {
         return;
     }
+    this->tabFrame->clearTab("wiliwili/player/related"_i18n);
     auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);

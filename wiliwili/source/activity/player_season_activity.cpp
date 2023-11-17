@@ -201,6 +201,7 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
 
     // 设置分集信息
     changeIndexEvent.clear();
+    this->tabFrame->clearTab("wiliwili/player/p"_i18n);
     auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
@@ -286,6 +287,7 @@ void PlayerSeasonActivity::onSeasonSeriesInfo(
     const bilibili::SeasonSeries& result) {
     if (result.size() <= 1) return;
 
+    this->tabFrame->clearTab("wiliwili/player/series"_i18n);
     auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);
@@ -334,6 +336,7 @@ void PlayerSeasonActivity::onSeasonRecommend(
     const bilibili::SeasonRecommendWrapper& result) {
     if (result.season.empty()) return;
 
+    this->tabFrame->clearTab("wiliwili/player/recommend"_i18n);
     auto* item = new AutoSidebarItem();
     item->setTabStyle(AutoTabBarStyle::ACCENT);
     item->setFontSize(18);

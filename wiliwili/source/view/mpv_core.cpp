@@ -733,7 +733,9 @@ void MPVCore::eventMainLoop() {
                         break;
                     case 2:
                         if (data) video_eof = *(int *)data;
-                        if (video_eof) {
+                        // 当视频播放自然结束时会先触发一次 EOF，如果这时 stop 或者设置了新的播放文件，会触发 STOP 然后再触发一次 EOF
+                        // 避免多次触发 EOF，将第二种情况排除在外
+                        if (video_eof && !video_stopped) {
                             brls::Logger::info("========> END OF FILE");
                             mpvCoreEvent.fire(MpvEventEnum::END_OF_FILE);
                             disableDimming(false);
