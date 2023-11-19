@@ -282,8 +282,11 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
         // 设置视频链接
         brls::Logger::debug("Live stream url: {}", url);
         this->video->setUrl(url);
-        break;
+        return;
     }
+
+    this->video->showOSD(false);
+    showDialog("当前地区无法获取直播链接", "pictures/sorry.png", true);
 }
 
 void LiveActivity::onDanmakuInfo(int roomid,

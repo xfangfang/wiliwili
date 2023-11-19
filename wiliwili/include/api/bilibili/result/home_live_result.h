@@ -86,7 +86,12 @@ class LivePlayUrlInfo {
 public:
     LivePlayUrl playurl;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LivePlayUrlInfo, playurl);
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+                      LivePlayUrlInfo& nlohmann_json_t) {
+    if (!nlohmann_json_j.at("playurl").is_null()) {
+        nlohmann_json_j.at("playurl").get_to(nlohmann_json_t.playurl);
+    }
+}
 
 class LiveRoomPlayInfo {
 public:
