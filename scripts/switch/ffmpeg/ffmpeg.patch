@@ -506,7 +506,7 @@ index 97aec68981..0ab31058ed 100644
                             },
 diff --git a/libavcodec/tx1_decode.c b/libavcodec/tx1_decode.c
 new file mode 100644
-index 0000000000..9980e0fbf4
+index 0000000000..2aa356ef98
 --- /dev/null
 +++ b/libavcodec/tx1_decode.c
 @@ -0,0 +1,414 @@
@@ -865,13 +865,13 @@ index 0000000000..9980e0fbf4
 +    if (err < 0)
 +        return err;
 +
-+    err = ff_tx1_cmdbuf_push_word(&ctx->cmdbuf, host1x_opcode_nonincr(NV_PVIC_THI_INCR_SYNCPT, 1));
++    err = ff_tx1_cmdbuf_push_word(&ctx->cmdbuf, host1x_opcode_nonincr(NV_THI_INCR_SYNCPT, 1));
 +    if (err < 0)
 +        return err;
 +
 +    err = ff_tx1_cmdbuf_push_word(&ctx->cmdbuf,
-+        FF_TX1_VALUE(NV_PVIC_THI_INCR_SYNCPT, INDX, ctx->channel->syncpt) |
-+        FF_TX1_ENUM (NV_PVIC_THI_INCR_SYNCPT, COND, OP_DONE));
++        FF_TX1_VALUE(NV_THI_INCR_SYNCPT, INDX, ctx->channel->syncpt) |
++        FF_TX1_ENUM (NV_THI_INCR_SYNCPT, COND, OP_DONE));
 +    if (err < 0)
 +        return err;
 +
@@ -1025,10 +1025,10 @@ index 0000000000..596806f194
 +#endif /* AVCODEC_TX1_H */
 diff --git a/libavcodec/tx1_h264.c b/libavcodec/tx1_h264.c
 new file mode 100644
-index 0000000000..c45deed971
+index 0000000000..ae7bd77347
 --- /dev/null
 +++ b/libavcodec/tx1_h264.c
-@@ -0,0 +1,513 @@
+@@ -0,0 +1,511 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -1083,8 +1083,6 @@ index 0000000000..c45deed971
 +        pic_id_map[16+1], scratch_ref, cur_frame;
 +
 +    uint64_t refs_mask, ordered_dpb_mask, pic_id_mask;
-+
-+    AVFrame *current_frame;
 +} TX1H264DecodeContext;
 +
 +/* Size (width, height) of a macroblock */
@@ -1208,7 +1206,7 @@ index 0000000000..c45deed971
 +        .col_idx              = pic_id,
 +        .state                = src->reference,
 +        .is_long_term         = src->long_ref,
-+        .not_existing         = 0,
++        .not_existing         = src->invalid_gap,
 +        .is_field             = src->field_picture,
 +        .top_field_marking    = (src->reference & PICT_TOP_FIELD)    ? marking : 0,
 +        .bottom_field_marking = (src->reference & PICT_BOTTOM_FIELD) ? marking : 0,
@@ -1434,7 +1432,7 @@ index 0000000000..c45deed971
 +                      &ctx->common_map, ctx->history_off,            NVHOST_RELOC_TYPE_DEFAULT);
 +
 +#define PUSH_FRAME(ref, offset) ({                                              \
-+    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_LUMA_OFFSET0 + offset * 4,     \
++    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_LUMA_OFFSET0   + offset * 4,   \
 +                      ref.map, 0, NVHOST_RELOC_TYPE_DEFAULT);                   \
 +    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_CHROMA_OFFSET0 + offset * 4,   \
 +                      ref.map, ref.chroma_off, NVHOST_RELOC_TYPE_DEFAULT);      \
@@ -1483,18 +1481,15 @@ index 0000000000..c45deed971
 +
 +    tx1_h264_prepare_frame_setup((nvdec_h264_pic_s *)(mem + ctx->core.pic_setup_off), h, ctx);
 +
-+    ctx->current_frame = frame;
-+
 +    return 0;
 +}
 +
 +static int tx1_h264_end_frame(AVCodecContext *avctx) {
 +    H264Context            *h = avctx->priv_data;
 +    TX1H264DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame            *frame = ctx->current_frame;
++    AVFrame            *frame = h->cur_pic_ptr->f;
 +    FrameDecodeData      *fdd = (FrameDecodeData *)frame->private_ref->data;
 +    TX1Frame              *tf = fdd->hwaccel_priv;
-+    AVTX1Map       *input_map = (AVTX1Map *)tf->input_map_ref->data;
 +
 +    nvdec_h264_pic_s *setup;
 +    uint8_t *mem;
@@ -1503,13 +1498,16 @@ index 0000000000..c45deed971
 +    av_log(avctx, AV_LOG_DEBUG, "Ending H264-TX1 frame with %u slices -> %u bytes\n",
 +           ctx->core.num_slices, ctx->core.bitstream_len);
 +
-+    mem = ff_tx1_map_get_addr(input_map);
++    if (!tf || !ctx->core.num_slices)
++        return 0;
++
++    mem = ff_tx1_map_get_addr((AVTX1Map *)tf->input_map_ref->data);
 +
 +    setup = (nvdec_h264_pic_s *)(mem + ctx->core.pic_setup_off);
 +    setup->stream_len  = ctx->core.bitstream_len + sizeof(bitstream_end_sequence);
 +    setup->slice_count = ctx->core.num_slices;
 +
-+    err = tx1_h264_prepare_cmdbuf(&ctx->core.cmdbuf, h, ctx->current_frame, ctx);
++    err = tx1_h264_prepare_cmdbuf(&ctx->core.cmdbuf, h, frame, ctx);
 +    if (err < 0)
 +        return err;
 +
@@ -1520,8 +1518,8 @@ index 0000000000..c45deed971
 +static int tx1_h264_decode_slice(AVCodecContext *avctx, const uint8_t *buf,
 +                                 uint32_t buf_size)
 +{
-+    TX1H264DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame            *frame = ctx->current_frame;
++    H264Context *h = avctx->priv_data;
++    AVFrame *frame = h->cur_pic_ptr->f;
 +
 +    return ff_tx1_decode_slice(avctx, frame, buf, buf_size, true);
 +}
@@ -1539,15 +1537,15 @@ index 0000000000..c45deed971
 +    .uninit               = &tx1_h264_decode_uninit,
 +    .frame_params         = &ff_tx1_frame_params,
 +    .priv_data_size       = sizeof(TX1H264DecodeContext),
-+    .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
++    .caps_internal        = HWACCEL_CAP_ASYNC_SAFE | HWACCEL_CAP_THREAD_SAFE,
 +};
 +#endif
 diff --git a/libavcodec/tx1_hevc.c b/libavcodec/tx1_hevc.c
 new file mode 100644
-index 0000000000..c132cb383a
+index 0000000000..b46582a8cc
 --- /dev/null
 +++ b/libavcodec/tx1_hevc.c
-@@ -0,0 +1,629 @@
+@@ -0,0 +1,631 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -1593,7 +1591,7 @@ index 0000000000..c132cb383a
 +    uint8_t pattern_id;
 +
 +    AVFrame *ordered_dpb[16+1];
-+    AVFrame *scratch_ref, *last_frame, *current_frame;
++    AVFrame *scratch_ref, *last_frame;
 +    int last_iframe_slot;
 +} TX1HEVCDecodeContext;
 +
@@ -2043,7 +2041,7 @@ index 0000000000..c132cb383a
 +                      &ctx->common_map, ctx->coloc_off,          NVHOST_RELOC_TYPE_DEFAULT);
 +
 +#define PUSH_FRAME(fr, offset) ({                                                   \
-+    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_LUMA_OFFSET0 + offset * 4,         \
++    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_LUMA_OFFSET0   + offset * 4,       \
 +                      ff_tx1_frame_get_fbuf_map(fr), 0, NVHOST_RELOC_TYPE_DEFAULT); \
 +    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_CHROMA_OFFSET0 + offset * 4,       \
 +                      ff_tx1_frame_get_fbuf_map(fr), fr->data[1] - fr->data[0],     \
@@ -2105,8 +2103,7 @@ index 0000000000..c132cb383a
 +    tx1_hevc_prepare_frame_setup((nvdec_hevc_pic_s *)(mem + ctx->core.pic_setup_off),
 +                                 avctx, frame, ctx);
 +
-+    ctx->current_frame = frame;
-+    ctx->last_frame    = frame;
++    ctx->last_frame = frame;
 +
 +    return 0;
 +}
@@ -2114,10 +2111,9 @@ index 0000000000..c132cb383a
 +static int tx1_hevc_end_frame(AVCodecContext *avctx) {
 +    HEVCContext            *s = avctx->priv_data;
 +    TX1HEVCDecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame           *frame = ctx->current_frame;
-+    FrameDecodeData     *fdd = (FrameDecodeData *)frame->private_ref->data;
-+    TX1Frame             *tf = fdd->hwaccel_priv;
-+    AVTX1Map      *input_map = (AVTX1Map *)tf->input_map_ref->data;
++    AVFrame            *frame = s->ref->frame;
++    FrameDecodeData      *fdd = (FrameDecodeData *)frame->private_ref->data;
++    TX1Frame              *tf = fdd->hwaccel_priv;
 +
 +    nvdec_hevc_pic_s *setup;
 +    uint8_t *mem;
@@ -2126,7 +2122,10 @@ index 0000000000..c132cb383a
 +    av_log(avctx, AV_LOG_DEBUG, "Ending HEVC-TX1 frame with %u slices -> %u bytes\n",
 +           ctx->core.num_slices, ctx->core.bitstream_len);
 +
-+    mem = ff_tx1_map_get_addr(input_map);
++    if (!tf || !ctx->core.num_slices)
++        return 0;
++
++    mem = ff_tx1_map_get_addr((AVTX1Map *)tf->input_map_ref->data);
 +
 +    setup = (nvdec_hevc_pic_s *)(mem + ctx->core.pic_setup_off);
 +    setup->bitstream_size = ctx->core.bitstream_len;
@@ -2141,11 +2140,12 @@ index 0000000000..c132cb383a
 +static int tx1_hevc_decode_slice(AVCodecContext *avctx, const uint8_t *buf,
 +                                 uint32_t buf_size)
 +{
-+    TX1HEVCDecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame            *frame = ctx->current_frame;
++    HEVCContext            *s = avctx->priv_data;
++    AVFrame            *frame = s->ref->frame;
 +    FrameDecodeData      *fdd = (FrameDecodeData *)frame->private_ref->data;
 +    TX1Frame              *tf = fdd->hwaccel_priv;
 +    AVTX1Map       *input_map = (AVTX1Map *)tf->input_map_ref->data;
++    TX1HEVCDecodeContext *ctx = avctx->internal->hwaccel_priv_data;
 +
 +    uint8_t *mem;
 +
@@ -2179,10 +2179,10 @@ index 0000000000..c132cb383a
 +#endif
 diff --git a/libavcodec/tx1_mjpeg.c b/libavcodec/tx1_mjpeg.c
 new file mode 100644
-index 0000000000..03d2a2706c
+index 0000000000..4005873cee
 --- /dev/null
 +++ b/libavcodec/tx1_mjpeg.c
-@@ -0,0 +1,322 @@
+@@ -0,0 +1,320 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -2218,8 +2218,6 @@ index 0000000000..03d2a2706c
 +
 +typedef struct TX1MJPEGDecodeContext {
 +    TX1DecodeContext core;
-+
-+    AVFrame *current_frame;
 +} TX1MJPEGDecodeContext;
 +
 +static int tx1_mjpeg_decode_uninit(AVCodecContext *avctx) {
@@ -2319,8 +2317,8 @@ index 0000000000..03d2a2706c
 +        .stream_chroma_mode   = input_chroma_mode,
 +        .output_chroma_mode   = output_chroma_mode,
 +        .output_pixel_format  = 0,  /* YUV */
-+        .output_stride_luma   = ctx->current_frame->linesize[0],
-+        .output_stride_chroma = ctx->current_frame->linesize[1],
++        .output_stride_luma   = s->picture->linesize[0],
++        .output_stride_chroma = s->picture->linesize[1],
 +
 +        .tile_mode            = 0,  /* Pitch linear (tiled formats are unsupported by the T210) */
 +        .memory_mode          = memory_mode,
@@ -2413,18 +2411,15 @@ index 0000000000..03d2a2706c
 +    if (err < 0)
 +        return err;
 +
-+    ctx->current_frame = frame;
-+
 +    return 0;
 +}
 +
 +static int tx1_mjpeg_end_frame(AVCodecContext *avctx) {
 +    MJpegDecodeContext      *s = avctx->priv_data;
 +    TX1MJPEGDecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame             *frame = ctx->current_frame;
++    AVFrame             *frame = s->picture;
 +    FrameDecodeData       *fdd = (FrameDecodeData *)frame->private_ref->data;
 +    TX1Frame               *tf = fdd->hwaccel_priv;
-+    AVTX1Map        *input_map = (AVTX1Map *)tf->input_map_ref->data;
 +
 +    nvjpg_dec_drv_pic_setup_s *setup;
 +    uint8_t *mem;
@@ -2434,7 +2429,10 @@ index 0000000000..03d2a2706c
 +    av_log(avctx, AV_LOG_DEBUG, "Ending MJPEG-TX1 frame with %u slices -> %u bytes\n",
 +           ctx->core.num_slices, ctx->core.bitstream_len);
 +
-+    mem = ff_tx1_map_get_addr(input_map);
++    if (!tf || !ctx->core.num_slices)
++        return 0;
++
++    mem = ff_tx1_map_get_addr((AVTX1Map *)tf->input_map_ref->data);
 +
 +    setup = (nvjpg_dec_drv_pic_setup_s *)(mem + ctx->core.pic_setup_off);
 +    setup->bitstream_offset = 0;
@@ -2453,7 +2451,7 @@ index 0000000000..03d2a2706c
 +static int tx1_mjpeg_decode_slice(AVCodecContext *avctx, const uint8_t *buf, uint32_t buf_size) {
 +    MJpegDecodeContext      *s = avctx->priv_data;
 +    TX1MJPEGDecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame             *frame = ctx->current_frame;
++    AVFrame             *frame = s->picture;
 +    FrameDecodeData       *fdd = (FrameDecodeData *)frame->private_ref->data;
 +
 +    TX1Frame *tf;
@@ -2507,10 +2505,10 @@ index 0000000000..03d2a2706c
 +#endif
 diff --git a/libavcodec/tx1_mpeg12.c b/libavcodec/tx1_mpeg12.c
 new file mode 100644
-index 0000000000..ec94697200
+index 0000000000..a7ba6f6cff
 --- /dev/null
 +++ b/libavcodec/tx1_mpeg12.c
-@@ -0,0 +1,317 @@
+@@ -0,0 +1,318 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -2549,7 +2547,7 @@ index 0000000000..ec94697200
 +typedef struct TX1MPEG12DecodeContext {
 +    TX1DecodeContext core;
 +
-+    AVFrame *current_frame, *prev_frame, *next_frame;
++    AVFrame *prev_frame, *next_frame;
 +} TX1MPEG12DecodeContext;
 +
 +/* Size (width, height) of a macroblock */
@@ -2753,7 +2751,6 @@ index 0000000000..ec94697200
 +
 +    ctx->prev_frame    = (s->pict_type != AV_PICTURE_TYPE_I) ? s->last_picture.f : frame;
 +    ctx->next_frame    = (s->pict_type == AV_PICTURE_TYPE_B) ? s->next_picture.f : frame;
-+    ctx->current_frame = frame;
 +
 +    return 0;
 +}
@@ -2761,10 +2758,9 @@ index 0000000000..ec94697200
 +static int tx1_mpeg12_end_frame(AVCodecContext *avctx) {
 +    MpegEncContext           *s = avctx->priv_data;
 +    TX1MPEG12DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame              *frame = ctx->current_frame;
++    AVFrame              *frame = s->current_picture.f;
 +    FrameDecodeData        *fdd = (FrameDecodeData *)frame->private_ref->data;
 +    TX1Frame                *tf = fdd->hwaccel_priv;
-+    AVTX1Map         *input_map = (AVTX1Map *)tf->input_map_ref->data;
 +
 +    nvdec_mpeg2_pic_s *setup;
 +    uint8_t *mem;
@@ -2773,7 +2769,10 @@ index 0000000000..ec94697200
 +    av_log(avctx, AV_LOG_DEBUG, "Ending MPEG12-TX1 frame with %u slices -> %u bytes\n",
 +           ctx->core.num_slices, ctx->core.bitstream_len);
 +
-+    mem = ff_tx1_map_get_addr(input_map);
++    if (!tf || !ctx->core.num_slices)
++        return 0;
++
++    mem = ff_tx1_map_get_addr((AVTX1Map *)tf->input_map_ref->data);
 +
 +    setup = (nvdec_mpeg2_pic_s *)(mem + ctx->core.pic_setup_off);
 +    setup->stream_len  = ctx->core.bitstream_len + sizeof(bitstream_end_sequence);
@@ -2789,8 +2788,8 @@ index 0000000000..ec94697200
 +}
 +
 +static int tx1_mpeg12_decode_slice(AVCodecContext *avctx, const uint8_t *buf, uint32_t buf_size) {
-+    TX1MPEG12DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame              *frame = ctx->current_frame;
++    MpegEncContext *s = avctx->priv_data;
++    AVFrame    *frame = s->current_picture.f;
 +
 +    return ff_tx1_decode_slice(avctx, frame, buf, buf_size, false);
 +}
@@ -2830,10 +2829,10 @@ index 0000000000..ec94697200
 +#endif
 diff --git a/libavcodec/tx1_mpeg4.c b/libavcodec/tx1_mpeg4.c
 new file mode 100644
-index 0000000000..bf207c8daf
+index 0000000000..e475678a46
 --- /dev/null
 +++ b/libavcodec/tx1_mpeg4.c
-@@ -0,0 +1,348 @@
+@@ -0,0 +1,349 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -2876,7 +2875,7 @@ index 0000000000..bf207c8daf
 +    uint32_t coloc_off, history_off, scratch_off;
 +    uint32_t history_size, scratch_size;
 +
-+    AVFrame *current_frame, *prev_frame, *next_frame;
++    AVFrame *prev_frame, *next_frame;
 +} TX1MPEG4DecodeContext;
 +
 +/* Size (width, height) of a macroblock */
@@ -3069,7 +3068,7 @@ index 0000000000..bf207c8daf
 +                      &ctx->common_map, ctx->scratch_off,        NVHOST_RELOC_TYPE_DEFAULT);
 +
 +#define PUSH_FRAME(fr, offset) ({                                                   \
-+    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_LUMA_OFFSET0 + offset * 4,         \
++    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_LUMA_OFFSET0   + offset * 4,       \
 +                      ff_tx1_frame_get_fbuf_map(fr), 0, NVHOST_RELOC_TYPE_DEFAULT); \
 +    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_CHROMA_OFFSET0 + offset * 4,       \
 +                      ff_tx1_frame_get_fbuf_map(fr), fr->data[1] - fr->data[0],     \
@@ -3117,7 +3116,6 @@ index 0000000000..bf207c8daf
 +
 +    ctx->prev_frame    = (s->pict_type != AV_PICTURE_TYPE_I) ? s->last_picture.f : frame;
 +    ctx->next_frame    = (s->pict_type == AV_PICTURE_TYPE_B) ? s->next_picture.f : frame;
-+    ctx->current_frame = frame;
 +
 +    return 0;
 +}
@@ -3126,10 +3124,9 @@ index 0000000000..bf207c8daf
 +    Mpeg4DecContext         *m = avctx->priv_data;
 +    MpegEncContext          *s = &m->m;
 +    TX1MPEG4DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame             *frame = ctx->current_frame;
++    AVFrame             *frame = s->current_picture.f;
 +    FrameDecodeData       *fdd = (FrameDecodeData *)frame->private_ref->data;
 +    TX1Frame               *tf = fdd->hwaccel_priv;
-+    AVTX1Map        *input_map = (AVTX1Map *)tf->input_map_ref->data;
 +
 +    nvdec_mpeg4_pic_s *setup;
 +    uint8_t *mem;
@@ -3138,7 +3135,10 @@ index 0000000000..bf207c8daf
 +    av_log(avctx, AV_LOG_DEBUG, "Ending MPEG4-TX1 frame with %u slices -> %u bytes\n",
 +           ctx->core.num_slices, ctx->core.bitstream_len);
 +
-+    mem = ff_tx1_map_get_addr(input_map);
++    if (!tf || !ctx->core.num_slices)
++        return 0;
++
++    mem = ff_tx1_map_get_addr((AVTX1Map *)tf->input_map_ref->data);
 +
 +    setup = (nvdec_mpeg4_pic_s *)(mem + ctx->core.pic_setup_off);
 +    setup->stream_len  = ctx->core.bitstream_len + sizeof(bitstream_end_sequence);
@@ -3156,8 +3156,8 @@ index 0000000000..bf207c8daf
 +static int tx1_mpeg4_decode_slice(AVCodecContext *avctx, const uint8_t *buf,
 +                                  uint32_t buf_size)
 +{
-+    TX1MPEG4DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame             *frame = ctx->current_frame;
++    Mpeg4DecContext *m = avctx->priv_data;
++    AVFrame     *frame = m->m.current_picture.f;
 +
 +    /* Rewind the bitstream looking for the VOP start marker */
 +    while (*(uint32_t *)buf != AV_BE2NE32C(VOP_STARTCODE))
@@ -3184,10 +3184,10 @@ index 0000000000..bf207c8daf
 +#endif
 diff --git a/libavcodec/tx1_vc1.c b/libavcodec/tx1_vc1.c
 new file mode 100644
-index 0000000000..8b32302a87
+index 0000000000..d55f001dc7
 --- /dev/null
 +++ b/libavcodec/tx1_vc1.c
-@@ -0,0 +1,475 @@
+@@ -0,0 +1,476 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -3232,7 +3232,7 @@ index 0000000000..8b32302a87
 +
 +    bool is_first_slice;
 +
-+    AVFrame *current_frame, *prev_frame, *next_frame;
++    AVFrame *prev_frame, *next_frame;
 +} TX1VC1DecodeContext;
 +
 +/* Size (width, height) of a macroblock */
@@ -3492,7 +3492,7 @@ index 0000000000..8b32302a87
 +                      &ctx->common_map, ctx->scratch_off,            NVHOST_RELOC_TYPE_DEFAULT);
 +
 +#define PUSH_FRAME(fr, offset) ({                                                   \
-+    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_LUMA_OFFSET0 + offset * 4,         \
++    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_LUMA_OFFSET0   + offset * 4,       \
 +                      ff_tx1_frame_get_fbuf_map(fr), 0, NVHOST_RELOC_TYPE_DEFAULT); \
 +    FF_TX1_PUSH_RELOC(cmdbuf, NVC5B0_SET_PICTURE_CHROMA_OFFSET0 + offset * 4,       \
 +                      ff_tx1_frame_get_fbuf_map(fr), fr->data[1] - fr->data[0],     \
@@ -3553,9 +3553,8 @@ index 0000000000..8b32302a87
 +
 +    tx1_vc1_prepare_frame_setup((nvdec_vc1_pic_s *)(mem + ctx->core.pic_setup_off), avctx, ctx);
 +
-+    ctx->prev_frame    = ff_tx1_safe_get_ref(s->last_picture.f, frame);
-+    ctx->next_frame    = ff_tx1_safe_get_ref(s->next_picture.f, frame);
-+    ctx->current_frame = frame;
++    ctx->prev_frame = ff_tx1_safe_get_ref(s->last_picture.f, frame);
++    ctx->next_frame = ff_tx1_safe_get_ref(s->next_picture.f, frame);
 +
 +    return 0;
 +}
@@ -3563,10 +3562,9 @@ index 0000000000..8b32302a87
 +static int tx1_vc1_end_frame(AVCodecContext *avctx) {
 +    VC1Context            *v = avctx->priv_data;
 +    TX1VC1DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame           *frame = ctx->current_frame;
++    AVFrame           *frame = v->s.current_picture.f;
 +    FrameDecodeData     *fdd = (FrameDecodeData *)frame->private_ref->data;
 +    TX1Frame             *tf = fdd->hwaccel_priv;
-+    AVTX1Map      *input_map = (AVTX1Map *)tf->input_map_ref->data;
 +
 +    nvdec_vc1_pic_s *setup;
 +    uint8_t *mem;
@@ -3575,7 +3573,10 @@ index 0000000000..8b32302a87
 +    av_log(avctx, AV_LOG_DEBUG, "Ending VC1-TX1 frame with %u slices -> %u bytes\n",
 +           ctx->core.num_slices, ctx->core.bitstream_len);
 +
-+    mem = ff_tx1_map_get_addr(input_map);
++    if (!tf || !ctx->core.num_slices)
++        return 0;
++
++    mem = ff_tx1_map_get_addr((AVTX1Map *)tf->input_map_ref->data);
 +
 +    setup = (nvdec_vc1_pic_s *)(mem + ctx->core.pic_setup_off);
 +    setup->stream_len  = ctx->core.bitstream_len + sizeof(bitstream_end_sequence);
@@ -3595,7 +3596,7 @@ index 0000000000..8b32302a87
 +{
 +    VC1Context            *v = avctx->priv_data;
 +    TX1VC1DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame           *frame = ctx->current_frame;
++    AVFrame           *frame = v->s.current_picture.f;
 +    FrameDecodeData     *fdd = (FrameDecodeData *)frame->private_ref->data;
 +    TX1Frame             *tf = fdd->hwaccel_priv;
 +    AVTX1Map      *input_map = (AVTX1Map *)tf->input_map_ref->data;
@@ -3665,7 +3666,7 @@ index 0000000000..8b32302a87
 +#endif
 diff --git a/libavcodec/tx1_vp8.c b/libavcodec/tx1_vp8.c
 new file mode 100644
-index 0000000000..78d23a4a27
+index 0000000000..6cdfd6d9c2
 --- /dev/null
 +++ b/libavcodec/tx1_vp8.c
 @@ -0,0 +1,340 @@
@@ -3711,7 +3712,7 @@ index 0000000000..78d23a4a27
 +    uint32_t history_size;
 +
 +    AVFrame *golden_frame,   *altref_frame,
-+            *previous_frame, *current_frame;
++            *previous_frame;
 +} TX1VP8DecodeContext;
 +
 +/* Size (width, height) of a macroblock */
@@ -3909,7 +3910,7 @@ index 0000000000..78d23a4a27
 +    PUSH_FRAME(ctx->golden_frame,   0);
 +    PUSH_FRAME(ctx->altref_frame,   1);
 +    PUSH_FRAME(ctx->previous_frame, 2);
-+    PUSH_FRAME(ctx->current_frame,  3);
++    PUSH_FRAME(cur_frame,           3);
 +
 +    FF_TX1_PUSH_VALUE(cmdbuf, NVC5B0_EXECUTE,
 +                      FF_TX1_ENUM(NVC5B0_EXECUTE, AWAKEN, ENABLE));
@@ -3946,10 +3947,9 @@ index 0000000000..78d23a4a27
 +    tx1_vp8_prepare_frame_setup((nvdec_vp8_pic_s *)(mem + ctx->core.pic_setup_off), h, ctx);
 +
 +#define SAFE_REF(type) (h->framep[(type)] ?: h->framep[VP8_FRAME_CURRENT])
-+    ctx->current_frame  =  h->framep[VP8_FRAME_CURRENT]->tf.f;
-+    ctx->golden_frame   = ff_tx1_safe_get_ref(SAFE_REF(VP8_FRAME_GOLDEN)  ->tf.f, ctx->current_frame);
-+    ctx->altref_frame   = ff_tx1_safe_get_ref(SAFE_REF(VP8_FRAME_ALTREF)  ->tf.f, ctx->current_frame);
-+    ctx->previous_frame = ff_tx1_safe_get_ref(SAFE_REF(VP8_FRAME_PREVIOUS)->tf.f, ctx->current_frame);
++    ctx->golden_frame   = ff_tx1_safe_get_ref(SAFE_REF(VP8_FRAME_GOLDEN)  ->tf.f, frame);
++    ctx->altref_frame   = ff_tx1_safe_get_ref(SAFE_REF(VP8_FRAME_ALTREF)  ->tf.f, frame);
++    ctx->previous_frame = ff_tx1_safe_get_ref(SAFE_REF(VP8_FRAME_PREVIOUS)->tf.f, frame);
 +
 +    return 0;
 +}
@@ -3957,10 +3957,9 @@ index 0000000000..78d23a4a27
 +static int tx1_vp8_end_frame(AVCodecContext *avctx) {
 +    VP8Context            *h = avctx->priv_data;
 +    TX1VP8DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame           *frame = ctx->current_frame;
++    AVFrame           *frame = h->framep[VP8_FRAME_CURRENT]->tf.f;
 +    FrameDecodeData     *fdd = (FrameDecodeData *)frame->private_ref->data;
 +    TX1Frame             *tf = fdd->hwaccel_priv;
-+    AVTX1Map      *input_map = (AVTX1Map *)tf->input_map_ref->data;
 +
 +    nvdec_vp8_pic_s *setup;
 +    uint8_t *mem;
@@ -3969,7 +3968,10 @@ index 0000000000..78d23a4a27
 +    av_log(avctx, AV_LOG_DEBUG, "Ending VP8-TX1 frame with %u slices -> %u bytes\n",
 +           ctx->core.num_slices, ctx->core.bitstream_len);
 +
-+    mem = ff_tx1_map_get_addr(input_map);
++    if (!tf || !ctx->core.num_slices)
++        return 0;
++
++    mem = ff_tx1_map_get_addr((AVTX1Map *)tf->input_map_ref->data);
 +
 +    setup = (nvdec_vp8_pic_s *)(mem + ctx->core.pic_setup_off);
 +    setup->VLDBufferSize = ctx->core.bitstream_len;
@@ -3984,9 +3986,8 @@ index 0000000000..78d23a4a27
 +static int tx1_vp8_decode_slice(AVCodecContext *avctx, const uint8_t *buf,
 +                                uint32_t buf_size)
 +{
-+    VP8Context            *h = avctx->priv_data;
-+    TX1VP8DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame           *frame = ctx->current_frame;
++    VP8Context  *h = avctx->priv_data;
++    AVFrame *frame = h->framep[VP8_FRAME_CURRENT]->tf.f;
 +
 +    int offset = h->keyframe ? 10 : 3;
 +
@@ -4011,10 +4012,10 @@ index 0000000000..78d23a4a27
 +#endif
 diff --git a/libavcodec/tx1_vp9.c b/libavcodec/tx1_vp9.c
 new file mode 100644
-index 0000000000..8bd98e2a39
+index 0000000000..06572827ba
 --- /dev/null
 +++ b/libavcodec/tx1_vp9.c
-@@ -0,0 +1,668 @@
+@@ -0,0 +1,670 @@
 +/*
 + * Copyright (c) 2023 averne <averne381@gmail.com>
 + *
@@ -4062,7 +4063,7 @@ index 0000000000..8bd98e2a39
 +
 +    bool prev_show_frame;
 +
-+    AVFrame *refs[3], *current_frame;
++    AVFrame *refs[3];
 +} TX1VP9DecodeContext;
 +
 +/* Size (width, height) of a macroblock */
@@ -4537,10 +4538,10 @@ index 0000000000..8bd98e2a39
 +                      NVHOST_RELOC_TYPE_DEFAULT);                                   \
 +})
 +
-+    PUSH_FRAME(ctx->refs[0],       0);
-+    PUSH_FRAME(ctx->refs[1],       1);
-+    PUSH_FRAME(ctx->refs[2],       2);
-+    PUSH_FRAME(ctx->current_frame, 3);
++    PUSH_FRAME(ctx->refs[0], 0);
++    PUSH_FRAME(ctx->refs[1], 1);
++    PUSH_FRAME(ctx->refs[2], 2);
++    PUSH_FRAME(cur_frame,    3);
 +
 +    FF_TX1_PUSH_VALUE(cmdbuf, NVC5B0_EXECUTE,
 +                      FF_TX1_ENUM(NVC5B0_EXECUTE, AWAKEN, ENABLE));
@@ -4603,7 +4604,6 @@ index 0000000000..8bd98e2a39
 +    ctx->refs[0] = ff_tx1_safe_get_ref(h->refs[h->h.refidx[0]].f, h->frames[CUR_FRAME].tf.f);
 +    ctx->refs[1] = ff_tx1_safe_get_ref(h->refs[h->h.refidx[1]].f, h->frames[CUR_FRAME].tf.f);
 +    ctx->refs[2] = ff_tx1_safe_get_ref(h->refs[h->h.refidx[2]].f, h->frames[CUR_FRAME].tf.f);
-+    ctx->current_frame = h->frames[CUR_FRAME].tf.f;
 +
 +    return 0;
 +}
@@ -4612,10 +4612,9 @@ index 0000000000..8bd98e2a39
 +    VP9Context            *s = avctx->priv_data;
 +    VP9SharedContext      *h = avctx->priv_data;
 +    TX1VP9DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame           *frame = ctx->current_frame;
++    AVFrame           *frame = h->frames[CUR_FRAME].tf.f;
 +    FrameDecodeData     *fdd = (FrameDecodeData *)frame->private_ref->data;
 +    TX1Frame             *tf = fdd->hwaccel_priv;
-+    AVTX1Map      *input_map = (AVTX1Map *)tf->input_map_ref->data;
 +
 +    nvdec_vp9_pic_s *setup;
 +    uint8_t *mem, *common_mem;
@@ -4624,7 +4623,10 @@ index 0000000000..8bd98e2a39
 +    av_log(avctx, AV_LOG_DEBUG, "Ending VP9-TX1 frame with %u slices -> %u bytes\n",
 +           ctx->core.num_slices, ctx->core.bitstream_len);
 +
-+    mem = ff_tx1_map_get_addr(input_map), common_mem = ff_tx1_map_get_addr(&ctx->common_map);
++    if (!tf || !ctx->core.num_slices)
++        return 0;
++
++    mem = ff_tx1_map_get_addr((AVTX1Map *)tf->input_map_ref->data);
 +
 +    setup = (nvdec_vp9_pic_s *)(mem + ctx->core.pic_setup_off);
 +    setup->bitstream_size = ctx->core.bitstream_len;
@@ -4647,6 +4649,8 @@ index 0000000000..8bd98e2a39
 +        if (err < 0)
 +            return err;
 +
++        common_mem = ff_tx1_map_get_addr(&ctx->common_map);
++
 +        tx1_vp9_update_counts((nvdec_vp9EntropyCounts_t *)(common_mem + ctx->ctx_counter_off),
 +                              s->td);
 +        ff_vp9_adapt_probs(s);
@@ -4658,9 +4662,8 @@ index 0000000000..8bd98e2a39
 +static int tx1_vp9_decode_slice(AVCodecContext *avctx, const uint8_t *buf,
 +                                uint32_t buf_size)
 +{
-+    VP9SharedContext      *h = avctx->priv_data;
-+    TX1VP9DecodeContext *ctx = avctx->internal->hwaccel_priv_data;
-+    AVFrame           *frame = ctx->current_frame;
++    VP9SharedContext *h = avctx->priv_data;
++    AVFrame      *frame = h->frames[CUR_FRAME].tf.f;
 +
 +    int offset = h->h.uncompressed_header_size + h->h.compressed_header_size;
 +
@@ -5838,7 +5841,7 @@ index e6266494ac..ed3e641c02 100644
  #endif /* AVUTIL_HWCONTEXT_INTERNAL_H */
 diff --git a/libavutil/hwcontext_tx1.c b/libavutil/hwcontext_tx1.c
 new file mode 100644
-index 0000000000..6fb47b19a9
+index 0000000000..e833d8e3cb
 --- /dev/null
 +++ b/libavutil/hwcontext_tx1.c
 @@ -0,0 +1,1052 @@
@@ -6723,13 +6726,13 @@ index 0000000000..6fb47b19a9
 +    if (err < 0)
 +        return err;
 +
-+    err = ff_tx1_cmdbuf_push_word(cmdbuf, host1x_opcode_nonincr(NV_PVIC_THI_INCR_SYNCPT, 1));
++    err = ff_tx1_cmdbuf_push_word(cmdbuf, host1x_opcode_nonincr(NV_THI_INCR_SYNCPT, 1));
 +    if (err < 0)
 +        return err;
 +
 +    err = ff_tx1_cmdbuf_push_word(cmdbuf,
-+        FF_TX1_VALUE(NV_PVIC_THI_INCR_SYNCPT, INDX, hwctx->vic_channel.syncpt) |
-+        FF_TX1_ENUM (NV_PVIC_THI_INCR_SYNCPT, COND, OP_DONE));
++        FF_TX1_VALUE(NV_THI_INCR_SYNCPT, INDX, hwctx->vic_channel.syncpt) |
++        FF_TX1_ENUM (NV_THI_INCR_SYNCPT, COND, OP_DONE));
 +    if (err < 0)
 +        return err;
 +
@@ -9234,7 +9237,7 @@ index a26c72d56b..ae91ee78b5 100644
  
 diff --git a/libavutil/tx1.c b/libavutil/tx1.c
 new file mode 100644
-index 0000000000..01982bd447
+index 0000000000..52675cf499
 --- /dev/null
 +++ b/libavutil/tx1.c
 @@ -0,0 +1,698 @@
@@ -9834,7 +9837,7 @@ index 0000000000..01982bd447
 +int ff_tx1_cmdbuf_push_value(AVTX1Cmdbuf *cmdbuf, uint32_t offset, uint32_t word) {
 +    int err;
 +
-+    err = ff_tx1_cmdbuf_push_word(cmdbuf, host1x_opcode_incr(NV_PVIC_THI_METHOD0/4, 2));
++    err = ff_tx1_cmdbuf_push_word(cmdbuf, host1x_opcode_incr(NV_THI_METHOD0/4, 2));
 +    if (err < 0)
 +        return err;
 +
@@ -10131,7 +10134,7 @@ index 0000000000..f0e6fe52ac
 +#endif /* AVUTIL_TX1_H */
 diff --git a/libavutil/tx1_host1x.h b/libavutil/tx1_host1x.h
 new file mode 100644
-index 0000000000..4bb7e4a1d6
+index 0000000000..f14f39ca32
 --- /dev/null
 +++ b/libavutil/tx1_host1x.h
 @@ -0,0 +1,91 @@
@@ -10197,33 +10200,33 @@ index 0000000000..4bb7e4a1d6
 +    return (4 << 28) | (offset << 16) | value;
 +}
 +
-+#define NV_PVIC_THI_INCR_SYNCPT                                                 (0x00000000)
-+#define NV_PVIC_THI_INCR_SYNCPT_INDX                                            7:0
-+#define NV_PVIC_THI_INCR_SYNCPT_COND                                            15:8
-+#define NV_PVIC_THI_INCR_SYNCPT_COND_IMMEDIATE                                  (0x00000000)
-+#define NV_PVIC_THI_INCR_SYNCPT_COND_OP_DONE                                    (0x00000001)
-+#define NV_PVIC_THI_INCR_SYNCPT_ERR                                             (0x00000008)
-+#define NV_PVIC_THI_INCR_SYNCPT_ERR_COND_STS_IMM                                0:0
-+#define NV_PVIC_THI_INCR_SYNCPT_ERR_COND_STS_OPDONE                             1:1
-+#define NV_PVIC_THI_CTXSW_INCR_SYNCPT                                           0x0000000c)
-+#define NV_PVIC_THI_CTXSW_INCR_SYNCPT_INDX                                      7:0
-+#define NV_PVIC_THI_CTXSW                                                       (0x00000020)
-+#define NV_PVIC_THI_CTXSW_CURR_CLASS                                            9:0
-+#define NV_PVIC_THI_CTXSW_AUTO_ACK                                              11:11
-+#define NV_PVIC_THI_CTXSW_CURR_CHANNEL                                          15:12
-+#define NV_PVIC_THI_CTXSW_NEXT_CLASS                                            25:16
-+#define NV_PVIC_THI_CTXSW_NEXT_CHANNEL                                          31:28
-+#define NV_PVIC_THI_CONT_SYNCPT_EOF                                             (0x00000028)
-+#define NV_PVIC_THI_CONT_SYNCPT_EOF_INDEX                                       7:0
-+#define NV_PVIC_THI_CONT_SYNCPT_EOF_COND                                        8:8
-+#define NV_PVIC_THI_METHOD0                                                     (0x00000040)
-+#define NV_PVIC_THI_METHOD0_OFFSET                                              11:0
-+#define NV_PVIC_THI_METHOD1                                                     (0x00000044)
-+#define NV_PVIC_THI_METHOD1_DATA                                                31:0
-+#define NV_PVIC_THI_INT_STATUS                                                  (0x00000078)
-+#define NV_PVIC_THI_INT_STATUS_FALCON_INT                                       0:0
-+#define NV_PVIC_THI_INT_MASK                                                    (0x0000007c)
-+#define NV_PVIC_THI_INT_MASK_FALCON_INT                                         0:0
++#define NV_THI_INCR_SYNCPT                                                 (0x00000000)
++#define NV_THI_INCR_SYNCPT_INDX                                            7:0
++#define NV_THI_INCR_SYNCPT_COND                                            15:8
++#define NV_THI_INCR_SYNCPT_COND_IMMEDIATE                                  (0x00000000)
++#define NV_THI_INCR_SYNCPT_COND_OP_DONE                                    (0x00000001)
++#define NV_THI_INCR_SYNCPT_ERR                                             (0x00000008)
++#define NV_THI_INCR_SYNCPT_ERR_COND_STS_IMM                                0:0
++#define NV_THI_INCR_SYNCPT_ERR_COND_STS_OPDONE                             1:1
++#define NV_THI_CTXSW_INCR_SYNCPT                                           (0x0000000c)
++#define NV_THI_CTXSW_INCR_SYNCPT_INDX                                      7:0
++#define NV_THI_CTXSW                                                       (0x00000020)
++#define NV_THI_CTXSW_CURR_CLASS                                            9:0
++#define NV_THI_CTXSW_AUTO_ACK                                              11:11
++#define NV_THI_CTXSW_CURR_CHANNEL                                          15:12
++#define NV_THI_CTXSW_NEXT_CLASS                                            25:16
++#define NV_THI_CTXSW_NEXT_CHANNEL                                          31:28
++#define NV_THI_CONT_SYNCPT_EOF                                             (0x00000028)
++#define NV_THI_CONT_SYNCPT_EOF_INDEX                                       7:0
++#define NV_THI_CONT_SYNCPT_EOF_COND                                        8:8
++#define NV_THI_METHOD0                                                     (0x00000040)
++#define NV_THI_METHOD0_OFFSET                                              11:0
++#define NV_THI_METHOD1                                                     (0x00000044)
++#define NV_THI_METHOD1_DATA                                                31:0
++#define NV_THI_INT_STATUS                                                  (0x00000078)
++#define NV_THI_INT_STATUS_FALCON_INT                                       0:0
++#define NV_THI_INT_MASK                                                    (0x0000007c)
++#define NV_THI_INT_MASK_FALCON_INT                                         0:0
 +
 +#endif /* AVUTIL_TX1_HOST1X_H */
 diff --git a/libavutil/vic_drv.h b/libavutil/vic_drv.h

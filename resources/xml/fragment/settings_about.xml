@@ -1,5 +1,4 @@
 <brls:Box
-        wireframe="true"
         width="auto"
         height="auto"
         marginBottom="@style/wiliwili/setting/about/bottom">
