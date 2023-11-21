@@ -29,6 +29,7 @@ class VideoOnlineTotal;         // 某个视频在线人数，30s刷新一次
 class VideoRelation;            // 某个视频点赞收藏情况
 class VideoEpisodeRelation;     // 番剧的某一集的点赞收藏情况
 class VideoUrlResult;           // 视频播放地址
+class VideoHighlightProgress;   // 视频高能进度条
 class VideoDetailPage;
 typedef std::vector<VideoDetailPage>
     VideoDetailPageListResult;  // 视频分P列表 （视频详情API可以直接获取分P列表）
@@ -495,6 +496,12 @@ public:
         const std::string& link,
         const std::function<void(SubtitleData)>& callback = nullptr,
         const ErrorCallback& error                        = nullptr);
+
+    /// 视频页 获取高能进度条
+    static void get_highlight_progress(
+        unsigned int cid,
+        const std::function<void(VideoHighlightProgress)>& callback = nullptr,
+        const ErrorCallback& error                                  = nullptr);
 
     /// 视频页 上报历史记录
     static void report_history(const std::string& mid,

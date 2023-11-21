@@ -102,6 +102,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
+    {SettingItem::PLAYER_HIGHLIGHT_BAR, {"player_highlight_bar", {}, {}, 0}},
 #if defined(__PSV__) || defined(PS4)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else
@@ -517,6 +518,10 @@ void ProgramConfig::load() {
 
     // 初始化是否固定显示底部进度条
     VideoView::BOTTOM_BAR = getBoolOption(SettingItem::PLAYER_BOTTOM_BAR);
+
+    // 初始化是否固定显示底部高能进度条
+    VideoView::HIGHLIGHT_PROGRESS_BAR =
+        getBoolOption(SettingItem::PLAYER_HIGHLIGHT_BAR);
 
     // 初始化是否使用硬件加速
     MPVCore::HARDWARE_DEC = getBoolOption(SettingItem::PLAYER_HWDEC);

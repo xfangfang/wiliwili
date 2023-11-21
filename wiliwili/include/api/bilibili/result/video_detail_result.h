@@ -698,6 +698,34 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoTriple, like, coin, fav, multiply);
 
+/// 高能进度条
+class VideoHighlightProgress {
+public:
+    int step_sec;
+    std::vector<float> data;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j,
+          VideoHighlightProgress& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, step_sec));
+    if (!nlohmann_json_j.contains("events")) return;
+    if (!nlohmann_json_j.at("events").is_object()) return;
+    if (!nlohmann_json_j.at("events").contains("default")) return;
+    if (!nlohmann_json_j.at("events").at("default").is_array()) return;
+    nlohmann_json_j["events"]["default"].get_to(nlohmann_json_t.data);
+
+    nlohmann_json_t.data.push_back(0);
+
+    // 归一化 data
+    float max = 0;
+    for (auto& i : nlohmann_json_t.data) {
+        if (i > max) max = i;
+    }
+    if (max == 0) return;
+    for (auto& i : nlohmann_json_t.data) {
+        i /= max;
+    }
+}
+
 class VideoOnlineTotal {
 public:
     std::string total;

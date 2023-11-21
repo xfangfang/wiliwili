@@ -314,6 +314,8 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid,
     this->requestVideoDanmaku(cid);
     // 请求分P详情 （字幕链接/历史播放记录）
     this->requestVideoPageDetail(bvid, cid, requestHistoryInfo);
+    // 请求高能进度条
+    this->requestHighlightProgress(cid);
 }
 
 /// 获取番剧地址
@@ -348,6 +350,8 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, int cid,
     this->requestVideoDanmaku(cid);
     // 请求分P详情 （字幕链接/历史播放记录）
     this->requestVideoPageDetail(bvid, cid, requestHistoryInfo);
+    // 请求高能进度条
+    this->requestHighlightProgress(cid);
 }
 
 /// 获取投屏地址
@@ -758,6 +762,24 @@ void VideoDetail::addResource(int aid, int type, bool isFavorite,
                 ASYNC_RELEASE
                 this->onVideoRelationInfo(videoRelation);
             });
+        });
+}
+
+void VideoDetail::requestHighlightProgress(int cid) {
+    brls::Logger::debug("请求高能进度条：cid: {}", cid);
+    ASYNC_RETAIN
+    BILI::get_highlight_progress(
+        cid,
+        [ASYNC_TOKEN](const bilibili::VideoHighlightProgress& result) {
+            brls::sync([ASYNC_TOKEN, result](){
+                ASYNC_RELEASE
+                this->onHighlightProgress(result);
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
+            brls::Logger::error("HighlightProgress: {}", error);
+            this->onHighlightProgress(bilibili::VideoHighlightProgress{});
         });
 }
 

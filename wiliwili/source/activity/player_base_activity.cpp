@@ -660,6 +660,12 @@ void BasePlayerActivity::onVideoRelationInfo(
     this->setRelationButton(result.like, result.coin, result.favorite);
 }
 
+void BasePlayerActivity::onHighlightProgress(
+    const bilibili::VideoHighlightProgress& result) {
+    brls::Logger::debug("highlight: {}/{}", result.step_sec, result.data.size());
+    this->video->setHighlightProgress(result.step_sec, result.data);
+}
+
 void BasePlayerActivity::setRelationButton(bool liked, bool coin,
                                            bool favorite) {
     if (liked) {

@@ -9,7 +9,7 @@
       "playback": {
         "header": "播放設定",
         "report": "上傳歷史播放記錄",
-        "player_bar": "播放器下方固定顯示進度條",
+        "player_bar": "下方固定顯示進度條",
         "low_quality": "低畫質解碼（以畫質為代價換取更低的功耗）",
         "in_memory_cache": "解码緩存",
         "hwdec": "硬體解碼",
@@ -303,6 +303,7 @@
       "common": {
         "header": "通用",
         "mirror": "鏡像畫面",
+        "highlight": "下方固定顯示高能進度條",
         "wiki": "查看項目 WIKI 獲得詳細說明"
       },
       "shader": {

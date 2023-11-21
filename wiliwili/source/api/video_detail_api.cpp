@@ -311,6 +311,31 @@ void BilibiliClient::get_danmaku(
         cpr::Timeout{HTTP::TIMEOUT});
 }
 
+void BilibiliClient::get_highlight_progress(
+    unsigned int cid,
+    const std::function<void(VideoHighlightProgress)>& callback,
+    const ErrorCallback& error) {
+    cpr::GetCallback<>(
+        [callback, error](const cpr::Response& r) {
+            if (r.status_code != 200) {
+                ERROR_MSG("Network error", r.status_code);
+                return;
+            }
+            try {
+                nlohmann::json res = nlohmann::json::parse(r.text);
+                callback(res.get<VideoHighlightProgress>());
+            } catch (const std::exception& e) {
+                ERROR_MSG(e.what(), -1);
+            }
+        },
+#ifndef VERIFY_SSL
+        cpr::VerifySsl{false},
+#endif
+        cpr::Url{Api::VideoHighlight}, HTTP::HEADERS,
+        cpr::Parameters({{"cid", std::to_string(cid)}}), HTTP::COOKIES,
+        cpr::Timeout{HTTP::TIMEOUT});
+}
+
 void BilibiliClient::get_subtitle(
     const std::string& link, const std::function<void(SubtitleData)>& callback,
     const ErrorCallback& error) {

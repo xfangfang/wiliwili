@@ -63,5 +63,6 @@ private:
     BRLS_BIND(brls::BooleanCell, btnAutoNextRcmd, "setting/auto/nextRcmd");
     BRLS_BIND(brls::BooleanCell, btnExitFullscreen, "setting/auto/exit");
     BRLS_BIND(brls::BooleanCell, btnMirror, "setting/video/mirror");
+    BRLS_BIND(brls::BooleanCell, btnHighlight, "setting/video/highlight");
     BRLS_BIND(SelectorCell, btnSleep, "setting/sleep");
 };

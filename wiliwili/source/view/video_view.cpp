@@ -537,9 +537,16 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
                      float height, Style style, FrameContext* ctx) {
     if (!mpvCore->isValid()) return;
     float alpha = this->getAlpha();
+    time_t current = wiliwili::unix_time();
+    bool drawOSD = current < this->osdLastShowTime;
 
     // draw video
     mpvCore->draw(brls::Rect(x, y, width, height), alpha);
+
+    // draw highlight progress
+    if (HIGHLIGHT_PROGRESS_BAR && !drawOSD) {
+        drawHighlightProgress(vg, x, y + height, width, alpha);
+    }
 
     // draw bottom bar
     if (BOTTOM_BAR && showBottomLineSetting) {
@@ -558,12 +565,18 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
     }
 
     // draw osd
-    time_t current = wiliwili::unix_time();
-    if (current < this->osdLastShowTime) {
+    if (drawOSD) {
         if (!is_osd_shown) {
             is_osd_shown = true;
             this->onOSDStateChanged(true);
         }
+
+        // draw highlight progress
+        auto sliderRect = osdSlider->getFrame();
+        drawHighlightProgress(vg, sliderRect.getMinX() + 30,
+                              sliderRect.getMinY() + 25,
+                              sliderRect.getWidth() - 60, alpha);
+
         osdTopBox->setVisibility(brls::Visibility::VISIBLE);
         osdBottomBox->setVisibility(brls::Visibility::VISIBLE);
         osdBottomBox->frame(ctx);
@@ -628,6 +641,33 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
 
     // draw video profile
     videoProfile->frame(ctx);
+}
+
+void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y,
+                                      float width, float alpha) {
+    if (highlight_data.size() <= 1) return;
+    nvgBeginPath(vg);
+    nvgFillColor(vg, nvgRGBA(255, 255, 255, (unsigned char)(128 * alpha)));
+    float baseY  = y;
+    float dX     = width / ((float)highlight_data.size() - 1);
+    float halfDx = dX / 2;
+    float pointX = x, lastX = x;
+    float lastY = baseY;
+    nvgMoveTo(vg, lastX, lastY);
+    lastY -= 12;
+    nvgLineTo(vg, lastX, lastY);
+
+    for (size_t i = 1; i < highlight_data.size(); i++) {
+        float item = highlight_data[i];
+        pointX += dX;
+        float pointY = baseY - 12 - item * 48;
+        float cx     = lastX + halfDx;
+        nvgBezierTo(vg, cx, lastY, cx, pointY, pointX, pointY);
+        lastX = pointX;
+        lastY = pointY;
+    }
+    nvgLineTo(vg, x + width, baseY);
+    nvgFill(vg);
 }
 
 void VideoView::invalidate() { View::invalidate(); }
@@ -917,6 +957,11 @@ void VideoView::setProgress(float value) {
 
 float VideoView::getProgress() { return this->osdSlider->getProgress(); }
 
+void VideoView::setHighlightProgress(int sec, const std::vector<float>& data) {
+    highlight_step_sec = sec;
+    highlight_data     = data;
+}
+
 void VideoView::showHint(const std::string& value) {
     brls::Logger::debug("Video hint: {}", value);
     this->hintLabel->setText(value);
@@ -973,6 +1018,7 @@ void VideoView::setFullScreen(bool fs) {
         video->setFullscreenIcon(true);
         video->setHideHighlight(true);
         video->refreshToggleIcon();
+        video->setHighlightProgress(highlight_step_sec, highlight_data);
         if (video->isLiveMode) video->setLiveMode();
         video->setCustomToggleAction(customToggleAction);
         DanmakuCore::instance().refresh();

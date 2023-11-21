@@ -68,6 +68,9 @@
                         axis="column"
                         marginBottom="30px">
 
+                    <SelectorCell
+                            id="setting/sleep"/>
+
                     <brls:BooleanCell
                             id="setting/fullscreen"/>
 
@@ -87,10 +90,10 @@
                             id="setting/video/progress"/>
 
                     <brls:BooleanCell
-                            id="setting/history/log"/>
+                            id="setting/video/highlight"/>
 
-                    <SelectorCell
-                            id="setting/sleep"/>
+                    <brls:BooleanCell
+                            id="setting/history/log"/>
 
                 </brls:Box>
                 <brls:Header

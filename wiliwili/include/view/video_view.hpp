@@ -154,6 +154,9 @@ public:
 
     float getProgress();
 
+    // 设置高能进度条
+    void setHighlightProgress(int sec, const std::vector<float>& data);
+
     // 进度条上方显示提示文字
     void showHint(const std::string& value);
 
@@ -204,6 +207,9 @@ public:
 
     // Bottom progress bar
     inline static bool BOTTOM_BAR = true;
+
+    // Highlight progress bar
+    inline static bool HIGHLIGHT_PROGRESS_BAR = false;
 
 private:
     bool allowFullscreen  = true;
@@ -267,6 +273,8 @@ private:
     size_t seeking_iter        = 0;
     time_t hintLastShowTime    = 0;
     int64_t lastPlayedPosition = POSITION_UNDEFINED;
+    int highlight_step_sec     = 0;
+    std::vector<float> highlight_data;
 
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
@@ -276,4 +284,8 @@ private:
      * seeking_range: 相对进度，单位秒
      */
     void requestSeeking();
+
+    /// 绘制高能进度条
+    void drawHighlightProgress(NVGcontext* vg, float x, float y, float width,
+                               float alpha);
 };

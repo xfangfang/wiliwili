@@ -303,6 +303,7 @@
       "common": {
         "header": "Common",
         "mirror": "Horizontally flip",
+        "highlight": "Always show hotspots",
         "wiki": "Access our wiki to learn how shader works"
       },
       "shader": {

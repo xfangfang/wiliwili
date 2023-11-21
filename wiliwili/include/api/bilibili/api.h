@@ -11,6 +11,7 @@ namespace Api {
 const std::string _apiBase     = "https://api.bilibili.com";
 const std::string _appBase     = "https://app.bilibili.com";
 const std::string _vcBase      = "https://api.vc.bilibili.com";
+const std::string _bvcBase     = "https://bvc.bilivideo.com";
 const std::string _liveBase    = "https://api.live.bilibili.com";
 const std::string _passBase    = "https://passport.bilibili.com";
 const std::string _bangumiBase = "https://bangumi.bilibili.com";
@@ -99,6 +100,8 @@ const std::string VideoEpisodeRelation =
     _apiBase + "/pgc/season/episode/web/info";
 /// 获取视频弹幕
 const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
+/// 获取高能进度条
+const std::string VideoHighlight = _bvcBase + "/pbp/data";
 /// 获取直播弹幕token
 const std::string LiveDanmakuInfo =
     _liveBase + "/xlive/web-room/v1/index/getDanmuInfo";

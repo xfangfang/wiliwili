@@ -56,15 +56,14 @@ brls::View* PlayerSetting::getDefaultFocus() {
 
 void PlayerSetting::setupCustomShaders() {
     // TODO Fix: shaders cannot work with deko3d and ps4
-#if !defined(_DEBUG) && ( defined(BOREALIS_USE_DEKO3D) || defined(PS4))
+#if !defined(_DEBUG) && (defined(BOREALIS_USE_DEKO3D) || defined(PS4))
     // hide shader setting: deko3d and ps4
     auto* cell = new brls::RadioCell();
     cell->title->setText("wiliwili/dialog/not_supported"_i18n);
     shaderBox->addView(cell);
     return;
 #else
-    if (!ShaderHelper::instance().isAvailable())
-    {
+    if (!ShaderHelper::instance().isAvailable()) {
         auto* cell = new brls::RadioCell();
         cell->title->setText("wiliwili/player/setting/common/wiki"_i18n);
         cell->registerClickAction([](...) {
@@ -182,6 +181,14 @@ void PlayerSetting::setupCommonSetting() {
                             "set", "vf", videoMirror ? "hflip" : "");
                     });
 
+    /// Player Highlight progress bar
+    btnHighlight->init("wiliwili/player/setting/common/highlight"_i18n,
+                       VideoView::HIGHLIGHT_PROGRESS_BAR, [](bool value) {
+                           ProgramConfig::instance().setSettingItem(
+                               SettingItem::PLAYER_HIGHLIGHT_BAR, value);
+                           VideoView::HIGHLIGHT_PROGRESS_BAR = value;
+                       });
+
     /// Auto Sleep
     std::string min                     = "wiliwili/home/common/min"_i18n;
     std::vector<std::string> optionList = {"hints/off"_i18n, "15 " + min,
@@ -225,7 +232,6 @@ void PlayerSetting::setupSubtitle() {
     }
 
     for (auto& s : sub.getSubtitleList().subtitles) {
-
         auto* cell = new brls::RadioCell();
         if (SubtitleCore::instance().getCurrentSubtitleId() == s.id_str)
             cell->setSelected(true);
