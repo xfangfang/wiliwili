@@ -302,6 +302,7 @@
       },
       "common": {
         "header": "通用",
+        "mirror": "鏡像畫面",
         "wiki": "查看項目 WIKI 獲得詳細說明"
       },
       "shader": {

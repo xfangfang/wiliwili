@@ -173,6 +173,15 @@ void PlayerSetting::setupCommonSetting() {
                           VideoView::BOTTOM_BAR = value;
                       });
 
+    /// Player mirror
+    static bool videoMirror = false;
+    btnMirror->init("wiliwili/player/setting/common/mirror"_i18n, videoMirror,
+                    [](bool value) {
+                        videoMirror = !videoMirror;
+                        MPVCore::instance().command_async(
+                            "set", "vf", videoMirror ? "hflip" : "");
+                    });
+
     /// Auto Sleep
     std::string min                     = "wiliwili/home/common/min"_i18n;
     std::vector<std::string> optionList = {"hints/off"_i18n, "15 " + min,

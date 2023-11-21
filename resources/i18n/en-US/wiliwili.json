@@ -302,6 +302,7 @@
       },
       "common": {
         "header": "Common",
+        "mirror": "Horizontally flip",
         "wiki": "Access our wiki to learn how shader works"
       },
       "shader": {

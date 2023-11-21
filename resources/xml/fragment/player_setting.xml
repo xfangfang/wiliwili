@@ -78,6 +78,9 @@
                             id="setting/auto/nextRcmd"/>
 
                     <brls:BooleanCell
+                            id="setting/video/mirror"/>
+
+                    <brls:BooleanCell
                             id="setting/auto/exit"/>
 
                     <brls:BooleanCell
