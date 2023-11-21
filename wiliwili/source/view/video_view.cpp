@@ -1037,10 +1037,19 @@ void VideoView::setFullScreen(bool fs) {
         brls::sync([ASYNC_TOKEN]() {
             ASYNC_RELEASE
             //todo: a better way to get videoView pointer
+            auto activityStack = Application::getActivitiesStack();
+
+            // 当最前方的 activity 内不包含 videoView 时，不执行关闭全屏
+            Activity* top = activityStack[activityStack.size() - 1];
+            if (!dynamic_cast<BasePlayerActivity*>(top)) {
+                // 判断最顶层是否为video
+                if (!dynamic_cast<VideoView*>(
+                        top->getContentView()->getView("video")))
+                    return;
+            }
 
             // 同时点击全屏按钮和评论会导致评论弹出在 BasePlayerActivity 和 videoView 之间，
             // 因此目前需要遍历全部的 activity 找到 BasePlayerActivity
-            auto activityStack = Application::getActivitiesStack();
             if (activityStack.size() <= 2) {
                 brls::Application::popActivity();
                 return;
