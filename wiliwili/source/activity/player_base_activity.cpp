@@ -367,6 +367,8 @@ void BasePlayerActivity::setCommonData() {
 
     if (brls::Application::ORIGINAL_WINDOW_HEIGHT < 720)
         video->hideStatusLabel();
+
+    video->hideOSDLockButton();
 }
 
 void BasePlayerActivity::showShareDialog(const std::string& link) {

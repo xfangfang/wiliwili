@@ -136,7 +136,7 @@ VideoView::VideoView() {
             static bool ignoreSpeed = false;
             switch (status.state) {
                 case brls::GestureState::UNSURE: {
-                    if (isLiveMode) break;
+                    if (isLiveMode || is_osd_lock) break;
                     // 长按加速
                     if (fabs(mpvCore->getSpeed() - 1) > 10e-2) {
                         ignoreSpeed = true;
@@ -187,6 +187,12 @@ VideoView::VideoView() {
                     // 处理点击事件
                     static int click_state    = ClickState::IDLE;
                     static int64_t press_time = 0;
+
+                    // 当 osd 锁定时直接切换 osd 即可
+                    if (is_osd_lock) {
+                        this->toggleOSD();
+                        break;
+                    }
 
                     int CHECK_TIME         = 200000;
                     static size_t tap_iter = 0;
@@ -447,6 +453,14 @@ VideoView::VideoView() {
     this->btnCastIcon->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnCastIcon->getParent()));
 
+    /// OSD 锁定按钮
+    this->osdLockBox->registerClickAction([this](...) {
+        this->toggleOSDLock();
+        return true;
+    });
+    this->osdLockBox->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->osdLockBox));
+
     this->refreshDanmakuIcon();
 
     this->registerAction(
@@ -536,15 +550,16 @@ VideoView::~VideoView() {
 void VideoView::draw(NVGcontext* vg, float x, float y, float width,
                      float height, Style style, FrameContext* ctx) {
     if (!mpvCore->isValid()) return;
-    float alpha = this->getAlpha();
+    float alpha    = this->getAlpha();
     time_t current = wiliwili::unix_time();
-    bool drawOSD = current < this->osdLastShowTime;
+    bool drawOSD   = current < this->osdLastShowTime;
 
     // draw video
     mpvCore->draw(brls::Rect(x, y, width, height), alpha);
 
     // draw highlight progress
-    if (HIGHLIGHT_PROGRESS_BAR && !drawOSD) {
+    // OSD绘制时，进度条也包含了高能进度条，避免太杂乱仅在不显示 OSD 时绘制
+    if (HIGHLIGHT_PROGRESS_BAR && (!drawOSD || is_osd_lock)) {
         drawHighlightProgress(vg, x, y + height, width, alpha);
     }
 
@@ -571,21 +586,25 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
             this->onOSDStateChanged(true);
         }
 
-        // draw highlight progress
-        auto sliderRect = osdSlider->getFrame();
-        drawHighlightProgress(vg, sliderRect.getMinX() + 30,
-                              sliderRect.getMinY() + 25,
-                              sliderRect.getWidth() - 60, alpha);
+        // 当 osd 锁定时，只显示锁定按钮
+        if (!is_osd_lock) {
+            // draw highlight progress
+            auto sliderRect = osdSlider->getFrame();
+            drawHighlightProgress(vg, sliderRect.getMinX() + 30,
+                                  sliderRect.getMinY() + 25,
+                                  sliderRect.getWidth() - 60, alpha);
 
-        osdTopBox->setVisibility(brls::Visibility::VISIBLE);
-        osdBottomBox->setVisibility(brls::Visibility::VISIBLE);
-        osdBottomBox->frame(ctx);
-        osdTopBox->frame(ctx);
-
-        // draw subtitle (upon osd)
-        if (showSubtitleSetting)
-            SubtitleCore::instance().drawSubtitle(vg, x, y, width, height - 120,
-                                                  getAlpha());
+            // draw osd
+            osdTopBox->setVisibility(brls::Visibility::VISIBLE);
+            osdBottomBox->setVisibility(brls::Visibility::VISIBLE);
+            osdBottomBox->frame(ctx);
+            osdTopBox->frame(ctx);
+        }
+        // draw osd lock button
+        if (!hide_lock_button) {
+            osdLockBox->setVisibility(brls::Visibility::VISIBLE);
+            osdLockBox->frame(ctx);
+        }
     } else {
         if (is_osd_shown) {
             is_osd_shown = false;
@@ -593,12 +612,16 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         }
         osdTopBox->setVisibility(brls::Visibility::INVISIBLE);
         osdBottomBox->setVisibility(brls::Visibility::INVISIBLE);
-
-        // draw subtitle (without osd)
-        if (showSubtitleSetting)
-            SubtitleCore::instance().drawSubtitle(vg, x, y, width, height,
-                                                  getAlpha());
+        osdLockBox->setVisibility(brls::Visibility::INVISIBLE);
     }
+
+    // draw subtitle
+    // 在正常显示 osd 时，将字幕向上偏移，避免被 OSD 挡住
+    if (showSubtitleSetting)
+        SubtitleCore::instance().drawSubtitle(
+            vg, x, y, width,
+            height - ((drawOSD && !is_osd_lock) ? 120.0f : 0.0f), alpha);
+
     if (current > this->hintLastShowTime &&
         this->hintBox->getVisibility() == brls::Visibility::VISIBLE) {
         this->clearHint();
@@ -801,6 +824,29 @@ void VideoView::onOSDStateChanged(bool state) {
     }
 }
 
+void VideoView::toggleOSDLock() {
+    is_osd_lock = !is_osd_lock;
+    this->osdLockIcon->setImageFromSVGRes(
+        is_osd_lock ? "svg/player-lock.svg" : "svg/player-unlock.svg");
+    if (is_osd_lock) {
+        osdTopBox->setVisibility(brls::Visibility::GONE);
+        osdBottomBox->setVisibility(brls::Visibility::GONE);
+        // 锁定时上下按键不可用
+        osdLockBox->setCustomNavigationRoute(FocusDirection::UP,
+                                             "video/osd/lock/box");
+        osdLockBox->setCustomNavigationRoute(FocusDirection::DOWN,
+                                             "video/osd/lock/box");
+    } else {
+        // 如果在锁定时，osdLockBox 获取到了焦点，通过点击进入了非锁定状态
+        // 避免上下按键不可用，手动设置上下按键的导航路线
+        osdLockBox->setCustomNavigationRoute(FocusDirection::UP,
+                                             "video/osd/setting");
+        osdLockBox->setCustomNavigationRoute(FocusDirection::DOWN,
+                                             "video/osd/toggle");
+    }
+    this->showOSD();
+}
+
 void VideoView::toggleDanmaku() {
     if (DanmakuCore::DANMAKU_ON) {
         DanmakuCore::DANMAKU_ON = false;
@@ -853,6 +899,11 @@ void VideoView::hideVideoQualityButton() {
 void VideoView::hideVideoSpeedButton() {
     videoSpeed->setVisibility(brls::Visibility::GONE);
     videoSpeed->getParent()->setVisibility(brls::Visibility::GONE);
+}
+
+void VideoView::hideOSDLockButton() {
+    osdLockBox->setVisibility(brls::Visibility::INVISIBLE);
+    hide_lock_button = true;
 }
 
 void VideoView::hideStatusLabel() {
@@ -1297,6 +1348,10 @@ void VideoView::unRegisterMpvEvent() {
 
 void VideoView::onChildFocusGained(View* directChild, View* focusedView) {
     Box::onChildFocusGained(directChild, focusedView);
+    if (is_osd_lock) {
+        brls::Application::giveFocus(this->osdLockBox);
+        return;
+    }
     // 只有在全屏显示OSD时允许OSD组件获取焦点
     if (this->isFullscreen() && isOSDShown()) {
         // 当弹幕按钮隐藏时不可获取焦点

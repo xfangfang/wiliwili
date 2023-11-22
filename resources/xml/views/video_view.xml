@@ -340,4 +340,28 @@
             positionType="absolute"
             visibility="invisible"/>
 
+    <brls:Box
+            width="50"
+            height="50"
+            alignItems="center"
+            backgroundColor="#303030A0"
+            focusable="true"
+            focusUp="video/osd/lock/box"
+            focusDown="video/osd/lock/box"
+            focusRight="video/osd/lock/box"
+            focusLeft="video/osd/lock/box"
+            cornerRadius="8"
+            positionTop="45%"
+            positionRight="20"
+            positionType="absolute"
+            id="video/osd/lock/box">
+        <SVGImage
+                id="video/osd/lock/icon"
+                detachedX="13"
+                detachedY="13"
+                height="24"
+                width="24"
+                SVG="@res/svg/player-unlock.svg"/>
+    </brls:Box>
+
 </brls:Box>

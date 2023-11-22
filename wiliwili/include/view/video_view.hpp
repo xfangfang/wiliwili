@@ -78,6 +78,8 @@ public:
 
     void onOSDStateChanged(bool state);
 
+    void toggleOSDLock();
+
     void toggleDanmaku();
 
     void toggleOSD();
@@ -93,6 +95,8 @@ public:
     void hideVideoQualityButton();
 
     void hideVideoSpeedButton();
+
+    void hideOSDLockButton();
 
     void disableCloseOnEndOfFile();
 
@@ -262,12 +266,17 @@ private:
     BRLS_BIND(brls::Label, hintLabel, "video/osd/hint/label");
     BRLS_BIND(brls::Box, hintBox, "video/osd/hint/box");
     BRLS_BIND(VideoProfile, videoProfile, "video/profile");
+    BRLS_BIND(brls::Box, osdLockBox, "video/osd/lock/box");
+    BRLS_BIND(SVGImage, osdLockIcon, "video/osd/lock/icon");
+
 
     // OSD
     time_t osdLastShowTime     = 0;
     const time_t OSD_SHOW_TIME = 5;  //默认显示五秒
     OSDState osd_state         = OSDState::HIDDEN;
     bool is_osd_shown          = false;
+    bool is_osd_lock           = false;
+    bool hide_lock_button      = false;
     bool is_seeking            = false;
     int64_t seeking_range      = 0;
     size_t seeking_iter        = 0;
