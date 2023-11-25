@@ -2,10 +2,17 @@
 // Created by fang on 2023/1/11.
 //
 
+#include <borealis/core/logger.hpp>
+
 #include <pystring.h>
 #include <cstdlib>
 #include <utility>
 #include <lunasvg.h>
+
+#include "view/danmaku_core.hpp"
+#include "utils/config_helper.hpp"
+#include "utils/string_helper.hpp"
+
 #ifdef _WIN32
 #include <winsock2.h>
 #else
@@ -15,12 +22,19 @@
 static inline uint32_t ntohll(uint64_t netlonglong) {
     return __builtin_bswap64(netlonglong);
 }
+#elif !defined(ntohll)
+uint64_t ntohll(uint64_t value) {
+    if (ntohl(1) == 1) {
+        // The system is big endian, no conversion is needed
+        return value;
+    } else {
+        // The system is little endian, convert from network byte order (big endian) to host byte order
+        const uint32_t high_part = ntohl(static_cast<uint32_t>(value >> 32));
+        const uint32_t low_part = ntohl(static_cast<uint32_t>(value & 0xFFFFFFFFLL));
+        return (static_cast<uint64_t>(low_part) << 32) | high_part;
+    }
+}
 #endif
-
-#include "view/danmaku_core.hpp"
-#include "utils/config_helper.hpp"
-#include "utils/string_helper.hpp"
-#include "borealis/core/logger.hpp"
 
 DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     : msg(std::move(content)) {
@@ -66,10 +80,11 @@ DanmakuCore::DanmakuCore() {
         }
     });
 
-    // 退出前清空遮照纹理
+    // 退出前清空遮罩纹理
     brls::Application::getExitDoneEvent()->subscribe([this]() {
         if (maskTex != 0) {
             nvgDeleteImage(brls::Application::getNVGContext(), maskTex);
+            maskTex = 0;
         }
     });
 }
@@ -218,6 +233,7 @@ NVGcolor DanmakuCore::a(NVGcolor color, float alpha) {
     return color;
 }
 
+// Uncomment this line to show mask in a more obvious way.
 //#define DEBUG_MASK
 
 void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
