@@ -266,6 +266,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     nvgIntersectScissor(vg, x, y, width, height);
 
     // 设置遮罩
+#ifdef BOREALIS_USE_OPENGL
     if (!maskData.sliceData.empty()) {
         // 先根据时间选择分片
         while (maskSliceIndex < maskData.sliceData.size()) {
@@ -286,8 +287,15 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         if (maskIndex == 0) maskIndex = 1;
 
         // 设置 svg
-        auto &svg          = slice.svgData[maskIndex - 1];
-        auto maskDocument  = lunasvg::Document::loadFromData(svg.svg);
+        auto &svg = slice.svgData[maskIndex - 1];
+        // 给图片添加一圈边框（避免图片边沿为透明时自动扩展了透明色导致非视频区域无法显示弹幕）
+        // 注：返回的 svg 底部固定留有 2像素 透明，不是很清楚具体作用，这里选择绘制一个2像素宽的空心矩形来覆盖
+        const std::string border =
+            R"xml(<rect x="0" y="0" width="100%" height="100%" fill="none" stroke="#000" stroke-width="2"/></svg>)xml";
+        auto maskDocument = lunasvg::Document::loadFromData(
+            pystring::slice(svg.svg, 0, pystring::rindex(svg.svg, "</svg>")) +
+            border);
+        if (maskDocument == nullptr) goto skip_mask;
         auto bitmap        = maskDocument->renderToBitmap(maskDocument->width(),
                                                           maskDocument->height());
         uint32_t maskWidth = bitmap.width();
@@ -314,12 +322,14 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
                                      maskTex, alpha);
         nvgRect(vg, x, y, width, height);
         nvgFillPaint(vg, paint);
-#if defined(DEBUG_MASK) || !defined(BOREALIS_USE_OPENGL)
+#if defined(DEBUG_MASK)
         nvgFill(vg);
 #else
         nvgStencil(vg);
 #endif
     }
+#endif /* BOREALIS_USE_OPENGL */
+skip_mask:
 
     // 设置基础字体
     nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE);
