@@ -13,15 +13,28 @@
 #include "utils/config_helper.hpp"
 #include "utils/string_helper.hpp"
 
+// include ntohl / ntohll
 #ifdef _WIN32
 #include <winsock2.h>
 #else
 #include <arpa/inet.h>
+#if defined(__linux__)
+#include <endian.h>
+#elif defined(__FreeBSD__) || defined(__NetBSD__)
+#include <sys/endian.h>
+#elif defined(__OpenBSD__)
+#include <sys/types.h>
+#endif
 #endif
 #ifdef __SWITCH__
 static inline uint64_t ntohll(uint64_t netlonglong) {
     return __builtin_bswap64(netlonglong);
 }
+#elif defined(__WINRT__)
+#elif defined(betoh64)
+#define ntohll betoh64
+#elif defined(be64toh)
+#define ntohll be64toh
 #elif !defined(ntohll)
 static inline uint64_t ntohll(uint64_t value) {
     if (ntohl(1) == 1) {
