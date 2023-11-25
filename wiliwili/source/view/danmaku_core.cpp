@@ -19,18 +19,19 @@
 #include <arpa/inet.h>
 #endif
 #ifdef __SWITCH__
-static inline uint32_t ntohll(uint64_t netlonglong) {
+static inline uint64_t ntohll(uint64_t netlonglong) {
     return __builtin_bswap64(netlonglong);
 }
 #elif !defined(ntohll)
-uint64_t ntohll(uint64_t value) {
+static inline uint64_t ntohll(uint64_t value) {
     if (ntohl(1) == 1) {
         // The system is big endian, no conversion is needed
         return value;
     } else {
         // The system is little endian, convert from network byte order (big endian) to host byte order
         const uint32_t high_part = ntohl(static_cast<uint32_t>(value >> 32));
-        const uint32_t low_part = ntohl(static_cast<uint32_t>(value & 0xFFFFFFFFLL));
+        const uint32_t low_part =
+            ntohl(static_cast<uint32_t>(value & 0xFFFFFFFFLL));
         return (static_cast<uint64_t>(low_part) << 32) | high_part;
     }
 }
@@ -272,25 +273,24 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         if (maskIndex == 0) maskIndex = 1;
 
         // 设置 svg
-        auto &svg         = slice.svgData[maskIndex - 1];
-        auto maskDocument = lunasvg::Document::loadFromData(svg.svg);
-        auto bitmap       = maskDocument->renderToBitmap(maskDocument->width(),
-                                                         maskDocument->height());
-        uint32_t maskWidth  = bitmap.width();
+        auto &svg          = slice.svgData[maskIndex - 1];
+        auto maskDocument  = lunasvg::Document::loadFromData(svg.svg);
+        auto bitmap        = maskDocument->renderToBitmap(maskDocument->width(),
+                                                          maskDocument->height());
+        uint32_t maskWidth = bitmap.width();
         uint32_t maskHeight = bitmap.height();
         if (maskTex != 0) {
             nvgUpdateImage(vg, maskTex, bitmap.data());
         } else {
-            maskTex = nvgCreateImageRGBA(
-                vg, (int)maskWidth, (int)maskHeight,
-                NVG_IMAGE_PREMULTIPLIED | NVG_IMAGE_NEAREST, bitmap.data());
+            maskTex = nvgCreateImageRGBA(vg, (int)maskWidth, (int)maskHeight,
+                                         NVG_IMAGE_NEAREST, bitmap.data());
         }
 
         // 设置遮罩
         nvgBeginPath(vg);
         float drawHeight = height, drawWidth = width;
         float drawX = x, drawY = y;
-        if (maskWidth * height > maskHeight * width ) {
+        if (maskWidth * height > maskHeight * width) {
             drawHeight = maskHeight * width / maskWidth;
             drawY      = y + (height - drawHeight) / 2;
         } else {
@@ -301,7 +301,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
                                      maskTex, alpha);
         nvgRect(vg, x, y, width, height);
         nvgFillPaint(vg, paint);
-#ifdef DEBUG_MASK
+#if defined(DEBUG_MASK) || !defined(BOREALIS_USE_OPENGL)
         nvgFill(vg);
 #else
         nvgStencil(vg);
@@ -464,7 +464,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     }
 
     // 清空遮罩
-#ifndef DEBUG_MASK
+#if !defined(DEBUG_MASK) && defined(BOREALIS_USE_OPENGL)
     if (maskTex > 0) {
         nvgBeginPath(vg);
         nvgRect(vg, x, y, width, height);
