@@ -91,6 +91,8 @@ DanmakuCore::DanmakuCore() {
             this->refresh();
         } else if (e == MpvEventEnum::RESET) {
             this->reset();
+        } else if (e == MpvEventEnum::VIDEO_SPEED_CHANGE) {
+            this->setSpeed(MPVCore::instance().getSpeed());
         }
     });
 
@@ -278,6 +280,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
 
         // 在分片内选择对应时间的svg
         // todo: 优化为异步加载 (包括下载和解压分片)
+        if (maskSliceIndex >= maskData.sliceData.size()) goto skip_mask;
         auto &slice = maskData.getSlice(maskSliceIndex);
         while (maskIndex < slice.svgData.size()) {
             auto &svg = slice.svgData[maskIndex];
@@ -287,6 +290,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         if (maskIndex == 0) maskIndex = 1;
 
         // 设置 svg
+        if (maskIndex > slice.svgData.size()) goto skip_mask;
         auto &svg = slice.svgData[maskIndex - 1];
         // 给图片添加一圈边框（避免图片边沿为透明时自动扩展了透明色导致非视频区域无法显示弹幕）
         // 注：返回的 svg 底部固定留有 2像素 透明，不是很清楚具体作用，这里选择绘制一个2像素宽的空心矩形来覆盖
