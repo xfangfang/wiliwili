@@ -84,6 +84,7 @@ VideoProgressSlider::VideoProgressSlider() {
 
     this->addGestureRecognizer(new TapGestureRecognizer(
         [this](brls::TapGestureStatus status, brls::Sound* soundToPlay) {
+            if (status.state != GestureState::END) return;
             float paddingWidth = getWidth() - pointer->getWidth();
             float delta =
                 status.position.x - pointer->getWidth() / 2 - pointer->getX();
