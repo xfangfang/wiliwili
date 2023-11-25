@@ -102,6 +102,7 @@ MPVCore::MPVCore() {
 }
 
 void MPVCore::init() {
+    setlocale(LC_NUMERIC, "C");
     this->mpv = mpv_create();
     if (!mpv) {
         brls::fatal("Error Create mpv Handle");
