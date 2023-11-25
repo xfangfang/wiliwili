@@ -1,0 +1,6 @@
+<brls:Box
+        id="space/container"
+        axis="column"
+        width="auto"
+        height="auto">
+</brls:Box>
