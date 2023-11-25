@@ -236,7 +236,8 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     } else {
         nlohmann_json_t.upper = 0;
     }
-    if (nlohmann_json_j.contains("root") && !nlohmann_json_j.at("root").is_null()) {
+    if (nlohmann_json_j.contains("root") &&
+        !nlohmann_json_j.at("root").is_null()) {
         nlohmann_json_j.at("root").get_to(nlohmann_json_t.root);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor));
@@ -637,6 +638,7 @@ public:
     int64_t last_play_time;
     int last_play_cid;
     VideoPageSubtitleList subtitles;
+    std::string mask_url;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoPageResult& nlohmann_json_t) {
@@ -648,6 +650,12 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
                 subs.get_to(nlohmann_json_t.subtitles);
             }
         }
+    }
+    if (nlohmann_json_j.contains("dm_mask") &&
+        nlohmann_json_j.at("dm_mask").is_object()) {
+        nlohmann_json_j.at("dm_mask")
+            .at("mask_url")
+            .get_to(nlohmann_json_t.mask_url);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, online_count,
                                              last_play_time, last_play_cid));
@@ -705,7 +713,7 @@ public:
     std::vector<float> data;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
-          VideoHighlightProgress& nlohmann_json_t) {
+                      VideoHighlightProgress& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, step_sec));
     if (!nlohmann_json_j.contains("events")) return;
     if (!nlohmann_json_j.at("events").is_object()) return;

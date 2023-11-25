@@ -75,7 +75,7 @@ using Cookies       = std::map<std::string, std::string>;
 using ErrorCallback = std::function<void(const std::string&, int code)>;
 
 #define BILI bilibili::BilibiliClient
-#define BILI_ERR const std::string& error, int code
+#define BILI_ERR const std::string &error, int code
 
 class BilibiliClient {
     inline static std::function<void(Cookies, std::string)>
@@ -245,6 +245,12 @@ public:
         const std::string& bvid, int cid,
         const std::function<void(VideoPageResult)>& callback = nullptr,
         const ErrorCallback& error                           = nullptr);
+
+    /// 获取视频防遮挡数据
+    static void get_webmask(
+        const std::string& url,
+        const std::function<void(std::string)>& callback = nullptr,
+        const ErrorCallback& error                       = nullptr);
 
     /// get video pagelist by aid
     static void get_video_pagelist(

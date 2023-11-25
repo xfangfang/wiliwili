@@ -5,9 +5,21 @@
 #include <pystring.h>
 #include <cstdlib>
 #include <utility>
+#include <lunasvg.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+#include <arpa/inet.h>
+#endif
+#ifdef __SWITCH__
+static inline uint32_t ntohll(uint64_t netlonglong) {
+    return __builtin_bswap64(netlonglong);
+}
+#endif
 
 #include "view/danmaku_core.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/string_helper.hpp"
 #include "borealis/core/logger.hpp"
 
 DanmakuItem::DanmakuItem(std::string content, const char *attributes)
@@ -53,6 +65,13 @@ DanmakuCore::DanmakuCore() {
             this->reset();
         }
     });
+
+    // 退出前清空遮照纹理
+    brls::Application::getExitDoneEvent()->subscribe([this]() {
+        if (maskTex != 0) {
+            nvgDeleteImage(brls::Application::getNVGContext(), maskTex);
+        }
+    });
 }
 
 DanmakuCore::~DanmakuCore() { MPV_E->unsubscribe(event_id); }
@@ -65,9 +84,16 @@ void DanmakuCore::reset() {
     this->danmakuData.clear();
     this->danmakuLoaded = false;
     danmakuIndex        = 0;
+    maskIndex           = 0;
+    maskSliceIndex      = 0;
     videoSpeed          = MPVCore::instance().getSpeed();
     lineHeight     = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
     lineNumCurrent = 0;
+    maskData.clear();
+    if (maskTex != 0) {
+        nvgDeleteImage(brls::Application::getNVGContext(), maskTex);
+        maskTex = 0;
+    }
     danmakuMutex.unlock();
 }
 
@@ -92,6 +118,8 @@ void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
     MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
 }
 
+void DanmakuCore::loadMaskData(const WebMask &data) { maskData = data; }
+
 void DanmakuCore::refresh() {
     danmakuMutex.lock();
 
@@ -100,6 +128,10 @@ void DanmakuCore::refresh() {
 
     // 将当前屏幕第一条弹幕序号设为0
     danmakuIndex = 0;
+
+    // 将遮罩序号设为0
+    maskSliceIndex = 0;
+    maskIndex      = 0;
 
     // 重置弹幕控制显示的信息
     for (auto &i : danmakuData) {
@@ -186,12 +218,16 @@ NVGcolor DanmakuCore::a(NVGcolor color, float alpha) {
     return color;
 }
 
+//#define DEBUG_MASK
+
 void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
-                              float height, float alpha) {
+                       float height, float alpha) {
     if (!DanmakuCore::DANMAKU_ON) return;
     if (!this->danmakuLoaded) return;
     if (danmakuData.empty()) return;
 
+    int64_t currentTime = brls::getCPUTimeUsec();
+    double playbackTime = MPVCore::instance().playback_time;
     float SECOND        = 0.12f * DANMAKU_STYLE_SPEED;
     float CENTER_SECOND = 0.04f * DANMAKU_STYLE_SPEED;
 
@@ -199,6 +235,64 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     nvgSave(vg);
     nvgIntersectScissor(vg, x, y, width, height);
 
+    // 设置遮罩
+    if (!maskData.sliceData.empty()) {
+        // 先根据时间选择分片
+        while (maskSliceIndex < maskData.sliceData.size()) {
+            auto &slice = maskData.sliceData[maskSliceIndex + 1];
+            if (slice.time > playbackTime * 1000) break;
+            maskSliceIndex++;
+            maskIndex = 0;
+        }
+
+        // 在分片内选择对应时间的svg
+        // todo: 优化为异步加载 (包括下载和解压分片)
+        auto &slice = maskData.getSlice(maskSliceIndex);
+        while (maskIndex < slice.svgData.size()) {
+            auto &svg = slice.svgData[maskIndex];
+            if (svg.showTime > playbackTime * 1000) break;
+            maskIndex++;
+        }
+        if (maskIndex == 0) maskIndex = 1;
+
+        // 设置 svg
+        auto &svg         = slice.svgData[maskIndex - 1];
+        auto maskDocument = lunasvg::Document::loadFromData(svg.svg);
+        auto bitmap       = maskDocument->renderToBitmap(maskDocument->width(),
+                                                         maskDocument->height());
+        uint32_t maskWidth  = bitmap.width();
+        uint32_t maskHeight = bitmap.height();
+        if (maskTex != 0) {
+            nvgUpdateImage(vg, maskTex, bitmap.data());
+        } else {
+            maskTex = nvgCreateImageRGBA(
+                vg, (int)maskWidth, (int)maskHeight,
+                NVG_IMAGE_PREMULTIPLIED | NVG_IMAGE_NEAREST, bitmap.data());
+        }
+
+        // 设置遮罩
+        nvgBeginPath(vg);
+        float drawHeight = height, drawWidth = width;
+        float drawX = x, drawY = y;
+        if (maskWidth * height > maskHeight * width ) {
+            drawHeight = maskHeight * width / maskWidth;
+            drawY      = y + (height - drawHeight) / 2;
+        } else {
+            drawWidth = maskWidth * height / maskHeight;
+            drawX     = x + (width - drawWidth) / 2;
+        }
+        auto paint = nvgImagePattern(vg, drawX, drawY, drawWidth, drawHeight, 0,
+                                     maskTex, alpha);
+        nvgRect(vg, x, y, width, height);
+        nvgFillPaint(vg, paint);
+#ifdef DEBUG_MASK
+        nvgFill(vg);
+#else
+        nvgStencil(vg);
+#endif
+    }
+
+    // 设置基础字体
     nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE);
     nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
     nvgFontFaceId(vg, this->danmakuFont);
@@ -210,8 +304,6 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     }
 
     //取出需要的弹幕
-    int64_t currentTime = brls::getCPUTimeUsec();
-    double playbackTime = MPVCore::instance().playback_time;
     float bounds[4];
     for (size_t j = this->danmakuIndex; j < this->danmakuData.size(); j++) {
         auto &i = this->danmakuData[j];
@@ -354,5 +446,83 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
             break;
         }
     }
+
+    // 清空遮罩
+#ifndef DEBUG_MASK
+    if (maskTex > 0) {
+        nvgBeginPath(vg);
+        nvgRect(vg, x, y, width, height);
+        nvgStencilClear(vg);
+    }
+#endif
     nvgRestore(vg);
+}
+
+void WebMask::parse(const std::string &text) {
+    rawData = text;
+
+    // 检查头部
+    std::memcpy(&version, rawData.data() + 4, sizeof(int32_t));
+    std::memcpy(&check, rawData.data() + 8, sizeof(int32_t));
+    std::memcpy(&length, rawData.data() + 12, sizeof(int32_t));
+    version = ntohl(version);
+    check   = ntohl(check);
+    length  = ntohl(length);
+
+    // 获取所有分片信息
+    sliceData.reserve(length + 1);
+    int64_t time, offset, currentOffset = 16;
+    for (size_t i = 0; i < length; i++) {
+        std::memcpy(&time, rawData.data() + currentOffset, sizeof(int64_t));
+        std::memcpy(&offset, rawData.data() + currentOffset + 8,
+                    sizeof(int64_t));
+        time   = ntohll(time);
+        offset = ntohll(offset);
+        sliceData.emplace_back(time, offset, 0);
+        if (i != 0) sliceData[i - 1].offsetEnd = offset;
+        if (i == length - 1) sliceData[i].offsetEnd = rawData.size();
+        currentOffset += 16;
+    }
+    // 再添加一个尾部分片方便计算
+    sliceData.emplace_back(-1, -1, -1);
+}
+
+void WebMask::clear() {
+    this->rawData.clear();
+    this->sliceData.clear();
+}
+
+const MaskSlice &WebMask::getSlice(size_t index) {
+    auto &slice = sliceData[index];
+    if (!slice.svgData.empty()) return slice;
+
+    // 解压分片数据
+    std::string data;
+    try {
+        data = wiliwili::decompressGzipData(rawData.substr(
+            slice.offsetStart, slice.offsetEnd - slice.offsetStart));
+    } catch (const std::runtime_error &e) {
+        brls::Logger::error("web mask decompress error: {}", e.what());
+        return slice;
+    }
+
+    // 获取svg数据
+    size_t sliceOffset = 0;
+    uint32_t sliceLength, sliceTime;
+    while (sliceOffset < data.size()) {
+        std::memcpy(&sliceLength, data.data() + sliceOffset, sizeof(int32_t));
+        std::memcpy(&sliceTime, data.data() + sliceOffset + 8, sizeof(int32_t));
+        sliceLength = ntohl(sliceLength);
+        sliceTime   = ntohl(sliceTime);
+        sliceOffset += 12;
+        auto base64 = pystring::replace(
+            pystring::split(data.substr(sliceOffset, sliceLength), ",", 1)[1],
+            "\n", "");
+        std::string svg;
+        wiliwili::base64Decode(base64, svg);
+        sliceOffset += sliceLength;
+
+        slice.svgData.emplace_back(svg, sliceTime);
+    }
+    return slice;
 }
