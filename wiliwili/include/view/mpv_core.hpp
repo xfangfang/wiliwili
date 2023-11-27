@@ -12,7 +12,7 @@
 #if defined(MPV_SW_RENDER)
 #elif defined(BOREALIS_USE_DEKO3D)
 #include <mpv/render_dk3d.h>
-#else
+#elif defined(BOREALIS_USE_OPENGL)
 #include <mpv/render_gl.h>
 #if defined(__PSV__) || defined(PS4)
 #include <GLES2/gl2.h>
@@ -25,13 +25,23 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #endif
-#include <nanovg_gl.h>
+#if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER) && !defined(USE_GL2)
+#define MPV_USE_FB
+#endif
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
+#define MPV_USE_VAO
+#endif
+
+#ifdef MPV_USE_FB
 struct GLShader {
     GLuint prog;
-    GLuint vao;
     GLuint vbo;
     GLuint ebo;
+#ifdef MPV_USE_VAO
+    GLuint vao;
+#endif
 };
+#endif
 #endif
 
 typedef enum MpvEventEnum {
@@ -163,11 +173,12 @@ public:
      *    wiliwili 的 UWP 版本因为用了dx12，所以使用此方式绘制。
      *    在向新的平台移植时推荐优先使用此方式绘制，便于移植，之后再考虑优化问题。
      * 2. MPV_NO_FB: 绘制到默认的 framebuffer 上； 性能适中。
-     *    适合 树莓派、PSV 等 OpenGL <ES> 2.0 的平台；因为不支持独立创建 framebuffer，所以让 mpv 先绘制到整个屏幕上，再用UI来覆盖。
-     *    使用 deko3d (switch only) 时，采用 MPV_NO_FB 方式绘制，因为实现起来比较简单。
-     *    使用 OpenGL ES 3.0 时，也需要采用 MPV_NO_FB 方式绘制，因为独立绘制的 GLSL 脚本没有做适配。
-     * 3. 默认绘制方式: 将视频绘制到独立的 framebuffer 上，需要显示在屏幕上时再贴到默认的 framebuffer 上的某个位置；性能最佳。
-     *    支持图形API OpenGL 3.2+。
+     *    适合 树莓派 等只支持 OpenGL 2.0 的平台；因为不支持独立创建 framebuffer，
+     *    所以让 mpv 先绘制到整个屏幕上，再用UI来覆盖。
+     *    使用 deko3d (switch only) 时， 暂时也采用 MPV_NO_FB 方式绘制。
+     * 3. 默认绘制方式: 将视频绘制到独立的 framebuffer 上，
+     *    需要显示在屏幕上时再贴到默认的 framebuffer 上的某个位置；性能最佳。
+     *    支持图形API OpenGL 3.2+ / OpenGL ES 2.0+。
      *    在部分平台上支持 direct rendering, 减少 CPU 和 GPU 间的拷贝进一步提升了性能。
      */
     void draw(brls::Rect rect, float alpha = 1.0);
@@ -286,6 +297,7 @@ private:
                                       { MPV_RENDER_PARAM_INVALID,
                                         nullptr }};
 #elif defined(MPV_NO_FB)
+    GLint default_framebuffer = 0;
     mpv_opengl_fbo mpv_fbo{0, 1920, 1080};
     int flip_y{1};
     mpv_render_param mpv_params[3] = {{MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
@@ -293,8 +305,9 @@ private:
                                       { MPV_RENDER_PARAM_INVALID,
                                         nullptr }};
 #else
-    GLuint media_framebuffer = 0;
-    GLuint media_texture     = 0;
+    GLint default_framebuffer = 0;
+    GLuint media_framebuffer  = 0;
+    GLuint media_texture      = 0;
     GLShader shader{0};
     mpv_opengl_fbo mpv_fbo{0, 1920, 1080};
     int flip_y{1};
@@ -319,11 +332,9 @@ private:
     /// Will be called in main thread to get events from mpv core
     void eventMainLoop();
 
-    void deleteFrameBuffer();
+    void initializeVideo();
 
-    void deleteShader();
-
-    void initializeGL();
+    void uninitializeVideo();
 
     void init();
 
