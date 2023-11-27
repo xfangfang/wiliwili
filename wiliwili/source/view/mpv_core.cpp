@@ -422,9 +422,11 @@ void MPVCore::initializeVideo() {
 
 #if defined(MPV_NO_FB)
     mpv_fbo.fbo = default_framebuffer;
+    glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
 #elif defined(MPV_SW_RENDER)
 #elif defined(BOREALIS_USE_DEKO3D)
 #else
+    if (this->media_texture != 0) return;
     brls::Logger::debug("initializeGL");
 
     // create texture
