@@ -146,7 +146,7 @@ void MPVCore::on_update(void *self) {
     brls::sync([]() {
         uint64_t flags =
             mpv_render_context_update(MPVCore::instance().getContext());
-#if defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D)
+#if defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D) || defined(USE_GL2)
         (void)flags;
 #else
         MPVCore::instance().redraw = flags & MPV_RENDER_UPDATE_FRAME;
@@ -443,9 +443,7 @@ void MPVCore::initializeVideo() {
 #if defined(MPV_NO_FB)
     mpv_fbo.fbo = default_framebuffer;
     glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
-#elif defined(MPV_SW_RENDER)
-#elif defined(BOREALIS_USE_DEKO3D)
-#else
+#elif defined(MPV_USE_FB)
     if (this->media_texture != 0) return;
     brls::Logger::debug("initializeGL");
 
@@ -566,7 +564,7 @@ void MPVCore::setFrameSize(brls::Rect r) {
     // 在视频暂停时调整纹理尺寸，视频画面会被清空为黑色，强制重新绘制一次，避免这个问题
     mpv_render_context_render(mpv_context, mpv_params);
     mpv_render_context_report_swap(mpv_context);
-#elif defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D)
+#elif !defined(MPV_USE_FB)
     // Using default framebuffer
     this->mpv_fbo.w = brls::Application::windowWidth;
     this->mpv_fbo.h = brls::Application::windowHeight;
@@ -647,7 +645,7 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     nvgFillPaint(vg, nvgImagePattern(vg, 0, 0, rect.getWidth(),
                                      rect.getHeight(), 0, nvg_image, alpha));
     nvgFill(vg);
-#elif defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D)
+#elif !defined(MPV_USE_FB)
     // 只在非透明时绘制视频，可以避免退出页面时视频画面残留
     if (alpha >= 1) {
 #ifdef BOREALIS_USE_DEKO3D
