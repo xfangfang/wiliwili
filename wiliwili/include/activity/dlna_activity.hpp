@@ -24,7 +24,7 @@ public:
     void dismiss();
 
 private:
-    BRLS_BIND(VideoView, video, "fullscreen/video");
+    BRLS_BIND(VideoView, video, "video");
 
     // 监控mpv事件
     MPVEvent::Subscription mpvEventSubscribeID;

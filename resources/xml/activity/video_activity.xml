@@ -1,6 +1,6 @@
 <brls:Box>
         <VideoView
-            id="fullscreen/video"
+            id="video"
             hideHighlight="true"
             width="100%"
             height="100%"/>

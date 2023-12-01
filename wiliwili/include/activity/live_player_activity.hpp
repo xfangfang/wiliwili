@@ -43,7 +43,7 @@ public:
     ~LiveActivity() override;
 
 private:
-    BRLS_BIND(VideoView, video, "fullscreen/video");
+    BRLS_BIND(VideoView, video, "video");
 
     // 暂停的延时函数 handle
     size_t toggleDelayIter = 0;
