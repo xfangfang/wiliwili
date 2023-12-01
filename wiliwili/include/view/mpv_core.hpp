@@ -26,13 +26,12 @@
 #include <GLFW/glfw3.h>
 #endif
 #if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER) && !defined(USE_GL2)
+// 将视频绘制到独立的 framebuffer
 #define MPV_USE_FB
-#endif
 #if !defined(USE_GLES2) && !defined(USE_GLES3)
+// 虽然 gles3 理论时也支持 vao 但是部分平台上实际不支持（比如 ANGLE）
 #define MPV_USE_VAO
 #endif
-
-#ifdef MPV_USE_FB
 struct GLShader {
     GLuint prog;
     GLuint vbo;
