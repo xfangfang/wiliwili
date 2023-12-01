@@ -25,6 +25,10 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #endif
+#if defined(USE_GL2)
+// 对于 OpenGL 2.0 平台，不支持独立创建 framebuffer
+#define MPV_NO_FB
+#endif
 #if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER) && !defined(USE_GL2)
 // 将视频绘制到独立的 framebuffer
 #define MPV_USE_FB
