@@ -426,7 +426,7 @@ void VideoDetail::requestVideoComment(int aid, int next, int mode) {
         [ASYNC_TOKEN, aid](const bilibili::VideoCommentResultWrapper& result) {
             brls::sync([ASYNC_TOKEN, aid, result]() {
                 ASYNC_RELEASE
-                if (this->commentRequestIndex != result.requestIndex) {
+                if (this->commentRequestIndex != (int)result.requestIndex) {
                     brls::Logger::error("request comment {}/{} got: {}", aid,
                                         commentRequestIndex,
                                         result.requestIndex);
