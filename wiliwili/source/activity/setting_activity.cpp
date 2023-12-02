@@ -375,7 +375,7 @@ void SettingActivity::onContentAvailable() {
         selectorCustomTheme->setVisibility(brls::Visibility::GONE);
     } else {
         std::vector<std::string> customThemeNameList = {"hints/off"_i18n};
-        size_t customThemeIndex                      = 0;
+        int customThemeIndex                      = 0;
         for (size_t index = 0; index < customThemeList.size(); index++) {
             customThemeNameList.emplace_back(customThemeList[index].name);
             if (customThemeID == customThemeList[index].id) {
@@ -384,7 +384,7 @@ void SettingActivity::onContentAvailable() {
         }
         selectorCustomTheme->init(
             "wiliwili/setting/app/others/custom_theme/header"_i18n,
-            customThemeNameList, (int)customThemeIndex,
+            customThemeNameList, customThemeIndex,
             [customThemeIndex, customThemeList](int data) {
                 if (customThemeIndex == data) return false;
                 if (data <= 0) {

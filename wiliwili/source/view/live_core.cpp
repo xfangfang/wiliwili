@@ -70,7 +70,7 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     float CENTER_SECOND = 0.04f * DanmakuCore::DANMAKU_STYLE_SPEED;
     line_height         = DanmakuCore::DANMAKU_STYLE_FONTSIZE *
                   DanmakuCore::DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
-    int LINES =
+    size_t LINES =
         height / this->line_height * DanmakuCore::DANMAKU_STYLE_AREA * 0.01;
     if (LINES < 1) LINES = 1;
 
@@ -90,7 +90,7 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
 
     auto _now = std::chrono::system_clock::now();
 
-    int _time = 0;
+    size_t _time = 0;
     this->next_mutex.lock();
     while (!this->next.empty() && init_danmaku(vg, this->next.front(), width,
                                                LINES, SECOND, _now, _time)) {

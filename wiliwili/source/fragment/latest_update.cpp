@@ -128,7 +128,7 @@ LatestUpdate::LatestUpdate(const ReleaseNote& info) {
             textbox->addView(lineBox);
         } else if (isImage(l)) {
             // 图片
-            int maxHeight, margin;
+            int maxHeight = 0, margin = 0;
             auto url = getImageUrl(l, maxHeight, margin);
             if (url.empty()) continue;
             auto box   = new brls::Box();
