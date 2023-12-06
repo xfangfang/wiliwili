@@ -184,30 +184,7 @@ modules:
 
   - name: wiliwili
     buildsystem: cmake-ninja
-    only-arches: [x86_64]
     config-opts:
-      - '-DPLATFORM_DESKTOP=ON'
-      - '-DUSE_SYSTEM_CURL=ON'
-      - '-DINSTALL=ON'
-      - '-DCMAKE_BUILD_TYPE=Release'
-      - '-DGLFW_BUILD_WAYLAND=ON'
-      - '-DGLFW_BUILD_X11=ON'
-    builddir: true
-    sources:
-      - type: git
-        url: https://github.com/xfangfang/wiliwili.git
-        tags: v1.2.2
-        commit: d53373cdaaa64c9759b5ec62253ea41ecf1a9b5b
-        x-checker-data:
-          type: git
-          tag-pattern: ^v([\d.]+)$
-
-  - name: wiliwili
-    buildsystem: cmake-ninja
-    only-arches: [aarch64]
-    config-opts:
-      - '-DMPV_NO_FB=ON'
-      - '-DUSE_GLES2=ON'
       - '-DPLATFORM_DESKTOP=ON'
       - '-DUSE_SYSTEM_CURL=ON'
       - '-DINSTALL=ON'
