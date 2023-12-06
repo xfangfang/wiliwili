@@ -19,6 +19,8 @@ finish-args:
   # https://github.com/mpv-player/mpv/blob/master/libmpv/client.h#L147-L149
   # will remove it when next version release
   - --env=LC_NUMERIC=C
+cleanup-commands:
+  - mkdir -p /app/lib/ffmpeg
 cleanup:
   - '*.a'
   - '*.la'
