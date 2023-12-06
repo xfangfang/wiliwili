@@ -9,29 +9,115 @@
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
 
-#if !defined(MPV_NO_FB) && !defined(MPV_SW_RENDER) && \
-    !defined(BOREALIS_USE_DEKO3D)
-const char *vertexShaderSource =
-    "#version 150 core\n"
+#ifdef MPV_USE_FB
+#ifdef PS4
+#include "utils/ps4_mpv_shaders.hpp"
+#endif
+#if defined(USE_GLES2)
+#define SHADER_VERSION "#version 100\n"
+#define SHADER_PRECISION "precision mediump float;\n"
+#elif defined(USE_GLES3)
+#define SHADER_VERSION "#version 300 es\n"
+#define SHADER_PRECISION "precision mediump float;\n"
+#else
+#define SHADER_VERSION "#version 150 core\n"
+#define SHADER_PRECISION ""
+#endif
+
+const char *vertexShaderSource = SHADER_VERSION
+#ifdef USE_GLES2
+    "attribute vec3 aPos;\n"
+    "attribute vec2 aTexCoord;\n"
+    "varying vec2 TexCoord;\n"
+#else
     "in vec3 aPos;\n"
     "in vec2 aTexCoord;\n"
     "out vec2 TexCoord;\n"
+#endif
     "void main()\n"
     "{\n"
     "   gl_Position = vec4(aPos, 1.0);\n"
     "   TexCoord = aTexCoord;\n"
     "}\0";
-const char *fragmentShaderSource =
-    "#version 150 core\n"
+const char *fragmentShaderSource = SHADER_VERSION SHADER_PRECISION
+#ifdef USE_GLES2
+    "varying vec2 TexCoord;\n"
+#else
     "in vec2 TexCoord;\n"
     "out vec4 FragColor;\n"
+#endif
     "uniform sampler2D ourTexture;\n"
-    "uniform float Alpha = 1.0;\n"
+    "uniform float Alpha;\n"
     "void main()\n"
     "{\n"
+#ifdef USE_GLES2
+    "   gl_FragColor = texture2D(ourTexture, TexCoord);\n"
+    "   gl_FragColor.a = Alpha;\n"
+#else
     "   FragColor = texture(ourTexture, TexCoord);\n"
     "   FragColor.a = Alpha;\n"
+#endif
     "}\n\0";
+
+#define CONCATENATE3(s1, s2, s3) s1##s2##s3
+#define CONCATENATE2(s1, s2) s1##s2
+#define checkGLError(type, id)                                                 \
+    {                                                                          \
+        char *info = nullptr;                                                  \
+        int length = 0;                                                        \
+        CONCATENATE3(glGet, type, iv)(id, GL_COMPILE_STATUS, &length);         \
+        if (length > 0) {                                                      \
+            info = (char *)malloc(length);                                     \
+            if (info) {                                                        \
+                CONCATENATE3(glGet, type, InfoLog)(id, length, &length, info); \
+            }                                                                  \
+        }                                                                      \
+        if (info) {                                                            \
+            brls::Logger::error("Failed to load the shader: {}", info);        \
+            free(info);                                                        \
+        } else {                                                               \
+            brls::Logger::error("Failed to load the shader");                  \
+        }                                                                      \
+        CONCATENATE2(glDelete, type)(id);                                      \
+    }
+
+static GLuint createShader(GLint type, const char *source) {
+    GLuint shader = glCreateShader(type);
+#ifdef PS4
+    glShaderBinary(
+        1, &shader, 2,
+        type == GL_VERTEX_SHADER ? PS4_MPV_SHADER_VERT : PS4_MPV_SHADER_FRAG,
+        type == GL_VERTEX_SHADER ? PS4_MPV_SHADER_VERT_LENGTH
+                                 : PS4_MPV_SHADER_FRAG_LENGTH);
+#else
+    int success;
+    glShaderSource(shader, 1, &source, nullptr);
+    glCompileShader(shader);
+    // check for shader compile errors
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        checkGLError(Shader, shader);
+        return 0;
+    }
+#endif
+    return shader;
+}
+
+static GLuint linkProgram(GLuint s1, GLuint s2) {
+    if (s1 == 0 || s2 == 0) return 0;
+    GLuint program = glCreateProgram();
+    int success;
+    glAttachShader(program, s1);
+    glAttachShader(program, s2);
+    glLinkProgram(program);
+    // check for linking errors
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if (!success) {
+        checkGLError(Program, program);
+        return 0;
+    }
+    return program;
+}
 #endif
 
 #ifdef BOREALIS_USE_DEKO3D
@@ -73,6 +159,8 @@ void MPVCore::on_update(void *self) {
 #else
             mpv_render_context_render(MPVCore::instance().mpv_context,
                                       MPVCore::instance().mpv_params);
+            glBindFramebuffer(GL_FRAMEBUFFER,
+                              MPVCore::instance().default_framebuffer);
             glViewport(0, 0, (GLsizei)brls::Application::windowWidth,
                        (GLsizei)brls::Application::windowHeight);
             mpv_render_context_report_swap(MPVCore::instance().mpv_context);
@@ -256,8 +344,6 @@ void MPVCore::init() {
     // set render callback
     mpv_render_context_set_update_callback(mpv_context, on_update, this);
 
-    this->initializeGL();
-
     focusSubscription =
         brls::Application::getWindowFocusChangedEvent()->subscribe(
             [this](bool focus) {
@@ -280,13 +366,10 @@ void MPVCore::init() {
                 }
             });
 
-#ifdef IOS
-    glBindFramebuffer(GL_FRAMEBUFFER, 1);
-#endif
+    brls::Application::getExitEvent()->subscribe(
+        []() { disableDimming(false); });
 
-    brls::Application::getExitEvent()->subscribe([]() {
-        MPVCore::instance().disableDimming(false);
-    });
+    this->initializeVideo();
 }
 
 MPVCore::~MPVCore() = default;
@@ -297,11 +380,8 @@ void MPVCore::clean() {
     brls::Application::getWindowFocusChangedEvent()->unsubscribe(
         focusSubscription);
 
-    brls::Logger::info("trying delete fbo");
-    this->deleteFrameBuffer();
-
-    brls::Logger::info("trying delete shader");
-    this->deleteShader();
+    brls::Logger::info("uninitialize Video");
+    this->uninitializeVideo();
 
     brls::Logger::info("trying free mpv context");
     if (this->mpv_context) {
@@ -321,130 +401,108 @@ void MPVCore::restart() {
     this->init();
 }
 
-void MPVCore::deleteFrameBuffer() {
-#if defined(MPV_NO_FB) || defined(MPV_SW_RENDER)
-#elif defined(BOREALIS_USE_DEKO3D)
-#else
-    if (this->media_framebuffer != 0) {
-        glDeleteFramebuffers(1, &this->media_framebuffer);
-        this->media_framebuffer = 0;
-    }
-    if (this->media_texture != 0) {
-        glDeleteTextures(1, &this->media_texture);
-        this->media_texture = 0;
-    }
-#endif
-}
-
-void MPVCore::deleteShader() {
-#if defined(MPV_NO_FB) || defined(MPV_SW_RENDER)
-#elif defined(BOREALIS_USE_DEKO3D)
-#else
-    if (shader.vao != 0) glDeleteVertexArrays(1, &shader.vao);
+void MPVCore::uninitializeVideo() {
+#ifdef MPV_USE_FB
+    if (media_framebuffer != 0) glDeleteFramebuffers(1, &media_framebuffer);
+    if (media_texture != 0) glDeleteTextures(1, &media_texture);
     if (shader.vbo != 0) glDeleteBuffers(1, &shader.vbo);
     if (shader.ebo != 0) glDeleteBuffers(1, &shader.ebo);
     if (shader.prog != 0) glDeleteProgram(shader.prog);
+#ifdef MPV_USE_VAO
+    if (shader.vao != 0) glDeleteVertexArrays(1, &shader.vao);
+    shader.vao = 0;
+#endif
+    media_framebuffer = 0;
+    media_texture     = 0;
+    shader.vbo        = 0;
+    shader.ebo        = 0;
+    shader.prog       = 0;
 #endif
 }
 
-void MPVCore::initializeGL() {
-#if defined(MPV_NO_FB)
+void MPVCore::initializeVideo() {
+#if defined(BOREALIS_USE_OPENGL) && !defined(MPV_SW_RENDER)
+    // Get default framebuffer
 #if defined(IOS)
-    mpv_fbo.fbo = 1;
+    // SDL: OpenGL ES on iOS doesn't use the traditional system-framebuffer setup provided in other operating systems.
+    default_framebuffer = 1;
+#else
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &default_framebuffer);
 #endif
+#endif
+
+#if defined(MPV_NO_FB)
+    mpv_fbo.fbo = default_framebuffer;
+    glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
 #elif defined(MPV_SW_RENDER)
 #elif defined(BOREALIS_USE_DEKO3D)
 #else
-    if (media_framebuffer != 0) return;
+    if (this->media_texture != 0) return;
     brls::Logger::debug("initializeGL");
 
-    // create frame buffer
-    glGenFramebuffers(1, &this->media_framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->media_framebuffer);
+    // create texture
     glGenTextures(1, &this->media_texture);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, brls::Application::windowWidth,
-                 brls::Application::windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                 nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (int)brls::Application::windowWidth,
+                 (int)brls::Application::windowHeight, 0, GL_RGB,
+                 GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    // create frame buffer
+    glGenFramebuffers(1, &this->media_framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->media_framebuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                            this->media_texture, 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         brls::Logger::error("glCheckFramebufferStatus failed");
-        this->deleteFrameBuffer();
+        return;
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
     this->mpv_fbo.fbo = (int)this->media_framebuffer;
     brls::Logger::debug("create fbo and texture done\n");
 
     // build and compile our shader program
     // ------------------------------------
     // vertex shader
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    // check for shader compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        brls::Logger::error("vertex shader compile error:", infoLog);
-    }
-
+    GLuint vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderSource);
     // fragment shader
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    // check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        brls::Logger::error("fragment shader compile error:", infoLog);
-    }
+    GLuint fragmentShader =
+        createShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 
     // link shaders
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
+    GLuint shaderProgram = linkProgram(vertexShader, fragmentShader);
 
-    // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        brls::Logger::error("shaders linking error: {}", infoLog);
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    if (vertexShader) glDeleteShader(vertexShader);
+    if (fragmentShader) glDeleteShader(fragmentShader);
     this->shader.prog = shaderProgram;
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     unsigned int indices[] = {0, 1, 3, 1, 2, 3};
-    glGenVertexArrays(1, &this->shader.vao);
     glGenBuffers(1, &this->shader.vbo);
-    glGenBuffers(1, &this->shader.ebo);
-    glBindVertexArray(this->shader.vao);
-
     glBindBuffer(GL_ARRAY_BUFFER, this->shader.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    glGenBuffers(1, &this->shader.ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->shader.ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                  GL_STATIC_DRAW);
 
+#ifdef MPV_USE_VAO
+    glGenVertexArrays(1, &this->shader.vao);
+    glBindVertexArray(this->shader.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, this->shader.vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->shader.ebo);
+
     GLuint aPos = glGetAttribLocation(shaderProgram, "aPos");
     glVertexAttribPointer(aPos, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void *)0);
+                          (void *)nullptr);
     glEnableVertexAttribArray(aPos);
 
     GLuint aTexCoord = glGetAttribLocation(shaderProgram, "aTexCoord");
@@ -454,7 +512,7 @@ void MPVCore::initializeGL() {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-
+#endif
     brls::Logger::debug("initializeGL done");
 #endif
 }
@@ -521,7 +579,7 @@ void MPVCore::setFrameSize(brls::Rect r) {
     if (drawWidth == 0 || drawHeight == 0) return;
     brls::Logger::debug("MPVCore::setFrameSize: {}/{}", drawWidth, drawHeight);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, drawWidth, drawHeight, 0, GL_RGBA,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, drawWidth, drawHeight, 0, GL_RGB,
                  GL_UNSIGNED_BYTE, nullptr);
     this->mpv_fbo.w = drawWidth;
     this->mpv_fbo.h = drawHeight;
@@ -545,6 +603,7 @@ void MPVCore::setFrameSize(brls::Rect r) {
 
     // 在视频暂停时调整纹理尺寸，视频画面会被清空为黑色，强制重新绘制一次，避免这个问题
     mpv_render_context_render(mpv_context, mpv_params);
+    glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
     glViewport(0, 0, (GLsizei)brls::Application::windowWidth,
                (GLsizei)brls::Application::windowHeight);
     mpv_render_context_report_swap(mpv_context);
@@ -592,12 +651,10 @@ void MPVCore::draw(brls::Rect area, float alpha) {
 #endif
         // 绘制视频
         mpv_render_context_render(this->mpv_context, mpv_params);
-#ifdef IOS
-        glBindFramebuffer(GL_FRAMEBUFFER, 1);
-#endif
 #ifdef BOREALIS_USE_DEKO3D
         videoContext->queueWaitFence(&doneFence);
 #else
+        glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
         glViewport(0, 0, brls::Application::windowWidth,
                    brls::Application::windowHeight);
 #endif
@@ -624,12 +681,30 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     // shader draw
     glUseProgram(shader.prog);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
+#ifdef MPV_USE_VAO
     glBindVertexArray(shader.vao);
+#else
+    glBindBuffer(GL_ARRAY_BUFFER, shader.vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader.ebo);
+    static GLuint aPos = glGetAttribLocation(shader.prog, "aPos");
+    glVertexAttribPointer(aPos, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void *)nullptr);
+    glEnableVertexAttribArray(aPos);
+
+    static GLuint aTexCoord = glGetAttribLocation(shader.prog, "aTexCoord");
+    glVertexAttribPointer(aTexCoord, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(aTexCoord);
+#endif
 
     // Set alpha
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    static GLuint alphaID = glGetUniformLocation(shader.prog, "Alpha");
+    if (alpha < 1) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        glDisable(GL_BLEND);
+    }
+    static GLint alphaID = glGetUniformLocation(shader.prog, "Alpha");
     glUniform1f(alphaID, alpha);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
@@ -711,7 +786,7 @@ void MPVCore::eventMainLoop() {
                 brls::Logger::info("========> MPV_STOP");
                 mpvCoreEvent.fire(MpvEventEnum::MPV_STOP);
                 video_stopped = true;
-                auto node = (mpv_event_end_file *)event->data;
+                auto node     = (mpv_event_end_file *)event->data;
                 if (node->reason == MPV_END_FILE_REASON_ERROR) {
                     mpv_error_code = node->error;
                     brls::Logger::error("========> MPV ERROR: {}",
