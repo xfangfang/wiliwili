@@ -10,6 +10,9 @@
 #include "utils/number_helper.hpp"
 
 #ifdef MPV_USE_FB
+#ifdef PS4
+#include "utils/ps4_mpv_shaders.hpp"
+#endif
 #if defined(USE_GLES2)
 #define SHADER_VERSION "#version 100\n"
 #define SHADER_PRECISION "precision mediump float;\n"
@@ -80,6 +83,13 @@ const char *fragmentShaderSource = SHADER_VERSION SHADER_PRECISION
 
 static GLuint createShader(GLint type, const char *source) {
     GLuint shader = glCreateShader(type);
+#ifdef PS4
+    glShaderBinary(
+        1, &shader, 2,
+        type == GL_VERTEX_SHADER ? PS4_MPV_SHADER_VERT : PS4_MPV_SHADER_FRAG,
+        type == GL_VERTEX_SHADER ? PS4_MPV_SHADER_VERT_LENGTH
+                                 : PS4_MPV_SHADER_FRAG_LENGTH);
+#else
     int success;
     glShaderSource(shader, 1, &source, nullptr);
     glCompileShader(shader);
@@ -89,6 +99,7 @@ static GLuint createShader(GLint type, const char *source) {
         checkGLError(Shader, shader);
         return 0;
     }
+#endif
     return shader;
 }
 
@@ -432,9 +443,8 @@ void MPVCore::initializeVideo() {
     // create texture
     glGenTextures(1, &this->media_texture);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
-                 (int)brls::Application::windowWidth,
-                 (int)brls::Application::windowHeight, 0, GL_RGBA,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (int)brls::Application::windowWidth,
+                 (int)brls::Application::windowHeight, 0, GL_RGB,
                  GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -569,7 +579,7 @@ void MPVCore::setFrameSize(brls::Rect r) {
     if (drawWidth == 0 || drawHeight == 0) return;
     brls::Logger::debug("MPVCore::setFrameSize: {}/{}", drawWidth, drawHeight);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, drawWidth, drawHeight, 0, GL_RGBA,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, drawWidth, drawHeight, 0, GL_RGB,
                  GL_UNSIGNED_BYTE, nullptr);
     this->mpv_fbo.w = drawWidth;
     this->mpv_fbo.h = drawHeight;
