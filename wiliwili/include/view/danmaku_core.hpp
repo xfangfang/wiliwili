@@ -146,6 +146,7 @@ public:
     static inline bool DANMAKU_FILTER_SHOW_BOTTOM = true;
     static inline bool DANMAKU_FILTER_SHOW_SCROLL = true;
     static inline bool DANMAKU_FILTER_SHOW_COLOR  = true;
+    static inline bool DANMAKU_SMART_MASK  = true;
 
     /// [25, 50, 75, 100]
     static inline int DANMAKU_STYLE_AREA = 100;

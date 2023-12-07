@@ -329,6 +329,7 @@
       },
       "filter": {
         "header": "Danmaku filter",
+        "mask": "Smart mask",
         "top": "Top",
         "scroll": "Scroll",
         "bottom": "Bottom",

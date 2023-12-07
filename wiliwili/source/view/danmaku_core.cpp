@@ -213,6 +213,8 @@ void DanmakuCore::setSpeed(double speed) {
 void DanmakuCore::save() {
     ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_ON,
                                              DANMAKU_ON, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_SMART_MASK,
+                                             DANMAKU_SMART_MASK, false);
     ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_TOP,
                                              DANMAKU_FILTER_SHOW_TOP, false);
     ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_BOTTOM,
@@ -269,7 +271,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
 
     // 设置遮罩
 #ifdef BOREALIS_USE_OPENGL
-    if (!maskData.sliceData.empty()) {
+    if (DANMAKU_SMART_MASK && !maskData.sliceData.empty()) {
         // 先根据时间选择分片
         while (maskSliceIndex < maskData.sliceData.size()) {
             auto &slice = maskData.sliceData[maskSliceIndex + 1];

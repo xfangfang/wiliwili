@@ -34,6 +34,16 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
 
     auto& conf = ProgramConfig::instance();
 
+#ifdef __PSV__
+    this->cellMask->setVisibility(brls::Visibility::GONE);
+#else
+    this->cellMask->init("wiliwili/player/danmaku/filter/mask"_i18n,
+                         DanmakuCore::DANMAKU_SMART_MASK, [](bool data) {
+                             DanmakuCore::DANMAKU_SMART_MASK = data;
+                             DanmakuCore::save();
+                             return true;
+                         });
+#endif
     this->cellTop->init("wiliwili/player/danmaku/filter/top"_i18n,
                         DanmakuCore::DANMAKU_FILTER_SHOW_TOP, [](bool data) {
                             DanmakuCore::DANMAKU_FILTER_SHOW_TOP = data;

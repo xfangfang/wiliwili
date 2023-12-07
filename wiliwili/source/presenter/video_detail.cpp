@@ -598,7 +598,7 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid,
         bvid, cid,
         [ASYNC_TOKEN,
          requestVideoHistory](const bilibili::VideoPageResult& result) {
-#ifdef BOREALIS_USE_OPENGL
+#if defined(BOREALIS_USE_OPENGL) && !defined(__PSV__)
             if (!result.mask_url.empty()) {
                 brls::Logger::debug("获取防遮挡数据: {}", result.mask_url);
                 auto url = pystring::startswith(result.mask_url, "//")
