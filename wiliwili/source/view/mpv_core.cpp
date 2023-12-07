@@ -201,7 +201,6 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "config-dir",
                           ProgramConfig::instance().getConfigDir().c_str());
     mpv_set_option_string(mpv, "ytdl", "no");
-    mpv_set_option_string(mpv, "terminal", "yes");
     mpv_set_option_string(mpv, "audio-channels", "stereo");
     mpv_set_option_string(mpv, "idle", "yes");
     mpv_set_option_string(mpv, "loop-file", "no");
@@ -273,10 +272,12 @@ void MPVCore::init() {
     // log
     // mpv_set_option_string(mpv, "msg-level", "ffmpeg=trace");
     // mpv_set_option_string(mpv, "msg-level", "all=no");
-
+    if (MPVCore::TERMINAL) {
+        mpv_set_option_string(mpv, "terminal", "yes");
 #ifdef _DEBUG
-    mpv_set_option_string(mpv, "msg-level", "all=v");
+        mpv_set_option_string(mpv, "msg-level", "all=v");
 #endif
+    }
 
     if (mpv_initialize(mpv) < 0) {
         mpv_terminate_destroy(mpv);

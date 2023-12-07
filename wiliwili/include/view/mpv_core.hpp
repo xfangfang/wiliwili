@@ -262,6 +262,9 @@ public:
     // 视频缓存（是否使用内存缓存视频，值为缓存的大小，单位MB）
     inline static int INMEMORY_CACHE = 0;
 
+    // 开启 Terminal 日志
+    inline static bool TERMINAL = false;
+
     // 硬件解码
     inline static bool HARDWARE_DEC               = false;
     inline static std::string PLAYER_HWDEC_METHOD = "auto-safe";
