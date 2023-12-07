@@ -124,6 +124,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DANMAKU_FILTER_TOP, {"danmaku_filter_top", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_SCROLL, {"danmaku_filter_scroll", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
+    {SettingItem::DANMAKU_SMART_MASK, {"danmaku_smart_mask", {}, {}, 1}},
     {SettingItem::SEARCH_TV_MODE, {"search_tv_mode", {}, {}, 1}},
 
 /// number
@@ -458,6 +459,8 @@ void ProgramConfig::load() {
 
     // 初始化弹幕相关内容
     DanmakuCore::DANMAKU_ON = getBoolOption(SettingItem::DANMAKU_ON);
+    DanmakuCore::DANMAKU_SMART_MASK =
+        getBoolOption(SettingItem::DANMAKU_SMART_MASK);
     DanmakuCore::DANMAKU_FILTER_SHOW_TOP =
         getBoolOption(SettingItem::DANMAKU_FILTER_TOP);
     DanmakuCore::DANMAKU_FILTER_SHOW_BOTTOM =

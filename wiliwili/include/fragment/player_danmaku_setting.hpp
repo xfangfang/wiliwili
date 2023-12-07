@@ -30,6 +30,7 @@ public:
 
 private:
     BRLS_BIND(SelectorCell, cellLevel, "player/danmaku/filter/level");
+    BRLS_BIND(brls::BooleanCell, cellMask, "player/danmaku/filter/mask");
     BRLS_BIND(brls::BooleanCell, cellScroll, "player/danmaku/filter/scroll");
     BRLS_BIND(brls::BooleanCell, cellTop, "player/danmaku/filter/top");
     BRLS_BIND(brls::BooleanCell, cellBottom, "player/danmaku/filter/bottom");

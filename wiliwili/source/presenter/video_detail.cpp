@@ -598,6 +598,26 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid,
         bvid, cid,
         [ASYNC_TOKEN,
          requestVideoHistory](const bilibili::VideoPageResult& result) {
+#if defined(BOREALIS_USE_OPENGL) && !defined(__PSV__)
+            if (!result.mask_url.empty()) {
+                brls::Logger::debug("获取防遮挡数据: {}", result.mask_url);
+                auto url = pystring::startswith(result.mask_url, "//")
+                                      ? "https:" + result.mask_url
+                                      : result.mask_url;
+                BILI::get_webmask(
+                    url,
+                    [url](const std::string& text) {
+                        brls::Logger::debug("解析防遮挡数据: {}", text.size());
+                        WebMask webMask;
+                        webMask.url = url;
+                        webMask.parse(text);
+                        brls::Logger::debug("解析数据结束: {}", url);
+                        brls::sync(
+                            [webMask]() { DanmakuCore::instance().loadMaskData(webMask); });
+                    },
+                    [](BILI_ERR) { brls::Logger::error("get_webmask: {}", error); });
+            }
+#endif
             brls::sync([ASYNC_TOKEN, result, requestVideoHistory]() {
                 ASYNC_RELEASE
                 SubtitleCore::instance().setSubtitleList(result);
@@ -663,7 +683,7 @@ void VideoDetail::reportHistory(unsigned int aid, unsigned int cid,
     BILI::report_history(
         mid, token, aid, cid, type, progress, duration, sid, epid,
         []() { brls::Logger::debug("reportHistory: success"); },
-        [](BILI_ERR) { brls::Logger::error("{}", error); });
+        [](BILI_ERR) { brls::Logger::error("reportHistory: {}", error); });
 }
 
 int VideoDetail::getCoinTolerate() {

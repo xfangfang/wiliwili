@@ -670,7 +670,7 @@ void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y,
                                       float width, float alpha) {
     if (highlight_data.size() <= 1) return;
     nvgBeginPath(vg);
-    nvgFillColor(vg, nvgRGBA(255, 255, 255, (unsigned char)(128 * alpha)));
+    nvgFillColor(vg, nvgRGBAf(1.0f, 1.0f, 1.0f, 0.5f * alpha));
     float baseY  = y;
     float dX     = width / ((float)highlight_data.size() - 1);
     float halfDx = dX / 2;
@@ -685,7 +685,12 @@ void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y,
         pointX += dX;
         float pointY = baseY - 12 - item * 48;
         float cx     = lastX + halfDx;
-        nvgBezierTo(vg, cx, lastY, cx, pointY, pointX, pointY);
+        if (fabs(lastY - pointY) < 3) {
+            // 相差太小，直接绘制直线
+            nvgLineTo(vg, pointX, pointY);
+        } else {
+            nvgBezierTo(vg, cx, lastY, cx, pointY, pointX, pointY);
+        }
         lastX = pointX;
         lastY = pointY;
     }

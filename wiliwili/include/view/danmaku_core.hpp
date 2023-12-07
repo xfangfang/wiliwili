@@ -8,9 +8,42 @@
 
 #include <mutex>
 
-#include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
-#include "nanovg.h"
+
+// 每个分片内的svg数据，一般 1/30 s 一帧
+class MaskSvg {
+public:
+    MaskSvg(const std::string &svg, uint64_t t) : svg(svg), showTime(t) {}
+    std::string svg;
+    uint64_t showTime;
+};
+
+// 一般 10s 一个分片
+class MaskSlice {
+public:
+    MaskSlice(uint64_t time, uint64_t offsetStart, uint64_t offsetEnd)
+        : time(time), offsetStart(offsetStart), offsetEnd(offsetEnd) {}
+    uint64_t time{};
+    uint64_t offsetStart{};
+    uint64_t offsetEnd{};
+    std::vector<MaskSvg> svgData;
+};
+
+class WebMask {
+public:
+    std::string url;
+    uint32_t version, check, length;
+    std::vector<MaskSlice> sliceData;
+
+    const MaskSlice &getSlice(size_t index);
+
+    void parse(const std::string &text);
+
+    void clear();
+
+private:
+    std::string rawData;
+};
 
 class DanmakuItem {
 public:
@@ -79,8 +112,8 @@ public:
      * @param height 绘制区域的高度
      * @param alpha 组件的透明度，与弹幕本身的透明度叠加
      */
-    void draw(NVGcontext *vg, float x, float y, float width,
-                     float height, float alpha);
+    void draw(NVGcontext *vg, float x, float y, float width, float height,
+              float alpha);
 
     /**
      * 加载弹幕数据
@@ -100,6 +133,12 @@ public:
      */
     std::vector<DanmakuItem> getDanmakuData();
 
+    /**
+     * 加载遮罩数据
+     * @param data 遮罩数据
+     */
+    void loadMaskData(const WebMask &data);
+
     /// range: [1 - 10], 1: show all danmaku, 10: the most strong filter
     static inline int DANMAKU_FILTER_LEVEL = 1;
 
@@ -107,6 +146,7 @@ public:
     static inline bool DANMAKU_FILTER_SHOW_BOTTOM = true;
     static inline bool DANMAKU_FILTER_SHOW_SCROLL = true;
     static inline bool DANMAKU_FILTER_SHOW_COLOR  = true;
+    static inline bool DANMAKU_SMART_MASK  = true;
 
     /// [25, 50, 75, 100]
     static inline int DANMAKU_STYLE_AREA = 100;
@@ -134,6 +174,11 @@ private:
 
     // 弹幕列表
     std::vector<DanmakuItem> danmakuData;
+
+    WebMask maskData{};
+    size_t maskIndex      = 0;
+    size_t maskSliceIndex = 0;
+    int maskTex           = 0;
 
     // 滚动弹幕的信息 <起始时间，结束时间>
     std::vector<std::pair<float, float>> scrollLines;

@@ -329,6 +329,7 @@
       },
       "filter": {
         "header": "彈幕篩選",
+        "mask": "智慧防擋",
         "top": "頂部",
         "scroll": "滾動",
         "bottom": "底部",

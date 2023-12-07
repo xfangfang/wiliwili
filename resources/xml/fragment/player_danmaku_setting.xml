@@ -85,6 +85,9 @@
                             id="player/danmaku/filter/level"/>
 
                     <brls:BooleanCell
+                            id="player/danmaku/filter/mask"/>
+
+                    <brls:BooleanCell
                             id="player/danmaku/filter/scroll"/>
 
                     <brls:BooleanCell
