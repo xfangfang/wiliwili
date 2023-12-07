@@ -89,6 +89,8 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 
 下载对应系统的安装包运行即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 
+现在Linux & Steam Deck 用户可以通过系统自带的软件商店（如Discover、GNOME Software）搜索wiliwili进行下载。
+
 <details>
 
 <br>
