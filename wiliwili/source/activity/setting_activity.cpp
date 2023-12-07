@@ -532,7 +532,7 @@ void SettingActivity::onContentAvailable() {
     }
 
     /// Opencc
-#if defined(IOS) || defined(__PSV__) || defined(DISABLE_OPENCC)
+#if defined(IOS) || defined(DISABLE_OPENCC)
     btnOpencc->setVisibility(brls::Visibility::GONE);
 #else
     if (brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||

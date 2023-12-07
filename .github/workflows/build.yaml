@@ -276,9 +276,11 @@ jobs:
         run: |
           docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
             "git config --global --add safe.directory /src &&
-             cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON -DCMAKE_BUILD_TYPE=Release \
-                -DDISABLE_OPENCC=ON -DMPV_NO_FB=ON \
-                -DVERIFY_SSL=OFF -DUSE_SYSTEM_CPR=ON && \
+             cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DMPV_NO_FB=ON \
+                -DVERIFY_SSL=OFF \
+                -DUSE_SYSTEM_CPR=ON && \
                 make -C cmake-build-ps4 -j$(nproc)"
 
       - name: Upload dist
@@ -550,7 +552,6 @@ jobs:
             -DMPV_NO_FB=ON \
             -DVERIFY_SSL=OFF \
             -DCMAKE_BUILD_TYPE=Release \
-            -DDISABLE_OPENCC=ON \
             -DCMAKE_CXX_FLAGS="-Wno-error=pedantic -Wno-psabi"
           cmake --build build --verbose
           mv build/wiliwili.self build/eboot.bin
