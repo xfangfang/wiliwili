@@ -47,7 +47,8 @@ cmake_dependent_option(USE_SYSTEM_TINYXML2 "" OFF "NOT USE_SHARED_LIB" ON)
 cmake_dependent_option(USE_SYSTEM_SDL2 "Only for PSV" OFF "PLATFORM_PSV" OFF)
 cmake_dependent_option(USE_SYSTEM_MONGOOSE "" OFF "NOT USE_SHARED_LIB" ON)
 
-option(DISABLE_OPENCC "Disable Chinese Simplified and Chinese Traditional Conversion " OFF)
+option(DISABLE_OPENCC "Disable Chinese Simplified and Chinese Traditional Conversion" OFF)
+option(DISABLE_WEBP "Disable webp" OFF)
 
 # mpv related
 # If your system does not support OpenGL(ES), you can use software rendering, but it will affect performance.
@@ -99,7 +100,7 @@ if (PLATFORM_DESKTOP)
     list(APPEND APP_PLATFORM_LIB ${MPV_LIBRARY})
 
     find_package(WebP)
-    if (WebP_FOUND)
+    if (WebP_FOUND AND NOT DISABLE_WEBP)
         message(STATUS "Found webp: ${WebP_INCLUDE_DIRS} ${WebP_LIBRARY}")
         list(APPEND APP_PLATFORM_OPTION -DUSE_WEBP)
         list(APPEND APP_PLATFORM_INCLUDE ${WebP_INCLUDE_DIRS})
@@ -132,7 +133,7 @@ else ()
     endif ()
 
     pkg_search_module(LIBWEBP QUIET libwebp)
-    if (LIBWEBP_FOUND)
+    if (LIBWEBP_FOUND AND NOT DISABLE_WEBP)
         message(STATUS "Found libwebp: ${LIBWEBP_INCLUDE_DIRS} ${LIBWEBP_LIBRARIES}")
         list(APPEND APP_PLATFORM_INCLUDE ${LIBWEBP_INCLUDE_DIRS})
         list(APPEND APP_PLATFORM_LIB ${LIBWEBP_LIBRARIES})
