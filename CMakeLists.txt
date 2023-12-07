@@ -249,16 +249,14 @@ elseif (PLATFORM_PSV)
             FILE ${CMAKE_SOURCE_DIR}/scripts/psv/module/ module
             )
 elseif (PLATFORM_PS4)
-    if (PS4)
-        add_self(${PROJECT_NAME})
-        add_pkg(${PROJECT_NAME}
-                ${CMAKE_BINARY_DIR}/ps4
-                ${PSN_TITLE_ID}
-                "wiliwili"
-                ${VITA_VERSION}
-                8388608
-        )
-    endif()
+    add_self(${PROJECT_NAME})
+    add_pkg(${PROJECT_NAME}
+            ${CMAKE_BINARY_DIR}/ps4
+            ${PSN_TITLE_ID}
+            "wiliwili"
+            ${VITA_VERSION}
+            8388608
+    )
     add_custom_target(${PROJECT_NAME}.data
             COMMAND "${CMAKE_COMMAND}" -E copy_directory ${BOREALIS_DIR}/ps4/sce_module ${CMAKE_BINARY_DIR}/ps4/sce_module
             COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_SOURCE_DIR}/scripts/ps4/sce_sys ${CMAKE_BINARY_DIR}/ps4/sce_sys

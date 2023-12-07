@@ -33,7 +33,7 @@ static void to_url(int room_id, std::vector<std::string> &names,
     std::vector<uint8_t> data;
     download(u + std::to_string(room_id), data);
 
-    nlohmann::json _json = nlohmann::json::parse(data);
+    nlohmann::json _json = nlohmann::json::parse(std::string{data.begin(), data.end()});
     
     auto it = _json["data"]["data"];
 

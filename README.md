@@ -75,7 +75,7 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验
 
 下载 `wiliwili-PSVita.vpk` 安装即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 
-拥有不是很稳定的硬解支持，目前推荐使用软解搭配 360P 分辨率使用。
+目前只推荐观看 360P 分辨率使用，不过仍有相当大的提升空间，如果你愿意为此贡献欢迎开一个 PR 讨论了解更多。
 
 ### PS4
 
@@ -283,9 +283,9 @@ cmake --build build
 
 推荐使用docker构建，本地构建配置环境略微繁琐不过可用来切换底层的ffmpeg或mpv等其他依赖库更灵活地进行调试。
 
-> 以下介绍 OpenGL 下的构建方法，deko3d (更好的硬解支持)请参考：`scripts/build_switch_deko3d.sh`
-
 <details>
+
+以下介绍 OpenGL 下的构建方法，deko3d (更好的硬解支持)请参考：`scripts/build_switch_deko3d.sh`
 
 #### Docker
 
@@ -325,22 +325,41 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 
 ### 交叉编译 PSV 可执行文件
 
-分别参考 `.github/workflows/build.yaml` 、[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv) 和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
+参考 `.github/workflows/build.yaml` 使用 docker 来编译。  
+本地安装 [vitasdk](https://vitasdk.org/) 环境编译时，请不要忘记将需要的四个 suprx 文件放入 `scripts/psv/module` 目录下。 详情请参考：[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv) 和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
 
-注意不要忘记在编译前将需要的四个 suprx 文件放入 `scripts/psv/module` 目录下。
+<details>
+
+在 Apple Silicon 上编译，推荐使用 [OrbStack](https://orbstack.dev) 代替 Docker Desktop，因为前者支持 Rosetta 运行 x86_64 的 Docker 镜像。
+
+```shell
+docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_psv_builder:latest \
+    "cmake -B cmake-build-psv -G Ninja -DPLATFORM_PSV=ON \
+        -DMPV_NO_FB=ON -DUSE_SYSTEM_CURL=ON -DUSE_SYSTEM_SDL2=ON \
+        -DVERIFY_SSL=OFF -DCMAKE_BUILD_TYPE=Release && \
+        cmake --build cmake-build-psv"
+```
+
+</details>
 
 ### 交叉编译 PS4 可执行文件
 
 参考 `.github/workflows/build.yaml` 使用 docker 来编译。  
-或本地安装 [PacBrew](https://github.com/PacBrew/pacbrew-packages) 环境（只支持 Linux），并手动添加依赖库，请参考：[scripts/ps4/Dockerfile](https://github.com/xfangfang/wiliwili/blob/dev/scripts/ps4/Dockerfile)
+或本地安装 [PacBrew](https://github.com/PacBrew/pacbrew-packages) 环境（只支持 x86_64 Linux），并手动添加依赖库，请参考：[scripts/ps4/Dockerfile](https://github.com/xfangfang/wiliwili/blob/dev/scripts/ps4/Dockerfile)
+
+<details>
+
+在 Apple Silicon 上编译，推荐使用 [OrbStack](https://orbstack.dev) 代替 Docker Desktop，因为前者支持 Rosetta 运行 x86_64 的 Docker 镜像。
 
 ```shell
 docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
     "cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON \
-        -DDISABLE_OPENCC=ON -DMPV_NO_FB=ON \
-        -DVERIFY_SSL=OFF -DUSE_SYSTEM_CPR=ON && \
+        -DMPV_NO_FB=ON -DVERIFY_SSL=OFF \
+        -DUSE_SYSTEM_CPR=ON && \
         make -C cmake-build-ps4 -j$(nproc)"
 ```
+
+</details>
 
 <br>
 
