@@ -44,7 +44,6 @@ modules:
       - '-Dlua=disabled'
       - '-Ddebug=false'
       - '-Dbuild-date=false'
-      - '-Dalsa=disabled'
       - '-Dcplayer=false'
       - '-Dmanpage-build=disabled'
     sources:
@@ -57,6 +56,18 @@ modules:
           stable-only: true
           url-template: https://github.com/mpv-player/mpv/archive/refs/tags/v$version.tar.gz
     modules:
+      - name: libXpresent
+        buildsystem: autotools
+        sources:
+          - type: archive
+            url: https://xorg.freedesktop.org/archive/individual/lib/libXpresent-1.0.1.tar.xz
+            sha256: b964df9e5a066daa5e08d2dc82692c57ca27d00b8cc257e8e960c9f1cf26231b
+            x-checker-data:
+              type: anitya
+              project-id: 17166
+              stable-only: true
+              url-template: https://xorg.freedesktop.org/archive/individual/lib/libXpresent-$version.tar.xz
+
       - name: libv4l2
         buildsystem: meson
         cleanup:
@@ -197,7 +208,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/xfangfang/wiliwili.git
-        tags: v1.2.2
+        tag: v1.2.2
         commit: d53373cdaaa64c9759b5ec62253ea41ecf1a9b5b
         x-checker-data:
           type: git
