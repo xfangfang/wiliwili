@@ -173,12 +173,11 @@ void PlayerSetting::setupCommonSetting() {
                       });
 
     /// Player mirror
-    static bool videoMirror = false;
-    btnMirror->init("wiliwili/player/setting/common/mirror"_i18n, videoMirror,
+    btnMirror->init("wiliwili/player/setting/common/mirror"_i18n, MPVCore::VIDEO_MIRROR,
                     [](bool value) {
-                        videoMirror = !videoMirror;
+                        MPVCore::VIDEO_MIRROR = !MPVCore::VIDEO_MIRROR;
                         MPVCore::instance().command_async(
-                            "set", "vf", videoMirror ? "hflip" : "");
+                            "set", "vf", MPVCore::VIDEO_MIRROR ? "hflip" : "");
                     });
 
     /// Player Highlight progress bar

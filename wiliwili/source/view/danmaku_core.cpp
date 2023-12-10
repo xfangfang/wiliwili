@@ -314,6 +314,11 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         }
 
         // 设置遮罩
+        if (MPVCore::VIDEO_MIRROR) {
+            nvgSave(vg);
+            nvgTranslate(vg, width + x + x, 0);
+            nvgScale(vg, -1, 1);
+        }
         nvgBeginPath(vg);
         float drawHeight = height, drawWidth = width;
         float drawX = x, drawY = y;
@@ -333,6 +338,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
 #else
         nvgStencil(vg);
 #endif
+        if (MPVCore::VIDEO_MIRROR) nvgRestore(vg);
     }
 #endif /* BOREALIS_USE_OPENGL */
 skip_mask:

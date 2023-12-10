@@ -272,6 +272,9 @@ public:
     // 默认的音量
     inline static int VIDEO_VOLUME = 100;
 
+    // 是否镜像视频
+    inline static bool VIDEO_MIRROR = false;
+
 private:
     mpv_handle *mpv                 = nullptr;
     mpv_render_context *mpv_context = nullptr;
