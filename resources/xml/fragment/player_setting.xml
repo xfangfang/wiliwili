@@ -83,6 +83,9 @@
                     <brls:BooleanCell
                             id="setting/video/mirror"/>
 
+                    <brls:SelectorCell
+                            id="setting/video/aspect"/>
+
                     <brls:BooleanCell
                             id="setting/auto/exit"/>
 

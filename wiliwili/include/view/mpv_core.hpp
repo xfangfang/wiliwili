@@ -164,6 +164,12 @@ public:
     void showOsdText(const std::string &value, int duration = 2000);
 
     /**
+     * 强制设置视频比例
+     * @param value -1 为自动, 可设置 16:9 或 1.333 这两种形式的字符串
+     */
+    void setAspect(const std::string &value);
+
+    /**
      * 禁用系统锁屏
      */
     static void disableDimming(bool disable);
@@ -274,6 +280,9 @@ public:
 
     // 是否镜像视频
     inline static bool VIDEO_MIRROR = false;
+
+    // 强制的视频比例 (-1 为自动)
+    inline static std::string VIDEO_ASPECT = "-1";
 
 private:
     mpv_handle *mpv                 = nullptr;

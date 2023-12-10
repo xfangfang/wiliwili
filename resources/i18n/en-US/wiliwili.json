@@ -307,6 +307,10 @@
         "highlight": "Always show hotspots",
         "wiki": "Access our wiki to learn how shader works"
       },
+      "aspect": {
+        "header": "Video aspect",
+        "auto": "Auto"
+      },
       "shader": {
         "header": "Shader"
       }

@@ -84,6 +84,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::HOME_WINDOW_STATE, {"home_window_state", {}, {}, 0}},
     {SettingItem::DLNA_IP, {"dlna_ip", {}, {}, 0}},
     {SettingItem::DLNA_NAME, {"dlna_name", {}, {}, 0}},
+    {SettingItem::PLAYER_ASPECT,
+     {"player_aspect", {"-1", "4:3", "16:9"}, {}, 0}},
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -458,6 +460,10 @@ void ProgramConfig::load() {
     // 初始化默认的倍速设定
     MPVCore::VIDEO_SPEED = getIntOption(SettingItem::PLAYER_DEFAULT_SPEED);
 
+    // 初始化视频比例
+    MPVCore::VIDEO_ASPECT =
+        getSettingItem(SettingItem::PLAYER_ASPECT, std::string{"-1"});
+
     // 初始化弹幕相关内容
     DanmakuCore::DANMAKU_ON = getBoolOption(SettingItem::DANMAKU_ON);
     DanmakuCore::DANMAKU_SMART_MASK =
@@ -551,7 +557,7 @@ void ProgramConfig::load() {
     std::set<std::string> i18nData{
         brls::LOCALE_AUTO, brls::LOCALE_EN_US,   brls::LOCALE_JA,
         brls::LOCALE_RYU,  brls::LOCALE_ZH_HANS, brls::LOCALE_ZH_HANT,
-        brls::LOCALE_Ko, brls::LOCALE_IT,
+        brls::LOCALE_Ko,   brls::LOCALE_IT,
     };
     std::string langData =
         getSettingItem(SettingItem::APP_LANG, brls::LOCALE_AUTO);

@@ -173,11 +173,24 @@ void PlayerSetting::setupCommonSetting() {
                       });
 
     /// Player mirror
-    btnMirror->init("wiliwili/player/setting/common/mirror"_i18n, MPVCore::VIDEO_MIRROR,
-                    [](bool value) {
+    btnMirror->init("wiliwili/player/setting/common/mirror"_i18n,
+                    MPVCore::VIDEO_MIRROR, [](bool value) {
                         MPVCore::VIDEO_MIRROR = !MPVCore::VIDEO_MIRROR;
                         MPVCore::instance().command_async(
                             "set", "vf", MPVCore::VIDEO_MIRROR ? "hflip" : "");
+                    });
+
+    /// Player aspect
+    btnAspect->init("wiliwili/player/setting/aspect/header"_i18n,
+                    {"wiliwili/player/setting/aspect/auto"_i18n, "4:3", "16:9"},
+                    conf.getStringOptionIndex(SettingItem::PLAYER_ASPECT),
+                    [](int value) {
+                        auto option = ProgramConfig::instance().getOptionData(
+                            SettingItem::PLAYER_ASPECT);
+                        auto& aspect = option.optionList[value];
+                        MPVCore::instance().setAspect(aspect);
+                        ProgramConfig::instance().setSettingItem(
+                            SettingItem::PLAYER_ASPECT, aspect);
                     });
 
     /// Player Highlight progress bar

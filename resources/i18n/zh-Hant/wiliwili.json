@@ -307,6 +307,10 @@
         "highlight": "下方固定顯示高能進度條",
         "wiki": "查看項目 WIKI 獲得詳細說明"
       },
+      "aspect": {
+        "header": "視頻比例",
+        "auto": "自動"
+      },
       "shader": {
         "header": "著色器"
       }

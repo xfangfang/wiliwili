@@ -211,6 +211,11 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "hr-seek", "yes");
     mpv_set_option_string(mpv, "reset-on-next-file", "speed,pause");
 
+    if (MPVCore::VIDEO_ASPECT != "-1") {
+        mpv_set_option_string(mpv, "video-aspect-override",
+                              MPVCore::VIDEO_ASPECT.c_str());
+    }
+
     if (MPVCore::LOW_QUALITY) {
         // Less cpu cost
         brls::Logger::info("lavc: skip loop filter and set fast decode");
@@ -356,12 +361,13 @@ void MPVCore::init() {
                     AUTO_PLAY = autoPlay;
                     // application is on top
                     auto timeNow = std::chrono::system_clock::now();
-                    if (playing && timeNow < (sleepTime + std::chrono::seconds(120))) {
+                    if (playing &&
+                        timeNow < (sleepTime + std::chrono::seconds(120))) {
                         resume();
                     }
                 } else {
                     // application is sleep, save the current state
-                    playing = isPlaying();
+                    playing   = isPlaying();
                     sleepTime = std::chrono::system_clock::now();
                     pause();
                     // do not automatically play video
@@ -1044,6 +1050,11 @@ bool MPVCore::isPaused() const { return video_paused; }
 double MPVCore::getSpeed() const { return video_speed; }
 
 void MPVCore::setSpeed(double value) { command_async("set", "speed", value); }
+
+void MPVCore::setAspect(const std::string &value) {
+    MPVCore::VIDEO_ASPECT = value;
+    command_async("set", "video-aspect-override", MPVCore::VIDEO_ASPECT);
+}
 
 // todo: remove these sync function
 std::string MPVCore::getString(const std::string &key) {
