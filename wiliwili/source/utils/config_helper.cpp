@@ -61,6 +61,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
           brls::LOCALE_ZH_HANT,
           brls::LOCALE_ZH_HANS,
           brls::LOCALE_Ko,
+          brls::LOCALE_IT,
       },
       {},
 #if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
@@ -550,7 +551,7 @@ void ProgramConfig::load() {
     std::set<std::string> i18nData{
         brls::LOCALE_AUTO, brls::LOCALE_EN_US,   brls::LOCALE_JA,
         brls::LOCALE_RYU,  brls::LOCALE_ZH_HANS, brls::LOCALE_ZH_HANT,
-        brls::LOCALE_Ko,
+        brls::LOCALE_Ko, brls::LOCALE_IT,
     };
     std::string langData =
         getSettingItem(SettingItem::APP_LANG, brls::LOCALE_AUTO);

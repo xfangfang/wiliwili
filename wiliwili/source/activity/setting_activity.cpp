@@ -461,6 +461,7 @@ void SettingActivity::onContentAvailable() {
             "wiliwili/setting/app/others/language/chinese_t"_i18n,
             "wiliwili/setting/app/others/language/chinese_s"_i18n,
             "wiliwili/setting/app/others/language/korean"_i18n,
+            "wiliwili/setting/app/others/language/italiano"_i18n,
         },
         langIndex, [](int data) {
             if (langIndex == data) return false;

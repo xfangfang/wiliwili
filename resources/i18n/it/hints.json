@@ -1,0 +1,19 @@
+{
+  "ok": "OK",
+  "back": "Indietro",
+  "cancel": "Annulla",
+  "exit": "Esci",
+  "on": "On",
+  "off": "Off",
+  "delete": "Elimina",
+  "save": "Salva",
+  "submit": "Invia",
+  "input": "Please input...",
+  "preset": "Preset",
+  "default": "Predefinito",
+  "current": "Attuale",
+  "success": "Riuscito",
+  "failed": "Fallito",
+  "exit_hint": "Vuoi uscire dall'applicazione?",
+  "loading": "Caricamento"
+}

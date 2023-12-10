@@ -59,6 +59,7 @@
           "english": "英语",
           "japanese": "日语",
           "ryukyuan": "琉球语",
+          "italiano": "意大利语",
           "korean": "韩语"
         },
         "opencc": "自动转换简体中文 (需要重启)",
