@@ -20,7 +20,7 @@
                 margin="10"
                 image="@res/pictures/default_avatar.png"/>
         <brls:Box
-                marginLeft="30"
+                marginLeft="10"
                 axis="column"
                 width="35%">
             <brls:Label
@@ -38,7 +38,7 @@
                     text=""/>
         </brls:Box>
         <brls:Box
-                marginRight="75"
+                marginRight="10"
                 alignItems="center"
                 grow="1">
             <brls:Box
