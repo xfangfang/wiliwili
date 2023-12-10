@@ -205,10 +205,14 @@ if (PLATFORM_DESKTOP)
             include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macos.cmake)
             set(bundle_args1 "-nb")
             set(bundle_args2 "${MACOS_DYLIB_DIR}")
+        else ()
+            # Use system provided dylib
+            set(bundle_args1 "-b")
+            set(bundle_args2 "system")
         endif ()
         add_custom_target(
             ${PROJECT_NAME}.app
-            COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/build_mac.sh" "${bundle_args1}" "${bundle_args2}"
+            COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/build_mac.sh" "${bundle_args1}" "${bundle_args2}" "${APP_VERSION}"
         )
         add_dependencies(${PROJECT_NAME}.app ${PROJECT_NAME})
     elseif (UNIX AND INSTALL)
