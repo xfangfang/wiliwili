@@ -34,10 +34,6 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-#ifdef __PSV__
-    brls::Application::setSwapInputKeys(true);
-#endif
-
     // Return directly to the desktop when closing the application (only for NX)
     brls::Application::getPlatform()->exitToHomeMode(true);
 
