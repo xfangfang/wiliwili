@@ -63,7 +63,10 @@ private:
     BRLS_BIND(brls::BooleanCell, btnAutoNextRcmd, "setting/auto/nextRcmd");
     BRLS_BIND(brls::BooleanCell, btnExitFullscreen, "setting/auto/exit");
     BRLS_BIND(brls::BooleanCell, btnMirror, "setting/video/mirror");
-    BRLS_BIND(brls::SelectorCell, btnAspect, "setting/video/aspect");
+    BRLS_BIND(SelectorCell, btnAspect, "setting/video/aspect");
     BRLS_BIND(brls::BooleanCell, btnHighlight, "setting/video/highlight");
-    BRLS_BIND(SelectorCell, btnSleep, "setting/sleep");
+    BRLS_BIND(brls::DetailCell, btnSleep, "setting/sleep");
+
+    // 获取需要现实的倒计时关闭字符串
+    static inline std::string getCountdown(size_t now);
 };

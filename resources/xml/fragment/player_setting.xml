@@ -68,7 +68,7 @@
                         axis="column"
                         marginBottom="30px">
 
-                    <SelectorCell
+                    <brls:DetailCell
                             id="setting/sleep"/>
 
                     <brls:BooleanCell
@@ -83,7 +83,7 @@
                     <brls:BooleanCell
                             id="setting/video/mirror"/>
 
-                    <brls:SelectorCell
+                    <SelectorCell
                             id="setting/video/aspect"/>
 
                     <brls:BooleanCell

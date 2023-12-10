@@ -202,20 +202,34 @@ void PlayerSetting::setupCommonSetting() {
                        });
 
     /// Auto Sleep
-    std::string min                     = "wiliwili/home/common/min"_i18n;
-    std::vector<std::string> optionList = {"hints/off"_i18n, "15 " + min,
-                                           "30 " + min,      "60 " + min,
-                                           "90 " + min,      "120 " + min};
-    btnSleep->init("wiliwili/setting/app/playback/sleep"_i18n, optionList, 0,
-                   [](int data) {
-                       std::vector<int> time = {-1, 15, 30, 60, 90, 120};
-                       if (data == 0)
-                           MPVCore::CLOSE_TIME = 0;
-                       else
-                           MPVCore::CLOSE_TIME =
-                               wiliwili::getUnixTime() + time[data] * 60;
-                       return true;
-                   });
+    btnSleep->setText("wiliwili/setting/app/playback/sleep"_i18n);
+    btnSleep->setDetailText(getCountdown(wiliwili::getUnixTime()));
+    btnSleep->registerClickAction([this](View* view) {
+        std::vector<int> timeList           = {15, 30, 60, 90, 120};
+        std::string min                     = "wiliwili/home/common/min"_i18n;
+        std::vector<std::string> optionList = {
+            "15 " + min, "30 " + min, "60 " + min, "90 " + min, "120 " + min};
+        bool countdownStarted = MPVCore::CLOSE_TIME != 0 &&
+                                wiliwili::getUnixTime() < MPVCore::CLOSE_TIME;
+        if (countdownStarted) {
+            // 添加关闭选项
+            timeList.insert(timeList.begin(), -1);
+            optionList.insert(optionList.begin(), "hints/off"_i18n);
+        }
+        BaseDropdown::text(
+            "wiliwili/setting/app/playback/sleep"_i18n, optionList,
+            [this, timeList, countdownStarted](int data) {
+                if (countdownStarted && data == 0) {
+                    MPVCore::CLOSE_TIME = 0;
+                } else {
+                    MPVCore::CLOSE_TIME =
+                        wiliwili::getUnixTime() + timeList[data] * 60;
+                }
+                btnSleep->setDetailText(getCountdown(wiliwili::getUnixTime()));
+            },
+            -1);
+        return true;
+    });
 
 /// Fullscreen
 #if defined(__linux__) || defined(_WIN32)
@@ -279,14 +293,17 @@ void PlayerSetting::draw(NVGcontext* vg, float x, float y, float width,
     size_t now               = wiliwili::getUnixTime();
     if (now != updateTime) {
         updateTime = now;
-        if (MPVCore::CLOSE_TIME == 0 || now > MPVCore::CLOSE_TIME) {
-            btnSleep->detail->setText("hints/off"_i18n);
-        } else {
-            btnSleep->detail->setText(
-                wiliwili::sec2Time(MPVCore::CLOSE_TIME - now));
-        }
+        btnSleep->detail->setText(getCountdown(now));
     }
     Box::draw(vg, x, y, width, height, style, ctx);
+}
+
+std::string PlayerSetting::getCountdown(size_t now) {
+    if (MPVCore::CLOSE_TIME == 0 || now > MPVCore::CLOSE_TIME) {
+        return "hints/off"_i18n;
+    } else {
+        return wiliwili::sec2Time(MPVCore::CLOSE_TIME - now);
+    }
 }
 
 void PlayerSetting::hideHistoryCell() {

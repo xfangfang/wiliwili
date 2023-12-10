@@ -119,7 +119,8 @@ BaseDropdown::BaseDropdown(const std::string& title,
 RecyclingGrid* BaseDropdown::getRecyclingList() { return recycler; }
 
 void BaseDropdown::setDataSource(DataSourceDropdown* dataSource) {
-    recycler->setDefaultCellFocus(selected);
+    // 当设置的选中项为 -1 时，表示不选中任何项，但是焦点位于第一项
+    recycler->setDefaultCellFocus(selected == -1 ? 0 : selected);
     recycler->setDataSource(dataSource);
 
     brls::Style style = brls::Application::getStyle();
