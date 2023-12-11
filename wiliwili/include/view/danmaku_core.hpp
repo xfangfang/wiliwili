@@ -165,6 +165,9 @@ public:
 
     static inline bool DANMAKU_ON = true;
 
+    // 弹幕字体 (在 config_helper 中对此初始化)
+    static inline int DANMAKU_FONT = brls::FONT_INVALID;
+
 private:
     std::mutex danmakuMutex;
     bool danmakuLoaded = false;
@@ -194,9 +197,6 @@ private:
 
     // 当前视频播放速度
     double videoSpeed;
-
-    // 弹幕字体
-    int danmakuFont = brls::Application::getDefaultFont();
 
     // 行高
     float lineHeight;

@@ -42,8 +42,6 @@ public:
 
     float line_height;
 
-    int danmaku_font = brls::Application::getDefaultFont();
-
     std::deque<LiveDanmakuItem> next;
     std::mutex next_mutex;
 

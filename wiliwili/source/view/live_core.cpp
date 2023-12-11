@@ -85,7 +85,7 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
 
     nvgFontSize(vg, DanmakuCore::DANMAKU_STYLE_FONTSIZE);
     nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-    nvgFontFaceId(vg, danmaku_font);
+    nvgFontFaceId(vg, DanmakuCore::DANMAKU_FONT);
     nvgTextLineHeight(vg, 1);
 
     auto _now = std::chrono::system_clock::now();

@@ -593,6 +593,21 @@ void ProgramConfig::load() {
 
     // 初始化一些在创建窗口之后才能初始化的内容
     brls::Application::getWindowCreationDoneEvent()->subscribe([this]() {
+        // 初始化弹幕字体
+        std::string danmakuFont = getConfigDir() + "/danmaku.ttf";
+        if (access(danmakuFont.c_str(), F_OK) != -1 &&
+            brls::Application::loadFontFromFile("danmaku", danmakuFont)) {
+            // 自定义弹幕字体
+            int danmakuFontId         = brls::Application::getFont("danmaku");
+            nvgAddFallbackFontId(brls::Application::getNVGContext(),
+                                 danmakuFontId,
+                                 brls::Application::getDefaultFont());
+            DanmakuCore::DANMAKU_FONT = danmakuFontId;
+        } else {
+            // 使用默认弹幕字体
+            DanmakuCore::DANMAKU_FONT = brls::Application::getDefaultFont();
+        }
+
         // 初始化主题
         std::string themeData =
             getSettingItem(SettingItem::APP_THEME, std::string{"auto"});

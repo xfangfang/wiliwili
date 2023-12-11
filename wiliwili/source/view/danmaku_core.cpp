@@ -346,7 +346,7 @@ skip_mask:
     // 设置基础字体
     nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE);
     nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-    nvgFontFaceId(vg, this->danmakuFont);
+    nvgFontFaceId(vg, DanmakuCore::DANMAKU_FONT);
     nvgTextLineHeight(vg, 1);
 
     int LINES = lineNumCurrent;
