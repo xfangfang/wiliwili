@@ -301,24 +301,27 @@ private:
         {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
         {MPV_RENDER_PARAM_SW_STRIDE, &pitch},
         {MPV_RENDER_PARAM_SW_POINTER, pixels},
-        { MPV_RENDER_PARAM_INVALID,
-          nullptr }};
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
 #elif defined(BOREALIS_USE_DEKO3D)
     DkFence doneFence;
     DkFence readyFence;
-    mpv_deko3d_fbo mpv_fbo{nullptr, &readyFence, &doneFence,
-                           1280,    720,         DkImageFormat_RGBA8_Unorm};
-    mpv_render_param mpv_params[3] = {{MPV_RENDER_PARAM_DEKO3D_FBO, &mpv_fbo},
-                                      { MPV_RENDER_PARAM_INVALID,
-                                        nullptr }};
+    mpv_deko3d_fbo mpv_fbo{
+        nullptr, &readyFence, &doneFence, 1280, 720, DkImageFormat_RGBA8_Unorm,
+    };
+    mpv_render_param mpv_params[3] = {
+        {MPV_RENDER_PARAM_DEKO3D_FBO, &mpv_fbo},
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
 #elif defined(MPV_NO_FB)
     GLint default_framebuffer = 0;
     mpv_opengl_fbo mpv_fbo{0, 1920, 1080};
     int flip_y{1};
-    mpv_render_param mpv_params[3] = {{MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
-                                      {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
-                                      { MPV_RENDER_PARAM_INVALID,
-                                        nullptr }};
+    mpv_render_param mpv_params[3] = {
+        {MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
+        {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
 #else
     GLint default_framebuffer = 0;
     GLuint media_framebuffer  = 0;
@@ -327,9 +330,11 @@ private:
     mpv_opengl_fbo mpv_fbo{0, 1920, 1080};
     int flip_y{1};
     bool redraw                    = false;
-    mpv_render_param mpv_params[3] = {{MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
-                                      {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
-                                      {MPV_RENDER_PARAM_INVALID, nullptr}};
+    mpv_render_param mpv_params[3] = {
+        {MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
+        {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
     float vertices[20] = {1.0f, 1.0f,  0.0f, 1.0f,  1.0f,  1.0f, -1.0f,
                           0.0f, 1.0f,  0.0f, -1.0f, -1.0f, 0.0f, 0.0f,
                           0.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f};
