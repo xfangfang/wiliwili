@@ -41,6 +41,16 @@ static int64_t getSeekRange(int64_t current) {
     return current / 15;
 }
 
+#define CHECK_OSD \
+    if (is_osd_lock) { \
+        if (isOSDShown()) { \
+            brls::Application::giveFocus(this->osdLockBox); \
+        } else { \
+            this->showOSD(true); \
+        } \
+        return true; \
+    }
+
 VideoView::VideoView() {
     mpvCore = &MPVCore::instance();
     this->inflateFromXMLRes("xml/views/video_view.xml");
@@ -67,6 +77,7 @@ VideoView::VideoView() {
     this->registerAction(
         "\uE08F", brls::ControllerButton::BUTTON_LB,
         [this](brls::View* view) -> bool {
+            CHECK_OSD
             seeking_range -= getSeekRange(seeking_range);
             this->requestSeeking();
             return true;
@@ -76,6 +87,7 @@ VideoView::VideoView() {
     this->registerAction(
         "\uE08E", brls::ControllerButton::BUTTON_RB,
         [this](brls::View* view) -> bool {
+            CHECK_OSD
             ControllerState state{};
             input->updateUnifiedControllerState(&state);
             bool buttonY = brls::Application::isSwapInputKeys()
@@ -104,6 +116,7 @@ VideoView::VideoView() {
     this->registerAction(
         "toggleDanmaku", brls::ControllerButton::BUTTON_X,
         [this](brls::View* view) -> bool {
+            CHECK_OSD
             this->toggleDanmaku();
             return true;
         },
@@ -251,7 +264,8 @@ VideoView::VideoView() {
         new brls::TapGestureRecognizer(this->videoQuality->getParent()));
     this->registerAction("wiliwili/player/quality"_i18n,
                          brls::ControllerButton::BUTTON_START,
-                         [](brls::View* view) -> bool {
+                         [this](brls::View* view) -> bool {
+                             CHECK_OSD
                              MPV_CE->fire(VideoView::QUALITY_CHANGE, nullptr);
                              return true;
                          });
@@ -260,6 +274,7 @@ VideoView::VideoView() {
     this->registerAction(
         "profile", brls::ControllerButton::BUTTON_BACK,
         [this](brls::View* view) -> bool {
+            CHECK_OSD
             if (videoProfile->getVisibility() == brls::Visibility::VISIBLE) {
                 videoProfile->setVisibility(brls::Visibility::INVISIBLE);
                 return true;
@@ -466,6 +481,10 @@ VideoView::VideoView() {
     this->registerAction(
         "cancel", brls::ControllerButton::BUTTON_B,
         [this](brls::View* view) -> bool {
+            if (is_osd_lock) {
+                this->toggleOSD();
+                return true;
+            }
             if (this->isFullscreen()) {
                 this->setFullScreen(false);
             } else {
@@ -478,6 +497,7 @@ VideoView::VideoView() {
     this->registerAction("wiliwili/player/fs"_i18n,
                          brls::ControllerButton::BUTTON_A,
                          [this](brls::View* view) {
+                             CHECK_OSD
                              if (this->isFullscreen()) {
                                  //全屏状态下切换播放状态
                                  this->togglePlay();
@@ -1167,6 +1187,7 @@ void VideoView::buttonProcessing() {
          state.buttons[BUTTON_NAV_UP] || state.buttons[BUTTON_NAV_DOWN])) {
         if (this->osd_state == OSDState::SHOWN) this->showOSD(true);
     }
+    if (is_osd_lock) return;
 
 #ifndef __PSV__
 
