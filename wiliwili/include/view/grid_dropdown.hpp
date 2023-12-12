@@ -30,6 +30,8 @@ public:
 
     bool isTranslucent() override;
 
+    brls::Box* getContentView();
+
 protected:
     BRLS_BIND(brls::Box, header, "grid_dropdown/header");
     BRLS_BIND(brls::Label, title, "grid_dropdown/title_label");

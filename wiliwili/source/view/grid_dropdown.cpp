@@ -55,6 +55,8 @@ void EmptyDropdown::dismiss(std::function<void(void)> cb) {
 
 bool EmptyDropdown::isTranslucent() { return true; }
 
+brls::Box* EmptyDropdown::getContentView() { return content; }
+
 /// GridRadioCell
 GridRadioCell::GridRadioCell() {
     this->inflateFromXMLRes("xml/views/grid_radio_cell.xml");

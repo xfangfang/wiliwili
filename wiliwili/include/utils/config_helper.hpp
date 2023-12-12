@@ -44,8 +44,7 @@ enum class SettingItem {
     APP_RESOURCES,  // 自定义界面布局
     APP_UI_SCALE,   // 界面缩放
     HISTORY_REPORT,
-    AUTO_NEXT_PART,
-    AUTO_NEXT_RCMD,
+    PLAYER_STRATEGY,
     PLAYER_BOTTOM_BAR,
     PLAYER_HIGHLIGHT_BAR,
     PLAYER_LOW_QUALITY,

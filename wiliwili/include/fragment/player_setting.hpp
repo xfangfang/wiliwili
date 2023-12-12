@@ -61,8 +61,7 @@ private:
     BRLS_BIND(brls::BooleanCell, btnFullscreen, "setting/fullscreen");
     BRLS_BIND(brls::BooleanCell, btnProgress, "setting/video/progress");
     BRLS_BIND(brls::BooleanCell, btnHistory, "setting/history/log");
-    BRLS_BIND(brls::BooleanCell, btnAutoNextPart, "setting/auto/nextPart");
-    BRLS_BIND(brls::BooleanCell, btnAutoNextRcmd, "setting/auto/nextRcmd");
+    BRLS_BIND(brls::DetailCell, btnPlayStrategy, "setting/play/strategy");
     BRLS_BIND(brls::BooleanCell, btnExitFullscreen, "setting/auto/exit");
     BRLS_BIND(brls::BooleanCell, btnMirror, "setting/video/mirror");
     BRLS_BIND(SelectorCell, btnAspect, "setting/video/aspect");

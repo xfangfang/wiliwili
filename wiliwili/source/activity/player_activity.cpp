@@ -584,7 +584,7 @@ void PlayerActivity::onIndexChangeToNext() {
     }
 
     // 合集播放结束，判断是否要播放推荐视频
-    if (AUTO_NEXT_RCMD && !videDetailRelated.empty()) {
+    if (PLAYER_STRATEGY == PlayerStrategy::RCMD && !videDetailRelated.empty()) {
         changeVideoEvent.fire(videDetailRelated[0]);
     }
 }

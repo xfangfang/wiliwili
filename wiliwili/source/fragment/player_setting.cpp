@@ -9,6 +9,7 @@
 #include "view/subtitle_core.hpp"
 #include "view/video_view.hpp"
 #include "view/selector_cell.hpp"
+#include "view/svg_image.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/shader_helper.hpp"
 #include "utils/number_helper.hpp"
@@ -115,7 +116,8 @@ void PlayerSetting::setupCustomShaders() {
 }
 
 void PlayerSetting::setupCommonSetting() {
-    auto& conf = ProgramConfig::instance();
+    auto& conf  = ProgramConfig::instance();
+    auto locale = brls::Application::getLocale();
 
     /// Upload history record
     btnHistory->init("wiliwili/setting/app/playback/report"_i18n,
@@ -126,33 +128,56 @@ void PlayerSetting::setupCommonSetting() {
                          VideoDetail::REPORT_HISTORY = value;
                      });
 
-    btnAutoNextPart->init(
-        "wiliwili/setting/app/playback/auto_play_next_part"_i18n,
-        conf.getBoolOption(SettingItem::AUTO_NEXT_PART), [this](bool value) {
-            ProgramConfig::instance().setSettingItem(
-                SettingItem::AUTO_NEXT_PART, value);
-            BasePlayerActivity::AUTO_NEXT_PART = value;
-            if (!value) {
-                ProgramConfig::instance().setSettingItem(
-                    SettingItem::AUTO_NEXT_RCMD, false);
-                BasePlayerActivity::AUTO_NEXT_RCMD = false;
-                btnAutoNextRcmd->setOn(false, btnAutoNextRcmd->isOn());
-            }
-        });
-
-    btnAutoNextRcmd->init(
+    /// player strategy
+    int strategyIndex = conf.getIntOption(SettingItem::PLAYER_STRATEGY);
+    // 中文比较简洁可以显示出来，其他语言翻译过长，在这里就先不展示了
+    bool showStrategy =
+        locale == brls::LOCALE_ZH_HANT || locale == brls::LOCALE_ZH_HANS;
+    btnPlayStrategy->setText(
+        "wiliwili/setting/app/playback/play_strategy"_i18n);
+    std::vector<std::string> optionList = {
         "wiliwili/setting/app/playback/auto_play_recommend"_i18n,
-        conf.getBoolOption(SettingItem::AUTO_NEXT_RCMD), [this](bool value) {
-            ProgramConfig::instance().setSettingItem(
-                SettingItem::AUTO_NEXT_RCMD, value);
-            BasePlayerActivity::AUTO_NEXT_RCMD = value;
-            if (value) {
+        "wiliwili/setting/app/playback/auto_play_next_part"_i18n,
+        "wiliwili/setting/app/playback/auto_loop"_i18n,
+        "wiliwili/setting/app/playback/auto_no"_i18n};
+    btnPlayStrategy->setDetailText(showStrategy ? optionList[strategyIndex]
+                                                : " ");
+    btnPlayStrategy->registerClickAction([this, optionList,
+                                          showStrategy](View* view) {
+        auto d = BaseDropdown::text(
+            "wiliwili/setting/app/playback/play_strategy"_i18n, optionList,
+            [this, optionList, showStrategy](int data) {
+                if (showStrategy)
+                    btnPlayStrategy->setDetailText(optionList[data]);
+                if (data == PlayerStrategy::LOOP) {
+                    MPVCore::instance().command_async("set", "loop-playlist", "inf");
+                } else {
+                    MPVCore::instance().command_async("set", "loop-playlist", "no");
+                }
+                BasePlayerActivity::PLAYER_STRATEGY = data;
                 ProgramConfig::instance().setSettingItem(
-                    SettingItem::AUTO_NEXT_PART, true);
-                BasePlayerActivity::AUTO_NEXT_PART = true;
-                btnAutoNextPart->setOn(true, !btnAutoNextPart->isOn());
-            }
-        });
+                    SettingItem::PLAYER_STRATEGY, data);
+            },
+            ProgramConfig::instance().getIntOption(
+                SettingItem::PLAYER_STRATEGY));
+
+        // bottom hint
+        auto box = new brls::Box();
+        box->setMargins(20, 10, 10, 30);
+        box->setAlignItems(brls::AlignItems::CENTER);
+        auto icon = new SVGImage();
+        icon->setDimensions(12, 13);
+        icon->setMarginRight(10);
+        icon->setImageFromSVGRes("svg/ico-sprite-info.svg");
+        auto hint = new brls::Label();
+        hint->setFontSize(18);
+        hint->setTextColor(brls::Application::getTheme().getColor("font/grey"));
+        hint->setText("wiliwili/setting/app/playback/auto_hint"_i18n);
+        box->addView(icon);
+        box->addView(hint);
+        d->getContentView()->addView(box);
+        return true;
+    });
 
     btnExitFullscreen->init(
         "wiliwili/setting/app/playback/exit_fullscreen"_i18n,
@@ -311,8 +336,7 @@ void PlayerSetting::hideHistoryCell() {
 }
 
 void PlayerSetting::hideVideoRelatedCells() {
-    btnAutoNextPart->setVisibility(brls::Visibility::GONE);
-    btnAutoNextRcmd->setVisibility(brls::Visibility::GONE);
+    btnPlayStrategy->setVisibility(brls::Visibility::GONE);
     btnExitFullscreen->setVisibility(brls::Visibility::GONE);
 }
 

@@ -69,16 +69,13 @@
                         marginBottom="30px">
 
                     <brls:DetailCell
+                            id="setting/play/strategy"/>
+
+                    <brls:DetailCell
                             id="setting/sleep"/>
 
                     <brls:BooleanCell
                             id="setting/fullscreen"/>
-
-                    <brls:BooleanCell
-                            id="setting/auto/nextPart"/>
-
-                    <brls:BooleanCell
-                            id="setting/auto/nextRcmd"/>
 
                     <brls:BooleanCell
                             id="setting/video/mirror"/>

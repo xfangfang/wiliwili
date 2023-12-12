@@ -340,6 +340,10 @@ void BasePlayerActivity::setCommonData() {
                 // 尝试自动加载下一分集
                 // 如果当前最顶层是Dialog就放弃自动播放，因为有可能是用户点开了收藏或者投币对话框
                 {
+                    if (PLAYER_STRATEGY == PlayerStrategy::LOOP) {
+                        MPVCore::instance().seek(0);
+                        return ;
+                    }
                     auto stack    = brls::Application::getActivitiesStack();
                     Activity* top = stack[stack.size() - 1];
                     if (!dynamic_cast<BasePlayerActivity*>(top)) {
@@ -348,7 +352,10 @@ void BasePlayerActivity::setCommonData() {
                                 top->getContentView()->getView("video")))
                             return;
                     }
-                    if (AUTO_NEXT_PART) this->onIndexChangeToNext();
+                    if (PLAYER_STRATEGY == PlayerStrategy::NEXT ||
+                        PLAYER_STRATEGY == PlayerStrategy::RCMD){
+                        this->onIndexChangeToNext();
+                    }
                 }
                 break;
             default:
@@ -664,7 +671,8 @@ void BasePlayerActivity::onVideoRelationInfo(
 
 void BasePlayerActivity::onHighlightProgress(
     const bilibili::VideoHighlightProgress& result) {
-    brls::Logger::debug("highlight: {}/{}", result.step_sec, result.data.size());
+    brls::Logger::debug("highlight: {}/{}", result.step_sec,
+                        result.data.size());
     this->video->setHighlightProgress(result.step_sec, result.data);
 }
 

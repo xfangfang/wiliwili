@@ -22,6 +22,13 @@ typedef brls::Event<bilibili::Video> ChangeVideoEvent;
 
 using namespace brls::literals;
 
+enum PlayerStrategy {
+    RCMD = 0,
+    NEXT,
+    LOOP,
+    SINGLE,
+};
+
 class BasePlayerActivity : public brls::Activity, public VideoDetail {
 public:
     CONTENT_FROM_XML_RES("activity/player_activity.xml");
@@ -92,8 +99,13 @@ public:
 
     ~BasePlayerActivity() override;
 
-    inline static bool AUTO_NEXT_RCMD = true;
-    inline static bool AUTO_NEXT_PART = true;
+    // 分集播放结束后，自动播放推荐视频
+    // 视频播放策略
+    // 0: 分集播放结束后，自动播放推荐视频
+    // 1: 自动播放下一分集
+    // 2: 循环播放当前视频
+    // 3: 播完暂停
+    inline static int PLAYER_STRATEGY = PlayerStrategy::RCMD;
 
 protected:
     BRLS_BIND(VideoView, video, "video/detail/video");

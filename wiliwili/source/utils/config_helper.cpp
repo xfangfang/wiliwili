@@ -119,8 +119,6 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
     {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END,
      {"player_exit_fullscreen_on_end", {}, {}, 1}},
-    {SettingItem::AUTO_NEXT_PART, {"auto_next_part", {}, {}, 1}},
-    {SettingItem::AUTO_NEXT_RCMD, {"auto_next_recommend", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
     {SettingItem::DANMAKU_ON, {"danmaku", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_BOTTOM, {"danmaku_filter_bottom", {}, {}, 1}},
@@ -207,6 +205,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DEACTIVATED_TIME, {"deactivated_time", {}, {}, 0}},
     {SettingItem::DEACTIVATED_FPS, {"deactivated_fps", {}, {}, 0}},
     {SettingItem::DLNA_PORT, {"dlna_port", {}, {}, 0}},
+    {SettingItem::PLAYER_STRATEGY,
+     {"player_strategy", {"rcmd", "next", "loop", "single"}, {0, 1, 2, 3}, 0}},
 };
 
 ProgramConfig::ProgramConfig() = default;
@@ -518,13 +518,9 @@ void ProgramConfig::load() {
     // 初始化是否上传历史记录
     VideoDetail::REPORT_HISTORY = getBoolOption(SettingItem::HISTORY_REPORT);
 
-    // 初始化是否自动播放下一分集
-    BasePlayerActivity::AUTO_NEXT_PART =
-        getBoolOption(SettingItem::AUTO_NEXT_PART);
-
-    // 初始化是否自动播放推荐视频
-    BasePlayerActivity::AUTO_NEXT_RCMD =
-        getBoolOption(SettingItem::AUTO_NEXT_RCMD);
+    // 初始化播放策略
+    BasePlayerActivity::PLAYER_STRATEGY =
+        getIntOption(SettingItem::PLAYER_STRATEGY);
 
     // 初始化是否固定显示底部进度条
     VideoView::BOTTOM_BAR = getBoolOption(SettingItem::PLAYER_BOTTOM_BAR);
@@ -598,7 +594,7 @@ void ProgramConfig::load() {
         if (access(danmakuFont.c_str(), F_OK) != -1 &&
             brls::Application::loadFontFromFile("danmaku", danmakuFont)) {
             // 自定义弹幕字体
-            int danmakuFontId         = brls::Application::getFont("danmaku");
+            int danmakuFontId = brls::Application::getFont("danmaku");
             nvgAddFallbackFontId(brls::Application::getNVGContext(),
                                  danmakuFontId,
                                  brls::Application::getDefaultFont());
