@@ -173,6 +173,7 @@ void DLNAActivity::onContentAvailable() {
     this->video->hideSubtitleSetting();
     this->video->hideVideoRelatedSetting();
     this->video->hideHistorySetting();
+    this->video->hideHighlightLineSetting();
     this->video->disableCloseOnEndOfFile();
     this->video->setFullscreenIcon(true);
     this->video->setTitle("wiliwili/setting/tools/others/dlna_waiting"_i18n);

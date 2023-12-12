@@ -324,3 +324,7 @@ void PlayerSetting::hideSubtitleCells() {
 void PlayerSetting::hideBottomLineCells() {
     btnProgress->setVisibility(brls::Visibility::GONE);
 }
+
+void PlayerSetting::hideHighlightLineCells() {
+    btnHighlight->setVisibility(brls::Visibility::GONE);
+}

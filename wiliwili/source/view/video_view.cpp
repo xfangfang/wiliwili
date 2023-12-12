@@ -376,6 +376,9 @@ VideoView::VideoView() {
         if (!showBottomLineSetting) {
             setting->hideBottomLineCells();
         }
+        if (!showHighlightLineSetting) {
+            setting->hideHighlightLineCells();
+        }
         brls::Application::pushActivity(new Activity(setting));
         // 手动将焦点赋给设置页面
         brls::sync([setting]() { brls::Application::giveFocus(setting); });
@@ -961,6 +964,8 @@ void VideoView::hideVideoRelatedSetting() { showVideoRelatedSetting = false; }
 void VideoView::hideSubtitleSetting() { showSubtitleSetting = false; }
 
 void VideoView::hideBottomLineSetting() { showBottomLineSetting = false; }
+
+void VideoView::hideHighlightLineSetting() { showHighlightLineSetting = false; }
 
 void VideoView::hideVideoProgressSlider() {
     osdSlider->setVisibility(brls::Visibility::GONE);

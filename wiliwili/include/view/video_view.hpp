@@ -110,6 +110,8 @@ public:
 
     void hideBottomLineSetting();
 
+    void hideHighlightLineSetting();
+
     void hideVideoProgressSlider();
 
     /// 隐藏左下角的播放时间
@@ -229,6 +231,8 @@ private:
     bool showSubtitleSetting = true;
     // 播放设置中显示 底部进度条
     bool showBottomLineSetting = true;
+    // 播放设置中显示 高能进度条
+    bool showHighlightLineSetting = true;
     // 是否为直播样式
     bool isLiveMode = false;
     MPVEvent::Subscription eventSubscribeID;

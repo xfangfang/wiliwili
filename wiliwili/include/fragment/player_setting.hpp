@@ -41,6 +41,8 @@ public:
 
     void hideBottomLineCells();
 
+    void hideHighlightLineCells();
+
 private:
     BRLS_BIND(ButtonClose, closebtn, "button/close");
     BRLS_BIND(brls::ScrollingFrame, settings, "player/settings");
