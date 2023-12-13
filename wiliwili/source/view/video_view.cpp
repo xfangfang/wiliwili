@@ -41,15 +41,16 @@ static int64_t getSeekRange(int64_t current) {
     return current / 15;
 }
 
-#define CHECK_OSD(shake) \
-    if (is_osd_lock) { \
-        if (isOSDShown()) { \
-            brls::Application::giveFocus(this->osdLockBox); \
-            if (shake) this->osdLockBox->shakeHighlight(brls::FocusDirection::RIGHT); \
-        } else { \
-            this->showOSD(true); \
-        } \
-        return true; \
+#define CHECK_OSD(shake)                                                       \
+    if (is_osd_lock) {                                                         \
+        if (isOSDShown()) {                                                    \
+            brls::Application::giveFocus(this->osdLockBox);                    \
+            if (shake)                                                         \
+                this->osdLockBox->shakeHighlight(brls::FocusDirection::RIGHT); \
+        } else {                                                               \
+            this->showOSD(true);                                               \
+        }                                                                      \
+        return true;                                                           \
     }
 
 VideoView::VideoView() {
@@ -866,12 +867,11 @@ void VideoView::toggleOSDLock() {
         osdLockBox->setCustomNavigationRoute(FocusDirection::DOWN,
                                              "video/osd/lock/box");
     } else {
-        // 如果在锁定时，osdLockBox 获取到了焦点，通过点击进入了非锁定状态
-        // 避免上下按键不可用，手动设置上下按键的导航路线
+        // 手动设置上下按键的导航路线
         osdLockBox->setCustomNavigationRoute(FocusDirection::UP,
                                              "video/osd/setting");
         osdLockBox->setCustomNavigationRoute(FocusDirection::DOWN,
-                                             "video/osd/toggle");
+                                             "video/osd/icon/box");
     }
     this->showOSD();
 }
@@ -1391,6 +1391,16 @@ void VideoView::onChildFocusGained(View* directChild, View* focusedView) {
             brls::Visibility::GONE) {
             brls::Application::giveFocus(this);
         }
+        static View* lastFocusedView = nullptr;
+
+        // 设定自定义导航
+        if (focusedView == this->btnSettingIcon) {
+            this->btnSettingIcon->setCustomNavigationRoute(
+                brls::FocusDirection::DOWN, lastFocusedView == this->btnToggle
+                                                ? "video/osd/toggle"
+                                                : "video/osd/lock/box");
+        }
+        lastFocusedView = focusedView;
         return;
     }
     brls::Application::giveFocus(this);

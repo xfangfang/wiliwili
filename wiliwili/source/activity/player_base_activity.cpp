@@ -340,9 +340,17 @@ void BasePlayerActivity::setCommonData() {
                 // 尝试自动加载下一分集
                 // 如果当前最顶层是Dialog就放弃自动播放，因为有可能是用户点开了收藏或者投币对话框
                 {
+                    // 播放到一半没网时也会触发EOF，这里简单判断一下进度是否符合
+                    if (fabs(MPVCore::instance().video_progress -
+                             MPVCore::instance().duration) > 2) {
+                        brls::Logger::error("EOF: {}/{}",
+                                            MPVCore::instance().video_progress,
+                                            MPVCore::instance().duration);
+                        return;
+                    }
                     if (PLAYER_STRATEGY == PlayerStrategy::LOOP) {
                         MPVCore::instance().seek(0);
-                        return ;
+                        return;
                     }
                     auto stack    = brls::Application::getActivitiesStack();
                     Activity* top = stack[stack.size() - 1];
@@ -353,7 +361,7 @@ void BasePlayerActivity::setCommonData() {
                             return;
                     }
                     if (PLAYER_STRATEGY == PlayerStrategy::NEXT ||
-                        PLAYER_STRATEGY == PlayerStrategy::RCMD){
+                        PLAYER_STRATEGY == PlayerStrategy::RCMD) {
                         this->onIndexChangeToNext();
                     }
                 }
