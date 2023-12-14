@@ -305,7 +305,11 @@ void VideoDetail::requestVideoUrl(std::string bvid, int cid,
             brls::Logger::error("{}", error);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
-                this->onError("请求视频地址失败\n" + error);
+                if(error == "87007") {
+                    this->onError("该视频为「充电」专属视频");
+                } else {
+                    this->onError("请求视频地址失败\n" + error);
+                }
             });
         });
     // 请求当前视频在线人数

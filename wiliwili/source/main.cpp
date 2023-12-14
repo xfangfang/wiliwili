@@ -63,7 +63,8 @@ int main(int argc, char* argv[]) {
         // Uncomment these lines to debug activities
         //        Intent::openBV("BV1Da411Y7U4");  // 弹幕防遮挡 (横屏)
         //        Intent::openBV("BV1iN4y1m7J3");  // 弹幕防遮挡 (竖屏)
-        //        Intent::openBV("BV18W4y1q72C");  // wiliwili介绍
+        //        Intent::openBV("BV1zb4y1j7vz");  // flv 模式报错：HTTP 424
+        //        Intent::openBV("BV1jL41167ZG");  // 充电视频
         //        Intent::openBV("BV1dx411c7Av");  // flv拼接视频
         //        Intent::openBV("BV15z4y1Z734");  // 4K HDR 视频
         //        Intent::openBV("BV1qM4y1w716");  // 8K
