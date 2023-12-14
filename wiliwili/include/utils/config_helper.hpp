@@ -85,6 +85,8 @@ enum class SettingItem {
     DLNA_IP,
     DLNA_PORT,
     DLNA_NAME,
+    HTTP_PROXY,
+    HTTP_PROXY_STATUS,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -220,6 +222,10 @@ public:
 
     std::vector<CustomTheme> getCustomThemes();
 
+    std::string getProxy();
+
+    void setProxy(const std::string& proxy);
+
     std::vector<CustomTheme> customThemes;
     Cookie cookie = {{"DedeUserID", "0"}};
     std::string refreshToken;
@@ -227,6 +233,8 @@ public:
     std::string client;
     std::string device;
     std::vector<std::string> searchHistory;
+    std::string httpProxy;
+    std::string httpsProxy;
 
     static std::unordered_map<SettingItem, ProgramOption> SETTING_MAP;
 };

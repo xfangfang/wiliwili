@@ -30,6 +30,11 @@
         "texture": "图片纹理缓存数量",
         "threads": "图片加载线程数"
       },
+      "network": {
+        "header": "网络设置",
+        "proxy": "网络代理",
+        "proxy_hint": "示例: http://127.0.0.1:7890"
+      },
       "others": {
         "header": "其他",
         "vibration": "手柄振动",

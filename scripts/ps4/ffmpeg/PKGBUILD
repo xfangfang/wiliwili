@@ -2,7 +2,7 @@
 
 pkgname=ps4-openorbis-ffmpeg
 pkgver=6.0
-pkgrel=1
+pkgrel=2
 pkgdesc='ffmpeg port'
 arch=('any')
 url='https://ffmpeg.org/'
@@ -27,7 +27,7 @@ build() {
     --disable-programs --disable-debug --disable-doc \
     --disable-avdevice --disable-hwaccels --disable-encoders --disable-muxers \
     --enable-swscale --enable-swresample --enable-network  \
-    --disable-protocols --enable-protocol=file,http,https,ftp,tcp,udp,rtmp --enable-version3 \
+    --disable-protocols --enable-protocol=file,http,https,ftp,tcp,udp,rtmp,rtp,crypto,httpproxy --enable-version3 \
     --enable-zlib --enable-bzlib --enable-libass --enable-libfreetype --enable-libfribidi --enable-mbedtls \
     --cc=$CC --cxx=$CXX --nm=$NM --strip=$STRIP --ar=$AR --ranlib=$RANLIB
 

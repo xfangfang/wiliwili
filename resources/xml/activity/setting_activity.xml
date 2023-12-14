@@ -83,6 +83,24 @@
                         <brls:Header
                                 width="auto"
                                 height="auto"
+                                title="@i18n/wiliwili/setting/app/network/header"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
+
+                            <brls:BooleanCell
+                                    id="setting/network/proxy"/>
+
+                            <brls:InputCell
+                                    id="setting/network/input"/>
+
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
                                 title="@i18n/wiliwili/setting/app/others/header"
                                 marginBottom="0px"/>
                         <brls:Box

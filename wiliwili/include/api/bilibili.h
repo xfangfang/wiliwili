@@ -653,6 +653,9 @@ public:
         int timeout = 10000, const std::string& httpProxy = "",
         const std::string& httpsProxy = "");
 
+    static void setProxy(const std::string& httpProxy  = "",
+                         const std::string& httpsProxy = "");
+
     static std::string genRandomBuvid3();
 };
 }  // namespace bilibili

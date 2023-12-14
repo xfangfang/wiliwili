@@ -1,6 +1,6 @@
 pkgname=ffmpeg
 pkgver=7900d3684acc8e5e98fd39cbb12cb7ab73e6d4a5
-pkgrel=1
+pkgrel=2
 url="https://ffmpeg.org/"
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/fish47/FFmpeg-vita/archive/${pkgver}.tar.gz")
 sha256sums=('SKIP')
@@ -32,7 +32,7 @@ build() {
         --enable-decoder='h264,aac,bmp,flv,flac,aac_vita,mp3_vita,h264_vita' \
         --enable-network \
         --disable-protocols \
-        --enable-protocol='file,http,tcp,tls,hls,https' \
+        --enable-protocol='file,http,tcp,tls,hls,https,rtp,crypto,httpproxy' \
         --disable-iconv \
         --disable-lzma \
         --disable-sdl2 \
@@ -43,7 +43,7 @@ build() {
 
   sed 's/#define HAVE_GETADDRINFO 1/#define HAVE_GETADDRINFO 0/g' -i config.h
 
-  make -j$(nproc)
+  make -j12
 }
 
 package () {

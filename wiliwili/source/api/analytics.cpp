@@ -9,6 +9,7 @@
 #include <cpr/cpr.h>
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "api/bilibili/util/http.hpp"
 #include <fmt/format.h>
 #include <borealis/core/thread.hpp>
 #include <borealis/core/logger.hpp>
@@ -77,6 +78,7 @@ void Analytics::send() {
 #ifndef VERIFY_SSL
         cpr::VerifySsl{false},
 #endif
+        bilibili::HTTP::PROXIES,
         cpr::Url{GA_URL},
         cpr::Header{{"User-Agent", "wiliwili/" + app_version},
                     {"Content-Type", "application/json"}},

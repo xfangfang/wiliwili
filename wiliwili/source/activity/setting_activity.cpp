@@ -2,6 +2,8 @@
 // Created by fang on 2022/8/22.
 //
 
+#include <pystring.h>
+
 #include "activity/setting_activity.hpp"
 #include "activity/hint_activity.hpp"
 #include "activity/search_activity_tv.hpp"
@@ -295,19 +297,17 @@ void SettingActivity::onContentAvailable() {
 
     /// Limited FPS
     auto fpsOption = conf.getOptionData(SettingItem::LIMITED_FPS);
-    selectorFPS->init(
-        "wiliwili/setting/app/others/limited_fps"_i18n,
-        {"wiliwili/setting/app/others/limited_fps_vsync"_i18n,
-         "30",
-         "60",
-         "90",
-         "120"},
-        (size_t)conf.getIntOptionIndex(SettingItem::LIMITED_FPS), [fpsOption](int data) {
-            int fps = fpsOption.rawOptionList[data];
-            brls::Application::setLimitedFPS(fps);
-            ProgramConfig::instance().setSettingItem(SettingItem::LIMITED_FPS, fps);
-            return true;
-        });
+    selectorFPS->init("wiliwili/setting/app/others/limited_fps"_i18n,
+                      {"wiliwili/setting/app/others/limited_fps_vsync"_i18n,
+                       "30", "60", "90", "120"},
+                      (size_t)conf.getIntOptionIndex(SettingItem::LIMITED_FPS),
+                      [fpsOption](int data) {
+                          int fps = fpsOption.rawOptionList[data];
+                          brls::Application::setLimitedFPS(fps);
+                          ProgramConfig::instance().setSettingItem(
+                              SettingItem::LIMITED_FPS, fps);
+                          return true;
+                      });
 
     /// TV Search Mode
     cellTvSearch->init("wiliwili/setting/app/others/tv_search"_i18n,
@@ -375,7 +375,7 @@ void SettingActivity::onContentAvailable() {
         selectorCustomTheme->setVisibility(brls::Visibility::GONE);
     } else {
         std::vector<std::string> customThemeNameList = {"hints/off"_i18n};
-        int customThemeIndex                      = 0;
+        int customThemeIndex                         = 0;
         for (size_t index = 0; index < customThemeList.size(); index++) {
             customThemeNameList.emplace_back(customThemeList[index].name);
             if (customThemeID == customThemeList[index].id) {
@@ -597,6 +597,42 @@ void SettingActivity::onContentAvailable() {
             MPVCore::INMEMORY_CACHE = inmemoryOption.rawOptionList[data];
             MPVCore::instance().restart();
         });
+
+    /// HTTP proxy
+    bool httpProxyStatus = conf.getBoolOption(SettingItem::HTTP_PROXY_STATUS);
+    btnProxy->init(
+        "wiliwili/setting/app/network/proxy"_i18n, httpProxyStatus,
+        [this](bool data) {
+            auto& conf = ProgramConfig::instance();
+            conf.setSettingItem(SettingItem::HTTP_PROXY_STATUS, data);
+            btnProxyInput->setVisibility(data ? brls::Visibility::VISIBLE
+                                              : brls::Visibility::GONE);
+            conf.setProxy(data ? conf.getSettingItem(SettingItem::HTTP_PROXY,
+                                                     std::string{""})
+                               : "");
+        });
+
+    btnProxyInput->setVisibility(httpProxyStatus ? brls::Visibility::VISIBLE
+                                                 : brls::Visibility::GONE);
+    auto httpProxy =
+        conf.getSettingItem(SettingItem::HTTP_PROXY, std::string{""});
+    btnProxyInput->init(
+        "wiliwili/setting/app/network/proxy"_i18n, httpProxy,
+        [](const std::string& data) {
+            std::string httpProxy = data;
+            // 如果没有写协议，默认用 http
+            if (!httpProxy.empty() &&
+                !pystring::startswith(httpProxy, "http://") &&
+                !pystring::startswith(httpProxy, "https://") &&
+                !pystring::startswith(httpProxy, "socks5://")) {
+                httpProxy = "http://" + httpProxy;
+            }
+            ProgramConfig::instance().setSettingItem(SettingItem::HTTP_PROXY,
+                                                     httpProxy);
+            ProgramConfig::instance().setProxy(httpProxy);
+        },
+        "http://127.0.0.1:7890",
+        "wiliwili/setting/app/network/proxy_hint"_i18n);
 
 /// Hardware decode
 #ifdef PS4

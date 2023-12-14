@@ -9,6 +9,7 @@
 #include <pystring.h>
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
+#include "api/bilibili/util/http.hpp"
 #include "fragment/latest_update.hpp"
 
 using namespace brls::literals;
@@ -109,6 +110,7 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
 #ifndef VERIFY_SSL
             cpr::VerifySsl{false},
 #endif
+            bilibili::HTTP::PROXIES,
             cpr::Url{url}, cpr::Timeout{10000});
     });
 }

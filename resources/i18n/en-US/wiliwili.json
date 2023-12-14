@@ -30,6 +30,11 @@
         "texture": "Number of picture texture caches",
         "threads": "Number of image loading threads"
       },
+      "network": {
+        "header": "Network",
+        "proxy": "Proxy",
+        "proxy_hint": "example: http://127.0.0.1:7890"
+      },
       "others": {
         "header": "Others",
         "vibration": "Gamepad vibration",

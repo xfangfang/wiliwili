@@ -3,6 +3,7 @@
 //
 
 #include "utils/image_helper.hpp"
+#include "api/bilibili/util/http.hpp"
 #include "borealis/core/singleton.hpp"
 #include "borealis/core/cache_helper.hpp"
 #include "utils/thread_helper.hpp"
@@ -106,6 +107,7 @@ void ImageHelper::requestImage() {
 #ifndef VERIFY_SSL
         cpr::VerifySsl{false},
 #endif
+        bilibili::HTTP::PROXIES,
         cpr::Url{this->imageUrl},
         cpr::ProgressCallback([this](...) -> bool { return !this->isCancel; }));
 

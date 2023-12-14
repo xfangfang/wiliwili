@@ -744,6 +744,10 @@ std::string VideoView::genExtraUrlParam(
 #else
         "referrer=\"https://www.bilibili.com\",network-timeout=5";
 #endif
+    auto proxy = ProgramConfig::instance().getProxy();
+    if (!proxy.empty()) {
+        extra += fmt::format(",http-proxy={}", proxy);
+    }
     if (progress > 0) {
         extra += fmt::format(",start={}", progress);
     }

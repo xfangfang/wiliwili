@@ -86,6 +86,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DLNA_NAME, {"dlna_name", {}, {}, 0}},
     {SettingItem::PLAYER_ASPECT,
      {"player_aspect", {"-1", "4:3", "16:9"}, {}, 0}},
+    {SettingItem::HTTP_PROXY, {"http_proxy", {}, {}, 0}},
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -127,6 +128,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DANMAKU_FILTER_COLOR, {"danmaku_filter_color", {}, {}, 1}},
     {SettingItem::DANMAKU_SMART_MASK, {"danmaku_smart_mask", {}, {}, 1}},
     {SettingItem::SEARCH_TV_MODE, {"search_tv_mode", {}, {}, 1}},
+    {SettingItem::HTTP_PROXY_STATUS, {"http_proxy_status", {}, {}, 0}},
 
 /// number
 #if defined(__PSV__)
@@ -396,6 +398,21 @@ void ProgramConfig::load() {
         brls::Logger::info("Load config from: {}", path);
     }
 
+    // 初始化代理
+    // 默认加载环境变量
+    const char* http_proxy  = getenv("http_proxy");
+    const char* https_proxy = getenv("https_proxy");
+    if (http_proxy) this->httpProxy = http_proxy;
+    if (https_proxy) this->httpsProxy = https_proxy;
+    // 如果设置开启了自定义代理，则读取配置文件中的代理设置
+    if (getBoolOption(SettingItem::HTTP_PROXY_STATUS)) {
+        this->httpProxy =
+            getSettingItem(SettingItem::HTTP_PROXY, this->httpProxy);
+        this->httpsProxy =
+            getSettingItem(SettingItem::HTTP_PROXY, this->httpsProxy);
+    }
+
+    // 初始化自定义手柄按键映射
 #ifdef IOS
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     brls::DesktopPlatform::GAMEPAD_DB =
@@ -805,10 +822,11 @@ void ProgramConfig::init() {
             VideoDetail::defaultQuality = 116;
         },
 #ifdef __PSV__
-        10000);
+        10000,
 #else
-        5000);
+        5000,
 #endif
+        httpProxy, httpsProxy);
 }
 
 std::string ProgramConfig::getHomePath() {
@@ -934,4 +952,15 @@ void ProgramConfig::loadCustomThemes() {
 
 std::vector<CustomTheme> ProgramConfig::getCustomThemes() {
     return customThemes;
+}
+
+std::string ProgramConfig::getProxy() {
+    if (!httpsProxy.empty()) return httpsProxy;
+    return httpProxy;
+}
+
+void ProgramConfig::setProxy(const std::string& proxy) {
+    this->httpsProxy = proxy;
+    this->httpProxy  = proxy;
+    BILI::setProxy(httpProxy, httpsProxy);
 }

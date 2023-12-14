@@ -272,8 +272,6 @@ mingw32-make -C build wiliwili -j$(nproc)
 
 由于 SDL2 支持的平台更多，考虑到未来向其他平台移植，所以 wiliwili 也支持切换到 SDL2 环境构建。
 
-⚠️：PC 平台非测试所需请不要使用此方式构建，没有经过太多的测试，且不支持 PC 系统输入法。
-
 ```shell
 cmake -B build -DPLATFORM_DESKTOP=ON -DUSE_SDL2=ON
 cmake --build build
@@ -310,7 +308,7 @@ sudo dkp-pacman -S switch-glfw switch-libwebp switch-cmake switch-curl devkitA64
 base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 sudo dkp-pacman -U \
     $base_url/switch-libass-0.17.1-1-any.pkg.tar.zst \
-    $base_url/switch-ffmpeg-6.1-3-any.pkg.tar.zst \
+    $base_url/switch-ffmpeg-6.1-4-any.pkg.tar.zst \
     $base_url/switch-libmpv-0.36.0-1-any.pkg.tar.zst
 
 # 4. 可选：安装依赖库 nspmini：https://github.com/StarDustCFW/nspmini

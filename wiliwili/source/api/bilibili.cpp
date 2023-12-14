@@ -41,4 +41,11 @@ void BilibiliClient::init(Cookies& data,
         HTTP::PROXIES = {{"http", httpProxy}, {"https", httpsProxy}};
 }
 
+void BilibiliClient::setProxy(const std::string& httpProxy,
+                     const std::string& httpsProxy) {
+    HTTP::PROXIES = {};
+    if (!httpProxy.empty() && !httpsProxy.empty())
+        HTTP::PROXIES = {{"http", httpProxy}, {"https", httpsProxy}};
+}
+
 }  // namespace bilibili
