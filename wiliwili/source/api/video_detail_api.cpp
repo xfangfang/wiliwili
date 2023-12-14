@@ -66,9 +66,7 @@ void BilibiliClient::get_webmask(
                 printf("ERROR: %s\n", e.what());
             }
         },
-#ifndef VERIFY_SSL
-        cpr::VerifySsl{false},
-#endif
+        HTTP::VERIFY,
         HTTP::PROXIES,
         cpr::Url{url}, HTTP::HEADERS, HTTP::COOKIES,
         cpr::Timeout{HTTP::TIMEOUT});
@@ -327,9 +325,7 @@ void BilibiliClient::get_danmaku(
                 printf("ERROR: %s\n", e.what());
             }
         },
-#ifndef VERIFY_SSL
-        cpr::VerifySsl{false},
-#endif
+        HTTP::VERIFY,
         HTTP::PROXIES,
         cpr::Url{Api::VideoDanmaku}, HTTP::HEADERS,
         cpr::Parameters({{"oid", std::to_string(cid)}}), HTTP::COOKIES,
@@ -353,9 +349,7 @@ void BilibiliClient::get_highlight_progress(
                 ERROR_MSG(e.what(), -1);
             }
         },
-#ifndef VERIFY_SSL
-        cpr::VerifySsl{false},
-#endif
+        HTTP::VERIFY,
         HTTP::PROXIES,
         cpr::Url{Api::VideoHighlight}, HTTP::HEADERS,
         cpr::Parameters({{"cid", std::to_string(cid)}}), HTTP::COOKIES,
@@ -383,9 +377,7 @@ void BilibiliClient::get_subtitle(
                 printf("ERROR: %s\n", e.what());
             }
         },
-#ifndef VERIFY_SSL
-        cpr::VerifySsl{false},
-#endif
+        HTTP::VERIFY,
         HTTP::PROXIES,
         cpr::Url{url}, HTTP::HEADERS, cpr::Parameters({}), HTTP::COOKIES,
         cpr::Timeout{HTTP::TIMEOUT});

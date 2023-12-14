@@ -23,12 +23,6 @@ cmake_dependent_option(MAC_DOWNLOAD_DYLIB "Using precompiled dylib instead of sy
 # Using CMAKE_INSTALL_PREFIX specifies the location where the application is installed.
 cmake_dependent_option(INSTALL "Install to system path" OFF "UNIX;NOT APPLE" OFF)
 
-# Program related
-option(VERIFY_SSL "Whether to verify ssl in http request" ON)
-if (VERIFY_SSL)
-    list(APPEND APP_PLATFORM_OPTION -DVERIFY_SSL)
-endif ()
-
 # For Developer
 option(DEBUG_SANITIZER "Turn on sanitizers (only available in debug build)" OFF)
 

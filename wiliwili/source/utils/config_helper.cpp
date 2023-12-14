@@ -129,6 +129,15 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DANMAKU_SMART_MASK, {"danmaku_smart_mask", {}, {}, 1}},
     {SettingItem::SEARCH_TV_MODE, {"search_tv_mode", {}, {}, 1}},
     {SettingItem::HTTP_PROXY_STATUS, {"http_proxy_status", {}, {}, 0}},
+    {SettingItem::TLS_VERIFY,
+     {"tls_verify",
+      {},
+      {},
+#if defined(__PSV__) || defined(__SWITCH__) || defined(PS4)
+      0}},
+#else
+      1}},
+#endif
 
 /// number
 #if defined(__PSV__)
@@ -826,7 +835,7 @@ void ProgramConfig::init() {
 #else
         5000,
 #endif
-        httpProxy, httpsProxy);
+        httpProxy, httpsProxy, getBoolOption(SettingItem::TLS_VERIFY));
 }
 
 std::string ProgramConfig::getHomePath() {
@@ -963,4 +972,8 @@ void ProgramConfig::setProxy(const std::string& proxy) {
     this->httpsProxy = proxy;
     this->httpProxy  = proxy;
     BILI::setProxy(httpProxy, httpsProxy);
+}
+
+void ProgramConfig::setTlsVerify(bool verify) {
+    BILI::setTlsVerify(verify);
 }

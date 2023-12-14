@@ -651,10 +651,12 @@ public:
         Cookies& cookies,
         std::function<void(Cookies, std::string)> writeCookiesCallback,
         int timeout = 10000, const std::string& httpProxy = "",
-        const std::string& httpsProxy = "");
+        const std::string& httpsProxy = "", bool tlsVerify = true);
 
     static void setProxy(const std::string& httpProxy  = "",
                          const std::string& httpsProxy = "");
+
+    static void setTlsVerify(bool value);
 
     static std::string genRandomBuvid3();
 };

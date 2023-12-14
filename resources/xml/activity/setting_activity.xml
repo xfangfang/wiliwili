@@ -92,6 +92,9 @@
                                 marginBottom="30px">
 
                             <brls:BooleanCell
+                                    id="setting/network/tls"/>
+
+                            <brls:BooleanCell
                                     id="setting/network/proxy"/>
 
                             <brls:InputCell

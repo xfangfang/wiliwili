@@ -288,7 +288,6 @@ jobs:
              cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON \
                 -DCMAKE_BUILD_TYPE=Release \
                 -DMPV_NO_FB=ON \
-                -DVERIFY_SSL=OFF \
                 -DUSE_SYSTEM_CPR=ON && \
                 make -C cmake-build-ps4 -j$(nproc)"
 
@@ -559,7 +558,6 @@ jobs:
             -DUSE_SYSTEM_CURL=ON \
             -DUSE_SYSTEM_SDL2=ON \
             -DMPV_NO_FB=ON \
-            -DVERIFY_SSL=OFF \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_FLAGS="-Wno-error=pedantic -Wno-psabi"
           cmake --build build --verbose

@@ -104,9 +104,7 @@ void ImageHelper::requestImage() {
 
     // 请求图片
     cpr::Response r = cpr::Get(
-#ifndef VERIFY_SSL
-        cpr::VerifySsl{false},
-#endif
+        bilibili::HTTP::VERIFY,
         bilibili::HTTP::PROXIES,
         cpr::Url{this->imageUrl},
         cpr::ProgressCallback([this](...) -> bool { return !this->isCancel; }));

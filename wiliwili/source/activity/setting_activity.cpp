@@ -598,6 +598,14 @@ void SettingActivity::onContentAvailable() {
             MPVCore::instance().restart();
         });
 
+    /// TLS verify
+    btnTls->init("wiliwili/setting/app/network/tls"_i18n,
+                 conf.getBoolOption(SettingItem::TLS_VERIFY), [](bool data) {
+                     auto& conf = ProgramConfig::instance();
+                     conf.setSettingItem(SettingItem::TLS_VERIFY, data);
+                     conf.setTlsVerify(data);
+                 });
+
     /// HTTP proxy
     bool httpProxyStatus = conf.getBoolOption(SettingItem::HTTP_PROXY_STATUS);
     btnProxy->init(

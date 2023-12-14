@@ -32,6 +32,7 @@
       },
       "network": {
         "header": "網絡設定",
+        "tls": "TLS 驗證",
         "proxy": "網絡代理",
         "proxy_hint": "示例: http://127.0.0.1:7890"
       },

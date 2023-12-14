@@ -336,7 +336,7 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_psv_builder:latest \
     "cmake -B cmake-build-psv -G Ninja -DPLATFORM_PSV=ON \
         -DMPV_NO_FB=ON -DUSE_SYSTEM_CURL=ON -DUSE_SYSTEM_SDL2=ON \
-        -DVERIFY_SSL=OFF -DCMAKE_BUILD_TYPE=Release && \
+        -DCMAKE_BUILD_TYPE=Release && \
         cmake --build cmake-build-psv"
 ```
 
@@ -354,7 +354,7 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_psv_builder:latest \
 ```shell
 docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
     "cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON \
-        -DMPV_NO_FB=ON -DVERIFY_SSL=OFF \
+        -DMPV_NO_FB=ON \
         -DUSE_SYSTEM_CPR=ON && \
         make -C cmake-build-ps4 -j$(nproc)"
 ```

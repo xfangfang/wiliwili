@@ -107,9 +107,7 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
                                         e.what());
                 }
             },
-#ifndef VERIFY_SSL
-            cpr::VerifySsl{false},
-#endif
+            bilibili::HTTP::VERIFY,
             bilibili::HTTP::PROXIES,
             cpr::Url{url}, cpr::Timeout{10000});
     });

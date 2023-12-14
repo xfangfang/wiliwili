@@ -38,6 +38,7 @@ public:
     };
     static inline int TIMEOUT = 10000;
     static inline cpr::Proxies PROXIES;
+    static inline cpr::VerifySsl VERIFY;
 
     static cpr::Response get(const std::string& url,
                              const cpr::Parameters& parameters = {},
@@ -63,9 +64,7 @@ public:
             },
             cpr::Url{url}, parameters, payload, HTTP::HEADERS, HTTP::COOKIES,
             HTTP::PROXIES,
-#ifndef VERIFY_SSL
-            cpr::VerifySsl{false},
-#endif
+            HTTP::VERIFY,
             cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS},
             cpr::Timeout{HTTP::TIMEOUT});
     }
@@ -89,9 +88,7 @@ public:
             },
             cpr::Url{url}, parameters, HTTP::HEADERS, HTTP::COOKIES,
             HTTP::PROXIES,
-#ifndef VERIFY_SSL
-            cpr::VerifySsl{false},
-#endif
+            HTTP::VERIFY,
             cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS},
             cpr::Timeout{HTTP::TIMEOUT});
     }

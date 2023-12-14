@@ -33,6 +33,7 @@ private:
     BRLS_BIND(brls::RadioCell, btnOpenConfig, "tools/config_dir");
     BRLS_BIND(brls::RadioCell, btnVibrationTest, "tools/vibration_test");
     BRLS_BIND(brls::RadioCell, btnDLNA, "tools/dlna");
+    BRLS_BIND(brls::BooleanCell, btnTls, "setting/network/tls");
     BRLS_BIND(brls::BooleanCell, btnProxy, "setting/network/proxy");
     BRLS_BIND(brls::InputCell, btnProxyInput, "setting/network/input");
     BRLS_BIND(SelectorCell, selectorLang, "setting/language");

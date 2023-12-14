@@ -87,6 +87,7 @@ enum class SettingItem {
     DLNA_NAME,
     HTTP_PROXY,
     HTTP_PROXY_STATUS,
+    TLS_VERIFY,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -225,6 +226,8 @@ public:
     std::string getProxy();
 
     void setProxy(const std::string& proxy);
+
+    void setTlsVerify(bool value);
 
     std::vector<CustomTheme> customThemes;
     Cookie cookie = {{"DedeUserID", "0"}};

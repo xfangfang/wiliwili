@@ -30,7 +30,7 @@ std::string BilibiliClient::genRandomBuvid3() {
 void BilibiliClient::init(Cookies& data,
                           std::function<void(Cookies, std::string)> callback,
                           int timeout, const std::string& httpProxy,
-                          const std::string& httpsProxy) {
+                          const std::string& httpsProxy, bool tlsVerify) {
     BilibiliClient::writeCookiesCallback = std::move(callback);
     for (const auto& cookie : data) {
         HTTP::COOKIES.emplace_back({cookie.first, cookie.second});
@@ -39,6 +39,8 @@ void BilibiliClient::init(Cookies& data,
 
     if (!httpProxy.empty() && !httpsProxy.empty())
         HTTP::PROXIES = {{"http", httpProxy}, {"https", httpsProxy}};
+
+    HTTP::VERIFY = cpr::VerifySsl{tlsVerify};
 }
 
 void BilibiliClient::setProxy(const std::string& httpProxy,
@@ -46,6 +48,10 @@ void BilibiliClient::setProxy(const std::string& httpProxy,
     HTTP::PROXIES = {};
     if (!httpProxy.empty() && !httpsProxy.empty())
         HTTP::PROXIES = {{"http", httpProxy}, {"https", httpsProxy}};
+}
+
+void BilibiliClient::setTlsVerify(bool value) {
+    HTTP::VERIFY = cpr::VerifySsl{value};
 }
 
 }  // namespace bilibili
