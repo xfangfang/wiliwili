@@ -73,7 +73,7 @@ public:
             // 回复评论
             brls::Application::getImeManager()->openForText(
                 [this, recycler](const std::string& text) {
-                    if (text.empty()) return ;
+                    if (text.empty()) return;
                     this->commentReply(
                         text, aid, 0, 0,
                         [this, recycler](
@@ -355,15 +355,18 @@ void BasePlayerActivity::setCommonData() {
                     }
                     auto stack    = brls::Application::getActivitiesStack();
                     Activity* top = stack[stack.size() - 1];
-                    if (!dynamic_cast<BasePlayerActivity*>(top)) {
-                        // 判断最顶层是否为video
-                        if (!dynamic_cast<VideoView*>(
-                                top->getContentView()->getView("video")))
-                            return;
-                    }
-                    if (PLAYER_STRATEGY == PlayerStrategy::NEXT ||
-                        PLAYER_STRATEGY == PlayerStrategy::RCMD) {
+                    if (!dynamic_cast<BasePlayerActivity*>(top) &&
+                        !dynamic_cast<VideoView*>(
+                            top->getContentView()->getView("video"))) {
+                        // 最顶层没有 video 组件，说明用户打开了评论或者其他菜单
+                        // 在这种情况下不执行自动播放其他视频显示重播按钮
+                        MPV_CE->fire(VideoView::REPLAY, nullptr);
+                    } else if (PLAYER_STRATEGY == PlayerStrategy::NEXT ||
+                               PLAYER_STRATEGY == PlayerStrategy::RCMD) {
                         this->onIndexChangeToNext();
+                    } else {
+                        // 对于其他情况，显示重播按钮
+                        MPV_CE->fire(VideoView::REPLAY, nullptr);
                     }
                 }
                 break;

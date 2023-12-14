@@ -809,7 +809,12 @@ void MPVCore::eventMainLoop() {
                 switch (event->reply_userdata) {
                     case 1:
                         if (data) {
-                            video_playing = *(int *)data == 0;
+                            bool playing = *(int *)data == 0;
+                            if (playing != video_playing){
+                                video_playing = playing;
+                                mpvCoreEvent.fire(MpvEventEnum::MPV_IDLE);
+                            }
+                            video_playing = playing;
                             disableDimming(video_playing);
                         }
                         break;

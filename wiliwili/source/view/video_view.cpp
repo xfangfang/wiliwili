@@ -528,6 +528,10 @@ VideoView::VideoView() {
                 this->setLastPlayedPosition(*(int64_t*)data / 1000);
         } else if (event == VideoView::HINT) {
             this->showHint((const char*)data);
+        } else if (event == VideoView::REPLAY) {
+            // 显示重播按钮
+            showReplay = true;
+            this->refreshToggleIcon();
         }
     });
 }
@@ -812,7 +816,11 @@ void VideoView::stop() { mpvCore->stop(); }
 void VideoView::togglePlay() {
     if (customToggleAction != nullptr) return customToggleAction();
     if (this->mpvCore->isPaused()) {
-        this->mpvCore->resume();
+        if (showReplay) {
+            this->mpvCore->seek(0);
+        } else {
+            this->mpvCore->resume();
+        }
     } else {
         this->mpvCore->pause();
     }
@@ -1028,7 +1036,11 @@ void VideoView::refreshDanmakuIcon() {
 }
 
 void VideoView::refreshToggleIcon() {
-    if (mpvCore->isPaused() || mpvCore->isStopped()) {
+    if (!mpvCore->isPlaying()) {
+        if (showReplay) {
+            btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-re-play.svg");
+            return;
+        }
         btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-play.svg");
     } else {
         btnToggleIcon->setImageFromSVGRes("svg/bpx-svg-sprite-pause.svg");
@@ -1103,6 +1115,7 @@ void VideoView::setFullScreen(bool fs) {
         video->showOSD(this->osd_state != OSDState::ALWAYS_ON);
         video->setFullscreenIcon(true);
         video->setHideHighlight(true);
+        video->showReplay = showReplay;
         video->refreshToggleIcon();
         video->setHighlightProgress(highlight_step_sec, highlight_data);
         if (video->isLiveMode) video->setLiveMode();
@@ -1153,6 +1166,7 @@ void VideoView::setFullScreen(bool fs) {
                     video->setPlaybackTime(
                         this->leftStatusLabel->getFullText());
                     video->registerMpvEvent();
+                    video->showReplay = showReplay;
                     video->refreshToggleIcon();
                     video->refreshDanmakuIcon();
                     video->setQuality(this->getQuality());
@@ -1287,14 +1301,16 @@ void VideoView::registerMpvEvent() {
         mpvCore->getEvent()->subscribe([this](MpvEventEnum event) {
             // brls::Logger::info("mpv event => : {}", event);
             switch (event) {
+                case MpvEventEnum::MPV_IDLE:
+                    refreshToggleIcon();
+                    break;
                 case MpvEventEnum::MPV_RESUME:
+                    this->showReplay = false;
                     this->showOSD(true);
                     this->hideLoading();
-                    refreshToggleIcon();
                     break;
                 case MpvEventEnum::MPV_PAUSE:
                     this->showOSD(false);
-                    refreshToggleIcon();
                     break;
                 case MpvEventEnum::START_FILE:
                     this->showOSD(false);
@@ -1343,8 +1359,6 @@ void VideoView::registerMpvEvent() {
                 case MpvEventEnum::END_OF_FILE:
                     // 播放结束自动取消全屏
                     this->showOSD(false);
-                    this->btnToggleIcon->setImageFromSVGRes(
-                        "svg/bpx-svg-sprite-play.svg");
                     if (EXIT_FULLSCREEN_ON_END && closeOnEndOfFile &&
                         this->isFullscreen()) {
                         this->setFullScreen(false);

@@ -202,6 +202,7 @@ public:
     inline static const std::string SET_QUALITY    = "SET_QUALITY";
     inline static const std::string HINT           = "HINT";
     inline static const std::string LAST_TIME      = "LAST_TIME";
+    inline static const std::string REPLAY         = "REPLAY";
 
     // 用于指定 lastPlayedPosition 的值
     // 若无历史记录，则为 -1，若不使用历史记录的值，则为 -2
@@ -235,6 +236,8 @@ private:
     bool showHighlightLineSetting = true;
     // 是否为直播样式
     bool isLiveMode = false;
+    // 是否展示重播按钮
+    bool showReplay = false;
     MPVEvent::Subscription eventSubscribeID;
     MPVCustomEvent::Subscription customEventSubscribeID;
     std::function<void()> customToggleAction = nullptr;
