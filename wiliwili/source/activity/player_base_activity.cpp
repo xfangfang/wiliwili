@@ -72,7 +72,8 @@ public:
             if (!DialogHelper::checkLogin()) return;
             // 回复评论
             brls::Application::getImeManager()->openForText(
-                [this, recycler](std::string text) {
+                [this, recycler](const std::string& text) {
+                    if (text.empty()) return ;
                     this->commentReply(
                         text, aid, 0, 0,
                         [this, recycler](

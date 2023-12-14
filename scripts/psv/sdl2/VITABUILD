@@ -1,17 +1,20 @@
 pkgname=sdl2
-pkgver=2.28.1
+pkgver=2.28.5
 pkgrel=1
-gitrev=4761467b2e8cc7db3d6bc98747daca0051858f09
+gitrev=15ead9a40d09a1eb9972215cceac2bf29c9b77f6
 url='https://www.libsdl.org'
 source=(
   "https://github.com/libsdl-org/SDL/archive/${gitrev}.tar.gz"
+  "ime.patch"
  )
 sha256sums=(
+  SKIP
   SKIP
 )
 
 prepare() {
   cd "SDL-${gitrev}"
+  patch --strip=1 --input=${srcdir}/ime.patch
 }
 
 build() {
@@ -22,7 +25,7 @@ build() {
     -DCMAKE_BUILD_TYPE=Release \
     -DVIDEO_VITA_PVR=ON \
     -DSDL_TEST=OFF
-  make -j$(nproc)
+  make -j12
 }
 
 package () {

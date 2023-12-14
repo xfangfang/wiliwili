@@ -1,0 +1,24 @@
+diff --git a/src/video/vita/SDL_vitavideo.c b/src/video/vita/SDL_vitavideo.c
+index 9e823996e..f887ca4d0 100644
+--- a/src/video/vita/SDL_vitavideo.c
++++ b/src/video/vita/SDL_vitavideo.c
+@@ -438,16 +438,11 @@ void VITA_ImeEventHandler(void *arg, const SceImeEventData *e)
+     switch (e->id) {
+     case SCE_IME_EVENT_UPDATE_TEXT:
+         if (e->param.text.caretIndex == 0) {
+-            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_BACKSPACE);
++            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_ESCAPE);
+             sceImeSetText((SceWChar16 *)libime_initval, 4);
+         } else {
+-            scancode = SDL_GetScancodeFromKey(*(SceWChar16 *)&libime_out[1]);
+-            if (scancode == SDL_SCANCODE_SPACE) {
+-                SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_SPACE);
+-            } else {
+-                utf16_to_utf8((SceWChar16 *)&libime_out[1], utf8_buffer);
+-                SDL_SendKeyboardText((const char *)utf8_buffer);
+-            }
++            utf16_to_utf8((SceWChar16 *)&libime_out[1], utf8_buffer);
++            SDL_SendKeyboardText((const char *)utf8_buffer);
+             SDL_memset(&caret_rev, 0, sizeof(SceImeCaret));
+             SDL_memset(libime_out, 0, ((SCE_IME_MAX_PREEDIT_LENGTH + SCE_IME_MAX_TEXT_LENGTH + 1) * sizeof(SceWChar16)));
+             caret_rev.index = 1;
