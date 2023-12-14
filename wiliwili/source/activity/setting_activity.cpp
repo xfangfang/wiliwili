@@ -627,7 +627,7 @@ void SettingActivity::onContentAvailable() {
     btnProxyInput->init(
         "wiliwili/setting/app/network/proxy"_i18n, httpProxy,
         [](const std::string& data) {
-            std::string httpProxy = data;
+            std::string httpProxy = pystring::strip(data);
             // 如果没有写协议，默认用 http
             if (!httpProxy.empty() &&
                 !pystring::startswith(httpProxy, "http://") &&

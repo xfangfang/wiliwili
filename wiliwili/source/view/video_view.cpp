@@ -746,7 +746,7 @@ std::string VideoView::genExtraUrlParam(
 #endif
     auto proxy = ProgramConfig::instance().getProxy();
     if (!proxy.empty()) {
-        extra += fmt::format(",http-proxy={}", proxy);
+        extra += fmt::format(",http-proxy=\"{}\"", proxy);
     }
     if (progress > 0) {
         extra += fmt::format(",start={}", progress);
