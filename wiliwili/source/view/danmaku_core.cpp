@@ -31,6 +31,7 @@ static inline uint64_t ntohll(uint64_t netlonglong) {
     return __builtin_bswap64(netlonglong);
 }
 #elif defined(__WINRT__)
+#elif defined(_WIN32_WINNT) && _WIN32_WINNT >= _WIN32_WINNT_WIN8
 #elif defined(betoh64)
 #define ntohll betoh64
 #elif defined(be64toh)
