@@ -314,6 +314,12 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         }
 
         // 设置遮罩
+
+        // 手动设置了视频比例
+        if (MPVCore::instance().video_aspect > 0) {
+            maskWidth = maskHeight * MPVCore::instance().video_aspect;
+        }
+        // 镜像视频
         if (MPVCore::VIDEO_MIRROR) {
             nvgSave(vg);
             nvgTranslate(vg, width + x + x, 0);
@@ -386,7 +392,7 @@ skip_mask:
             }
             //滑动弹幕
             float position = 0;
-            if (MPVCore::instance().isPaused()) {
+            if (!MPVCore::instance().isPlaying()) {
                 // 暂停状态弹幕也要暂停
                 position = i.speed * (playbackTime - i.time);
                 i.startTime =

@@ -251,6 +251,7 @@ public:
     bool video_seeking     = false;
     bool video_playing     = false;
     bool video_eof         = false;
+    float video_aspect     = -1;
     double playback_time   = 0;
     double percent_pos     = 0;
     int64_t video_progress = 0;

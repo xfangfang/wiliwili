@@ -142,6 +142,24 @@ static void *get_proc_address(void *unused, const char *name) {
 }
 #endif
 
+static inline float aspectConverter(const std::string &value) {
+    try {
+        if (value.empty()) {
+            return -1;
+        } else if (pystring::count(value, ":")) {
+            // 比例模式
+            auto num = pystring::split(value, ":");
+            if (num.size() != 2) return -1;
+            return std::stof(num[0]) / std::stof(num[1]);
+        } else {
+            // 纯数字
+            return std::stof(value);
+        }
+    } catch (const std::exception &e) {
+        return -1;
+    }
+}
+
 void MPVCore::on_update(void *self) {
     brls::sync([]() {
         uint64_t flags =
@@ -213,6 +231,7 @@ void MPVCore::init() {
     if (MPVCore::VIDEO_ASPECT != "-1") {
         mpv_set_option_string(mpv, "video-aspect-override",
                               MPVCore::VIDEO_ASPECT.c_str());
+        video_aspect = aspectConverter(MPVCore::VIDEO_ASPECT);
     }
 
     if (MPVCore::LOW_QUALITY) {
@@ -810,7 +829,7 @@ void MPVCore::eventMainLoop() {
                     case 1:
                         if (data) {
                             bool playing = *(int *)data == 0;
-                            if (playing != video_playing){
+                            if (playing != video_playing) {
                                 video_playing = playing;
                                 mpvCoreEvent.fire(MpvEventEnum::MPV_IDLE);
                             }
@@ -1057,6 +1076,7 @@ void MPVCore::setSpeed(double value) { command_async("set", "speed", value); }
 
 void MPVCore::setAspect(const std::string &value) {
     MPVCore::VIDEO_ASPECT = value;
+    video_aspect          = aspectConverter(MPVCore::VIDEO_ASPECT);
     command_async("set", "video-aspect-override", MPVCore::VIDEO_ASPECT);
 }
 
