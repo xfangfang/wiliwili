@@ -284,7 +284,8 @@ void MPVCore::init() {
     // Fix vo_wait_frame() cannot be wakeup
     mpv_set_option_string(mpv, "video-latency-hacks", "yes");
 #endif
-    mpv_set_option_string(mpv, "demuxer-lavf-analyzeduration", "0.1");
+    // 过低的值可能导致部分直播流无法正确播放
+    mpv_set_option_string(mpv, "demuxer-lavf-analyzeduration", "0.4");
     mpv_set_option_string(mpv, "demuxer-lavf-probe-info", "nostreams");
     mpv_set_option_string(mpv, "demuxer-lavf-probescore", "24");
 
