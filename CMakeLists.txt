@@ -67,6 +67,9 @@ include(${BOREALIS_LIBRARY}/cmake/toolchain.cmake)
 git_info(GIT_TAG_VERSION GIT_TAG_SHORT)
 list(APPEND APP_PLATFORM_OPTION -DBUILD_TAG_VERSION=${GIT_TAG_VERSION} -DBUILD_TAG_SHORT=${GIT_TAG_SHORT})
 
+# nanovg
+add_definitions(-DFONS_HASH_LUT_SIZE=4096)
+
 # Project Info
 project(wiliwili)
 set(VERSION_MAJOR "1")

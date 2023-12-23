@@ -41,6 +41,9 @@ private:
     BRLS_BIND(SelectorCell, cellSpeed, "player/danmaku/style/speed");
     BRLS_BIND(SelectorCell, cellFontsize, "player/danmaku/style/fontsize");
     BRLS_BIND(SelectorCell, cellLineHeight, "player/danmaku/style/lineHeight");
+    BRLS_BIND(SelectorCell, cellBackground, "player/danmaku/style/background");
+
+    BRLS_BIND(SelectorCell, cellRenderPerf, "player/danmaku/performance/render");
 
     BRLS_BIND(ButtonClose, closebtn, "button/close");
     BRLS_BIND(brls::ScrollingFrame, settings, "danmaku/settings");

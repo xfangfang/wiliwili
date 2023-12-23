@@ -78,10 +78,11 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
 
     std::vector<std::string> levels;
     for (size_t i = 1; i <= 10; i++)
-        levels.emplace_back(wiliwili::format("wiliwili/player/danmaku/filter/level_n"_i18n, i));
+        levels.emplace_back(
+            wiliwili::format("wiliwili/player/danmaku/filter/level_n"_i18n, i));
     this->cellLevel->init(
         "wiliwili/player/danmaku/filter/level"_i18n, levels,
-        conf.getIntOptionIndex(SettingItem::DANMAKU_FILTER_LEVEL),
+        (int)conf.getIntOptionIndex(SettingItem::DANMAKU_FILTER_LEVEL),
         [](int data) {
             DanmakuCore::DANMAKU_FILTER_LEVEL = data + 1;
             DanmakuCore::save();
@@ -95,7 +96,8 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
          "wiliwili/player/danmaku/style/area_2_4"_i18n,
          "wiliwili/player/danmaku/style/area_3_4"_i18n,
          "wiliwili/player/danmaku/style/area_4_4"_i18n},
-        conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_AREA), [](int data) {
+        (int)conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_AREA),
+        [](int data) {
             DanmakuCore::DANMAKU_STYLE_AREA = 25 + data * 25;
             DanmakuCore::save();
             DanmakuCore::instance().refresh();
@@ -106,7 +108,7 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
         SettingItem::DANMAKU_STYLE_ALPHA);
     this->cellAlpha->init(
         "wiliwili/player/danmaku/style/alpha"_i18n, alpha.optionList,
-        conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_ALPHA),
+        (int)conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_ALPHA),
         [alpha](int data) {
             DanmakuCore::DANMAKU_STYLE_ALPHA = alpha.rawOptionList[data];
             DanmakuCore::save();
@@ -118,7 +120,7 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
         SettingItem::DANMAKU_STYLE_FONTSIZE);
     this->cellFontsize->init(
         "wiliwili/player/danmaku/style/fontsize"_i18n, font.optionList,
-        conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_FONTSIZE),
+        (int)conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_FONTSIZE),
         [font](int data) {
             DanmakuCore::DANMAKU_STYLE_FONTSIZE = font.rawOptionList[data];
             DanmakuCore::save();
@@ -130,7 +132,7 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
         SettingItem::DANMAKU_STYLE_LINE_HEIGHT);
     this->cellLineHeight->init(
         "wiliwili/player/danmaku/style/line_height"_i18n, height.optionList,
-        conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_LINE_HEIGHT),
+        (int)conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_LINE_HEIGHT),
         [height](int data) {
             DanmakuCore::DANMAKU_STYLE_LINE_HEIGHT = height.rawOptionList[data];
             DanmakuCore::save();
@@ -149,12 +151,37 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
             "wiliwili/player/danmaku/style/speed_fast"_i18n,
             "wiliwili/player/danmaku/style/speed_fast_plus"_i18n,
         },
-        conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_SPEED),
+        (int)conf.getIntOptionIndex(SettingItem::DANMAKU_STYLE_SPEED),
         [speed](int data) {
             DanmakuCore::DANMAKU_STYLE_SPEED = speed.rawOptionList[data];
             DanmakuCore::save();
             DanmakuCore::instance().refresh();
             return true;
+        });
+
+    this->cellBackground->init(
+        "wiliwili/player/danmaku/style/font"_i18n,
+        {"wiliwili/player/danmaku/style/font_stroke"_i18n,
+         "wiliwili/player/danmaku/style/font_incline"_i18n,
+         "wiliwili/player/danmaku/style/font_shadow"_i18n,
+         "wiliwili/player/danmaku/style/font_pure"_i18n},
+        conf.getStringOptionIndex(SettingItem::DANMAKU_STYLE_FONT),
+        [](int data) {
+            auto& conf = ProgramConfig::instance();
+            DanmakuCore::DANMAKU_STYLE_FONT = DanmakuFontStyle{data};
+            conf.setSettingItem(
+                SettingItem::DANMAKU_STYLE_FONT,
+                conf.getOptionData(SettingItem::DANMAKU_STYLE_FONT)
+                    .optionList[data]);\
+        });
+
+    auto perf = conf.getOptionData(SettingItem::DANMAKU_RENDER_QUALITY);
+    this->cellRenderPerf->init(
+        "wiliwili/player/danmaku/performance/render"_i18n, perf.optionList,
+        (int)conf.getIntOptionIndex(SettingItem::DANMAKU_RENDER_QUALITY),
+        [perf](int data) {
+            DanmakuCore::DANMAKU_RENDER_QUALITY = perf.rawOptionList[data];
+            DanmakuCore::save();
         });
 }
 

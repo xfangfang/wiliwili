@@ -88,6 +88,11 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
     nvgFontFaceId(vg, DanmakuCore::DANMAKU_FONT);
     nvgTextLineHeight(vg, 1);
 
+    // 弹幕渲染质量
+    if (DanmakuCore::DANMAKU_RENDER_QUALITY < 100) {
+        nvgFontQuality(vg, 0.01f * DanmakuCore::DANMAKU_RENDER_QUALITY);
+    }
+
     auto _now = std::chrono::system_clock::now();
 
     size_t _time = 0;
@@ -121,17 +126,26 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
                 255, 255, 255, DanmakuCore::DANMAKU_STYLE_ALPHA * 1.28 * alpha);
         }
 
-        nvgFillColor(vg, border_color);
-        for (const auto &j : v) {
-            float position =
-                j.speed * std::chrono::duration<float>(_now - j.time).count();
-            if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
-                nvgText(vg, x + width / 2 - j.length / 2 - 1,
-                        y + j.line * line_height + 6, j.danmaku->dan, nullptr);
-            } else if (position > 0) {
-                nvgText(vg, x + width - position - 1,
-                        y + j.line * line_height + 6, j.danmaku->dan, nullptr);
+        if (DanmakuCore::DANMAKU_STYLE_FONT != DanmakuFontStyle::PURE) {
+            float dx, dy;
+            dx = dy = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::INCLINE;
+            nvgFontBlur(vg, DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::SHADOW);
+            nvgFontDilate(vg, DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::STROKE);
+
+            nvgFillColor(vg, border_color);
+            for (const auto &j : v) {
+                float position =
+                    j.speed * std::chrono::duration<float>(_now - j.time).count();
+                if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
+                    nvgText(vg, x + width / 2 - j.length / 2 + dx,
+                            y + j.line * line_height + 5 + dy, j.danmaku->dan, nullptr);
+                } else if (position > 0) {
+                    nvgText(vg, x + width - position + dx,
+                            y + j.line * line_height + 5 + dy, j.danmaku->dan, nullptr);
+                }
             }
+            nvgFontBlur(vg, 0.0f);
+            nvgFontDilate(vg, 0.0f);
         }
 
         nvgFillColor(vg, color);

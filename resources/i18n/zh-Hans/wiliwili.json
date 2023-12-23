@@ -342,6 +342,10 @@
         "action": "发送",
         "hint": "发个友善的弹幕见证当下"
       },
+      "performance": {
+        "header": "弹幕性能",
+        "render": "渲染尺寸"
+      },
       "filter": {
         "header": "弹幕过滤",
         "mask": "智能防挡",
@@ -354,6 +358,11 @@
       },
       "style": {
         "header": "弹幕样式",
+        "font": "字体样式",
+        "font_stroke": "包边",
+        "font_incline": "投影",
+        "font_shadow": "阴影",
+        "font_pure": "纯色",
         "area": "显示区域",
         "area_1_4": "1/4 屏幕",
         "area_2_4": "1/2 屏幕",

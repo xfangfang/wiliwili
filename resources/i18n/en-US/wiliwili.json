@@ -342,6 +342,10 @@
         "action": "Send",
         "hint": "Say something nice"
       },
+      "performance": {
+        "header": "Performance",
+        "render": "Rendering quality"
+      },
       "filter": {
         "header": "Danmaku filter",
         "mask": "Smart mask",
@@ -354,6 +358,11 @@
       },
       "style": {
         "header": "Danmaku style",
+        "font": "Font Style",
+        "font_stroke": "Stroke",
+        "font_incline": "Incline",
+        "font_shadow": "Shadow",
+        "font_pure": "Pure",
         "area": "Display area",
         "area_1_4": "1/4 Screen",
         "area_2_4": "1/2 Screen",

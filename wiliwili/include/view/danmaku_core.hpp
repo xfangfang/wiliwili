@@ -45,6 +45,13 @@ private:
     std::string rawData;
 };
 
+enum class DanmakuFontStyle {
+    STROKE  = 0,  // 文字外有包边
+    INCLINE = 1,  // 文字右下方有包边
+    SHADOW  = 2,  // 文字下方有阴影
+    PURE    = 3,  // 纯色
+};
+
 class DanmakuItem {
 public:
     DanmakuItem(std::string content, const char *attributes);
@@ -75,7 +82,12 @@ public:
     bool operator<(const DanmakuItem &item) const {
         return this->time < item.time;
     }
+
+    inline void draw(NVGcontext *vg, float x, float y, float alpha) const;
+
+    static inline NVGcolor a(NVGcolor color, float alpha);
 };
+
 class DanmakuCore : public brls::Singleton<DanmakuCore> {
 public:
     DanmakuCore();
@@ -146,7 +158,7 @@ public:
     static inline bool DANMAKU_FILTER_SHOW_BOTTOM = true;
     static inline bool DANMAKU_FILTER_SHOW_SCROLL = true;
     static inline bool DANMAKU_FILTER_SHOW_COLOR  = true;
-    static inline bool DANMAKU_SMART_MASK  = true;
+    static inline bool DANMAKU_SMART_MASK         = true;
 
     /// [25, 50, 75, 100]
     static inline int DANMAKU_STYLE_AREA = 100;
@@ -159,6 +171,13 @@ public:
 
     /// [100, 120, 140, 160, 180, 200]
     static inline int DANMAKU_STYLE_LINE_HEIGHT = 120;
+
+    /// [stroke, incline, shadow, pure]
+    static inline DanmakuFontStyle DANMAKU_STYLE_FONT =
+        DanmakuFontStyle::STROKE;
+
+    /// [0 - 100]
+    static inline int DANMAKU_RENDER_QUALITY = 100;
 
     /// [50 75 100 125 150]
     static inline int DANMAKU_STYLE_SPEED = 100;
@@ -202,6 +221,4 @@ private:
     float lineHeight;
 
     MPVEvent::Subscription event_id;
-
-    static inline NVGcolor a(NVGcolor color, float alpha);
 };

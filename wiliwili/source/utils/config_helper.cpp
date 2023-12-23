@@ -87,6 +87,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_ASPECT,
      {"player_aspect", {"-1", "4:3", "16:9"}, {}, 0}},
     {SettingItem::HTTP_PROXY, {"http_proxy", {}, {}, 0}},
+    {SettingItem::DANMAKU_STYLE_FONT,
+     {"danmaku_style_font",
+      {"stroke", "incline", "shadow", "pure"},
+      {},
+      0}},
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -211,6 +216,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {"0.5", "0.75", "1.0", "1.25", "1.5"},
       {150, 125, 100, 75, 50},
       2}},
+    {SettingItem::DANMAKU_RENDER_QUALITY,
+     {"danmaku_render_quality",
+      {"100%", "95%", "90%", "80%", "70%", "60%", "50%"},
+      {100, 95, 90, 80, 70, 60, 50},
+      0}},
     {SettingItem::LIMITED_FPS,
      {"limited_fps", {"0", "30", "60", "90", "120"}, {0, 30, 60, 90, 120}, 0}},
     {SettingItem::DEACTIVATED_TIME, {"deactivated_time", {}, {}, 0}},
@@ -514,6 +524,12 @@ void ProgramConfig::load() {
         getIntOption(SettingItem::DANMAKU_STYLE_LINE_HEIGHT);
     DanmakuCore::DANMAKU_STYLE_SPEED =
         getIntOption(SettingItem::DANMAKU_STYLE_SPEED);
+    DanmakuCore::DANMAKU_STYLE_FONT =
+        DanmakuFontStyle{
+        getStringOptionIndex(SettingItem::DANMAKU_STYLE_FONT)};
+
+    DanmakuCore::DANMAKU_RENDER_QUALITY =
+        getIntOption(SettingItem::DANMAKU_RENDER_QUALITY);
 
     // 初始化是否支持手柄振动
     VibrationHelper::GAMEPAD_VIBRATION =
@@ -974,6 +990,4 @@ void ProgramConfig::setProxy(const std::string& proxy) {
     BILI::setProxy(httpProxy, httpsProxy);
 }
 
-void ProgramConfig::setTlsVerify(bool verify) {
-    BILI::setTlsVerify(verify);
-}
+void ProgramConfig::setTlsVerify(bool verify) { BILI::setTlsVerify(verify); }

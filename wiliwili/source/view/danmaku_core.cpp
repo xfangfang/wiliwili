@@ -85,6 +85,34 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     }
 }
 
+void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha) const {
+    float blur =
+        DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::SHADOW;
+    float dilate =
+        DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::STROKE;
+    float dx, dy;
+    dx = dy = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::INCLINE;
+
+    // background
+    if (DanmakuCore::DANMAKU_STYLE_FONT != DanmakuFontStyle::PURE) {
+        nvgFontDilate(vg, dilate);
+        nvgFontBlur(vg, blur);
+        nvgFillColor(vg, a(borderColor, alpha));
+        nvgText(vg, x + dx, y + dy, msg.c_str(), nullptr);
+    }
+
+    // content
+    nvgFontDilate(vg, 0.0f);
+    nvgFontBlur(vg, 0.0f);
+    nvgFillColor(vg, a(color, alpha));
+    nvgText(vg, x, y, msg.c_str(), nullptr);
+}
+
+NVGcolor DanmakuItem::a(NVGcolor color, float alpha) {
+    color.a *= alpha;
+    return color;
+}
+
 DanmakuCore::DanmakuCore() {
     event_id = MPV_E->subscribe([this](MpvEventEnum e) {
         if (e == MpvEventEnum::LOADING_END) {
@@ -236,6 +264,8 @@ void DanmakuCore::save() {
                                              DANMAKU_STYLE_SPEED, false);
     ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_ALPHA,
                                              DANMAKU_STYLE_ALPHA, false);
+    ProgramConfig::instance().setSettingItem(
+        SettingItem::DANMAKU_RENDER_QUALITY, DANMAKU_RENDER_QUALITY, false);
     ProgramConfig::instance().save();
 }
 
@@ -244,11 +274,6 @@ std::vector<DanmakuItem> DanmakuCore::getDanmakuData() {
     std::vector<DanmakuItem> data = danmakuData;
     danmakuMutex.unlock();
     return data;
-}
-
-NVGcolor DanmakuCore::a(NVGcolor color, float alpha) {
-    color.a *= alpha;
-    return color;
 }
 
 // Uncomment this line to show mask in a more obvious way.
@@ -355,6 +380,11 @@ skip_mask:
     nvgFontFaceId(vg, DanmakuCore::DANMAKU_FONT);
     nvgTextLineHeight(vg, 1);
 
+    // 弹幕渲染质量
+    if (DANMAKU_RENDER_QUALITY < 100) {
+        nvgFontQuality(vg, 0.01f * DANMAKU_RENDER_QUALITY);
+    }
+
     int LINES = lineNumCurrent;
     if (LINES == 0) {
         LINES = height / lineHeight * DANMAKU_STYLE_AREA * 0.01;
@@ -378,15 +408,9 @@ skip_mask:
                     continue;
                 }
 
-                // 画弹幕文字包边
-                nvgFillColor(vg, a(i.borderColor, alpha));
-                nvgText(vg, x + width / 2 - i.length / 2 + 1,
-                        y + i.line * lineHeight + 6, i.msg.c_str(), nullptr);
-
-                // 画弹幕文字
-                nvgFillColor(vg, a(i.color, alpha));
-                nvgText(vg, x + width / 2 - i.length / 2,
-                        y + i.line * lineHeight + 5, i.msg.c_str(), nullptr);
+                // 画弹幕
+                i.draw(vg, x + width / 2 - i.length / 2,
+                       y + i.line * lineHeight + 5, alpha);
 
                 continue;
             }
@@ -409,15 +433,9 @@ skip_mask:
                 continue;
             }
 
-            // 画弹幕文字包边
-            nvgFillColor(vg, a(i.borderColor, alpha));
-            nvgText(vg, x + width - position + 1, y + i.line * lineHeight + 6,
-                    i.msg.c_str(), nullptr);
-
-            // 画弹幕文字
-            nvgFillColor(vg, a(i.color, alpha));
-            nvgText(vg, x + width - position, y + i.line * lineHeight + 5,
-                    i.msg.c_str(), nullptr);
+            // 画弹幕
+            i.draw(vg, x + width - position, y + i.line * lineHeight + 5,
+                   alpha);
             continue;
         }
 

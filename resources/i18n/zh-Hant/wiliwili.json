@@ -342,6 +342,10 @@
         "action": "發送",
         "hint": "發一條友善的彈幕"
       },
+      "performance": {
+        "header": "彈幕效能",
+        "render": "渲染尺寸"
+      },
       "filter": {
         "header": "彈幕篩選",
         "mask": "智慧防擋",
@@ -354,6 +358,11 @@
       },
       "style": {
         "header": "彈幕風格",
+        "font": "字體風格",
+        "font_stroke": "包邊",
+        "font_incline": "投影",
+        "font_shadow": "陰影",
+        "font_pure": "純色",
         "area": "彈幕區域",
         "area_1_4": "1/4 荧幕",
         "area_2_4": "1/2 荧幕",

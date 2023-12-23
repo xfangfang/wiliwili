@@ -69,6 +69,9 @@
                     <SelectorCell
                             id="player/danmaku/style/speed"/>
 
+                    <SelectorCell
+                            id="player/danmaku/style/background"/>
+
                 </brls:Box>
                 <brls:Header
                         width="auto"
@@ -98,6 +101,21 @@
 
                     <brls:BooleanCell
                             id="player/danmaku/filter/color"/>
+
+                </brls:Box>
+                <brls:Header
+                        width="auto"
+                        height="auto"
+                        title="@i18n/wiliwili/player/danmaku/performance/header"
+                        marginBottom="0px"/>
+                <brls:Box
+                        width="100%"
+                        height="auto"
+                        axis="column"
+                        marginBottom="30px">
+
+                    <SelectorCell
+                            id="player/danmaku/performance/render"/>
 
                 </brls:Box>
             </brls:Box>
