@@ -46,10 +46,10 @@ private:
 };
 
 enum class DanmakuFontStyle {
-    STROKE  = 0,  // 文字外有包边
-    INCLINE = 1,  // 文字右下方有包边
-    SHADOW  = 2,  // 文字下方有阴影
-    PURE    = 3,  // 纯色
+    DANMAKU_FONT_STROKE  = 0,  // 文字外有包边
+    DANMAKU_FONT_INCLINE = 1,  // 文字右下方有包边
+    DANMAKU_FONT_SHADOW  = 2,  // 文字下方有阴影
+    DANMAKU_FONT_PURE    = 3,  // 纯色
 };
 
 class DanmakuItem {
@@ -174,7 +174,7 @@ public:
 
     /// [stroke, incline, shadow, pure]
     static inline DanmakuFontStyle DANMAKU_STYLE_FONT =
-        DanmakuFontStyle::STROKE;
+        DanmakuFontStyle::DANMAKU_FONT_STROKE;
 
     /// [0 - 100]
     static inline int DANMAKU_RENDER_QUALITY = 100;

@@ -86,15 +86,17 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
 }
 
 void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha) const {
-    float blur =
-        DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::SHADOW;
-    float dilate =
-        DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::STROKE;
+    float blur = DanmakuCore::DANMAKU_STYLE_FONT ==
+                 DanmakuFontStyle::DANMAKU_FONT_SHADOW;
+    float dilate = DanmakuCore::DANMAKU_STYLE_FONT ==
+                   DanmakuFontStyle::DANMAKU_FONT_STROKE;
     float dx, dy;
-    dx = dy = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::INCLINE;
+    dx = dy = DanmakuCore::DANMAKU_STYLE_FONT ==
+              DanmakuFontStyle::DANMAKU_FONT_INCLINE;
 
     // background
-    if (DanmakuCore::DANMAKU_STYLE_FONT != DanmakuFontStyle::PURE) {
+    if (DanmakuCore::DANMAKU_STYLE_FONT !=
+        DanmakuFontStyle::DANMAKU_FONT_PURE) {
         nvgFontDilate(vg, dilate);
         nvgFontBlur(vg, blur);
         nvgFillColor(vg, a(borderColor, alpha));

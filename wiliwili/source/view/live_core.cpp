@@ -126,22 +126,29 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
                 255, 255, 255, DanmakuCore::DANMAKU_STYLE_ALPHA * 1.28 * alpha);
         }
 
-        if (DanmakuCore::DANMAKU_STYLE_FONT != DanmakuFontStyle::PURE) {
+        if (DanmakuCore::DANMAKU_STYLE_FONT !=
+            DanmakuFontStyle::DANMAKU_FONT_PURE) {
             float dx, dy;
-            dx = dy = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::INCLINE;
-            nvgFontBlur(vg, DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::SHADOW);
-            nvgFontDilate(vg, DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::STROKE);
+            dx = dy = DanmakuCore::DANMAKU_STYLE_FONT ==
+                      DanmakuFontStyle::DANMAKU_FONT_INCLINE;
+            nvgFontBlur(vg, DanmakuCore::DANMAKU_STYLE_FONT ==
+                                DanmakuFontStyle::DANMAKU_FONT_SHADOW);
+            nvgFontDilate(vg, DanmakuCore::DANMAKU_STYLE_FONT ==
+                                  DanmakuFontStyle::DANMAKU_FONT_STROKE);
 
             nvgFillColor(vg, border_color);
             for (const auto &j : v) {
                 float position =
-                    j.speed * std::chrono::duration<float>(_now - j.time).count();
+                    j.speed *
+                    std::chrono::duration<float>(_now - j.time).count();
                 if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
                     nvgText(vg, x + width / 2 - j.length / 2 + dx,
-                            y + j.line * line_height + 5 + dy, j.danmaku->dan, nullptr);
+                            y + j.line * line_height + 5 + dy, j.danmaku->dan,
+                            nullptr);
                 } else if (position > 0) {
                     nvgText(vg, x + width - position + dx,
-                            y + j.line * line_height + 5 + dy, j.danmaku->dan, nullptr);
+                            y + j.line * line_height + 5 + dy, j.danmaku->dan,
+                            nullptr);
                 }
             }
             nvgFontBlur(vg, 0.0f);
