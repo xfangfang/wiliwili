@@ -889,15 +889,8 @@ void VideoView::toggleOSDLock() {
 }
 
 void VideoView::toggleDanmaku() {
-    if (DanmakuCore::DANMAKU_ON) {
-        DanmakuCore::DANMAKU_ON = false;
-        this->btnDanmakuIcon->setImageFromSVGRes(
-            "svg/bpx-svg-sprite-danmu-switch-off.svg");
-    } else {
-        DanmakuCore::DANMAKU_ON = true;
-        this->btnDanmakuIcon->setImageFromSVGRes(
-            "svg/bpx-svg-sprite-danmu-switch-on.svg");
-    }
+    DanmakuCore::DANMAKU_ON = !DanmakuCore::DANMAKU_ON;
+    this->refreshDanmakuIcon();
     DanmakuCore::save();
 }
 
@@ -1029,9 +1022,13 @@ void VideoView::refreshDanmakuIcon() {
     if (DanmakuCore::DANMAKU_ON) {
         this->btnDanmakuIcon->setImageFromSVGRes(
             "svg/bpx-svg-sprite-danmu-switch-on.svg");
+        btnDanmakuSettingIcon->setVisibility(brls::Visibility::VISIBLE);
+        btnDanmakuSettingIcon->getParent()->setVisibility(brls::Visibility::VISIBLE);
     } else {
         this->btnDanmakuIcon->setImageFromSVGRes(
             "svg/bpx-svg-sprite-danmu-switch-off.svg");
+        btnDanmakuSettingIcon->setVisibility(brls::Visibility::GONE);
+        btnDanmakuSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
     }
 }
 
