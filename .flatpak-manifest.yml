@@ -206,10 +206,5 @@ modules:
       - '-DGLFW_BUILD_X11=ON'
     builddir: true
     sources:
-      - type: git
-        url: https://github.com/xfangfang/wiliwili.git
-        tag: v1.2.2
-        commit: d53373cdaaa64c9759b5ec62253ea41ecf1a9b5b
-        x-checker-data:
-          type: git
-          tag-pattern: ^v([\d.]+)$
+      - type: dir
+        path: '.'
