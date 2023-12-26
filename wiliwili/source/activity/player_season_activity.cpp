@@ -74,7 +74,11 @@ void PlayerSeasonActivity::onIndexChange(size_t index) {
     }
     // 如果遇到id为0，说明是标题，那么就停止播放
     // 也就是说目前的设定是自动连播不会跨越section播放
-    if (episodeList[index].id == 0) return;
+    if (episodeList[index].id == 0)  {
+        // 无下一集可播，显示重播按钮
+        MPV_CE->fire(VideoView::REPLAY, nullptr);
+        return;
+    }
 
     this->changeEpisodeEvent.fire(episodeList[index]);
 
