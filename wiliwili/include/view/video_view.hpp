@@ -204,6 +204,7 @@ public:
     inline static const std::string LAST_TIME      = "LAST_TIME";
     inline static const std::string REPLAY         = "REPLAY";
     inline static const std::string CLIP_INFO      = "CLIP_INFO";
+    inline static const std::string REAL_DURATION  = "REAL_DURATION";
 
     // 用于指定 lastPlayedPosition 的值
     // 若无历史记录，则为 -1，若不使用历史记录的值，则为 -2
@@ -286,6 +287,9 @@ private:
     bool hide_lock_button      = false;
     bool is_seeking            = false;
     int64_t seeking_range      = 0;
+    // 区别于视频的时长，当 real_duration 大于 0 时，播放器进度条的总时长以此为准而不是以视频的实际时长为准
+    // 用于正确显示预览视频的进度条，比如付费电影的预览
+    int real_duration      = 0;
     size_t seeking_iter        = 0;
     time_t hintLastShowTime    = 0;
     int64_t lastPlayedPosition = POSITION_UNDEFINED;
@@ -304,4 +308,6 @@ private:
     /// 绘制高能进度条
     void drawHighlightProgress(NVGcontext* vg, float x, float y, float width,
                                float alpha);
+
+    float getRealDuration();
 };

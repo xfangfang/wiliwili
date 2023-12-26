@@ -44,6 +44,10 @@ public:
     // Clear all the points
     void clearClipPoint();
 
+    void setClipPoint(const std::vector<float>& data);
+
+    const std::vector<float>& getClipPoint();
+
 private:
     brls::Rectangle* line;
     brls::Rectangle* lineEmpty;

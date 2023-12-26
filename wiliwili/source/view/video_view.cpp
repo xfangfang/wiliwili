@@ -129,13 +129,18 @@ VideoView::VideoView() {
     osdSlider->getProgressSetEvent()->subscribe([this](float progress) {
         brls::Logger::verbose("Set progress: {}", progress);
         this->showOSD(true);
-        mpvCore->seekPercent(progress);
+        if (real_duration > 0) {
+            // 当设置了视频时长数据
+            mpvCore->seek((float)real_duration * progress);
+        } else {
+            mpvCore->seekPercent(progress);
+        }
     });
 
     osdSlider->getProgressEvent()->subscribe([this](float progress) {
         this->showOSD(false);
         leftStatusLabel->setText(
-            wiliwili::sec2Time(mpvCore->duration * progress));
+            wiliwili::sec2Time(getRealDuration() * progress));
     });
 
     /// 组件触摸事件
@@ -523,6 +528,11 @@ VideoView::VideoView() {
             this->setOnlineCount((const char*)data);
         } else if (event == VideoView::SET_QUALITY) {
             this->setQuality((const char*)data);
+        } else if (event == VideoView::REAL_DURATION) {
+            this->real_duration = *(int*)data;
+            this->setDuration(wiliwili::sec2Time(real_duration));
+            this->setProgress((float)mpvCore->playback_time /
+                              (float)real_duration);
         } else if (event == VideoView::LAST_TIME) {
             if (this->getLastPlayedPosition() != VideoView::POSITION_DISCARD)
                 this->setLastPlayedPosition(*(int64_t*)data / 1000);
@@ -539,25 +549,25 @@ VideoView::VideoView() {
 }
 
 void VideoView::requestSeeking() {
-    if (mpvCore->duration <= 0) {
+    if (getRealDuration() <= 0) {
         seeking_range = 0;
         is_seeking    = false;
         return;
     }
     double progress =
-        (this->mpvCore->playback_time + seeking_range) / mpvCore->duration;
+        (this->mpvCore->playback_time + seeking_range) / getRealDuration();
 
     if (progress < 0) {
         progress      = 0;
         seeking_range = (int64_t)this->mpvCore->playback_time * -1;
     } else if (progress > 1) {
         progress      = 1;
-        seeking_range = mpvCore->duration;
+        seeking_range = getRealDuration();
     }
 
     showOSD(false);
     osdSlider->setProgress((float)progress);
-    leftStatusLabel->setText(wiliwili::sec2Time(mpvCore->duration * progress));
+    leftStatusLabel->setText(wiliwili::sec2Time(getRealDuration() * progress));
     is_seeking = true;
 
     // 延迟触发跳转进度
@@ -599,7 +609,8 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
         bottomBarColor.a = alpha;
         nvgFillColor(vg, bottomBarColor);
         nvgBeginPath(vg);
-        nvgRect(vg, x, y + height - 2, width * mpvCore->percent_pos / 100, 2);
+        nvgRect(vg, x, y + height - 2,
+                width * mpvCore->playback_time / getRealDuration(), 2);
         nvgFill(vg);
     }
 
@@ -1116,7 +1127,9 @@ void VideoView::setFullScreen(bool fs) {
         video->showOSD(this->osd_state != OSDState::ALWAYS_ON);
         video->setFullscreenIcon(true);
         video->setHideHighlight(true);
-        video->showReplay = showReplay;
+        video->showReplay    = showReplay;
+        video->real_duration = real_duration;
+        video->osdSlider->setClipPoint(osdSlider->getClipPoint());
         video->refreshToggleIcon();
         video->setHighlightProgress(highlight_step_sec, highlight_data);
         if (video->isLiveMode) video->setLiveMode();
@@ -1167,7 +1180,9 @@ void VideoView::setFullScreen(bool fs) {
                     video->setPlaybackTime(
                         this->leftStatusLabel->getFullText());
                     video->registerMpvEvent();
-                    video->showReplay = showReplay;
+                    video->showReplay    = showReplay;
+                    video->real_duration = real_duration;
+                    video->osdSlider->setClipPoint(osdSlider->getClipPoint());
                     video->refreshToggleIcon();
                     video->refreshDanmakuIcon();
                     video->setQuality(this->getQuality());
@@ -1339,15 +1354,15 @@ void VideoView::registerMpvEvent() {
                     }
                     break;
                 case MpvEventEnum::UPDATE_DURATION:
-                    this->setDuration(wiliwili::sec2Time(mpvCore->duration));
-                    this->setProgress(this->mpvCore->playback_time /
-                                      this->mpvCore->duration);
+                    this->setDuration(wiliwili::sec2Time(getRealDuration()));
+                    this->setProgress((float)mpvCore->playback_time /
+                                      getRealDuration());
                     break;
                 case MpvEventEnum::UPDATE_PROGRESS:
                     this->setPlaybackTime(
                         wiliwili::sec2Time(this->mpvCore->video_progress));
-                    this->setProgress(this->mpvCore->playback_time /
-                                      this->mpvCore->duration);
+                    this->setProgress((float)mpvCore->playback_time /
+                                      getRealDuration());
                     break;
                 case MpvEventEnum::VIDEO_SPEED_CHANGE:
                     if (fabs(mpvCore->video_speed - 1) < 1e-5) {
@@ -1387,6 +1402,7 @@ void VideoView::registerMpvEvent() {
                 case MpvEventEnum::RESET:
                     // 重置进度条标记点
                     osdSlider->clearClipPoint();
+                    real_duration = 0;
                     break;
                 default:
                     break;
@@ -1427,4 +1443,8 @@ void VideoView::onChildFocusGained(View* directChild, View* focusedView) {
         return;
     }
     brls::Application::giveFocus(this);
+}
+
+float VideoView::getRealDuration() {
+    return real_duration > 0 ? (float)real_duration : (float)mpvCore->duration;
 }

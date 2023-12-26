@@ -146,6 +146,14 @@ void VideoProgressSlider::addClipPoint(float point) {
 
 void VideoProgressSlider::clearClipPoint() { clipPointList.clear(); }
 
+void VideoProgressSlider::setClipPoint(const std::vector<float>& data) {
+    clipPointList = data;
+}
+
+const std::vector<float>& VideoProgressSlider::getClipPoint() {
+    return clipPointList;
+}
+
 void VideoProgressSlider::draw(NVGcontext* vg, float x, float y, float width,
                                float height, Style style, FrameContext* ctx) {
     for (View* child : this->getChildren()) {

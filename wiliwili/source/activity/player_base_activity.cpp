@@ -639,6 +639,9 @@ void BasePlayerActivity::onVideoPlayUrl(
             MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data);
         }
     }
+    // 3. 设置视频时长
+    int time_sec = result.timelength / 1000;
+    MPV_CE->fire(VideoView::REAL_DURATION, (void*)&time_sec);
 
     brls::Logger::debug("BasePlayerActivity::onVideoPlayUrl done");
 }
