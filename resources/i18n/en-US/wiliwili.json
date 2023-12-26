@@ -358,7 +358,7 @@
       },
       "style": {
         "header": "Danmaku style",
-        "font": "Font Style",
+        "font": "Stroke Style",
         "font_stroke": "Stroke",
         "font_incline": "Incline",
         "font_shadow": "Shadow",

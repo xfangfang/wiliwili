@@ -358,10 +358,10 @@
       },
       "style": {
         "header": "彈幕風格",
-        "font": "字體風格",
-        "font_stroke": "包邊",
+        "font": "描邊風格",
+        "font_stroke": "描邊",
         "font_incline": "投影",
-        "font_shadow": "陰影",
+        "font_shadow": "重墨",
         "font_pure": "純色",
         "area": "彈幕區域",
         "area_1_4": "1/4 荧幕",
