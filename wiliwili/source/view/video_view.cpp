@@ -528,6 +528,8 @@ VideoView::VideoView() {
                 this->setLastPlayedPosition(*(int64_t*)data / 1000);
         } else if (event == VideoView::HINT) {
             this->showHint((const char*)data);
+        } else if (event == VideoView::CLIP_INFO) {
+            osdSlider->addClipPoint(*(float*)data);
         } else if (event == VideoView::REPLAY) {
             // 显示重播按钮
             showReplay = true;
@@ -1023,12 +1025,14 @@ void VideoView::refreshDanmakuIcon() {
         this->btnDanmakuIcon->setImageFromSVGRes(
             "svg/bpx-svg-sprite-danmu-switch-on.svg");
         btnDanmakuSettingIcon->setVisibility(brls::Visibility::VISIBLE);
-        btnDanmakuSettingIcon->getParent()->setVisibility(brls::Visibility::VISIBLE);
+        btnDanmakuSettingIcon->getParent()->setVisibility(
+            brls::Visibility::VISIBLE);
     } else {
         this->btnDanmakuIcon->setImageFromSVGRes(
             "svg/bpx-svg-sprite-danmu-switch-off.svg");
         btnDanmakuSettingIcon->setVisibility(brls::Visibility::GONE);
-        btnDanmakuSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
+        btnDanmakuSettingIcon->getParent()->setVisibility(
+            brls::Visibility::GONE);
     }
 }
 
@@ -1379,6 +1383,10 @@ void VideoView::registerMpvEvent() {
                 case MpvEventEnum::VIDEO_UNMUTE:
                     this->btnVolumeIcon->setImageFromSVGRes(
                         "svg/bpx-svg-sprite-volume.svg");
+                    break;
+                case MpvEventEnum::RESET:
+                    // 重置进度条标记点
+                    osdSlider->clearClipPoint();
                     break;
                 default:
                     break;

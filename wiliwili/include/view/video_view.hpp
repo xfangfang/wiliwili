@@ -203,6 +203,7 @@ public:
     inline static const std::string HINT           = "HINT";
     inline static const std::string LAST_TIME      = "LAST_TIME";
     inline static const std::string REPLAY         = "REPLAY";
+    inline static const std::string CLIP_INFO      = "CLIP_INFO";
 
     // 用于指定 lastPlayedPosition 的值
     // 若无历史记录，则为 -1，若不使用历史记录的值，则为 -2
@@ -275,7 +276,6 @@ private:
     BRLS_BIND(VideoProfile, videoProfile, "video/profile");
     BRLS_BIND(brls::Box, osdLockBox, "video/osd/lock/box");
     BRLS_BIND(SVGImage, osdLockIcon, "video/osd/lock/icon");
-
 
     // OSD
     time_t osdLastShowTime     = 0;

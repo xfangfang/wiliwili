@@ -625,9 +625,20 @@ void BasePlayerActivity::onVideoPlayUrl(
         }
     }
 
-    // 设置mpv事件，更新清晰度
+    // 设置mpv事件
+    // 1.更新清晰度
     std::string quality = videoUrlResult.accept_description[getQualityIndex()];
     MPV_CE->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
+    // 2.绘制进度条标记点（例如：片头片尾）
+    for (auto& clip : result.clip_info_list) {
+        if (clip.clipType == "CLIP_TYPE_OP") {
+            float data = clip.end * 1.0f / (result.timelength * 0.001f);
+            MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data);
+        } else if (clip.clipType == "CLIP_TYPE_ED") {
+            float data = clip.start * 1.0f / (result.timelength * 0.001f);
+            MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data);
+        }
+    }
 
     brls::Logger::debug("BasePlayerActivity::onVideoPlayUrl done");
 }

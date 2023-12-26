@@ -561,6 +561,14 @@ public:
     std::string url, title;
 };
 
+// 片头片尾进度
+class ClipInfo {
+public:
+    int start{}, end{};
+    std::string clipType;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ClipInfo, start, end, clipType);
+
 class VideoUrlResult {
 public:
     int quality;                                  //当前画质
@@ -569,6 +577,7 @@ public:
     std::vector<int> accept_quality;  //可供选择的分辨率编号
     std::vector<VideoDUrl> durl;
     Dash dash;
+    std::vector<ClipInfo> clip_info_list{};
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoUrlResult& nlohmann_json_t) {
@@ -579,6 +588,11 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     if (nlohmann_json_j.contains("dash") &&
         !nlohmann_json_j.at("dash").is_null()) {
         nlohmann_json_j.at("dash").get_to(nlohmann_json_t.dash);
+    }
+    if (nlohmann_json_j.contains("clip_info_list") &&
+        nlohmann_json_j.at("clip_info_list").is_array()) {
+        nlohmann_json_j.at("clip_info_list")
+            .get_to(nlohmann_json_t.clip_info_list);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, quality,
                                              timelength, accept_description,

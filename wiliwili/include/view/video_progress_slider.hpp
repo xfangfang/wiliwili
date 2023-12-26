@@ -9,6 +9,7 @@
 #pragma once
 
 #include <borealis.hpp>
+#include <vector>
 
 class SVGImage;
 
@@ -24,6 +25,9 @@ public:
 
     brls::View* getDefaultFocus() override;
 
+    void draw(NVGcontext* vg, float x, float y, float width, float height,
+              brls::Style style, brls::FrameContext* ctx) override;
+
     void setProgress(float progress);
 
     [[nodiscard]] float getProgress() const { return progress; }
@@ -34,8 +38,13 @@ public:
     // Manual dragging is over
     brls::Event<float>* getProgressSetEvent() { return &progressSetEvent; }
 
+    // Add a chapter point
+    void addClipPoint(float point);
+
+    // Clear all the points
+    void clearClipPoint();
+
 private:
-    brls::InputManager* input;
     brls::Rectangle* line;
     brls::Rectangle* lineEmpty;
     SVGImage* pointerIcon;
@@ -43,6 +52,8 @@ private:
 
     brls::Event<float> progressEvent;
     brls::Event<float> progressSetEvent;
+
+    std::vector<float> clipPointList;
 
     float progress = 1;
 
