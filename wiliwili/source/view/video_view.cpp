@@ -766,7 +766,7 @@ std::string VideoView::genExtraUrlParam(
         extra += fmt::format(",http-proxy=\"{}\"", proxy);
     }
     if (progress > 0) {
-        extra += fmt::format(",start={}", progress);
+        extra += fmt::format(",rebase-start-time=no,start={}", progress);
     }
     for (auto& audio : audios)
         extra += fmt::format(",audio-file=\"{}\"", audio);
@@ -1129,6 +1129,7 @@ void VideoView::setFullScreen(bool fs) {
         video->setHideHighlight(true);
         video->showReplay    = showReplay;
         video->real_duration = real_duration;
+        video->setLastPlayedPosition(lastPlayedPosition);
         video->osdSlider->setClipPoint(osdSlider->getClipPoint());
         video->refreshToggleIcon();
         video->setHighlightProgress(highlight_step_sec, highlight_data);
@@ -1182,6 +1183,7 @@ void VideoView::setFullScreen(bool fs) {
                     video->registerMpvEvent();
                     video->showReplay    = showReplay;
                     video->real_duration = real_duration;
+                    video->setLastPlayedPosition(lastPlayedPosition);
                     video->osdSlider->setClipPoint(osdSlider->getClipPoint());
                     video->refreshToggleIcon();
                     video->refreshDanmakuIcon();
@@ -1344,7 +1346,10 @@ void VideoView::registerMpvEvent() {
                 case MpvEventEnum::MPV_LOADED:
                     this->setPlaybackTime(
                         wiliwili::sec2Time(this->mpvCore->video_progress));
-                    if (lastPlayedPosition > 0) {
+                    if (lastPlayedPosition <= 0 ) break;
+                    if (abs(getRealDuration() - lastPlayedPosition) <= 5) {
+                        mpvCore->seek(0);
+                    } else {
                         this->showHint(fmt::format(
                             "已为您定位至: {}",
                             wiliwili::sec2Time(lastPlayedPosition)));

@@ -314,8 +314,8 @@ void BasePlayerActivity::setCommonData() {
                 // 检查视频链接是否有效
                 auto timeNow = std::chrono::system_clock::now();
                 if (timeNow > videoDeadline) {
-                    // 向后跳转5秒
-                    setProgress(MPVCore::instance().video_progress + 5);
+                    // 设置视频加载后跳转的时间
+                    setProgress(MPVCore::instance().video_progress);
 
                     // 暂停播放
                     MPVCore::instance().pause();
@@ -473,9 +473,8 @@ void BasePlayerActivity::setVideoQuality() {
                 return;
             }
 
-            // 在加载视频时，若设置了进度，会自动向前跳转5秒，
-            // 这里提前加上5s用来抵消播放视频时的进度问题。
-            setProgress(MPVCore::instance().video_progress + 5);
+            // 设置视频加载后跳转的时间
+            setProgress(MPVCore::instance().video_progress);
 
             // dash
             if (!this->videoUrlResult.dash.video.empty()) {
@@ -532,11 +531,13 @@ void BasePlayerActivity::onVideoPlayUrl(
     videoDeadline =
         std::chrono::system_clock::now() + std::chrono::seconds(6600);
 
-    // 进度向前回退5秒，避免当前进度过于接近结尾出现一加载就结束的情况
-    int progress = this->getProgress() - 5;
+    // 当要跳转的进度距离尾部只有 5s，就重新播放
+    int progress = this->getProgress();
+    int time_sec = result.timelength / 1000;
+    if (abs(time_sec - progress) <= 5) progress = 0;
 
     // 针对用户上传的视频，尝试加载上一次播放的进度
-    if (videoDetailPage.cid && progress <= 0) {
+    if (videoDetailPage.cid && progress < 0) {
         auto data = SubtitleCore::instance().getSubtitleList();
         if (data.last_play_cid == videoDetailPage.cid &&
             data.last_play_time > 0) {
@@ -544,7 +545,7 @@ void BasePlayerActivity::onVideoPlayUrl(
         }
     } else {
         // 设置为 POSITION_DISCARD 后，不会加载网络历史记录，而是直接使用 setProgress 指定的位置
-        // 一般来说 setProgress 是打开播放页面时指定的播放时间，通常是从历史记录页面进入时设置的
+        // 番剧视频或指定了进度的用户视频
         this->video->setLastPlayedPosition(VideoView::POSITION_DISCARD);
         if (progress > 0)
             MPV_CE->fire(VideoView::HINT,
@@ -640,7 +641,6 @@ void BasePlayerActivity::onVideoPlayUrl(
         }
     }
     // 3. 设置视频时长
-    int time_sec = result.timelength / 1000;
     MPV_CE->fire(VideoView::REAL_DURATION, (void*)&time_sec);
 
     brls::Logger::debug("BasePlayerActivity::onVideoPlayUrl done");

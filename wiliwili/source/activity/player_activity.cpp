@@ -586,6 +586,9 @@ void PlayerActivity::onIndexChangeToNext() {
     // 合集播放结束，判断是否要播放推荐视频
     if (PLAYER_STRATEGY == PlayerStrategy::RCMD && !videDetailRelated.empty()) {
         changeVideoEvent.fire(videDetailRelated[0]);
+    } else {
+        // 无下一集可播，显示重播按钮
+        MPV_CE->fire(VideoView::REPLAY, nullptr);
     }
 }
 

@@ -64,13 +64,9 @@ public:
         std::string& bvid     = data.bvid;
         std::string& business = data.business;
         if (business == "archive") {
-            int progress = -1;
-            if (list[index].progress > 0) progress = list[index].progress;
-            Intent::openBV(bvid, data.cid, progress);
+            Intent::openBV(bvid, data.cid, -1);
         } else if (business == "pgc") {
-            int progress = -1;
-            if (list[index].progress > 0) progress = list[index].progress;
-            Intent::openSeasonByEpId(data.epid, progress);
+            Intent::openSeasonByEpId(data.epid, -1);
         } else if (business == "live") {
             if (list[index].live_status) {
                 Intent::openLive(data.oid, list[index].title, "-");
