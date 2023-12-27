@@ -108,8 +108,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
           artifacts: >
-            ${{ needs.version.outputs.DIST_EXE }}-GL3/${{ needs.version.outputs.DIST_EXE }}-x86_64-GL3.7z
-            ${{ needs.version.outputs.DIST_EXE }}-GL2/${{ needs.version.outputs.DIST_EXE }}-i686-GL2.7z
+            ${{ needs.version.outputs.DIST_EXE }}-x64/${{ needs.version.outputs.DIST_EXE }}-x64.7z
+            ${{ needs.version.outputs.DIST_EXE }}-x86/${{ needs.version.outputs.DIST_EXE }}-x86.7z
             ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz
             ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg
             ${{ needs.version.outputs.DIST_ARM_DMG }}/${{ needs.version.outputs.DIST_ARM_DMG }}.dmg
@@ -123,8 +123,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { msystem: MINGW64, driver: GL3 }
-          - { msystem: MINGW32, driver: GL2 }
+          - { arch: x64, msystem: MINGW64 }
+          - { arch: x86, msystem: MINGW32, cmake: "-DUSE_GL2=ON" }
+        arch: [ x64, x86 ]
     env:
       MSYSTEM: ${{ matrix.msystem }}
       MSYS2_PATH_TYPE: inherit
@@ -171,10 +172,9 @@ jobs:
           cmake --install build
       - name: Build
         run: |
-          cmake -B build -G Ninja \
+          cmake -B build -G Ninja ${{ matrix.cmake }} \
             -DCMAKE_BUILD_TYPE=Release \
             -DPLATFORM_DESKTOP=ON \
-            -DUSE_${{ matrix.driver }}=ON \
             -DWIN32_TERMINAL=OFF \
             -DCURL_DISABLE_PROGRESS_METER=ON \
             -DUSE_LIBIDN2=OFF \
@@ -186,13 +186,13 @@ jobs:
           cd build
 
           strip wiliwili.exe
-          7z a -mx=9 ../${{ needs.version.outputs.DIST_EXE }}-${MSYSTEM_CARCH}-${{ matrix.driver }}.7z \
+          7z a -mx=9 ../${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}.7z \
             wiliwili.exe resources ${MINGW_PREFIX}/bin/libmpv-2.dll
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}
+          name: ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}
           path: "${{ needs.version.outputs.DIST_EXE }}-*.7z"
 
   build-win-uwp:
@@ -238,6 +238,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        include:
+          - { driver: opengl }
+          - { driver: deko3d, shuffix: "_deko3d" }
         driver: [opengl, deko3d]
     steps:
       - name: Checkout
@@ -246,30 +249,15 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Build OpenGL
-        if: matrix.driver == 'opengl'
+      - name: Build Nro
         run: |
-          docker run --rm -v $(pwd):/data devkitpro/devkita64:20231108 bash -c "/data/scripts/build_switch.sh"
+          docker run --rm -v $(pwd):/data devkitpro/devkita64:20231108 bash -c "/data/scripts/build_switch${{ matrix.shuffix }}.sh"
 
-      - name: Upload dist OpenGL
+      - name: Upload dist
         uses: actions/upload-artifact@v3
-        if: matrix.driver == 'opengl'
         with:
-          name: ${{ needs.version.outputs.DIST_NRO }}
+          name: ${{ needs.version.outputs.DIST_NRO }}${{ matrix.shuffix }}
           path: "cmake-build-switch/wiliwili.nro"
-
-      - name: Build Deko3d
-        if: matrix.driver == 'deko3d'
-        run: |
-          docker run --rm -v $(pwd):/data devkitpro/devkita64:20231108 bash -c "/data/scripts/build_switch_deko3d.sh"
-
-      - name: Upload dist Deko3d
-        uses: actions/upload-artifact@v3
-        if: matrix.driver == 'deko3d'
-        with:
-          name: ${{ needs.version.outputs.DIST_NRO }}_deko3d
-          path: "cmake-build-switch/wiliwili.nro"
-
 
   build-ps4:
     needs: [ version ]
