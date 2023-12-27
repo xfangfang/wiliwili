@@ -248,7 +248,7 @@ public:
 
     /// 获取视频防遮挡数据
     static void get_webmask(
-        const std::string& url,
+        const std::string& url, uint64_t rangeStart, uint64_t rangeEnd,
         const std::function<void(std::string)>& callback = nullptr,
         const ErrorCallback& error                       = nullptr);
 

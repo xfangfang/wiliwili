@@ -27,22 +27,27 @@ public:
     uint64_t offsetStart{};
     uint64_t offsetEnd{};
     std::vector<MaskSvg> svgData;
+
+    bool isLoaded() const;
 };
 
 class WebMask {
 public:
     std::string url;
-    uint32_t version, check, length;
+    int32_t version, check, length;
     std::vector<MaskSlice> sliceData;
 
     const MaskSlice &getSlice(size_t index);
 
-    void parse(const std::string &text);
+    /// 解析头部前16字节，获取 web mask 总段数 (每段储存 30fps 10s 数据)
+    void parseHeader1(const std::string &text);
+
+    /// 根据获取到的总段数，解析每段出现的时间与数据偏移位置
+    void parseHeader2(const std::string &text);
+
+    bool isLoaded() const;
 
     void clear();
-
-private:
-    std::string rawData;
 };
 
 enum class DanmakuFontStyle {
@@ -149,7 +154,7 @@ public:
      * 加载遮罩数据
      * @param data 遮罩数据
      */
-    void loadMaskData(const WebMask &data);
+    void loadMaskData(const std::string &url);
 
     /// range: [1 - 10], 1: show all danmaku, 10: the most strong filter
     static inline int DANMAKU_FILTER_LEVEL = 1;

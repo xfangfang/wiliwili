@@ -12,6 +12,7 @@
 #include "view/danmaku_core.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/string_helper.hpp"
+#include "bilibili.h"
 
 // include ntohl / ntohll
 #ifdef _WIN32
@@ -49,6 +50,18 @@ static inline uint64_t ntohll(uint64_t value) {
         return (static_cast<uint64_t>(low_part) << 32) | high_part;
     }
 }
+#endif
+
+// Uncomment this line to show mask in a more obvious way.
+//#define DEBUG_MASK
+
+// Set flag to 0 to get a more soft mask
+#ifndef MASK_IMG_FLAG
+#define MASK_IMG_FLAG NVG_IMAGE_NEAREST
+#endif
+
+#ifndef MAX_PREFETCH_MASK
+#define MAX_PREFETCH_MASK 10
 #endif
 
 DanmakuItem::DanmakuItem(std::string content, const char *attributes)
@@ -180,7 +193,38 @@ void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
     MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
 }
 
-void DanmakuCore::loadMaskData(const WebMask &data) { maskData = data; }
+void DanmakuCore::loadMaskData(const std::string &url) {
+    maskData.clear();
+    BILI::get_webmask(
+        url, 0, 15,
+        [this, url](const std::string &text) {
+            maskData.url = url;
+            if (text.size() != 16) {
+                brls::Logger::error("解析数据头失败: {}", text.size());
+                return;
+            }
+            brls::Logger::debug("解析防遮挡数据头: {}", url);
+            maskData.parseHeader1(text);
+            brls::Logger::debug("解析数据头结束，数据段数量：{}",
+                                maskData.length);
+            BILI::get_webmask(
+                url, 16, 16 * maskData.length + 15,
+                [this](const std::string &text) {
+                    if (text.size() != 16 * maskData.length) {
+                        brls::Logger::error("解析数据头2失败: {} != {}",
+                                            text.size(), 16 * maskData.length);
+                        return;
+                    }
+                    brls::Logger::debug("解析防遮挡数据头2: {}", text.size());
+                    maskData.parseHeader2(text);
+                    brls::Logger::debug("解析数据头2结束");
+                },
+                [](BILI_ERR) {
+                    brls::Logger::error("get web mask 2: {}", error);
+                });
+        },
+        [](BILI_ERR) { brls::Logger::error("get web mask 1: {}", error); });
+}
 
 void DanmakuCore::refresh() {
     danmakuMutex.lock();
@@ -279,9 +323,6 @@ std::vector<DanmakuItem> DanmakuCore::getDanmakuData() {
     return data;
 }
 
-// Uncomment this line to show mask in a more obvious way.
-//#define DEBUG_MASK
-
 void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
                        float height, float alpha) {
     if (!DanmakuCore::DANMAKU_ON) return;
@@ -299,7 +340,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
 
     // 设置遮罩
 #ifdef BOREALIS_USE_OPENGL
-    if (DANMAKU_SMART_MASK && !maskData.sliceData.empty()) {
+    if (DANMAKU_SMART_MASK && maskData.isLoaded()) {
         // 先根据时间选择分片
         while (maskSliceIndex < maskData.sliceData.size()) {
             auto &slice = maskData.sliceData[maskSliceIndex + 1];
@@ -309,9 +350,9 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         }
 
         // 在分片内选择对应时间的svg
-        // todo: 优化为异步加载 (包括下载和解压分片)
         if (maskSliceIndex >= maskData.sliceData.size()) goto skip_mask;
         auto &slice = maskData.getSlice(maskSliceIndex);
+        if (!slice.isLoaded()) goto skip_mask;
         while (maskIndex < slice.svgData.size()) {
             auto &svg = slice.svgData[maskIndex];
             if (svg.showTime > playbackTime * 1000) break;
@@ -338,7 +379,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
             nvgUpdateImage(vg, maskTex, bitmap.data());
         } else {
             maskTex = nvgCreateImageRGBA(vg, (int)maskWidth, (int)maskHeight,
-                                         NVG_IMAGE_NEAREST, bitmap.data());
+                                         MASK_IMG_FLAG, bitmap.data());
         }
 
         // 设置遮罩
@@ -536,71 +577,128 @@ skip_mask:
     nvgRestore(vg);
 }
 
-void WebMask::parse(const std::string &text) {
-    rawData = text;
-
+void WebMask::parseHeader1(const std::string &text) {
     // 检查头部
-    std::memcpy(&version, rawData.data() + 4, sizeof(int32_t));
-    std::memcpy(&check, rawData.data() + 8, sizeof(int32_t));
-    std::memcpy(&length, rawData.data() + 12, sizeof(int32_t));
+    std::memcpy(&version, text.data() + 4, sizeof(int32_t));
+    std::memcpy(&check, text.data() + 8, sizeof(int32_t));
+    std::memcpy(&length, text.data() + 12, sizeof(int32_t));
     version = ntohl(version);
     check   = ntohl(check);
     length  = ntohl(length);
+}
 
+void WebMask::parseHeader2(const std::string &text) {
     // 获取所有分片信息
-    sliceData.reserve(length + 1);
-    int64_t time, offset, currentOffset = 16;
+    std::vector<MaskSlice> sliceList;
+
+    sliceList.reserve(length + 1);
+    int64_t time, offset, currentOffset = 0;
     for (size_t i = 0; i < length; i++) {
-        std::memcpy(&time, rawData.data() + currentOffset, sizeof(int64_t));
-        std::memcpy(&offset, rawData.data() + currentOffset + 8,
-                    sizeof(int64_t));
+        std::memcpy(&time, text.data() + currentOffset, sizeof(int64_t));
+        std::memcpy(&offset, text.data() + currentOffset + 8, sizeof(int64_t));
         time   = ntohll(time);
         offset = ntohll(offset);
-        sliceData.emplace_back(time, offset, 0);
-        if (i != 0) sliceData[i - 1].offsetEnd = offset;
-        if (i == length - 1) sliceData[i].offsetEnd = rawData.size();
+        sliceList.emplace_back(time, offset, 0);
+        if (i != 0) sliceList[i - 1].offsetEnd = offset;
+        if (i == length - 1) sliceList[i].offsetEnd = text.size();
         currentOffset += 16;
     }
     // 再添加一个尾部分片方便计算
-    sliceData.emplace_back(-1, -1, -1);
+    sliceList.emplace_back(-1, -1, -1);
+
+    // 同步数据
+    brls::sync([this, sliceList]() { this->sliceData = sliceList; });
 }
 
-void WebMask::clear() {
-    this->rawData.clear();
-    this->sliceData.clear();
-}
+void WebMask::clear() { this->sliceData.clear(); }
 
 const MaskSlice &WebMask::getSlice(size_t index) {
     auto &slice = sliceData[index];
-    if (!slice.svgData.empty()) return slice;
-
-    // 解压分片数据
-    std::string data;
-    try {
-        data = wiliwili::decompressGzipData(rawData.substr(
-            slice.offsetStart, slice.offsetEnd - slice.offsetStart));
-    } catch (const std::runtime_error &e) {
-        brls::Logger::error("web mask decompress error: {}", e.what());
-        return slice;
+    if (slice.isLoaded()) {
+        // 当前片段有数据，检查下一个片段是否存在数据，如果存在则直接返回当前片段
+        index++;
+        if (index >= sliceData.size() || sliceData[index].isLoaded()) {
+            return slice;
+        }
     }
 
-    // 获取svg数据
-    size_t sliceOffset = 0;
-    uint32_t sliceLength, sliceTime;
-    while (sliceOffset < data.size()) {
-        std::memcpy(&sliceLength, data.data() + sliceOffset, sizeof(int32_t));
-        std::memcpy(&sliceTime, data.data() + sliceOffset + 8, sizeof(int32_t));
-        sliceLength = ntohl(sliceLength);
-        sliceTime   = ntohl(sliceTime);
-        sliceOffset += 12;
-        auto base64 = pystring::replace(
-            pystring::split(data.substr(sliceOffset, sliceLength), ",", 1)[1],
-            "\n", "");
-        std::string svg;
-        wiliwili::base64Decode(base64, svg);
-        sliceOffset += sliceLength;
+    static bool requesting{false};
+    if (requesting) return slice;
+    requesting = true;
 
-        slice.svgData.emplace_back(svg, sliceTime);
+    // 生成预取数据长度，一次最多取十个片段: 100s
+    size_t requestStart = index;
+    size_t requestEnd   = index;
+    for (; requestEnd < index + MAX_PREFETCH_MASK &&
+           requestEnd < sliceData.size();
+         requestEnd++) {
+        if (sliceData[requestEnd].isLoaded()) break;
     }
+    brls::Logger::debug("预取 web mask 数据片段: [{}, {})", index, requestEnd);
+
+    // 请求数据
+    BILI::get_webmask(
+        url, sliceData[index].offsetStart, sliceData[requestEnd - 1].offsetEnd,
+        [this, requestStart, requestEnd](const std::string &text) {
+            brls::Logger::debug("获取片段结束: {}", text.size());
+            uint64_t offset = sliceData[requestStart].offsetStart;
+            std::vector<MaskSlice> sliceList;
+            sliceList.reserve(requestEnd - requestStart);
+            for (size_t i = requestStart; i < requestEnd; i++) {
+                MaskSlice slice = sliceData[i];
+                // 解压分片数据
+                std::string data;
+                try {
+                    data = wiliwili::decompressGzipData(
+                        text.substr(slice.offsetStart - offset,
+                                    slice.offsetEnd - slice.offsetStart));
+                } catch (const std::runtime_error &e) {
+                    brls::Logger::error("web mask decompress error: {}",
+                                        e.what());
+                } catch (const std::exception &e) {
+                    brls::Logger::error("web mask decompress exception: {}",
+                                        e.what());
+                }
+
+                // 获取svg数据
+                size_t sliceOffset = 0;
+                uint32_t sliceLength, sliceTime;
+                while (sliceOffset < data.size()) {
+                    std::memcpy(&sliceLength, data.data() + sliceOffset,
+                                sizeof(int32_t));
+                    std::memcpy(&sliceTime, data.data() + sliceOffset + 8,
+                                sizeof(int32_t));
+                    sliceLength = ntohl(sliceLength);
+                    sliceTime   = ntohl(sliceTime);
+                    sliceOffset += 12;
+                    auto base64 = pystring::replace(
+                        pystring::split(data.substr(sliceOffset, sliceLength),
+                                        ",", 1)[1],
+                        "\n", "");
+                    std::string svg;
+                    wiliwili::base64Decode(base64, svg);
+                    sliceOffset += sliceLength;
+
+                    slice.svgData.emplace_back(svg, sliceTime);
+                }
+
+                sliceList.emplace_back(slice);
+            }
+
+            // 同步数据
+            brls::sync([this, requestStart, sliceList]() {
+                std::copy(sliceList.begin(), sliceList.end(),
+                          sliceData.begin() + requestStart);
+                requesting = false;
+            });
+        },
+        [](BILI_ERR) {
+            brls::Logger::error("get web mask slice: {}", error);
+            requesting = false;
+        });
     return slice;
 }
+
+bool WebMask::isLoaded() const { return !this->sliceData.empty(); }
+
+bool MaskSlice::isLoaded() const { return !this->svgData.empty(); }

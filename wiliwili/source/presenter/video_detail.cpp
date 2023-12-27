@@ -608,18 +608,7 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid,
                 auto url = pystring::startswith(result.mask_url, "//")
                                       ? "https:" + result.mask_url
                                       : result.mask_url;
-                BILI::get_webmask(
-                    url,
-                    [url](const std::string& text) {
-                        brls::Logger::debug("解析防遮挡数据: {}", text.size());
-                        WebMask webMask;
-                        webMask.url = url;
-                        webMask.parse(text);
-                        brls::Logger::debug("解析数据结束: {}", url);
-                        brls::sync(
-                            [webMask]() { DanmakuCore::instance().loadMaskData(webMask); });
-                    },
-                    [](BILI_ERR) { brls::Logger::error("get_webmask: {}", error); });
+                DanmakuCore::instance().loadMaskData(url);
             }
 #endif
             brls::sync([ASYNC_TOKEN, result, requestVideoHistory]() {

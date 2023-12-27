@@ -51,7 +51,7 @@ void BilibiliClient::get_page_detail(
 }
 
 void BilibiliClient::get_webmask(
-    const std::string& url,
+    const std::string& url, uint64_t rangeStart, uint64_t rangeEnd,
     const std::function<void(std::string)>& callback,
     const ErrorCallback& error) {
     cpr::GetCallback<>(
@@ -62,14 +62,11 @@ void BilibiliClient::get_webmask(
                 ERROR_MSG("Network error. [Status code: " +
                               std::to_string(r.status_code) + " ]",
                           r.status_code);
-                printf("data: %s\n", r.text.c_str());
-                printf("ERROR: %s\n", e.what());
             }
         },
-        HTTP::VERIFY,
-        HTTP::PROXIES,
-        cpr::Url{url}, HTTP::HEADERS, HTTP::COOKIES,
-        cpr::Timeout{HTTP::TIMEOUT});
+        cpr::Range{rangeStart, rangeEnd},
+        HTTP::VERIFY, HTTP::PROXIES, cpr::Url{url}, HTTP::HEADERS,
+        HTTP::COOKIES, cpr::Timeout{HTTP::TIMEOUT});
 }
 
 void BilibiliClient::get_video_pagelist(
