@@ -220,8 +220,8 @@ jobs:
         run: |
           $env:path+=";$env:USERPROFILE\xmake"
           $env:XMAKE_GLOBALDIR="${{ runner.temp }}"
-          xmake f -c -y --sw=y --winrt=y --window=sdl --driver=d3d11
-          xmake b -y wiliwili
+          xmake f -c -y -v --sw=y --winrt=y --window=sdl --driver=d3d11
+          xmake b -y -v wiliwili
           cp winrt/key.pfx build/
           cp winrt/docs/key.pdf build/key.pdf
       - uses: actions/upload-artifact@v3
