@@ -118,7 +118,7 @@ public:
     int permission;
     std::string pic;
 
-    std::string message; // 额外的提示信息
+    std::string message;  // 额外的提示信息
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LivePayInfo, permission, pic);
 
@@ -166,13 +166,10 @@ public:
     std::string title;
     std::string uname;
     int online;
-    std::string play_url;
     std::string cover;
     std::string area_name;
     bool following = false;  //是否为我关注的主播，自定义数据
     ShowInfo watched_show;
-    int current_qn = 10000;
-    LiveQualityList quality_description;
 };
 
 inline void from_json(const nlohmann::json& nlohmann_json_j,
@@ -184,9 +181,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     } else {
         nlohmann_json_t.roomid = -1;
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
-        NLOHMANN_JSON_FROM, uid, title, uname, online, play_url, cover,
-        area_name, watched_show, current_qn, quality_description));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, uid, title,
+                                             uname, online, cover, area_name,
+                                             watched_show));
 }
 
 typedef std::vector<LiveVideoResult> LiveVideoListResult;
