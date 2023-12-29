@@ -324,6 +324,7 @@ void MPVCore::init() {
     check_error(mpv_observe_property(mpv, 14, "seeking", MPV_FORMAT_FLAG));
     check_error(
         mpv_observe_property(mpv, 15, "hwdec-current", MPV_FORMAT_STRING));
+    check_error(mpv_observe_property(mpv, 16, "path", MPV_FORMAT_STRING));
 
     // init renderer params
 #ifdef MPV_SW_RENDER
@@ -429,6 +430,8 @@ void MPVCore::clean() {
 void MPVCore::restart() {
     this->clean();
     this->init();
+    command_async("set", "vf", MPVCore::VIDEO_MIRROR ? "hflip" : "");
+    setShader(currentShaderProfile, currentShader, false);
 }
 
 void MPVCore::uninitializeVideo() {
@@ -994,6 +997,12 @@ void MPVCore::eventMainLoop() {
                             brls::Logger::info("========> HW: {}", hwCurrent);
                             GA("hwdec", {{"hwdec", hwCurrent}})
                         }
+                        break;
+                    case 16:
+                        if (data) {
+                            filepath = *(char **)data;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -1138,15 +1147,18 @@ void MPVCore::disableDimming(bool disable) {
 void MPVCore::setShader(const std::string &profile, const std::string &shaders,
                         bool showHint) {
     brls::Logger::info("Set shader [{}]: {}", profile, shaders);
+    currentShaderProfile = profile;
+    currentShader        = shaders;
     if (shaders.empty()) return;
-    command_async("no-osd", "change-list", "glsl-shaders", "set",
-                  "\"" + shaders + "\"");
+    command_async("no-osd", "change-list", "glsl-shaders", "set", shaders);
     if (showHint) showOsdText(profile);
 }
 
 void MPVCore::clearShader(bool showHint) {
     brls::Logger::info("Clear shader");
-    command_async("no-osd", "change-list", "glsl-shaders", "clr", "\"\"");
+    currentShader.clear();
+    currentShaderProfile.clear();
+    command_async("no-osd", "change-list", "glsl-shaders", "clr", "");
     if (showHint) showOsdText("Clear shader");
 }
 

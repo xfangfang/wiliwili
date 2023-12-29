@@ -14,8 +14,8 @@ void VideoProfile::update() {
     auto mpvCore = &MPVCore::instance();
 
     // file
-    auto fileName = mpvCore->getString("filename");
-    if (fileName != labelUrl->getFullText()) labelUrl->setText(fileName);
+    if (mpvCore->filepath != labelUrl->getFullText())
+        labelUrl->setText(mpvCore->filepath);
     labelSize->setText(
         fmt::format("{:.2f}MB", mpvCore->getInt("file-size") / 1048576.0));
     labelFormat->setText(mpvCore->getString("file-format"));

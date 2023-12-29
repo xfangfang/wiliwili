@@ -117,18 +117,13 @@ public:
     /// 准备先使用简单模式：即重启软件需要重新开启shader，打开 shader 后对全体视频生效（直播无效）
     /// 看后续反馈再做决定
 
-    /// 暂时用此变量记录 shader
-    inline static std::string currentShader;
-
     void setShader(size_t index, bool showHint = true) {
-        currentShader = getProfileNameByIndex(index);
-        MPVCore::instance().setShader(currentShader, getProfileByIndex(index),
-                                      showHint);
+        MPVCore::instance().setShader(getProfileNameByIndex(index),
+                                      getProfileByIndex(index), showHint);
     }
 
     void clearShader(bool showHint = true) {
         MPVCore::instance().clearShader(showHint);
-        currentShader.clear();
     }
 
     /**

@@ -90,7 +90,8 @@ void PlayerSetting::setupCustomShaders() {
 
         auto* cell = new brls::RadioCell();
         cell->title->setText(p.name);
-        if (ShaderHelper::currentShader == p.name) cell->setSelected(true);
+        if (MPVCore::instance().currentShaderProfile == p.name)
+            cell->setSelected(true);
 
         cell->registerClickAction([cell, this](...) {
             bool value = !cell->getSelected();
@@ -149,11 +150,6 @@ void PlayerSetting::setupCommonSetting() {
             [this, optionList, showStrategy](int data) {
                 if (showStrategy)
                     btnPlayStrategy->setDetailText(optionList[data]);
-                if (data == PlayerStrategy::LOOP) {
-                    MPVCore::instance().command_async("set", "loop-playlist", "inf");
-                } else {
-                    MPVCore::instance().command_async("set", "loop-playlist", "no");
-                }
                 BasePlayerActivity::PLAYER_STRATEGY = data;
                 ProgramConfig::instance().setSettingItem(
                     SettingItem::PLAYER_STRATEGY, data);
