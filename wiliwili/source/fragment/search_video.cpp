@@ -50,6 +50,7 @@ void SearchVideo::_requestSearch(const std::string& key) {
                                         result.page, this->requestIndex);
                     return;
                 }
+                this->requestIndex = result.page + 1;
                 if (datasource && result.page != 1) {
                     if (result.result.empty()) {
                         // 搜索到底啦
@@ -63,7 +64,6 @@ void SearchVideo::_requestSearch(const std::string& key) {
                     recyclingGrid->setDataSource(
                         new DataSourceSearchVideoList(result.result));
                 }
-                this->requestIndex = result.page + 1;
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
