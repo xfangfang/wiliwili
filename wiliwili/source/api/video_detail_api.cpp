@@ -54,6 +54,9 @@ void BilibiliClient::get_webmask(
     const std::string& url, uint64_t rangeStart, uint64_t rangeEnd,
     const std::function<void(std::string)>& callback,
     const ErrorCallback& error) {
+    std::optional<std::int64_t> start, end;
+    if (rangeStart != -1) start = rangeStart;
+    if (rangeEnd != -1) end = rangeEnd;
     cpr::GetCallback<>(
         [callback, error](const cpr::Response& r) {
             try {
@@ -64,7 +67,7 @@ void BilibiliClient::get_webmask(
                           r.status_code);
             }
         },
-        cpr::Range{rangeStart, rangeEnd},
+        cpr::Range{start, end},
         HTTP::VERIFY, HTTP::PROXIES, cpr::Url{url}, HTTP::HEADERS,
         HTTP::COOKIES, cpr::Timeout{HTTP::TIMEOUT});
 }
