@@ -60,8 +60,10 @@ void HomeCinema::onCinemaList(const bilibili::PGCResultWrapper& result) {
         auto grid = (RecyclingGrid*)tab->getChildren()[0];
 
         auto* datasource = (DataSourcePGCVideoList*)grid->getDataSource();
-        datasource->appendData(result.modules[0].items);
-        grid->notifyDataChanged();
+        if (!result.modules[0].items.empty()) {
+            datasource->appendData(result.modules[0].items);
+            grid->notifyDataChanged();
+        }
 
         return;
     }

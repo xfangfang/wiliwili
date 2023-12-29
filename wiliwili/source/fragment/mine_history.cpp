@@ -149,8 +149,10 @@ void MineHistory::onHistoryList(
         auto* datasource = dynamic_cast<DataSourceMineHistoryVideoList*>(
             recyclingGrid->getDataSource());
         if (datasource && view_at != 0) {
-            datasource->appendData(result.list);
-            recyclingGrid->notifyDataChanged();
+            if (!result.list.empty()) {
+                datasource->appendData(result.list);
+                recyclingGrid->notifyDataChanged();
+            }
         } else {
             recyclingGrid->setDataSource(
                 new DataSourceMineHistoryVideoList(result.list));

@@ -230,8 +230,10 @@ void DynamicTab::onDynamicVideoList(
         auto* datasource = dynamic_cast<DataSourceDynamicVideoList*>(
             videoRecyclingGrid->getDataSource());
         if (datasource && index != 1) {
-            datasource->appendData(result);
-            videoRecyclingGrid->notifyDataChanged();
+            if (!result.empty()) {
+                datasource->appendData(result);
+                videoRecyclingGrid->notifyDataChanged();
+            }
         } else {
             videoRecyclingGrid->setDataSource(
                 new DataSourceDynamicVideoList(result));

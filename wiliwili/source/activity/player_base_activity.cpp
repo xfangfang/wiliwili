@@ -668,8 +668,10 @@ void BasePlayerActivity::onCommentInfo(
         if (item) item->setSubtitle(wiliwili::num2w(result.cursor.all_count));
     } else if (datasource) {
         // 第N页评论
-        datasource->appendData(result.replies);
-        recyclingGrid->notifyDataChanged();
+        if (!result.replies.empty()) {
+            datasource->appendData(result.replies);
+            recyclingGrid->notifyDataChanged();
+        }
     } else {
         brls::Logger::error("onCommentInfo ds: {} index: {} end: {}",
                             (bool)datasource, result.requestIndex,

@@ -271,7 +271,6 @@ PlayerSingleComment::PlayerSingleComment() {
                          brls::ControllerButton::BUTTON_X,
                          [this](brls::View* view) {
                              brls::Application::giveFocus(this->closeBtn);
-                             this->recyclingGrid->forceRequestNextPage();
                              this->setCommentData(this->root, NAN);
                              return true;
                          });
@@ -399,8 +398,10 @@ void PlayerSingleComment::requestData() {
                 }
 
                 // 非首页评论
-                ds->appendData(result.root.replies);
-                recyclingGrid->notifyDataChanged();
+                if (!result.root.replies.empty()) {
+                    ds->appendData(result.root.replies);
+                    recyclingGrid->notifyDataChanged();
+                }
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {

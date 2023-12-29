@@ -147,8 +147,10 @@ void MineCollection::onCollectionList(
         auto* datasource = dynamic_cast<DataSourceMineCollectionList*>(
             recyclingGrid->getDataSource());
         if (datasource && result.index != 1) {
-            datasource->appendData(result.list);
-            recyclingGrid->notifyDataChanged();
+            if (!result.list.empty()) {
+                datasource->appendData(result.list);
+                recyclingGrid->notifyDataChanged();
+            }
         } else {
             recyclingGrid->setDataSource(new DataSourceMineCollectionList(
                 result.list, getRequestType()));

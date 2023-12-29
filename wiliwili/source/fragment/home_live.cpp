@@ -367,8 +367,10 @@ void HomeLive::onLiveList(const bilibili::LiveVideoListResult& result,
             recyclingGrid->getDataSource());
         if (datasource && index != 1) {
             if (result.empty()) return;
-            datasource->appendData(result);
-            recyclingGrid->notifyDataChanged();
+            if (!result.empty()) {
+                datasource->appendData(result);
+                recyclingGrid->notifyDataChanged();
+            }
         } else {
             if (result.empty())
                 recyclingGrid->setEmpty();

@@ -143,8 +143,10 @@ void MineCollectionVideoList::requestCollectionList() {
                 auto* datasource = dynamic_cast<DataSourceCollectionVideoList*>(
                     recyclingGrid->getDataSource());
                 if (datasource && result.index != 1) {
-                    datasource->appendData(result.medias);
-                    recyclingGrid->notifyDataChanged();
+                    if (!result.medias.empty()) {
+                        datasource->appendData(result.medias);
+                        recyclingGrid->notifyDataChanged();
+                    }
                 } else {
                     recyclingGrid->setDataSource(
                         new DataSourceCollectionVideoList(result.medias));

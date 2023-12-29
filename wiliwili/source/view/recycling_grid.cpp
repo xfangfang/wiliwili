@@ -341,6 +341,8 @@ void RecyclingGrid::notifyDataChanged() {
                                   paddingTop + paddingBottom);
         }
     }
+    // 数据增多后重新允许加载下一页
+    requestNextPage = false;
 }
 
 RecyclingGridItem* RecyclingGrid::getGridItemByIndex(size_t index) {
@@ -566,8 +568,6 @@ float RecyclingGrid::getHeightByCellIndex(size_t index, size_t start) {
     }
     return res;
 }
-
-void RecyclingGrid::forceRequestNextPage() { this->requestNextPage = false; }
 
 brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction,
                                             brls::View* currentView) {

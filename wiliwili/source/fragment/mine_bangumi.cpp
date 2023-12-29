@@ -95,8 +95,10 @@ void MineBangumi::onBangumiList(
         auto* datasource = dynamic_cast<DataSourceMineBangumiVideoList*>(
             recyclingGrid->getDataSource());
         if (!datasource) return;
-        datasource->appendData(result.list);
-        recyclingGrid->notifyDataChanged();
+        if (!result.list.empty()) {
+            datasource->appendData(result.list);
+            recyclingGrid->notifyDataChanged();
+        }
     }
 }
 void MineBangumi::onCreate() {

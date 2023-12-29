@@ -423,7 +423,7 @@ void VideoDetail::requestVideoComment(int aid, int next, int mode) {
     if (next >= 0) {
         this->commentRequestIndex = next;
     }
-    brls::Logger::debug("请求视频评论: {} {}", aid, next);
+    brls::Logger::debug("请求视频评论: {} 页号 {}", aid, commentRequestIndex);
     ASYNC_RETAIN
     BILI::get_comment(
         aid, commentRequestIndex, getVideoCommentMode(),

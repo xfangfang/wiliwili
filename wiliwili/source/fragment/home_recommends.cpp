@@ -97,8 +97,10 @@ void HomeRecommends::onRecommendVideoList(
         if (datasource && result.requestIndex != 1) {
             brls::Logger::debug("refresh home recommends: auto load {}",
                                 result.requestIndex);
-            datasource->appendData(result.item);
-            recyclingGrid->notifyDataChanged();
+            if (!result.item.empty()) {
+                datasource->appendData(result.item);
+                recyclingGrid->notifyDataChanged();
+            }
         } else {
             brls::Logger::verbose("refresh home recommends: first page");
             recyclingGrid->setDataSource(

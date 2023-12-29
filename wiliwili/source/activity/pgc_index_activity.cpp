@@ -397,8 +397,10 @@ void PGCIndexActivity::onPGCIndex(
         auto* datasource = dynamic_cast<DataSourcePGCIndexVideoList*>(
             recyclingGrid->getDataSource());
         if (datasource && result.num != 1) {
-            datasource->appendData(result.list);
-            recyclingGrid->notifyDataChanged();
+            if (!result.list.empty()) {
+                datasource->appendData(result.list);
+                recyclingGrid->notifyDataChanged();
+            }
         } else {
             recyclingGrid->setDataSource(
                 new DataSourcePGCIndexVideoList(result.list));

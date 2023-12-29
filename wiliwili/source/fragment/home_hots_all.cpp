@@ -67,8 +67,10 @@ void HomeHotsAll::onHotsAllVideoList(
         auto* datasource = dynamic_cast<DataSourceHotsAllVideoList*>(
             recyclingGrid->getDataSource());
         if (datasource && index != 1) {
-            datasource->appendData(result);
-            recyclingGrid->notifyDataChanged();
+            if (!result.empty()) {
+                datasource->appendData(result);
+                recyclingGrid->notifyDataChanged();
+            }
         } else {
             recyclingGrid->setDataSource(
                 new DataSourceHotsAllVideoList(result));

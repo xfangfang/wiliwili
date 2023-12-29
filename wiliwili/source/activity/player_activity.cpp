@@ -479,8 +479,10 @@ void PlayerActivity::onUploadedVideos(
         auto grid = (RecyclingGrid*)view->getChildren()[0];
         auto* datasource =
             (DataSourceUserUploadedVideoList*)grid->getDataSource();
-        datasource->appendData(result.list);
-        grid->notifyDataChanged();
+        if (!result.list.empty()) {
+            datasource->appendData(result.list);
+            grid->notifyDataChanged();
+        }
     }
 }
 
