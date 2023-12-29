@@ -577,7 +577,8 @@ public:
     std::vector<int> accept_quality;  //可供选择的分辨率编号
     std::vector<VideoDUrl> durl;
     Dash dash;
-    std::vector<ClipInfo> clip_info_list{};
+    std::vector<ClipInfo> clip_info_list{}; // 片头片尾数据
+    int clipOpen = -1, clipEnd = -1; // 手动添加的数据，用来更方便地读取片头片尾
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j,
                       VideoUrlResult& nlohmann_json_t) {
@@ -593,6 +594,15 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("clip_info_list").is_array()) {
         nlohmann_json_j.at("clip_info_list")
             .get_to(nlohmann_json_t.clip_info_list);
+        nlohmann_json_t.clipOpen = -1;
+        nlohmann_json_t.clipEnd = -1;
+        for (auto& clip : nlohmann_json_t.clip_info_list) {
+            if (clip.clipType == "CLIP_TYPE_OP") {
+                nlohmann_json_t.clipOpen = clip.end;
+            } else if (clip.clipType == "CLIP_TYPE_ED") {
+                nlohmann_json_t.clipEnd = clip.start;
+            }
+        }
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, quality,
                                              timelength, accept_description,

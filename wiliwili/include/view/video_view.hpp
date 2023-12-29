@@ -35,24 +35,29 @@ public:
     ~VideoView() override;
 
     /// Video control
-    void setUrl(const std::string& url, int progress = 0,
+    void setUrl(const std::string& url, int start = 0, int end = -1,
                 const std::string& audio = "");
 
-    void setBackupUrl(const std::string& url, int progress = 0,
+    void setBackupUrl(const std::string& url, int start = 0, int end = -1,
                       const std::string& audio = "");
 
-    void setUrl(const std::string& url, int progress,
+    // 多个音频文件添加多个音轨
+    void setUrl(const std::string& url, int start, int end,
                 const std::vector<std::string>& audios);
 
-    void setBackupUrl(const std::string& url, int progress,
+    // 将视频添加入播放列表，按列表序播放 （用于自动播放备份视频）
+    void setBackupUrl(const std::string& url, int start, int end,
                       const std::vector<std::string>& audios);
 
-    void setUrl(const std::vector<EDLUrl>& edl_urls, int progress = 0);
+    // 将多个视频合并成同一个视频播放
+    void setUrl(const std::vector<EDLUrl>& edl_urls, int start = 0,
+                int end = -1);
 
-    static std::string genExtraUrlParam(int progress, const std::string& audio);
+    static std::string genExtraUrlParam(int start, int end,
+                                        const std::string& audio);
 
     static std::string genExtraUrlParam(
-        int progress, const std::vector<std::string>& audios = {});
+        int start, int end, const std::vector<std::string>& audios = {});
 
     void resume();
 
@@ -100,8 +105,6 @@ public:
 
     void disableCloseOnEndOfFile();
 
-    void disableBottomBar();
-
     void hideHistorySetting();
 
     void hideVideoRelatedSetting();
@@ -111,6 +114,8 @@ public:
     void hideBottomLineSetting();
 
     void hideHighlightLineSetting();
+
+    void hideSkipOpeningCreditsSetting();
 
     void hideVideoProgressSlider();
 
@@ -236,6 +241,8 @@ private:
     bool showBottomLineSetting = true;
     // 播放设置中显示 高能进度条
     bool showHighlightLineSetting = true;
+    // 播放设置中显示 跳过片头片尾
+    bool showOpeningCreditsSetting = true;
     // 是否为直播样式
     bool isLiveMode = false;
     // 是否展示重播按钮
@@ -289,7 +296,7 @@ private:
     int64_t seeking_range      = 0;
     // 区别于视频的时长，当 real_duration 大于 0 时，播放器进度条的总时长以此为准而不是以视频的实际时长为准
     // 用于正确显示预览视频的进度条，比如付费电影的预览
-    int real_duration      = 0;
+    int real_duration          = 0;
     size_t seeking_iter        = 0;
     time_t hintLastShowTime    = 0;
     int64_t lastPlayedPosition = POSITION_UNDEFINED;

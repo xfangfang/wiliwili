@@ -569,6 +569,8 @@ float RecyclingGrid::getHeightByCellIndex(size_t index, size_t start) {
     return res;
 }
 
+void RecyclingGrid::forceRequestNextPage() { this->requestNextPage = false; }
+
 brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction,
                                             brls::View* currentView) {
     void* parentUserData = currentView->getParentUserData();

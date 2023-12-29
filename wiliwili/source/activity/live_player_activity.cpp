@@ -184,6 +184,7 @@ void LiveActivity::onContentAvailable() {
     this->video->hideVideoSpeedButton();
     this->video->hideBottomLineSetting();
     this->video->hideHighlightLineSetting();
+    this->video->hideSkipOpeningCreditsSetting();
     this->video->disableCloseOnEndOfFile();
     this->video->setFullscreenIcon(true);
     this->video->setTitle(liveData.title);

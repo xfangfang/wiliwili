@@ -107,6 +107,9 @@ public:
     // 3: 播完暂停
     inline static int PLAYER_STRATEGY = PlayerStrategy::RCMD;
 
+    // 自动跳过片头
+    inline static bool PLAYER_SKIP_OPENING_CREDITS = true;
+
 protected:
     BRLS_BIND(VideoView, video, "video/detail/video");
     BRLS_BIND(brls::AppletFrame, appletFrame, "video/detail/frame");

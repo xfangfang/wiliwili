@@ -315,6 +315,9 @@
         "header": "通用",
         "mirror": "镜像画面",
         "highlight": "下方固定显示高能进度条",
+        "skip_opening_credits": "跳过片头片尾",
+        "skip_hint1": "从下一个视频开始，自动跳过片头片尾",
+        "skip_hint2": "从下一个视频开始，关闭跳过片头片尾",
         "wiki": "查看项目 WIKI 获得详细说明"
       },
       "aspect": {

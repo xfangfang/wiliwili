@@ -88,10 +88,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
      {"player_aspect", {"-1", "4:3", "16:9"}, {}, 0}},
     {SettingItem::HTTP_PROXY, {"http_proxy", {}, {}, 0}},
     {SettingItem::DANMAKU_STYLE_FONT,
-     {"danmaku_style_font",
-      {"stroke", "incline", "shadow", "pure"},
-      {},
-      0}},
+     {"danmaku_style_font", {"stroke", "incline", "shadow", "pure"}, {}, 0}},
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -112,6 +109,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_HIGHLIGHT_BAR, {"player_highlight_bar", {}, {}, 0}},
+    {SettingItem::PLAYER_SKIP_OPENING_CREDITS,
+     {"player_skip_opening_credits", {}, {}, 1}},
 #if defined(__PSV__) || defined(PS4)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else
@@ -525,8 +524,7 @@ void ProgramConfig::load() {
     DanmakuCore::DANMAKU_STYLE_SPEED =
         getIntOption(SettingItem::DANMAKU_STYLE_SPEED);
     DanmakuCore::DANMAKU_STYLE_FONT =
-        DanmakuFontStyle{
-        getStringOptionIndex(SettingItem::DANMAKU_STYLE_FONT)};
+        DanmakuFontStyle{getStringOptionIndex(SettingItem::DANMAKU_STYLE_FONT)};
 
     DanmakuCore::DANMAKU_RENDER_QUALITY =
         getIntOption(SettingItem::DANMAKU_RENDER_QUALITY);
@@ -563,6 +561,10 @@ void ProgramConfig::load() {
     // 初始化播放策略
     BasePlayerActivity::PLAYER_STRATEGY =
         getIntOption(SettingItem::PLAYER_STRATEGY);
+
+    // 是否自动跳过片头片尾
+    BasePlayerActivity::PLAYER_SKIP_OPENING_CREDITS =
+        getBoolOption(SettingItem::PLAYER_SKIP_OPENING_CREDITS);
 
     // 初始化是否固定显示底部进度条
     VideoView::BOTTOM_BAR = getBoolOption(SettingItem::PLAYER_BOTTOM_BAR);

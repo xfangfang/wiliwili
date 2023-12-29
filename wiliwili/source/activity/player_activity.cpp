@@ -223,6 +223,9 @@ void PlayerActivity::onContentAvailable() {
         }
         return true;
     });
+
+    // 隐藏跳过片头片尾，因为这个是番剧专属的设置
+    this->video->hideSkipOpeningCreditsSetting();
 }
 
 void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {

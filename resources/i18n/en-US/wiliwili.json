@@ -315,6 +315,9 @@
         "header": "Common",
         "mirror": "Horizontally flip",
         "highlight": "Always show hotspots",
+        "skip_opening_credits": "Skip opening credits",
+        "skip_hint1": "Automatically skip the opening credits from next video",
+        "skip_hint2": "Turn off skip opening credits from next video",
         "wiki": "Access our wiki to learn how shader works"
       },
       "aspect": {

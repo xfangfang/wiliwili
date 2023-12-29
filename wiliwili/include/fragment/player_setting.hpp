@@ -43,6 +43,8 @@ public:
 
     void hideHighlightLineCells();
 
+    void hideSkipOpeningCreditsSetting();
+
 private:
     BRLS_BIND(ButtonClose, closebtn, "button/close");
     BRLS_BIND(brls::ScrollingFrame, settings, "player/settings");
@@ -67,6 +69,7 @@ private:
     BRLS_BIND(SelectorCell, btnAspect, "setting/video/aspect");
     BRLS_BIND(brls::BooleanCell, btnHighlight, "setting/video/highlight");
     BRLS_BIND(brls::DetailCell, btnSleep, "setting/sleep");
+    BRLS_BIND(brls::BooleanCell, btnSkip, "setting/auto/skip");
 
     // 获取需要现实的倒计时关闭字符串
     static inline std::string getCountdown(size_t now);

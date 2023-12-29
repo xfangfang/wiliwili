@@ -84,6 +84,9 @@
                             id="setting/video/aspect"/>
 
                     <brls:BooleanCell
+                            id="setting/auto/skip"/>
+
+                    <brls:BooleanCell
                             id="setting/auto/exit"/>
 
                     <brls:BooleanCell

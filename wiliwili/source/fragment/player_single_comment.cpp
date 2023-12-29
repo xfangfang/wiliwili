@@ -271,6 +271,7 @@ PlayerSingleComment::PlayerSingleComment() {
                          brls::ControllerButton::BUTTON_X,
                          [this](brls::View* view) {
                              brls::Application::giveFocus(this->closeBtn);
+                             this->recyclingGrid->forceRequestNextPage();
                              this->setCommentData(this->root, NAN);
                              return true;
                          });

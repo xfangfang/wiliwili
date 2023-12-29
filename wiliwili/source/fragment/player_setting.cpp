@@ -129,6 +129,20 @@ void PlayerSetting::setupCommonSetting() {
                          VideoDetail::REPORT_HISTORY = value;
                      });
 
+    /// Skip opening credits
+    btnSkip->init(
+        "wiliwili/player/setting/common/skip_opening_credits"_i18n,
+        conf.getBoolOption(SettingItem::PLAYER_SKIP_OPENING_CREDITS),
+        [](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::PLAYER_SKIP_OPENING_CREDITS, value);
+            BasePlayerActivity::PLAYER_SKIP_OPENING_CREDITS = value;
+            std::string hint =
+                value ? "wiliwili/player/setting/common/skip_hint1"_i18n
+                      : "wiliwili/player/setting/common/skip_hint2"_i18n;
+            MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
+        });
+
     /// player strategy
     int strategyIndex = conf.getIntOption(SettingItem::PLAYER_STRATEGY);
     // 中文比较简洁可以显示出来，其他语言翻译过长，在这里就先不展示了
@@ -347,4 +361,8 @@ void PlayerSetting::hideBottomLineCells() {
 
 void PlayerSetting::hideHighlightLineCells() {
     btnHighlight->setVisibility(brls::Visibility::GONE);
+}
+
+void PlayerSetting::hideSkipOpeningCreditsSetting() {
+    btnSkip->setVisibility(brls::Visibility::GONE);
 }

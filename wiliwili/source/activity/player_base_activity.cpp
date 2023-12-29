@@ -341,12 +341,16 @@ void BasePlayerActivity::setCommonData() {
                 // 尝试自动加载下一分集
                 // 如果当前最顶层是Dialog就放弃自动播放，因为有可能是用户点开了收藏或者投币对话框
                 {
-                    // 播放到一半没网时也会触发EOF，这里简单判断一下进度是否符合
-                    if (fabs(MPVCore::instance().video_progress -
-                             MPVCore::instance().duration) > 2) {
-                        brls::Logger::error("EOF: {}/{}",
-                                            MPVCore::instance().video_progress,
-                                            MPVCore::instance().duration);
+                    int64_t& progress = MPVCore::instance().video_progress;
+                    int64_t& duration = MPVCore::instance().duration;
+
+                    // 播放到一半没网时也会触发EOF，这里简单判断一下结束播放时的播放条位置是否在片尾或视频结尾附近
+                    if (fabs(duration - progress) > 5 &&
+                        !(videoUrlResult.clipEnd > 0 &&
+                          videoUrlResult.clipEnd - progress < 5)) {
+                        brls::Logger::error(
+                            "EOF: video: {} duration: {} clipEnd: {}", progress,
+                            duration, videoUrlResult.clipEnd);
                         return;
                     }
                     if (PLAYER_STRATEGY == PlayerStrategy::LOOP) {
@@ -531,27 +535,39 @@ void BasePlayerActivity::onVideoPlayUrl(
     videoDeadline =
         std::chrono::system_clock::now() + std::chrono::seconds(6600);
 
-    // 当要跳转的进度距离尾部只有 5s，就重新播放
-    int progress = this->getProgress();
+    // 获取预设的跳转位置
+    int start    = this->getProgress();
+    int end      = -1;
     int time_sec = result.timelength / 1000;
-    if (abs(time_sec - progress) <= 5) progress = 0;
+
+    // 当要跳转的进度距离尾部只有 5s，就重新播放
+    if (start > 0 && abs(time_sec - start) <= 5) start = 0;
+
+    // 跳过片头片尾
+    if (PLAYER_SKIP_OPENING_CREDITS) {
+        start = std::max(start, result.clipOpen);
+        if (result.clipEnd > 0) start = std::min(start, result.clipEnd);
+        end = result.clipEnd;
+        brls::Logger::debug("片头片尾: {}/{}", result.clipOpen, result.clipEnd);
+    }
 
     // 针对用户上传的视频，尝试加载上一次播放的进度
-    if (videoDetailPage.cid && progress < 0) {
+    if (videoDetailPage.cid && start < 0) {
         auto data = SubtitleCore::instance().getSubtitleList();
         if (data.last_play_cid == videoDetailPage.cid &&
             data.last_play_time > 0) {
-            this->video->setLastPlayedPosition(data.last_play_time / 1000);
+            MPV_CE->fire(VideoView::LAST_TIME, (void*)&(data.last_play_time));
         }
     } else {
         // 设置为 POSITION_DISCARD 后，不会加载网络历史记录，而是直接使用 setProgress 指定的位置
         // 番剧视频或指定了进度的用户视频
-        this->video->setLastPlayedPosition(VideoView::POSITION_DISCARD);
-        if (progress > 0)
-            MPV_CE->fire(VideoView::HINT,
-                         (void*)fmt::format("已为您定位至: {}",
-                                            wiliwili::sec2Time(progress))
-                             .c_str());
+        int64_t position = 0;
+        MPV_CE->fire(VideoView::LAST_TIME, (void*)&(position));
+        if (start > 0) {
+            std::string hint =
+                fmt::format("已为您定位至: {}", wiliwili::sec2Time(start));
+            MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
+        }
     }
 
     if (!result.dash.video.empty()) {
@@ -603,11 +619,11 @@ void BasePlayerActivity::onVideoPlayUrl(
         }
 
         // 给播放器设置链接
-        this->video->setUrl(v.base_url, progress, audios);
+        this->video->setUrl(v.base_url, start, end, audios);
 
         // 设置备份视频链接
         for (const auto& backup_url : v.backup_url) {
-            this->video->setBackupUrl(backup_url, progress, audios);
+            this->video->setBackupUrl(backup_url, start, end, audios);
         }
     } else {
         // flv
@@ -615,14 +631,14 @@ void BasePlayerActivity::onVideoPlayUrl(
         if (result.durl.empty()) {
             brls::Logger::error("No media");
         } else if (result.durl.size() == 1) {
-            this->video->setUrl(result.durl[0].url, progress);
+            this->video->setUrl(result.durl[0].url, start, end);
         } else {
             std::vector<EDLUrl> urls;
             urls.reserve(result.durl.size());
             for (auto& i : result.durl) {
                 urls.emplace_back(i.url, i.length / 1000.0f);
             }
-            this->video->setUrl(urls, progress);
+            this->video->setUrl(urls, start, end);
         }
     }
 
@@ -631,14 +647,13 @@ void BasePlayerActivity::onVideoPlayUrl(
     std::string quality = videoUrlResult.accept_description[getQualityIndex()];
     MPV_CE->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
     // 2.绘制进度条标记点（例如：片头片尾）
-    for (auto& clip : result.clip_info_list) {
-        if (clip.clipType == "CLIP_TYPE_OP") {
-            float data = clip.end * 1.0f / (result.timelength * 0.001f);
-            MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data);
-        } else if (clip.clipType == "CLIP_TYPE_ED") {
-            float data = clip.start * 1.0f / (result.timelength * 0.001f);
-            MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data);
-        }
+    if (result.clipOpen > 0) {
+        float data = result.clipOpen * 1.0f / (result.timelength * 0.001f);
+        MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data);
+    }
+    if (result.clipEnd > 0) {
+        float data2 = result.clipEnd * 1.0f / (result.timelength * 0.001f);
+        MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data2);
     }
     // 3. 设置视频时长
     MPV_CE->fire(VideoView::REAL_DURATION, (void*)&time_sec);

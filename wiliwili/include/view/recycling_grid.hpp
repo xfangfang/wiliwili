@@ -131,6 +131,8 @@ public:
 
     View* getNextCellFocus(brls::FocusDirection direction, View* currentView);
 
+    void forceRequestNextPage();
+
     void onLayout() override;
 
     /// 当前数据总数量
