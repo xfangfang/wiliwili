@@ -14,6 +14,11 @@ public:
     static void openLive(int id, const std::string& name = "",
                          const std::string& views = "");
 
+    /// 开启收藏夹
+    /// \param mid 收藏夹id
+    /// \param type 1为收藏夹列表 2为订阅列表
+    static void openCollection(const std::string& mid, const std::string& type = "1");
+
     // 开启搜索
     static void openSearch(const std::string& key);
     static void openTVSearch();

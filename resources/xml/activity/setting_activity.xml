@@ -200,6 +200,16 @@
                                     id="tools/hot_key"
                                     title="@i18n/wiliwili/setting/tools/tutorial/hot_key"/>
 
+                            <brls:RadioCell
+                                    id="tools/tutorial_wiki"
+                                    title="@i18n/wiliwili/setting/tools/tutorial/wiki"/>
+                            <brls:Label
+                                    text="https://github.com/xfangfang/wiliwili/wiki"
+                                    textColor="@theme/font/grey"
+                                    fontSize="12"
+                                    marginTop="10"
+                                    marginLeft="20"/>
+
                         </brls:Box>
                         <brls:Header
                                 width="auto"

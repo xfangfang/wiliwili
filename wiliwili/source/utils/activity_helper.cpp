@@ -13,6 +13,7 @@
 #include "activity/main_activity.hpp"
 #include "activity/gallery_activity.hpp"
 #include "activity/dlna_activity.hpp"
+#include "fragment/mine_collection_video_list.hpp"
 #include "utils/activity_helper.hpp"
 
 #include "presenter/video_detail.hpp"
@@ -37,6 +38,14 @@ void Intent::openSeasonByEpId(int epId, int progress) {
 void Intent::openLive(int live, const std::string& name,
                       const std::string& views) {
     brls::Application::pushActivity(new LiveActivity(live, name, views),
+                                    brls::TransitionAnimation::NONE);
+}
+
+void Intent::openCollection(const std::string& mid, const std::string& type) {
+    auto collection = new MineCollectionVideoList();
+    collection->applyXMLAttribute("type", type);
+    collection->applyXMLAttribute("collection", mid);
+    brls::Application::pushActivity(new brls::Activity(collection),
                                     brls::TransitionAnimation::NONE);
 }
 

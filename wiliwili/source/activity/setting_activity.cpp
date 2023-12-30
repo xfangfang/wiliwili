@@ -154,7 +154,13 @@ void SettingActivity::onContentAvailable() {
 #endif
 
     btnTutorialOpenVideoIntro->registerClickAction([](...) -> bool {
-        Intent::openBV("wiliwili/setting/tools/tutorial/intro_bvid"_i18n);
+        Intent::openCollection("2511565362");
+        return true;
+    });
+
+    btnTutorialWiki->registerClickAction([](...) -> bool {
+        brls::Application::getPlatform()->openBrowser(
+            "https://github.com/xfangfang/wiliwili/wiki");
         return true;
     });
 
