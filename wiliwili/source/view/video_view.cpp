@@ -613,10 +613,11 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width,
     // draw bottom bar
     if (BOTTOM_BAR && showBottomLineSetting) {
         bottomBarColor.a = alpha;
+        float progress   = mpvCore->playback_time / getRealDuration();
+        progress         = progress > 1.0f ? 1.0f : progress;
         nvgFillColor(vg, bottomBarColor);
         nvgBeginPath(vg);
-        nvgRect(vg, x, y + height - 2,
-                width * mpvCore->playback_time / getRealDuration(), 2);
+        nvgRect(vg, x, y + height - 2, width * progress, 2);
         nvgFill(vg);
     }
 

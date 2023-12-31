@@ -4,13 +4,13 @@
         width="auto"
         height="auto">
     <RecyclingGrid
-            paddingLeft="40"
-            paddingRight="40"
+            paddingLeft="30"
+            paddingRight="0"
             itemHeight="250"
             itemSpace="40"
             grow="1"
             preFetchLine="1"
-            spanCount="2"
+            spanCount="@style/wiliwili/grid/span/2"
             wireframe="false"
             id="search/bangumi/recyclingGrid"/>
 </brls:Box>

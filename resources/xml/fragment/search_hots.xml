@@ -8,6 +8,6 @@
             paddingRight="20"
             itemHeight="50"
             grow="1"
-            spanCount="2"
+            spanCount="@style/wiliwili/grid/span/2"
             id="search/hots/recyclingGrid"/>
 </brls:Box>

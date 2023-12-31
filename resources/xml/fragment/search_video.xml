@@ -4,7 +4,7 @@
         width="auto"
         height="auto">
     <RecyclingGrid
-            paddingLeft="20"
+            paddingLeft="30"
             paddingRight="20"
             itemHeight="250"
             grow="1"

@@ -181,6 +181,7 @@ void Register::initCustomStyle() {
         brls::getStyle().addMetric("wiliwili/grid/span/5", 4);
         brls::getStyle().addMetric("wiliwili/grid/span/4", 3);
         brls::getStyle().addMetric("wiliwili/grid/span/3", 2);
+        brls::getStyle().addMetric("wiliwili/grid/span/2", 2);
         brls::getStyle().addMetric("wiliwili/player/width", 600);
         brls::getStyle().addMetric("wiliwili/player/bottom/font", 10);
         brls::getStyle().addMetric("wiliwili/comment/level/x", 30);
@@ -198,17 +199,20 @@ void Register::initCustomStyle() {
                 brls::getStyle().addMetric("wiliwili/grid/span/5", 7);
                 brls::getStyle().addMetric("wiliwili/grid/span/4", 6);
                 brls::getStyle().addMetric("wiliwili/grid/span/3", 5);
+                brls::getStyle().addMetric("wiliwili/grid/span/2", 4);
                 break;
             case 900:
                 brls::getStyle().addMetric("wiliwili/grid/span/5", 6);
                 brls::getStyle().addMetric("wiliwili/grid/span/4", 5);
                 brls::getStyle().addMetric("wiliwili/grid/span/3", 4);
+                brls::getStyle().addMetric("wiliwili/grid/span/2", 3);
                 break;
             case 720:
             default:
                 brls::getStyle().addMetric("wiliwili/grid/span/5", 5);
                 brls::getStyle().addMetric("wiliwili/grid/span/4", 4);
                 brls::getStyle().addMetric("wiliwili/grid/span/3", 3);
+                brls::getStyle().addMetric("wiliwili/grid/span/2", 2);
         }
         brls::getStyle().addMetric("wiliwili/player/width", brls::Application::ORIGINAL_WINDOW_WIDTH - 480);
         brls::getStyle().addMetric("wiliwili/player/bottom/font", 13);

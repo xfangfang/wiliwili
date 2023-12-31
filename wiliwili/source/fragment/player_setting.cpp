@@ -109,6 +109,8 @@ void PlayerSetting::setupCustomShaders() {
             } else {
                 ShaderHelper::instance().clearShader();
             }
+
+            GA("player_setting", {{"shader", cell->title->getFullText()}});
             return true;
         });
 
@@ -121,13 +123,14 @@ void PlayerSetting::setupCommonSetting() {
     auto locale = brls::Application::getLocale();
 
     /// Upload history record
-    btnHistory->init("wiliwili/setting/app/playback/report"_i18n,
-                     conf.getSettingItem(SettingItem::HISTORY_REPORT, true),
-                     [](bool value) {
-                         ProgramConfig::instance().setSettingItem(
-                             SettingItem::HISTORY_REPORT, value);
-                         VideoDetail::REPORT_HISTORY = value;
-                     });
+    btnHistory->init(
+        "wiliwili/setting/app/playback/report"_i18n,
+        conf.getSettingItem(SettingItem::HISTORY_REPORT, true), [](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::HISTORY_REPORT, value);
+            VideoDetail::REPORT_HISTORY = value;
+            GA("player_setting", {{"history", value ? "true" : "false"}});
+        });
 
     /// Skip opening credits
     btnSkip->init(
@@ -141,6 +144,7 @@ void PlayerSetting::setupCommonSetting() {
                 value ? "wiliwili/player/setting/common/skip_hint1"_i18n
                       : "wiliwili/player/setting/common/skip_hint2"_i18n;
             MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
+            GA("player_setting", {{"skip", value ? "true" : "false"}});
         });
 
     /// player strategy
@@ -167,6 +171,7 @@ void PlayerSetting::setupCommonSetting() {
                 BasePlayerActivity::PLAYER_STRATEGY = data;
                 ProgramConfig::instance().setSettingItem(
                     SettingItem::PLAYER_STRATEGY, data);
+                GA("player_setting", {{"strategy", optionList[data]}});
             },
             ProgramConfig::instance().getIntOption(
                 SettingItem::PLAYER_STRATEGY));
@@ -196,24 +201,28 @@ void PlayerSetting::setupCommonSetting() {
             ProgramConfig::instance().setSettingItem(
                 SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END, value);
             VideoView::EXIT_FULLSCREEN_ON_END = value;
+            GA("player_setting", {{"exit_fs", value ? "true" : "false"}});
         });
 
     /// Player bottom bar
-    btnProgress->init("wiliwili/setting/app/playback/player_bar"_i18n,
-                      conf.getBoolOption(SettingItem::PLAYER_BOTTOM_BAR),
-                      [](bool value) {
-                          ProgramConfig::instance().setSettingItem(
-                              SettingItem::PLAYER_BOTTOM_BAR, value);
-                          VideoView::BOTTOM_BAR = value;
-                      });
+    btnProgress->init(
+        "wiliwili/setting/app/playback/player_bar"_i18n,
+        conf.getBoolOption(SettingItem::PLAYER_BOTTOM_BAR), [](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::PLAYER_BOTTOM_BAR, value);
+            VideoView::BOTTOM_BAR = value;
+            GA("player_setting", {{"bottom_bar", value ? "true" : "false"}});
+        });
 
     /// Player mirror
-    btnMirror->init("wiliwili/player/setting/common/mirror"_i18n,
-                    MPVCore::VIDEO_MIRROR, [](bool value) {
-                        MPVCore::VIDEO_MIRROR = !MPVCore::VIDEO_MIRROR;
-                        MPVCore::instance().command_async(
-                            "set", "vf", MPVCore::VIDEO_MIRROR ? "hflip" : "");
-                    });
+    btnMirror->init(
+        "wiliwili/player/setting/common/mirror"_i18n, MPVCore::VIDEO_MIRROR,
+        [](bool value) {
+            MPVCore::VIDEO_MIRROR = !MPVCore::VIDEO_MIRROR;
+            MPVCore::instance().command_async(
+                "set", "vf", MPVCore::VIDEO_MIRROR ? "hflip" : "");
+            GA("player_setting", {{"mirror", value ? "true" : "false"}});
+        });
 
     /// Player aspect
     btnAspect->init("wiliwili/player/setting/aspect/header"_i18n,
@@ -226,15 +235,18 @@ void PlayerSetting::setupCommonSetting() {
                         MPVCore::instance().setAspect(aspect);
                         ProgramConfig::instance().setSettingItem(
                             SettingItem::PLAYER_ASPECT, aspect);
+                        GA("player_setting", {{"aspect", aspect}});
                     });
 
     /// Player Highlight progress bar
-    btnHighlight->init("wiliwili/player/setting/common/highlight"_i18n,
-                       VideoView::HIGHLIGHT_PROGRESS_BAR, [](bool value) {
-                           ProgramConfig::instance().setSettingItem(
-                               SettingItem::PLAYER_HIGHLIGHT_BAR, value);
-                           VideoView::HIGHLIGHT_PROGRESS_BAR = value;
-                       });
+    btnHighlight->init(
+        "wiliwili/player/setting/common/highlight"_i18n,
+        VideoView::HIGHLIGHT_PROGRESS_BAR, [](bool value) {
+            ProgramConfig::instance().setSettingItem(
+                SettingItem::PLAYER_HIGHLIGHT_BAR, value);
+            VideoView::HIGHLIGHT_PROGRESS_BAR = value;
+            GA("player_setting", {{"highlight", value ? "true" : "false"}});
+        });
 
     /// Auto Sleep
     btnSleep->setText("wiliwili/setting/app/playback/sleep"_i18n);
@@ -256,9 +268,11 @@ void PlayerSetting::setupCommonSetting() {
             [this, timeList, countdownStarted](int data) {
                 if (countdownStarted && data == 0) {
                     MPVCore::CLOSE_TIME = 0;
+                    GA("player_setting", {{"sleep", "-1"}});
                 } else {
                     MPVCore::CLOSE_TIME =
                         wiliwili::getUnixTime() + timeList[data] * 60;
+                    GA("player_setting", {{"sleep", timeList[data]}});
                 }
                 btnSleep->setDetailText(getCountdown(wiliwili::getUnixTime()));
             },
@@ -278,6 +292,7 @@ void PlayerSetting::setupCommonSetting() {
             // 设置当前状态
             brls::Application::getPlatform()->getVideoContext()->fullScreen(
                 value);
+            GA("player_setting", {{"fullscreen", value ? "true" : "false"}});
         });
 #else
     btnFullscreen->setVisibility(brls::Visibility::GONE);
@@ -314,6 +329,9 @@ void PlayerSetting::setupSubtitle() {
             } else {
                 SubtitleCore::instance().clearSubtitle();
             }
+
+            GA("player_setting", {{value ? "subtitle-on" : "subtitle-off",
+                                   cell->title->getFullText()}});
             return true;
         });
 

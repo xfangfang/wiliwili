@@ -79,6 +79,7 @@ int main(int argc, char* argv[]) {
         //        Intent::openSearch("harry");     // 测试搜索影片
         //        Intent::openTVSearch();          // 测试TV搜索模式
         //        Intent::openHint();              // 应用开启教程页面
+        //        Intent::openCollection("2511565362"); // 测试打开收藏夹
         //        Intent::openPgcFilter("/page/home/pgc/more?type=2&index_type=2&area=2&order=2&season_status=-1&season_status=3,6"); // 影片分类索引
         //        Intent::openSetting();  //  设置页面
     } else {
