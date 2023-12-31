@@ -30,7 +30,6 @@
         <brls:Image
                 id="video/card/picture"
                 scalingType="fill"
-                backgroundColor="@theme/color/grey_1"
                 height="100%"
                 width="100%"
                 image="@res/pictures/video-card-bg.png"

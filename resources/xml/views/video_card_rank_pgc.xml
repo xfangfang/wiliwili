@@ -14,7 +14,6 @@
                 scalingType="fill"
                 width="100%"
                 image="@res/pictures/video-card-bg.png"
-                backgroundColor="@theme/color/grey_1"
                 cornerRadius="4"/>
 
         <brls:Label

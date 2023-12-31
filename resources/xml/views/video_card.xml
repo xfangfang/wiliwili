@@ -10,7 +10,6 @@
             height="60%">
         <brls:Image
                 id="video/card/picture"
-                backgroundColor="@theme/color/grey_1"
                 scalingType="fill"
                 height="100%"
                 width="100%"
