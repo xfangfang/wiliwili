@@ -7,7 +7,8 @@
 #include "view/svg_image.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/string_helper.hpp"
-#include "bilibili.h"
+
+#include <pystring.h>
 
 using namespace brls::literals;
 
@@ -18,6 +19,22 @@ enum class CommentElementType {
     JUMP,
     NONE,
 };
+
+/// 为评论中的表情包添加分辨率后缀，不加后缀则直接加载原图
+static inline std::string parseUrl(const std::string& url,
+                                        const std::string& extra) {
+    // url 中可能已经包含了指定的尺寸，需要移除指定的尺寸并重新添加
+    // 示例: http://i0.hdslb.com/bfs/garb/emote_diy/ee38500008e72e5623f8972a6ea3d922.png@162w
+    // 绝大多数情况下，额外的尺寸都是不存在的
+    for (auto it = url.rbegin(); it != url.rend(); ++it) {
+        if (*it == '.') {
+            return url + extra;
+        } else if (*it == '@') {
+            return url.substr(0, url.size() - (it - url.rbegin()) - 1) + extra;
+        }
+    }
+    return url + extra;
+}
 
 class CommentElement {
 public:
@@ -187,11 +204,11 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
                 std::shared_ptr<RichTextImage> item;
                 if (t->size == 2) {
                     item = std::make_shared<RichTextImage>(
-                        t->url + ImageHelper::emoji_size2_ext, 50, 50);
+                        parseUrl(t->url, ImageHelper::emoji_size2_ext), 50, 50);
                     item->t_margin = 4;
                 } else {
                     item = std::make_shared<RichTextImage>(
-                        t->url + ImageHelper::emoji_size1_ext, 30, 30);
+                        parseUrl(t->url, ImageHelper::emoji_size1_ext), 30, 30);
                 }
                 item->v_align  = 4;
                 item->l_margin = 2;
