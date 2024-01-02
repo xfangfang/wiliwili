@@ -604,7 +604,12 @@ void WebMask::parseHeader2(const std::string &text) {
     }
 
     // 同步数据
-    brls::sync([this, sliceList]() { this->sliceData = sliceList; });
+    brls::sync([this, sliceList]() {
+        if (this->sliceData.empty())
+            this->sliceData = sliceList;
+        else
+            brls::Logger::error("sliceData is not empty");
+    });
 }
 
 void WebMask::clear() { this->sliceData.clear(); }
@@ -634,15 +639,16 @@ const MaskSlice &WebMask::getSlice(size_t index) {
     brls::Logger::debug("预取 web mask 数据片段: [{}, {})", index, requestEnd);
 
     // 请求数据
+    auto slices = this->sliceData;
     BILI::get_webmask(
         url, sliceData[index].offsetStart, sliceData[requestEnd - 1].offsetEnd,
-        [this, requestStart, requestEnd](const std::string &text) {
+        [this, slices, requestStart, requestEnd](const std::string &text) {
             brls::Logger::debug("获取片段结束: {}", text.size());
-            uint64_t offset = sliceData[requestStart].offsetStart;
+            uint64_t offset = slices[requestStart].offsetStart;
             std::vector<MaskSlice> sliceList;
             sliceList.reserve(requestEnd - requestStart);
             for (size_t i = requestStart; i < requestEnd; i++) {
-                MaskSlice slice = sliceData[i];
+                MaskSlice slice = slices[i];
                 // 解压分片数据
                 std::string data;
                 try {
@@ -686,8 +692,12 @@ const MaskSlice &WebMask::getSlice(size_t index) {
 
             // 同步数据
             brls::sync([this, requestStart, sliceList]() {
-                std::copy(sliceList.begin(), sliceList.end(),
-                          sliceData.begin() + requestStart);
+                if (!sliceData.empty()) {
+                    std::copy(sliceList.begin(), sliceList.end(),
+                              sliceData.begin() + requestStart);
+                } else {
+                    brls::Logger::warning("sliceData is empty, skip mask data update");
+                }
                 requesting = false;
             });
         },
