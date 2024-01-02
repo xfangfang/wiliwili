@@ -139,6 +139,18 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("author").get_to(nlohmann_json_t.author);
 }
 
+class SeasonCustomItem {
+public:
+    std::string player_aspect;
+    bool custom_clip{};
+    int clip_start{};
+    int clip_end{};
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonCustomItem, player_aspect, custom_clip,
+                                   clip_start, clip_end);
+
+typedef std::unordered_map<std::string, SeasonCustomItem> SeasonCustomSetting;
+
 typedef struct ProgramOption {
     /// 保存在配置文件中的选项明
     std::string key;
@@ -232,6 +244,20 @@ public:
 
     void setTlsVerify(bool value);
 
+    void addSeasonCustomSetting(const std::string& key,
+                                const SeasonCustomItem& item);
+
+    SeasonCustomSetting getSeasonCustomSetting() const;
+
+    SeasonCustomItem getSeasonCustom(const std::string& key) const;
+
+    SeasonCustomItem getSeasonCustom(unsigned int key) const;
+
+    void addSeasonCustomSetting(unsigned int key,
+                                const SeasonCustomItem& item);
+
+    void setSeasonCustomSetting(const SeasonCustomSetting& setting);
+
     std::vector<CustomTheme> customThemes;
     Cookie cookie = {{"DedeUserID", "0"}};
     std::string refreshToken;
@@ -239,6 +265,7 @@ public:
     std::string client;
     std::string device;
     std::vector<std::string> searchHistory;
+    SeasonCustomSetting seasonCustom;
     std::string httpProxy;
     std::string httpsProxy;
 
@@ -247,9 +274,9 @@ public:
 
 inline void to_json(nlohmann::json& nlohmann_json_j,
                     const ProgramConfig& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, cookie,
-                                             refreshToken, setting, client,
-                                             device, searchHistory));
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, cookie, refreshToken, setting,
+                            client, device, searchHistory, seasonCustom));
 }
 
 inline void from_json(const nlohmann::json& nlohmann_json_j,
@@ -261,6 +288,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("searchHistory").is_array())
         nlohmann_json_j.at("searchHistory")
             .get_to(nlohmann_json_t.searchHistory);
+    if (nlohmann_json_j.contains("seasonCustom") &&
+        nlohmann_json_j.at("seasonCustom").is_object())
+        nlohmann_json_j.at("seasonCustom").get_to(nlohmann_json_t.seasonCustom);
     if (nlohmann_json_j.contains("setting"))
         nlohmann_json_j.at("setting").get_to(nlohmann_json_t.setting);
     if (nlohmann_json_j.contains("client") &&

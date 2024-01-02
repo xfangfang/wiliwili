@@ -318,10 +318,19 @@
         "skip_opening_credits": "Skip opening credits",
         "skip_hint1": "Automatically skip the opening credits from next video",
         "skip_hint2": "Turn off skip opening credits from next video",
+        "skip_hint3": "Use custom opening credits from next video",
+        "skip_hint4": "Disable custom opening credits from next video",
         "wiki": "Access our wiki to learn how shader works"
+      },
+      "season": {
+        "clip": "Custom opening credits",
+        "clip_start": "Intro length",
+        "clip_end": "Outro length",
+        "unit": "Unit: seconds"
       },
       "aspect": {
         "header": "Video aspect",
+        "no": "Follow global settings",
         "auto": "Auto"
       },
       "shader": {

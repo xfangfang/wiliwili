@@ -343,14 +343,20 @@ void BasePlayerActivity::setCommonData() {
                 {
                     int64_t& progress = MPVCore::instance().video_progress;
                     int64_t& duration = MPVCore::instance().duration;
+                    int clipEnd       = videoUrlResult.clipEnd;
+                    auto seasonCustom =
+                        ProgramConfig::instance().getSeasonCustom(
+                            seasonInfo.season_id);
+                    if (seasonCustom.custom_clip) {
+                        clipEnd = duration - seasonCustom.clip_end;
+                    }
 
                     // 播放到一半没网时也会触发EOF，这里简单判断一下结束播放时的播放条位置是否在片尾或视频结尾附近
                     if (fabs(duration - progress) > 5 &&
-                        !(videoUrlResult.clipEnd > 0 &&
-                          videoUrlResult.clipEnd - progress < 5)) {
+                        !(clipEnd > 0 && clipEnd - progress < 5)) {
                         brls::Logger::error(
                             "EOF: video: {} duration: {} clipEnd: {}", progress,
-                            duration, videoUrlResult.clipEnd);
+                            duration, clipEnd);
                         return;
                     }
                     if (PLAYER_STRATEGY == PlayerStrategy::LOOP) {
@@ -538,17 +544,47 @@ void BasePlayerActivity::onVideoPlayUrl(
     // 获取预设的跳转位置
     int start    = this->getProgress();
     int end      = -1;
+    int clipOpen = result.clipOpen, clipEnd = result.clipEnd;
     int time_sec = result.timelength / 1000;
+    std::string customAspect;
+
+    // 加载覆盖设置
+    if (seasonInfo.season_id > 0) {
+        auto seasonSetting =
+            ProgramConfig::instance().getSeasonCustom(seasonInfo.season_id);
+        customAspect = seasonSetting.player_aspect;
+
+        if (seasonSetting.custom_clip) {
+            // 设置了自定义的片头片尾
+            // 判断是否是正片
+            for (auto& e : seasonInfo.episodes) {
+                if (episodeResult.id == e.id) {
+                    // 如果当前播放的是正片，则使用自定义的片头片尾
+                    clipOpen = seasonSetting.clip_start;
+                    if (clipOpen > time_sec - 5) clipOpen = 0;
+                    clipEnd = time_sec - seasonSetting.clip_end;
+                    if (seasonSetting.clip_end <= 0 || clipEnd < clipOpen)
+                        clipEnd = 0;
+                    break;
+                }
+            }
+        }
+    }
+    if (customAspect.empty()) {
+        customAspect = ProgramConfig::instance().getSettingItem(
+            SettingItem::PLAYER_ASPECT, std::string{"-1"});
+    }
+    MPVCore::instance().setAspect(customAspect);
 
     // 当要跳转的进度距离尾部只有 5s，就重新播放
     if (start > 0 && abs(time_sec - start) <= 5) start = 0;
 
     // 跳过片头片尾
     if (PLAYER_SKIP_OPENING_CREDITS) {
-        start = std::max(start, result.clipOpen);
-        if (result.clipEnd > 0) start = std::min(start, result.clipEnd);
-        end = result.clipEnd;
-        brls::Logger::debug("片头片尾: {}/{}", result.clipOpen, result.clipEnd);
+        start = std::max(start, clipOpen);
+        if (clipEnd > 0) start = std::min(start, clipEnd);
+        end = clipEnd;
+        brls::Logger::debug("片头片尾: {}/{}", clipOpen, clipEnd);
     }
 
     // 针对用户上传的视频，尝试加载上一次播放的进度
@@ -647,12 +683,12 @@ void BasePlayerActivity::onVideoPlayUrl(
     std::string quality = videoUrlResult.accept_description[getQualityIndex()];
     MPV_CE->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
     // 2.绘制进度条标记点（例如：片头片尾）
-    if (result.clipOpen > 0) {
-        float data = result.clipOpen * 1.0f / (result.timelength * 0.001f);
+    if (clipOpen > 0) {
+        float data = clipOpen * 1.0f / time_sec;
         MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data);
     }
-    if (result.clipEnd > 0) {
-        float data2 = result.clipEnd * 1.0f / (result.timelength * 0.001f);
+    if (clipEnd > 0) {
+        float data2 = clipEnd * 1.0f / time_sec;
         MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data2);
     }
     // 3. 设置视频时长

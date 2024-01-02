@@ -228,11 +228,17 @@ void PlayerSetting::setupCommonSetting() {
     btnAspect->init("wiliwili/player/setting/aspect/header"_i18n,
                     {"wiliwili/player/setting/aspect/auto"_i18n, "4:3", "16:9"},
                     conf.getStringOptionIndex(SettingItem::PLAYER_ASPECT),
-                    [](int value) {
+                    [this](int value) {
                         auto option = ProgramConfig::instance().getOptionData(
                             SettingItem::PLAYER_ASPECT);
                         auto& aspect = option.optionList[value];
-                        MPVCore::instance().setAspect(aspect);
+                        auto seasonSetting =
+                            ProgramConfig::instance().getSeasonCustom(
+                                std::to_string(seasonId));
+                        if (seasonSetting.player_aspect.empty()) {
+                            // 只有在不是番剧，或者没有自定义番剧设置时，才会直接修改当前的视频比例
+                            MPVCore::instance().setAspect(aspect);
+                        }
                         ProgramConfig::instance().setSettingItem(
                             SettingItem::PLAYER_ASPECT, aspect);
                         GA("player_setting", {{"aspect", aspect}});
@@ -383,4 +389,85 @@ void PlayerSetting::hideHighlightLineCells() {
 
 void PlayerSetting::hideSkipOpeningCreditsSetting() {
     btnSkip->setVisibility(brls::Visibility::GONE);
+}
+
+void PlayerSetting::setBangumiCustomSetting(const std::string& title,
+                                            unsigned int id) {
+    if (id == 0) return;
+    seasonId = id;
+
+    bangumiHeader->setTitle(title);
+    bangumiHeader->setVisibility(brls::Visibility::VISIBLE);
+    bangumiBox->setVisibility(brls::Visibility::VISIBLE);
+    btnCustomAspect->setVisibility(brls::Visibility::VISIBLE);
+    btnClip->setVisibility(brls::Visibility::VISIBLE);
+
+    /// 番剧自定义数据
+    auto seasonSetting = ProgramConfig::instance().getSeasonCustom(seasonId);
+
+    std::unordered_map<std::string, int> aspectMap = {
+        {"", 0}, {"-1", 1}, {"4:3", 2}, {"16:9", 3}};
+    int aspect = 0;
+    if (aspectMap.find(seasonSetting.player_aspect) != aspectMap.end()) {
+        aspect = aspectMap[seasonSetting.player_aspect];
+    }
+    btnCustomAspect->init(
+        "wiliwili/player/setting/aspect/header"_i18n,
+        {"wiliwili/player/setting/aspect/no"_i18n,
+         "wiliwili/player/setting/aspect/auto"_i18n, "4:3", "16:9"},
+        aspect, [this, seasonSetting](int value) {
+            std::vector<std::string> aspectOption = {"", "-1", "4:3", "16:9"};
+            auto setting = ProgramConfig::instance().getSeasonCustom(seasonId);
+            setting.player_aspect = aspectOption[value];
+            ProgramConfig::instance().addSeasonCustomSetting(seasonId, setting);
+            if (setting.player_aspect.empty()) {
+                // 如果设置为空，则使用全局设置
+                setting.player_aspect =
+                    ProgramConfig::instance().getSettingItem(
+                        SettingItem::PLAYER_ASPECT, std::string{"-1"});
+            }
+            MPVCore::instance().setAspect(setting.player_aspect);
+            GA("season_custom_setting", {{"aspect", setting.player_aspect}});
+        });
+    if (seasonSetting.custom_clip) {
+        btnClipStart->setVisibility(brls::Visibility::VISIBLE);
+        btnClipEnd->setVisibility(brls::Visibility::VISIBLE);
+    }
+    btnClip->init(
+        "wiliwili/player/setting/season/clip"_i18n, seasonSetting.custom_clip,
+        [this](bool value) {
+            auto setting = ProgramConfig::instance().getSeasonCustom(seasonId);
+            setting.custom_clip = value;
+            ProgramConfig::instance().addSeasonCustomSetting(seasonId, setting);
+            std::string hint;
+            if (value) {
+                hint = "wiliwili/player/setting/common/skip_hint3"_i18n;
+                btnClipStart->setVisibility(brls::Visibility::VISIBLE);
+                btnClipEnd->setVisibility(brls::Visibility::VISIBLE);
+            } else {
+                hint = "wiliwili/player/setting/common/skip_hint4"_i18n;
+                btnClipStart->setVisibility(brls::Visibility::GONE);
+                btnClipEnd->setVisibility(brls::Visibility::GONE);
+            }
+            MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
+            GA("season_custom_setting",
+               {{"custom_clip", value ? "true" : "false"}});
+        });
+    btnClipStart->init(
+        "wiliwili/player/setting/season/clip_start"_i18n,
+        seasonSetting.clip_start,
+        [this](int value) {
+            auto setting = ProgramConfig::instance().getSeasonCustom(seasonId);
+            setting.clip_start = value;
+            ProgramConfig::instance().addSeasonCustomSetting(seasonId, setting);
+        },
+        "wiliwili/player/setting/season/unit"_i18n, 4);
+    btnClipEnd->init(
+        "wiliwili/player/setting/season/clip_end"_i18n, seasonSetting.clip_end,
+        [this](int value) {
+            auto setting = ProgramConfig::instance().getSeasonCustom(seasonId);
+            setting.clip_end = value;
+            ProgramConfig::instance().addSeasonCustomSetting(seasonId, setting);
+        },
+        "wiliwili/player/setting/season/unit"_i18n, 4);
 }

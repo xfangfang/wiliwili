@@ -203,6 +203,9 @@ void PlayerSeasonActivity::onSeasonVideoInfo(
     this->labelFavorite->setText(wiliwili::num2w(result.stat.favorite));
     this->labelQR->setText("wiliwili/player/share"_i18n);
 
+    // videoView bangumi custom setting
+    video->setBangumiCustomSetting(result.season_title, result.season_id);
+
     // 设置分集信息
     changeIndexEvent.clear();
     this->tabFrame->clearTab("wiliwili/player/p"_i18n);

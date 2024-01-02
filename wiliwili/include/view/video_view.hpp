@@ -134,6 +134,9 @@ public:
     /// 设置自定义的切换播放状态的按钮事件
     void setCustomToggleAction(std::function<void()> action);
 
+    /// 番剧自定义菜单信息
+    void setBangumiCustomSetting(const std::string& title, unsigned int seasonId);
+
     void setTitle(const std::string& title);
 
     std::string getTitle();
@@ -247,6 +250,8 @@ private:
     bool isLiveMode = false;
     // 是否展示重播按钮
     bool showReplay = false;
+    std::string bangumiTitle;
+    unsigned int bangumiSeasonId = 0;
     MPVEvent::Subscription eventSubscribeID;
     MPVCustomEvent::Subscription customEventSubscribeID;
     std::function<void()> customToggleAction = nullptr;

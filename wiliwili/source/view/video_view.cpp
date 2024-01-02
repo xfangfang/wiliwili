@@ -369,6 +369,9 @@ VideoView::VideoView() {
     /// 播放器设置按钮
     this->btnSettingIcon->getParent()->registerClickAction([this](...) {
         auto setting = new PlayerSetting();
+
+        setting->setBangumiCustomSetting(bangumiTitle, bangumiSeasonId);
+
         // 不显示弹幕则认为不是在播放B站视频，此时隐藏设置菜单中的上传历史记录
         if (!showHistorySetting) {
             setting->hideHistoryCell();
@@ -1099,6 +1102,12 @@ void VideoView::clearHint() {
     this->hintBox->setVisibility(brls::Visibility::GONE);
 }
 
+void VideoView::setBangumiCustomSetting(const std::string& title,
+                                        unsigned int seasonId) {
+    this->bangumiTitle    = title;
+    this->bangumiSeasonId = seasonId;
+}
+
 View* VideoView::create() { return new VideoView(); }
 
 bool VideoView::isFullscreen() {
@@ -1137,6 +1146,8 @@ void VideoView::setFullScreen(bool fs) {
         video->setDuration(this->rightStatusLabel->getFullText());
         video->setPlaybackTime(this->leftStatusLabel->getFullText());
         video->setProgress(this->getProgress());
+        video->setBangumiCustomSetting(this->bangumiTitle,
+                                       this->bangumiSeasonId);
         if (this->hintBox->getVisibility() == brls::Visibility::VISIBLE)
             video->showHint(this->hintLabel->getFullText());
         if (!showOpeningCreditsSetting) video->hideSkipOpeningCreditsSetting();
@@ -1201,6 +1212,8 @@ void VideoView::setFullScreen(bool fs) {
                     video->real_duration = real_duration;
                     video->setLastPlayedPosition(lastPlayedPosition);
                     video->osdSlider->setClipPoint(osdSlider->getClipPoint());
+                    video->setBangumiCustomSetting(this->bangumiTitle,
+                                                   this->bangumiSeasonId);
                     video->refreshToggleIcon();
                     video->refreshDanmakuIcon();
                     video->setQuality(this->getQuality());

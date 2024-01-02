@@ -318,10 +318,19 @@
         "skip_opening_credits": "跳過片頭片尾",
         "skip_hint1": "從下一個影片開始，自動跳過片頭片尾",
         "skip_hint2": "從下一個影片開始，關閉跳過片頭片尾",
+        "skip_hint3": "從下一個影片開始，使用自定義的片頭片尾",
+        "skip_hint4": "從下一個影片開始，停用自定義的片頭片尾",
         "wiki": "查看項目 WIKI 獲得詳細說明"
+      },
+      "season": {
+        "clip": "自定義片頭片尾",
+        "clip_start": "片頭長度",
+        "clip_end": "片尾長度",
+        "unit": "單位: 秒"
       },
       "aspect": {
         "header": "影片比例",
+        "no": "跟隨全域設定",
         "auto": "自動"
       },
       "shader": {

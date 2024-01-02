@@ -238,6 +238,7 @@ ProgramConfig::ProgramConfig(const ProgramConfig& conf) {
     this->client        = conf.client;
     this->refreshToken  = conf.refreshToken;
     this->searchHistory = conf.searchHistory;
+    this->seasonCustom  = conf.seasonCustom;
 }
 
 void ProgramConfig::setProgramConfig(const ProgramConfig& conf) {
@@ -247,6 +248,7 @@ void ProgramConfig::setProgramConfig(const ProgramConfig& conf) {
     this->device        = conf.device;
     this->refreshToken  = conf.refreshToken;
     this->searchHistory = conf.searchHistory;
+    this->seasonCustom  = conf.seasonCustom;
     brls::Logger::info("client: {}/{}", conf.client, conf.device);
     for (const auto& c : conf.cookie) {
         brls::Logger::info("cookie: {}:{}", c.first, c.second);
@@ -993,3 +995,34 @@ void ProgramConfig::setProxy(const std::string& proxy) {
 }
 
 void ProgramConfig::setTlsVerify(bool verify) { BILI::setTlsVerify(verify); }
+
+void ProgramConfig::addSeasonCustomSetting(const std::string& key,
+                                           const SeasonCustomItem& item) {
+    this->seasonCustom[key] = item;
+    this->save();
+}
+
+SeasonCustomSetting ProgramConfig::getSeasonCustomSetting() const {
+    return this->seasonCustom;
+}
+
+SeasonCustomItem ProgramConfig::getSeasonCustom(const std::string& key) const {
+    if (this->seasonCustom.count(key) == 0) {
+        return SeasonCustomItem{};
+    }
+    return this->seasonCustom.at(key);
+}
+
+SeasonCustomItem ProgramConfig::getSeasonCustom(unsigned int key) const {
+    return this->getSeasonCustom(std::to_string(key));
+}
+
+void ProgramConfig::addSeasonCustomSetting(unsigned int key,
+                                           const SeasonCustomItem& item) {
+    this->addSeasonCustomSetting(std::to_string(key), item);
+}
+
+void ProgramConfig::setSeasonCustomSetting(const SeasonCustomSetting& value) {
+    this->seasonCustom = value;
+    this->save();
+}

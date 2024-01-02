@@ -100,6 +100,32 @@
 
                 </brls:Box>
                 <brls:Header
+                        id="setting/video/custom/header"
+                        visibility="gone"
+                        width="auto"
+                        height="auto"
+                        marginBottom="0px"/>
+                <brls:Box
+                        id="setting/video/custom/box"
+                        visibility="gone"
+                        width="100%"
+                        height="auto"
+                        axis="column"
+                        marginBottom="30px">
+                    <SelectorCell
+                            id="setting/video/custom/aspect"
+                            visibility="gone"/>
+                    <brls:BooleanCell
+                            id="setting/video/custom/clip"
+                            visibility="gone"/>
+                    <brls:InputNumericCell
+                            id="setting/video/custom/clip/start"
+                            visibility="gone"/>
+                    <brls:InputNumericCell
+                            id="setting/video/custom/clip/end"
+                            visibility="gone"/>
+                </brls:Box>
+                <brls:Header
                         id="setting/shaders/header"
                         width="auto"
                         height="auto"
