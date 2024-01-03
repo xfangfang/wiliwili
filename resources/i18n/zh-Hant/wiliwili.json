@@ -45,6 +45,8 @@
         "limited_fps_vsync": "垂直同步",
         "fullscreen": "全荧幕顯示",
         "tv_search": "電視風格搜尋頁",
+        "clear_history": "清空搜尋記錄",
+        "clear_season": "清空番劇自定義設定",
         "theme": {
           "header": "主題配色 (需要重啟)",
           "1": "跟隨系統",
@@ -87,6 +89,7 @@
         "header": "使用教學",
         "intro": "軟體介紹 (線上影片)",
         "intro_bvid": "BV18W4y1q72C",
+        "wiki": "查看項目 WIKI 獲得詳細說明",
         "open": "應用開啟方式與安裝桌面圖示",
         "error": "軟體內報錯或部份功能不可用",
         "hot_key": "隱藏的快速鍵說明",
@@ -311,6 +314,15 @@
       "subtitle": {
         "header": "字幕"
       },
+      "equalizer": {
+        "header": "等化器",
+        "brightness": "亮度",
+        "contrast": "對比度",
+        "saturation": "飽和度",
+        "gamma": "伽馬值",
+        "hue": "色調",
+        "reset": "重置"
+      },
       "common": {
         "header": "通用",
         "mirror": "鏡像畫面",
@@ -323,6 +335,7 @@
         "wiki": "查看項目 WIKI 獲得詳細說明"
       },
       "season": {
+        "aspect": "自定義影片比例",
         "clip": "自定義片頭片尾",
         "clip_start": "片頭長度",
         "clip_end": "片尾長度",
@@ -330,7 +343,6 @@
       },
       "aspect": {
         "header": "影片比例",
-        "no": "跟隨全域設定",
         "auto": "自動"
       },
       "shader": {

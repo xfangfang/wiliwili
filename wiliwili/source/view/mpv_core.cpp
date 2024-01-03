@@ -234,6 +234,14 @@ void MPVCore::init() {
         video_aspect = aspectConverter(MPVCore::VIDEO_ASPECT);
     }
 
+    mpv_set_option(mpv, "brightness", MPV_FORMAT_DOUBLE,
+                   &MPVCore::VIDEO_BRIGHTNESS);
+    mpv_set_option(mpv, "contrast", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_CONTRAST);
+    mpv_set_option(mpv, "saturation", MPV_FORMAT_DOUBLE,
+                   &MPVCore::VIDEO_SATURATION);
+    mpv_set_option(mpv, "hue", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_HUE);
+    mpv_set_option(mpv, "gamma", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_GAMMA);
+
     if (MPVCore::LOW_QUALITY) {
         // Less cpu cost
         brls::Logger::info("lavc: skip loop filter and set fast decode");
@@ -325,6 +333,11 @@ void MPVCore::init() {
     check_error(
         mpv_observe_property(mpv, 15, "hwdec-current", MPV_FORMAT_STRING));
     check_error(mpv_observe_property(mpv, 16, "path", MPV_FORMAT_STRING));
+    check_error(mpv_observe_property(mpv, 17, "brightness", MPV_FORMAT_DOUBLE));
+    check_error(mpv_observe_property(mpv, 18, "contrast", MPV_FORMAT_DOUBLE));
+    check_error(mpv_observe_property(mpv, 19, "saturation", MPV_FORMAT_DOUBLE));
+    check_error(mpv_observe_property(mpv, 20, "gamma", MPV_FORMAT_DOUBLE));
+    check_error(mpv_observe_property(mpv, 21, "hue", MPV_FORMAT_DOUBLE));
 
     // init renderer params
 #ifdef MPV_SW_RENDER
@@ -999,9 +1012,22 @@ void MPVCore::eventMainLoop() {
                         }
                         break;
                     case 16:
-                        if (data) {
-                            filepath = *(char **)data;
-                        }
+                        if (data) filepath = *(char **)data;
+                        break;
+                    case 17:
+                        if (data) video_brightness = *(double *)data;
+                        break;
+                    case 18:
+                        if (data) video_contrast = *(double *)data;
+                        break;
+                    case 19:
+                        if (data) video_saturation = *(double *)data;
+                        break;
+                    case 20:
+                        if (data) video_gamma = *(double *)data;
+                        break;
+                    case 21:
+                        if (data) video_hue = *(double *)data;
                         break;
                     default:
                         break;
@@ -1082,13 +1108,60 @@ bool MPVCore::isPaused() const { return video_paused; }
 
 double MPVCore::getSpeed() const { return video_speed; }
 
-void MPVCore::setSpeed(double value) { command_async("set", "speed", value); }
+void MPVCore::setSpeed(double value) {
+    if (video_speed != value) command_async("set", "speed", value);
+}
 
 void MPVCore::setAspect(const std::string &value) {
     MPVCore::VIDEO_ASPECT = value;
     video_aspect          = aspectConverter(MPVCore::VIDEO_ASPECT);
     command_async("set", "video-aspect-override", MPVCore::VIDEO_ASPECT);
 }
+
+void MPVCore::setBrightness(int value) {
+    if (value < -100) value = -100;
+    if (value > 100) value = 100;
+    MPVCore::VIDEO_BRIGHTNESS = value;
+    if (video_brightness != value) command_async("set", "brightness", value);
+}
+
+void MPVCore::setContrast(int value) {
+    if (value < -100) value = -100;
+    if (value > 100) value = 100;
+    MPVCore::VIDEO_CONTRAST = value;
+    if (video_contrast != value) command_async("set", "contrast", value);
+}
+
+void MPVCore::setSaturation(int value) {
+    if (value < -100) value = -100;
+    if (value > 100) value = 100;
+    MPVCore::VIDEO_SATURATION = value;
+    if (video_saturation != value) command_async("set", "saturation", value);
+}
+
+void MPVCore::setGamma(int value) {
+    if (value < -100) value = -100;
+    if (value > 100) value = 100;
+    MPVCore::VIDEO_GAMMA = value;
+    if (video_gamma != value) command_async("set", "gamma", value);
+}
+
+void MPVCore::setHue(int value) {
+    if (value < -100) value = -100;
+    if (value > 100) value = 100;
+    MPVCore::VIDEO_HUE = value;
+    if (video_hue != value) command_async("set", "hue", value);
+}
+
+int MPVCore::getBrightness() const { return video_brightness; }
+
+int MPVCore::getContrast() const { return video_contrast; }
+
+int MPVCore::getSaturation() const { return video_saturation; }
+
+int MPVCore::getGamma() const { return video_gamma; }
+
+int MPVCore::getHue() const { return video_hue; }
 
 // todo: remove these sync function
 std::string MPVCore::getString(const std::string &key) {

@@ -171,6 +171,30 @@ public:
     void setAspect(const std::string &value);
 
     /**
+     * 设置视频亮度
+     * @param value [-100, 100]
+     */
+    void setBrightness(int value);
+
+    void setContrast(int value);
+
+    void setSaturation(int value);
+
+    void setGamma(int value);
+
+    void setHue(int value);
+
+    int getBrightness() const;
+
+    int getContrast() const;
+
+    int getSaturation() const;
+
+    int getGamma() const;
+
+    int getHue() const;
+
+    /**
      * 禁用系统锁屏
      */
     static void disableDimming(bool disable);
@@ -258,8 +282,14 @@ public:
     int mpv_error_code     = 0;
     std::string hwCurrent;
     std::string filepath;
-    std::string currentShaderProfile; // 当前着色器脚本名
-    std::string currentShader; // 当前着色器脚本
+    std::string currentShaderProfile;  // 当前着色器脚本名
+    std::string currentShader;         // 当前着色器脚本
+
+    double video_brightness = 0;
+    double video_contrast   = 0;
+    double video_saturation = 0;
+    double video_hue        = 0;
+    double video_gamma      = 0;
 
     // 低画质解码，剔除解码过程中的部分步骤，可以用来节省cpu
     inline static bool LOW_QUALITY = false;
@@ -291,6 +321,12 @@ public:
 
     // 强制的视频比例 (-1 为自动)
     inline static std::string VIDEO_ASPECT = "-1";
+
+    inline static double VIDEO_BRIGHTNESS = 0;
+    inline static double VIDEO_CONTRAST   = 0;
+    inline static double VIDEO_SATURATION = 0;
+    inline static double VIDEO_HUE        = 0;
+    inline static double VIDEO_GAMMA      = 0;
 
 private:
     mpv_handle *mpv                 = nullptr;

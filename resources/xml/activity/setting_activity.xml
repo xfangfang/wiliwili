@@ -202,7 +202,7 @@
 
                             <brls:RadioCell
                                     id="tools/tutorial_wiki"
-                                    title="@i18n/wiliwili/player/setting/common/wiki"/>
+                                    title="@i18n/wiliwili/setting/tools/tutorial/wiki"/>
                             <brls:Label
                                     text="https://github.com/xfangfang/wiliwili/wiki"
                                     textColor="@theme/font/grey"

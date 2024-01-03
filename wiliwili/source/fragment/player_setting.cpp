@@ -90,6 +90,7 @@ void PlayerSetting::setupCustomShaders() {
 
         auto* cell = new brls::RadioCell();
         cell->title->setText(p.name);
+        registerHideBackground(cell);
         if (MPVCore::instance().currentShaderProfile == p.name)
             cell->setSelected(true);
 
@@ -303,6 +304,98 @@ void PlayerSetting::setupCommonSetting() {
 #else
     btnFullscreen->setVisibility(brls::Visibility::GONE);
 #endif
+
+    btnEqualizerReset->registerClickAction([this](View* view) {
+        btnEqualizerBrightness->slider->setProgress(0.5f);
+        btnEqualizerContrast->slider->setProgress(0.5f);
+        btnEqualizerSaturation->slider->setProgress(0.5f);
+        btnEqualizerGamma->slider->setProgress(0.5f);
+        btnEqualizerHue->slider->setProgress(0.5f);
+        return true;
+    });
+    registerHideBackground(btnEqualizerReset);
+
+    setupEqualizerSetting(btnEqualizerBrightness,
+                          "wiliwili/player/setting/equalizer/brightness"_i18n,
+                          SettingItem::PLAYER_BRIGHTNESS,
+                          MPVCore::instance().getBrightness());
+    setupEqualizerSetting(btnEqualizerContrast,
+                          "wiliwili/player/setting/equalizer/contrast"_i18n,
+                          SettingItem::PLAYER_CONTRAST,
+                          MPVCore::instance().getContrast());
+    setupEqualizerSetting(btnEqualizerSaturation,
+                          "wiliwili/player/setting/equalizer/saturation"_i18n,
+                          SettingItem::PLAYER_SATURATION,
+                          MPVCore::instance().getSaturation());
+    setupEqualizerSetting(btnEqualizerGamma,
+                          "wiliwili/player/setting/equalizer/gamma"_i18n,
+                          SettingItem::PLAYER_GAMMA,
+                          MPVCore::instance().getGamma());
+    setupEqualizerSetting(btnEqualizerHue,
+                          "wiliwili/player/setting/equalizer/hue"_i18n,
+                          SettingItem::PLAYER_HUE,
+                          MPVCore::instance().getHue());
+}
+
+void PlayerSetting::setupEqualizerSetting(brls::SliderCell* cell,
+                                          const std::string& title,
+                                          SettingItem item, int initValue) {
+    if (initValue < -100) initValue = -100;
+    if (initValue > 100) initValue = 100;
+    cell->detail->setWidth(50);
+    cell->title->setWidth(116);
+    cell->title->setMarginRight(0);
+    cell->slider->setStep(0.05f);
+    cell->slider->setMarginRight(0);
+    cell->slider->setPointerSize(20);
+    cell->setDetailText(std::to_string(initValue));
+    cell->init(title, (initValue + 100) * 0.005f, [cell, item](float value) {
+        int data = (int)(value * 200 - 100);
+        if (data < -100) data = -100;
+        if (data > 100) data = 100;
+        cell->detail->setText(std::to_string(data));
+        switch (item) {
+            case SettingItem::PLAYER_BRIGHTNESS:
+                MPVCore::instance().setBrightness(data);
+                break;
+            case SettingItem::PLAYER_CONTRAST:
+                MPVCore::instance().setContrast(data);
+                break;
+            case SettingItem::PLAYER_SATURATION:
+                MPVCore::instance().setSaturation(data);
+                break;
+            case SettingItem::PLAYER_GAMMA:
+                MPVCore::instance().setGamma(data);
+                break;
+            case SettingItem::PLAYER_HUE:
+                MPVCore::instance().setHue(data);
+                break;
+            default:
+                break;
+        }
+        static size_t iter = 0;
+        brls::cancelDelay(iter);
+        iter = brls::delay(200, []() {
+            ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_BRIGHTNESS, MPVCore::VIDEO_BRIGHTNESS, false);
+            ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_CONTRAST, MPVCore::VIDEO_CONTRAST, false);
+            ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_SATURATION, MPVCore::VIDEO_SATURATION, false);
+            ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_GAMMA, MPVCore::VIDEO_GAMMA, false);
+            ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_HUE, MPVCore::VIDEO_HUE, false);
+            ProgramConfig::instance().save();
+        });
+    });
+    registerHideBackground(cell->getDefaultFocus());
+}
+
+void PlayerSetting::registerHideBackground(brls::View* view) {
+    view->getFocusEvent()->subscribe([this](...) {
+        this->setBackgroundColor(nvgRGBAf(0.0f, 0.0f, 0.0f, 0.0f));
+    });
+
+    view->getFocusLostEvent()->subscribe([this](...) {
+        this->setBackgroundColor(
+            brls::Application::getTheme().getColor("brls/backdrop"));
+    });
 }
 
 void PlayerSetting::setupSubtitle() {
@@ -411,20 +504,30 @@ void PlayerSetting::setBangumiCustomSetting(const std::string& title,
     if (aspectMap.find(seasonSetting.player_aspect) != aspectMap.end()) {
         aspect = aspectMap[seasonSetting.player_aspect];
     }
+    if (aspect == 0) {
+        btnCustomAspect->setDetailTextColor(
+            brls::Application::getTheme()["brls/text_disabled"]);
+    }
     btnCustomAspect->init(
-        "wiliwili/player/setting/aspect/header"_i18n,
-        {"wiliwili/player/setting/aspect/no"_i18n,
-         "wiliwili/player/setting/aspect/auto"_i18n, "4:3", "16:9"},
+        "wiliwili/player/setting/season/aspect"_i18n,
+        {"hints/off"_i18n, "wiliwili/player/setting/aspect/auto"_i18n, "4:3",
+         "16:9"},
         aspect, [this, seasonSetting](int value) {
             std::vector<std::string> aspectOption = {"", "-1", "4:3", "16:9"};
             auto setting = ProgramConfig::instance().getSeasonCustom(seasonId);
             setting.player_aspect = aspectOption[value];
             ProgramConfig::instance().addSeasonCustomSetting(seasonId, setting);
+            auto theme = brls::Application::getTheme();
             if (setting.player_aspect.empty()) {
                 // 如果设置为空，则使用全局设置
                 setting.player_aspect =
                     ProgramConfig::instance().getSettingItem(
                         SettingItem::PLAYER_ASPECT, std::string{"-1"});
+                btnCustomAspect->setDetailTextColor(
+                    theme["brls/text_disabled"]);
+            } else {
+                btnCustomAspect->setDetailTextColor(
+                    theme["brls/list/listItem_value_color"]);
             }
             MPVCore::instance().setAspect(setting.player_aspect);
             GA("season_custom_setting", {{"aspect", setting.player_aspect}});

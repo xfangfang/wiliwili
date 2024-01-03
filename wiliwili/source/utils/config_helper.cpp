@@ -227,6 +227,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DLNA_PORT, {"dlna_port", {}, {}, 0}},
     {SettingItem::PLAYER_STRATEGY,
      {"player_strategy", {"rcmd", "next", "loop", "single"}, {0, 1, 2, 3}, 0}},
+    {SettingItem::PLAYER_BRIGHTNESS, {"player_brightness", {}, {}, 0}},
+    {SettingItem::PLAYER_CONTRAST, {"player_contrast", {}, {}, 0}},
+    {SettingItem::PLAYER_SATURATION, {"player_saturation", {}, {}, 0}},
+    {SettingItem::PLAYER_HUE, {"player_hue", {}, {}, 0}},
+    {SettingItem::PLAYER_GAMMA, {"player_gamma", {}, {}, 0}},
 };
 
 ProgramConfig::ProgramConfig() = default;
@@ -500,6 +505,15 @@ void ProgramConfig::load() {
     // 初始化视频比例
     MPVCore::VIDEO_ASPECT =
         getSettingItem(SettingItem::PLAYER_ASPECT, std::string{"-1"});
+
+    // 初始化均衡器
+    MPVCore::VIDEO_BRIGHTNESS =
+        getSettingItem(SettingItem::PLAYER_BRIGHTNESS, 0);
+    MPVCore::VIDEO_CONTRAST = getSettingItem(SettingItem::PLAYER_CONTRAST, 0);
+    MPVCore::VIDEO_SATURATION =
+        getSettingItem(SettingItem::PLAYER_SATURATION, 0);
+    MPVCore::VIDEO_HUE   = getSettingItem(SettingItem::PLAYER_HUE, 0);
+    MPVCore::VIDEO_GAMMA = getSettingItem(SettingItem::PLAYER_GAMMA, 0);
 
     // 初始化弹幕相关内容
     DanmakuCore::DANMAKU_ON = getBoolOption(SettingItem::DANMAKU_ON);

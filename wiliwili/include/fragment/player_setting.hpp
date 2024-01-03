@@ -8,6 +8,7 @@
 
 class ButtonClose;
 class SelectorCell;
+enum class SettingItem;
 namespace brls {
 class ScrollingFrame;
 };
@@ -45,7 +46,8 @@ public:
 
     void hideSkipOpeningCreditsSetting();
 
-    void setBangumiCustomSetting(const std::string& title, unsigned int seasonId);
+    void setBangumiCustomSetting(const std::string& title,
+                                 unsigned int seasonId);
 
 private:
     BRLS_BIND(ButtonClose, closebtn, "button/close");
@@ -73,6 +75,17 @@ private:
     BRLS_BIND(brls::DetailCell, btnSleep, "setting/sleep");
     BRLS_BIND(brls::BooleanCell, btnSkip, "setting/auto/skip");
 
+    // equalizer setting
+    BRLS_BIND(brls::RadioCell, btnEqualizerReset, "setting/equalizer/reset");
+    BRLS_BIND(brls::SliderCell, btnEqualizerBrightness,
+              "setting/equalizer/brightness");
+    BRLS_BIND(brls::SliderCell, btnEqualizerContrast,
+              "setting/equalizer/contrast");
+    BRLS_BIND(brls::SliderCell, btnEqualizerSaturation,
+              "setting/equalizer/saturation");
+    BRLS_BIND(brls::SliderCell, btnEqualizerGamma, "setting/equalizer/gamma");
+    BRLS_BIND(brls::SliderCell, btnEqualizerHue, "setting/equalizer/hue");
+
     // bangumi custom setting
     BRLS_BIND(brls::Header, bangumiHeader, "setting/video/custom/header");
     BRLS_BIND(brls::Box, bangumiBox, "setting/video/custom/box");
@@ -87,4 +100,9 @@ private:
 
     // 获取需要现实的倒计时关闭字符串
     static inline std::string getCountdown(size_t now);
+
+    void setupEqualizerSetting(brls::SliderCell* cell, const std::string& title,
+                               SettingItem item, int initValue);
+
+    void registerHideBackground(brls::View* view);
 };

@@ -131,7 +131,7 @@ void VideoProgressSlider::updateUI() {
     line->setDetachedPosition(lineStart, lineYPos);
     line->setWidth(lineStartWidth);
 
-    lineEmpty->setDetachedPosition(lineEnd, lineYPos);
+    lineEmpty->setDetachedPosition(round(lineEnd), lineYPos);
     lineEmpty->setWidth(lineEndWidth);
 
     pointer->setDetachedPosition(lineEnd - pointer->getWidth() / 2,

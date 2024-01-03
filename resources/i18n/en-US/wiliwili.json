@@ -45,6 +45,8 @@
         "limited_fps_vsync": "Vertical Synchronization",
         "fullscreen": "Fullscreen",
         "tv_search": "TV style search page",
+        "clear_history": "Clear search history",
+        "clear_season": "Clear bangumi custom settings",
         "theme": {
           "header": "Theme (restart required)",
           "1": "Auto",
@@ -87,6 +89,7 @@
         "header": "Tutorial",
         "intro": "Software introduction (online video; Chinese)",
         "intro_bvid": "BV18W4y1q72C",
+        "wiki": "Access our wiki to get more information",
         "open": "How to install desktop icon",
         "error": "If you encounter a bug",
         "hot_key": "Hot keys",
@@ -311,6 +314,15 @@
       "subtitle": {
         "header": "Subtitle"
       },
+      "equalizer": {
+        "header": "Equalizer",
+        "brightness": "Brightness",
+        "contrast": "Contrast",
+        "saturation": "Saturation",
+        "gamma": "Gamma",
+        "hue": "Hue",
+        "reset": "Reset"
+      },
       "common": {
         "header": "Common",
         "mirror": "Horizontally flip",
@@ -323,6 +335,7 @@
         "wiki": "Access our wiki to learn how shader works"
       },
       "season": {
+        "aspect": "Custom video aspect",
         "clip": "Custom opening credits",
         "clip_start": "Intro length",
         "clip_end": "Outro length",
@@ -330,7 +343,6 @@
       },
       "aspect": {
         "header": "Video aspect",
-        "no": "Follow global settings",
         "auto": "Auto"
       },
       "shader": {

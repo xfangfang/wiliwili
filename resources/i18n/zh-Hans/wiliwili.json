@@ -45,6 +45,8 @@
         "limited_fps_vsync": "垂直同步",
         "fullscreen": "全屏显示",
         "tv_search": "电视风格搜索页",
+        "clear_history": "清空搜索记录",
+        "clear_season": "清空番剧自定义设置",
         "theme": {
           "header": "主题配色 (需要重启)",
           "1": "跟随系统",
@@ -87,6 +89,7 @@
         "header": "使用教程",
         "intro": "软件介绍 (在线视频)",
         "intro_bvid": "BV18W4y1q72C",
+        "wiki": "查看项目 WIKI 获得详细说明",
         "open": "应用开启方式与安装桌面图标",
         "error": "软件内报错或部分功能不可用",
         "hot_key": "隐藏的快捷键说明",
@@ -311,6 +314,15 @@
       "subtitle": {
         "header": "字幕"
       },
+      "equalizer": {
+        "header": "均衡器",
+        "brightness": "亮度",
+        "contrast": "对比度",
+        "saturation": "饱和度",
+        "gamma": "伽马值",
+        "hue": "色调",
+        "reset": "重置"
+      },
       "common": {
         "header": "通用",
         "mirror": "镜像画面",
@@ -323,6 +335,7 @@
         "wiki": "查看项目 WIKI 获得详细说明"
       },
       "season": {
+        "aspect": "自定义视频比例",
         "clip": "自定义片头片尾",
         "clip_start": "片头长度",
         "clip_end": "片尾长度",
@@ -330,7 +343,6 @@
       },
       "aspect": {
         "header": "视频比例",
-        "no": "跟随全局设置",
         "auto": "自动"
       },
       "shader": {
