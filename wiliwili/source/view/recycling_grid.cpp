@@ -183,7 +183,7 @@ void RecyclingGrid::registerCell(
     allocationMap.insert(std::make_pair(identifier, allocation));
 }
 
-void RecyclingGrid::addCellAt(size_t index, int downSide) {
+void RecyclingGrid::addCellAt(size_t index, bool downSide) {
     RecyclingGridItem* cell;
     //获取到一个填充好数据的cell
     cell = dataSource->cellForRow(this, index);
@@ -211,8 +211,8 @@ void RecyclingGrid::addCellAt(size_t index, int downSide) {
         }
 
         brls::Logger::verbose("Add cell at: y {} height {}",
-                            getHeightByCellIndex(index) + paddingTop,
-                            cellHeight);
+                              getHeightByCellIndex(index) + paddingTop,
+                              cellHeight);
     } else {
         cell->setWidth(cellWidth - estimatedRowSpace);
         cellX += (renderedFrame.getWidth() - paddingLeft - paddingRight) /
@@ -262,7 +262,7 @@ void RecyclingGrid::setDataSource(RecyclingGridDataSource* source) {
 
     // 允许自动加载下一页
     this->requestNextPage = false;
-    this->dataSource = source;
+    this->dataSource      = source;
     if (layouted) reloadData();
 }
 
@@ -283,44 +283,49 @@ void RecyclingGrid::reloadData() {
     renderedFrame.size.width = getWidth();
 
     setContentOffsetY(0, false);
-
-    if (dataSource) {
-        // 设置列表的高度（真实高度，非显示的高度）
-        if (!isFlowMode || spanCount != 1) {
-            // 设置了固定的高度
-            contentBox->setHeight((estimatedRowHeight + estimatedRowSpace) *
-                                      this->getRowCount() +
-                                  paddingTop + paddingBottom);
-        } else {
-            // 获取每个cell的高度并缓存起来
-            cellHeightCache.clear();
-            for (size_t section = 0; section < dataSource->getItemCount();
-                 section++) {
-                float height = dataSource->heightForRow(this, section);
-                cellHeightCache.push_back(height);
-            }
-            contentBox->setHeight(
-                getHeightByCellIndex(dataSource->getItemCount()) + paddingTop +
-                paddingBottom);
-        }
-
-        // 填充足够多的cell到屏幕上
-        brls::Rect frame = getLocalFrame();
-        for (size_t row = 0; row < dataSource->getItemCount(); row++) {
-            this->addCellAt(row, true);
-            // 只关注最后一列，因为只有当前行最后一列元素添加完毕时才需要考虑要不要继续添加下一行元素
-            if ((row + 1) % spanCount == 0) {
-                // 计算从当前元素开始（包括）向前共 preFetchLine 行元素的高度
-                if (renderedFrame.getMaxY() -
-                        getHeightByCellIndex(row + 1 - preFetchLine * spanCount,
-                                             row + 1) >
-                    frame.getMaxY()) {
-                    break;
-                }
-            }
-        }
-        selectRowAt(this->defaultCellFocus, false);
+    if (dataSource == nullptr) return;
+    if (dataSource->getItemCount() <= 0) {
+        contentBox->setHeight(0);
+        return;
     }
+    size_t cellFocusIndex = this->defaultCellFocus;
+    if (cellFocusIndex >= dataSource->getItemCount())
+        cellFocusIndex = dataSource->getItemCount() - 1;
+
+    // 设置列表的高度（真实高度，非显示的高度）
+    if (!isFlowMode || spanCount != 1) {
+        // 设置了固定的高度
+        contentBox->setHeight((estimatedRowHeight + estimatedRowSpace) *
+                                  (float)getRowCount() +
+                              paddingTop + paddingBottom);
+        // 添加当前焦点 cell 所在行的第一项到屏幕，其余项通过 selectRowAt 内的 itemsRecyclingLoop 自动添加
+        // 这里添加首项是因为添加首项时会变更 renderedFrame 的 height 值，包括 itemsRecyclingLoop 内的计算也都是以首项为基准进行的
+        // 原则上这里的 addCellAt 任意添加一项即可（比如添加第零项），但最好能添加到 cellFocusIndex 附近，这有助于提升首屏性能
+        size_t lineHeadIndex = cellFocusIndex / spanCount * spanCount;
+        // 更新 renderedFrame 数据，设置y的值，伪装成已经移除了 lineHeadIndex 项之前的列表项
+        // y 值表示当前列表渲染的顶部，低于 y 值高度的列表项不会被渲染
+        renderedFrame.origin.y = getHeightByCellIndex(lineHeadIndex);
+
+        // 添加 lineHeadIndex 项到需要渲染的列表项中，因为 lineHeadIndex 为一行的首项，在执行 addCellAt 之后会更新 renderedFrame 数据
+        // renderedFrame 的 height 调整为第 lineHeadIndex 项的高度
+        this->addCellAt(lineHeadIndex, true);
+    } else {
+        // 获取每个cell的高度并缓存起来
+        cellHeightCache.clear();
+        for (size_t section = 0; section < dataSource->getItemCount();
+             section++) {
+            float height = dataSource->heightForRow(this, section);
+            cellHeightCache.push_back(height);
+        }
+        contentBox->setHeight(getHeightByCellIndex(dataSource->getItemCount()) +
+                              paddingTop + paddingBottom);
+        // 流式布局无法准确确定焦点cell的位置，因此暂时只添加第一项，在 itemsRecyclingLoop 中会逐渐添加到 cellFocusIndex，再按需删除
+        // 当 cellFocusIndex 过于大时，会导致添加的元素过多，因此需要考虑优化
+        this->addCellAt(0, true);
+    }
+
+    // 在前面的操作中，列表增加了一项，通过 selectRowAt 再精确地显示出具体选中项
+    selectRowAt(cellFocusIndex, false);
 }
 
 void RecyclingGrid::notifyDataChanged() {

@@ -313,9 +313,7 @@
                 <Tab label="@i18n/wiliwili/player/comment"
                      fontSize="18">
                     <brls:Box
-                            width="100%"
-                            marginTop="12"
-                            grow="1">
+                            marginTop="12">
                         <RecyclingGrid
                                 id="video/comment/recyclingGrid"
                                 paddingLeft="20"
