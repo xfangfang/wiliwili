@@ -16,9 +16,6 @@ finish-args:
   - --talk-name=org.freedesktop.PowerManagement
   - --talk-name=org.gnome.SessionManager
   - --talk-name=org.mate.SessionManager
-  # https://github.com/mpv-player/mpv/blob/master/libmpv/client.h#L147-L149
-  # will remove it when next version release
-  - --env=LC_NUMERIC=C
 cleanup-commands:
   - mkdir -p /app/lib/ffmpeg
 cleanup:
@@ -34,18 +31,19 @@ add-extensions:
   org.freedesktop.Platform.ffmpeg-full:
     directory: lib/ffmpeg
     version: '23.08'
-    add-ld-path: "."
+    add-ld-path: .
 
 modules:
+
   - name: libmpv
     buildsystem: meson
     config-opts:
-      - '-Dlibmpv=true'
-      - '-Dlua=disabled'
-      - '-Ddebug=false'
-      - '-Dbuild-date=false'
-      - '-Dcplayer=false'
-      - '-Dmanpage-build=disabled'
+      - -Dlibmpv=true
+      - -Dlua=disabled
+      - -Ddebug=false
+      - -Dbuild-date=false
+      - -Dcplayer=false
+      - -Dmanpage-build=disabled
     sources:
       - type: archive
         url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.37.0.tar.gz
@@ -56,6 +54,7 @@ modules:
           stable-only: true
           url-template: https://github.com/mpv-player/mpv/archive/refs/tags/v$version.tar.gz
     modules:
+
       - name: libXpresent
         buildsystem: autotools
         sources:
@@ -68,26 +67,6 @@ modules:
               stable-only: true
               url-template: https://xorg.freedesktop.org/archive/individual/lib/libXpresent-$version.tar.xz
 
-      - name: libv4l2
-        buildsystem: meson
-        cleanup:
-          - /sbin
-          - /bin
-        config-opts:
-          - -Dbpf=disabled
-          - -Dudevdir=/app/lib/udev
-          - -Ddoxygen-html=false
-          - -Ddoxygen-doc=disabled
-        sources:
-          - type: archive
-            url: https://linuxtv.org/downloads/v4l-utils/v4l-utils-1.26.0.tar.xz
-            sha256: dab463dc0215e55b2ef1f7a7ab230c3ae8102ea029547eefb4478da0fa8af505
-            x-checker-data:
-              type: anitya
-              project-id: 9998
-              stable-only: true
-              url-template: https://linuxtv.org/downloads/v4l-utils/v4l-utils-$version.tar.xz
-
       - name: nv-codec-headers
         cleanup:
           - '*'
@@ -96,8 +75,8 @@ modules:
           - PREFIX=/app
         sources:
           - type: archive
-            url: 'https://github.com/FFmpeg/nv-codec-headers/archive/refs/tags/n12.1.14.0.tar.gz'
-            sha256: '2fefaa227d2a3b4170797796425a59d1dd2ed5fd231db9b4244468ba327acd0b'
+            url: https://github.com/FFmpeg/nv-codec-headers/archive/refs/tags/n12.1.14.0.tar.gz
+            sha256: 2fefaa227d2a3b4170797796425a59d1dd2ed5fd231db9b4244468ba327acd0b
             x-checker-data:
               type: anitya
               project-id: 223796
@@ -106,11 +85,11 @@ modules:
 
       - name: libass
         config-opts:
-          - '--disable-static'
+          - --disable-static
         sources:
           - type: archive
-            url: 'https://github.com/libass/libass/releases/download/0.17.1/libass-0.17.1.tar.gz'
-            sha256: 'd653be97198a0543c69111122173c41a99e0b91426f9e17f06a858982c2fb03d'
+            url: https://github.com/libass/libass/releases/download/0.17.1/libass-0.17.1.tar.gz
+            sha256: d653be97198a0543c69111122173c41a99e0b91426f9e17f06a858982c2fb03d
             x-checker-data:
               type: anitya
               project-id: 1560
@@ -135,75 +114,28 @@ modules:
       - name: libplacebo
         buildsystem: meson
         config-opts:
-          - '-Dd3d11=disabled'
-          - '-Ddemos=False'
+          - -Dglslang=disabled
+          - -Dd3d11=disabled
+          - -Ddemos=false
         sources:
-          - type: archive
-            url: https://code.videolan.org/videolan/libplacebo/-/archive/v6.338.1/libplacebo-v6.338.1.tar.gz
-            sha256: f748bf9385f4c228e1379d7d1bed13581176bfdc54eb99f4abe22e649f8dc93f
+          - type: git
+            url: https://github.com/haasn/libplacebo.git
+            commit: 2805a0d01c029084ab36bf5d0e3c8742012a0b27
+            tag: v6.338.1
             x-checker-data:
-              type: anitya
-              project-id: 20101
-              stable-only: true
-              url-template: https://code.videolan.org/videolan/libplacebo/-/archive/v$version/libplacebo-v$version.tar.gz
-          - type: archive
-            url: https://github.com/pallets/markupsafe/archive/refs/tags/2.1.3.tar.gz
-            sha256: b209e55e953eabf4bc31e0c9f3182af03b40e5bf5afed652f72b9b7ac02c0b30
-            dest: 3rdparty/markupsafe
-          - type: archive
-            url: https://github.com/pallets/jinja/archive/refs/tags/3.1.2.tar.gz
-            sha256: ecae76cd1a064d40eb46c5375f07953d747f4d65b68cd3fa5f02c91714b799fc
-            dest: 3rdparty/jinja
-          - type: archive
-            url: https://github.com/Dav1dde/glad/archive/refs/tags/v2.0.4.tar.gz
-            sha256: 02629644c242dcc27c58222bd2c001d5e2f3765dbbcfd796542308bddebab401
-            dest: 3rdparty/glad
-        modules:
-          - name: glslang
-            buildsystem: cmake-ninja
-            config-opts:
-              - '-DBUILD_SHARED_LIBS=ON'
-            cleanup:
-              - /bin
-              - /include
-              - /lib/cmake
-            sources:
-              - type: archive
-                url: https://github.com/KhronosGroup/glslang/archive/13.1.1.tar.gz
-                sha256: 1c4d0a5a38c8aaf89a2d7e6093be734320599f5a6775b2726beeb05b0c054e66
-                x-checker-data:
-                  type: anitya
-                  project-id: 205796
-                  stable-only: true
-                  url-template: https://github.com/KhronosGroup/glslang/archive/$version.tar.gz
-              - type: archive
-                url: https://github.com/KhronosGroup/SPIRV-Tools/archive/refs/tags/sdk-1.3.261.1.tar.gz
-                sha256: ead95c626ad482882a141d1aa0ce47b9453871f72c42c0b28d39c82f60a52008
-                dest: External/spirv-tools
-                x-checker-data:
-                  type: anitya
-                  stable-only: true
-                  project-id: 334920
-                  url-template: https://github.com/KhronosGroup/SPIRV-Tools/archive/refs/tags/sdk-$version.tar.gz
-              - type: archive
-                url: https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/sdk-1.3.261.1.tar.gz
-                sha256: 32b4c6ae6a2fa9b56c2c17233c8056da47e331f76e117729925825ea3e77a739
-                dest: External/spirv-tools/external/spirv-headers
-                x-checker-data:
-                  type: anitya
-                  stable-only: true
-                  project-id: 334920
-                  url-template: https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/sdk-$version.tar.gz
+              type: git
+              tag-pattern: ^v([\d.]+)$
 
   - name: wiliwili
     buildsystem: cmake-ninja
     config-opts:
-      - '-DPLATFORM_DESKTOP=ON'
-      - '-DUSE_SYSTEM_CURL=ON'
-      - '-DINSTALL=ON'
-      - '-DCMAKE_BUILD_TYPE=Release'
-      - '-DGLFW_BUILD_WAYLAND=ON'
-      - '-DGLFW_BUILD_X11=ON'
+      - -DPLATFORM_DESKTOP=ON
+      - -DINSTALL=ON
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DGLFW_BUILD_WAYLAND=ON
+      - -DGLFW_BUILD_X11=ON
+      - -DUSE_SYSTEM_CURL=ON
+      - -DUSE_SYSTEM_SDL2=ON
     builddir: true
     sources:
       - type: dir

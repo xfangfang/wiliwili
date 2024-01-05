@@ -389,7 +389,7 @@ jobs:
       - name: Add OpenGL ES 2.0 build option
         if: matrix.driver == 'gles2' && ( matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true' ) )
         run: |
-          sed -i "206i \      - '-DUSE_GLES2=ON'" .flatpak-manifest.yml
+          sed -i "138i \      - '-DUSE_GLES2=ON'" .flatpak-manifest.yml
 
       - name: Rename package
         if: matrix.arch == 'aarch64'
