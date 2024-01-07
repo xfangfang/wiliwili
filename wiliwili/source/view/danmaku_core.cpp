@@ -697,6 +697,7 @@ skip_mask:
             }
 
             /// 处理即将要显示的弹幕
+            nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
             nvgTextBounds(vg, 0, 0, i.msg.c_str(), nullptr, bounds);
             i.length  = bounds[2] - bounds[0];
             i.speed   = (width + i.length) / SECOND;

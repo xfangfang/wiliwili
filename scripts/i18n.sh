@@ -21,6 +21,8 @@ cp "$LANG_PATH/zh-CN/hints.json" ./zh-Hans
 cp "$LANG_PATH/zh-CN/wiliwili.json" ./zh-Hans
 cp "$LANG_PATH/zh-TW/hints.json" ./zh-Hant
 cp "$LANG_PATH/zh-TW/wiliwili.json" ./zh-Hant
+cp "$LANG_PATH/it/hints.json" ./it
+cp "$LANG_PATH/it/wiliwili.json" ./it
 
 echo "Load language files done"
 
