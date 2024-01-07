@@ -14,8 +14,12 @@
         "in_memory_cache": "메모리 캐시",
         "hwdec": "하드웨어 디코드",
         "exit_fullscreen": "재생 종료 시 전체 화면 종료",
+        "play_strategy": "재생 방법",
         "auto_play_next_part": "자동으로 다음 동영상 재생",
         "auto_play_recommend": "추천 동영상 자동 재생",
+        "auto_loop": "현재 동영상 반복",
+        "auto_no": "재생 후 비디오 일시 정지",
+        "auto_hint": "'추천 영상 자동 재생'은 에피소드 재생 후 추천 영상을 자동으로 재생합니다.",
         "sleep": "타이밍 끄기",
         "video_codec": "비디오 코덱",
         "audio_quality": "오디오 품질",
@@ -26,6 +30,12 @@
         "texture": "그림 텍스처 캐시 수",
         "threads": "이미지 로드 스레드 수"
       },
+      "network": {
+        "header": "네트워크",
+        "tls": "TLS 검증",
+        "proxy": "프록시",
+        "proxy_hint": "예: http://127.0.0.1:7890"
+      },
       "others": {
         "header": "기타",
         "vibration": "게임패드 진동",
@@ -35,11 +45,23 @@
         "limited_fps_vsync": "수직 동기화",
         "fullscreen": "전체화면",
         "tv_search": "TV 스타일 검색 페이지",
+        "clear_history": "검색 기록 지우기",
+        "clear_season": "반구미 커스텀 설정 지우기",
         "theme": {
           "header": "테마 (재시작 필요)",
           "1": "자동",
           "2": "밝음",
           "3": "어두움"
+        },
+        "custom_theme": {
+          "header": "커스텀 레이아웃(재시작 필요)"
+        },
+        "scale": {
+          "header": "UI 스케일 (재시작 필요)",
+          "544p": "544p",
+          "720p": "720p",
+          "900p": "900p",
+          "1080p": "1080p"
         },
         "language": {
           "header": "언어 (재시작 필요)",
@@ -67,6 +89,7 @@
         "header": "자습서",
         "intro": "소프트웨어 소개 (온라인 동영상, 중국어)",
         "intro_bvid": "BV18W4y1q72C",
+        "wiki": "더 많은 정보를 얻으려면 위키에 접속하세요",
         "open": "데스크톱 아이콘 설치 방법",
         "error": "버그를 겪어본 경우",
         "hot_key": "단축키",
@@ -291,9 +314,36 @@
       "subtitle": {
         "header": "자막"
       },
+      "equalizer": {
+        "header": "이퀄라이저",
+        "brightness": "밝기",
+        "contrast": "대비",
+        "saturation": "채도",
+        "gamma": "감마",
+        "hue": "색조",
+        "reset": "재설정"
+      },
       "common": {
         "header": "공통",
+        "mirror": "수평으로 뒤집기",
+        "highlight": "항상 핫스팟 표시",
+        "skip_opening_credits": "오프닝 크레딧 건너뛰기",
+        "skip_hint1": "다음 동영상의 오프닝 크레딧을 자동으로 건너뜀",
+        "skip_hint2": "다음 비디오에서 오프닝 크레딧 건너뛰기 끄기",
+        "skip_hint3": "다음 비디오의 커스텀 오프닝 크레딧을 사용",
+        "skip_hint4": "다음 비디오에서 커스텀 오프닝 크레딧을 비활성화",
         "wiki": "셰이더 작동 방식을 알아보려면 위키에 접속하세요"
+      },
+      "season": {
+        "aspect": "커스텀 비디오 화면비",
+        "clip": "커스텀 오프닝 크레딧",
+        "clip_start": "인트로 길이",
+        "clip_end": "아우트로 길이",
+        "unit": "단위: 초"
+      },
+      "aspect": {
+        "header": "비디오 화면비",
+        "auto": "자동"
       },
       "shader": {
         "header": "셰이더"
@@ -316,17 +366,28 @@
         "action": "전송",
         "hint": "좋은 말 한마디"
       },
+      "performance": {
+        "header": "성능",
+        "render": "렌더링 품질"
+      },
       "filter": {
         "header": "탄막 필터",
+        "mask": "스마트 마스크",
         "top": "상단",
         "scroll": "스크롤",
         "bottom": "하단",
         "color": "색상",
+        "advanced": "고급 설정",
         "level": "필터 수준",
         "level_n": "수준 {}"
       },
       "style": {
         "header": "탄막 스타일",
+        "font": "선 스타일",
+        "font_stroke": "선",
+        "font_incline": "기울기",
+        "font_shadow": "그림자",
+        "font_pure": "있는 그대로",
         "area": "디스플레이 영역",
         "area_1_4": "1/4 화면",
         "area_2_4": "1/2 화면",
@@ -352,6 +413,7 @@
     }
   },
   "dialog": {
+    "not_supported": "지원하지 않음",
     "quit_hint": "앱 종료 중..."
   }
 }
