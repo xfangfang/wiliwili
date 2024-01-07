@@ -377,6 +377,7 @@
         "scroll": "滾動",
         "bottom": "底部",
         "color": "彩色",
+        "advanced": "高級",
         "level": "按等級篩選",
         "level_n": "等級 {}"
       },

@@ -75,6 +75,14 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
                               DanmakuCore::instance().refresh();
                               return true;
                           });
+    this->cellAdvanced->init("wiliwili/player/danmaku/filter/advanced"_i18n,
+                          DanmakuCore::DANMAKU_FILTER_SHOW_ADVANCED,
+                          [](bool data) {
+                              DanmakuCore::DANMAKU_FILTER_SHOW_ADVANCED = data;
+                              DanmakuCore::save();
+                              DanmakuCore::instance().refresh();
+                              return true;
+                          });
 
     std::vector<std::string> levels;
     for (size_t i = 1; i <= 10; i++)

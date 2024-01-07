@@ -377,6 +377,7 @@
         "scroll": "Scroll",
         "bottom": "Bottom",
         "color": "Color",
+        "advanced": "Advanced",
         "level": "Filter level",
         "level_n": "Level {}"
       },

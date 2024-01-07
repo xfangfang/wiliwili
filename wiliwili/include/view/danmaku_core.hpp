@@ -7,8 +7,10 @@
 #include "view/mpv_core.hpp"
 
 #include <mutex>
+#include <optional>
 
 #include <borealis/core/singleton.hpp>
+#include <borealis/core/animation.hpp>
 
 // 每个分片内的svg数据，一般 1/30 s 一帧
 class MaskSvg {
@@ -57,6 +59,26 @@ enum class DanmakuFontStyle {
     DANMAKU_FONT_PURE    = 3,  // 纯色
 };
 
+class AdvancedAnimation {
+public:
+    // 起点和结束点的坐标
+    float startX{}, startY{}, endX{}, endY{};
+    // 在起始点显示的时间，运动中的时间，在结束点显示的时间
+    float time1{}, time2, time3{}, wholeTime{};
+    // 半透明的起始和结束值
+    float alpha1{}, alpha2{};
+    // z / y 轴旋转
+    float rotateZ{}, rotateY{};
+    // 点的坐标是相对布局还是绝对布局
+    bool relativeLayout{};
+    // 动画是否为线形动画
+    bool linear{};
+    brls::Animatable transX, transY, alpha;
+
+    // 路径跟随线路
+    std::vector<brls::Point> path;
+};
+
 class DanmakuItem {
 public:
     DanmakuItem(std::string content, const char *attributes);
@@ -64,7 +86,7 @@ public:
     std::string msg;  // 弹幕内容
     float time;       // 弹幕出现的时间
     int type;         // 弹幕类型 1/2/3: 普通; 4: 底部; 5: 顶部;
-    int fontSize;     // 弹幕字号 18/25/36
+    float fontSize;   // 弹幕字号 18/25/36, 以 25 为 1.0
     int fontColor;    // 弹幕颜色
 
     bool isShown         = false;
@@ -78,6 +100,7 @@ public:
     NVGcolor color       = nvgRGBA(255, 255, 255, 160);
     NVGcolor borderColor = nvgRGBA(0, 0, 0, 160);
     int level;  // 弹幕等级 1-10
+    std::optional<AdvancedAnimation> advancedAnimation;
     // 暂时用不到的信息，先不使用
     //    int pubDate; // 弹幕发送时间
     //    int pool; // 弹幕池类型
@@ -88,7 +111,7 @@ public:
         return this->time < item.time;
     }
 
-    inline void draw(NVGcontext *vg, float x, float y, float alpha) const;
+    inline void draw(NVGcontext *vg, float x, float y, float alpha, bool multiLine = false) const;
 
     static inline NVGcolor a(NVGcolor color, float alpha);
 };
@@ -159,11 +182,12 @@ public:
     /// range: [1 - 10], 1: show all danmaku, 10: the most strong filter
     static inline int DANMAKU_FILTER_LEVEL = 1;
 
-    static inline bool DANMAKU_FILTER_SHOW_TOP    = true;
-    static inline bool DANMAKU_FILTER_SHOW_BOTTOM = true;
-    static inline bool DANMAKU_FILTER_SHOW_SCROLL = true;
-    static inline bool DANMAKU_FILTER_SHOW_COLOR  = true;
-    static inline bool DANMAKU_SMART_MASK         = true;
+    static inline bool DANMAKU_FILTER_SHOW_TOP      = true;
+    static inline bool DANMAKU_FILTER_SHOW_BOTTOM   = true;
+    static inline bool DANMAKU_FILTER_SHOW_SCROLL   = true;
+    static inline bool DANMAKU_FILTER_SHOW_COLOR    = true;
+    static inline bool DANMAKU_FILTER_SHOW_ADVANCED = false;
+    static inline bool DANMAKU_SMART_MASK           = true;
 
     /// [25, 50, 75, 100]
     static inline int DANMAKU_STYLE_AREA = 100;

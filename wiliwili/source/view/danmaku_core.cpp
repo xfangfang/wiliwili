@@ -64,13 +64,12 @@ static inline uint64_t ntohll(uint64_t value) {
 #define MAX_PREFETCH_MASK 10
 #endif
 
+#ifndef MAX_DANMAKU_LENGTH
+#define MAX_DANMAKU_LENGTH 4096
+#endif
+
 DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     : msg(std::move(content)) {
-#ifdef OPENCC
-    static bool ZH_T = brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
-                       brls::Application::getLocale() == brls::LOCALE_ZH_TW;
-    if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
-#endif
     std::vector<std::string> attrs;
     pystring::split(attributes, attrs, ",");
     if (attrs.size() < 9) {
@@ -80,7 +79,7 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
     }
     time      = atof(attrs[0].c_str());
     type      = atoi(attrs[1].c_str());
-    fontSize  = atoi(attrs[2].c_str());
+    fontSize  = atoi(attrs[2].c_str()) / 25.0f;
     fontColor = atoi(attrs[3].c_str());
     level     = atoi(attrs[8].c_str());
 
@@ -97,9 +96,81 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
         borderColor   = nvgRGB(255, 255, 255);
         borderColor.a = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.005;
     }
+
+    // 解析高级弹幕动画
+    if (type == 7) {
+        // 高级弹幕示例:
+        // [1045,275,"1-0",4,"内容",0,90,109,274,3000,500,1,"SimHei",1]
+        // [0.9,0.01,"0.1-0.9",3,"百分比坐标",1,2,0.1,0.02,400,100,1,"\"Microsoft YaHei\"",1]
+        // [0.9,0.01,"0.1-0.9",3,"路径跟随",1,2,0.1,0.02,400,100,1,"\"Microsoft YaHei\"",1,"M1043,57L1043,57L1043,57L1041,57L1041,58L1040,59L1038,61L1035,64L1033,67L1031,68L1028,71L1025,71L1019,71L1017,71L1010,70L994,64L982,58L969,50L959,41L949,33L944,29L942,27L941,26L941,25L941,23L941,23L941,23"]
+        // 起始x,起始y, "透明度起始-透明度结束", 生存时间, "正文"，z翻转，y翻转，结束x，结束y，运行耗时(ms)，延迟时间(ms), 文字描边 , "字体", 线性加速, ["路径跟随"]
+        // 如果 起始x,起始y 结束x，结束y 都小于 1 则使用百分比坐标。
+        if (msg.size() < 2) return;
+        std::vector<std::string> extraData;
+        pystring::split(msg.substr(1, msg.size() - 2), extraData, ",", 14);
+        if (extraData.size() >= 11) {
+            std::vector<std::string> alphaData;
+            pystring::split(pystring::strip(extraData[2], "\""), alphaData,
+                            "-");
+            if (alphaData.size() != 2) return;
+            msg = pystring::strip(extraData[4], "\"");
+            msg = pystring::replace(msg, "\\n", "\n");
+            AdvancedAnimation ani{};
+            ani.alpha1 = atof(pystring::strip(alphaData[0], "\"").c_str());
+            ani.alpha2 = atof(pystring::strip(alphaData[1], "\"").c_str());
+            ani.startX = atof(pystring::strip(extraData[0], "\"").c_str());
+            ani.startY = atof(pystring::strip(extraData[1], "\"").c_str());
+            ani.endX   = atof(pystring::strip(extraData[7], "\"").c_str());
+            ani.endY   = atof(pystring::strip(extraData[8], "\"").c_str());
+            ani.time1  = atof(pystring::strip(extraData[10], "\"").c_str());
+            ani.time2  = atof(pystring::strip(extraData[9], "\"").c_str());
+            ani.rotateZ =
+                nvgDegToRad(atof(pystring::strip(extraData[5], "\"").c_str()));
+            ani.rotateY =
+                nvgDegToRad(atof(pystring::strip(extraData[6], "\"").c_str()));
+            ani.linear = pystring::strip(extraData[13], "\"") == "1";
+            ani.wholeTime =
+                atof(pystring::strip(extraData[3], "\"").c_str()) * 1000;
+            ani.time3 = ani.wholeTime - ani.time1 - ani.time2;
+            if (ani.time3 < 0) ani.time3 = 0;
+
+            // 如果起点和终点坐标都小于等于1，则说明其为百分比坐标
+            ani.relativeLayout = ani.startX <= 1.0f && ani.startY <= 1.0f &&
+                                 ani.endX <= 1.0f && ani.endY <= 1.0f;
+
+            // 路径跟随
+            if (extraData.size() >= 15) {
+                std::vector<brls::Point> p;
+                auto str = pystring::strip(extraData[14], "\"M");
+                std::vector<std::string> pointData;
+                pystring::split(str, pointData, "L");
+                for (auto &pointStr : pointData) {
+                    std::vector<std::string> xy;
+                    pystring::split(pointStr, xy, ",");
+                    if (xy.size() != 2) continue;
+                    ani.path.emplace_back(atof(xy[0].c_str()),
+                                          atof(xy[1].c_str()));
+                }
+                // 强制关闭相对坐标
+                ani.relativeLayout = false;
+            } else {
+                ani.path.emplace_back(ani.startX, ani.startY);
+                ani.path.emplace_back(ani.endX, ani.endY);
+            }
+            advancedAnimation.emplace(ani);
+        }
+    }
+
+    // 设置弹幕内容 (根据需要做简繁转换)
+#ifdef OPENCC
+    static bool ZH_T = brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
+                       brls::Application::getLocale() == brls::LOCALE_ZH_TW;
+    if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
+#endif
 }
 
-void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha) const {
+void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha,
+                       bool multiLine) const {
     float blur = DanmakuCore::DANMAKU_STYLE_FONT ==
                  DanmakuFontStyle::DANMAKU_FONT_SHADOW;
     float dilate = DanmakuCore::DANMAKU_STYLE_FONT ==
@@ -114,14 +185,22 @@ void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha) const {
         nvgFontDilate(vg, dilate);
         nvgFontBlur(vg, blur);
         nvgFillColor(vg, a(borderColor, alpha));
-        nvgText(vg, x + dx, y + dy, msg.c_str(), nullptr);
+        if (multiLine)
+            nvgTextBox(vg, x + dx, y + dy, MAX_DANMAKU_LENGTH, msg.c_str(),
+                       nullptr);
+        else
+            nvgText(vg, x + dx, y + dy, msg.c_str(), nullptr);
     }
 
     // content
     nvgFontDilate(vg, 0.0f);
     nvgFontBlur(vg, 0.0f);
     nvgFillColor(vg, a(color, alpha));
-    nvgText(vg, x, y, msg.c_str(), nullptr);
+    if (multiLine)
+        nvgTextBox(vg, x + dx, y + dy, MAX_DANMAKU_LENGTH, msg.c_str(),
+                   nullptr);
+    else
+        nvgText(vg, x, y, msg.c_str(), nullptr);
 }
 
 NVGcolor DanmakuItem::a(NVGcolor color, float alpha) {
@@ -281,6 +360,7 @@ void DanmakuCore::setSpeed(double speed) {
         auto &i = this->danmakuData[j];
         if (i.type == 4 || i.type == 5) continue;
         if (!i.canShow) continue;
+        if (i.time > MPVCore::instance().playback_time) return;
         i.startTime = currentTime - (currentTime - i.startTime) * factor;
     }
 }
@@ -298,6 +378,9 @@ void DanmakuCore::save() {
                                              DANMAKU_FILTER_SHOW_SCROLL, false);
     ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_COLOR,
                                              DANMAKU_FILTER_SHOW_COLOR, false);
+    ProgramConfig::instance().setSettingItem(
+        SettingItem::DANMAKU_FILTER_ADVANCED, DANMAKU_FILTER_SHOW_ADVANCED,
+        false);
     ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_LEVEL,
                                              DANMAKU_FILTER_LEVEL, false);
     ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_AREA,
@@ -418,7 +501,6 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
 skip_mask:
 
     // 设置基础字体
-    nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE);
     nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
     nvgFontFaceId(vg, DanmakuCore::DANMAKU_FONT);
     nvgTextLineHeight(vg, 1);
@@ -452,9 +534,32 @@ skip_mask:
                 }
 
                 // 画弹幕
+                nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
                 i.draw(vg, x + width / 2 - i.length / 2,
                        y + i.line * lineHeight + 5, alpha);
 
+                continue;
+            } else if (i.type == 7) {
+                if (!i.advancedAnimation.has_value() ||
+                    !i.advancedAnimation->alpha.isRunning()) {
+                    i.canShow = false;
+                    continue;
+                }
+                nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
+                nvgSave(vg);
+                nvgTranslate(vg, x + i.advancedAnimation->transX,
+                             y + i.advancedAnimation->transY);
+                nvgRotate(vg, i.advancedAnimation->rotateZ);
+                if (i.advancedAnimation->rotateY > 0){
+                    // 近似模拟出 y 轴翻转的效果, 其实不太近似 :(
+                    float ratio = fabs(1 - i.advancedAnimation->transX / width);
+                    if (ratio > 1 ) ratio = 1;
+                    float rotateY = i.advancedAnimation->rotateY * ratio / 2;
+                    nvgScale(vg, 1 - rotateY / NVG_PI, 1.0f);
+                    nvgSkewY(vg, rotateY);
+                }
+                i.draw(vg, 0, 0, i.advancedAnimation->alpha * alpha, true);
+                nvgRestore(vg);
                 continue;
             }
             //滑动弹幕
@@ -465,6 +570,10 @@ skip_mask:
                 i.startTime =
                     currentTime - (playbackTime - i.time) / videoSpeed * 1e6;
             } else {
+                // position = i.speed * (playbackTime - i.time) 是最精确的弹幕位置
+                // 但是因为 playbackTime 是根据视频帧率设定的，直接使用此值会导致弹幕看起来卡顿
+                // 这里以弹幕绘制的起始时间点为准，通过与当前时间值的差值计算来得到更精确的弹幕位置
+                // 但是当 AV 不同步时，mpv会自动修正播放的进度，导致 playbackTime 和现实的时间脱离，不同弹幕间因此可能产生重叠
                 position =
                     i.speed * (currentTime - i.startTime) * videoSpeed / 1e6;
             }
@@ -477,6 +586,7 @@ skip_mask:
             }
 
             // 画弹幕
+            nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
             i.draw(vg, x + width - position, y + i.line * lineHeight + 5,
                    alpha);
             continue;
@@ -507,15 +617,84 @@ skip_mask:
             } else if (i.type == 5) {
                 // 3. 过滤顶部弹幕
                 if (!DANMAKU_FILTER_SHOW_TOP) continue;
-            } else {  // 4. 过滤滚动弹幕
+            } else if (i.type == 7) {
+                // 4. 过滤高级弹幕
+                if (!DANMAKU_FILTER_SHOW_ADVANCED) continue;
+            } else {
+                // 5. 过滤滚动弹幕
                 if (!DANMAKU_FILTER_SHOW_SCROLL) continue;
             }
 
-            // 5. 过滤彩色弹幕
+            // 6. 过滤彩色弹幕
             if (!i.isDefaultColor && !DANMAKU_FILTER_SHOW_COLOR) continue;
 
-            // 6. 过滤失效弹幕
+            // 7. 过滤失效弹幕
             if (i.type < 0) continue;
+
+            // 处理高级弹幕动画
+            if (i.type == 7) {
+                if (!i.advancedAnimation.has_value()) continue;
+                if (fabs(playbackTime - i.time) > 0.1) continue;
+                i.showing = true;
+                i.canShow = true;
+                auto &ani = i.advancedAnimation;
+                ani->alpha.stop();
+                ani->transX.stop();
+                ani->transY.stop();
+                if (ani->path.size() < 2) continue;
+
+                // 是否使用线形动画
+                brls::EasingFunction easing =
+                    ani->linear ? brls::EasingFunction::linear
+                                : brls::EasingFunction::cubicIn;
+
+                // 是否使用相对坐标
+                float relativeSizeX = 1.0f, relativeSizeY = 1.0f;
+                if (ani->relativeLayout) {
+                    relativeSizeX = width;
+                    relativeSizeY = height;
+                }
+
+                ani->transX.reset(ani->path[0].x * relativeSizeX);
+                ani->transY.reset(ani->path[0].y * relativeSizeY);
+                ani->alpha.reset(ani->alpha1);
+
+                // 起点停留
+                if (ani->time1 > 0) {
+                    ani->transX.addStep(ani->path[0].x * relativeSizeX,
+                                        ani->time1);
+                    ani->transY.addStep(ani->path[0].y * relativeSizeY,
+                                        ani->time1);
+                }
+
+                // 路径动画
+                if (ani->time2 > 0) {
+                    float timeD = ani->time2 / (ani->path.size() - 1);
+                    for (size_t p = 1; p < ani->path.size(); p++) {
+                        ani->transX.addStep(ani->path[p].x * relativeSizeX,
+                                            timeD, easing);
+                        ani->transY.addStep(ani->path[p].y * relativeSizeY,
+                                            timeD, easing);
+                    }
+                }
+
+                // 结束点停留
+                if (ani->time3 > 0) {
+                    ani->transX.addStep(
+                        ani->path[ani->path.size() - 1].x * relativeSizeX,
+                        ani->time3);
+                    ani->transY.addStep(
+                        ani->path[ani->path.size() - 1].y * relativeSizeY,
+                        ani->time3);
+                }
+
+                // 半透明
+                ani->alpha.addStep(ani->alpha2, ani->wholeTime);
+                ani->alpha.start();
+                ani->transX.start();
+                ani->transY.start();
+                continue;
+            }
 
             /// 处理即将要显示的弹幕
             nvgTextBounds(vg, 0, 0, i.msg.c_str(), nullptr, bounds);
@@ -696,7 +875,8 @@ const MaskSlice &WebMask::getSlice(size_t index) {
                     std::copy(sliceList.begin(), sliceList.end(),
                               sliceData.begin() + requestStart);
                 } else {
-                    brls::Logger::warning("sliceData is empty, skip mask data update");
+                    brls::Logger::warning(
+                        "sliceData is empty, skip mask data update");
                 }
                 requesting = false;
             });

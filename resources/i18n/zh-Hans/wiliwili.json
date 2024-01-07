@@ -377,6 +377,7 @@
         "scroll": "滚动弹幕",
         "bottom": "底部弹幕",
         "color": "彩色弹幕",
+        "advanced": "高级弹幕",
         "level": "过滤等级",
         "level_n": "{}级"
       },

@@ -35,6 +35,7 @@ private:
     BRLS_BIND(brls::BooleanCell, cellTop, "player/danmaku/filter/top");
     BRLS_BIND(brls::BooleanCell, cellBottom, "player/danmaku/filter/bottom");
     BRLS_BIND(brls::BooleanCell, cellColor, "player/danmaku/filter/color");
+    BRLS_BIND(brls::BooleanCell, cellAdvanced, "player/danmaku/filter/advanced");
 
     BRLS_BIND(SelectorCell, cellArea, "player/danmaku/style/area");
     BRLS_BIND(SelectorCell, cellAlpha, "player/danmaku/style/alpha");

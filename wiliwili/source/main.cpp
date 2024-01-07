@@ -63,6 +63,10 @@ int main(int argc, char* argv[]) {
         // Uncomment these lines to debug activities
         //        Intent::openBV("BV1Da411Y7U4");  // 弹幕防遮挡 (横屏)
         //        Intent::openBV("BV1iN4y1m7J3");  // 弹幕防遮挡 (竖屏)
+        //        Intent::openBV("BV1kT4y1s7od"); // 高级弹幕 测试0
+        //        Intent::openBV("BV1eN4y147bC"); // 高级弹幕 测试1
+        //        Intent::openBV("BV16x411D7NK"); // 高级弹幕 测试2
+        //        Intent::openBV("BV1uW411e7gt"); // bas 弹幕 (Bilibili Animation Script)
         //        Intent::openBV("BV1zb4y1j7vz");  // flv 模式报错：HTTP 424
         //        Intent::openBV("BV1jL41167ZG");  // 充电视频
         //        Intent::openBV("BV1dx411c7Av");  // flv拼接视频

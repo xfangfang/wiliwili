@@ -102,6 +102,9 @@
                     <brls:BooleanCell
                             id="player/danmaku/filter/color"/>
 
+                    <brls:BooleanCell
+                            id="player/danmaku/filter/advanced"/>
+
                 </brls:Box>
                 <brls:Header
                         width="auto"
