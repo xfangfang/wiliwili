@@ -108,8 +108,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
           artifacts: >
-            ${{ needs.version.outputs.DIST_EXE }}-x64/${{ needs.version.outputs.DIST_EXE }}-x64.7z
-            ${{ needs.version.outputs.DIST_EXE }}-x86/${{ needs.version.outputs.DIST_EXE }}-x86.7z
+            ${{ needs.version.outputs.DIST_EXE }}-x86_64/${{ needs.version.outputs.DIST_EXE }}-x86_64.zip
+            ${{ needs.version.outputs.DIST_EXE }}-x86/${{ needs.version.outputs.DIST_EXE }}-x86.zip
             ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz
             ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg
             ${{ needs.version.outputs.DIST_ARM_DMG }}/${{ needs.version.outputs.DIST_ARM_DMG }}.dmg
@@ -123,9 +123,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { arch: x64, msystem: MINGW64 }
+          - { arch: x86_64, msystem: MINGW64 }
           - { arch: x86, msystem: MINGW32, cmake: "-DUSE_GL2=ON" }
-        arch: [ x64, x86 ]
+        arch: [ x86_64, x86 ]
     env:
       MSYSTEM: ${{ matrix.msystem }}
       MSYS2_PATH_TYPE: inherit
@@ -183,17 +183,16 @@ jobs:
             -DCURL_USE_LIBPSL=OFF \
             -DZLIB_USE_STATIC_LIBS=ON
           cmake --build build
-          cd build
 
-          strip wiliwili.exe
-          7z a -mx=9 ../${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}.7z \
-            wiliwili.exe resources ${MINGW_PREFIX}/bin/libmpv-2.dll
+          strip build/wiliwili.exe
+          7z a -mx=9 -tzip ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}.zip \
+            ./build/wiliwili.exe ./build/resources ${MINGW_PREFIX}/bin/libmpv-2.dll README.md 
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
         with:
           name: ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}
-          path: "${{ needs.version.outputs.DIST_EXE }}-*.7z"
+          path: "${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}.zip"
 
   build-win-uwp:
     needs: [ version ]
