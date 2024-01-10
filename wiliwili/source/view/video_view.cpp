@@ -565,6 +565,10 @@ void VideoView::requestSeeking(int seek, int delay) {
     }
 
     showOSD(false);
+    if (osdCenterBox2->getVisibility() != brls::Visibility::VISIBLE) {
+        showCenterHint();
+        setCenterHintIcon("svg/arrow-left-right.svg");
+    }
     setCenterHintText(fmt::format("{:+d} s", seek));
     osdSlider->setProgress((float)progress);
     leftStatusLabel->setText(wiliwili::sec2Time(getRealDuration() * progress));
