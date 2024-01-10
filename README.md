@@ -312,12 +312,7 @@ sudo dkp-pacman -U \
     $base_url/switch-ffmpeg-6.1-4-any.pkg.tar.zst \
     $base_url/switch-libmpv-0.36.0-1-any.pkg.tar.zst
 
-# 4. 可选：安装依赖库 nspmini：https://github.com/StarDustCFW/nspmini
-# (1). 在resources 目录下放置：nsp_forwarder.nsp (如何生成nsp见: scripts/switch-forwarder)
-# (2). cmake 构建参数添加 -DBUILTIN_NSP=ON
-# 按上述配置后，从相册打开wiliwili时会增加一个安装NSP Forwarder的按钮
-
-# 5. build
+# 4. build
 cmake -B cmake-build-switch -DPLATFORM_SWITCH=ON
 make -C cmake-build-switch wiliwili.nro -j$(nproc)
 ```

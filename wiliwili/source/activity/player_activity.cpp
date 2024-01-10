@@ -3,6 +3,7 @@
 //
 
 #include <utility>
+#include <cstdlib>
 #include <fmt/format.h>
 #include <borealis/views/dialog.hpp>
 #include <borealis/core/touch/tap_gesture.hpp>

@@ -7,6 +7,7 @@
 #include <cpr/cpr.h>
 #include <qrcodegen.hpp>
 #include <pystring.h>
+#include <cstdlib>
 #include <fmt/format.h>
 
 #include "view/svg_image.hpp"

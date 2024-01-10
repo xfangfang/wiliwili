@@ -5,12 +5,12 @@
 #include "analytics.h"
 
 #include <utility>
-
+#include <cstdlib>
+#include <fmt/format.h>
 #include <cpr/cpr.h>
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
 #include "api/bilibili/util/http.hpp"
-#include <fmt/format.h>
 #include <borealis/core/thread.hpp>
 #include <borealis/core/logger.hpp>
 #include <borealis/core/i18n.hpp>

@@ -4,12 +4,16 @@
 
 #pragma once
 
+#include <unordered_map>
+#include <vector>
+#include <string>
+#include <cstdlib>
+#include <fmt/format.h>
 #include <borealis/core/geometry.hpp>
 #include <borealis/core/singleton.hpp>
 #include <borealis/core/logger.hpp>
 #include <mpv/client.h>
 #include <mpv/render.h>
-#include <fmt/format.h>
 #if defined(MPV_SW_RENDER)
 #elif defined(BOREALIS_USE_DEKO3D)
 #include <mpv/render_dk3d.h>
