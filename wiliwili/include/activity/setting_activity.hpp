@@ -4,7 +4,15 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/activity.hpp>
+#include <borealis/core/bind.hpp>
+
+namespace brls {
+class RadioCell;
+class BooleanCell;
+class InputCell;
+class Label;
+}  // namespace brls
 
 class TextBox;
 class SelectorCell;

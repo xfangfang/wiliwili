@@ -11,18 +11,18 @@
 #include <vector>
 #include <chrono>
 
-#include "view/video_view.hpp"
-#include "view/mpv_core.hpp"
-#include "view/live_core.hpp"
-#include "view/grid_dropdown.hpp"
-#include "view/qr_image.hpp"
-
 #include "utils/shader_helper.hpp"
 #include "utils/config_helper.hpp"
 
 #include "live/danmaku_live.hpp"
 #include "live/extract_messages.hpp"
 #include "live/ws_utils.hpp"
+
+#include "view/video_view.hpp"
+#include "view/live_core.hpp"
+#include "view/grid_dropdown.hpp"
+#include "view/qr_image.hpp"
+#include "view/mpv_core.hpp"
 
 using namespace brls::literals;
 
@@ -105,7 +105,7 @@ void LiveActivity::setCommonData() {
     // 清空自定义着色器
     ShaderHelper::instance().clearShader(false);
 
-    event_id = MPV_CE->subscribe([this](const std::string& event, void* data) {
+    event_id = APP_E->subscribe([this](const std::string& event, void* data) {
         if (event == VideoView::QUALITY_CHANGE) {
             this->setVideoQuality();
         }
@@ -274,7 +274,7 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
         brls::Logger::debug("live quality: {}/{}", desc, i);
         if (liveUrl.current_qn == i) {
             std::string quality = desc + " \uE0EF";
-            MPV_CE->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
+            APP_E->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
         }
     }
     // todo: 允许使用备用链接
@@ -363,7 +363,7 @@ LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     LiveDanmaku::instance().disconnect();
     // 取消监控mpv
-    MPV_CE->unsubscribe(event_id);
+    APP_E->unsubscribe(event_id);
     MPV_E->unsubscribe(tl_event_id);
     // 在取消监控之后再停止播放器，避免在播放器停止时触发事件 (尤其是：END_OF_FILE)
     this->video->stop();

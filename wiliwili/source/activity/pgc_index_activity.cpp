@@ -2,8 +2,12 @@
 // Created by fang on 2022/8/24.
 //
 
-#include "activity/pgc_index_activity.hpp"
 #include <pystring.h>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/applet_frame.hpp>
+
+#include "activity/pgc_index_activity.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "view/auto_tab_frame.hpp"

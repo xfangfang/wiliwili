@@ -10,8 +10,6 @@
 #include <tinyxml2.h>
 #include <borealis/core/singleton.hpp>
 
-using namespace std;
-
 class XmlClass {
 public:
     int getChildInt(const tinyxml2::XMLElement* element, std::string key,

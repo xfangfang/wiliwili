@@ -8,7 +8,13 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
+namespace brls {
+class Image;
+class Label;
+}  // namespace brls
 
 typedef std::pair<std::string, std::string> GalleryItemData;
 typedef std::vector<GalleryItemData> GalleryData;

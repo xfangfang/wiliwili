@@ -2,9 +2,13 @@
 // Created by fang on 2022/12/24.
 //
 
+#include <borealis/core/thread.hpp>
+#include <borealis/views/button.hpp>
+
 #include "fragment/test_rumble.hpp"
 #ifdef __SWITCH__
-#include "borealis/platforms/switch/switch_input.hpp"
+#include <borealis/platforms/switch/switch_input.hpp>
+#include <borealis/core/application.hpp>
 #endif
 
 std::vector<std::vector<float>> TestRumble::demo1 = {

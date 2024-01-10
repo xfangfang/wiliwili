@@ -2,15 +2,16 @@
 // Created by fang on 2022/6/14.
 //
 
-#include "fragment/space_tab.hpp"
-
 #include <utility>
-#include "view/mpv_core.hpp"
-#include "view/recycling_grid.hpp"
-#include "view/video_card.hpp"
+#include <borealis/core/thread.hpp>
+
+#include "fragment/space_tab.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
+#include "view/recycling_grid.hpp"
+#include "view/video_card.hpp"
+#include "view/mpv_core.hpp"
 
 using namespace brls::literals;
 

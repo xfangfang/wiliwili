@@ -2,7 +2,8 @@
 // Created by fang on 2022/6/9.
 //
 
-#include <borealis.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+
 #include "activity/search_activity_tv.hpp"
 #include "fragment/home_tab.hpp"
 #include "view/custom_button.hpp"

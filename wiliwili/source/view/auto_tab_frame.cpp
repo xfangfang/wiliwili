@@ -17,6 +17,8 @@
     limitations under the License.
 */
 
+#include <borealis/views/rectangle.hpp>
+
 #include "view/auto_tab_frame.hpp"
 #include "view/svg_image.hpp"
 #include "view/button_refresh.hpp"

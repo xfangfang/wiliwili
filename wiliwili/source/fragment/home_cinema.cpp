@@ -2,6 +2,9 @@
 // Created by fang on 2022/7/14.
 //
 
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
+
 #include "fragment/home_cinema.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"

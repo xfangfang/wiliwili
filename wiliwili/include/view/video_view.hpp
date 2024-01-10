@@ -4,13 +4,19 @@
 
 #pragma once
 
-#include <borealis.hpp>
-#include "view/mpv_core.hpp"
+#include <borealis/core/bind.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/application.hpp>
 
+#include "utils/event_helper.hpp"
+
+namespace brls {
+class Label;
+class ProgressSpinner;
+}
+class MPVCore;
 class VideoProgressSlider;
-
 class SVGImage;
-
 class VideoProfile;
 
 // https://github.com/mpv-player/mpv/blob/master/DOCS/edl-mpv.rst
@@ -265,7 +271,7 @@ private:
     std::string bangumiTitle;
     unsigned int bangumiSeasonId = 0;
     MPVEvent::Subscription eventSubscribeID;
-    MPVCustomEvent::Subscription customEventSubscribeID;
+    CustomEvent::Subscription customEventSubscribeID;
     std::function<void()> customToggleAction = nullptr;
     brls::InputManager* input;
     NVGcolor bottomBarColor =

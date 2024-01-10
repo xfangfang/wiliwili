@@ -2,6 +2,9 @@
 // Created by fang on 2022/7/9.
 //
 
+#include <borealis/views/applet_frame.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+
 #include "view/grid_dropdown.hpp"
 
 /// EmptyDropDown

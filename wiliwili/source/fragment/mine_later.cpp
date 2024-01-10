@@ -2,9 +2,10 @@
 // Created by 贾海峰 on 2023/7/7.
 //
 
-#include "fragment/mine_later.hpp"
-
 #include <utility>
+#include <borealis/core/thread.hpp>
+
+#include "fragment/mine_later.hpp"
 #include "view/video_card.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/activity_helper.hpp"

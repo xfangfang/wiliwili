@@ -11,14 +11,14 @@
 
 #include <atomic>
 #include <memory>
-#include "borealis.hpp"
+
 #include "view/recycling_grid.hpp"
 
 class SearchBangumi : public brls::Box {
 public:
     SearchBangumi();
 
-    ~SearchBangumi();
+    ~SearchBangumi() override;
 
     static View* create();
 

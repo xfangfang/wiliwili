@@ -3,22 +3,27 @@
 //
 
 #include <pystring.h>
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/cache_helper.hpp>
+#include <borealis/views/applet_frame.hpp>
+#include <borealis/views/dialog.hpp>
+#include <borealis/views/cells/cell_bool.hpp>
+#include <borealis/views/cells/cell_input.hpp>
 
+#include "bilibili.h"
 #include "activity/setting_activity.hpp"
 #include "activity/hint_activity.hpp"
 #include "activity/search_activity_tv.hpp"
 #include "fragment/setting_network.hpp"
 #include "fragment/test_rumble.hpp"
-#include "view/text_box.hpp"
-#include "view/mpv_core.hpp"
-#include "view/selector_cell.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/vibration_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/activity_helper.hpp"
-#include "borealis/core/cache_helper.hpp"
-#include "borealis/views/applet_frame.hpp"
-#include "bilibili.h"
+#include "view/text_box.hpp"
+#include "view/selector_cell.hpp"
+#include "view/mpv_core.hpp"
 
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
 #include "borealis/platforms/desktop/desktop_platform.hpp"

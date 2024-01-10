@@ -7,7 +7,9 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "borealis/views/dialog.hpp"
+#include <borealis/views/dialog.hpp>
+#include <borealis/core/thread.hpp>
+
 #include "utils/config_helper.hpp"
 
 using namespace brls::literals;

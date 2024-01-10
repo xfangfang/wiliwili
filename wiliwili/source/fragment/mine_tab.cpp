@@ -2,6 +2,10 @@
 // Created by fang on 2022/6/9.
 //
 
+#include <borealis/core/thread.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/views/dialog.hpp>
+
 #include "fragment/mine_tab.hpp"
 #include "fragment/mine_qr_login.hpp"
 #include "utils/image_helper.hpp"
@@ -134,7 +138,7 @@ void MineTab::onUserInfo(const bilibili::UserResult& data) {
     boxGotoUserSpace->registerAction(
         "hints/ok"_i18n, BUTTON_A,
         [](View*) -> bool {
-            auto dialog = new Dialog("wiliwili/mine/login/logout"_i18n);
+            auto dialog = new brls::Dialog("wiliwili/mine/login/logout"_i18n);
             dialog->addButton("hints/back"_i18n, []() {});
             dialog->addButton("hints/ok"_i18n, []() {
                 ProgramConfig::instance().setCookie({});

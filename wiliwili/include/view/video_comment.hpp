@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include "view/recycling_grid.hpp"
 #include "view/user_info.hpp"
 #include "bilibili/result/video_detail_result.h"

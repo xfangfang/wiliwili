@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/geometry.hpp>
 #include <borealis/core/singleton.hpp>
+#include <borealis/core/logger.hpp>
 #include <mpv/client.h>
 #include <mpv/render.h>
 #include <fmt/format.h>
@@ -47,31 +48,7 @@ struct GLShader {
 #endif
 #endif
 
-typedef enum MpvEventEnum {
-    MPV_LOADED,
-    MPV_PAUSE,
-    MPV_RESUME,
-    MPV_IDLE,
-    MPV_STOP,
-    MPV_FILE_ERROR,
-    LOADING_START,
-    LOADING_END,
-    UPDATE_DURATION,
-    UPDATE_PROGRESS,
-    START_FILE,
-    END_OF_FILE,
-    CACHE_SPEED_CHANGE,
-    VIDEO_SPEED_CHANGE,
-    VIDEO_VOLUME_CHANGE,
-    VIDEO_MUTE,
-    VIDEO_UNMUTE,
-    RESET,
-} MpvEventEnum;
-
-typedef brls::Event<MpvEventEnum> MPVEvent;
-typedef brls::Event<std::string, void *> MPVCustomEvent;
-#define MPV_E MPVCore::instance().getEvent()
-#define MPV_CE MPVCore::instance().getCustomEvent()
+#include "utils/event_helper.hpp"
 
 class MPVCore : public brls::Singleton<MPVCore> {
 public:
@@ -228,12 +205,6 @@ public:
     MPVEvent *getEvent();
 
     /**
-     * 可以用于共享自定义事件
-     * 传递内容为: string类型的事件名与一个任意类型的指针
-     */
-    MPVCustomEvent *getCustomEvent();
-
-    /**
      * 重启 MPV，用于某些需要重启才能设置的选项
      */
     void restart();
@@ -386,9 +357,6 @@ private:
 
     // MPV 内部事件，传递内容为: 事件类型
     MPVEvent mpvCoreEvent;
-
-    // 自定义的事件，传递内容为: string类型的事件名与一个任意类型的指针
-    MPVCustomEvent mpvCoreCustomEvent;
 
     // 当前软件是否在前台的回调
     brls::Event<bool>::Subscription focusSubscription;

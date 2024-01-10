@@ -9,9 +9,17 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
 #include "bilibili.h"
 #include "view/qr_image.hpp"
+
+namespace brls {
+class Label;
+}
+class QRImage;
 
 using namespace brls::literals;
 

@@ -2,13 +2,14 @@
 // Created by fang on 2022/7/18.
 //
 
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <pystring.h>
+
 #include "view/video_comment.hpp"
 #include "view/text_box.hpp"
 #include "view/svg_image.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/string_helper.hpp"
-
-#include <pystring.h>
 
 using namespace brls::literals;
 

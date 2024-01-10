@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include "presenter/mine_bangumi.hpp"
 #include "view/auto_tab_frame.hpp"
 

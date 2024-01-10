@@ -3,10 +3,12 @@
 //
 
 #pragma once
-#include "view/mpv_core.hpp"
-#include "presenter/live_data.hpp"
 
-#include <borealis.hpp>
+#include <borealis/core/activity.hpp>
+#include <borealis/core/bind.hpp>
+
+#include "utils/event_helper.hpp"
+#include "presenter/live_data.hpp"
 
 class VideoView;
 
@@ -55,5 +57,5 @@ private:
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;
     //视频清晰度
-    MPVCustomEvent::Subscription event_id;
+    CustomEvent::Subscription event_id;
 };

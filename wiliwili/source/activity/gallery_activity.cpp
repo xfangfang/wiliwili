@@ -2,6 +2,8 @@
 // Created by fang on 2023/4/26.
 //
 
+#include <borealis/views/image.hpp>
+
 #include "activity/gallery_activity.hpp"
 #include "view/gallery_view.hpp"
 #include "utils/image_helper.hpp"

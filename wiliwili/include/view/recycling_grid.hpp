@@ -9,8 +9,15 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <map>
+#include <borealis/core/application.hpp>
+#include <borealis/core/bind.hpp>
+#include <borealis/views/scrolling_frame.hpp>
 
+namespace brls {
+class Label;
+class Image;
+}  // namespace brls
 class RecyclingGrid;
 class ButtonRefresh;
 

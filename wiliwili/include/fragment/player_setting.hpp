@@ -4,13 +4,20 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
 
 class ButtonClose;
 class SelectorCell;
 enum class SettingItem;
 namespace brls {
 class ScrollingFrame;
+class Header;
+class BooleanCell;
+class DetailCell;
+class SliderCell;
+class RadioCell;
+class InputNumericCell;
 };
 
 class PlayerSetting : public brls::Box {

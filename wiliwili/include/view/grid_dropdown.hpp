@@ -11,9 +11,9 @@
 
 #include <cstdlib>
 #include <cmath>
-#include <borealis.hpp>
-#include <borealis/views/cells/cell_radio.hpp>
 #include <utility>
+#include <borealis/views/cells/cell_radio.hpp>
+
 #include "view/recycling_grid.hpp"
 
 typedef brls::Event<int> ValueSelectedEvent;

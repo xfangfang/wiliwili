@@ -9,8 +9,9 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include <nlohmann/json.hpp>
+#include <borealis/core/box.hpp>
+
 #include "view/user_info.hpp"
 
 class ReleaseAuthor {

@@ -7,6 +7,7 @@
 #include <utility>
 #include <codecvt>
 #include <locale>
+#include <borealis/core/application.hpp>
 
 #include "view/text_box.hpp"
 

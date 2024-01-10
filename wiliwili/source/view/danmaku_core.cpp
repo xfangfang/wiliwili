@@ -3,6 +3,8 @@
 //
 
 #include <borealis/core/logger.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/thread.hpp>
 
 #include <pystring.h>
 #include <cstdlib>
@@ -51,6 +53,9 @@ static inline uint64_t ntohll(uint64_t value) {
     }
 }
 #endif
+
+// include mpv after winsock2.h
+#include "view/mpv_core.hpp"
 
 // Uncomment this line to show mask in a more obvious way.
 //#define DEBUG_MASK
@@ -259,7 +264,7 @@ void DanmakuCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
     danmakuMutex.unlock();
 
     // 通过mpv来通知弹幕加载完成
-    MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
+    APP_E->fire("DANMAKU_LOADED", nullptr);
 }
 
 void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
@@ -269,7 +274,7 @@ void DanmakuCore::addSingleDanmaku(const DanmakuItem &item) {
     danmakuMutex.unlock();
 
     // 通过mpv来通知弹幕加载完成
-    MPVCore::instance().getCustomEvent()->fire("DANMAKU_LOADED", nullptr);
+    APP_E->fire("DANMAKU_LOADED", nullptr);
 }
 
 void DanmakuCore::loadMaskData(const std::string &url) {

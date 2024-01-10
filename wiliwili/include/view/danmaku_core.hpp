@@ -4,13 +4,16 @@
 
 #pragma once
 
-#include "view/mpv_core.hpp"
-
 #include <mutex>
 #include <optional>
 
+#include <nanovg.h>
 #include <borealis/core/singleton.hpp>
 #include <borealis/core/animation.hpp>
+#include <borealis/core/geometry.hpp>
+#include <borealis/core/font.hpp>
+
+#include "utils/event_helper.hpp"
 
 // 每个分片内的svg数据，一般 1/30 s 一帧
 class MaskSvg {

@@ -5,7 +5,9 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/activity.hpp>
+#include <borealis/core/bind.hpp>
+
 #include "presenter/pgc_index.hpp"
 
 typedef brls::Event<UserRequestData> IndexChangeEvent;

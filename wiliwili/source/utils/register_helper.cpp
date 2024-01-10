@@ -2,27 +2,6 @@
 // Created by fang on 2022/7/14.
 //
 
-#include "view/auto_tab_frame.hpp"
-#include "view/video_view.hpp"
-#include "view/user_info.hpp"
-#include "view/text_box.hpp"
-#include "view/qr_image.hpp"
-#include "view/svg_image.hpp"
-#include "view/up_user_small.hpp"
-#include "view/recycling_grid.hpp"
-#include "view/grid_dropdown.hpp"
-#include "view/video_comment.hpp"
-#include "view/mpv_core.hpp"
-#include "view/video_progress_slider.hpp"
-#include "view/gallery_view.hpp"
-#include "view/custom_button.hpp"
-#include "view/animation_image.hpp"
-#include "view/button_close.hpp"
-#include "view/check_box.hpp"
-#include "view/video_profile.hpp"
-#include "view/selector_cell.hpp"
-#include "view/hint_label.hpp"
-
 #include "fragment/home_tab.hpp"
 #include "fragment/dynamic_tab.hpp"
 #include "fragment/mine_tab.hpp"
@@ -48,6 +27,27 @@
 #include "fragment/search_history.hpp"
 
 #include "utils/config_helper.hpp"
+
+#include "view/auto_tab_frame.hpp"
+#include "view/video_view.hpp"
+#include "view/user_info.hpp"
+#include "view/text_box.hpp"
+#include "view/qr_image.hpp"
+#include "view/svg_image.hpp"
+#include "view/up_user_small.hpp"
+#include "view/recycling_grid.hpp"
+#include "view/grid_dropdown.hpp"
+#include "view/video_comment.hpp"
+#include "view/video_progress_slider.hpp"
+#include "view/gallery_view.hpp"
+#include "view/custom_button.hpp"
+#include "view/animation_image.hpp"
+#include "view/button_close.hpp"
+#include "view/check_box.hpp"
+#include "view/video_profile.hpp"
+#include "view/selector_cell.hpp"
+#include "view/hint_label.hpp"
+#include "view/mpv_core.hpp"
 
 void Register::initCustomView() {
     // Register extended views

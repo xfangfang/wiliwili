@@ -2,7 +2,7 @@
 // Created by fang on 2022/8/18.
 //
 
-#include <borealis.hpp>
+#include <borealis/core/i18n.hpp>
 
 #include "bilibili.h"
 #include "bilibili/result/mine_result.h"

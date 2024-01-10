@@ -9,13 +9,19 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
+namespace brls {
+class Label;
+class Header;
+}  // namespace brls
 
 class SettingNetwork : public brls::Box {
 public:
     SettingNetwork();
 
-    ~SettingNetwork();
+    ~SettingNetwork() override;
 
     void networkTest();
 

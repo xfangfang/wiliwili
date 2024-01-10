@@ -4,6 +4,9 @@
 
 #include <pystring.h>
 #include <regex>
+#include <borealis/core/application.hpp>
+#include <borealis/views/rectangle.hpp>
+#include <borealis/views/image.hpp>
 
 #include "fragment/latest_update.hpp"
 #include "analytics.h"

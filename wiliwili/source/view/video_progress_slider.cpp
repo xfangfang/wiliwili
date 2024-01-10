@@ -2,6 +2,11 @@
 // Created by fang on 2022/8/15.
 //
 
+#include <borealis/views/rectangle.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/touch/pan_gesture.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+
 #include "view/video_progress_slider.hpp"
 #include "view/svg_image.hpp"
 

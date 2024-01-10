@@ -2,8 +2,10 @@
 // Created by fang on 2022/12/27.
 //
 
+#include <borealis/core/application.hpp>
+#include <borealis/core/cache_helper.hpp>
+
 #include "view/animation_image.hpp"
-#include "borealis/core/cache_helper.hpp"
 
 AnimationImage::AnimationImage() {
     brls::Logger::debug("View AnimationImage: create");

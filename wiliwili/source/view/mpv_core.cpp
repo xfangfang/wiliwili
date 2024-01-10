@@ -4,10 +4,13 @@
 
 #include <cstdlib>
 #include <clocale>
-#include "view/mpv_core.hpp"
 #include <pystring.h>
+#include <borealis/core/thread.hpp>
+#include <borealis/core/application.hpp>
+
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "view/mpv_core.hpp"
 
 #ifdef MPV_USE_FB
 #ifdef PS4
@@ -760,8 +763,6 @@ mpv_render_context *MPVCore::getContext() { return this->mpv_context; }
 mpv_handle *MPVCore::getHandle() { return this->mpv; }
 
 MPVEvent *MPVCore::getEvent() { return &this->mpvCoreEvent; }
-
-MPVCustomEvent *MPVCore::getCustomEvent() { return &this->mpvCoreCustomEvent; }
 
 std::string MPVCore::getCacheSpeed() const {
     if (cache_speed >> 20 > 0) {

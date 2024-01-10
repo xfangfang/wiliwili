@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include "view/recycling_grid.hpp"
 
 class NetImage;

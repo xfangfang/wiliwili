@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include <cpr/cpr.h>
 #include <ctime>
 #include <random>
 #include <unordered_map>
+#include <borealis/views/image.hpp>
 
 /**
  * 图片加载请求，每个请求对应一个ImageHelper的实例

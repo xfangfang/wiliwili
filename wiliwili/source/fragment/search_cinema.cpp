@@ -2,6 +2,8 @@
 // Created by fang on 2022/8/3.
 //
 
+#include <borealis/core/thread.hpp>
+
 #include "fragment/search_cinema.hpp"
 #include "bilibili.h"
 #include "view/recycling_grid.hpp"

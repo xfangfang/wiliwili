@@ -3,19 +3,24 @@
 //
 
 #include <utility>
+#include <borealis/core/thread.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/views/applet_frame.hpp>
+#include <borealis/views/dialog.hpp>
 
 #include "activity/player_activity.hpp"
 #include "fragment/player_collection.hpp"
 #include "fragment/player_coin.hpp"
 #include "fragment/player_single_comment.hpp"
-#include "view/qr_image.hpp"
-#include "view/video_view.hpp"
-#include "view/grid_dropdown.hpp"
-#include "view/subtitle_core.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/number_helper.hpp"
 #include "presenter/comment_related.hpp"
+#include "view/qr_image.hpp"
+#include "view/video_view.hpp"
+#include "view/grid_dropdown.hpp"
+#include "view/subtitle_core.hpp"
+#include "view/mpv_core.hpp"
 
 class DataSourceCommentList : public RecyclingGridDataSource,
                               public CommentRequest {
@@ -370,13 +375,13 @@ void BasePlayerActivity::setCommonData() {
                             top->getContentView()->getView("video"))) {
                         // 最顶层没有 video 组件，说明用户打开了评论或者其他菜单
                         // 在这种情况下不执行自动播放其他视频显示重播按钮
-                        MPV_CE->fire(VideoView::REPLAY, nullptr);
+                        APP_E->fire(VideoView::REPLAY, nullptr);
                     } else if (PLAYER_STRATEGY == PlayerStrategy::NEXT ||
                                PLAYER_STRATEGY == PlayerStrategy::RCMD) {
                         this->onIndexChangeToNext();
                     } else {
                         // 对于其他情况，显示重播按钮
-                        MPV_CE->fire(VideoView::REPLAY, nullptr);
+                        APP_E->fire(VideoView::REPLAY, nullptr);
                     }
                 }
                 break;
@@ -386,7 +391,7 @@ void BasePlayerActivity::setCommonData() {
     });
 
     customEventSubscribeID =
-        MPV_CE->subscribe([this](const std::string& event, void* data) {
+        APP_E->subscribe([this](const std::string& event, void* data) {
             if (event == VideoView::QUALITY_CHANGE) {
                 this->setVideoQuality();
             } else if (event == "REQUEST_CAST_URL") {
@@ -592,17 +597,17 @@ void BasePlayerActivity::onVideoPlayUrl(
         auto data = SubtitleCore::instance().getSubtitleList();
         if (data.last_play_cid == videoDetailPage.cid &&
             data.last_play_time > 0) {
-            MPV_CE->fire(VideoView::LAST_TIME, (void*)&(data.last_play_time));
+            APP_E->fire(VideoView::LAST_TIME, (void*)&(data.last_play_time));
         }
     } else {
         // 设置为 POSITION_DISCARD 后，不会加载网络历史记录，而是直接使用 setProgress 指定的位置
         // 番剧视频或指定了进度的用户视频
         int64_t position = 0;
-        MPV_CE->fire(VideoView::LAST_TIME, (void*)&(position));
+        APP_E->fire(VideoView::LAST_TIME, (void*)&(position));
         if (start > 0) {
             std::string hint =
                 fmt::format("已为您定位至: {}", wiliwili::sec2Time(start));
-            MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
+            APP_E->fire(VideoView::HINT, (void*)hint.c_str());
         }
     }
 
@@ -681,18 +686,18 @@ void BasePlayerActivity::onVideoPlayUrl(
     // 设置mpv事件
     // 1.更新清晰度
     std::string quality = videoUrlResult.accept_description[getQualityIndex()];
-    MPV_CE->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
+    APP_E->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
     // 2.绘制进度条标记点（例如：片头片尾）
     if (clipOpen > 0) {
         float data = clipOpen * 1.0f / time_sec;
-        MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data);
+        APP_E->fire(VideoView::CLIP_INFO, (void*)&data);
     }
     if (clipEnd > 0) {
         float data2 = clipEnd * 1.0f / time_sec;
-        MPV_CE->fire(VideoView::CLIP_INFO, (void*)&data2);
+        APP_E->fire(VideoView::CLIP_INFO, (void*)&data2);
     }
     // 3. 设置视频时长
-    MPV_CE->fire(VideoView::REAL_DURATION, (void*)&time_sec);
+    APP_E->fire(VideoView::REAL_DURATION, (void*)&time_sec);
 
     brls::Logger::debug("BasePlayerActivity::onVideoPlayUrl done");
 }
@@ -738,7 +743,7 @@ void BasePlayerActivity::onVideoOnlineCount(
     const bilibili::VideoOnlineTotal& result) {
     std::string count = result.total + "wiliwili/player/current"_i18n;
     this->videoPeopleLabel->setText(count);
-    MPV_CE->fire(VideoView::SET_ONLINE_NUM, (void*)count.c_str());
+    APP_E->fire(VideoView::SET_ONLINE_NUM, (void*)count.c_str());
 }
 
 void BasePlayerActivity::onVideoRelationInfo(
@@ -811,7 +816,7 @@ BasePlayerActivity::~BasePlayerActivity() {
     brls::Logger::debug("del BasePlayerActivity");
     // 取消监控mpv
     MPV_E->unsubscribe(eventSubscribeID);
-    MPV_CE->unsubscribe(customEventSubscribeID);
+    APP_E->unsubscribe(customEventSubscribeID);
     // 停止视频播放
     this->video->stop();
 }

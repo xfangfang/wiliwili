@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include "presenter/dynamic_tab.hpp"
 #include "presenter/dynamic_video.hpp"
 #include "view/auto_tab_frame.hpp"

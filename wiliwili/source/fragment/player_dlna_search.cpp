@@ -2,11 +2,17 @@
 // Created by fang on 2023/5/7.
 //
 #include <chrono>
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/views/cells/cell_radio.hpp>
+#include <borealis/views/dialog.hpp>
 
-#include "fragment/player_dlna_search.hpp"
-#include "view/button_close.hpp"
-#include "utils/dialog_helper.hpp"
 #include "bilibili/result/video_detail_result.h"
+#include "fragment/player_dlna_search.hpp"
+#include "utils/dialog_helper.hpp"
+#include "view/button_close.hpp"
+#include "view/mpv_core.hpp"
 
 using namespace brls::literals;
 
@@ -78,7 +84,7 @@ void PlayerDlnaSearch::searchStart() {
                     currentRenderer = i;
                     l->title->setText(i.friendlyName + " " +
                                       "wiliwili/player/cast/request_url"_i18n);
-                    MPV_CE->fire("REQUEST_CAST_URL", nullptr);
+                    APP_E->fire("REQUEST_CAST_URL", nullptr);
                     return true;
                 });
             }
@@ -126,7 +132,7 @@ PlayerDlnaSearch::PlayerDlnaSearch() {
         return true;
     });
 
-    customEventSubscribeID = MPV_CE->subscribe([this](const std::string& event,
+    customEventSubscribeID = APP_E->subscribe([this](const std::string& event,
                                                       void* data) {
         if (event == "CAST_URL") {
             waitingUrl.store(false);
@@ -210,7 +216,7 @@ void PlayerDlnaSearch::refreshRenderer() {
 
 PlayerDlnaSearch::~PlayerDlnaSearch() {
     brls::Logger::debug("Fragment PlayerDlnaSearch: delete");
-    MPV_CE->unsubscribe(customEventSubscribeID);
+    APP_E->unsubscribe(customEventSubscribeID);
     searchStop();
 }
 

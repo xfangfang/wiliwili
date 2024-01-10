@@ -2,18 +2,24 @@
 // Created by fang on 2023/3/4.
 //
 
-#include "fragment/player_setting.hpp"
-#include "view/danmaku_core.hpp"
-#include "view/button_close.hpp"
-#include "view/mpv_core.hpp"
-#include "view/subtitle_core.hpp"
-#include "view/video_view.hpp"
-#include "view/selector_cell.hpp"
-#include "view/svg_image.hpp"
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/cells/cell_bool.hpp>
+#include <borealis/views/cells/cell_slider.hpp>
+#include <borealis/views/cells/cell_input.hpp>
+
 #include "utils/config_helper.hpp"
 #include "utils/shader_helper.hpp"
 #include "utils/number_helper.hpp"
 #include "activity/player_activity.hpp"
+#include "fragment/player_setting.hpp"
+#include "view/danmaku_core.hpp"
+#include "view/button_close.hpp"
+#include "view/subtitle_core.hpp"
+#include "view/video_view.hpp"
+#include "view/selector_cell.hpp"
+#include "view/svg_image.hpp"
+#include "view/mpv_core.hpp"
 
 using namespace brls::literals;
 
@@ -144,7 +150,7 @@ void PlayerSetting::setupCommonSetting() {
             std::string hint =
                 value ? "wiliwili/player/setting/common/skip_hint1"_i18n
                       : "wiliwili/player/setting/common/skip_hint2"_i18n;
-            MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
+            APP_E->fire(VideoView::HINT, (void*)hint.c_str());
             GA("player_setting", {{"skip", value ? "true" : "false"}});
         });
 
@@ -552,7 +558,7 @@ void PlayerSetting::setBangumiCustomSetting(const std::string& title,
                 btnClipStart->setVisibility(brls::Visibility::GONE);
                 btnClipEnd->setVisibility(brls::Visibility::GONE);
             }
-            MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
+            APP_E->fire(VideoView::HINT, (void*)hint.c_str());
             GA("season_custom_setting",
                {{"custom_clip", value ? "true" : "false"}});
         });

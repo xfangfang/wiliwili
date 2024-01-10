@@ -7,6 +7,8 @@
 #include <cstring>
 #include <iostream>
 #include <locale>
+#include <borealis/core/thread.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
 
 #include "activity/search_activity_tv.hpp"
 #include "fragment/search_hots.hpp"

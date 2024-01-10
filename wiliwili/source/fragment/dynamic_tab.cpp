@@ -2,9 +2,10 @@
 // Created by fang on 2022/6/9.
 //
 
-#include "fragment/dynamic_tab.hpp"
-
 #include <utility>
+#include <borealis/core/thread.hpp>
+
+#include "fragment/dynamic_tab.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/svg_image.hpp"

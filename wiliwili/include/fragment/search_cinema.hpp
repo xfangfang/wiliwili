@@ -11,14 +11,14 @@
 
 #include <atomic>
 #include <memory>
-#include <borealis.hpp>
+
 #include "view/recycling_grid.hpp"
 
 class SearchCinema : public brls::Box {
 public:
     SearchCinema();
 
-    ~SearchCinema();
+    ~SearchCinema() override;
 
     static View* create();
 

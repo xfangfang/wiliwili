@@ -4,14 +4,15 @@
 #include <cstdlib>
 #include <tinyxml2.h>
 #include <pystring.h>
-#include "borealis.hpp"
+#include <borealis/core/thread.hpp>
+
 #include "presenter/video_detail.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
-#include "view/mpv_core.hpp"
 #include "view/danmaku_core.hpp"
 #include "view/subtitle_core.hpp"
 #include "view/video_view.hpp"
+#include "view/mpv_core.hpp"
 #include "bilibili/result/mine_collection_result.h"
 
 /// 请求视频数据
@@ -369,7 +370,7 @@ void VideoDetail::requestCastVideoUrl(int oid, int cid, int type) {
                 ASYNC_RELEASE
                 if (result.durl.empty()) {
                     brls::Logger::error("requestCastVideoUrl: empty durl");
-                    MPV_CE->fire("CAST_URL_ERROR", nullptr);
+                    APP_E->fire("CAST_URL_ERROR", nullptr);
                     return;
                 }
                 this->onCastPlayUrl(result);
@@ -379,7 +380,7 @@ void VideoDetail::requestCastVideoUrl(int oid, int cid, int type) {
             brls::Logger::error("{}", error);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
-                MPV_CE->fire("CAST_URL_ERROR", nullptr);
+                APP_E->fire("CAST_URL_ERROR", nullptr);
             });
         });
 }
@@ -629,7 +630,7 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid,
                     if (result.last_play_cid == videoDetailPage.cid) {
                         if (result.last_play_time <= 0) return;
                         // 之前播放过此视频
-                        MPV_CE->fire(VideoView::LAST_TIME,
+                        APP_E->fire(VideoView::LAST_TIME,
                                      (void*)&(result.last_play_time));
                     } else {
                         // 之前播放过同一合集的其他视频
@@ -643,7 +644,7 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, int cid,
                             } else {
                                 hint += " 已看完";
                             }
-                            MPV_CE->fire(VideoView::HINT, (void*)hint.c_str());
+                            APP_E->fire(VideoView::HINT, (void*)hint.c_str());
                             break;
                         }
                     }

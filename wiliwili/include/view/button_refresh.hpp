@@ -4,9 +4,11 @@
 
 #pragma once
 
-#include "borealis/core/box.hpp"
-#include "borealis/core/theme.hpp"
+#include <borealis/core/box.hpp>
+#include <borealis/core/theme.hpp>
 #include <borealis/core/time.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+
 #include "view/svg_image.hpp"
 
 /// RefreshButton

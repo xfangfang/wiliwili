@@ -2,6 +2,9 @@
 // Created by fang on 2023/4/1.
 //
 
+#include <borealis/core/application.hpp>
+#include <borealis/views/label.hpp>
+
 #include "view/video_profile.hpp"
 #include "view/mpv_core.hpp"
 

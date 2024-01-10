@@ -5,13 +5,12 @@
 #pragma once
 
 #include <chrono>
-#include <borealis.hpp>
 #include "presenter/video_detail.hpp"
 
 #include "view/video_comment.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/auto_tab_frame.hpp"
-#include "view/mpv_core.hpp"
+#include "utils/event_helper.hpp"
 
 class VideoView;
 class UserInfoView;
@@ -135,7 +134,7 @@ protected:
 
     // 监控mpv事件
     MPVEvent::Subscription eventSubscribeID;
-    MPVCustomEvent::Subscription customEventSubscribeID;
+    CustomEvent::Subscription customEventSubscribeID;
 
     // 在软件自动切换分集时，传递当前跳转的索引值给列表用于更新ui
     ChangeIndexEvent changeIndexEvent;

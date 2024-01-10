@@ -3,6 +3,7 @@
 //
 
 #include <borealis/core/box.hpp>
+#include <borealis/core/application.hpp>
 #include <borealis/views/label.hpp>
 
 #include "view/user_info.hpp"

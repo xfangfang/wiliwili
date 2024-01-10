@@ -19,7 +19,15 @@
 
 #pragma once
 
-#include "borealis.hpp"
+#include <functional>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+#include <borealis/core/application.hpp>
+
+namespace brls {
+class Label;
+class Rectangle;
+}
 
 typedef std::function<brls::View*(void)> TabViewCreator;
 

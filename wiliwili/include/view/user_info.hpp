@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <borealis/core/box.hpp>
 #include <borealis/core/bind.hpp>
 
 enum class InfoHintType {

@@ -2,18 +2,22 @@
 // Created by fang on 2023/1/3.
 //
 
+#include <borealis/views/dialog.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+
+#include "bilibili/result/home_pgc_season_result.h"
 #include "activity/player_activity.hpp"
 #include "fragment/player_collection.hpp"
 #include "fragment/player_fragments.hpp"
 #include "fragment/season_evaluate.hpp"
-#include "view/video_view.hpp"
-#include "view/video_card.hpp"
-#include "view/svg_image.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/image_helper.hpp"
-#include "bilibili/result/home_pgc_season_result.h"
+#include "view/video_view.hpp"
+#include "view/video_card.hpp"
+#include "view/svg_image.hpp"
+#include "view/mpv_core.hpp"
 
 /// PlayerSeasonActivity
 
@@ -76,7 +80,7 @@ void PlayerSeasonActivity::onIndexChange(size_t index) {
     // 也就是说目前的设定是自动连播不会跨越section播放
     if (episodeList[index].id == 0)  {
         // 无下一集可播，显示重播按钮
-        MPV_CE->fire(VideoView::REPLAY, nullptr);
+        APP_E->fire(VideoView::REPLAY, nullptr);
         return;
     }
 
@@ -150,7 +154,7 @@ void PlayerSeasonActivity::onContentAvailable() {
 void PlayerSeasonActivity::onSeasonEpisodeInfo(
     const bilibili::SeasonEpisodeResult& result) {
     std::string title = this->seasonInfo.season_title + " - " + result.title;
-    MPV_CE->fire(VideoView::SET_TITLE, (void*)title.c_str());
+    APP_E->fire(VideoView::SET_TITLE, (void*)title.c_str());
     this->videoBVIDLabel->setText(result.bvid);
 }
 
@@ -437,5 +441,5 @@ void PlayerSeasonActivity::onCastPlayUrl(
     bilibili::VideoCastData data;
     data.url   = result.durl[0].url;
     data.title = seasonInfo.season_title + " " + episodeResult.title;
-    MPV_CE->fire("CAST_URL", (void*)&data);
+    APP_E->fire("CAST_URL", (void*)&data);
 }

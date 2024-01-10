@@ -10,7 +10,6 @@
 #include <thread>
 #include <mutex>
 
-#include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
 #include <mongoose.h>
 #include <nlohmann/json.hpp>

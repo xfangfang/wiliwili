@@ -9,13 +9,14 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/event.hpp>
 
 class CustomButton : public brls::Box {
 public:
     CustomButton();
 
-    ~CustomButton();
+    ~CustomButton() override;
 
     static View *create();
 

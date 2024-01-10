@@ -2,6 +2,9 @@
 // Created by fang on 2023/1/16.
 //
 
+#include <borealis/views/label.hpp>
+#include <borealis/views/image.hpp>
+
 #include "fragment/player_evaluate.hpp"
 
 PlayerEvaluate::PlayerEvaluate() {

@@ -2,6 +2,9 @@
 // Created by fang on 2022/12/27.
 //
 
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/views/label.hpp>
+
 #include "view/button_close.hpp"
 
 ButtonClose::ButtonClose() {

@@ -2,6 +2,10 @@
 // Created by fang on 2022/8/21.
 //
 
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/views/image.hpp>
+
 #include "view/gallery_view.hpp"
 
 GalleryView::GalleryView() {

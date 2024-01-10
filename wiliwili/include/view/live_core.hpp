@@ -9,9 +9,10 @@
 #include <chrono>
 #include <cstddef>
 #include <deque>
+#include <map>
+#include <mutex>
 
-#include "nanovg.h"
-#include <borealis.hpp>
+#include <nanovg.h>
 #include <borealis/core/singleton.hpp>
 
 using time_p = std::chrono::time_point<std::chrono::system_clock>;

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <borealis/core/thread.hpp>
+
 #include "bilibili.h"
 #include "bilibili/result/home_live_result.h"
 #include "presenter/presenter.h"

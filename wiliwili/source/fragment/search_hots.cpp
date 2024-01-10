@@ -3,6 +3,7 @@
 //
 
 #include <utility>
+#include <borealis/core/thread.hpp>
 
 #include "fragment/search_hots.hpp"
 #include "view/recycling_grid.hpp"

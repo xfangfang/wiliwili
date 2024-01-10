@@ -9,12 +9,14 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
 
 class ButtonClose;
 class SelectorCell;
 namespace brls {
 class ScrollingFrame;
+class BooleanCell;
 };
 class PlayerDanmakuSetting : public brls::Box {
 public:

@@ -9,10 +9,10 @@
 #include <borealis/platforms/desktop/desktop_platform.hpp>
 #endif
 
-#include <borealis.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/cache_helper.hpp>
 
 #include "bilibili.h"
-#include "borealis/core/cache_helper.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/thread_helper.hpp"
 #include "utils/image_helper.hpp"
@@ -21,11 +21,11 @@
 #include "utils/ban_list.hpp"
 #include "utils/string_helper.hpp"
 #include "presenter/video_detail.hpp"
-#include "view/mpv_core.hpp"
-#include "view/danmaku_core.hpp"
-#include "view/video_view.hpp"
 #include "activity/player_activity.hpp"
 #include "activity/search_activity_tv.hpp"
+#include "view/danmaku_core.hpp"
+#include "view/video_view.hpp"
+#include "view/mpv_core.hpp"
 
 #ifdef PS4
 #include <orbis/SystemService.h>

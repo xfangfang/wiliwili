@@ -4,8 +4,13 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/activity.hpp>
+#include <borealis/core/bind.hpp>
 
+namespace brls {
+class Label;
+class Box;
+}  // namespace brls
 class SearchTab;
 
 typedef brls::Event<std::string> UpdateSearchEvent;

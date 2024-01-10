@@ -14,7 +14,8 @@
     limitations under the License.
 */
 
-#include <borealis.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+
 #include "activity/main_activity.hpp"
 #include "activity/setting_activity.hpp"
 #include "view/custom_button.hpp"

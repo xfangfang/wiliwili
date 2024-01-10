@@ -9,7 +9,12 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
+namespace brls {
+class Label;
+}
 
 class ButtonClose : public brls::Box {
 public:
@@ -17,7 +22,7 @@ public:
 
     void setTextColor(NVGcolor color);
 
-    ~ButtonClose();
+    ~ButtonClose() override;
 
     static View* create();
 

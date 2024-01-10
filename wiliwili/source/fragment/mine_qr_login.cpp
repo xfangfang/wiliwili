@@ -3,6 +3,10 @@
 //
 
 #include <utility>
+#include <borealis/core/application.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/label.hpp>
+
 #include "fragment/mine_qr_login.hpp"
 #include "utils/config_helper.hpp"
 #include "bilibili/result/mine_result.h"

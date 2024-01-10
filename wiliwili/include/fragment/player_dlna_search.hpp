@@ -10,11 +10,19 @@
 #pragma once
 
 #include <atomic>
-#include <borealis.hpp>
+#include <thread>
+#include <borealis/core/timer.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
 #include "dlna/dlna.h"
-#include "view/mpv_core.hpp"
+#include "utils/event_helper.hpp"
 
 class ButtonClose;
+namespace brls{
+class ScrollingFrame;
+class RadioCell;
+}
 
 class RepeatDuratoinTimer : public brls::RepeatingTimer {
 public:
@@ -73,7 +81,7 @@ private:
     RepeatDuratoinTimer searchCounter;
     DlnaRenderer currentRenderer;
     brls::RadioCell* currentCell = nullptr;
-    MPVCustomEvent::Subscription customEventSubscribeID;
+    CustomEvent::Subscription customEventSubscribeID;
 
     inline static std::thread dlnaSearchThread;
 };

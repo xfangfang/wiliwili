@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/view.hpp>
 
 class CheckBox : public brls::View {
 public:

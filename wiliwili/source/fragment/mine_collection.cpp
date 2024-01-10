@@ -2,9 +2,11 @@
 // Created by fang on 2022/7/30.
 //
 
-#include "fragment/mine_collection.hpp"
-
 #include <utility>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/image.hpp>
+
+#include "fragment/mine_collection.hpp"
 #include "fragment/mine_collection_video_list.hpp"
 #include "view/video_card.hpp"
 #include "utils/number_helper.hpp"

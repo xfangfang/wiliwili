@@ -3,13 +3,15 @@
 //
 
 #include <borealis/views/dialog.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/core/logger.hpp>
 
-#include "view/video_view.hpp"
-#include "view/subtitle_core.hpp"
 #include "activity/dlna_activity.hpp"
 #include "bilibili/util/uuid.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "view/video_view.hpp"
+#include "view/mpv_core.hpp"
 
 using namespace brls::literals;
 

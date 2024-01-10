@@ -2,8 +2,11 @@
 // Created by fang on 2022/7/7.
 //
 
-#include <borealis/views/label.hpp>
 #include <utility>
+#include <borealis/views/label.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
+
 #include "fragment/home_hots_weekly.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"

@@ -4,16 +4,14 @@
 
 #include <limits>
 
-#include "pystring.h"
-#include "view/video_view.hpp"
-#include "view/mpv_core.hpp"
-#include "view/live_core.hpp"
-#include "view/subtitle_core.hpp"
-#include "view/video_progress_slider.hpp"
-#include "view/svg_image.hpp"
-#include "view/grid_dropdown.hpp"
-#include "view/video_profile.hpp"
-#include "view/danmaku_core.hpp"
+#include <borealis/views/label.hpp>
+#include <borealis/views/progress_spinner.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/slider.hpp>
+#include <borealis/views/applet_frame.hpp>
+#include <pystring.h>
+
 #include "utils/number_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/string_helper.hpp"
@@ -22,6 +20,15 @@
 #include "fragment/player_danmaku_setting.hpp"
 #include "fragment/player_setting.hpp"
 #include "fragment/player_dlna_search.hpp"
+#include "view/video_view.hpp"
+#include "view/live_core.hpp"
+#include "view/subtitle_core.hpp"
+#include "view/video_progress_slider.hpp"
+#include "view/svg_image.hpp"
+#include "view/grid_dropdown.hpp"
+#include "view/video_profile.hpp"
+#include "view/danmaku_core.hpp"
+#include "view/mpv_core.hpp"
 
 using namespace brls;
 
@@ -248,7 +255,7 @@ VideoView::VideoView() {
 
     /// 清晰度按钮
     this->videoQuality->getParent()->registerClickAction([](...) {
-        MPV_CE->fire(VideoView::QUALITY_CHANGE, nullptr);
+        APP_E->fire(VideoView::QUALITY_CHANGE, nullptr);
         return true;
     });
     this->videoQuality->getParent()->addGestureRecognizer(
@@ -257,7 +264,7 @@ VideoView::VideoView() {
                          brls::ControllerButton::BUTTON_START,
                          [this](brls::View* view) -> bool {
                              CHECK_OSD(true);
-                             MPV_CE->fire(VideoView::QUALITY_CHANGE, nullptr);
+                             APP_E->fire(VideoView::QUALITY_CHANGE, nullptr);
                              return true;
                          });
 
@@ -424,7 +431,7 @@ VideoView::VideoView() {
             });
             sliderBox->addView(slider);
             container->addView(sliderBox);
-            auto frame = new AppletFrame(container);
+            auto frame = new brls::AppletFrame(container);
             frame->setInFadeAnimation(true);
             frame->setHeaderVisibility(brls::Visibility::GONE);
             frame->setFooterVisibility(brls::Visibility::GONE);
@@ -511,7 +518,7 @@ VideoView::VideoView() {
 
     // 自定义的mpv事件
     customEventSubscribeID =
-        MPV_CE->subscribe([this](const std::string& event, void* data) {
+        APP_E->subscribe([this](const std::string& event, void* data) {
             if (event == VideoView::SET_TITLE) {
                 this->setTitle((const char*)data);
             } else if (event == VideoView::SET_ONLINE_NUM) {
@@ -599,7 +606,7 @@ void VideoView::requestSeeking(int seek, int delay) {
 VideoView::~VideoView() {
     brls::Logger::debug("trying delete VideoView...");
     this->unRegisterMpvEvent();
-    MPV_CE->unsubscribe(customEventSubscribeID);
+    APP_E->unsubscribe(customEventSubscribeID);
     brls::Logger::debug("Delete VideoView done");
 }
 

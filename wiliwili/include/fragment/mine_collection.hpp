@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include "view/auto_tab_frame.hpp"
 #include "presenter/mine_collection.hpp"
 #include "view/recycling_grid.hpp"

@@ -2,6 +2,8 @@
 // Created by fang on 2022/7/14.
 //
 
+#include <borealis/core/thread.hpp>
+
 #include "fragment/home_bangumi.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"

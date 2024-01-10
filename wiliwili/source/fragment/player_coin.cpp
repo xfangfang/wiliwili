@@ -2,6 +2,11 @@
 // Created by fang on 2022/12/26.
 //
 
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/label.hpp>
+
 #include "fragment/player_coin.hpp"
 #include "view/animation_image.hpp"
 #include "view/check_box.hpp"

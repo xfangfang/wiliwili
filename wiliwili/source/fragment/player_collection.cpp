@@ -2,6 +2,8 @@
 // Created by fang on 2022/12/28.
 //
 
+#include <borealis/core/thread.hpp>
+
 #include "fragment/player_collection.hpp"
 #include "bilibili.h"
 #include "bilibili/result/mine_collection_result.h"

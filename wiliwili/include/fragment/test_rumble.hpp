@@ -9,8 +9,16 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <thread>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
 #include "view/video_progress_slider.hpp"
+
+namespace brls {
+class Label;
+class Button;
+}  // namespace brls
 
 class TestRumble : public brls::Box {
 public:

@@ -3,7 +3,9 @@
 //
 
 #include "view/svg_image.hpp"
-#include "borealis/core/cache_helper.hpp"
+
+#include <borealis/core/application.hpp>
+#include <borealis/core/cache_helper.hpp>
 
 SVGImage::SVGImage() {
     this->registerFilePathXMLAttribute("SVG", [this](const std::string& value) {

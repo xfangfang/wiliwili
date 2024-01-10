@@ -3,9 +3,7 @@
 //
 
 #pragma once
-#include <cstring>
-#include <borealis.hpp>
-#include <cpr/cpr.h>
+#include <borealis/views/image.hpp>
 #include <lunasvg.h>
 
 class SVGImage : public brls::Image {

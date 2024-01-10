@@ -2,15 +2,12 @@
 // Created by fang on 2022/7/10.
 //
 
-#include <borealis.hpp>
 #include <utility>
-#include "view/video_view.hpp"
-#include "view/video_card.hpp"
-#include "view/user_info.hpp"
+#include <fmt/format.h>
+#include <borealis/views/dialog.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+
 #include "activity/player_activity.hpp"
-#include "view/grid_dropdown.hpp"
-#include "view/svg_image.hpp"
-#include "fmt/format.h"
 #include "utils/number_helper.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
@@ -19,6 +16,12 @@
 #include "fragment/player_collection.hpp"
 #include "fragment/player_fragments.hpp"
 #include "fragment/player_evaluate.hpp"
+#include "view/grid_dropdown.hpp"
+#include "view/svg_image.hpp"
+#include "view/video_view.hpp"
+#include "view/video_card.hpp"
+#include "view/user_info.hpp"
+#include "view/mpv_core.hpp"
 
 using namespace brls::literals;
 
@@ -237,7 +240,7 @@ void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
 
     // videoView osd
     std::string title = result.title + subtitle;
-    MPV_CE->fire(VideoView::SET_TITLE, (void*)title.c_str());
+    APP_E->fire(VideoView::SET_TITLE, (void*)title.c_str());
 
     // video title
     this->videoTitleLabel->setText(result.title);
@@ -560,7 +563,7 @@ void PlayerActivity::onIndexChange(size_t index) {
     // 设置播放器标题
     std::string title =
         fmt::format("{} - {}", videoDetailResult.title, videoDetailPage.part);
-    MPV_CE->fire(VideoView::SET_TITLE, (void*)title.c_str());
+    APP_E->fire(VideoView::SET_TITLE, (void*)title.c_str());
     // 允许加载历史记录
     this->setProgress(0);
     this->video->setLastPlayedPosition(VideoView::POSITION_UNDEFINED);
@@ -593,7 +596,7 @@ void PlayerActivity::onIndexChangeToNext() {
         changeVideoEvent.fire(videDetailRelated[0]);
     } else {
         // 无下一集可播，显示重播按钮
-        MPV_CE->fire(VideoView::REPLAY, nullptr);
+        APP_E->fire(VideoView::REPLAY, nullptr);
     }
 }
 
@@ -615,5 +618,5 @@ void PlayerActivity::onCastPlayUrl(const bilibili::VideoUrlResult& result) {
     bilibili::VideoCastData data;
     data.url   = result.durl[0].url;
     data.title = videoDetailResult.title;
-    MPV_CE->fire("CAST_URL", (void*)&data);
+    APP_E->fire("CAST_URL", (void*)&data);
 }

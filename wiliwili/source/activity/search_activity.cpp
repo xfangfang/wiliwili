@@ -2,6 +2,8 @@
  * Created by fang on 2022/6/9.
  */
 
+#include <borealis/core/touch/tap_gesture.hpp>
+
 #include "activity/search_activity.hpp"
 #include "fragment/search_tab.hpp"
 #include "fragment/search_hots.hpp"

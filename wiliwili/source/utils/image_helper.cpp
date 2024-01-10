@@ -2,13 +2,14 @@
 // Created by fang on 2022/7/16.
 //
 
+#include <borealis/core/singleton.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/cache_helper.hpp>
+#include <borealis/core/thread.hpp>
+#include <stb_image.h>
+
 #include "utils/image_helper.hpp"
 #include "api/bilibili/util/http.hpp"
-#include "borealis/core/singleton.hpp"
-#include "borealis/core/cache_helper.hpp"
-#include "utils/thread_helper.hpp"
-#include "borealis/core/thread.hpp"
-#include "stb_image.h"
 
 #ifdef USE_WEBP
 #include <webp/decode.h>

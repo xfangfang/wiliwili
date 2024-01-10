@@ -2,7 +2,8 @@
 // Created by fang on 2024/1/8.
 //
 
-#include <borealis.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/core/view.hpp>
 
 #include "utils/gesture_helper.hpp"
 
@@ -109,6 +110,9 @@ brls::GestureState OsdGestureRecognizer::recognitionLoop(
                            LONG_TIME_US) {
                     // 识别到长按
                     this->osdGestureType = OsdGestureType::LONG_PRESS_START;
+                } else {
+                    // 没有识别到触摸类型，不触发回调函数
+                    break;
                 }
             } else if (this->osdGestureType ==
                            OsdGestureType::HORIZONTAL_PAN_START ||

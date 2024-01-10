@@ -3,10 +3,14 @@
 //
 
 #include <cstdlib>
-#include "borealis.hpp"
-#include "fmt/format.h"
-#include "cpr/cpr.h"
+#include <fmt/format.h>
+#include <cpr/cpr.h>
 #include <pystring.h>
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/dialog.hpp>
+
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "api/bilibili/util/http.hpp"

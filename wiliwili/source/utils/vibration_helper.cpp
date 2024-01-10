@@ -3,10 +3,10 @@
 //
 
 #include "utils/vibration_helper.hpp"
-#include "borealis.hpp"
 
 #ifdef __SWITCH__
-#include "borealis/platforms/switch/switch_input.hpp"
+#include <borealis/platforms/switch/switch_input.hpp>
+#include <borealis/core/application.hpp>
 #endif
 
 VibrationData VibrationHelper::coinVibrationData = {

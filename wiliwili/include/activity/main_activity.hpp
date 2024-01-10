@@ -16,7 +16,8 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/activity.hpp>
+#include <borealis/core/bind.hpp>
 
 class CustomButton;
 class AutoTabFrame;

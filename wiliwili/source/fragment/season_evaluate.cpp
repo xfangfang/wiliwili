@@ -2,11 +2,14 @@
 // Created by fang on 2023/1/16.
 //
 
-#include "fragment/season_evaluate.hpp"
-#include "view/mpv_core.hpp"
-#include "view/button_close.hpp"
-#include "utils/string_helper.hpp"
+#include <borealis/core/application.hpp>
+#include <borealis/views/button.hpp>
+
 #include "analytics.h"
+#include "fragment/season_evaluate.hpp"
+#include "utils/string_helper.hpp"
+#include "view/button_close.hpp"
+#include "view/mpv_core.hpp"
 
 SeasonEvaluate::SeasonEvaluate() {
     this->inflateFromXMLRes("xml/fragment/season_evaluate.xml");

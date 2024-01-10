@@ -2,8 +2,11 @@
 // Created by fang on 2023/3/6.
 //
 
-#include "view/subtitle_core.hpp"
+#include <borealis/core/thread.hpp>
+
 #include "bilibili.h"
+#include "view/subtitle_core.hpp"
+#include "view/mpv_core.hpp"
 
 static NVGcolor a(NVGcolor color, float alpha) {
     color.a *= alpha;

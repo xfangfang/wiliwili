@@ -2,6 +2,11 @@
 // Created by fang on 2022/9/19.
 //
 
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/header.hpp>
+
 #include "fragment/setting_network.hpp"
 #include "bilibili.h"
 #include "bilibili/result/home_result.h"

@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include "view/mpv_core.hpp"
-
 #include <nanovg.h>
 #include <borealis/core/singleton.hpp>
 #include <borealis/core/application.hpp>
+
 #include "bilibili/result/video_detail_result.h"
+#include "utils/event_helper.hpp"
 #include "presenter/presenter.h"
 
 class SubtitleCore : public brls::Singleton<SubtitleCore>, public Presenter {

@@ -9,7 +9,9 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
 #include "bilibili/result/video_detail_result.h"
 
 class VideoComment;

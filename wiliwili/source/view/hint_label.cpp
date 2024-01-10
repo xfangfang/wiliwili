@@ -3,6 +3,7 @@
 //
 
 #include <unordered_map>
+#include <borealis/core/application.hpp>
 
 #include "view/hint_label.hpp"
 
