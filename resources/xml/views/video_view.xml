@@ -111,6 +111,30 @@
     <brls:Box
             axis="column"
             alignItems="center"
+            justifyContent="center"
+            visibility="gone"
+            cornerRadius="4"
+            width="100"
+            height="100"
+            backgroundColor="#303030A0"
+            id="video/osd/center/box2">
+        <SVGImage
+                id="video/osd/center/icon2"
+                height="30"
+                width="30"
+                marginBottom="20"/>
+        <brls:Label
+                id="video/osd/center/label2"
+                textColor="#FFFFFF"
+                fontSize="24"
+                height="16"
+                horizontalAlign="center"
+                verticalAlign="center"/>
+    </brls:Box>
+
+    <brls:Box
+            axis="column"
+            alignItems="center"
             id="video/osd/center/box">
         <brls:ProgressSpinner
                 id="video/osd/loading"

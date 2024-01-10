@@ -14,8 +14,12 @@
         "in_memory_cache": "Inmemory cache",
         "hwdec": "Decodifica Hardware",
         "exit_fullscreen": "Esci dallo schermo intero alla fine della riproduzione",
+        "play_strategy": "Play strategy",
         "auto_play_next_part": "Riprodurre automaticamente la parte successiva",
         "auto_play_recommend": "Riproduzione automatica dei video consigliati",
+        "auto_loop": "Loop current video",
+        "auto_no": "Pause video after playing",
+        "auto_hint": "\"Automatically playing recommend video\" will automatically play recommended videos after the episode is played.",
         "sleep": "Timing Spento",
         "video_codec": "Codec Video",
         "audio_quality": "Qualità audio",
@@ -26,6 +30,12 @@
         "texture": "Number of picture texture caches",
         "threads": "Number of image loading threads"
       },
+      "network": {
+        "header": "Network",
+        "tls": "TLS verify",
+        "proxy": "Proxy",
+        "proxy_hint": "example: http://127.0.0.1:7890"
+      },
       "others": {
         "header": "Altri",
         "vibration": "Vibrazione del Gamepad",
@@ -35,11 +45,23 @@
         "limited_fps_vsync": "Sincronizzazione Verticale",
         "fullscreen": "Schermo intero",
         "tv_search": "Pagina di ricerca stile TV",
+        "clear_history": "Clear search history",
+        "clear_season": "Clear bangumi custom settings",
         "theme": {
           "header": "Tema (riavvio richiesto)",
           "1": "Automatico",
           "2": "Chiaro",
           "3": "Scuro"
+        },
+        "custom_theme": {
+          "header": "Custom Layout (restart required)"
+        },
+        "scale": {
+          "header": "UI Scale (restart required)",
+          "544p": "544p",
+          "720p": "720p",
+          "900p": "900p",
+          "1080p": "1080p"
         },
         "language": {
           "header": "Lingua (riavvio richiesto)",
@@ -67,6 +89,7 @@
         "header": "Guida",
         "intro": "Introduzione al software (video online; cinese)",
         "intro_bvid": "BV18W4y1q72C",
+        "wiki": "Access our wiki to get more information",
         "open": "Come installare icona del desktop",
         "error": "Se riscontri un bug",
         "hot_key": "Tasti rapidi",
@@ -266,7 +289,7 @@
     "coin": {
       "title": "Coin",
       "hint": "Choose your coin num",
-      "like": "Like at the same time ",
+      "like": "Like at the same time",
       "own": "You can't give yourself a coin",
       "run_out": "The number of coins for this video has been used up",
       "exp": "Experience + {}（Today {}/50）",
@@ -291,9 +314,36 @@
       "subtitle": {
         "header": "Subtitle"
       },
+      "equalizer": {
+        "header": "Equalizer",
+        "brightness": "Brightness",
+        "contrast": "Contrast",
+        "saturation": "Saturation",
+        "gamma": "Gamma",
+        "hue": "Hue",
+        "reset": "Reset"
+      },
       "common": {
         "header": "Common",
+        "mirror": "Horizontally flip",
+        "highlight": "Always show hotspots",
+        "skip_opening_credits": "Skip opening credits",
+        "skip_hint1": "Automatically skip the opening credits from next video",
+        "skip_hint2": "Turn off skip opening credits from next video",
+        "skip_hint3": "Use custom opening credits from next video",
+        "skip_hint4": "Disable custom opening credits from next video",
         "wiki": "Access our wiki to learn how shader works"
+      },
+      "season": {
+        "aspect": "Custom video aspect",
+        "clip": "Custom opening credits",
+        "clip_start": "Intro length",
+        "clip_end": "Outro length",
+        "unit": "Unit: seconds"
+      },
+      "aspect": {
+        "header": "Video aspect",
+        "auto": "Auto"
       },
       "shader": {
         "header": "Shader"
@@ -316,17 +366,28 @@
         "action": "Invia",
         "hint": "Dì qualcosa di bello"
       },
+      "performance": {
+        "header": "Performance",
+        "render": "Rendering quality"
+      },
       "filter": {
         "header": "Filtro Danmaku",
+        "mask": "Smart mask",
         "top": "Top",
         "scroll": "Scorrere",
         "bottom": "Bottom",
         "color": "Colore",
+        "advanced": "Advanced",
         "level": "Filter level",
         "level_n": "Level {}"
       },
       "style": {
         "header": "Danmaku style",
+        "font": "Stroke Style",
+        "font_stroke": "Stroke",
+        "font_incline": "Incline",
+        "font_shadow": "Shadow",
+        "font_pure": "Pure",
         "area": "Display area",
         "area_1_4": "1/4 Schermo",
         "area_2_4": "1/2 Schermo",
@@ -352,6 +413,7 @@
     }
   },
   "dialog": {
+    "not_supported": "Not Supported",
     "quit_hint": "Exiting app..."
   }
 }

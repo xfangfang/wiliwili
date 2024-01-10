@@ -32,13 +32,13 @@ void VideoDetail::requestSeasonInfo(size_t seasonID, size_t epID) {
     // 重置MPV
     MPVCore::instance().reset();
 
+    brls::Logger::debug("请求番剧信息 season: {}; ep: {}", seasonID, epID);
     ASYNC_RETAIN
     BILI::get_season_detail(
         seasonID, epID,
         [ASYNC_TOKEN, epID](const bilibili::SeasonResultWrapper& result) {
             brls::sync([ASYNC_TOKEN, result, epID]() {
                 ASYNC_RELEASE
-                brls::Logger::debug("BILI::get_season_detail");
                 seasonInfo = result;
                 this->requestSeasonStatue(result.season_id);
 
