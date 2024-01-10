@@ -14,12 +14,12 @@
         "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
         "exit_fullscreen": "再生終了時に全画面表示を終了",
-        "play_strategy": "Play strategy",
+        "play_strategy": "プレイ方法",
         "auto_play_next_part": "次のパートを自動再生",
-        "auto_play_recommend": "おすすめ動画の自動再生",
-        "auto_loop": "Loop current video",
-        "auto_no": "Pause video after playing",
-        "auto_hint": "\"Automatically playing recommend video\" will automatically play recommended videos after the episode is played.",
+        "auto_play_recommend": "おすすめ動画を自動再生",
+        "auto_loop": "現在の動画をループ再生",
+        "auto_no": "再生後に動画を一時停止",
+        "auto_hint": "「おすすめ動画を自動再生」はエピソード再生後におすすめ動画を自動再生します。",
         "sleep": "タイミングオフ",
         "video_codec": "ビデオコーデック",
         "audio_quality": "オーディオ品質",
@@ -31,10 +31,10 @@
         "threads": "画像ロードスレッド数"
       },
       "network": {
-        "header": "Network",
-        "tls": "TLS verify",
-        "proxy": "Proxy",
-        "proxy_hint": "example: http://127.0.0.1:7890"
+        "header": "ネットワーク",
+        "tls": "TLS検証",
+        "proxy": "プロキシ",
+        "proxy_hint": "例：http://127.0.0.1:7890"
       },
       "others": {
         "header": "その他",
@@ -45,8 +45,8 @@
         "limited_fps_vsync": "垂直同期",
         "fullscreen": "フルスクリーン",
         "tv_search": "テレビスタイルの検索ページ",
-        "clear_history": "Clear search history",
-        "clear_season": "Clear bangumi custom settings",
+        "clear_history": "検索履歴を削除",
+        "clear_season": "番組のカスタム設定を消去",
         "theme": {
           "header": "テーマ (再起動が必要です)",
           "1": "自動",
@@ -54,10 +54,10 @@
           "3": "ダーク"
         },
         "custom_theme": {
-          "header": "Custom Layout (restart required)"
+          "header": "カスタムレイアウト（再起動が必要）"
         },
         "scale": {
-          "header": "UI Scale (restart required)",
+          "header": "UIの大きさ（再起動が必要）",
           "544p": "544p",
           "720p": "720p",
           "900p": "900p",
@@ -89,7 +89,7 @@
         "header": "チュートリアル",
         "intro": "ソフトウェアの紹介（オンライン動画・中国語）",
         "intro_bvid": "BV18W4y1q72C",
-        "wiki": "Access our wiki to get more information",
+        "wiki": "詳細については、ウィキにアクセスしてください",
         "open": "デスクトップアイコンのインストール方法",
         "error": "バグに遭遇した場合",
         "hot_key": "ホットキー",
@@ -315,22 +315,22 @@
         "header": "字幕"
       },
       "equalizer": {
-        "header": "Equalizer",
-        "brightness": "Brightness",
-        "contrast": "Contrast",
-        "saturation": "Saturation",
-        "gamma": "Gamma",
-        "hue": "Hue",
-        "reset": "Reset"
+        "header": "イコライザー",
+        "brightness": "輝度",
+        "contrast": "コントラスト",
+        "saturation": "彩度",
+        "gamma": "ガンマ",
+        "hue": "色相",
+        "reset": "リセット"
       },
       "common": {
         "header": "一般",
-        "mirror": "Horizontally flip",
-        "highlight": "Always show hotspots",
-        "skip_opening_credits": "Skip opening credits",
-        "skip_hint1": "Automatically skip the opening credits from next video",
-        "skip_hint2": "Turn off skip opening credits from next video",
-        "skip_hint3": "Use custom opening credits from next video",
+        "mirror": "水平方向に反転",
+        "highlight": "ホットスポットを常に表示",
+        "skip_opening_credits": "オープニングクレジットをスキップ",
+        "skip_hint1": "次の動画からオープニング クレジットを自動的にスキップします",
+        "skip_hint2": "次の動画からオープニングクレジットをスキップをオフにする",
+        "skip_hint3": "次の動画からカスタムオープニングクレジットを使用",
         "skip_hint4": "Disable custom opening credits from next video",
         "wiki": "シェーダーの仕組みを学ぶには、wikiにアクセスしてください"
       },
