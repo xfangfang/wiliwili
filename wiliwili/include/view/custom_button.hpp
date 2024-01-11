@@ -26,14 +26,11 @@ public:
 
     brls::Event<bool> *getFocusEvent();
 
-    View *getNextFocus(brls::FocusDirection direction,
-                       View *currentView) override;
+    View *getNextFocus(brls::FocusDirection direction, View *currentView) override;
 
-    void setCustomNavigation(
-        std::function<brls::View *(brls::FocusDirection)> navigation);
+    void setCustomNavigation(std::function<brls::View *(brls::FocusDirection)> navigation);
 
 private:
     brls::Event<bool> focusEvent;
-    std::function<brls::View *(brls::FocusDirection)> customNavigation =
-        nullptr;
+    std::function<brls::View *(brls::FocusDirection)> customNavigation = nullptr;
 };

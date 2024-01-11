@@ -8,9 +8,8 @@
 #include "presenter/presenter.h"
 
 typedef std::pair<std::string, std::string> IndexItemSinglePairData;  //键值对
-typedef std::vector<IndexItemSinglePairData>
-    IndexItemPairData;  // 键值对列表：组成检索表单中的一行
-typedef std::map<std::string, std::string> UserRequestData;  // 用户当前请求数据
+typedef std::vector<IndexItemSinglePairData> IndexItemPairData;  // 键值对列表：组成检索表单中的一行
+typedef std::map<std::string, std::string> UserRequestData;      // 用户当前请求数据
 
 class PGCIndexRequest : public Presenter {
 public:

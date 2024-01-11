@@ -42,17 +42,14 @@ class OsdGestureRecognizer : public brls::GestureRecognizer, public Presenter {
 public:
     explicit OsdGestureRecognizer(const OsdGestureEvent::Callback& respond);
 
-    brls::GestureState recognitionLoop(brls::TouchState touch,
-                                       brls::MouseState mouse, brls::View* view,
+    brls::GestureState recognitionLoop(brls::TouchState touch, brls::MouseState mouse, brls::View* view,
                                        brls::Sound* soundToPlay) override;
 
     // Get current state of recognizer
     OsdGestureStatus getCurrentStatus();
 
     // Get tap gesture event
-    [[nodiscard]] OsdGestureEvent getTapGestureEvent() const {
-        return tapEvent;
-    }
+    [[nodiscard]] OsdGestureEvent getTapGestureEvent() const { return tapEvent; }
 
 private:
     OsdGestureEvent tapEvent;

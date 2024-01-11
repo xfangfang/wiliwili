@@ -17,10 +17,8 @@ public:
     PGCItemListResult list;
 };
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      BangumiCollectionWrapper& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, pn, ps, total, list));
+inline void from_json(const nlohmann::json& nlohmann_json_j, BangumiCollectionWrapper& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, pn, ps, total, list));
 }
 
 };  // namespace bilibili

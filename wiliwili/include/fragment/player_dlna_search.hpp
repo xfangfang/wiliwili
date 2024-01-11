@@ -19,10 +19,10 @@
 #include "utils/event_helper.hpp"
 
 class ButtonClose;
-namespace brls{
+namespace brls {
 class ScrollingFrame;
 class RadioCell;
-}
+}  // namespace brls
 
 class RepeatDuratoinTimer : public brls::RepeatingTimer {
 public:
@@ -39,8 +39,8 @@ public:
 
 private:
     brls::Time startTime;
-    brls::Time duration = -1;
-    int cycleTimes = 0;
+    brls::Time duration                              = -1;
+    int cycleTimes                                   = 0;
     std::function<void(brls::Time)> durationCallback = [](brls::Time) {};
 };
 

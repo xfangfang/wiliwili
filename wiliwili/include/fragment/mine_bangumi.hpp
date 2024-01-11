@@ -26,7 +26,7 @@ public:
 
     void onBangumiList(const bilibili::BangumiCollectionWrapper &result) override;
 
-    static View* create();
+    static View *create();
 
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "mine/bangumi/recyclingGrid");

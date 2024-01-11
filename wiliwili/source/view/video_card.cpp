@@ -24,9 +24,7 @@ void BaseVideoCard::cacheForReuse() {
 
 /// 普通视频封面
 
-RecyclingGridItemVideoCard::RecyclingGridItemVideoCard() {
-    this->inflateFromXMLRes("xml/views/video_card.xml");
-}
+RecyclingGridItemVideoCard::RecyclingGridItemVideoCard() { this->inflateFromXMLRes("xml/views/video_card.xml"); }
 
 RecyclingGridItemVideoCard::~RecyclingGridItemVideoCard() {
     // 优先清空正在进行的图片请求
@@ -45,17 +43,12 @@ void RecyclingGridItemVideoCard::setAchievement(std::string explain) {
     this->boxPic->setHeightPercentage(54.8);
 }
 
-RecyclingGridItemVideoCard* RecyclingGridItemVideoCard::create() {
-    return new RecyclingGridItemVideoCard();
-}
+RecyclingGridItemVideoCard* RecyclingGridItemVideoCard::create() { return new RecyclingGridItemVideoCard(); }
 
-void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
-                                         std::string username, int pubdate,
-                                         int view_count, int danmaku,
-                                         int duration, std::string extra) {
+void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title, std::string username, int pubdate,
+                                         int view_count, int danmaku, int duration, std::string extra) {
     if (pubdate)
-        this->labelUsername->setText(username + "·" +
-                                     wiliwili::sec2date(pubdate));
+        this->labelUsername->setText(username + "·" + wiliwili::sec2date(pubdate));
     else
         this->labelUsername->setText(username);
 
@@ -80,14 +73,10 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
     }
 }
 
-void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
-                                         std::string username, int pubdate,
-                                         int view_count, int danmaku,
-                                         std::string rightBottomBadge,
-                                         std::string extra) {
+void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title, std::string username, int pubdate,
+                                         int view_count, int danmaku, std::string rightBottomBadge, std::string extra) {
     if (pubdate)
-        this->labelUsername->setText(username + "·" +
-                                     wiliwili::sec2date(pubdate));
+        this->labelUsername->setText(username + "·" + wiliwili::sec2date(pubdate));
     else
         this->labelUsername->setText(username);
 
@@ -102,23 +91,17 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title,
 /// 排行榜视频封面
 /// 左上角有角标图案，从1开始自动添加序号
 
-RecyclingGridItemRankVideoCard::RecyclingGridItemRankVideoCard(
-    std::string res) {
-    this->inflateFromXMLRes(res);
-}
+RecyclingGridItemRankVideoCard::RecyclingGridItemRankVideoCard(std::string res) { this->inflateFromXMLRes(res); }
 
 RecyclingGridItemRankVideoCard::~RecyclingGridItemRankVideoCard() {
     // 优先清空正在进行的图片请求
     ImageHelper::clear(this->picture);
 }
 
-void RecyclingGridItemRankVideoCard::setCard(std::string pic, std::string title,
-                                             std::string username, int pubdate,
-                                             int view_count, int danmaku,
-                                             int duration, int index) {
+void RecyclingGridItemRankVideoCard::setCard(std::string pic, std::string title, std::string username, int pubdate,
+                                             int view_count, int danmaku, int duration, int index) {
     if (pubdate)
-        this->labelUsername->setText(username + "·" +
-                                     wiliwili::sec2date(pubdate));
+        this->labelUsername->setText(username + "·" + wiliwili::sec2date(pubdate));
     else
         this->labelUsername->setText(username);
 
@@ -156,8 +139,7 @@ void RecyclingGridItemRankVideoCard::setCard(std::string pic, std::string title,
     }
 }
 
-RecyclingGridItemRankVideoCard* RecyclingGridItemRankVideoCard::create(
-    std::string res) {
+RecyclingGridItemRankVideoCard* RecyclingGridItemRankVideoCard::create(std::string res) {
     return new RecyclingGridItemRankVideoCard(res);
 }
 
@@ -172,10 +154,8 @@ RecyclingGridItemLiveVideoCard::~RecyclingGridItemLiveVideoCard() {
     ImageHelper::clear(this->picture);
 }
 
-void RecyclingGridItemLiveVideoCard::setCard(std::string pic, std::string title,
-                                             std::string username,
-                                             std::string area, int view_count,
-                                             bool following) {
+void RecyclingGridItemLiveVideoCard::setCard(std::string pic, std::string title, std::string username, std::string area,
+                                             int view_count, bool following) {
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(false);
     this->labelTitle->setText(title);
@@ -198,9 +178,7 @@ RecyclingGridItemLiveVideoCard* RecyclingGridItemLiveVideoCard::create() {
 /// pgc video card
 /// 支持预览图横竖切换的视频封面
 
-RecyclingGridItemPGCVideoCard::RecyclingGridItemPGCVideoCard(
-    bool vertical_cover)
-    : vertical_cover(vertical_cover) {
+RecyclingGridItemPGCVideoCard::RecyclingGridItemPGCVideoCard(bool vertical_cover) : vertical_cover(vertical_cover) {
     this->inflateFromXMLRes("xml/views/video_card_pgc.xml");
     if (!vertical_cover) {
         this->boxPic->setHeightPercentage(70);
@@ -213,14 +191,10 @@ RecyclingGridItemPGCVideoCard::~RecyclingGridItemPGCVideoCard() {
     ImageHelper::clear(this->picture);
 }
 
-bool RecyclingGridItemPGCVideoCard::isVertical() {
-    return this->vertical_cover;
-}
+bool RecyclingGridItemPGCVideoCard::isVertical() { return this->vertical_cover; }
 
-void RecyclingGridItemPGCVideoCard::setCard(std::string pic, std::string title,
-                                            std::string username,
-                                            std::string badge_top,
-                                            std::string badge_bottom_left,
+void RecyclingGridItemPGCVideoCard::setCard(std::string pic, std::string title, std::string username,
+                                            std::string badge_top, std::string badge_bottom_left,
                                             std::string badge_bottom_right) {
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(false);
@@ -244,8 +218,7 @@ void RecyclingGridItemPGCVideoCard::cacheForReuse() {
     ImageHelper::clear(this->badgeBottomLeft);
 }
 
-RecyclingGridItemPGCVideoCard* RecyclingGridItemPGCVideoCard::create(
-    bool vertical_cover) {
+RecyclingGridItemPGCVideoCard* RecyclingGridItemPGCVideoCard::create(bool vertical_cover) {
     return new RecyclingGridItemPGCVideoCard(vertical_cover);
 }
 
@@ -259,11 +232,10 @@ RecyclingGridItemSearchPGCVideoCard::~RecyclingGridItemSearchPGCVideoCard() {
     ImageHelper::clear(this->picture);
 }
 
-void RecyclingGridItemSearchPGCVideoCard::setCard(
-    std::string pic, std::string title, std::string subtitle, std::string actor,
-    std::string desc, std::string badge_top, std::string badge_color,
-    std::string scoreCount, std::string score, std::string type,
-    std::string bottom) {
+void RecyclingGridItemSearchPGCVideoCard::setCard(std::string pic, std::string title, std::string subtitle,
+                                                  std::string actor, std::string desc, std::string badge_top,
+                                                  std::string badge_color, std::string scoreCount, std::string score,
+                                                  std::string type, std::string bottom) {
     this->labelType->setText(type);
     this->labelTitle->setText(title);
     this->labelSubtitle->setText(subtitle);
@@ -292,15 +264,11 @@ void RecyclingGridItemSearchPGCVideoCard::setCard(
     ImageHelper::with(this->picture)->load(pic);
 }
 
-RecyclingGridItem* RecyclingGridItemSearchPGCVideoCard::create() {
-    return new RecyclingGridItemSearchPGCVideoCard();
-}
+RecyclingGridItem* RecyclingGridItemSearchPGCVideoCard::create() { return new RecyclingGridItemSearchPGCVideoCard(); }
 
 /// PGC 查看更多卡片
 
-RecyclingGridItemViewMoreCard::RecyclingGridItemViewMoreCard(
-    bool vertical_cover)
-    : vertical_cover(vertical_cover) {
+RecyclingGridItemViewMoreCard::RecyclingGridItemViewMoreCard(bool vertical_cover) : vertical_cover(vertical_cover) {
     this->inflateFromXMLRes("xml/views/video_card_pgc_more.xml");
 }
 
@@ -310,9 +278,7 @@ void RecyclingGridItemViewMoreCard::prepareForReuse() {}
 
 void RecyclingGridItemViewMoreCard::cacheForReuse() {}
 
-bool RecyclingGridItemViewMoreCard::isVertical() {
-    return this->vertical_cover;
-}
+bool RecyclingGridItemViewMoreCard::isVertical() { return this->vertical_cover; }
 
 RecyclingGridItem* RecyclingGridItemViewMoreCard::create(bool vertical_cover) {
     return new RecyclingGridItemViewMoreCard(vertical_cover);
@@ -333,10 +299,10 @@ RecyclingGridItemHistoryVideoCard* RecyclingGridItemHistoryVideoCard::create() {
     return new RecyclingGridItemHistoryVideoCard();
 }
 
-void RecyclingGridItemHistoryVideoCard::setCard(
-    std::string pic, std::string title, std::string username,
-    std::string leftBottomBadge, std::string rightBottomBadge,
-    std::string rightTopBadge, int deviceType, float progress, bool showName) {
+void RecyclingGridItemHistoryVideoCard::setCard(std::string pic, std::string title, std::string username,
+                                                std::string leftBottomBadge, std::string rightBottomBadge,
+                                                std::string rightTopBadge, int deviceType, float progress,
+                                                bool showName) {
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
@@ -409,14 +375,12 @@ RecyclingGridItemCollectionVideoCard::~RecyclingGridItemCollectionVideoCard() {
     ImageHelper::clear(this->picture);
 }
 
-RecyclingGridItemCollectionVideoCard*
-RecyclingGridItemCollectionVideoCard::create() {
+RecyclingGridItemCollectionVideoCard* RecyclingGridItemCollectionVideoCard::create() {
     return new RecyclingGridItemCollectionVideoCard();
 }
 
-void RecyclingGridItemCollectionVideoCard::setCard(
-    std::string pic, std::string title, std::string username,
-    std::string leftBottomBadge, std::string rightBottomBadge) {
+void RecyclingGridItemCollectionVideoCard::setCard(std::string pic, std::string title, std::string username,
+                                                   std::string leftBottomBadge, std::string rightBottomBadge) {
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);
@@ -442,11 +406,8 @@ RecyclingGridItemRelatedVideoCard* RecyclingGridItemRelatedVideoCard::create() {
     return new RecyclingGridItemRelatedVideoCard();
 }
 
-void RecyclingGridItemRelatedVideoCard::setCard(std::string pic,
-                                                std::string title,
-                                                std::string username,
-                                                std::string playCount,
-                                                std::string danmakuCount,
+void RecyclingGridItemRelatedVideoCard::setCard(std::string pic, std::string title, std::string username,
+                                                std::string playCount, std::string danmakuCount,
                                                 std::string rightBottomBadge) {
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
@@ -459,13 +420,11 @@ void RecyclingGridItemRelatedVideoCard::setCard(std::string pic,
 
 /// 相关番剧卡片
 
-RecyclingGridItemSeasonSeriesVideoCard::
-    RecyclingGridItemSeasonSeriesVideoCard() {
+RecyclingGridItemSeasonSeriesVideoCard::RecyclingGridItemSeasonSeriesVideoCard() {
     this->inflateFromXMLRes("xml/views/video_card_series.xml");
 }
 
-RecyclingGridItemSeasonSeriesVideoCard::
-    ~RecyclingGridItemSeasonSeriesVideoCard() {
+RecyclingGridItemSeasonSeriesVideoCard::~RecyclingGridItemSeasonSeriesVideoCard() {
     // 优先清空正在进行的图片请求
     ImageHelper::clear(this->picture);
 }
@@ -474,11 +433,10 @@ RecyclingGridItem* RecyclingGridItemSeasonSeriesVideoCard::create() {
     return new RecyclingGridItemSeasonSeriesVideoCard();
 }
 
-void RecyclingGridItemSeasonSeriesVideoCard::setCard(
-    const std::string& pic, const std::string& title,
-    const std::string& username, const std::string& playCount,
-    const std::string& likeCount, const std::string& badge,
-    const std::string& badge_color) {
+void RecyclingGridItemSeasonSeriesVideoCard::setCard(const std::string& pic, const std::string& title,
+                                                     const std::string& username, const std::string& playCount,
+                                                     const std::string& likeCount, const std::string& badge,
+                                                     const std::string& badge_color) {
     this->labelUsername->setText(username);
     this->labelTitle->setIsWrapping(true);
     this->labelTitle->setText(title);

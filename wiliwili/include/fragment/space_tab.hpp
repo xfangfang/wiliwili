@@ -20,8 +20,7 @@ class SpaceTab : public AttachedView, public Home {
 public:
     SpaceTab();
 
-    void onRecommendVideoList(
-        const bilibili::RecommendVideoListResultWrapper &result) override;
+    void onRecommendVideoList(const bilibili::RecommendVideoListResultWrapper &result) override;
 
     ~SpaceTab() override;
 
@@ -29,8 +28,8 @@ public:
 
     void onCreate() override;
 
-    void draw(NVGcontext *vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext *ctx) override;
+    void draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext *ctx) override;
 
     void onLayout() override;
 

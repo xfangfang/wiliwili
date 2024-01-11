@@ -6,6 +6,4 @@
 
 UpUserSmall::UpUserSmall() { brls::Logger::debug("View UpUserSmall: create"); }
 
-UpUserSmall::~UpUserSmall() {
-    brls::Logger::debug("View UpUserSmallActivity: delete");
-}
+UpUserSmall::~UpUserSmall() { brls::Logger::debug("View UpUserSmallActivity: delete"); }

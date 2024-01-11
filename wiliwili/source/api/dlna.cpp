@@ -64,11 +64,9 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data) {
             size_t i, max = sizeof(hm.headers) / sizeof(hm.headers[0]);
             // Iterate over request headers
             for (i = 0; i < max && hm.headers[i].name.len > 0; i++) {
-                struct mg_str *k = &hm.headers[i].name,
-                              *v = &hm.headers[i].value;
+                struct mg_str *k = &hm.headers[i].name, *v = &hm.headers[i].value;
                 if (mg_vcasecmp(k, "LOCATION") == 0) {
-                    UpnpDlna::rendererList.insert(
-                        std::string{v->ptr}.substr(0, v->len));
+                    UpnpDlna::rendererList.insert(std::string{v->ptr}.substr(0, v->len));
                 }
             }
         }
@@ -107,8 +105,7 @@ std::vector<DlnaRenderer> UpnpDlna::searchRenderer(int timeout) {
     auto startTime = std::chrono::system_clock::now();
     while (true) {
         auto nowTime = std::chrono::system_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-            nowTime - startTime);
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime);
         if (elapsed.count() >= timeout) {
             break;
         }
@@ -143,8 +140,7 @@ std::vector<DlnaRenderer> UpnpDlna::searchRenderer(int timeout) {
     return list;
 }
 
-void DlnaRenderer::play(const std::string& url, const std::string& title,
-                        const std::function<void()>& callback,
+void DlnaRenderer::play(const std::string& url, const std::string& title, const std::function<void()>& callback,
                         const std::function<void()>& error) const {
     std::string point = getAvTransportUrl();
     if (point.empty()) {
@@ -154,8 +150,7 @@ void DlnaRenderer::play(const std::string& url, const std::string& title,
 
     std::string urlEncode = pystring::replace(url, "&", "&amp;");
     std::string data      = wiliwili::format(AVTransport, urlEncode, "", title);
-    std::string server    = "System/1.0 UPnP/1.0 wiliwili/" +
-                         APPVersion::instance().getVersionStr();
+    std::string server    = "System/1.0 UPnP/1.0 wiliwili/" + APPVersion::instance().getVersionStr();
 
     cpr::PostCallback(
         [callback, error](const cpr::Response& r) {
@@ -178,15 +173,13 @@ void DlnaRenderer::play(const std::string& url, const std::string& title,
     brls::Logger::verbose("post to: {}\nwith data: {}", point, data);
 }
 
-void DlnaRenderer::stop(const std::function<void()>& callback,
-                        const std::function<void()>& error) const {
+void DlnaRenderer::stop(const std::function<void()>& callback, const std::function<void()>& error) const {
     std::string point = getAvTransportUrl();
     if (point.empty()) {
         brls::Logger::error("renderer not support AVTransport");
         return;
     }
-    std::string server = "System/1.0 UPnP/1.0 wiliwili/" +
-                         APPVersion::instance().getVersionStr();
+    std::string server = "System/1.0 UPnP/1.0 wiliwili/" + APPVersion::instance().getVersionStr();
 
     cpr::PostCallback(
         [callback, error](const cpr::Response& r) {
@@ -199,8 +192,7 @@ void DlnaRenderer::stop(const std::function<void()>& callback,
         cpr::Url{point},
         cpr::Header{
             {"Content-Type", "text/xml; charset=\"utf-8\""},
-            {"SOAPACTION",
-             "\"urn:schemas-upnp-org:service:AVTransport:1#Stop\""},
+            {"SOAPACTION", "\"urn:schemas-upnp-org:service:AVTransport:1#Stop\""},
             {"User-Agent", server},
         },
         cpr::Body{Stop});
@@ -265,8 +257,7 @@ void DlnaRenderer::Deserialize(const tinyxml2::XMLElement* element) {
     auto* serviceList = device->FirstChildElement("serviceList");
 
     rendererServiceList.clear();
-    for (auto* child = serviceList->FirstChildElement("service"); child;
-         child       = child->NextSiblingElement("service")) {
+    for (auto* child = serviceList->FirstChildElement("service"); child; child = child->NextSiblingElement("service")) {
         DlnaRendererService service;
         service.Deserialize(child);
         if (!service.isValid()) return;
@@ -290,9 +281,8 @@ void DlnaRenderer::setBaseUrl(const std::string& value) {
 }
 
 void DlnaRenderer::print() {
-    brls::Logger::debug(
-        "renderer:\nbaseURL: {}\ndeviceType: {}\nUDN: {}\nfriendlyName: {}",
-        baseURL, deviceType, UDN, friendlyName, manufacturer);
+    brls::Logger::debug("renderer:\nbaseURL: {}\ndeviceType: {}\nUDN: {}\nfriendlyName: {}", baseURL, deviceType, UDN,
+                        friendlyName, manufacturer);
 
     for (auto& i : rendererServiceList) {
         i.print();
@@ -308,12 +298,9 @@ void DlnaRendererService::Deserialize(const tinyxml2::XMLElement* element) {
     this->setValid(true);
 }
 
-void DlnaRendererService::setBaseUrl(const std::string& value) {
-    this->baseURL = value;
-}
+void DlnaRendererService::setBaseUrl(const std::string& value) { this->baseURL = value; }
 
 void DlnaRendererService::print() {
-    brls::Logger::debug("service:\n\t\t{}\n\t\t{}\n\t\t{}\n\t\t{}", serviceType,
-                        serviceId, controlURL, eventSubURL, eventSubURL,
-                        SCPDURL);
+    brls::Logger::debug("service:\n\t\t{}\n\t\t{}\n\t\t{}\n\t\t{}", serviceType, serviceId, controlURL, eventSubURL,
+                        eventSubURL, SCPDURL);
 }

@@ -18,8 +18,7 @@ public:
 
     void requestData(bool refresh = true);
 
-    void requestBangumiList(int is_refresh            = 0,
-                            const std::string& cursor = "0");
+    void requestBangumiList(int is_refresh = 0, const std::string& cursor = "0");
 
 protected:
     std::string next_cursor;
@@ -45,8 +44,7 @@ class DataSourcePGCVideoList : public RecyclingGridDataSource {
 public:
     explicit DataSourcePGCVideoList(const bilibili::PGCModuleResult& result);
 
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override;
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override;
 
     size_t getItemCount() override;
 

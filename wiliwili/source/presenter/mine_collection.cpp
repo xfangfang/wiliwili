@@ -12,8 +12,7 @@ using namespace brls::literals;
 
 MineCollectionRequest::MineCollectionRequest() = default;
 
-void MineCollectionRequest::onCollectionList(
-    const bilibili::CollectionListResultWrapper &result) {}
+void MineCollectionRequest::onCollectionList(const bilibili::CollectionListResultWrapper &result) {}
 
 void MineCollectionRequest::onError(const std::string &error) {}
 
@@ -34,8 +33,7 @@ void MineCollectionRequest::requestData(bool refresh) {
     }
 }
 
-void MineCollectionRequest::requestCollectionList(std::string &mid, int i,
-                                                  int num) {
+void MineCollectionRequest::requestCollectionList(std::string &mid, int i, int num) {
     CHECK_AND_SET_REQUEST
     BILI::get_my_collection_list(
         mid, i, num, requestType,

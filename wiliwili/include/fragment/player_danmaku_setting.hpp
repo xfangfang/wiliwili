@@ -17,7 +17,7 @@ class SelectorCell;
 namespace brls {
 class ScrollingFrame;
 class BooleanCell;
-};
+};  // namespace brls
 class PlayerDanmakuSetting : public brls::Box {
 public:
     PlayerDanmakuSetting();

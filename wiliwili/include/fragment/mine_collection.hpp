@@ -23,8 +23,7 @@ public:
 
     void onCreate() override;
 
-    void onCollectionList(
-        const bilibili::CollectionListResultWrapper &result) override;
+    void onCollectionList(const bilibili::CollectionListResultWrapper &result) override;
 
     void onError(const std::string &error) override;
 

@@ -12,10 +12,10 @@
 #include <borealis/core/box.hpp>
 #include <borealis/core/bind.hpp>
 
-namespace brls{
+namespace brls {
 class Label;
 class Image;
-}
+}  // namespace brls
 
 class PlayerEvaluate : public brls::Box {
 public:

@@ -19,8 +19,7 @@ public:
     std::string name;
     Params params;
     Event() = default;
-    explicit Event(std::string name, Params params = {})
-        : name(std::move(name)), params(std::move(params)) {}
+    explicit Event(std::string name, Params params = {}) : name(std::move(name)), params(std::move(params)) {}
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Event, name, params);
 
@@ -38,14 +37,12 @@ public:
     std::unordered_map<std::string, Property> user_properties;
     std::vector<Event> events;
 
-    void insertUserProperties(
-        std::unordered_map<std::string, std::string> prop) {
+    void insertUserProperties(std::unordered_map<std::string, std::string> prop) {
         for (auto& i : prop) {
-                user_properties.insert({i.first, Property(i.second)});
+            user_properties.insert({i.first, Property(i.second)});
         }
     }
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Package, client_id, user_id, user_properties,
-                                   events, timestamp_micros);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Package, client_id, user_id, user_properties, events, timestamp_micros);
 
 }  // namespace analytics

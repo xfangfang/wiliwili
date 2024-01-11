@@ -49,16 +49,15 @@ MineTab::MineTab() {
             }
             try {
                 this->mineLater->requestData();
-            } catch (...){
+            } catch (...) {
             }
             try {
                 //动态页刷新
                 auto mainTab = dynamic_cast<AutoTabFrame*>(this->getParent());
-                auto* tab = (DynamicTab*)mainTab->getTab(1)->getAttachedView();
+                auto* tab    = (DynamicTab*)mainTab->getTab(1)->getAttachedView();
                 if (!tab) {
                     brls::sync([mainTab]() {
-                        auto tab = dynamic_cast<DynamicTab*>(
-                            mainTab->getTab(1)->createAttachedView());
+                        auto tab = dynamic_cast<DynamicTab*>(mainTab->getTab(1)->createAttachedView());
                         tab->requestUpList();
                         tab->requestDynamicVideoList(1, "");
                     });
@@ -83,14 +82,12 @@ MineTab::MineTab() {
 }
 
 void MineTab::onCreate() {
-    this->registerTabAction("wiliwili/mine/login/refresh"_i18n,
-                            brls::ControllerButton::BUTTON_X,
+    this->registerTabAction("wiliwili/mine/login/refresh"_i18n, brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
                                 this->requestData();
                                 return true;
                             });
-    this->boxGotoUserSpace->addGestureRecognizer(
-        new TapGestureRecognizer(this->boxGotoUserSpace));
+    this->boxGotoUserSpace->addGestureRecognizer(new TapGestureRecognizer(this->boxGotoUserSpace));
 
     this->registerTabAction(
         "上一项", brls::ControllerButton::BUTTON_LB,
@@ -170,8 +167,7 @@ void MineTab::onUserDynamicStat(const bilibili::UserDynamicCount& result) {
     brls::sync([ASYNC_TOKEN, result]() {
         ASYNC_RELEASE
         std::string mid = ProgramConfig::instance().getUserID();
-        if (result.data.count(mid) != 0)
-            this->labelDynamic->setText(wiliwili::num2w(result.data.at(mid)));
+        if (result.data.count(mid) != 0) this->labelDynamic->setText(wiliwili::num2w(result.data.at(mid)));
     });
 }
 

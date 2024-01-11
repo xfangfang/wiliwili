@@ -49,8 +49,7 @@ static void onDanmakuReceived(const std::string& msg) {
     for (const auto& live_msg : extract_messages(messages)) {
         if (live_msg.type == danmaku) {
             if (!live_msg.ptr) continue;
-            danmaku_list.emplace_back(
-                LiveDanmakuItem((danmaku_t*)live_msg.ptr));
+            danmaku_list.emplace_back(LiveDanmakuItem((danmaku_t*)live_msg.ptr));
             // free(live_msg.ptr);
         } else if (live_msg.type == watched_change) {
             //TODO: 更新在线人数
@@ -60,8 +59,7 @@ static void onDanmakuReceived(const std::string& msg) {
     process_danmaku(danmaku_list);
 }
 
-static void showDialog(const std::string& msg, const std::string& pic,
-                       bool forceQuit) {
+static void showDialog(const std::string& msg, const std::string& pic, bool forceQuit) {
     brls::Dialog* dialog;
     if (pic.empty()) {
         dialog = new brls::Dialog(msg);
@@ -89,8 +87,7 @@ static void showDialog(const std::string& msg, const std::string& pic,
     dialog->open();
 }
 
-LiveActivity::LiveActivity(int roomid, const std::string& name,
-                           const std::string& views) {
+LiveActivity::LiveActivity(int roomid, const std::string& name, const std::string& views) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
     this->liveData.roomid                  = roomid;
     this->liveData.title                   = name;
@@ -105,7 +102,7 @@ void LiveActivity::setCommonData() {
     // 清空自定义着色器
     ShaderHelper::instance().clearShader(false);
 
-    event_id = APP_E->subscribe([this](const std::string& event, void* data) {
+    event_id    = APP_E->subscribe([this](const std::string& event, void* data) {
         if (event == VideoView::QUALITY_CHANGE) {
             this->setVideoQuality();
         }
@@ -114,11 +111,9 @@ void LiveActivity::setCommonData() {
         if (e == UPDATE_PROGRESS) {
             if (!liveRoomPlayInfo.live_time) return;
             std::chrono::time_point<std::chrono::system_clock> _zero;
-            size_t now = std::chrono::duration_cast<std::chrono::seconds>(
-                             std::chrono::system_clock::now() - _zero)
-                             .count();
-            this->video->setStatusLabelLeft(
-                wiliwili::sec2Time(now - liveRoomPlayInfo.live_time));
+            size_t now =
+                std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - _zero).count();
+            this->video->setStatusLabelLeft(wiliwili::sec2Time(now - liveRoomPlayInfo.live_time));
         } else if (e == MPV_FILE_ERROR) {
             this->video->showOSD(false);
             this->video->setStatusLabelLeft("播放错误");
@@ -134,8 +129,7 @@ void LiveActivity::setCommonData() {
                     this->retryRequestData();
                     break;
                 default:
-                    this->video->setOnlineCount(
-                        {mpv_error_string(MPVCore::instance().mpv_error_code)});
+                    this->video->setOnlineCount({mpv_error_string(MPVCore::instance().mpv_error_code)});
             }
         } else if (e == END_OF_FILE) {
             // flv 直播遇到网络错误不会报错，而是输出 END_OF_FILE
@@ -210,8 +204,7 @@ void LiveActivity::onContentAvailable() {
     });
 
     // 调整清晰度
-    this->registerAction("wiliwili/player/quality"_i18n,
-                         brls::ControllerButton::BUTTON_START,
+    this->registerAction("wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
                          [this](brls::View* view) -> bool {
                              this->setVideoQuality();
                              return true;
@@ -252,8 +245,7 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
     if (result.is_locked) {
         brls::Logger::error("LiveActivity: live {} is locked", result.room_id);
         this->video->showOSD(false);
-        showDialog(fmt::format("这个房间已经被封禁（至 {}）！(╯°口°)╯(┴—┴",
-                               wiliwili::sec2FullDate(result.lock_till)),
+        showDialog(fmt::format("这个房间已经被封禁（至 {}）！(╯°口°)╯(┴—┴", wiliwili::sec2FullDate(result.lock_till)),
                    "pictures/room-block.png", true);
         return;
     }
@@ -291,11 +283,9 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
     showDialog("当前地区无法获取直播链接", "pictures/sorry.png", true);
 }
 
-void LiveActivity::onDanmakuInfo(int roomid,
-                                 const bilibili::LiveDanmakuinfo& info) {
+void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& info) {
     LiveDanmaku::instance().setonMessage(onDanmakuReceived);
-    LiveDanmaku::instance().connect(
-        roomid, std::stoll(ProgramConfig::instance().getUserID()), info);
+    LiveDanmaku::instance().connect(roomid, std::stoll(ProgramConfig::instance().getUserID()), info);
 }
 
 void LiveActivity::onError(const std::string& error) {
@@ -305,8 +295,7 @@ void LiveActivity::onError(const std::string& error) {
     this->retryRequestData();
 }
 
-void LiveActivity::onNeedPay(const std::string& msg, const std::string& link,
-                             const std::string& startTime,
+void LiveActivity::onNeedPay(const std::string& msg, const std::string& link, const std::string& startTime,
                              const std::string& endTime) {
     if (link.empty()) {
         showDialog(msg, "", true);
@@ -342,9 +331,7 @@ void LiveActivity::onNeedPay(const std::string& msg, const std::string& link,
     auto dialog = new brls::Dialog(box);
 
     dialog->setCancelable(false);
-    dialog->addButton("hints/ok"_i18n, []() {
-        brls::sync([]() { brls::Application::popActivity(); });
-    });
+    dialog->addButton("hints/ok"_i18n, []() { brls::sync([]() { brls::Application::popActivity(); }); });
     dialog->open();
 }
 
@@ -354,8 +341,7 @@ void LiveActivity::retryRequestData() {
     ASYNC_RETAIN
     errorDelayIter = brls::delay(2000, [ASYNC_TOKEN]() {
         ASYNC_RELEASE
-        if (!MPVCore::instance().isPlaying())
-            this->requestData(liveData.roomid);
+        if (!MPVCore::instance().isPlaying()) this->requestData(liveData.roomid);
     });
 }
 

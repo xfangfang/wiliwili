@@ -9,13 +9,11 @@
 
 class MineLaterRequest : public Presenter {
 public:
-    virtual void onWatchLaterList(
-        const bilibili::WatchLaterListWrapper & result);
+    virtual void onWatchLaterList(const bilibili::WatchLaterListWrapper& result);
 
     virtual void onError(const std::string& error);
 
     void requestData(bool refresh = false);
 
     void requestWatchLaterList();
-
 };

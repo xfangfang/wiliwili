@@ -9,8 +9,7 @@
 
 class HomeLiveRequest : public Presenter {
 public:
-    virtual void onLiveList(const bilibili::LiveVideoListResult& result,
-                            int index);
+    virtual void onLiveList(const bilibili::LiveVideoListResult& result, int index);
     virtual void onAreaList(const bilibili::LiveFullAreaListResult& result);
 
     virtual void onError(const std::string& error) = 0;
@@ -51,8 +50,8 @@ public:
 protected:
     bilibili::LiveFullAreaListResult fullAreaList;
 
-    int staticMain = 0;
-    int staticSub  = 0;
+    int staticMain  = 0;
+    int staticSub   = 0;
     int staticPage  = 0;
     int staticEntry = 0;
 };

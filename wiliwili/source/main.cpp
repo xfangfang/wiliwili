@@ -90,11 +90,9 @@ int main(int argc, char* argv[]) {
         Intent::openHint();
     }
 
-    GA("open_app",
-       {{"version", APPVersion::instance().getVersionStr()},
-        {"language", brls::Application::getLocale()},
-        {"window", fmt::format("{}x{}", brls::Application::windowWidth,
-                               brls::Application::windowHeight)}})
+    GA("open_app", {{"version", APPVersion::instance().getVersionStr()},
+                    {"language", brls::Application::getLocale()},
+                    {"window", fmt::format("{}x{}", brls::Application::windowWidth, brls::Application::windowHeight)}})
     APPVersion::instance().checkUpdate();
 
     // Run the app

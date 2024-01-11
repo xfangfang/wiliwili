@@ -63,8 +63,7 @@ void SettingNetwork::networkTest() {
 
 void SettingNetwork::getUnixTime() {
     // 设置系统时间
-    this->labelSysTime->setText(
-        wiliwili::sec2FullDate(wiliwili::getUnixTime()));
+    this->labelSysTime->setText(wiliwili::sec2FullDate(wiliwili::getUnixTime()));
 
     // 获取网络时间
     ASYNC_RETAIN
@@ -84,8 +83,6 @@ void SettingNetwork::getUnixTime() {
         });
 }
 
-SettingNetwork::~SettingNetwork() {
-    brls::Logger::debug("Fragment SettingNetwork: delete");
-}
+SettingNetwork::~SettingNetwork() { brls::Logger::debug("Fragment SettingNetwork: delete"); }
 
 brls::View* SettingNetwork::create() { return new SettingNetwork(); }

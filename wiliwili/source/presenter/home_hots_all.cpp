@@ -19,8 +19,7 @@ void HomeHotsAllRequest::requestHotsAllVideoList(int index, int num) {
     CHECK_AND_SET_REQUEST
     BILI::get_hots_all(
         index, num,
-        [this, index](const bilibili::HotsAllVideoListResult &result,
-                      bool no_more) {
+        [this, index](const bilibili::HotsAllVideoListResult &result, bool no_more) {
             if (no_more) {
             } else {
                 this->onHotsAllVideoList(result, index);

@@ -18,10 +18,10 @@ class MineCollection;
 class MineBangumi;
 class MineLater;
 
-namespace brls{
+namespace brls {
 class Label;
 class Image;
-}
+}  // namespace brls
 
 class MineTab : public AttachedView, public UserHome {
 public:

@@ -82,8 +82,7 @@ public:
     std::string getString(const std::string &key);
     double getDouble(const std::string &key);
     int64_t getInt(const std::string &key);
-    std::unordered_map<std::string, mpv_node> getNodeMap(
-        const std::string &key);
+    std::unordered_map<std::string, mpv_node> getNodeMap(const std::string &key);
 
     /// Set MPV States
 
@@ -93,8 +92,7 @@ public:
      * @param extra 额外的参数，如 referrer、audio 等，详情见 mpv 文档
      * @param method 行为，默认为替换当前视频，详情见 mpv 文档
      */
-    void setUrl(const std::string &url, const std::string &extra = "",
-                const std::string &method = "replace");
+    void setUrl(const std::string &url, const std::string &extra = "", const std::string &method = "replace");
 
     /**
      * 设置备用链接（可多次调用）
@@ -215,8 +213,7 @@ public:
 
     void reset();
 
-    void setShader(const std::string &profile, const std::string &shaders,
-                   bool showHint = true);
+    void setShader(const std::string &profile, const std::string &shaders, bool showHint = true);
 
     void clearShader(bool showHint = true);
 
@@ -227,8 +224,7 @@ public:
             brls::Logger::error("mpv is not initialized");
             return;
         }
-        std::vector<std::string> commands = {
-            fmt::format("{}", std::forward<Args>(args))...};
+        std::vector<std::string> commands = {fmt::format("{}", std::forward<Args>(args))...};
 
         std::vector<const char *> res;
         res.reserve(commands.size() + 1);
@@ -316,10 +312,8 @@ private:
     void *pixels                   = nullptr;
     bool redraw                    = false;
     mpv_render_param mpv_params[5] = {
-        {MPV_RENDER_PARAM_SW_SIZE, &sw_size[0]},
-        {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
-        {MPV_RENDER_PARAM_SW_STRIDE, &pitch},
-        {MPV_RENDER_PARAM_SW_POINTER, pixels},
+        {MPV_RENDER_PARAM_SW_SIZE, &sw_size[0]}, {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
+        {MPV_RENDER_PARAM_SW_STRIDE, &pitch},    {MPV_RENDER_PARAM_SW_POINTER, pixels},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(BOREALIS_USE_DEKO3D)
@@ -354,9 +348,8 @@ private:
         {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
-    float vertices[20] = {1.0f, 1.0f,  0.0f, 1.0f,  1.0f,  1.0f, -1.0f,
-                          0.0f, 1.0f,  0.0f, -1.0f, -1.0f, 0.0f, 0.0f,
-                          0.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f};
+    float vertices[20] = {1.0f,  1.0f,  0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+                          -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f};
 #endif
 
     // MPV 内部事件，传递内容为: 事件类型

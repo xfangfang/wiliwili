@@ -14,10 +14,8 @@
 SearchVideo::SearchVideo() {
     this->inflateFromXMLRes("xml/fragment/search_video.xml");
     brls::Logger::debug("Fragment SearchVideo: create");
-    recyclingGrid->registerCell(
-        "Cell", []() { return RecyclingGridItemVideoCard::create(); });
-    recyclingGrid->onNextPage(
-        [this]() { this->_requestSearch(SearchActivity::currentKey); });
+    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemVideoCard::create(); });
+    recyclingGrid->onNextPage([this]() { this->_requestSearch(SearchActivity::currentKey); });
 }
 
 SearchVideo::~SearchVideo() {
@@ -44,12 +42,10 @@ void SearchVideo::_requestSearch(const std::string& key) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
                 DataSourceSearchVideoList* datasource =
-                    dynamic_cast<DataSourceSearchVideoList*>(
-                        recyclingGrid->getDataSource());
+                    dynamic_cast<DataSourceSearchVideoList*>(recyclingGrid->getDataSource());
                 if (result.page != this->requestIndex) {
                     // 请求的顺序和当前需要的顺序不符
-                    brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}",
-                                        result.page, this->requestIndex);
+                    brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}", result.page, this->requestIndex);
                     return;
                 }
                 this->requestIndex = result.page + 1;
@@ -63,8 +59,7 @@ void SearchVideo::_requestSearch(const std::string& key) {
                     recyclingGrid->notifyDataChanged();
                 } else {
                     // 搜索加载的第一页
-                    recyclingGrid->setDataSource(
-                        new DataSourceSearchVideoList(result.result));
+                    recyclingGrid->setDataSource(new DataSourceSearchVideoList(result.result));
                 }
             });
         },

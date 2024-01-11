@@ -25,29 +25,23 @@ void SearchActivity::onContentAvailable() {
         this->search(currentKey);
     }
 
-    this->registerAction("wiliwili/search/tab"_i18n,
-                         brls::ControllerButton::BUTTON_Y,
-                         [this](brls::View* view) -> bool {
-                             brls::Application::getImeManager()->openForText(
-                [&](const std::string& text) { this->search(text); },
-                "wiliwili/home/common/search"_i18n, "", 32,
-                SearchActivity::currentKey, 0);
-                             return true;
-                         });
+    this->registerAction(
+        "wiliwili/search/tab"_i18n, brls::ControllerButton::BUTTON_Y, [this](brls::View* view) -> bool {
+            brls::Application::getImeManager()->openForText([&](const std::string& text) { this->search(text); },
+                                                            "wiliwili/home/common/search"_i18n, "", 32,
+                                                            SearchActivity::currentKey, 0);
+            return true;
+        });
 
-    this->searchBox->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->searchBox, [this]() {
-            brls::Application::getImeManager()->openForText(
-                [&](const std::string& text) { this->search(text); },
-                "wiliwili/home/common/search"_i18n, "", 32,
-                SearchActivity::currentKey, 0);
-        }));
+    this->searchBox->addGestureRecognizer(new brls::TapGestureRecognizer(this->searchBox, [this]() {
+        brls::Application::getImeManager()->openForText([&](const std::string& text) { this->search(text); },
+                                                        "wiliwili/home/common/search"_i18n, "", 32,
+                                                        SearchActivity::currentKey, 0);
+    }));
 
-    this->getUpdateSearchEvent()->subscribe(
-        [this](const std::string& s) { this->search(s); });
+    this->getUpdateSearchEvent()->subscribe([this](const std::string& s) { this->search(s); });
     this->searchTab->getSearchHotsTab()->setSearchCallback(&updateSearchEvent);
-    this->searchTab->getSearchHistoryTab()->setSearchCallback(
-        &updateSearchEvent);
+    this->searchTab->getSearchHistoryTab()->setSearchCallback(&updateSearchEvent);
 }
 
 void SearchActivity::search(const std::string& key) {
@@ -58,10 +52,6 @@ void SearchActivity::search(const std::string& key) {
     this->searchTab->requestData(key);
 }
 
-SearchActivity::~SearchActivity() {
-    brls::Logger::debug("SearchActivity: delete");
-}
+SearchActivity::~SearchActivity() { brls::Logger::debug("SearchActivity: delete"); }
 
-UpdateSearchEvent* SearchActivity::getUpdateSearchEvent() {
-    return &this->updateSearchEvent;
-}
+UpdateSearchEvent* SearchActivity::getUpdateSearchEvent() { return &this->updateSearchEvent; }

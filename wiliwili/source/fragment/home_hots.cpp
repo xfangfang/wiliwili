@@ -9,9 +9,7 @@ HomeHots::HomeHots() {
     brls::Logger::debug("Fragment HomeHots: create");
 }
 
-HomeHots::~HomeHots() {
-    brls::Logger::debug("Fragment HomeHotsActivity: delete");
-}
+HomeHots::~HomeHots() { brls::Logger::debug("Fragment HomeHotsActivity: delete"); }
 
 brls::View* HomeHots::create() { return new HomeHots(); }
 

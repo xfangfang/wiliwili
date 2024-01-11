@@ -14,12 +14,10 @@ public:
 
     virtual void onError(const std::string& error) {}
 
-    virtual void onNeedPay(const std::string& msg, const std::string& link,
-                           const std::string& startTime,
+    virtual void onNeedPay(const std::string& msg, const std::string& link, const std::string& startTime,
                            const std::string& endTime) {}
 
-    virtual void onDanmakuInfo(int roomid,
-                               const bilibili::LiveDanmakuinfo& info) {}
+    virtual void onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& info) {}
 
     void requestData(int roomid);
 

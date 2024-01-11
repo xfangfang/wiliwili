@@ -23,8 +23,7 @@ public:
 
     void onCreate() override;
 
-    void onHistoryList(
-        const bilibili::HistoryVideoResultWrapper &result) override;
+    void onHistoryList(const bilibili::HistoryVideoResultWrapper &result) override;
 
     void onError(const std::string &error) override;
 

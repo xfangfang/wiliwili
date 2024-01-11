@@ -9,8 +9,7 @@
 
 class MineHistoryRequest : public Presenter {
 public:
-    virtual void onHistoryList(
-        const bilibili::HistoryVideoResultWrapper& result);
+    virtual void onHistoryList(const bilibili::HistoryVideoResultWrapper& result);
 
     virtual void onError(const std::string& error);
 

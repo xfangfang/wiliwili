@@ -30,8 +30,7 @@ public:
 
 private:
     BRLS_BIND(brls::RadioCell, btnTutorialOpenApp, "tools/tutorial_open");
-    BRLS_BIND(brls::RadioCell, btnTutorialOpenVideoIntro,
-              "tools/tutorial_video_intro");
+    BRLS_BIND(brls::RadioCell, btnTutorialOpenVideoIntro, "tools/tutorial_video_intro");
     BRLS_BIND(brls::RadioCell, btnTutorialWiki, "tools/tutorial_wiki");
     BRLS_BIND(brls::RadioCell, btnTutorialError, "tools/tutorial_error");
     BRLS_BIND(brls::RadioCell, btnTutorialFont, "tools/tutorial_font");

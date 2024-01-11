@@ -6,8 +6,7 @@
 #include "presenter/home_recommends.hpp"
 #include "bilibili.h"
 
-void Home::onRecommendVideoList(
-    const bilibili::RecommendVideoListResultWrapper &result) {}
+void Home::onRecommendVideoList(const bilibili::RecommendVideoListResultWrapper &result) {}
 void Home::onError(const std::string &error) {}
 
 void Home::requestData(bool refresh, FeedType type) {
@@ -32,13 +31,11 @@ void Home::requestData(bool refresh, FeedType type) {
     requestPage++;
 }
 
-void Home::requestRecommendVideoList(int index, int num, int fresh,
-                                     FeedType type) {
+void Home::requestRecommendVideoList(int index, int num, int fresh, FeedType type) {
     CHECK_AND_SET_REQUEST
     static int y_num = (int)brls::getStyle().getMetric("wiliwili/grid/span/4");
     BILI::get_recommend(
-        index, num, 0, type == FeedType::V1 ? "V1" : "CLIENT_SELECTED", 3,
-        y_num,
+        index, num, 0, type == FeedType::V1 ? "V1" : "CLIENT_SELECTED", 3, y_num,
         [this](const bilibili::RecommendVideoListResultWrapper &result) {
             this->onRecommendVideoList(result);
             UNSET_REQUEST

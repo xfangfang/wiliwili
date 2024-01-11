@@ -11,7 +11,7 @@
 
 namespace bilibili {
 
-std::string genUUID(const std::string& str){
+std::string genUUID(const std::string& str) {
     auto hash = websocketpp::md5::md5_hash_hex(str);
 
     std::ostringstream uuid;
@@ -24,4 +24,4 @@ std::string genUUID(const std::string& str){
     return uuid.str();
 }
 
-}
+}  // namespace bilibili

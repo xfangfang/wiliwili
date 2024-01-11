@@ -38,8 +38,7 @@ public:
 
     bool isFavorite();
 
-    void onCollectionList(
-        const bilibili::SimpleCollectionListResultWrapper& result);
+    void onCollectionList(const bilibili::SimpleCollectionListResultWrapper& result);
 
     /// 获取收藏列表
     void getCollectionList(int rid, int type);

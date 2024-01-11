@@ -1,6 +1,7 @@
 ﻿---
 AlignConsecutiveAssignments: true
 BasedOnStyle: Google
+ColumnLimit: 120
 AccessModifierOffset: -4
 IndentWidth: 4
 BreakBeforeBraces: Attach

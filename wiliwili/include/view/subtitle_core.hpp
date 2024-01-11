@@ -30,8 +30,7 @@ public:
      * @param height 绘制区域的高度
      * @param alpha 组件的透明度，与字幕本身的透明度叠加
      */
-    void drawSubtitle(NVGcontext* vg, float x, float y, float width,
-                      float height, float alpha);
+    void drawSubtitle(NVGcontext* vg, float x, float y, float width, float height, float alpha);
 
     /**
      * 获取字幕数据

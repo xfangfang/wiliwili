@@ -17,13 +17,11 @@ public:
     std::string getShaderString();
 };
 
-inline void to_json(nlohmann::json& nlohmann_json_j,
-                    const ShaderProfile& nlohmann_json_t) {
+inline void to_json(nlohmann::json& nlohmann_json_j, const ShaderProfile& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, name, shaders));
 }
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      ShaderProfile& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, ShaderProfile& nlohmann_json_t) {
     if (nlohmann_json_j.contains("name")) {
         auto& name = nlohmann_json_j.at("name");
         if (name.is_string()) name.get_to(nlohmann_json_t.name);
@@ -39,20 +37,17 @@ typedef std::vector<ShaderProfile> ShaderProfileList;
 class AnimeProfile {
 public:
     AnimeProfile() = default;
-    AnimeProfile(size_t anime, std::string profile)
-        : anime(anime), profile(std::move(profile)) {}
+    AnimeProfile(size_t anime, std::string profile) : anime(anime), profile(std::move(profile)) {}
 
     size_t anime = 0;
     std::string profile;
 };
 
-inline void to_json(nlohmann::json& nlohmann_json_j,
-                    const AnimeProfile& nlohmann_json_t) {
+inline void to_json(nlohmann::json& nlohmann_json_j, const AnimeProfile& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, anime, profile));
 }
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      AnimeProfile& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, AnimeProfile& nlohmann_json_t) {
     if (nlohmann_json_j.contains("anime")) {
         auto& anime = nlohmann_json_j.at("anime");
         if (anime.is_number()) anime.get_to(nlohmann_json_t.anime);
@@ -71,14 +66,11 @@ public:
     AnimeProfileList animeList;
 };
 
-inline void to_json(nlohmann::json& nlohmann_json_j,
-                    const ShaderPack& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, profiles, animeList));
+inline void to_json(nlohmann::json& nlohmann_json_j, const ShaderPack& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, profiles, animeList));
 }
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      ShaderPack& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, ShaderPack& nlohmann_json_t) {
     if (nlohmann_json_j.contains("profiles")) {
         auto& profiles = nlohmann_json_j.at("profiles");
         if (profiles.is_array()) profiles.get_to(nlohmann_json_t.profiles);

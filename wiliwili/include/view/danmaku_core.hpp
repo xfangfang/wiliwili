@@ -110,9 +110,7 @@ public:
     //    char hash[9] = {0};
     //    uint64_t dmid; // 弹幕ID
 
-    bool operator<(const DanmakuItem &item) const {
-        return this->time < item.time;
-    }
+    bool operator<(const DanmakuItem &item) const { return this->time < item.time; }
 
     inline void draw(NVGcontext *vg, float x, float y, float alpha, bool multiLine = false) const;
 
@@ -155,8 +153,7 @@ public:
      * @param height 绘制区域的高度
      * @param alpha 组件的透明度，与弹幕本身的透明度叠加
      */
-    void draw(NVGcontext *vg, float x, float y, float width, float height,
-              float alpha);
+    void draw(NVGcontext *vg, float x, float y, float width, float height, float alpha);
 
     /**
      * 加载弹幕数据
@@ -205,8 +202,7 @@ public:
     static inline int DANMAKU_STYLE_LINE_HEIGHT = 120;
 
     /// [stroke, incline, shadow, pure]
-    static inline DanmakuFontStyle DANMAKU_STYLE_FONT =
-        DanmakuFontStyle::DANMAKU_FONT_STROKE;
+    static inline DanmakuFontStyle DANMAKU_STYLE_FONT = DanmakuFontStyle::DANMAKU_FONT_STROKE;
 
     /// [0 - 100]
     static inline int DANMAKU_RENDER_QUALITY = 100;

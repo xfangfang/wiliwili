@@ -13,7 +13,7 @@
 namespace brls {
 class Label;
 class ProgressSpinner;
-}
+}  // namespace brls
 class MPVCore;
 class VideoProgressSlider;
 class SVGImage;
@@ -44,29 +44,22 @@ public:
     ~VideoView() override;
 
     /// Video control
-    void setUrl(const std::string& url, int start = 0, int end = -1,
-                const std::string& audio = "");
+    void setUrl(const std::string& url, int start = 0, int end = -1, const std::string& audio = "");
 
-    void setBackupUrl(const std::string& url, int start = 0, int end = -1,
-                      const std::string& audio = "");
+    void setBackupUrl(const std::string& url, int start = 0, int end = -1, const std::string& audio = "");
 
     // 多个音频文件添加多个音轨
-    void setUrl(const std::string& url, int start, int end,
-                const std::vector<std::string>& audios);
+    void setUrl(const std::string& url, int start, int end, const std::vector<std::string>& audios);
 
     // 将视频添加入播放列表，按列表序播放 （用于自动播放备份视频）
-    void setBackupUrl(const std::string& url, int start, int end,
-                      const std::vector<std::string>& audios);
+    void setBackupUrl(const std::string& url, int start, int end, const std::vector<std::string>& audios);
 
     // 将多个视频合并成同一个视频播放
-    void setUrl(const std::vector<EDLUrl>& edl_urls, int start = 0,
-                int end = -1);
+    void setUrl(const std::vector<EDLUrl>& edl_urls, int start = 0, int end = -1);
 
-    static std::string genExtraUrlParam(int start, int end,
-                                        const std::string& audio);
+    static std::string genExtraUrlParam(int start, int end, const std::string& audio);
 
-    static std::string genExtraUrlParam(
-        int start, int end, const std::vector<std::string>& audios = {});
+    static std::string genExtraUrlParam(int start, int end, const std::vector<std::string>& audios = {});
 
     void resume();
 
@@ -152,8 +145,7 @@ public:
     void setCustomToggleAction(std::function<void()> action);
 
     /// 番剧自定义菜单信息
-    void setBangumiCustomSetting(const std::string& title,
-                                 unsigned int seasonId);
+    void setBangumiCustomSetting(const std::string& title, unsigned int seasonId);
 
     void setTitle(const std::string& title);
 
@@ -205,15 +197,14 @@ public:
 
     void setFullScreen(bool fs);
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext* ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext* ctx) override;
 
     View* getDefaultFocus() override;
 
     void onChildFocusGained(View* directChild, View* focusedView) override;
 
-    View* getNextFocus(brls::FocusDirection direction,
-                       View* currentView) override;
+    View* getNextFocus(brls::FocusDirection direction, View* currentView) override;
 
     void registerMpvEvent();
 
@@ -274,8 +265,7 @@ private:
     CustomEvent::Subscription customEventSubscribeID;
     std::function<void()> customToggleAction = nullptr;
     brls::InputManager* input;
-    NVGcolor bottomBarColor =
-        brls::Application::getTheme().getColor("color/bilibili");
+    NVGcolor bottomBarColor = brls::Application::getTheme().getColor("color/bilibili");
 
     ///OSD
     BRLS_BIND(brls::Label, videoTitleLabel, "video/osd/title");
@@ -304,8 +294,7 @@ private:
     BRLS_BIND(SVGImage, btnFullscreenIcon, "video/osd/fullscreen/icon");
     BRLS_BIND(SVGImage, btnDanmakuIcon, "video/osd/danmaku/icon");
     BRLS_BIND(SVGImage, btnVolumeIcon, "video/osd/danmaku/volume/icon");
-    BRLS_BIND(SVGImage, btnDanmakuSettingIcon,
-              "video/osd/danmaku/setting/icon");
+    BRLS_BIND(SVGImage, btnDanmakuSettingIcon, "video/osd/danmaku/setting/icon");
     BRLS_BIND(SVGImage, btnSettingIcon, "video/osd/setting/icon");
     BRLS_BIND(SVGImage, btnCastIcon, "video/osd/cast/icon");
     BRLS_BIND(brls::Label, hintLabel, "video/osd/hint/label");
@@ -340,8 +329,8 @@ private:
     void requestSeeking(int seek, int delay = 400);
 
     bool is_seeking     = false;  // 是否正在请求跳转
-    int seeking_range   = 0;  // 跳转的目标进度, 跳转结束后归零
-    size_t seeking_iter = 0;  // 请求跳转的延迟函数 handle
+    int seeking_range   = 0;      // 跳转的目标进度, 跳转结束后归零
+    size_t seeking_iter = 0;      // 请求跳转的延迟函数 handle
 
     /**
      *  预览视频音量调节，实时调节
@@ -351,8 +340,7 @@ private:
     int volume_init = 0;
 
     /// 绘制高能进度条
-    void drawHighlightProgress(NVGcontext* vg, float x, float y, float width,
-                               float alpha);
+    void drawHighlightProgress(NVGcontext* vg, float x, float y, float width, float alpha);
 
     float getRealDuration();
 };

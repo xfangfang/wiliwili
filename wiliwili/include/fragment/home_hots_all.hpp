@@ -20,8 +20,7 @@ public:
 
     ~HomeHotsAll();
 
-    void onHotsAllVideoList(const bilibili::HotsAllVideoListResult &result,
-                            int index) override;
+    void onHotsAllVideoList(const bilibili::HotsAllVideoListResult &result, int index) override;
 
     static View *create();
 

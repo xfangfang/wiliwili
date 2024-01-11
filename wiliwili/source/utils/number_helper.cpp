@@ -18,8 +18,7 @@
 #include <borealis/platforms/ps4/ps4_sysmodule.hpp>
 
 #pragma clang optimize off
-static inline void convertUtcToLocalTime(const struct tm* utc, struct tm* local_time)
-{
+static inline void convertUtcToLocalTime(const struct tm* utc, struct tm* local_time) {
     brls::OrbisDateTime utc_sce, local_sce;
     utc_sce.day    = utc->tm_mday;
     utc_sce.month  = utc->tm_mon + 1;
@@ -43,12 +42,12 @@ static inline void convertUtcToLocalTime(const struct tm* utc, struct tm* local_
 }
 #pragma clang optimize on
 
-#define GET_TIME                                     \
-    struct tm tm, tm_utc, curTm, curTm_utc;          \
-    time_t curTime = time(NULL);                     \
-    localtime_r(&curTime, &curTm_utc);               \
+#define GET_TIME                               \
+    struct tm tm, tm_utc, curTm, curTm_utc;    \
+    time_t curTime = time(NULL);               \
+    localtime_r(&curTime, &curTm_utc);         \
     convertUtcToLocalTime(&curTm_utc, &curTm); \
-    localtime_r(&sec, &tm_utc);                      \
+    localtime_r(&sec, &tm_utc);                \
     convertUtcToLocalTime(&tm_utc, &tm);
 #else
 #define GET_TIME                   \
@@ -59,12 +58,10 @@ static inline void convertUtcToLocalTime(const struct tm* utc, struct tm* local_
     localtime_r(&sec, &tm);
 #endif
 
-const char seed[64] = {'0', '1', '2', '3', '4', '5', '6', '7',  '8', '9', 'A',
-                 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',  'J', 'K', 'L',
-                 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',  'U', 'V', 'W',
-                 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e',  'f', 'g', 'h',
-                 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',  'q', 'r', 's',
-                 't', 'u', 'v', 'w', 'x', 'y', 'z', '\0', '\0'};
+const char seed[64] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',  'F',
+                       'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',  'V',
+                       'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',  'l',
+                       'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '\0', '\0'};
 
 std::string getRandom(int length, int rangeStart, int rangeEnd) {
     std::random_device rd;
@@ -78,13 +75,9 @@ std::string getRandom(int length, int rangeStart, int rangeEnd) {
     return text;
 }
 
-std::string wiliwili::getRandomText(int length) {
-    return getRandom(length, 0, 61);
-}
+std::string wiliwili::getRandomText(int length) { return getRandom(length, 0, 61); }
 
-std::string wiliwili::getRandomNumber(int length) {
-    return getRandom(length, 1, 9);
-}
+std::string wiliwili::getRandomNumber(int length) { return getRandom(length, 1, 9); }
 
 std::string wiliwili::getRandomHex(int length, bool lowerCase) {
     if (lowerCase) {
@@ -100,21 +93,17 @@ std::string wiliwili::sec2Time(size_t t) {
     if (hour == 0) {
         return wiliwili::pre0(minute, 2) + ":" + wiliwili::pre0(sec, 2);
     }
-    return wiliwili::pre0(hour, 2) + ":" + wiliwili::pre0(minute, 2) + ":" +
-           wiliwili::pre0(sec, 2);
+    return wiliwili::pre0(hour, 2) + ":" + wiliwili::pre0(minute, 2) + ":" + wiliwili::pre0(sec, 2);
 }
 
 std::string wiliwili::sec2TimeDLNA(size_t t) {
     size_t hour   = t / 3600;
     size_t minute = t / 60 % 60;
     size_t sec    = t % 60;
-    return std::to_string(hour) + ":" + wiliwili::pre0(minute, 2) + ":" +
-           wiliwili::pre0(sec, 2);
+    return std::to_string(hour) + ":" + wiliwili::pre0(minute, 2) + ":" + wiliwili::pre0(sec, 2);
 }
 
-std::string wiliwili::sec2MinSec(size_t t) {
-    return wiliwili::pre0(t / 60, 2) + ":" + wiliwili::pre0(t % 60, 2);
-}
+std::string wiliwili::sec2MinSec(size_t t) { return wiliwili::pre0(t / 60, 2) + ":" + wiliwili::pre0(t % 60, 2); }
 
 // eg1: 1102 => 1102
 // eg2: 11022 => 1.1万
@@ -145,13 +134,12 @@ std::string wiliwili::sec2date(time_t sec) {
     GET_TIME
 
     if (curTm.tm_year != tm.tm_year || sec > curTime) {
-        return std::to_string(tm.tm_year + 1900) + "-" +
-               std::to_string(tm.tm_mon + 1) + "-" + std::to_string(tm.tm_mday);
+        return std::to_string(tm.tm_year + 1900) + "-" + std::to_string(tm.tm_mon + 1) + "-" +
+               std::to_string(tm.tm_mday);
     }
     size_t inter = curTime - sec;
 
-    if (curTm.tm_mon != tm.tm_mon ||
-        ((curTm.tm_mon == tm.tm_mon) && abs(curTm.tm_mday - tm.tm_mday) >= 2)) {
+    if (curTm.tm_mon != tm.tm_mon || ((curTm.tm_mon == tm.tm_mon) && abs(curTm.tm_mday - tm.tm_mday) >= 2)) {
         // 两天前
         return std::to_string(tm.tm_mon + 1) + "-" + std::to_string(tm.tm_mday);
     } else if (inter > 86400) {  // 24小时前
@@ -167,17 +155,15 @@ std::string wiliwili::sec2date(time_t sec) {
 
 std::string wiliwili::sec2dateV2(time_t sec) {
     GET_TIME
-    return std::to_string(tm.tm_year + 1900) + "-" + pre0(tm.tm_mon + 1, 2) +
-           "-" + pre0(tm.tm_mday, 2);
+    return std::to_string(tm.tm_year + 1900) + "-" + pre0(tm.tm_mon + 1, 2) + "-" + pre0(tm.tm_mday, 2);
 }
 
 // 准确的时间: 2022-01-01 23:00:00
 std::string wiliwili::sec2FullDate(time_t sec) {
     GET_TIME
 
-    return std::to_string(tm.tm_year + 1900) + "-" + pre0(tm.tm_mon + 1, 2) +
-           "-" + pre0(tm.tm_mday, 2) + " " + pre0(tm.tm_hour, 2) + ":" +
-           pre0(tm.tm_min, 2) + ":" + pre0(tm.tm_sec, 2);
+    return std::to_string(tm.tm_year + 1900) + "-" + pre0(tm.tm_mon + 1, 2) + "-" + pre0(tm.tm_mday, 2) + " " +
+           pre0(tm.tm_hour, 2) + ":" + pre0(tm.tm_min, 2) + ":" + pre0(tm.tm_sec, 2);
 }
 
 // 强调观看时间：用于历史记录
@@ -188,21 +174,18 @@ std::string wiliwili::sec2TimeDate(time_t sec) {
     GET_TIME
 
     if (curTm.tm_year != tm.tm_year || sec > curTime) {
-        return std::to_string(tm.tm_year + 1900) + "-" +
-               std::to_string(tm.tm_mon + 1) + "-" + std::to_string(tm.tm_mday);
+        return std::to_string(tm.tm_year + 1900) + "-" + std::to_string(tm.tm_mon + 1) + "-" +
+               std::to_string(tm.tm_mday);
     }
 
-    if (curTm.tm_mon != tm.tm_mon ||
-        ((curTm.tm_mon == tm.tm_mon) && abs(curTm.tm_mday - tm.tm_mday) >= 2)) {
+    if (curTm.tm_mon != tm.tm_mon || ((curTm.tm_mon == tm.tm_mon) && abs(curTm.tm_mday - tm.tm_mday) >= 2)) {
         // 两天前
         return std::to_string(tm.tm_mon + 1) + "-" + std::to_string(tm.tm_mday);
     } else if (abs(curTm.tm_mday - tm.tm_mday) >= 1) {
         // 昨天 00:00
-        return "昨天 " + wiliwili::pre0(tm.tm_hour, 2) + ":" +
-               wiliwili::pre0(tm.tm_min, 2);
+        return "昨天 " + wiliwili::pre0(tm.tm_hour, 2) + ":" + wiliwili::pre0(tm.tm_min, 2);
     }
-    return "今天 " + wiliwili::pre0(tm.tm_hour, 2) + ":" +
-           wiliwili::pre0(tm.tm_min, 2);
+    return "今天 " + wiliwili::pre0(tm.tm_hour, 2) + ":" + wiliwili::pre0(tm.tm_min, 2);
 }
 
 size_t wiliwili::getUnixTime() {

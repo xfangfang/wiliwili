@@ -9,10 +9,8 @@
 
 using namespace brls::literals;
 
-void HomeLiveRequest::onLiveList(const bilibili::LiveVideoListResult &result,
-                                 int index) {}
-void HomeLiveRequest::onAreaList(
-    const bilibili::LiveFullAreaListResult &result) {}
+void HomeLiveRequest::onLiveList(const bilibili::LiveVideoListResult &result, int index) {}
+void HomeLiveRequest::onAreaList(const bilibili::LiveFullAreaListResult &result) {}
 
 void HomeLiveRequest::requestData(int main, int sub, int page) {
     CHECK_AND_SET_REQUEST
@@ -40,8 +38,7 @@ void HomeLiveRequest::requestLiveList(int parent_area, int area, int page) {
         [this, page](const auto &result) {
             UNSET_REQUEST
             bilibili::LiveVideoListResult res = result.my_list;
-            res.insert(res.end(), result.card_list.begin(),
-                       result.card_list.end());
+            res.insert(res.end(), result.card_list.begin(), result.card_list.end());
             if (res.empty()) staticPage--;
             this->onLiveList(res, page);
         },

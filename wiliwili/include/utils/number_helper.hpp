@@ -26,10 +26,7 @@ inline std::string pre0(size_t num, size_t length) {
     return std::string(length - str.length(), '0') + str;
 }
 
-static inline time_t unix_time() {
-    return std::chrono::system_clock::to_time_t(
-        std::chrono::system_clock::now());
-}
+static inline time_t unix_time() { return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()); }
 
 std::string getRandomText(int length = 16);
 

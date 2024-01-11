@@ -103,6 +103,4 @@ void HintActivity::onContentAvailable() {
 #endif
 }
 
-HintActivity::~HintActivity() {
-    brls::Logger::debug("HintActivityActivity: delete");
-}
+HintActivity::~HintActivity() { brls::Logger::debug("HintActivityActivity: delete"); }

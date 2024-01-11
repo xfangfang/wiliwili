@@ -12,8 +12,7 @@ public:
 
     ~RecyclingGridItemHotsCard() override;
 
-    void setCard(const std::string& prefix, const std::string& name,
-                 const std::string& image);
+    void setCard(const std::string& prefix, const std::string& name, const std::string& image);
 
     void cacheForReuse() override;
 

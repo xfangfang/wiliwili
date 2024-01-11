@@ -20,15 +20,13 @@ public:
         refreshIcon = new SVGImage();
         refreshIcon->setDimensions(32, 32);
         if (brls::Application::getThemeVariant() == brls::ThemeVariant::LIGHT) {
-            refreshIcon->setImageFromSVGRes(
-                "svg/bpx-svg-sprite-replay-grey.svg");
+            refreshIcon->setImageFromSVGRes("svg/bpx-svg-sprite-replay-grey.svg");
 
         } else {
             refreshIcon->setImageFromSVGRes("svg/bpx-svg-sprite-replay.svg");
         }
         this->setCornerRadius(8);
-        this->setBackgroundColor(
-            brls::Application::getTheme().getColor("color/grey_1"));
+        this->setBackgroundColor(brls::Application::getTheme().getColor("color/grey_1"));
         this->setDimensions(55, 55);
         this->setHideClickAnimation(true);
         this->setAlignItems(brls::AlignItems::CENTER);
@@ -42,8 +40,8 @@ public:
         this->addGestureRecognizer(new brls::TapGestureRecognizer(this));
     }
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext* ctx) override {
+    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext* ctx) override {
         Box::draw(vg, x, y, width, height, style, ctx);
 
         nvgBeginPath(vg);
@@ -57,14 +55,11 @@ public:
         angle.stop();
         angle.reset(0);
         angle.addStep(NVG_PI * 4, 600, brls::EasingFunction::quadraticOut);
-        angle.setTickCallback(
-            [this] { this->refreshIcon->rotate(this->angle); });
+        angle.setTickCallback([this] { this->refreshIcon->rotate(this->angle); });
         angle.start();
     }
 
-    void registerClickAction(const brls::ActionListener& cb) {
-        this->actionListener = cb;
-    }
+    void registerClickAction(const brls::ActionListener& cb) { this->actionListener = cb; }
 
 private:
     brls::ActionListener actionListener = nullptr;

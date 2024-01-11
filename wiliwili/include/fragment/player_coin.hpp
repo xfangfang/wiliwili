@@ -12,7 +12,7 @@
 #include <borealis/core/box.hpp>
 #include <borealis/core/bind.hpp>
 
-namespace brls{
+namespace brls {
 class Label;
 }
 class AnimationImage;
@@ -50,7 +50,7 @@ private:
     BRLS_BIND(brls::Box, likeBox, "coin/like");
 
     int coin = 2;
-    int exp = -1;
+    int exp  = -1;
 
     brls::Event<int> coinEvent;
 };

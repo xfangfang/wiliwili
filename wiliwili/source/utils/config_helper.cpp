@@ -84,11 +84,9 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::HOME_WINDOW_STATE, {"home_window_state", {}, {}, 0}},
     {SettingItem::DLNA_IP, {"dlna_ip", {}, {}, 0}},
     {SettingItem::DLNA_NAME, {"dlna_name", {}, {}, 0}},
-    {SettingItem::PLAYER_ASPECT,
-     {"player_aspect", {"-1", "4:3", "16:9"}, {}, 0}},
+    {SettingItem::PLAYER_ASPECT, {"player_aspect", {"-1", "4:3", "16:9"}, {}, 0}},
     {SettingItem::HTTP_PROXY, {"http_proxy", {}, {}, 0}},
-    {SettingItem::DANMAKU_STYLE_FONT,
-     {"danmaku_style_font", {"stroke", "incline", "shadow", "pure"}, {}, 0}},
+    {SettingItem::DANMAKU_STYLE_FONT, {"danmaku_style_font", {"stroke", "incline", "shadow", "pure"}, {}, 0}},
 
     /// bool
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
@@ -109,8 +107,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_HIGHLIGHT_BAR, {"player_highlight_bar", {}, {}, 0}},
-    {SettingItem::PLAYER_SKIP_OPENING_CREDITS,
-     {"player_skip_opening_credits", {}, {}, 1}},
+    {SettingItem::PLAYER_SKIP_OPENING_CREDITS, {"player_skip_opening_credits", {}, {}, 1}},
 #if defined(__PSV__) || defined(PS4)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
 #else
@@ -122,8 +119,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
 #endif
     {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
-    {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END,
-     {"player_exit_fullscreen_on_end", {}, {}, 1}},
+    {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END, {"player_exit_fullscreen_on_end", {}, {}, 1}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
     {SettingItem::DANMAKU_ON, {"danmaku", {}, {}, 1}},
     {SettingItem::DANMAKU_FILTER_BOTTOM, {"danmaku_filter_bottom", {}, {}, 1}},
@@ -146,8 +142,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 
 /// number
 #if defined(__PSV__)
-    {SettingItem::PLAYER_INMEMORY_CACHE,
-     {"player_inmemory_cache", {"0MB", "5MB", "10MB"}, {0, 5, 10}, 0}},
+    {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {"0MB", "5MB", "10MB"}, {0, 5, 10}, 0}},
 #else
     {SettingItem::PLAYER_INMEMORY_CACHE,
      {"player_inmemory_cache",
@@ -176,10 +171,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       {1, 2, 3, 4, 8, 12, 16},
       3}},
 #endif
-    {SettingItem::VIDEO_FORMAT,
-     {"file_format", {"Dash (AVC/HEVC/AV1)", "FLV/MP4"}, {4048, 0}, 0}},
-    {SettingItem::VIDEO_CODEC,
-     {"video_codec", {"AVC/H.264", "HEVC/H.265", "AV1"}, {7, 12, 13}, 0}},
+    {SettingItem::VIDEO_FORMAT, {"file_format", {"Dash (AVC/HEVC/AV1)", "FLV/MP4"}, {4048, 0}, 0}},
+    {SettingItem::VIDEO_CODEC, {"video_codec", {"AVC/H.264", "HEVC/H.265", "AV1"}, {7, 12, 13}, 0}},
     {SettingItem::AUDIO_QUALITY,
      {"audio_quality",
       {"High", "Medium", "Low"},
@@ -190,44 +183,29 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       0}},
 #endif
     {SettingItem::DANMAKU_FILTER_LEVEL,
-     {"danmaku_filter_level",
-      {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
-      {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-      0}},
-    {SettingItem::DANMAKU_STYLE_AREA,
-     {"danmaku_style_area", {"1/4", "1/2", "3/4", "1"}, {25, 50, 75, 100}, 3}},
+     {"danmaku_filter_level", {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 0}},
+    {SettingItem::DANMAKU_STYLE_AREA, {"danmaku_style_area", {"1/4", "1/2", "3/4", "1"}, {25, 50, 75, 100}, 3}},
     {SettingItem::DANMAKU_STYLE_ALPHA,
      {"danmaku_style_alpha",
       {"10%", "25%", "50%", "60%", "70%", "80%", "90%", "100%"},
       {10, 25, 50, 60, 70, 80, 90, 100},
       5}},
     {SettingItem::DANMAKU_STYLE_FONTSIZE,
-     {"danmaku_style_fontsize",
-      {"50%", "75%", "100%", "125%", "150%", "175%"},
-      {15, 22, 30, 37, 45, 50},
-      2}},
+     {"danmaku_style_fontsize", {"50%", "75%", "100%", "125%", "150%", "175%"}, {15, 22, 30, 37, 45, 50}, 2}},
     {SettingItem::DANMAKU_STYLE_LINE_HEIGHT,
      {"danmaku_style_line_height",
       {"100%", "120%", "140%", "160%", "180%", "200%"},
       {100, 120, 140, 160, 180, 200},
       1}},
     {SettingItem::DANMAKU_STYLE_SPEED,
-     {"danmaku_style_speed",
-      {"0.5", "0.75", "1.0", "1.25", "1.5"},
-      {150, 125, 100, 75, 50},
-      2}},
+     {"danmaku_style_speed", {"0.5", "0.75", "1.0", "1.25", "1.5"}, {150, 125, 100, 75, 50}, 2}},
     {SettingItem::DANMAKU_RENDER_QUALITY,
-     {"danmaku_render_quality",
-      {"100%", "95%", "90%", "80%", "70%", "60%", "50%"},
-      {100, 95, 90, 80, 70, 60, 50},
-      0}},
-    {SettingItem::LIMITED_FPS,
-     {"limited_fps", {"0", "30", "60", "90", "120"}, {0, 30, 60, 90, 120}, 0}},
+     {"danmaku_render_quality", {"100%", "95%", "90%", "80%", "70%", "60%", "50%"}, {100, 95, 90, 80, 70, 60, 50}, 0}},
+    {SettingItem::LIMITED_FPS, {"limited_fps", {"0", "30", "60", "90", "120"}, {0, 30, 60, 90, 120}, 0}},
     {SettingItem::DEACTIVATED_TIME, {"deactivated_time", {}, {}, 0}},
     {SettingItem::DEACTIVATED_FPS, {"deactivated_fps", {}, {}, 0}},
     {SettingItem::DLNA_PORT, {"dlna_port", {}, {}, 0}},
-    {SettingItem::PLAYER_STRATEGY,
-     {"player_strategy", {"rcmd", "next", "loop", "single"}, {0, 1, 2, 3}, 0}},
+    {SettingItem::PLAYER_STRATEGY, {"player_strategy", {"rcmd", "next", "loop", "single"}, {0, 1, 2, 3}, 0}},
     {SettingItem::PLAYER_BRIGHTNESS, {"player_brightness", {}, {}, 0}},
     {SettingItem::PLAYER_CONTRAST, {"player_contrast", {}, {}, 0}},
     {SettingItem::PLAYER_SATURATION, {"player_saturation", {}, {}, 0}},
@@ -290,8 +268,7 @@ void ProgramConfig::addHistory(const std::string& key) {
 
 std::vector<std::string> ProgramConfig::getHistoryList() {
     std::vector<std::string> res;
-    for (auto it = this->searchHistory.rbegin();
-         it != this->searchHistory.rend(); it++) {
+    for (auto it = this->searchHistory.rbegin(); it != this->searchHistory.rend(); it++) {
         std::string out;
         if (wiliwili::base64Decode(*it, out) == 0) {
             res.emplace_back(out);
@@ -315,9 +292,7 @@ void ProgramConfig::setRefreshToken(const std::string& token) {
     this->save();
 }
 
-std::string ProgramConfig::getRefreshToken() const {
-    return this->refreshToken;
-}
+std::string ProgramConfig::getRefreshToken() const { return this->refreshToken; }
 
 std::string ProgramConfig::getCSRF() {
     if (this->cookie.count("bili_jct") == 0) {
@@ -340,14 +315,11 @@ std::string ProgramConfig::getBuvid3() {
     return this->cookie["buvid3"];
 }
 
-bool ProgramConfig::hasLoginInfo() {
-    return !getUserID().empty() && (getUserID() != "0") && !getCSRF().empty();
-}
+bool ProgramConfig::hasLoginInfo() { return !getUserID().empty() && (getUserID() != "0") && !getCSRF().empty(); }
 
 std::string ProgramConfig::getClientID() {
     if (this->client.empty()) {
-        this->client = fmt::format("{}.{}", wiliwili::getRandomNumber(),
-                                   wiliwili::getUnixTime());
+        this->client = fmt::format("{}.{}", wiliwili::getRandomNumber(), wiliwili::getUnixTime());
         this->save();
     }
     return this->client;
@@ -355,18 +327,15 @@ std::string ProgramConfig::getClientID() {
 
 std::string ProgramConfig::getDeviceID() {
     if (this->device.empty()) {
-        this->device =
-            fmt::format("{}-{}-{}-{}-{}", wiliwili::getRandomHex(8),
-                        wiliwili::getRandomHex(4), wiliwili::getRandomHex(4),
-                        wiliwili::getRandomHex(4), wiliwili::getRandomHex(12));
+        this->device = fmt::format("{}-{}-{}-{}-{}", wiliwili::getRandomHex(8), wiliwili::getRandomHex(4),
+                                   wiliwili::getRandomHex(4), wiliwili::getRandomHex(4), wiliwili::getRandomHex(12));
         this->save();
     }
     return this->device;
 }
 
 void ProgramConfig::loadHomeWindowState() {
-    std::string homeWindowStateData =
-        getSettingItem(SettingItem::HOME_WINDOW_STATE, std::string{""});
+    std::string homeWindowStateData = getSettingItem(SettingItem::HOME_WINDOW_STATE, std::string{""});
 
     if (homeWindowStateData.empty()) return;
 
@@ -374,8 +343,7 @@ void ProgramConfig::loadHomeWindowState() {
     int hXPos, hYPos;
     int monitor;
 
-    sscanf(homeWindowStateData.c_str(), "%d,%ux%u,%dx%d", &monitor, &hWidth,
-           &hHeight, &hXPos, &hYPos);
+    sscanf(homeWindowStateData.c_str(), "%d,%ux%u,%dx%d", &monitor, &hWidth, &hHeight, &hXPos, &hYPos);
 
     if (hWidth == 0 || hHeight == 0) return;
 
@@ -385,8 +353,7 @@ void ProgramConfig::loadHomeWindowState() {
     VideoContext::posY         = (float)hYPos;
     VideoContext::monitorIndex = monitor;
 
-    brls::Logger::info("Load window state: {}x{},{}x{}", hWidth, hHeight, hXPos,
-                       hYPos);
+    brls::Logger::info("Load window state: {}x{},{}x{}", hWidth, hHeight, hXPos, hYPos);
 }
 
 void ProgramConfig::saveHomeWindowState() {
@@ -401,11 +368,8 @@ void ProgramConfig::saveHomeWindowState() {
     int monitor = videoContext->getCurrentMonitorIndex();
     if (width == 0) width = brls::Application::ORIGINAL_WINDOW_WIDTH;
     if (height == 0) height = brls::Application::ORIGINAL_WINDOW_HEIGHT;
-    brls::Logger::info("Save window state: {},{}x{},{}x{}", monitor, width,
-                       height, xPos, yPos);
-    setSettingItem(
-        SettingItem::HOME_WINDOW_STATE,
-        fmt::format("{},{}x{},{}x{}", monitor, width, height, xPos, yPos));
+    brls::Logger::info("Save window state: {},{}x{},{}x{}", monitor, width, height, xPos, yPos);
+    setSettingItem(SettingItem::HOME_WINDOW_STATE, fmt::format("{},{}x{},{}x{}", monitor, width, height, xPos, yPos));
 }
 
 void ProgramConfig::load() {
@@ -432,22 +396,18 @@ void ProgramConfig::load() {
     if (https_proxy) this->httpsProxy = https_proxy;
     // 如果设置开启了自定义代理，则读取配置文件中的代理设置
     if (getBoolOption(SettingItem::HTTP_PROXY_STATUS)) {
-        this->httpProxy =
-            getSettingItem(SettingItem::HTTP_PROXY, this->httpProxy);
-        this->httpsProxy =
-            getSettingItem(SettingItem::HTTP_PROXY, this->httpsProxy);
+        this->httpProxy  = getSettingItem(SettingItem::HTTP_PROXY, this->httpProxy);
+        this->httpsProxy = getSettingItem(SettingItem::HTTP_PROXY, this->httpsProxy);
     }
 
     // 初始化自定义手柄按键映射
 #ifdef IOS
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
-    brls::DesktopPlatform::GAMEPAD_DB =
-        getConfigDir() + "/gamecontrollerdb.txt";
+    brls::DesktopPlatform::GAMEPAD_DB = getConfigDir() + "/gamecontrollerdb.txt";
 #endif
 
     // 初始化自定义布局
-    std::string customThemeID =
-        getSettingItem(SettingItem::APP_RESOURCES, std::string{""});
+    std::string customThemeID = getSettingItem(SettingItem::APP_RESOURCES, std::string{""});
     if (!customThemeID.empty()) {
         for (auto& theme : customThemes) {
             if (theme.id == customThemeID) {
@@ -461,8 +421,7 @@ void ProgramConfig::load() {
     }
 
     // 初始化 UI 缩放
-    std::string UIScale =
-        getSettingItem(SettingItem::APP_UI_SCALE, std::string{""});
+    std::string UIScale = getSettingItem(SettingItem::APP_UI_SCALE, std::string{""});
     if (UIScale == "544p") {
         brls::Application::ORIGINAL_WINDOW_WIDTH  = 960;
         brls::Application::ORIGINAL_WINDOW_HEIGHT = 544;
@@ -504,69 +463,49 @@ void ProgramConfig::load() {
     MPVCore::VIDEO_SPEED = getIntOption(SettingItem::PLAYER_DEFAULT_SPEED);
 
     // 初始化视频比例
-    MPVCore::VIDEO_ASPECT =
-        getSettingItem(SettingItem::PLAYER_ASPECT, std::string{"-1"});
+    MPVCore::VIDEO_ASPECT = getSettingItem(SettingItem::PLAYER_ASPECT, std::string{"-1"});
 
     // 初始化均衡器
-    MPVCore::VIDEO_BRIGHTNESS =
-        getSettingItem(SettingItem::PLAYER_BRIGHTNESS, 0);
-    MPVCore::VIDEO_CONTRAST = getSettingItem(SettingItem::PLAYER_CONTRAST, 0);
-    MPVCore::VIDEO_SATURATION =
-        getSettingItem(SettingItem::PLAYER_SATURATION, 0);
-    MPVCore::VIDEO_HUE   = getSettingItem(SettingItem::PLAYER_HUE, 0);
-    MPVCore::VIDEO_GAMMA = getSettingItem(SettingItem::PLAYER_GAMMA, 0);
+    MPVCore::VIDEO_BRIGHTNESS = getSettingItem(SettingItem::PLAYER_BRIGHTNESS, 0);
+    MPVCore::VIDEO_CONTRAST   = getSettingItem(SettingItem::PLAYER_CONTRAST, 0);
+    MPVCore::VIDEO_SATURATION = getSettingItem(SettingItem::PLAYER_SATURATION, 0);
+    MPVCore::VIDEO_HUE        = getSettingItem(SettingItem::PLAYER_HUE, 0);
+    MPVCore::VIDEO_GAMMA      = getSettingItem(SettingItem::PLAYER_GAMMA, 0);
 
     // 初始化弹幕相关内容
-    DanmakuCore::DANMAKU_ON = getBoolOption(SettingItem::DANMAKU_ON);
-    DanmakuCore::DANMAKU_SMART_MASK =
-        getBoolOption(SettingItem::DANMAKU_SMART_MASK);
-    DanmakuCore::DANMAKU_FILTER_SHOW_TOP =
-        getBoolOption(SettingItem::DANMAKU_FILTER_TOP);
-    DanmakuCore::DANMAKU_FILTER_SHOW_BOTTOM =
-        getBoolOption(SettingItem::DANMAKU_FILTER_BOTTOM);
-    DanmakuCore::DANMAKU_FILTER_SHOW_SCROLL =
-        getBoolOption(SettingItem::DANMAKU_FILTER_SCROLL);
-    DanmakuCore::DANMAKU_FILTER_SHOW_COLOR =
-        getBoolOption(SettingItem::DANMAKU_FILTER_COLOR);
-    DanmakuCore::DANMAKU_FILTER_SHOW_ADVANCED =
-        getBoolOption(SettingItem::DANMAKU_FILTER_ADVANCED);
-    DanmakuCore::DANMAKU_FILTER_LEVEL =
-        getIntOption(SettingItem::DANMAKU_FILTER_LEVEL);
-    DanmakuCore::DANMAKU_STYLE_AREA =
-        getIntOption(SettingItem::DANMAKU_STYLE_AREA);
-    DanmakuCore::DANMAKU_STYLE_ALPHA =
-        getIntOption(SettingItem::DANMAKU_STYLE_ALPHA);
-    DanmakuCore::DANMAKU_STYLE_FONTSIZE =
-        getIntOption(SettingItem::DANMAKU_STYLE_FONTSIZE);
-    DanmakuCore::DANMAKU_STYLE_LINE_HEIGHT =
-        getIntOption(SettingItem::DANMAKU_STYLE_LINE_HEIGHT);
-    DanmakuCore::DANMAKU_STYLE_SPEED =
-        getIntOption(SettingItem::DANMAKU_STYLE_SPEED);
-    DanmakuCore::DANMAKU_STYLE_FONT =
-        DanmakuFontStyle{getStringOptionIndex(SettingItem::DANMAKU_STYLE_FONT)};
+    DanmakuCore::DANMAKU_ON                   = getBoolOption(SettingItem::DANMAKU_ON);
+    DanmakuCore::DANMAKU_SMART_MASK           = getBoolOption(SettingItem::DANMAKU_SMART_MASK);
+    DanmakuCore::DANMAKU_FILTER_SHOW_TOP      = getBoolOption(SettingItem::DANMAKU_FILTER_TOP);
+    DanmakuCore::DANMAKU_FILTER_SHOW_BOTTOM   = getBoolOption(SettingItem::DANMAKU_FILTER_BOTTOM);
+    DanmakuCore::DANMAKU_FILTER_SHOW_SCROLL   = getBoolOption(SettingItem::DANMAKU_FILTER_SCROLL);
+    DanmakuCore::DANMAKU_FILTER_SHOW_COLOR    = getBoolOption(SettingItem::DANMAKU_FILTER_COLOR);
+    DanmakuCore::DANMAKU_FILTER_SHOW_ADVANCED = getBoolOption(SettingItem::DANMAKU_FILTER_ADVANCED);
+    DanmakuCore::DANMAKU_FILTER_LEVEL         = getIntOption(SettingItem::DANMAKU_FILTER_LEVEL);
+    DanmakuCore::DANMAKU_STYLE_AREA           = getIntOption(SettingItem::DANMAKU_STYLE_AREA);
+    DanmakuCore::DANMAKU_STYLE_ALPHA          = getIntOption(SettingItem::DANMAKU_STYLE_ALPHA);
+    DanmakuCore::DANMAKU_STYLE_FONTSIZE       = getIntOption(SettingItem::DANMAKU_STYLE_FONTSIZE);
+    DanmakuCore::DANMAKU_STYLE_LINE_HEIGHT    = getIntOption(SettingItem::DANMAKU_STYLE_LINE_HEIGHT);
+    DanmakuCore::DANMAKU_STYLE_SPEED          = getIntOption(SettingItem::DANMAKU_STYLE_SPEED);
+    DanmakuCore::DANMAKU_STYLE_FONT           = DanmakuFontStyle{getStringOptionIndex(SettingItem::DANMAKU_STYLE_FONT)};
 
-    DanmakuCore::DANMAKU_RENDER_QUALITY =
-        getIntOption(SettingItem::DANMAKU_RENDER_QUALITY);
+    DanmakuCore::DANMAKU_RENDER_QUALITY = getIntOption(SettingItem::DANMAKU_RENDER_QUALITY);
 
     // 初始化是否支持手柄振动
-    VibrationHelper::GAMEPAD_VIBRATION =
-        getBoolOption(SettingItem::GAMEPAD_VIBRATION);
+    VibrationHelper::GAMEPAD_VIBRATION = getBoolOption(SettingItem::GAMEPAD_VIBRATION);
 
     // 初始化视频格式
-    BILI::FNVAL       = std::to_string(getIntOption(SettingItem::VIDEO_FORMAT));
-    BILI::VIDEO_CODEC = getIntOption(SettingItem::VIDEO_CODEC);
+    BILI::FNVAL         = std::to_string(getIntOption(SettingItem::VIDEO_FORMAT));
+    BILI::VIDEO_CODEC   = getIntOption(SettingItem::VIDEO_CODEC);
     BILI::AUDIO_QUALITY = getIntOption(SettingItem::AUDIO_QUALITY);
 
     // 初始化搜索页样式
     TVSearchActivity::TV_MODE = getBoolOption(SettingItem::SEARCH_TV_MODE);
 
     // 初始化线程数
-    ImageHelper::REQUEST_THREADS =
-        getIntOption(SettingItem::IMAGE_REQUEST_THREADS);
+    ImageHelper::REQUEST_THREADS = getIntOption(SettingItem::IMAGE_REQUEST_THREADS);
 
     // 初始化底部栏
-    brls::AppletFrame::HIDE_BOTTOM_BAR =
-        getBoolOption(SettingItem::HIDE_BOTTOM_BAR);
+    brls::AppletFrame::HIDE_BOTTOM_BAR = getBoolOption(SettingItem::HIDE_BOTTOM_BAR);
 
     // 初始化FPS
     brls::Application::setFPSStatus(!getBoolOption(SettingItem::HIDE_FPS));
@@ -578,30 +517,25 @@ void ProgramConfig::load() {
     VideoDetail::REPORT_HISTORY = getBoolOption(SettingItem::HISTORY_REPORT);
 
     // 初始化播放策略
-    BasePlayerActivity::PLAYER_STRATEGY =
-        getIntOption(SettingItem::PLAYER_STRATEGY);
+    BasePlayerActivity::PLAYER_STRATEGY = getIntOption(SettingItem::PLAYER_STRATEGY);
 
     // 是否自动跳过片头片尾
-    BasePlayerActivity::PLAYER_SKIP_OPENING_CREDITS =
-        getBoolOption(SettingItem::PLAYER_SKIP_OPENING_CREDITS);
+    BasePlayerActivity::PLAYER_SKIP_OPENING_CREDITS = getBoolOption(SettingItem::PLAYER_SKIP_OPENING_CREDITS);
 
     // 初始化是否固定显示底部进度条
     VideoView::BOTTOM_BAR = getBoolOption(SettingItem::PLAYER_BOTTOM_BAR);
 
     // 初始化是否固定显示底部高能进度条
-    VideoView::HIGHLIGHT_PROGRESS_BAR =
-        getBoolOption(SettingItem::PLAYER_HIGHLIGHT_BAR);
+    VideoView::HIGHLIGHT_PROGRESS_BAR = getBoolOption(SettingItem::PLAYER_HIGHLIGHT_BAR);
 
     // 初始化是否使用硬件加速
     MPVCore::HARDWARE_DEC = getBoolOption(SettingItem::PLAYER_HWDEC);
 
     // 初始化自定义的硬件加速方案
-    MPVCore::PLAYER_HWDEC_METHOD = getSettingItem(
-        SettingItem::PLAYER_HWDEC_CUSTOM, MPVCore::PLAYER_HWDEC_METHOD);
+    MPVCore::PLAYER_HWDEC_METHOD = getSettingItem(SettingItem::PLAYER_HWDEC_CUSTOM, MPVCore::PLAYER_HWDEC_METHOD);
 
     // 播放结束时自动退出全屏
-    VideoView::EXIT_FULLSCREEN_ON_END =
-        getBoolOption(SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END);
+    VideoView::EXIT_FULLSCREEN_ON_END = getBoolOption(SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END);
 
     // 初始化内存缓存大小
     MPVCore::INMEMORY_CACHE = getIntOption(SettingItem::PLAYER_INMEMORY_CACHE);
@@ -614,12 +548,10 @@ void ProgramConfig::load() {
 
     // 初始化i18n
     std::set<std::string> i18nData{
-        brls::LOCALE_AUTO, brls::LOCALE_EN_US,   brls::LOCALE_JA,
-        brls::LOCALE_RYU,  brls::LOCALE_ZH_HANS, brls::LOCALE_ZH_HANT,
-        brls::LOCALE_Ko,   brls::LOCALE_IT,
+        brls::LOCALE_AUTO,    brls::LOCALE_EN_US,   brls::LOCALE_JA, brls::LOCALE_RYU,
+        brls::LOCALE_ZH_HANS, brls::LOCALE_ZH_HANT, brls::LOCALE_Ko, brls::LOCALE_IT,
     };
-    std::string langData =
-        getSettingItem(SettingItem::APP_LANG, brls::LOCALE_AUTO);
+    std::string langData = getSettingItem(SettingItem::APP_LANG, brls::LOCALE_AUTO);
 
     if (langData != brls::LOCALE_AUTO && i18nData.count(langData)) {
         brls::Platform::APP_LOCALE_DEFAULT = langData;
@@ -635,8 +567,7 @@ void ProgramConfig::load() {
 #endif
 
     // 初始化FPS限制
-    brls::Application::setLimitedFPS(
-        getSettingItem(SettingItem::LIMITED_FPS, 0));
+    brls::Application::setLimitedFPS(getSettingItem(SettingItem::LIMITED_FPS, 0));
 
     // 初始化进入闲置状态需要的时间 (ms);
     int deactivatedTime = getSettingItem(SettingItem::DEACTIVATED_TIME, 0);
@@ -647,19 +578,16 @@ void ProgramConfig::load() {
     }
 
     // 初始化闲置状态 FPS
-    brls::Application::setDeactivatedFPS(
-        getSettingItem(SettingItem::DEACTIVATED_FPS, 5));
+    brls::Application::setDeactivatedFPS(getSettingItem(SettingItem::DEACTIVATED_FPS, 5));
 
     // 初始化一些在创建窗口之后才能初始化的内容
     brls::Application::getWindowCreationDoneEvent()->subscribe([this]() {
         // 初始化弹幕字体
         std::string danmakuFont = getConfigDir() + "/danmaku.ttf";
-        if (access(danmakuFont.c_str(), F_OK) != -1 &&
-            brls::Application::loadFontFromFile("danmaku", danmakuFont)) {
+        if (access(danmakuFont.c_str(), F_OK) != -1 && brls::Application::loadFontFromFile("danmaku", danmakuFont)) {
             // 自定义弹幕字体
             int danmakuFontId = brls::Application::getFont("danmaku");
-            nvgAddFallbackFontId(brls::Application::getNVGContext(),
-                                 danmakuFontId,
+            nvgAddFallbackFontId(brls::Application::getNVGContext(), danmakuFontId,
                                  brls::Application::getDefaultFont());
             DanmakuCore::DANMAKU_FONT = danmakuFontId;
         } else {
@@ -668,22 +596,18 @@ void ProgramConfig::load() {
         }
 
         // 初始化主题
-        std::string themeData =
-            getSettingItem(SettingItem::APP_THEME, std::string{"auto"});
+        std::string themeData = getSettingItem(SettingItem::APP_THEME, std::string{"auto"});
         if (themeData == "light") {
-            brls::Application::getPlatform()->setThemeVariant(
-                brls::ThemeVariant::LIGHT);
+            brls::Application::getPlatform()->setThemeVariant(brls::ThemeVariant::LIGHT);
         } else if (themeData == "dark") {
-            brls::Application::getPlatform()->setThemeVariant(
-                brls::ThemeVariant::DARK);
+            brls::Application::getPlatform()->setThemeVariant(brls::ThemeVariant::DARK);
         }
 
         // 初始化纹理缓存数量
 #if defined(__PSV__) || defined(PS4)
         brls::TextureCache::instance().cache.setCapacity(1);
 #else
-        brls::TextureCache::instance().cache.setCapacity(
-            getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
+        brls::TextureCache::instance().cache.setCapacity(getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
 #endif
 
         // 初始化播放器音量
@@ -692,25 +616,21 @@ void ProgramConfig::load() {
         // 设置窗口最小尺寸
 #ifdef IOS
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
-        brls::Application::getPlatform()->setWindowSizeLimits(
-            MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT, 0, 0);
+        brls::Application::getPlatform()->setWindowSizeLimits(MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT, 0, 0);
 #endif
     });
 
 #ifdef IOS
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     // 窗口将要关闭时, 保存窗口状态配置
-    brls::Application::getExitEvent()->subscribe(
-        [this]() { saveHomeWindowState(); });
+    brls::Application::getExitEvent()->subscribe([this]() { saveHomeWindowState(); });
 #endif
 
     // 检查不欢迎名单
     wiliwili::checkBanList();
 }
 
-ProgramOption ProgramConfig::getOptionData(SettingItem item) {
-    return SETTING_MAP[item];
-}
+ProgramOption ProgramConfig::getOptionData(SettingItem item) { return SETTING_MAP[item]; }
 
 size_t ProgramConfig::getIntOptionIndex(SettingItem item) {
     auto optionData = getOptionData(item);
@@ -721,8 +641,7 @@ size_t ProgramConfig::getIntOptionIndex(SettingItem item) {
                 if (optionData.rawOptionList[i] == option) return i;
             }
         } catch (const std::exception& e) {
-            brls::Logger::error("Damaged config found: {}/{}", optionData.key,
-                                e.what());
+            brls::Logger::error("Damaged config found: {}/{}", optionData.key, e.what());
             return optionData.defaultOption;
         }
     }
@@ -735,8 +654,7 @@ int ProgramConfig::getIntOption(SettingItem item) {
         try {
             return this->setting.at(optionData.key).get<int>();
         } catch (const std::exception& e) {
-            brls::Logger::error("Damaged config found: {}/{}", optionData.key,
-                                e.what());
+            brls::Logger::error("Damaged config found: {}/{}", optionData.key, e.what());
             return optionData.rawOptionList[optionData.defaultOption];
         }
     }
@@ -749,8 +667,7 @@ bool ProgramConfig::getBoolOption(SettingItem item) {
         try {
             return this->setting.at(optionData.key).get<bool>();
         } catch (const std::exception& e) {
-            brls::Logger::error("Damaged config found: {}/{}", optionData.key,
-                                e.what());
+            brls::Logger::error("Damaged config found: {}/{}", optionData.key, e.what());
             return optionData.defaultOption;
         }
     }
@@ -761,13 +678,11 @@ int ProgramConfig::getStringOptionIndex(SettingItem item) {
     auto optionData = getOptionData(item);
     if (setting.contains(optionData.key)) {
         try {
-            std::string option =
-                this->setting.at(optionData.key).get<std::string>();
+            std::string option = this->setting.at(optionData.key).get<std::string>();
             for (size_t i = 0; i < optionData.optionList.size(); ++i)
                 if (optionData.optionList[i] == option) return i;
         } catch (const std::exception& e) {
-            brls::Logger::error("Damaged config found: {}/{}", optionData.key,
-                                e.what());
+            brls::Logger::error("Damaged config found: {}/{}", optionData.key, e.what());
             return optionData.defaultOption;
         }
     }
@@ -796,14 +711,12 @@ void ProgramConfig::init() {
 
     // Set min_threads and max_threads of http thread pool
     curl_global_init(CURL_GLOBAL_DEFAULT);
-    cpr::async::startup(THREAD_POOL_MIN_THREAD_NUM, THREAD_POOL_MAX_THREAD_NUM,
-                        std::chrono::milliseconds(5000));
+    cpr::async::startup(THREAD_POOL_MIN_THREAD_NUM, THREAD_POOL_MAX_THREAD_NUM, std::chrono::milliseconds(5000));
 
 #if defined(_MSC_VER)
 #elif defined(__PSV__)
 #elif defined(PS4)
-    if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0)
-        brls::Logger::error("cannot load net module");
+    if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0) brls::Logger::error("cannot load net module");
     primary_dns                     = inet_addr(primaryDNSStr.c_str());
     secondary_dns                   = inet_addr(secondaryDNSStr.c_str());
     ps4_mpv_use_precompiled_shaders = 1;
@@ -832,16 +745,13 @@ void ProgramConfig::init() {
 #if defined(__PSV__) || defined(PS4)
         brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
 #else
-        std::string icon =
-            getSettingItem(SettingItem::KEYMAP, std::string{"xbox"});
+        std::string icon = getSettingItem(SettingItem::KEYMAP, std::string{"xbox"});
         if (icon == "xbox") {
-            brls::FontLoader::USER_ICON_PATH =
-                BRLS_ASSET("font/keymap_xbox.ttf");
+            brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_xbox.ttf");
         } else if (icon == "ps") {
             brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
         } else {
-            brls::FontLoader::USER_ICON_PATH =
-                BRLS_ASSET("font/keymap_keyboard.ttf");
+            brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_keyboard.ttf");
         }
 #endif
     }
@@ -896,9 +806,7 @@ std::string ProgramConfig::getConfigDir() {
     CFURLRef homeURL = CFCopyHomeDirectoryURL();
     if (homeURL != nullptr) {
         char buffer[PATH_MAX];
-        if (CFURLGetFileSystemRepresentation(homeURL, true,
-                                             reinterpret_cast<UInt8*>(buffer),
-                                             sizeof(buffer))) {
+        if (CFURLGetFileSystemRepresentation(homeURL, true, reinterpret_cast<UInt8*>(buffer), sizeof(buffer))) {
         }
         CFRelease(homeURL);
         return std::string{buffer} + "/Library/Preferences";
@@ -907,8 +815,7 @@ std::string ProgramConfig::getConfigDir() {
 #else
 #ifdef _DEBUG
     char currentPathBuffer[PATH_MAX];
-    std::string currentPath =
-        getcwd(currentPathBuffer, sizeof(currentPathBuffer));
+    std::string currentPath = getcwd(currentPathBuffer, sizeof(currentPathBuffer));
 #ifdef _WIN32
     return currentPath + "\\config\\wiliwili";
 #else
@@ -916,8 +823,7 @@ std::string ProgramConfig::getConfigDir() {
 #endif /* _WIN32 */
 #else
 #ifdef __APPLE__
-    return std::string(getenv("HOME")) +
-           "/Library/Application Support/wiliwili";
+    return std::string(getenv("HOME")) + "/Library/Application Support/wiliwili";
 #endif
 #ifdef __linux__
     std::string config = "";
@@ -964,8 +870,7 @@ void ProgramConfig::loadCustomThemes() {
     std::string directoryPath = getConfigDir() + "/theme";
     if (!fs::exists(directoryPath)) return;
 
-    for (const auto& entry :
-         fs::directory_iterator(getConfigDir() + "/theme")) {
+    for (const auto& entry : fs::directory_iterator(getConfigDir() + "/theme")) {
 #if USE_BOOST_FILESYSTEM
         if (!fs::is_directory(entry)) continue;
 #else
@@ -986,8 +891,7 @@ void ProgramConfig::loadCustomThemes() {
                 customTheme.id   = entry.path().filename().string();
                 content.get_to(customTheme);
                 customThemes.emplace_back(customTheme);
-                brls::Logger::info("Load custom theme \"{}\" from: {}",
-                                   customTheme.name, jsonFilePath);
+                brls::Logger::info("Load custom theme \"{}\" from: {}", customTheme.name, jsonFilePath);
             } catch (const std::exception& e) {
                 brls::Logger::error("CustomTheme::load: {}", e.what());
                 continue;
@@ -996,9 +900,7 @@ void ProgramConfig::loadCustomThemes() {
     }
 }
 
-std::vector<CustomTheme> ProgramConfig::getCustomThemes() {
-    return customThemes;
-}
+std::vector<CustomTheme> ProgramConfig::getCustomThemes() { return customThemes; }
 
 std::string ProgramConfig::getProxy() {
     if (!httpsProxy.empty()) return httpsProxy;
@@ -1013,15 +915,12 @@ void ProgramConfig::setProxy(const std::string& proxy) {
 
 void ProgramConfig::setTlsVerify(bool verify) { BILI::setTlsVerify(verify); }
 
-void ProgramConfig::addSeasonCustomSetting(const std::string& key,
-                                           const SeasonCustomItem& item) {
+void ProgramConfig::addSeasonCustomSetting(const std::string& key, const SeasonCustomItem& item) {
     this->seasonCustom[key] = item;
     this->save();
 }
 
-SeasonCustomSetting ProgramConfig::getSeasonCustomSetting() const {
-    return this->seasonCustom;
-}
+SeasonCustomSetting ProgramConfig::getSeasonCustomSetting() const { return this->seasonCustom; }
 
 SeasonCustomItem ProgramConfig::getSeasonCustom(const std::string& key) const {
     if (this->seasonCustom.count(key) == 0) {
@@ -1034,8 +933,7 @@ SeasonCustomItem ProgramConfig::getSeasonCustom(unsigned int key) const {
     return this->getSeasonCustom(std::to_string(key));
 }
 
-void ProgramConfig::addSeasonCustomSetting(unsigned int key,
-                                           const SeasonCustomItem& item) {
+void ProgramConfig::addSeasonCustomSetting(unsigned int key, const SeasonCustomItem& item) {
     this->addSeasonCustomSetting(std::to_string(key), item);
 }
 

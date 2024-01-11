@@ -32,8 +32,7 @@ public:
     std::string bvid;
     int cid;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WatchLaterItem, aid, pic, title, duration,
-                                   owner, stat, bvid, cid);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WatchLaterItem, aid, pic, title, duration, owner, stat, bvid, cid);
 
 typedef std::vector<WatchLaterItem> WatchLaterList;
 

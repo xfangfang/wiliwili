@@ -11,9 +11,7 @@ ButtonClose::ButtonClose() {
     this->inflateFromXMLRes("xml/views/button_close.xml");
     brls::Logger::debug("View ButtonClose: create");
 
-    this->registerColorXMLAttribute("textColor", [this](NVGcolor value) {
-        this->setTextColor(value);
-    });
+    this->registerColorXMLAttribute("textColor", [this](NVGcolor value) { this->setTextColor(value); });
 
     this->registerClickAction([this](...) {
         this->dismiss();
@@ -22,9 +20,7 @@ ButtonClose::ButtonClose() {
     this->addGestureRecognizer(new brls::TapGestureRecognizer(this));
 }
 
-void ButtonClose::setTextColor(NVGcolor color){
-    this->label->setTextColor(color);
-}
+void ButtonClose::setTextColor(NVGcolor color) { this->label->setTextColor(color); }
 
 ButtonClose::~ButtonClose() { brls::Logger::debug("View ButtonClose: delete"); }
 

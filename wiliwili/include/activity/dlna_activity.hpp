@@ -9,7 +9,6 @@
 
 #include "utils/event_helper.hpp"
 
-
 class VideoView;
 class DLNAActivity : public brls::Activity {
 public:

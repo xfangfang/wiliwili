@@ -30,13 +30,11 @@ public:
     int rocket;
     int eyes;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      ReleaseReaction& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, ReleaseReaction& nlohmann_json_t) {
     if (nlohmann_json_j.contains("+1")) {
         nlohmann_json_j.at("+1").get_to(nlohmann_json_t.plus_one);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, laugh, hooray,
-                                             heart, rocket, eyes));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, laugh, hooray, heart, rocket, eyes));
 }
 
 class ReleaseNote {
@@ -48,13 +46,11 @@ public:
     ReleaseAuthor author{};
     ReleaseReaction reactions{};
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      ReleaseNote& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, ReleaseNote& nlohmann_json_t) {
     if (nlohmann_json_j.contains("reactions")) {
         nlohmann_json_j.at("reactions").get_to(nlohmann_json_t.reactions);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, tag_name, name,
-                                             body, published_at, author));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, tag_name, name, body, published_at, author));
 }
 
 class LatestUpdate : public brls::Box {

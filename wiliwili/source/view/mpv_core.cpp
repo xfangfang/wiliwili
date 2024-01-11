@@ -87,11 +87,8 @@ const char *fragmentShaderSource = SHADER_VERSION SHADER_PRECISION
 static GLuint createShader(GLint type, const char *source) {
     GLuint shader = glCreateShader(type);
 #ifdef PS4
-    glShaderBinary(
-        1, &shader, 2,
-        type == GL_VERTEX_SHADER ? PS4_MPV_SHADER_VERT : PS4_MPV_SHADER_FRAG,
-        type == GL_VERTEX_SHADER ? PS4_MPV_SHADER_VERT_LENGTH
-                                 : PS4_MPV_SHADER_FRAG_LENGTH);
+    glShaderBinary(1, &shader, 2, type == GL_VERTEX_SHADER ? PS4_MPV_SHADER_VERT : PS4_MPV_SHADER_FRAG,
+                   type == GL_VERTEX_SHADER ? PS4_MPV_SHADER_VERT_LENGTH : PS4_MPV_SHADER_FRAG_LENGTH);
 #else
     int success;
     glShaderSource(shader, 1, &source, nullptr);
@@ -165,8 +162,7 @@ static inline float aspectConverter(const std::string &value) {
 
 void MPVCore::on_update(void *self) {
     brls::sync([]() {
-        uint64_t flags =
-            mpv_render_context_update(MPVCore::instance().getContext());
+        uint64_t flags = mpv_render_context_update(MPVCore::instance().getContext());
 #if defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D) || defined(USE_GL2)
         (void)flags;
 #else
@@ -174,16 +170,12 @@ void MPVCore::on_update(void *self) {
         if (MPVCore::instance().redraw) {
 #ifdef MPV_SW_RENDER
             if (!MPVCore::instance().pixels) return;
-            mpv_render_context_render(MPVCore::instance().mpv_context,
-                                      MPVCore::instance().mpv_params);
+            mpv_render_context_render(MPVCore::instance().mpv_context, MPVCore::instance().mpv_params);
             mpv_render_context_report_swap(MPVCore::instance().mpv_context);
 #else
-            mpv_render_context_render(MPVCore::instance().mpv_context,
-                                      MPVCore::instance().mpv_params);
-            glBindFramebuffer(GL_FRAMEBUFFER,
-                              MPVCore::instance().default_framebuffer);
-            glViewport(0, 0, (GLsizei)brls::Application::windowWidth,
-                       (GLsizei)brls::Application::windowHeight);
+            mpv_render_context_render(MPVCore::instance().mpv_context, MPVCore::instance().mpv_params);
+            glBindFramebuffer(GL_FRAMEBUFFER, MPVCore::instance().default_framebuffer);
+            glViewport(0, 0, (GLsizei)brls::Application::windowWidth, (GLsizei)brls::Application::windowHeight);
             mpv_render_context_report_swap(MPVCore::instance().mpv_context);
 #endif
         }
@@ -219,8 +211,7 @@ void MPVCore::init() {
 
     // misc
     mpv_set_option_string(mpv, "config", "yes");
-    mpv_set_option_string(mpv, "config-dir",
-                          ProgramConfig::instance().getConfigDir().c_str());
+    mpv_set_option_string(mpv, "config-dir", ProgramConfig::instance().getConfigDir().c_str());
     mpv_set_option_string(mpv, "ytdl", "no");
     mpv_set_option_string(mpv, "audio-channels", "stereo");
     mpv_set_option_string(mpv, "idle", "yes");
@@ -232,16 +223,13 @@ void MPVCore::init() {
     mpv_set_option_string(mpv, "reset-on-next-file", "speed,pause");
 
     if (MPVCore::VIDEO_ASPECT != "-1") {
-        mpv_set_option_string(mpv, "video-aspect-override",
-                              MPVCore::VIDEO_ASPECT.c_str());
+        mpv_set_option_string(mpv, "video-aspect-override", MPVCore::VIDEO_ASPECT.c_str());
         video_aspect = aspectConverter(MPVCore::VIDEO_ASPECT);
     }
 
-    mpv_set_option(mpv, "brightness", MPV_FORMAT_DOUBLE,
-                   &MPVCore::VIDEO_BRIGHTNESS);
+    mpv_set_option(mpv, "brightness", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_BRIGHTNESS);
     mpv_set_option(mpv, "contrast", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_CONTRAST);
-    mpv_set_option(mpv, "saturation", MPV_FORMAT_DOUBLE,
-                   &MPVCore::VIDEO_SATURATION);
+    mpv_set_option(mpv, "saturation", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_SATURATION);
     mpv_set_option(mpv, "hue", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_HUE);
     mpv_set_option(mpv, "gamma", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_GAMMA);
 
@@ -255,12 +243,8 @@ void MPVCore::init() {
     if (MPVCore::INMEMORY_CACHE) {
         // cache
         brls::Logger::info("set memory cache: {}MB", MPVCore::INMEMORY_CACHE);
-        mpv_set_option_string(
-            mpv, "demuxer-max-bytes",
-            fmt::format("{}MiB", MPVCore::INMEMORY_CACHE).c_str());
-        mpv_set_option_string(
-            mpv, "demuxer-max-back-bytes",
-            fmt::format("{}MiB", MPVCore::INMEMORY_CACHE / 2).c_str());
+        mpv_set_option_string(mpv, "demuxer-max-bytes", fmt::format("{}MiB", MPVCore::INMEMORY_CACHE).c_str());
+        mpv_set_option_string(mpv, "demuxer-max-back-bytes", fmt::format("{}MiB", MPVCore::INMEMORY_CACHE / 2).c_str());
     } else {
         mpv_set_option_string(mpv, "cache", "no");
     }
@@ -319,22 +303,18 @@ void MPVCore::init() {
     check_error(mpv_observe_property(mpv, 1, "core-idle", MPV_FORMAT_FLAG));
     check_error(mpv_observe_property(mpv, 2, "eof-reached", MPV_FORMAT_FLAG));
     check_error(mpv_observe_property(mpv, 3, "duration", MPV_FORMAT_INT64));
-    check_error(
-        mpv_observe_property(mpv, 4, "playback-time", MPV_FORMAT_DOUBLE));
+    check_error(mpv_observe_property(mpv, 4, "playback-time", MPV_FORMAT_DOUBLE));
     check_error(mpv_observe_property(mpv, 5, "cache-speed", MPV_FORMAT_INT64));
     check_error(mpv_observe_property(mpv, 6, "percent-pos", MPV_FORMAT_DOUBLE));
-    check_error(
-        mpv_observe_property(mpv, 7, "paused-for-cache", MPV_FORMAT_FLAG));
+    check_error(mpv_observe_property(mpv, 7, "paused-for-cache", MPV_FORMAT_FLAG));
     //    check_error(mpv_observe_property(mpv, 8, "demuxer-cache-time", MPV_FORMAT_DOUBLE));
     //    check_error(mpv_observe_property(mpv, 9, "demuxer-cache-state", MPV_FORMAT_NODE));
     check_error(mpv_observe_property(mpv, 10, "speed", MPV_FORMAT_DOUBLE));
     check_error(mpv_observe_property(mpv, 11, "volume", MPV_FORMAT_INT64));
     check_error(mpv_observe_property(mpv, 12, "pause", MPV_FORMAT_FLAG));
-    check_error(
-        mpv_observe_property(mpv, 13, "playback-abort", MPV_FORMAT_FLAG));
+    check_error(mpv_observe_property(mpv, 13, "playback-abort", MPV_FORMAT_FLAG));
     check_error(mpv_observe_property(mpv, 14, "seeking", MPV_FORMAT_FLAG));
-    check_error(
-        mpv_observe_property(mpv, 15, "hwdec-current", MPV_FORMAT_STRING));
+    check_error(mpv_observe_property(mpv, 15, "hwdec-current", MPV_FORMAT_STRING));
     check_error(mpv_observe_property(mpv, 16, "path", MPV_FORMAT_STRING));
     check_error(mpv_observe_property(mpv, 17, "brightness", MPV_FORMAT_DOUBLE));
     check_error(mpv_observe_property(mpv, 18, "contrast", MPV_FORMAT_DOUBLE));
@@ -344,30 +324,23 @@ void MPVCore::init() {
 
     // init renderer params
 #ifdef MPV_SW_RENDER
-    mpv_render_param params[]{
-        {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_SW)},
-        {MPV_RENDER_PARAM_INVALID, nullptr}};
+    mpv_render_param params[]{{MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_SW)},
+                              {MPV_RENDER_PARAM_INVALID, nullptr}};
 #elif defined(BOREALIS_USE_DEKO3D)
     int advanced_control{1};
-    auto switchPlatform =
-        (brls::SwitchVideoContext *)brls::Application::getPlatform()
-            ->getVideoContext();
+    auto switchPlatform = (brls::SwitchVideoContext *)brls::Application::getPlatform()->getVideoContext();
     mpv_deko3d_init_params deko_init_params{switchPlatform->getDeko3dDevice()};
-    mpv_render_param params[]{
-        {MPV_RENDER_PARAM_API_TYPE,
-         const_cast<char *>(MPV_RENDER_API_TYPE_DEKO3D)},
-        {MPV_RENDER_PARAM_DEKO3D_INIT_PARAMS, &deko_init_params},
-        {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
-        {MPV_RENDER_PARAM_INVALID, nullptr}};
+    mpv_render_param params[]{{MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_DEKO3D)},
+                              {MPV_RENDER_PARAM_DEKO3D_INIT_PARAMS, &deko_init_params},
+                              {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
+                              {MPV_RENDER_PARAM_INVALID, nullptr}};
 #else
     int advanced_control{1};
     mpv_opengl_init_params gl_init_params{get_proc_address, nullptr};
-    mpv_render_param params[]{
-        {MPV_RENDER_PARAM_API_TYPE,
-         const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
-        {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
-        {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
-        {MPV_RENDER_PARAM_INVALID, nullptr}};
+    mpv_render_param params[]{{MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
+                              {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
+                              {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
+                              {MPV_RENDER_PARAM_INVALID, nullptr}};
 #endif
 
     if (mpv_render_context_create(&mpv_context, mpv, params) < 0) {
@@ -375,10 +348,8 @@ void MPVCore::init() {
         brls::fatal("failed to initialize mpv GL context");
     }
 
-    brls::Logger::info("MPV Version: {}",
-                       mpv_get_property_string(mpv, "mpv-version"));
-    brls::Logger::info("FFMPEG Version: {}",
-                       mpv_get_property_string(mpv, "ffmpeg-version"));
+    brls::Logger::info("MPV Version: {}", mpv_get_property_string(mpv, "mpv-version"));
+    brls::Logger::info("FFMPEG Version: {}", mpv_get_property_string(mpv, "ffmpeg-version"));
     command_async("set", "audio-client-name", APPVersion::getPackageName());
     setVolume(MPVCore::VIDEO_VOLUME);
 
@@ -387,34 +358,30 @@ void MPVCore::init() {
     // set render callback
     mpv_render_context_set_update_callback(mpv_context, on_update, this);
 
-    focusSubscription =
-        brls::Application::getWindowFocusChangedEvent()->subscribe(
-            [this](bool focus) {
-                static bool playing = false;
-                static std::chrono::system_clock::time_point sleepTime{};
-                // save current AUTO_PLAY value to autoPlay
-                static bool autoPlay = AUTO_PLAY;
-                if (focus) {
-                    // restore AUTO_PLAY
-                    AUTO_PLAY = autoPlay;
-                    // application is on top
-                    auto timeNow = std::chrono::system_clock::now();
-                    if (playing &&
-                        timeNow < (sleepTime + std::chrono::seconds(120))) {
-                        resume();
-                    }
-                } else {
-                    // application is sleep, save the current state
-                    playing   = isPlaying();
-                    sleepTime = std::chrono::system_clock::now();
-                    pause();
-                    // do not automatically play video
-                    AUTO_PLAY = false;
-                }
-            });
+    focusSubscription = brls::Application::getWindowFocusChangedEvent()->subscribe([this](bool focus) {
+        static bool playing = false;
+        static std::chrono::system_clock::time_point sleepTime{};
+        // save current AUTO_PLAY value to autoPlay
+        static bool autoPlay = AUTO_PLAY;
+        if (focus) {
+            // restore AUTO_PLAY
+            AUTO_PLAY = autoPlay;
+            // application is on top
+            auto timeNow = std::chrono::system_clock::now();
+            if (playing && timeNow < (sleepTime + std::chrono::seconds(120))) {
+                resume();
+            }
+        } else {
+            // application is sleep, save the current state
+            playing   = isPlaying();
+            sleepTime = std::chrono::system_clock::now();
+            pause();
+            // do not automatically play video
+            AUTO_PLAY = false;
+        }
+    });
 
-    brls::Application::getExitEvent()->subscribe(
-        []() { disableDimming(false); });
+    brls::Application::getExitEvent()->subscribe([]() { disableDimming(false); });
 
     this->initializeVideo();
 }
@@ -424,8 +391,7 @@ MPVCore::~MPVCore() = default;
 void MPVCore::clean() {
     check_error(mpv_command_string(this->mpv, "quit"));
 
-    brls::Application::getWindowFocusChangedEvent()->unsubscribe(
-        focusSubscription);
+    brls::Application::getWindowFocusChangedEvent()->unsubscribe(focusSubscription);
 
     brls::Logger::info("uninitialize Video");
     this->uninitializeVideo();
@@ -490,9 +456,8 @@ void MPVCore::initializeVideo() {
     // create texture
     glGenTextures(1, &this->media_texture);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (int)brls::Application::windowWidth,
-                 (int)brls::Application::windowHeight, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (int)brls::Application::windowWidth, (int)brls::Application::windowHeight,
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -501,8 +466,7 @@ void MPVCore::initializeVideo() {
     // create frame buffer
     glGenFramebuffers(1, &this->media_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, this->media_framebuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                           this->media_texture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->media_texture, 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         brls::Logger::error("glCheckFramebufferStatus failed");
@@ -519,8 +483,7 @@ void MPVCore::initializeVideo() {
     // vertex shader
     GLuint vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderSource);
     // fragment shader
-    GLuint fragmentShader =
-        createShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
+    GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 
     // link shaders
     GLuint shaderProgram = linkProgram(vertexShader, fragmentShader);
@@ -538,8 +501,7 @@ void MPVCore::initializeVideo() {
 
     glGenBuffers(1, &this->shader.ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->shader.ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 #ifdef MPV_USE_VAO
     glGenVertexArrays(1, &this->shader.vao);
@@ -548,13 +510,11 @@ void MPVCore::initializeVideo() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->shader.ebo);
 
     GLuint aPos = glGetAttribLocation(shaderProgram, "aPos");
-    glVertexAttribPointer(aPos, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void *)nullptr);
+    glVertexAttribPointer(aPos, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)nullptr);
     glEnableVertexAttribArray(aPos);
 
     GLuint aTexCoord = glGetAttribLocation(shaderProgram, "aTexCoord");
-    glVertexAttribPointer(aTexCoord, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(aTexCoord, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(aTexCoord);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -591,10 +551,8 @@ void MPVCore::setFrameSize(brls::Rect r) {
         mpv_params[3].data = pixels;
     }
 
-    if (nvg_image)
-        nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
-    nvg_image = nvgCreateImageRGBA(brls::Application::getNVGContext(),
-                                   drawWidth, drawHeight, mpvImageFlags,
+    if (nvg_image) nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
+    nvg_image = nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth, drawHeight, mpvImageFlags,
                                    (const unsigned char *)pixels);
 
     sw_size[0] = drawWidth;
@@ -609,15 +567,11 @@ void MPVCore::setFrameSize(brls::Rect r) {
     this->mpv_fbo.w = brls::Application::windowWidth;
     this->mpv_fbo.h = brls::Application::windowHeight;
     command_async("set", "video-margin-ratio-right",
-                  (brls::Application::contentWidth - rect.getMaxX()) /
-                      brls::Application::contentWidth);
+                  (brls::Application::contentWidth - rect.getMaxX()) / brls::Application::contentWidth);
     command_async("set", "video-margin-ratio-bottom",
-                  (brls::Application::contentHeight - rect.getMaxY()) /
-                      brls::Application::contentHeight);
-    command_async("set", "video-margin-ratio-top",
-                  rect.getMinY() / brls::Application::contentHeight);
-    command_async("set", "video-margin-ratio-left",
-                  rect.getMinX() / brls::Application::contentWidth);
+                  (brls::Application::contentHeight - rect.getMaxY()) / brls::Application::contentHeight);
+    command_async("set", "video-margin-ratio-top", rect.getMinY() / brls::Application::contentHeight);
+    command_async("set", "video-margin-ratio-left", rect.getMinX() / brls::Application::contentWidth);
 #else
     if (this->media_texture == 0) return;
     int drawWidth  = rect.getWidth() * brls::Application::windowScale;
@@ -626,8 +580,7 @@ void MPVCore::setFrameSize(brls::Rect r) {
     if (drawWidth == 0 || drawHeight == 0) return;
     brls::Logger::debug("MPVCore::setFrameSize: {}/{}", drawWidth, drawHeight);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, drawWidth, drawHeight, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, drawWidth, drawHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     this->mpv_fbo.w = drawWidth;
     this->mpv_fbo.h = drawHeight;
 
@@ -651,8 +604,7 @@ void MPVCore::setFrameSize(brls::Rect r) {
     // 在视频暂停时调整纹理尺寸，视频画面会被清空为黑色，强制重新绘制一次，避免这个问题
     mpv_render_context_render(mpv_context, mpv_params);
     glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
-    glViewport(0, 0, (GLsizei)brls::Application::windowWidth,
-               (GLsizei)brls::Application::windowHeight);
+    glViewport(0, 0, (GLsizei)brls::Application::windowWidth, (GLsizei)brls::Application::windowHeight);
     mpv_render_context_report_swap(mpv_context);
 #endif
 }
@@ -674,25 +626,20 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     NVGcolor bg{};
     bg.a = alpha;
     nvgFillColor(vg, bg);
-    nvgRect(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(),
-            rect.getHeight());
+    nvgRect(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight());
     nvgFill(vg);
 
     // draw video
     nvgBeginPath(vg);
-    nvgRect(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(),
-            rect.getHeight());
-    nvgFillPaint(vg, nvgImagePattern(vg, 0, 0, rect.getWidth(),
-                                     rect.getHeight(), 0, nvg_image, alpha));
+    nvgRect(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight());
+    nvgFillPaint(vg, nvgImagePattern(vg, 0, 0, rect.getWidth(), rect.getHeight(), 0, nvg_image, alpha));
     nvgFill(vg);
 #elif !defined(MPV_USE_FB)
     // 只在非透明时绘制视频，可以避免退出页面时视频画面残留
     if (alpha >= 1) {
 #ifdef BOREALIS_USE_DEKO3D
-        static auto videoContext =
-            (brls::SwitchVideoContext *)brls::Application::getPlatform()
-                ->getVideoContext();
-        mpv_fbo.tex = videoContext->getFramebuffer();
+        static auto videoContext = (brls::SwitchVideoContext *)brls::Application::getPlatform()->getVideoContext();
+        mpv_fbo.tex              = videoContext->getFramebuffer();
         videoContext->queueSignalFence(&readyFence);
         videoContext->queueFlush();
 #endif
@@ -702,8 +649,7 @@ void MPVCore::draw(brls::Rect area, float alpha) {
         videoContext->queueWaitFence(&doneFence);
 #else
         glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
-        glViewport(0, 0, brls::Application::windowWidth,
-                   brls::Application::windowHeight);
+        glViewport(0, 0, brls::Application::windowWidth, brls::Application::windowHeight);
 #endif
         mpv_render_context_report_swap(this->mpv_context);
 
@@ -711,14 +657,11 @@ void MPVCore::draw(brls::Rect area, float alpha) {
         if (rect.getWidth() < brls::Application::contentWidth) {
             auto *vg = brls::Application::getNVGContext();
             nvgBeginPath(vg);
-            nvgFillColor(
-                vg, brls::Application::getTheme().getColor("brls/background"));
+            nvgFillColor(vg, brls::Application::getTheme().getColor("brls/background"));
             nvgRect(vg, 0, 0, rect.getMinX(), brls::Application::contentHeight);
-            nvgRect(vg, rect.getMaxX(), 0,
-                    brls::Application::contentWidth - rect.getMaxX(),
+            nvgRect(vg, rect.getMaxX(), 0, brls::Application::contentWidth - rect.getMaxX(),
                     brls::Application::contentHeight);
-            nvgRect(vg, rect.getMinX() - 1, 0, rect.getWidth() + 2,
-                    rect.getMinY());
+            nvgRect(vg, rect.getMinX() - 1, 0, rect.getWidth() + 2, rect.getMinY());
             nvgRect(vg, rect.getMinX() - 1, rect.getMaxY(), rect.getWidth() + 2,
                     brls::Application::contentHeight - rect.getMaxY());
             nvgFill(vg);
@@ -734,13 +677,11 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     glBindBuffer(GL_ARRAY_BUFFER, shader.vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader.ebo);
     static GLuint aPos = glGetAttribLocation(shader.prog, "aPos");
-    glVertexAttribPointer(aPos, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void *)nullptr);
+    glVertexAttribPointer(aPos, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)nullptr);
     glEnableVertexAttribArray(aPos);
 
     static GLuint aTexCoord = glGetAttribLocation(shader.prog, "aTexCoord");
-    glVertexAttribPointer(aTexCoord, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(aTexCoord, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(aTexCoord);
 #endif
 
@@ -834,8 +775,7 @@ void MPVCore::eventMainLoop() {
                 auto node     = (mpv_event_end_file *)event->data;
                 if (node->reason == MPV_END_FILE_REASON_ERROR) {
                     mpv_error_code = node->error;
-                    brls::Logger::error("========> MPV ERROR: {}",
-                                        mpv_error_string(node->error));
+                    brls::Logger::error("========> MPV ERROR: {}", mpv_error_string(node->error));
                     mpvCoreEvent.fire(MpvEventEnum::MPV_FILE_ERROR);
                 }
 
@@ -867,28 +807,21 @@ void MPVCore::eventMainLoop() {
                     case 3:
                         // 视频总时长更新
                         if (((mpv_event_property *)event->data)->data)
-                            duration =
-                                *(int64_t *)((mpv_event_property *)event->data)
-                                     ->data;
+                            duration = *(int64_t *)((mpv_event_property *)event->data)->data;
                         if (duration != 0) {
-                            brls::Logger::debug("========> duration: {}",
-                                                duration);
+                            brls::Logger::debug("========> duration: {}", duration);
                             mpvCoreEvent.fire(MpvEventEnum::UPDATE_DURATION);
                         }
                         break;
                     case 4:
                         // 播放进度更新
                         if (((mpv_event_property *)event->data)->data) {
-                            playback_time =
-                                *(double *)((mpv_event_property *)event->data)
-                                     ->data;
+                            playback_time = *(double *)((mpv_event_property *)event->data)->data;
                             if (video_progress != (int64_t)playback_time) {
                                 video_progress = (int64_t)playback_time;
-                                mpvCoreEvent.fire(
-                                    MpvEventEnum::UPDATE_PROGRESS);
+                                mpvCoreEvent.fire(MpvEventEnum::UPDATE_PROGRESS);
                                 // 判断是否需要暂停播放
-                                if (CLOSE_TIME > 0 &&
-                                    wiliwili::getUnixTime() > CLOSE_TIME) {
+                                if (CLOSE_TIME > 0 && wiliwili::getUnixTime() > CLOSE_TIME) {
                                     CLOSE_TIME = 0;
                                     this->pause();
                                 }
@@ -899,18 +832,14 @@ void MPVCore::eventMainLoop() {
                     case 5:
                         // 视频 cache speed
                         if (((mpv_event_property *)event->data)->data) {
-                            cache_speed =
-                                *(int64_t *)((mpv_event_property *)event->data)
-                                     ->data;
+                            cache_speed = *(int64_t *)((mpv_event_property *)event->data)->data;
                             mpvCoreEvent.fire(MpvEventEnum::CACHE_SPEED_CHANGE);
                         }
                         break;
                     case 6:
                         // 视频进度更新（百分比）
                         if (((mpv_event_property *)event->data)->data) {
-                            percent_pos =
-                                *(double *)((mpv_event_property *)event->data)
-                                     ->data;
+                            percent_pos = *(double *)((mpv_event_property *)event->data)->data;
                         }
                         break;
                     case 7:
@@ -918,35 +847,28 @@ void MPVCore::eventMainLoop() {
                         if (!data) break;
 
                         if (*(int *)data) {
-                            brls::Logger::info(
-                                "========> VIDEO PAUSED FOR CACHE");
+                            brls::Logger::info("========> VIDEO PAUSED FOR CACHE");
                             mpvCoreEvent.fire(MpvEventEnum::LOADING_START);
                         } else {
-                            brls::Logger::info(
-                                "========> VIDEO RESUME FROM CACHE");
+                            brls::Logger::info("========> VIDEO RESUME FROM CACHE");
                             mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
                         }
                         break;
                     case 8:
                         // 缓存时间
                         if (((mpv_event_property *)event->data)->data) {
-                            brls::Logger::verbose(
-                                "demuxer-cache-time: {}",
-                                *(double *)((mpv_event_property *)event->data)
-                                     ->data);
+                            brls::Logger::verbose("demuxer-cache-time: {}",
+                                                  *(double *)((mpv_event_property *)event->data)->data);
                         }
                         break;
                     case 9:
                         // 缓存信息
                         if (((mpv_event_property *)event->data)->data) {
-                            auto *node =
-                                (mpv_node *)((mpv_event_property *)event->data)
-                                    ->data;
+                            auto *node = (mpv_node *)((mpv_event_property *)event->data)->data;
                             std::unordered_map<std::string, mpv_node> node_map;
                             for (int i = 0; i < node->u.list->num; i++) {
-                                node_map.insert(std::make_pair(
-                                    std::string(node->u.list->keys[i]),
-                                    node->u.list->values[i]));
+                                node_map.insert(
+                                    std::make_pair(std::string(node->u.list->keys[i]), node->u.list->values[i]));
                             }
                             brls::Logger::debug(
                                 "total-bytes: {:.2f}MB; cache-duration: "
@@ -954,14 +876,10 @@ void MPVCore::eventMainLoop() {
                                 "underrun: {}; fw-bytes: {:.2f}MB; bof-cached: "
                                 "{}; eof-cached: {}; file-cache-bytes: {}; "
                                 "raw-input-rate: {:.2f};",
-                                node_map["total-bytes"].u.int64 / 1048576.0,
-                                node_map["cache-duration"].u.double_,
-                                node_map["underrun"].u.flag,
-                                node_map["fw-bytes"].u.int64 / 1048576.0,
-                                node_map["bof-cached"].u.flag,
-                                node_map["eof-cached"].u.flag,
-                                node_map["file-cache-bytes"].u.int64 /
-                                    1048576.0,
+                                node_map["total-bytes"].u.int64 / 1048576.0, node_map["cache-duration"].u.double_,
+                                node_map["underrun"].u.flag, node_map["fw-bytes"].u.int64 / 1048576.0,
+                                node_map["bof-cached"].u.flag, node_map["eof-cached"].u.flag,
+                                node_map["file-cache-bytes"].u.int64 / 1048576.0,
                                 node_map["raw-input-rate"].u.int64 / 1048576.0);
                         }
                         break;
@@ -1056,8 +974,7 @@ void MPVCore::reset() {
     setFrameSize(rect);
 }
 
-void MPVCore::setUrl(const std::string &url, const std::string &extra,
-                     const std::string &method) {
+void MPVCore::setUrl(const std::string &url, const std::string &extra, const std::string &method) {
     brls::Logger::debug("{} Url: {}, extra: {}", method, url, extra);
     if (extra.empty()) {
         command_async("loadfile", url, method);
@@ -1066,9 +983,7 @@ void MPVCore::setUrl(const std::string &url, const std::string &extra,
     }
 }
 
-void MPVCore::setBackupUrl(const std::string &url, const std::string &extra) {
-    this->setUrl(url, extra, "append");
-}
+void MPVCore::setBackupUrl(const std::string &url, const std::string &extra) { this->setUrl(url, extra, "append"); }
 
 void MPVCore::setVolume(int64_t value) {
     if (value < 0 || value > 100) return;
@@ -1091,15 +1006,11 @@ void MPVCore::stop() { command_async("stop"); }
 
 void MPVCore::seek(int64_t p) { command_async("seek", p, "absolute"); }
 
-void MPVCore::seek(const std::string &p) {
-    command_async("seek", p, "absolute");
-}
+void MPVCore::seek(const std::string &p) { command_async("seek", p, "absolute"); }
 
 void MPVCore::seekRelative(int64_t p) { command_async("seek", p, "relative"); }
 
-void MPVCore::seekPercent(double p) {
-    command_async("seek", p * 100, "absolute-percent");
-}
+void MPVCore::seekPercent(double p) { command_async("seek", p * 100, "absolute-percent"); }
 
 bool MPVCore::isStopped() const { return video_stopped; }
 
@@ -1186,19 +1097,16 @@ int64_t MPVCore::getInt(const std::string &key) {
     return value;
 }
 
-std::unordered_map<std::string, mpv_node> MPVCore::getNodeMap(
-    const std::string &key) {
+std::unordered_map<std::string, mpv_node> MPVCore::getNodeMap(const std::string &key) {
     mpv_node node;
     std::unordered_map<std::string, mpv_node> nodeMap;
-    if (mpv_get_property(mpv, key.c_str(), MPV_FORMAT_NODE, &node) < 0)
-        return nodeMap;
+    if (mpv_get_property(mpv, key.c_str(), MPV_FORMAT_NODE, &node) < 0) return nodeMap;
     if (node.format != MPV_FORMAT_NODE_MAP) return nodeMap;
     // todo: 目前不要使用 mpv_node中有指针的部分，因为这些内容指向的内存会在这个函数结束的时候删除
     for (int i = 0; i < node.u.list->num; i++) {
         char *nodeKey = node.u.list->keys[i];
         if (nodeKey == nullptr) continue;
-        nodeMap.insert(
-            std::make_pair(std::string{nodeKey}, node.u.list->values[i]));
+        nodeMap.insert(std::make_pair(std::string{nodeKey}, node.u.list->values[i]));
     }
     mpv_free_node_contents(&node);
     return nodeMap;
@@ -1208,18 +1116,14 @@ double MPVCore::getPlaybackTime() const { return playback_time; }
 
 void MPVCore::disableDimming(bool disable) {
     brls::Logger::info("disableDimming: {}", disable);
-    brls::Application::getPlatform()->disableScreenDimming(
-        disable, "Playing video", APPVersion::getPackageName());
-    static bool deactivationAvailable =
-        ProgramConfig::instance().getSettingItem(SettingItem::DEACTIVATED_TIME,
-                                                 0) > 0;
+    brls::Application::getPlatform()->disableScreenDimming(disable, "Playing video", APPVersion::getPackageName());
+    static bool deactivationAvailable = ProgramConfig::instance().getSettingItem(SettingItem::DEACTIVATED_TIME, 0) > 0;
     if (deactivationAvailable) {
         brls::Application::setAutomaticDeactivation(!disable);
     }
 }
 
-void MPVCore::setShader(const std::string &profile, const std::string &shaders,
-                        bool showHint) {
+void MPVCore::setShader(const std::string &profile, const std::string &shaders, bool showHint) {
     brls::Logger::info("Set shader [{}]: {}", profile, shaders);
     currentShaderProfile = profile;
     currentShader        = shaders;
@@ -1236,6 +1140,4 @@ void MPVCore::clearShader(bool showHint) {
     if (showHint) showOsdText("Clear shader");
 }
 
-void MPVCore::showOsdText(const std::string &value, int d) {
-    command_async("show-text", value, d);
-}
+void MPVCore::showOsdText(const std::string &value, int d) { command_async("show-text", value, d); }

@@ -23,35 +23,31 @@ const std::string ImageGalleryItemXML = R"xml(
     </brls:Box>
 )xml";
 
-class NetImageGalleryItem : public GalleryItem{
+class NetImageGalleryItem : public GalleryItem {
 public:
-    explicit NetImageGalleryItem(const std::string& url){
+    explicit NetImageGalleryItem(const std::string& url) {
         this->inflateFromXMLString(ImageGalleryItemXML);
         this->image->setImageFromRes("icon/bilibili_video.png");
         ImageHelper::with(this->image)->load(url);
     }
-    ~NetImageGalleryItem() override{
-        ImageHelper::clear(this->image);
-    }
+    ~NetImageGalleryItem() override { ImageHelper::clear(this->image); }
 
 private:
     BRLS_BIND(brls::Image, image, "gallery/image");
 };
 
-GalleryActivity::GalleryActivity(const std::vector<std::string>& data):galleryData(data) {
+GalleryActivity::GalleryActivity(const std::vector<std::string>& data) : galleryData(data) {
     brls::Logger::debug("GalleryActivity: create");
 }
 
 void GalleryActivity::onContentAvailable() {
     brls::Logger::debug("GalleryActivity: onContentAvailable");
     gallery->setIndicatorPosition(0.97);
-    for(auto&i : galleryData){
+    for (auto& i : galleryData) {
         gallery->addCustomView(new NetImageGalleryItem(i));
     }
 }
 
-GalleryActivity::~GalleryActivity() {
-    brls::Logger::debug("GalleryActivity: delete");
-}
+GalleryActivity::~GalleryActivity() { brls::Logger::debug("GalleryActivity: delete"); }
 
 bool GalleryActivity::isTranslucent() { return true; }

@@ -30,9 +30,7 @@
 #endif
 #endif
 #ifdef __SWITCH__
-static inline uint64_t ntohll(uint64_t netlonglong) {
-    return __builtin_bswap64(netlonglong);
-}
+static inline uint64_t ntohll(uint64_t netlonglong) { return __builtin_bswap64(netlonglong); }
 #elif defined(__WINRT__)
 #elif defined(_WIN32_WINNT) && _WIN32_WINNT >= _WIN32_WINNT_WIN8
 #elif defined(betoh64)
@@ -47,8 +45,7 @@ static inline uint64_t ntohll(uint64_t value) {
     } else {
         // The system is little endian, convert from network byte order (big endian) to host byte order
         const uint32_t high_part = ntohl(static_cast<uint32_t>(value >> 32));
-        const uint32_t low_part =
-            ntohl(static_cast<uint32_t>(value & 0xFFFFFFFFLL));
+        const uint32_t low_part  = ntohl(static_cast<uint32_t>(value & 0xFFFFFFFFLL));
         return (static_cast<uint64_t>(low_part) << 32) | high_part;
     }
 }
@@ -73,8 +70,7 @@ static inline uint64_t ntohll(uint64_t value) {
 #define MAX_DANMAKU_LENGTH 4096
 #endif
 
-DanmakuItem::DanmakuItem(std::string content, const char *attributes)
-    : msg(std::move(content)) {
+DanmakuItem::DanmakuItem(std::string content, const char *attributes) : msg(std::move(content)) {
     std::vector<std::string> attrs;
     pystring::split(attributes, attrs, ",");
     if (attrs.size() < 9) {
@@ -115,33 +111,28 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
         pystring::split(msg.substr(1, msg.size() - 2), extraData, ",", 14);
         if (extraData.size() >= 11) {
             std::vector<std::string> alphaData;
-            pystring::split(pystring::strip(extraData[2], "\""), alphaData,
-                            "-");
+            pystring::split(pystring::strip(extraData[2], "\""), alphaData, "-");
             if (alphaData.size() != 2) return;
             msg = pystring::strip(extraData[4], "\"");
             msg = pystring::replace(msg, "\\n", "\n");
             AdvancedAnimation ani{};
-            ani.alpha1 = atof(pystring::strip(alphaData[0], "\"").c_str());
-            ani.alpha2 = atof(pystring::strip(alphaData[1], "\"").c_str());
-            ani.startX = atof(pystring::strip(extraData[0], "\"").c_str());
-            ani.startY = atof(pystring::strip(extraData[1], "\"").c_str());
-            ani.endX   = atof(pystring::strip(extraData[7], "\"").c_str());
-            ani.endY   = atof(pystring::strip(extraData[8], "\"").c_str());
-            ani.time1  = atof(pystring::strip(extraData[10], "\"").c_str());
-            ani.time2  = atof(pystring::strip(extraData[9], "\"").c_str());
-            ani.rotateZ =
-                nvgDegToRad(atof(pystring::strip(extraData[5], "\"").c_str()));
-            ani.rotateY =
-                nvgDegToRad(atof(pystring::strip(extraData[6], "\"").c_str()));
-            ani.linear = pystring::strip(extraData[13], "\"") == "1";
-            ani.wholeTime =
-                atof(pystring::strip(extraData[3], "\"").c_str()) * 1000;
-            ani.time3 = ani.wholeTime - ani.time1 - ani.time2;
+            ani.alpha1    = atof(pystring::strip(alphaData[0], "\"").c_str());
+            ani.alpha2    = atof(pystring::strip(alphaData[1], "\"").c_str());
+            ani.startX    = atof(pystring::strip(extraData[0], "\"").c_str());
+            ani.startY    = atof(pystring::strip(extraData[1], "\"").c_str());
+            ani.endX      = atof(pystring::strip(extraData[7], "\"").c_str());
+            ani.endY      = atof(pystring::strip(extraData[8], "\"").c_str());
+            ani.time1     = atof(pystring::strip(extraData[10], "\"").c_str());
+            ani.time2     = atof(pystring::strip(extraData[9], "\"").c_str());
+            ani.rotateZ   = nvgDegToRad(atof(pystring::strip(extraData[5], "\"").c_str()));
+            ani.rotateY   = nvgDegToRad(atof(pystring::strip(extraData[6], "\"").c_str()));
+            ani.linear    = pystring::strip(extraData[13], "\"") == "1";
+            ani.wholeTime = atof(pystring::strip(extraData[3], "\"").c_str()) * 1000;
+            ani.time3     = ani.wholeTime - ani.time1 - ani.time2;
             if (ani.time3 < 0) ani.time3 = 0;
 
             // 如果起点和终点坐标都小于等于1，则说明其为百分比坐标
-            ani.relativeLayout = ani.startX <= 1.0f && ani.startY <= 1.0f &&
-                                 ani.endX <= 1.0f && ani.endY <= 1.0f;
+            ani.relativeLayout = ani.startX <= 1.0f && ani.startY <= 1.0f && ani.endX <= 1.0f && ani.endY <= 1.0f;
 
             // 路径跟随
             if (extraData.size() >= 15) {
@@ -153,8 +144,7 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
                     std::vector<std::string> xy;
                     pystring::split(pointStr, xy, ",");
                     if (xy.size() != 2) continue;
-                    ani.path.emplace_back(atof(xy[0].c_str()),
-                                          atof(xy[1].c_str()));
+                    ani.path.emplace_back(atof(xy[0].c_str()), atof(xy[1].c_str()));
                 }
                 // 强制关闭相对坐标
                 ani.relativeLayout = false;
@@ -168,31 +158,25 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes)
 
     // 设置弹幕内容 (根据需要做简繁转换)
 #ifdef OPENCC
-    static bool ZH_T = brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
-                       brls::Application::getLocale() == brls::LOCALE_ZH_TW;
+    static bool ZH_T =
+        brls::Application::getLocale() == brls::LOCALE_ZH_HANT || brls::Application::getLocale() == brls::LOCALE_ZH_TW;
     if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
 #endif
 }
 
-void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha,
-                       bool multiLine) const {
-    float blur = DanmakuCore::DANMAKU_STYLE_FONT ==
-                 DanmakuFontStyle::DANMAKU_FONT_SHADOW;
-    float dilate = DanmakuCore::DANMAKU_STYLE_FONT ==
-                   DanmakuFontStyle::DANMAKU_FONT_STROKE;
+void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha, bool multiLine) const {
+    float blur   = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::DANMAKU_FONT_SHADOW;
+    float dilate = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::DANMAKU_FONT_STROKE;
     float dx, dy;
-    dx = dy = DanmakuCore::DANMAKU_STYLE_FONT ==
-              DanmakuFontStyle::DANMAKU_FONT_INCLINE;
+    dx = dy = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::DANMAKU_FONT_INCLINE;
 
     // background
-    if (DanmakuCore::DANMAKU_STYLE_FONT !=
-        DanmakuFontStyle::DANMAKU_FONT_PURE) {
+    if (DanmakuCore::DANMAKU_STYLE_FONT != DanmakuFontStyle::DANMAKU_FONT_PURE) {
         nvgFontDilate(vg, dilate);
         nvgFontBlur(vg, blur);
         nvgFillColor(vg, a(borderColor, alpha));
         if (multiLine)
-            nvgTextBox(vg, x + dx, y + dy, MAX_DANMAKU_LENGTH, msg.c_str(),
-                       nullptr);
+            nvgTextBox(vg, x + dx, y + dy, MAX_DANMAKU_LENGTH, msg.c_str(), nullptr);
         else
             nvgText(vg, x + dx, y + dy, msg.c_str(), nullptr);
     }
@@ -202,8 +186,7 @@ void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha,
     nvgFontBlur(vg, 0.0f);
     nvgFillColor(vg, a(color, alpha));
     if (multiLine)
-        nvgTextBox(vg, x + dx, y + dy, MAX_DANMAKU_LENGTH, msg.c_str(),
-                   nullptr);
+        nvgTextBox(vg, x + dx, y + dy, MAX_DANMAKU_LENGTH, msg.c_str(), nullptr);
     else
         nvgText(vg, x, y, msg.c_str(), nullptr);
 }
@@ -246,8 +229,8 @@ void DanmakuCore::reset() {
     maskIndex           = 0;
     maskSliceIndex      = 0;
     videoSpeed          = MPVCore::instance().getSpeed();
-    lineHeight     = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
-    lineNumCurrent = 0;
+    lineHeight          = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
+    lineNumCurrent      = 0;
     maskData.clear();
     if (maskTex != 0) {
         nvgDeleteImage(brls::Application::getNVGContext(), maskTex);
@@ -289,23 +272,19 @@ void DanmakuCore::loadMaskData(const std::string &url) {
             }
             brls::Logger::debug("解析防遮挡数据头: {}", url);
             maskData.parseHeader1(text);
-            brls::Logger::debug("解析数据头结束，数据段数量：{}",
-                                maskData.length);
+            brls::Logger::debug("解析数据头结束，数据段数量：{}", maskData.length);
             BILI::get_webmask(
                 url, 16, 16 * maskData.length + 15,
                 [this](const std::string &text) {
                     if (text.size() != 16 * maskData.length) {
-                        brls::Logger::error("解析数据头2失败: {} != {}",
-                                            text.size(), 16 * maskData.length);
+                        brls::Logger::error("解析数据头2失败: {} != {}", text.size(), 16 * maskData.length);
                         return;
                     }
                     brls::Logger::debug("解析防遮挡数据头2: {}", text.size());
                     maskData.parseHeader2(text);
                     brls::Logger::debug("解析数据头2结束");
                 },
-                [](BILI_ERR) {
-                    brls::Logger::error("get web mask 2: {}", error);
-                });
+                [](BILI_ERR) { brls::Logger::error("get web mask 2: {}", error); });
         },
         [](BILI_ERR) { brls::Logger::error("get web mask 1: {}", error); });
 }
@@ -371,36 +350,20 @@ void DanmakuCore::setSpeed(double speed) {
 }
 
 void DanmakuCore::save() {
-    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_ON,
-                                             DANMAKU_ON, false);
-    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_SMART_MASK,
-                                             DANMAKU_SMART_MASK, false);
-    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_TOP,
-                                             DANMAKU_FILTER_SHOW_TOP, false);
-    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_BOTTOM,
-                                             DANMAKU_FILTER_SHOW_BOTTOM, false);
-    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_SCROLL,
-                                             DANMAKU_FILTER_SHOW_SCROLL, false);
-    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_COLOR,
-                                             DANMAKU_FILTER_SHOW_COLOR, false);
-    ProgramConfig::instance().setSettingItem(
-        SettingItem::DANMAKU_FILTER_ADVANCED, DANMAKU_FILTER_SHOW_ADVANCED,
-        false);
-    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_LEVEL,
-                                             DANMAKU_FILTER_LEVEL, false);
-    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_AREA,
-                                             DANMAKU_STYLE_AREA, false);
-    ProgramConfig::instance().setSettingItem(
-        SettingItem::DANMAKU_STYLE_FONTSIZE, DANMAKU_STYLE_FONTSIZE, false);
-    ProgramConfig::instance().setSettingItem(
-        SettingItem::DANMAKU_STYLE_LINE_HEIGHT, DANMAKU_STYLE_LINE_HEIGHT,
-        false);
-    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_SPEED,
-                                             DANMAKU_STYLE_SPEED, false);
-    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_ALPHA,
-                                             DANMAKU_STYLE_ALPHA, false);
-    ProgramConfig::instance().setSettingItem(
-        SettingItem::DANMAKU_RENDER_QUALITY, DANMAKU_RENDER_QUALITY, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_ON, DANMAKU_ON, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_SMART_MASK, DANMAKU_SMART_MASK, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_TOP, DANMAKU_FILTER_SHOW_TOP, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_BOTTOM, DANMAKU_FILTER_SHOW_BOTTOM, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_SCROLL, DANMAKU_FILTER_SHOW_SCROLL, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_COLOR, DANMAKU_FILTER_SHOW_COLOR, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_ADVANCED, DANMAKU_FILTER_SHOW_ADVANCED, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_FILTER_LEVEL, DANMAKU_FILTER_LEVEL, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_AREA, DANMAKU_STYLE_AREA, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_FONTSIZE, DANMAKU_STYLE_FONTSIZE, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_LINE_HEIGHT, DANMAKU_STYLE_LINE_HEIGHT, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_SPEED, DANMAKU_STYLE_SPEED, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_STYLE_ALPHA, DANMAKU_STYLE_ALPHA, false);
+    ProgramConfig::instance().setSettingItem(SettingItem::DANMAKU_RENDER_QUALITY, DANMAKU_RENDER_QUALITY, false);
     ProgramConfig::instance().save();
 }
 
@@ -411,8 +374,7 @@ std::vector<DanmakuItem> DanmakuCore::getDanmakuData() {
     return data;
 }
 
-void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
-                       float height, float alpha) {
+void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float height, float alpha) {
     if (!DanmakuCore::DANMAKU_ON) return;
     if (!this->danmakuLoaded) return;
     if (danmakuData.empty()) return;
@@ -454,19 +416,16 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
         // 注：返回的 svg 底部固定留有 2像素 透明，不是很清楚具体作用，这里选择绘制一个2像素宽的空心矩形来覆盖
         const std::string border =
             R"xml(<rect x="0" y="0" width="100%" height="100%" fill="none" stroke="#000" stroke-width="2"/></svg>)xml";
-        auto maskDocument = lunasvg::Document::loadFromData(
-            pystring::slice(svg.svg, 0, pystring::rindex(svg.svg, "</svg>")) +
-            border);
+        auto maskDocument =
+            lunasvg::Document::loadFromData(pystring::slice(svg.svg, 0, pystring::rindex(svg.svg, "</svg>")) + border);
         if (maskDocument == nullptr) goto skip_mask;
-        auto bitmap        = maskDocument->renderToBitmap(maskDocument->width(),
-                                                          maskDocument->height());
-        uint32_t maskWidth = bitmap.width();
+        auto bitmap         = maskDocument->renderToBitmap(maskDocument->width(), maskDocument->height());
+        uint32_t maskWidth  = bitmap.width();
         uint32_t maskHeight = bitmap.height();
         if (maskTex != 0) {
             nvgUpdateImage(vg, maskTex, bitmap.data());
         } else {
-            maskTex = nvgCreateImageRGBA(vg, (int)maskWidth, (int)maskHeight,
-                                         MASK_IMG_FLAG, bitmap.data());
+            maskTex = nvgCreateImageRGBA(vg, (int)maskWidth, (int)maskHeight, MASK_IMG_FLAG, bitmap.data());
         }
 
         // 设置遮罩
@@ -491,8 +450,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width,
             drawWidth = maskWidth * height / maskHeight;
             drawX     = x + (width - drawWidth) / 2;
         }
-        auto paint = nvgImagePattern(vg, drawX, drawY, drawWidth, drawHeight, 0,
-                                     maskTex, alpha);
+        auto paint = nvgImagePattern(vg, drawX, drawY, drawWidth, drawHeight, 0, maskTex, alpha);
         nvgRect(vg, x, y, width, height);
         nvgFillPaint(vg, paint);
 #if defined(DEBUG_MASK)
@@ -532,33 +490,29 @@ skip_mask:
             if (i.type == 4 || i.type == 5) {
                 //居中弹幕
                 // 根据时间判断是否显示弹幕
-                if (i.time > playbackTime ||
-                    i.time + CENTER_SECOND < playbackTime) {
+                if (i.time > playbackTime || i.time + CENTER_SECOND < playbackTime) {
                     i.canShow = false;
                     continue;
                 }
 
                 // 画弹幕
                 nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
-                i.draw(vg, x + width / 2 - i.length / 2,
-                       y + i.line * lineHeight + 5, alpha);
+                i.draw(vg, x + width / 2 - i.length / 2, y + i.line * lineHeight + 5, alpha);
 
                 continue;
             } else if (i.type == 7) {
-                if (!i.advancedAnimation.has_value() ||
-                    !i.advancedAnimation->alpha.isRunning()) {
+                if (!i.advancedAnimation.has_value() || !i.advancedAnimation->alpha.isRunning()) {
                     i.canShow = false;
                     continue;
                 }
                 nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
                 nvgSave(vg);
-                nvgTranslate(vg, x + i.advancedAnimation->transX,
-                             y + i.advancedAnimation->transY);
+                nvgTranslate(vg, x + i.advancedAnimation->transX, y + i.advancedAnimation->transY);
                 nvgRotate(vg, i.advancedAnimation->rotateZ);
-                if (i.advancedAnimation->rotateY > 0){
+                if (i.advancedAnimation->rotateY > 0) {
                     // 近似模拟出 y 轴翻转的效果, 其实不太近似 :(
                     float ratio = fabs(1 - i.advancedAnimation->transX / width);
-                    if (ratio > 1 ) ratio = 1;
+                    if (ratio > 1) ratio = 1;
                     float rotateY = i.advancedAnimation->rotateY * ratio / 2;
                     nvgScale(vg, 1 - rotateY / NVG_PI, 1.0f);
                     nvgSkewY(vg, rotateY);
@@ -571,16 +525,14 @@ skip_mask:
             float position = 0;
             if (!MPVCore::instance().isPlaying()) {
                 // 暂停状态弹幕也要暂停
-                position = i.speed * (playbackTime - i.time);
-                i.startTime =
-                    currentTime - (playbackTime - i.time) / videoSpeed * 1e6;
+                position    = i.speed * (playbackTime - i.time);
+                i.startTime = currentTime - (playbackTime - i.time) / videoSpeed * 1e6;
             } else {
                 // position = i.speed * (playbackTime - i.time) 是最精确的弹幕位置
                 // 但是因为 playbackTime 是根据视频帧率设定的，直接使用此值会导致弹幕看起来卡顿
                 // 这里以弹幕绘制的起始时间点为准，通过与当前时间值的差值计算来得到更精确的弹幕位置
                 // 但是当 AV 不同步时，mpv会自动修正播放的进度，导致 playbackTime 和现实的时间脱离，不同弹幕间因此可能产生重叠
-                position =
-                    i.speed * (currentTime - i.startTime) * videoSpeed / 1e6;
+                position = i.speed * (currentTime - i.startTime) * videoSpeed / 1e6;
             }
 
             // 根据位置判断是否显示弹幕
@@ -592,8 +544,7 @@ skip_mask:
 
             // 画弹幕
             nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
-            i.draw(vg, x + width - position, y + i.line * lineHeight + 5,
-                   alpha);
+            i.draw(vg, x + width - position, y + i.line * lineHeight + 5, alpha);
             continue;
         }
 
@@ -650,8 +601,7 @@ skip_mask:
 
                 // 是否使用线形动画
                 brls::EasingFunction easing =
-                    ani->linear ? brls::EasingFunction::linear
-                                : brls::EasingFunction::cubicIn;
+                    ani->linear ? brls::EasingFunction::linear : brls::EasingFunction::cubicIn;
 
                 // 是否使用相对坐标
                 float relativeSizeX = 1.0f, relativeSizeY = 1.0f;
@@ -666,31 +616,23 @@ skip_mask:
 
                 // 起点停留
                 if (ani->time1 > 0) {
-                    ani->transX.addStep(ani->path[0].x * relativeSizeX,
-                                        ani->time1);
-                    ani->transY.addStep(ani->path[0].y * relativeSizeY,
-                                        ani->time1);
+                    ani->transX.addStep(ani->path[0].x * relativeSizeX, ani->time1);
+                    ani->transY.addStep(ani->path[0].y * relativeSizeY, ani->time1);
                 }
 
                 // 路径动画
                 if (ani->time2 > 0) {
                     float timeD = ani->time2 / (ani->path.size() - 1);
                     for (size_t p = 1; p < ani->path.size(); p++) {
-                        ani->transX.addStep(ani->path[p].x * relativeSizeX,
-                                            timeD, easing);
-                        ani->transY.addStep(ani->path[p].y * relativeSizeY,
-                                            timeD, easing);
+                        ani->transX.addStep(ani->path[p].x * relativeSizeX, timeD, easing);
+                        ani->transY.addStep(ani->path[p].y * relativeSizeY, timeD, easing);
                     }
                 }
 
                 // 结束点停留
                 if (ani->time3 > 0) {
-                    ani->transX.addStep(
-                        ani->path[ani->path.size() - 1].x * relativeSizeX,
-                        ani->time3);
-                    ani->transY.addStep(
-                        ani->path[ani->path.size() - 1].y * relativeSizeY,
-                        ani->time3);
+                    ani->transX.addStep(ani->path[ani->path.size() - 1].x * relativeSizeX, ani->time3);
+                    ani->transY.addStep(ani->path[ani->path.size() - 1].y * relativeSizeY, ani->time3);
                 }
 
                 // 半透明
@@ -726,9 +668,7 @@ skip_mask:
                     break;
                 } else {
                     //滚动
-                    if (i.time < scrollLines[k].first ||
-                        i.time + width / i.speed < scrollLines[k].second)
-                        continue;
+                    if (i.time < scrollLines[k].first || i.time + width / i.speed < scrollLines[k].second) continue;
                     i.line = k;
                     // 一条弹幕完全展示的时间点，同一行的其他弹幕需要在这之后出现
                     scrollLines[k].first = i.time + i.length / i.speed;
@@ -737,9 +677,7 @@ skip_mask:
                     i.canShow             = true;
                     i.startTime           = currentTime;
                     // 如果当前时间点弹幕已经出现在屏幕上了，那么反向推算出弹幕开始的现实时间
-                    if (playbackTime - i.time > 0.2)
-                        i.startTime -=
-                            (playbackTime - i.time) / videoSpeed * 1e6;
+                    if (playbackTime - i.time > 0.2) i.startTime -= (playbackTime - i.time) / videoSpeed * 1e6;
                     break;
                 }
             }
@@ -816,9 +754,7 @@ const MaskSlice &WebMask::getSlice(size_t index) {
     // 生成预取数据长度，一次最多取十个片段: 100s
     size_t requestStart = index;
     size_t requestEnd   = index;
-    for (; requestEnd < index + MAX_PREFETCH_MASK &&
-           requestEnd < sliceData.size();
-         requestEnd++) {
+    for (; requestEnd < index + MAX_PREFETCH_MASK && requestEnd < sliceData.size(); requestEnd++) {
         if (sliceData[requestEnd].isLoaded()) break;
     }
     brls::Logger::debug("预取 web mask 数据片段: [{}, {})", index, requestEnd);
@@ -837,34 +773,26 @@ const MaskSlice &WebMask::getSlice(size_t index) {
                 // 解压分片数据
                 std::string data;
                 try {
-                    if (slice.offsetEnd == -1)
-                        slice.offsetEnd = text.size() + offset;
+                    if (slice.offsetEnd == -1) slice.offsetEnd = text.size() + offset;
                     data = wiliwili::decompressGzipData(
-                        text.substr(slice.offsetStart - offset,
-                                    slice.offsetEnd - slice.offsetStart));
+                        text.substr(slice.offsetStart - offset, slice.offsetEnd - slice.offsetStart));
                 } catch (const std::runtime_error &e) {
-                    brls::Logger::error("web mask decompress error: {}",
-                                        e.what());
+                    brls::Logger::error("web mask decompress error: {}", e.what());
                 } catch (const std::exception &e) {
-                    brls::Logger::error("web mask decompress exception: {}",
-                                        e.what());
+                    brls::Logger::error("web mask decompress exception: {}", e.what());
                 }
 
                 // 获取svg数据
                 size_t sliceOffset = 0;
                 uint32_t sliceLength, sliceTime;
                 while (sliceOffset < data.size()) {
-                    std::memcpy(&sliceLength, data.data() + sliceOffset,
-                                sizeof(int32_t));
-                    std::memcpy(&sliceTime, data.data() + sliceOffset + 8,
-                                sizeof(int32_t));
+                    std::memcpy(&sliceLength, data.data() + sliceOffset, sizeof(int32_t));
+                    std::memcpy(&sliceTime, data.data() + sliceOffset + 8, sizeof(int32_t));
                     sliceLength = ntohl(sliceLength);
                     sliceTime   = ntohl(sliceTime);
                     sliceOffset += 12;
-                    auto base64 = pystring::replace(
-                        pystring::split(data.substr(sliceOffset, sliceLength),
-                                        ",", 1)[1],
-                        "\n", "");
+                    auto base64 =
+                        pystring::replace(pystring::split(data.substr(sliceOffset, sliceLength), ",", 1)[1], "\n", "");
                     std::string svg;
                     wiliwili::base64Decode(base64, svg);
                     sliceOffset += sliceLength;
@@ -878,11 +806,9 @@ const MaskSlice &WebMask::getSlice(size_t index) {
             // 同步数据
             brls::sync([this, requestStart, sliceList]() {
                 if (!sliceData.empty()) {
-                    std::copy(sliceList.begin(), sliceList.end(),
-                              sliceData.begin() + requestStart);
+                    std::copy(sliceList.begin(), sliceList.end(), sliceData.begin() + requestStart);
                 } else {
-                    brls::Logger::warning(
-                        "sliceData is empty, skip mask data update");
+                    brls::Logger::warning("sliceData is empty, skip mask data update");
                 }
                 requesting = false;
             });

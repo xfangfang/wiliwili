@@ -100,8 +100,7 @@ enum class SettingItem {
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
-    inline static std::string RELEASE_API =
-        "https://api.github.com/repos/xfangfang/wiliwili/releases/latest";
+    inline static std::string RELEASE_API = "https://api.github.com/repos/xfangfang/wiliwili/releases/latest";
 
 public:
     int major, minor, revision;
@@ -129,19 +128,14 @@ public:
     std::string author;
     std::string path;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      CustomTheme& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("name") &&
-        nlohmann_json_j.at("name").is_string())
+inline void from_json(const nlohmann::json& nlohmann_json_j, CustomTheme& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("name") && nlohmann_json_j.at("name").is_string())
         nlohmann_json_j.at("name").get_to(nlohmann_json_t.name);
-    if (nlohmann_json_j.contains("desc") &&
-        nlohmann_json_j.at("desc").is_string())
+    if (nlohmann_json_j.contains("desc") && nlohmann_json_j.at("desc").is_string())
         nlohmann_json_j.at("desc").get_to(nlohmann_json_t.desc);
-    if (nlohmann_json_j.contains("version") &&
-        nlohmann_json_j.at("version").is_string())
+    if (nlohmann_json_j.contains("version") && nlohmann_json_j.at("version").is_string())
         nlohmann_json_j.at("version").get_to(nlohmann_json_t.version);
-    if (nlohmann_json_j.contains("author") &&
-        nlohmann_json_j.at("author").is_string())
+    if (nlohmann_json_j.contains("author") && nlohmann_json_j.at("author").is_string())
         nlohmann_json_j.at("author").get_to(nlohmann_json_t.author);
 }
 
@@ -152,8 +146,7 @@ public:
     int clip_start{};
     int clip_end{};
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonCustomItem, player_aspect, custom_clip,
-                                   clip_start, clip_end);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonCustomItem, player_aspect, custom_clip, clip_start, clip_end);
 
 typedef std::unordered_map<std::string, SeasonCustomItem> SeasonCustomSetting;
 
@@ -250,8 +243,7 @@ public:
 
     void setTlsVerify(bool value);
 
-    void addSeasonCustomSetting(const std::string& key,
-                                const SeasonCustomItem& item);
+    void addSeasonCustomSetting(const std::string& key, const SeasonCustomItem& item);
 
     SeasonCustomSetting getSeasonCustomSetting() const;
 
@@ -259,8 +251,7 @@ public:
 
     SeasonCustomItem getSeasonCustom(unsigned int key) const;
 
-    void addSeasonCustomSetting(unsigned int key,
-                                const SeasonCustomItem& item);
+    void addSeasonCustomSetting(unsigned int key, const SeasonCustomItem& item);
 
     void setSeasonCustomSetting(const SeasonCustomSetting& setting);
 
@@ -278,35 +269,24 @@ public:
     static std::unordered_map<SettingItem, ProgramOption> SETTING_MAP;
 };
 
-inline void to_json(nlohmann::json& nlohmann_json_j,
-                    const ProgramConfig& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, cookie, refreshToken, setting,
-                            client, device, searchHistory, seasonCustom));
+inline void to_json(nlohmann::json& nlohmann_json_j, const ProgramConfig& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, cookie, refreshToken, setting, client, device,
+                                             searchHistory, seasonCustom));
 }
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      ProgramConfig& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("cookie") &&
-        !nlohmann_json_j.at("cookie").empty())
+inline void from_json(const nlohmann::json& nlohmann_json_j, ProgramConfig& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("cookie") && !nlohmann_json_j.at("cookie").empty())
         nlohmann_json_j.at("cookie").get_to(nlohmann_json_t.cookie);
-    if (nlohmann_json_j.contains("searchHistory") &&
-        nlohmann_json_j.at("searchHistory").is_array())
-        nlohmann_json_j.at("searchHistory")
-            .get_to(nlohmann_json_t.searchHistory);
-    if (nlohmann_json_j.contains("seasonCustom") &&
-        nlohmann_json_j.at("seasonCustom").is_object())
+    if (nlohmann_json_j.contains("searchHistory") && nlohmann_json_j.at("searchHistory").is_array())
+        nlohmann_json_j.at("searchHistory").get_to(nlohmann_json_t.searchHistory);
+    if (nlohmann_json_j.contains("seasonCustom") && nlohmann_json_j.at("seasonCustom").is_object())
         nlohmann_json_j.at("seasonCustom").get_to(nlohmann_json_t.seasonCustom);
-    if (nlohmann_json_j.contains("setting"))
-        nlohmann_json_j.at("setting").get_to(nlohmann_json_t.setting);
-    if (nlohmann_json_j.contains("client") &&
-        nlohmann_json_j.at("client").is_string())
+    if (nlohmann_json_j.contains("setting")) nlohmann_json_j.at("setting").get_to(nlohmann_json_t.setting);
+    if (nlohmann_json_j.contains("client") && nlohmann_json_j.at("client").is_string())
         nlohmann_json_j.at("client").get_to(nlohmann_json_t.client);
-    if (nlohmann_json_j.contains("device") &&
-        nlohmann_json_j.at("device").is_string())
+    if (nlohmann_json_j.contains("device") && nlohmann_json_j.at("device").is_string())
         nlohmann_json_j.at("device").get_to(nlohmann_json_t.device);
-    if (nlohmann_json_j.contains("refreshToken") &&
-        nlohmann_json_j.at("refreshToken").is_string())
+    if (nlohmann_json_j.contains("refreshToken") && nlohmann_json_j.at("refreshToken").is_string())
         nlohmann_json_j.at("refreshToken").get_to(nlohmann_json_t.refreshToken);
 }
 

@@ -32,13 +32,10 @@ void ShaderHelper::setShaderPack(const ShaderPack& data) { this->pack = data; }
 ShaderPack ShaderHelper::getShaderPack() { return this->pack; }
 
 void ShaderHelper::setShader(size_t index, bool showHint) {
-    MPVCore::instance().setShader(getProfileNameByIndex(index),
-                                  getProfileByIndex(index), showHint);
+    MPVCore::instance().setShader(getProfileNameByIndex(index), getProfileByIndex(index), showHint);
 }
 
-void ShaderHelper::clearShader(bool showHint) {
-    MPVCore::instance().clearShader(showHint);
-}
+void ShaderHelper::clearShader(bool showHint) { MPVCore::instance().clearShader(showHint); }
 
 void ShaderHelper::setProfile(size_t sid, size_t profileIndex) {
     if (!isAvailable()) return;
@@ -60,8 +57,7 @@ void ShaderHelper::setProfile(size_t sid, size_t profileIndex) {
 void ShaderHelper::clearProfile(size_t sid) {
     if (!isAvailable()) return;
     auto iter = this->pack.animeList.end();
-    for (auto i = this->pack.animeList.begin(); i != this->pack.animeList.end();
-         i++) {
+    for (auto i = this->pack.animeList.begin(); i != this->pack.animeList.end(); i++) {
         if (i->anime == sid) {
             iter = i;
             break;
@@ -138,8 +134,7 @@ std::vector<std::string> ShaderHelper::getProfileList() {
 [[nodiscard]] bool ShaderHelper::isAvailable() const { return !pack.profiles.empty(); }
 
 void ShaderHelper::load() {
-    const std::string path =
-        ProgramConfig::instance().getConfigDir() + "/pack.json";
+    const std::string path = ProgramConfig::instance().getConfigDir() + "/pack.json";
 
     std::ifstream readFile(path);
     if (readFile) {
@@ -153,14 +148,12 @@ void ShaderHelper::load() {
         }
         brls::Logger::info("Load custom shader pack from: {}", path);
     } else {
-        brls::Logger::warning(
-            "Cannot find custom shader pack, (Searched at: {})", path);
+        brls::Logger::warning("Cannot find custom shader pack, (Searched at: {})", path);
     }
 }
 
 void ShaderHelper::save() {
-    const std::string path =
-        ProgramConfig::instance().getConfigDir() + "/pack.json";
+    const std::string path = ProgramConfig::instance().getConfigDir() + "/pack.json";
     // fs is defined in cpr/cpr.h
 #ifndef IOS
     fs::create_directories(ProgramConfig::instance().getConfigDir());

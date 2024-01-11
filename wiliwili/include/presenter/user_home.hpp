@@ -38,24 +38,14 @@ public:
 
     void getUserDynamicStat(const std::string& mid) {
         BILI::get_user_dynamic_count(
-            mid,
-            [this](const bilibili::UserDynamicCount& data) {
-                this->onUserDynamicStat(data);
-            },
-            [](BILI_ERR) {
-                brls::Logger::error("getUserDynamicStat: {}", error);
-            });
+            mid, [this](const bilibili::UserDynamicCount& data) { this->onUserDynamicStat(data); },
+            [](BILI_ERR) { brls::Logger::error("getUserDynamicStat: {}", error); });
     }
 
     void getUserRelationStat(const std::string& mid) {
         BILI::get_user_relation(
-            mid,
-            [this](const bilibili::UserRelationStat& data) {
-                this->onUserRelationStat(data);
-            },
-            [](BILI_ERR) {
-                brls::Logger::error("getUserRelationStat: {}", error);
-            });
+            mid, [this](const bilibili::UserRelationStat& data) { this->onUserRelationStat(data); },
+            [](BILI_ERR) { brls::Logger::error("getUserRelationStat: {}", error); });
     }
 
 private:

@@ -10,8 +10,7 @@
 class HomeHotsAllRequest : public Presenter {
 public:
     HomeHotsAllRequest() : requestPage(1) {}
-    virtual void onHotsAllVideoList(
-        const bilibili::HotsAllVideoListResult& result, int index) {}
+    virtual void onHotsAllVideoList(const bilibili::HotsAllVideoListResult& result, int index) {}
     virtual void onError(const std::string& error) {}
 
     void requestData(bool refresh = false);

@@ -30,8 +30,7 @@ public:
 
     ~UserInfoView() override;
 
-    void setUserInfo(const std::string& avatar, const std::string& username,
-                     const std::string& misc);
+    void setUserInfo(const std::string& avatar, const std::string& username, const std::string& misc);
 
     void setMainTextColor(NVGcolor color);
 

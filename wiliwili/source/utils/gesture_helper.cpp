@@ -15,8 +15,7 @@
 #define LONG_TIME_MS 200  // 200ms
 #define LONG_TIME_US (LONG_TIME_MS * 1000)
 
-OsdGestureRecognizer::OsdGestureRecognizer(
-    const OsdGestureEvent::Callback& respond) {
+OsdGestureRecognizer::OsdGestureRecognizer(const OsdGestureEvent::Callback& respond) {
     tapEvent.subscribe(respond);
     this->startTime = 0;
     this->endTime   = -1 - LONG_TIME_US;
@@ -39,9 +38,8 @@ static inline OsdGestureType updateGestureType(OsdGestureType osdGestureType) {
     return osdGestureType;
 }
 
-brls::GestureState OsdGestureRecognizer::recognitionLoop(
-    brls::TouchState touch, brls::MouseState mouse, brls::View* view,
-    brls::Sound* soundToPlay) {
+brls::GestureState OsdGestureRecognizer::recognitionLoop(brls::TouchState touch, brls::MouseState mouse,
+                                                         brls::View* view, brls::Sound* soundToPlay) {
     brls::TouchPhase phase = touch.phase;
     brls::Point position   = touch.position;
 
@@ -50,14 +48,12 @@ brls::GestureState OsdGestureRecognizer::recognitionLoop(
         phase    = mouse.leftButton;
     }
 
-    if (!enabled || phase == brls::TouchPhase::NONE)
-        return brls::GestureState::FAILED;
+    if (!enabled || phase == brls::TouchPhase::NONE) return brls::GestureState::FAILED;
 
     // If not first touch frame and state is
     // INTERRUPTED or FAILED, stop recognition
     if (phase != brls::TouchPhase::START) {
-        if (this->state == brls::GestureState::INTERRUPTED ||
-            this->state == brls::GestureState::FAILED) {
+        if (this->state == brls::GestureState::INTERRUPTED || this->state == brls::GestureState::FAILED) {
             if (this->state != lastState) {
                 // 触摸被打断时保证触发对应的完结事件
                 this->osdGestureType = updateGestureType(this->osdGestureType);
@@ -100,45 +96,35 @@ brls::GestureState OsdGestureRecognizer::recognitionLoop(
                 } else if (fabs(this->delta.y) > MAX_DELTA_MOVEMENT) {
                     // 识别到垂直滑动
                     if (position.x < frame.getMidX()) {
-                        this->osdGestureType =
-                            OsdGestureType::LEFT_VERTICAL_PAN_START;
+                        this->osdGestureType = OsdGestureType::LEFT_VERTICAL_PAN_START;
                     } else {
-                        this->osdGestureType =
-                            OsdGestureType::RIGHT_VERTICAL_PAN_START;
+                        this->osdGestureType = OsdGestureType::RIGHT_VERTICAL_PAN_START;
                     }
-                } else if (brls::getCPUTimeUsec() - this->startTime >
-                           LONG_TIME_US) {
+                } else if (brls::getCPUTimeUsec() - this->startTime > LONG_TIME_US) {
                     // 识别到长按
                     this->osdGestureType = OsdGestureType::LONG_PRESS_START;
                 } else {
                     // 没有识别到触摸类型，不触发回调函数
                     break;
                 }
-            } else if (this->osdGestureType ==
-                           OsdGestureType::HORIZONTAL_PAN_START ||
-                       this->osdGestureType ==
-                           OsdGestureType::HORIZONTAL_PAN_UPDATE) {
+            } else if (this->osdGestureType == OsdGestureType::HORIZONTAL_PAN_START ||
+                       this->osdGestureType == OsdGestureType::HORIZONTAL_PAN_UPDATE) {
                 // 更新水平滑动的状态
                 this->delta          = position - this->position;
                 this->deltaX         = delta.x / frame.size.width;
                 this->osdGestureType = OsdGestureType::HORIZONTAL_PAN_UPDATE;
-            } else if (this->osdGestureType ==
-                           OsdGestureType::LEFT_VERTICAL_PAN_START ||
-                       this->osdGestureType ==
-                           OsdGestureType::LEFT_VERTICAL_PAN_UPDATE) {
+            } else if (this->osdGestureType == OsdGestureType::LEFT_VERTICAL_PAN_START ||
+                       this->osdGestureType == OsdGestureType::LEFT_VERTICAL_PAN_UPDATE) {
                 // 更新左侧垂直滑动的状态
                 this->delta          = position - this->position;
                 this->deltaY         = -delta.y / frame.size.height;
                 this->osdGestureType = OsdGestureType::LEFT_VERTICAL_PAN_UPDATE;
-            } else if (this->osdGestureType ==
-                           OsdGestureType::RIGHT_VERTICAL_PAN_START ||
-                       this->osdGestureType ==
-                           OsdGestureType::RIGHT_VERTICAL_PAN_UPDATE) {
+            } else if (this->osdGestureType == OsdGestureType::RIGHT_VERTICAL_PAN_START ||
+                       this->osdGestureType == OsdGestureType::RIGHT_VERTICAL_PAN_UPDATE) {
                 // 更新右侧垂直滑动的状态
-                this->delta  = position - this->position;
-                this->deltaY = -delta.y / frame.size.height;
-                this->osdGestureType =
-                    OsdGestureType::RIGHT_VERTICAL_PAN_UPDATE;
+                this->delta          = position - this->position;
+                this->deltaY         = -delta.y / frame.size.height;
+                this->osdGestureType = OsdGestureType::RIGHT_VERTICAL_PAN_UPDATE;
             } else {
                 break;
             }
@@ -168,16 +154,14 @@ brls::GestureState OsdGestureRecognizer::recognitionLoop(
                     break;
                 case OsdGestureType::LEFT_VERTICAL_PAN_START:
                 case OsdGestureType::LEFT_VERTICAL_PAN_UPDATE:
-                    this->endTime = 0;
-                    this->osdGestureType =
-                        OsdGestureType::LEFT_VERTICAL_PAN_END;
+                    this->endTime        = 0;
+                    this->osdGestureType = OsdGestureType::LEFT_VERTICAL_PAN_END;
                     this->tapEvent.fire(getCurrentStatus());
                     break;
                 case OsdGestureType::RIGHT_VERTICAL_PAN_START:
                 case OsdGestureType::RIGHT_VERTICAL_PAN_UPDATE:
-                    this->endTime = 0;
-                    this->osdGestureType =
-                        OsdGestureType::RIGHT_VERTICAL_PAN_END;
+                    this->endTime        = 0;
+                    this->osdGestureType = OsdGestureType::RIGHT_VERTICAL_PAN_END;
                     this->tapEvent.fire(getCurrentStatus());
                     break;
                 default:

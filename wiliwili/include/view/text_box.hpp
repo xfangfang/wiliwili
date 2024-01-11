@@ -45,8 +45,7 @@ public:
 
 class RichTextImage : public RichTextComponent {
 public:
-    RichTextImage(std::string url, float width, float height,
-                  bool autoLoad = false);
+    RichTextImage(std::string url, float width, float height, bool autoLoad = false);
 
     ~RichTextImage();
 
@@ -112,8 +111,8 @@ public:
      */
     float getLineY(size_t line);
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext* ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext* ctx) override;
 
     static brls::View* create();
 

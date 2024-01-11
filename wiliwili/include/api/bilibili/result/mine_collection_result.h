@@ -35,8 +35,7 @@ public:
         return this->fav_state > item.fav_state;
     }
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SimpleCollectionList, id, fid, mid, attr,
-                                   title, fav_state, media_count);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SimpleCollectionList, id, fid, mid, attr, title, fav_state, media_count);
 
 typedef std::vector<SimpleCollectionList> SimpleCollectionListResult;
 
@@ -44,7 +43,7 @@ class CollectionResult {
 public:
     int64_t id  = 0;
     int64_t fid = 0;
-    int type = SUBSCRIPTION_TYPE_2;  // 视频列表的类型, 11: 收藏夹 21: 合集
+    int type    = SUBSCRIPTION_TYPE_2;  // 视频列表的类型, 11: 收藏夹 21: 合集
     std::string cover;
     std::string title;
     std::string intro;
@@ -53,8 +52,7 @@ public:
     unsigned int attr = 0;
     UserSimpleResult upper;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      CollectionResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, CollectionResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("view_count")) {
         nlohmann_json_j.at("view_count").get_to(nlohmann_json_t.view_count);
     }
@@ -76,8 +74,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     if (nlohmann_json_j.contains("type")) {
         nlohmann_json_j.at("type").get_to(nlohmann_json_t.type);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cover, id,
-                                             title, media_count, upper));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cover, id, title, media_count, upper));
 }
 
 typedef std::vector<CollectionResult> CollectionListResult;
@@ -89,10 +86,8 @@ public:
     int count;
     unsigned int index;  // 当前数据的索引值
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      CollectionListResultWrapper& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more, list, count));
+inline void from_json(const nlohmann::json& nlohmann_json_j, CollectionListResultWrapper& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more, list, count));
 }
 
 class VideoCollectionStateResult {
@@ -101,8 +96,7 @@ public:
     unsigned int danmaku;
     unsigned int play;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoCollectionStateResult, collect, danmaku,
-                                   play);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoCollectionStateResult, collect, danmaku, play);
 
 class CollectionVideoResult {
 public:
@@ -118,17 +112,15 @@ public:
     unsigned int pubtime = 0;
     std::string bvid;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      CollectionVideoResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, CollectionVideoResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("type")) {
         nlohmann_json_j.at("type").get_to(nlohmann_json_t.type);
     }
     if (nlohmann_json_j.contains("intro")) {
         nlohmann_json_j.at("intro").get_to(nlohmann_json_t.intro);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, title,
-                                             cover, upper, cnt_info, duration,
-                                             pubtime, bvid));
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, title, cover, upper, cnt_info, duration, pubtime, bvid));
 }
 
 typedef std::vector<CollectionVideoResult> CollectionVideoListResult;
@@ -140,8 +132,7 @@ public:
     CollectionResult info;
     unsigned int index = 0;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      CollectionVideoListResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, CollectionVideoListResultWrapper& nlohmann_json_t) {
     if (nlohmann_json_j.at("medias").is_array()) {
         nlohmann_json_j.at("medias").get_to(nlohmann_json_t.medias);
     }
@@ -156,7 +147,6 @@ public:
     int count;
     SimpleCollectionListResult list;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SimpleCollectionListResultWrapper, count,
-                                   list);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SimpleCollectionListResultWrapper, count, list);
 
 };  // namespace bilibili

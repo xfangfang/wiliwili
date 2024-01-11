@@ -32,9 +32,7 @@ SearchTab::SearchTab() {
         true);
 }
 
-SearchTab::~SearchTab() {
-    brls::Logger::debug("Fragment SearchTabActivity: delete");
-}
+SearchTab::~SearchTab() { brls::Logger::debug("Fragment SearchTabActivity: delete"); }
 
 brls::View* SearchTab::create() { return new SearchTab(); }
 

@@ -15,8 +15,7 @@ void PlayerTabCell::setSelected(bool value) {
     this->selected = value;
     if (value) {
         this->title->setMarginLeft(40);
-        this->setBackgroundColor(
-            brls::Application::getTheme().getColor("color/pink_1"));
+        this->setBackgroundColor(brls::Application::getTheme().getColor("color/pink_1"));
     } else {
         this->title->setMarginLeft(16);
         this->setBackgroundColor(RGBA(0, 0, 0, 0));
@@ -42,8 +41,7 @@ void PlayerTabCell::setBadge(std::string value, std::string color) {
     }
 }
 
-void PlayerTabCell::setBadge(std::string value, NVGcolor color,
-                             NVGcolor textColor) {
+void PlayerTabCell::setBadge(std::string value, NVGcolor color, NVGcolor textColor) {
     if (value.empty()) {
         this->badgeBox->setVisibility(brls::Visibility::GONE);
         return;
@@ -56,8 +54,7 @@ void PlayerTabCell::setBadge(std::string value, NVGcolor color,
 }
 
 RecyclingGridItem* PlayerTabCell::create() { return new PlayerTabCell(); }
-void PlayerTabCell::draw(NVGcontext* vg, float x, float y, float width,
-                         float height, brls::Style style,
+void PlayerTabCell::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
                          brls::FrameContext* ctx) {
     Box::draw(vg, x, y, width, height, style, ctx);
     if (this->selected) {

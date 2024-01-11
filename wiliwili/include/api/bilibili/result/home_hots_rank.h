@@ -27,9 +27,7 @@ public:
     HotsRankPGCConfig new_ep;
     VideoSimpleStateResult stat;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankPGCVideoResult, title, rank,
-                                   season_id, ss_horizontal_cover, new_ep,
-                                   stat);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankPGCVideoResult, title, rank, season_id, ss_horizontal_cover, new_ep, stat);
 
 typedef std::vector<HotsRankPGCVideoResult> HotsRankPGCVideoListResult;
 
@@ -38,8 +36,7 @@ public:
     std::string note;
     HotsRankPGCVideoListResult list;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankPGCVideoListResultWrapper, note,
-                                   list);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankPGCVideoListResultWrapper, note, list);
 
 class HotsRankVideoResult {
 public:
@@ -53,8 +50,7 @@ public:
     UserSimpleResult owner;
     VideoSimpleStateResult stat;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankVideoResult, aid, bvid, cid, pic,
-                                   title, duration, pubdate, owner, stat);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankVideoResult, aid, bvid, cid, pic, title, duration, pubdate, owner, stat);
 
 typedef std::vector<HotsRankVideoResult> HotsRankVideoListResult;
 

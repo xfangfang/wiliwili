@@ -9,14 +9,11 @@
 
 using namespace brls::literals;
 
-void MineLaterRequest::onWatchLaterList(
-    const bilibili::WatchLaterListWrapper& result) {}
+void MineLaterRequest::onWatchLaterList(const bilibili::WatchLaterListWrapper& result) {}
 
 void MineLaterRequest::onError(const std::string& error) {}
 
-void MineLaterRequest::requestData(bool refresh) {
-    this->requestWatchLaterList();
-}
+void MineLaterRequest::requestData(bool refresh) { this->requestWatchLaterList(); }
 
 void MineLaterRequest::requestWatchLaterList() {
     auto mid = ProgramConfig::instance().getUserID();
@@ -24,7 +21,6 @@ void MineLaterRequest::requestWatchLaterList() {
         this->onError("wiliwili/home/common/no_login"_i18n);
         return;
     }
-    BILI::getWatchLater(
-        [this](const auto& result) { this->onWatchLaterList(result); },
-        [this](BILI_ERR) { this->onError(error); });
+    BILI::getWatchLater([this](const auto& result) { this->onWatchLaterList(result); },
+                        [this](BILI_ERR) { this->onError(error); });
 }
