@@ -22,3 +22,6 @@
 [submodule "library/libpdr"]
 	path = library/libpdr
 	url = https://github.com/xfangfang/libpdr.git
+[submodule "library/MemoryModule"]
+	path = library/MemoryModule
+	url = https://github.com/fancycode/MemoryModule.git

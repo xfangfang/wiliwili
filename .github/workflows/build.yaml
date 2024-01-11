@@ -172,9 +172,12 @@ jobs:
           cmake --install build
       - name: Build
         run: |
+          cp ${MINGW_PREFIX}/bin/libmpv-2.dll resources/
           cmake -B build -G Ninja ${{ matrix.cmake }} \
             -DCMAKE_BUILD_TYPE=Release \
             -DPLATFORM_DESKTOP=ON \
+            -DUSE_LIBROMFS=ON \
+            -DMPV_BUNDLE_DLL=ON \
             -DWIN32_TERMINAL=OFF \
             -DCURL_DISABLE_PROGRESS_METER=ON \
             -DUSE_LIBIDN2=OFF \
@@ -186,7 +189,7 @@ jobs:
 
           strip build/wiliwili.exe
           7z a -mx=9 -tzip ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}.zip \
-            ./build/wiliwili.exe ./build/resources ${MINGW_PREFIX}/bin/libmpv-2.dll README.md 
+            ./build/wiliwili.exe README.md 
 
       - name: Upload dist
         uses: actions/upload-artifact@v3
