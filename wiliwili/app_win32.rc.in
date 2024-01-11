@@ -14,7 +14,7 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "LegalCopyright", "${PROJECT_AUTHOR} (C) Copyright 2023"
+            VALUE "LegalCopyright", "${PROJECT_AUTHOR} (C) Copyright 2024"
             VALUE "OriginalFilename", "${PROJECT_NAME}.exe"
             VALUE "ProductVersion", "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}.${VERSION_BUILD}"
         END
