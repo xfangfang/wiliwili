@@ -21,13 +21,10 @@ public:
     UserSimpleResult owner;
     VideoSimpleStateResult stat;
 };
-inline void to_json(nlohmann::json& nlohmann_json_j,
-                    const DynamicVideoResult& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, aid, bvid, pic,
-                                             title, duration, pubdate, stat));
+inline void to_json(nlohmann::json& nlohmann_json_j, const DynamicVideoResult& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, aid, bvid, pic, title, duration, pubdate, stat));
 }
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      DynamicVideoResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicVideoResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("owner")) {
         nlohmann_json_j.at("owner").get_to(nlohmann_json_t.owner);
     } else if (nlohmann_json_j.contains("author")) {
@@ -39,8 +36,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     if (nlohmann_json_j.at("pubdate").is_number()) {
         nlohmann_json_j.at("pubdate").get_to(nlohmann_json_t.pubdate);
     }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, aid, bvid, pic, title, stat));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, aid, bvid, pic, title, stat));
 }
 
 typedef std::vector<DynamicVideoResult> DynamicVideoListResult;
@@ -54,13 +50,11 @@ public:
     unsigned int update_num;
     unsigned int page;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      DynamicVideoListResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicVideoListResultWrapper& nlohmann_json_t) {
     if (nlohmann_json_j.contains("items") && nlohmann_json_j.at("items").is_array()) {
         nlohmann_json_j.at("items").get_to(nlohmann_json_t.items);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
-        NLOHMANN_JSON_FROM, has_more, offset, update_baseline, update_num));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more, offset, update_baseline, update_num));
 }
 
 class DynamicUp {
@@ -75,8 +69,7 @@ public:
     bool is_reserve_recall;
     DynamicUp user_profile;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicUpResult, is_reserve_recall,
-                                   has_update, user_profile);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicUpResult, is_reserve_recall, has_update, user_profile);
 
 typedef std::vector<DynamicUpResult> DynamicUpListResult;
 
@@ -84,8 +77,7 @@ class DynamicUpListResultWrapper {
 public:
     DynamicUpListResult items;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      DynamicUpListResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicUpListResultWrapper& nlohmann_json_t) {
     if (nlohmann_json_j.contains("items") && nlohmann_json_j.at("items").is_array()) {
         nlohmann_json_j.at("items").get_to(nlohmann_json_t.items);
     }

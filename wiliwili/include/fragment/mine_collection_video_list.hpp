@@ -9,7 +9,9 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
 #include "bilibili.h"
 #include "view/recycling_grid.hpp"
 #include "bilibili/result/mine_collection_result.h"

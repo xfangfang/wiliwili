@@ -9,9 +9,7 @@
 
 class HomeHotsHistoryRequest : public Presenter {
 public:
-    virtual void onHotsHistoryList(
-        const bilibili::HotsHistoryVideoListResult& result,
-        const std::string& explain);
+    virtual void onHotsHistoryList(const bilibili::HotsHistoryVideoListResult& result, const std::string& explain);
     virtual void onError(const std::string& error);
 
     void requestData();

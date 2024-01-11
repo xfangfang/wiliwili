@@ -14,8 +14,7 @@ public:
     int view    = 0;
     int danmaku = 0;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoSimpleStateResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoSimpleStateResult& nlohmann_json_t) {
     if (nlohmann_json_j.at("view").is_number()) {
         nlohmann_json_j.at("view").get_to(nlohmann_json_t.view);
     }
@@ -23,8 +22,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("danmaku").get_to(nlohmann_json_t.danmaku);
     }
 }
-inline void to_json(nlohmann::json& nlohmann_json_j,
-                    const VideoSimpleStateResult& nlohmann_json_t) {
+inline void to_json(nlohmann::json& nlohmann_json_j, const VideoSimpleStateResult& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, view, danmaku));
 }
 
@@ -36,8 +34,7 @@ public:
     // 1: 关注
     // 0: 无 ？
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      RecommendReasonResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, RecommendReasonResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("reason_type")) {
         nlohmann_json_j.at("reason_type").get_to(nlohmann_json_t.reason_type);
     }
@@ -62,15 +59,12 @@ public:
     int is_followed;
     RecommendReasonResult rcmd_reason;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      RecommendVideoResult& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("rcmd_reason") &&
-        !nlohmann_json_j.at("rcmd_reason").is_null()) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, RecommendVideoResult& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("rcmd_reason") && !nlohmann_json_j.at("rcmd_reason").is_null()) {
         nlohmann_json_j.at("rcmd_reason").get_to(nlohmann_json_t.rcmd_reason);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, bvid, cid,
-                                             pic, title, duration, pubdate,
-                                             owner, stat, is_followed));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, bvid, cid, pic, title, duration, pubdate, owner,
+                                             stat, is_followed));
 }
 
 typedef std::vector<RecommendVideoResult> RecommendVideoListResult;
@@ -80,8 +74,7 @@ public:
     RecommendVideoListResult item;
     int requestIndex = 0;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      RecommendVideoListResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, RecommendVideoListResultWrapper& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, item));
 }
 

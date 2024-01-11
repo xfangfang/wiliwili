@@ -20,8 +20,7 @@ public:
     std::string url;
     int size = 1;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      Emote& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, Emote& nlohmann_json_t) {
     if (nlohmann_json_j.contains("meta")) {
         nlohmann_json_j.at("meta").at("size").get_to(nlohmann_json_t.size);
     }
@@ -34,8 +33,7 @@ public:
     std::string img_src;
     float img_width = 0, img_height = 0;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      Picture& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, Picture& nlohmann_json_t) {
     if (nlohmann_json_j.contains("img_width")) {
         nlohmann_json_j.at("img_width").get_to(nlohmann_json_t.img_width);
     }
@@ -55,16 +53,11 @@ public:
     bool search       = false;  // 自定义数据：是否是搜索关键字
 };
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      JumpUrl& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("extra") &&
-        nlohmann_json_j.at("extra").is_object()) {
-        nlohmann_json_j.at("extra")
-            .at("is_word_search")
-            .get_to(nlohmann_json_t.search);
+inline void from_json(const nlohmann::json& nlohmann_json_j, JumpUrl& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("extra") && nlohmann_json_j.at("extra").is_object()) {
+        nlohmann_json_j.at("extra").at("is_word_search").get_to(nlohmann_json_t.search);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title,
-                                             prefix_icon, icon_position));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, prefix_icon, icon_position));
 }
 
 typedef std::unordered_map<std::string, JumpUrl> JumpUrlMap;
@@ -80,27 +73,20 @@ public:
     TopicMap topics_uri;
     std::vector<Picture> pictures;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoCommentContent& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("emote") &&
-        !nlohmann_json_j.at("emote").is_null()) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentContent& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("emote") && !nlohmann_json_j.at("emote").is_null()) {
         nlohmann_json_j.at("emote").get_to(nlohmann_json_t.emote);
     }
-    if (nlohmann_json_j.contains("at_name_to_mid") &&
-        !nlohmann_json_j.at("at_name_to_mid").is_null()) {
-        nlohmann_json_j.at("at_name_to_mid")
-            .get_to(nlohmann_json_t.at_name_to_mid);
+    if (nlohmann_json_j.contains("at_name_to_mid") && !nlohmann_json_j.at("at_name_to_mid").is_null()) {
+        nlohmann_json_j.at("at_name_to_mid").get_to(nlohmann_json_t.at_name_to_mid);
     }
-    if (nlohmann_json_j.contains("jump_url") &&
-        !nlohmann_json_j.at("jump_url").is_null()) {
+    if (nlohmann_json_j.contains("jump_url") && !nlohmann_json_j.at("jump_url").is_null()) {
         nlohmann_json_j.at("jump_url").get_to(nlohmann_json_t.jump_url);
     }
-    if (nlohmann_json_j.contains("topics_uri") &&
-        !nlohmann_json_j.at("topics_uri").is_null()) {
+    if (nlohmann_json_j.contains("topics_uri") && !nlohmann_json_j.at("topics_uri").is_null()) {
         nlohmann_json_j.at("topics_uri").get_to(nlohmann_json_t.topics_uri);
     }
-    if (nlohmann_json_j.contains("pictures") &&
-        !nlohmann_json_j.at("pictures").is_null()) {
+    if (nlohmann_json_j.contains("pictures") && !nlohmann_json_j.at("pictures").is_null()) {
         nlohmann_json_j.at("pictures").get_to(nlohmann_json_t.pictures);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, message));
@@ -120,10 +106,8 @@ public:
     std::string location;
     bool up_like;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoCommentControl& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("location") &&
-        !nlohmann_json_j.at("location").is_null()) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentControl& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("location") && !nlohmann_json_j.at("location").is_null()) {
         nlohmann_json_j.at("location").get_to(nlohmann_json_t.location);
     }
 }
@@ -148,8 +132,7 @@ public:
     bool is_uploader;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CommentUserResult, mid, uname, avatar,
-                                   is_senior_member, level_info);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CommentUserResult, mid, uname, avatar, is_senior_member, level_info);
 
 class VideoCommentResult {
 public:
@@ -163,25 +146,20 @@ public:
     size_t rcount, like, action;
     bool top = false;  // 自定义数据项：是否是置顶评论
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoCommentResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentResult& nlohmann_json_t) {
     if (!nlohmann_json_j.at("replies").is_null()) {
         nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
     }
     if (nlohmann_json_j.contains("member")) {
         nlohmann_json_j.at("member").get_to(nlohmann_json_t.member);
     }
-    if (nlohmann_json_j.contains("reply_control") &&
-        !nlohmann_json_j.at("reply_control").is_null()) {
-        nlohmann_json_j.at("reply_control")
-            .get_to(nlohmann_json_t.reply_control);
+    if (nlohmann_json_j.contains("reply_control") && !nlohmann_json_j.at("reply_control").is_null()) {
+        nlohmann_json_j.at("reply_control").get_to(nlohmann_json_t.reply_control);
     }
     if (!nlohmann_json_j.at("content").is_null()) {
         nlohmann_json_j.at("content").get_to(nlohmann_json_t.content);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, ctime, action,
-                                             rcount, like, rpid, parent, root,
-                                             oid));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, ctime, action, rcount, like, rpid, parent, root, oid));
 }
 typedef std::vector<VideoCommentResult> VideoCommentListResult;
 
@@ -194,13 +172,11 @@ public:
     bool is_end;
     bool is_begin;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoCommentCursor& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentCursor& nlohmann_json_t) {
     if (nlohmann_json_j.contains("all_count")) {
         nlohmann_json_j.at("all_count").get_to(nlohmann_json_t.all_count);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, mode, next,
-                                             is_end, is_begin, prev));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, mode, next, is_end, is_begin, prev));
 }
 
 class VideoCommentResultWrapper {
@@ -210,8 +186,7 @@ public:
     VideoCommentListResult top_replies;
     size_t requestIndex = 0;  // 自定义数据，请求的评论页
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoCommentResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentResultWrapper& nlohmann_json_t) {
     if (!nlohmann_json_j.at("top_replies").is_null()) {
         nlohmann_json_j.at("top_replies").get_to(nlohmann_json_t.top_replies);
     }
@@ -228,16 +203,13 @@ public:
     VideoCommentResult root;
     int64_t upper;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoSingleCommentDetail& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("upper") &&
-        !nlohmann_json_j.at("upper").is_null()) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoSingleCommentDetail& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("upper") && !nlohmann_json_j.at("upper").is_null()) {
         nlohmann_json_j.at("upper").at("mid").get_to(nlohmann_json_t.upper);
     } else {
         nlohmann_json_t.upper = 0;
     }
-    if (nlohmann_json_j.contains("root") &&
-        !nlohmann_json_j.at("root").is_null()) {
+    if (nlohmann_json_j.contains("root") && !nlohmann_json_j.at("root").is_null()) {
         nlohmann_json_j.at("root").get_to(nlohmann_json_t.root);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor));
@@ -248,10 +220,8 @@ public:
     int success_action;
     VideoCommentResult reply;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoCommentAddResult& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, success_action, reply));
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentAddResult& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, success_action, reply));
 }
 
 /// Video Page
@@ -262,7 +232,7 @@ public:
     size_t page;        // 分p的序号
     int duration;       // 视频长度，单位秒
     int progress = -1;  // 视频初始化的播放时间，用于加载历史记录
-    std::string part;  //标题
+    std::string part;   //标题
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailPage, cid, page, duration, part);
 
@@ -279,8 +249,7 @@ public:
     int like;
     int reply;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailStat, aid, view, danmaku,
-                                   favorite, coin, share, like, reply);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailStat, aid, view, danmaku, favorite, coin, share, like, reply);
 
 class VideoDetailRights {
 public:
@@ -288,8 +257,7 @@ public:
     int no_reprint;
     int is_cooperation;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailRights, download, no_reprint,
-                                   is_cooperation);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailRights, download, no_reprint, is_cooperation);
 
 class UGCSeasonState {
 public:
@@ -302,8 +270,7 @@ public:
     int cid, duration, page;
     std::string part;  // 原视频标题
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeasonEpisodePage, cid, duration, part,
-                                   page);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeasonEpisodePage, cid, duration, part, page);
 
 class UGCSeasonEpisode {
 public:
@@ -312,8 +279,7 @@ public:
     std::string bvid, title;  // 合集视频标题
     UGCSeasonEpisodePage page;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeasonEpisode, season_id, section_id, id,
-                                   aid, cid, title, bvid, page);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeasonEpisode, season_id, section_id, id, aid, cid, title, bvid, page);
 
 class UGCSeasonSection {
 public:
@@ -323,18 +289,14 @@ public:
     int type;
     std::vector<UGCSeasonEpisode> episodes;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      UGCSeasonSection& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, season_id, id,
-                                             type, title, episodes));
+inline void from_json(const nlohmann::json& nlohmann_json_j, UGCSeasonSection& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, season_id, id, type, title, episodes));
     for (size_t i = 0; i < nlohmann_json_t.episodes.size(); i++) {
         nlohmann_json_t.episodes[i].index = i;
     }
 }
-inline void to_json(nlohmann::json& nlohmann_json_j,
-                    const UGCSeasonSection& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, season_id, id,
-                                             type, title, episodes))
+inline void to_json(nlohmann::json& nlohmann_json_j, const UGCSeasonSection& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, season_id, id, type, title, episodes))
 }
 
 class UGCSeason {
@@ -357,8 +319,7 @@ public:
     // 前段合集的视频总数量
     int count;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeason, sections, id, mid, title, cover,
-                                   intro, stat);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeason, sections, id, mid, title, cover, intro, stat);
 
 class VideoDetailResult {
 public:
@@ -381,8 +342,7 @@ public:
     VideoDetailStat stat;
     UGCSeason ugc_season;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoDetailResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoDetailResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("videos")) {
         nlohmann_json_j.at("videos").get_to(nlohmann_json_t.videos);
     }
@@ -395,15 +355,13 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     if (nlohmann_json_j.contains("duration")) {
         nlohmann_json_j.at("duration").get_to(nlohmann_json_t.duration);
     }
-    if (nlohmann_json_j.contains("redirect_url") &&
-        nlohmann_json_j.at("redirect_url").is_string()) {
+    if (nlohmann_json_j.contains("redirect_url") && nlohmann_json_j.at("redirect_url").is_string()) {
         nlohmann_json_j.at("redirect_url").get_to(nlohmann_json_t.redirect_url);
     } else {
         nlohmann_json_t.redirect_url = "";
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, bvid, aid,
-                                             owner, title, pic, desc, pubdate,
-                                             stat, rights, copyright));
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, bvid, aid, owner, title, pic, desc, pubdate, stat, rights, copyright));
 
     if (nlohmann_json_t.ugc_season.sections.empty()) return;
     auto& episodes = nlohmann_json_t.ugc_season.episodes;
@@ -423,8 +381,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
             sectionHeader.id    = 0;
             episodes.emplace_back(sectionHeader);
         }
-        episodes.insert(episodes.end(), section.episodes.begin(),
-                        section.episodes.end());
+        episodes.insert(episodes.end(), section.episodes.begin(), section.episodes.end());
     }
 
     // 计算当前播放的视频在合集中的索引
@@ -432,19 +389,16 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     for (size_t i = 0; i < episodes.size(); i++) {
         episodes[i].index = (int)i;
         if (episodes[i].aid == nlohmann_json_t.aid) {
-            nlohmann_json_t.ugc_season.currentIndexWithoutHeader =
-                nlohmann_json_t.ugc_season.count;
-            nlohmann_json_t.ugc_season.currentIndex = (int)i;
+            nlohmann_json_t.ugc_season.currentIndexWithoutHeader = nlohmann_json_t.ugc_season.count;
+            nlohmann_json_t.ugc_season.currentIndex              = (int)i;
         }
         if (episodes[i].id != 0) {
             nlohmann_json_t.ugc_season.count++;
         }
     }
 }
-inline void to_json(nlohmann::json& nlohmann_json_j,
-                    const VideoDetailResult& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, bvid, aid, owner,
-                                             title, pic, desc, pubdate, stat,
+inline void to_json(nlohmann::json& nlohmann_json_j, const VideoDetailResult& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, bvid, aid, owner, title, pic, desc, pubdate, stat,
                                              copyright, videos, pages))
 }
 
@@ -454,8 +408,7 @@ class UserDetailResult {
 public:
     std::string mid, name, sex, rank, face, sign;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDetailResult, mid, name, sex, rank, face,
-                                   sign);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDetailResult, mid, name, sex, rank, face, sign);
 
 class UserDetailResultWrapper {
 public:
@@ -463,24 +416,21 @@ public:
     bool following;
     UserDetailResult card;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDetailResultWrapper, like_num, follower,
-                                   article_count, archive_count, following,
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDetailResultWrapper, like_num, follower, article_count, archive_count, following,
                                    card);
 
 class VideoDetailReplyPageResult {
 public:
     int acount, count, num, size;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailReplyPageResult, acount, count,
-                                   num, size);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoDetailReplyPageResult, acount, count, num, size);
 
 class VideoDetailReplyResult {
 public:
     VideoDetailReplyPageResult page;
     VideoCommentListResult replies;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoDetailReplyResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoDetailReplyResult& nlohmann_json_t) {
     if (!nlohmann_json_j.at("replies").is_null()) {
         nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
     }
@@ -496,10 +446,8 @@ public:
     VideoDetailListResult Related;
     //    VideoDetailReplyResult Reply; 暂时未使用的值
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoDetailAllResult& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, View, Card, Related));
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoDetailAllResult& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, View, Card, Related));
 }
 
 class VideoDUrl {
@@ -510,13 +458,11 @@ public:
     std::string url;
     std::vector<std::string> backup_url;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoDUrl& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoDUrl& nlohmann_json_t) {
     if (!nlohmann_json_j.at("backup_url").is_null()) {
         nlohmann_json_j.at("backup_url").get_to(nlohmann_json_t.backup_url);
     }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, order, length, size, url));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, order, length, size, url));
 }
 
 class DashMedia {
@@ -529,14 +475,11 @@ public:
     int width, height;  // only for video
     int codecid;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      DashMedia& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("backup_url") &&
-        !nlohmann_json_j.at("backup_url").is_null()) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, DashMedia& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("backup_url") && !nlohmann_json_j.at("backup_url").is_null()) {
         nlohmann_json_j.at("backup_url").get_to(nlohmann_json_t.backup_url);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
-        NLOHMANN_JSON_FROM, id, base_url, bandwidth, height, width, codecid));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, base_url, bandwidth, height, width, codecid));
 }
 
 class Dash {
@@ -546,14 +489,11 @@ public:
     std::vector<DashMedia> video;
     std::vector<DashMedia> audio;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      Dash& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("audio") &&
-        !nlohmann_json_j.at("audio").is_null()) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, Dash& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("audio") && !nlohmann_json_j.at("audio").is_null()) {
         nlohmann_json_j.at("audio").get_to(nlohmann_json_t.audio);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, duration,
-                                             video, min_buffer_time));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, duration, video, min_buffer_time));
 }
 
 class VideoCastData {
@@ -574,28 +514,23 @@ public:
     int quality;                                  //当前画质
     int timelength;                               // 视频长度
     std::vector<std::string> accept_description;  //可供选择的分辨率
-    std::vector<int> accept_quality;  //可供选择的分辨率编号
+    std::vector<int> accept_quality;              //可供选择的分辨率编号
     std::vector<VideoDUrl> durl;
     Dash dash;
-    std::vector<ClipInfo> clip_info_list{}; // 片头片尾数据
-    int clipOpen = -1, clipEnd = -1; // 手动添加的数据，用来更方便地读取片头片尾
+    std::vector<ClipInfo> clip_info_list{};  // 片头片尾数据
+    int clipOpen = -1, clipEnd = -1;         // 手动添加的数据，用来更方便地读取片头片尾
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoUrlResult& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("durl") &&
-        !nlohmann_json_j.at("durl").is_null()) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoUrlResult& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("durl") && !nlohmann_json_j.at("durl").is_null()) {
         nlohmann_json_j.at("durl").get_to(nlohmann_json_t.durl);
     }
-    if (nlohmann_json_j.contains("dash") &&
-        !nlohmann_json_j.at("dash").is_null()) {
+    if (nlohmann_json_j.contains("dash") && !nlohmann_json_j.at("dash").is_null()) {
         nlohmann_json_j.at("dash").get_to(nlohmann_json_t.dash);
     }
-    if (nlohmann_json_j.contains("clip_info_list") &&
-        nlohmann_json_j.at("clip_info_list").is_array()) {
-        nlohmann_json_j.at("clip_info_list")
-            .get_to(nlohmann_json_t.clip_info_list);
+    if (nlohmann_json_j.contains("clip_info_list") && nlohmann_json_j.at("clip_info_list").is_array()) {
+        nlohmann_json_j.at("clip_info_list").get_to(nlohmann_json_t.clip_info_list);
         nlohmann_json_t.clipOpen = -1;
-        nlohmann_json_t.clipEnd = -1;
+        nlohmann_json_t.clipEnd  = -1;
         for (auto& clip : nlohmann_json_t.clip_info_list) {
             if (clip.clipType == "CLIP_TYPE_OP") {
                 nlohmann_json_t.clipOpen = clip.end;
@@ -604,9 +539,8 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
             }
         }
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, quality,
-                                             timelength, accept_description,
-                                             accept_quality));
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, quality, timelength, accept_description, accept_quality));
 }
 
 class SubtitleLine {
@@ -626,15 +560,12 @@ public:
     bool genByAI;
     SubtitleBody body;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      SubtitleData& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("type") &&
-        nlohmann_json_j.at("type").is_string()) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, SubtitleData& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("type") && nlohmann_json_j.at("type").is_string()) {
         nlohmann_json_j.at("type").get_to(nlohmann_json_t.type);
     }
     nlohmann_json_t.genByAI = nlohmann_json_t.type == "AIsubtitle";
-    if (nlohmann_json_j.contains("lang") &&
-        nlohmann_json_j.at("lang").is_string()) {
+    if (nlohmann_json_j.contains("lang") && nlohmann_json_j.at("lang").is_string()) {
         nlohmann_json_j.at("lang").get_to(nlohmann_json_t.lang);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, body));
@@ -648,10 +579,8 @@ public:
     std::string subtitle_url;
     SubtitleData data;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoPageSubtitle& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id_str, lan,
-                                             lan_doc, subtitle_url));
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoPageSubtitle& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id_str, lan, lan_doc, subtitle_url));
 }
 
 typedef std::vector<VideoPageSubtitle> VideoPageSubtitleList;
@@ -664,8 +593,7 @@ public:
     VideoPageSubtitleList subtitles;
     std::string mask_url;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoPageResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoPageResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("subtitle")) {
         auto& sub = nlohmann_json_j.at("subtitle");
         if (sub.is_object() && sub.contains("subtitles")) {
@@ -675,14 +603,10 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
             }
         }
     }
-    if (nlohmann_json_j.contains("dm_mask") &&
-        nlohmann_json_j.at("dm_mask").is_object()) {
-        nlohmann_json_j.at("dm_mask")
-            .at("mask_url")
-            .get_to(nlohmann_json_t.mask_url);
+    if (nlohmann_json_j.contains("dm_mask") && nlohmann_json_j.at("dm_mask").is_object()) {
+        nlohmann_json_j.at("dm_mask").at("mask_url").get_to(nlohmann_json_t.mask_url);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, online_count,
-                                             last_play_time, last_play_cid));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, online_count, last_play_time, last_play_cid));
 }
 
 class VideoRelation {
@@ -698,22 +622,19 @@ public:
     bool attention, favorite, season_fav, like, dislike;
     int coin;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoRelation, attention, favorite,
-                                   season_fav, like, dislike, coin);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoRelation, attention, favorite, season_fav, like, dislike, coin);
 
 class VideoEpisodeRelationStat {
 public:
     size_t coin, dm, like, reply, view;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoEpisodeRelationStat, coin, dm, like,
-                                   reply, view);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoEpisodeRelationStat, coin, dm, like, reply, view);
 
 class VideoEpisodeRelationUser {
 public:
     size_t coin_number, favorite, is_original, like;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoEpisodeRelationUser, coin_number,
-                                   favorite, is_original, like);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoEpisodeRelationUser, coin_number, favorite, is_original, like);
 
 class VideoEpisodeRelation {
 public:
@@ -736,8 +657,7 @@ public:
     int step_sec;
     std::vector<float> data;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      VideoHighlightProgress& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoHighlightProgress& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, step_sec));
     if (!nlohmann_json_j.contains("events")) return;
     if (!nlohmann_json_j.at("events").is_object()) return;

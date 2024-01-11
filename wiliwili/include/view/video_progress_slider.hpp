@@ -8,9 +8,12 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include <vector>
+#include <borealis/core/box.hpp>
 
+namespace brls {
+class Rectangle;
+}
 class SVGImage;
 
 class VideoProgressSlider : public brls::Box {

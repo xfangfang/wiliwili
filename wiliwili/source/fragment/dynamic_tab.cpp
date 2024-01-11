@@ -2,9 +2,10 @@
 // Created by fang on 2022/6/9.
 //
 
-#include "fragment/dynamic_tab.hpp"
-
 #include <utility>
+#include <borealis/core/thread.hpp>
+
+#include "fragment/dynamic_tab.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/svg_image.hpp"
@@ -16,12 +17,9 @@ using namespace brls::literals;
 
 class DynamicUserInfoView : public RecyclingGridItem {
 public:
-    explicit DynamicUserInfoView(const std::string& xml) {
-        this->inflateFromXMLRes(xml);
-    }
+    explicit DynamicUserInfoView(const std::string& xml) { this->inflateFromXMLRes(xml); }
 
-    void setUserInfo(const std::string& avatar, const std::string& username,
-                     bool isUpdate = false) {
+    void setUserInfo(const std::string& avatar, const std::string& username, bool isUpdate = false) {
         this->labelUsername->setText(username);
         ImageHelper::with(this->avatarView)->load(avatar);
     }
@@ -31,12 +29,10 @@ public:
     void prepareForReuse() override {}
 
     void cacheForReuse() override {
-        if (!dynamic_cast<SVGImage*>(this->avatarView.getView()))
-            ImageHelper::clear(this->avatarView);
+        if (!dynamic_cast<SVGImage*>(this->avatarView.getView())) ImageHelper::clear(this->avatarView);
     }
 
-    static RecyclingGridItem* create(
-        const std::string& xml = "xml/views/user_info_dynamic.xml") {
+    static RecyclingGridItem* create(const std::string& xml = "xml/views/user_info_dynamic.xml") {
         return new DynamicUserInfoView(xml);
     }
 
@@ -47,23 +43,18 @@ private:
 
 class DataSourceUpList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceUpList(bilibili::DynamicUpListResult result)
-        : list(std::move(result)) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
+    explicit DataSourceUpList(bilibili::DynamicUpListResult result) : list(std::move(result)) {}
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         if (index == 0) {
-            DynamicUserInfoView* item =
-                (DynamicUserInfoView*)recycler->dequeueReusableCell("CellAll");
+            DynamicUserInfoView* item = (DynamicUserInfoView*)recycler->dequeueReusableCell("CellAll");
             return item;
         }
 
         //从缓存列表中取出 或者 新生成一个表单项
-        DynamicUserInfoView* item =
-            (DynamicUserInfoView*)recycler->dequeueReusableCell("Cell");
+        DynamicUserInfoView* item = (DynamicUserInfoView*)recycler->dequeueReusableCell("Cell");
 
         auto& r = this->list[index - 1];
-        item->setUserInfo(r.user_profile.info.face + ImageHelper::face_ext,
-                          r.user_profile.info.uname);
+        item->setUserInfo(r.user_profile.info.face + ImageHelper::face_ext, r.user_profile.info.uname);
         return item;
     }
 
@@ -94,25 +85,20 @@ private:
 
 class DataSourceDynamicVideoList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceDynamicVideoList(bilibili::DynamicVideoListResult result)
-        : list(std::move(result)) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
+    explicit DataSourceDynamicVideoList(bilibili::DynamicVideoListResult result) : list(std::move(result)) {}
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
-        RecyclingGridItemVideoCard* item =
-            (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
+        RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         auto& r = this->list[index];
-        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name,
-                      r.pubdate, r.stat.view, r.stat.danmaku, r.duration);
+        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name, r.pubdate, r.stat.view, r.stat.danmaku,
+                      r.duration);
         return item;
     }
 
     size_t getItemCount() override { return list.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        Intent::openBV(list[index].bvid);
-    }
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override { Intent::openBV(list[index].bvid); }
 
     void appendData(const bilibili::DynamicVideoListResult& data) {
         bool skip = false;
@@ -141,19 +127,14 @@ DynamicTab::DynamicTab() {
     brls::Logger::debug("Fragment DynamicTab: create");
 
     // 初始化左侧Up主列表
-    upRecyclingGrid->registerCell(
-        "Cell", []() { return DynamicUserInfoView::create(); });
-    upRecyclingGrid->registerCell("CellAll", []() {
-        return DynamicUserInfoView::create(
-            "xml/views/user_info_dynamic_all.xml");
-    });
-    upRecyclingGrid->setDataSource(
-        new DataSourceUpList(bilibili::DynamicUpListResult()));
+    upRecyclingGrid->registerCell("Cell", []() { return DynamicUserInfoView::create(); });
+    upRecyclingGrid->registerCell("CellAll",
+                                  []() { return DynamicUserInfoView::create("xml/views/user_info_dynamic_all.xml"); });
+    upRecyclingGrid->setDataSource(new DataSourceUpList(bilibili::DynamicUpListResult()));
     this->DynamicTabRequest::requestData();
 
     // 初始化右侧视频列表
-    videoRecyclingGrid->registerCell(
-        "Cell", []() { return RecyclingGridItemVideoCard::create(); });
+    videoRecyclingGrid->registerCell("Cell", []() { return RecyclingGridItemVideoCard::create(); });
     videoRecyclingGrid->onNextPage([this]() {
         //自动加载下一页
         this->DynamicVideoRequest::requestData();
@@ -177,9 +158,7 @@ DynamicTab::DynamicTab() {
     this->DynamicVideoRequest::requestData();
 }
 
-DynamicTab::~DynamicTab() {
-    brls::Logger::debug("Fragment DynamicTabActivity: delete");
-}
+DynamicTab::~DynamicTab() { brls::Logger::debug("Fragment DynamicTabActivity: delete"); }
 
 brls::View* DynamicTab::create() { return new DynamicTab(); }
 
@@ -187,8 +166,7 @@ void DynamicTab::onUpList(const bilibili::DynamicUpListResultWrapper& result) {
     brls::Threading::sync([this, result]() {
         auto dataSource = new DataSourceUpList(result.items);
         upRecyclingGrid->setDataSource(dataSource);
-        dataSource->getSelectedEvent()->subscribe(
-            [this](int64_t mid) { this->changeUser(mid); });
+        dataSource->getSelectedEvent()->subscribe([this](int64_t mid) { this->changeUser(mid); });
     });
 }
 
@@ -196,25 +174,22 @@ void DynamicTab::onError(const std::string& error) {
     brls::Logger::error("DynamicTab::onError {}", error);
     brls::sync([this, error]() {
         videoRecyclingGrid->setError(error);
-        upRecyclingGrid->setDataSource(
-            new DataSourceUpList(bilibili::DynamicUpListResult()));
+        upRecyclingGrid->setDataSource(new DataSourceUpList(bilibili::DynamicUpListResult()));
     });
 }
 
 void DynamicTab::onCreate() {
-    this->registerTabAction("wiliwili/activity/refresh"_i18n,
-                            brls::ControllerButton::BUTTON_X,
+    this->registerTabAction("wiliwili/activity/refresh"_i18n, brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
                                 this->setCurrentUser(0);
                                 this->videoRecyclingGrid->refresh();
                                 return true;
                             });
-    this->videoRecyclingGrid->registerAction(
-        "wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
-        [this](brls::View* view) -> bool {
-            this->videoRecyclingGrid->refresh();
-            return true;
-        });
+    this->videoRecyclingGrid->registerAction("wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
+                                             [this](brls::View* view) -> bool {
+                                                 this->videoRecyclingGrid->refresh();
+                                                 return true;
+                                             });
 }
 
 void DynamicTab::changeUser(int64_t mid) {
@@ -224,19 +199,16 @@ void DynamicTab::changeUser(int64_t mid) {
 }
 
 // 获取到动态视频
-void DynamicTab::onDynamicVideoList(
-    const bilibili::DynamicVideoListResult& result, unsigned int index) {
+void DynamicTab::onDynamicVideoList(const bilibili::DynamicVideoListResult& result, unsigned int index) {
     brls::Threading::sync([this, result, index]() {
-        auto* datasource = dynamic_cast<DataSourceDynamicVideoList*>(
-            videoRecyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourceDynamicVideoList*>(videoRecyclingGrid->getDataSource());
         if (datasource && index != 1) {
             if (!result.empty()) {
                 datasource->appendData(result);
                 videoRecyclingGrid->notifyDataChanged();
             }
         } else {
-            videoRecyclingGrid->setDataSource(
-                new DataSourceDynamicVideoList(result));
+            videoRecyclingGrid->setDataSource(new DataSourceDynamicVideoList(result));
         }
     });
 }

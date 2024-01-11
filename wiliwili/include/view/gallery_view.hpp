@@ -8,7 +8,13 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
+namespace brls {
+class Image;
+class Label;
+}  // namespace brls
 
 typedef std::pair<std::string, std::string> GalleryItemData;
 typedef std::vector<GalleryItemData> GalleryData;
@@ -59,8 +65,8 @@ public:
 
     void setIndicatorPosition(float height);
 
-    void draw(NVGcontext *vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext *ctx) override;
+    void draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext *ctx) override;
 
 private:
     GalleryData data;

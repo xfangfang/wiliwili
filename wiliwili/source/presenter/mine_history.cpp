@@ -9,8 +9,7 @@
 
 using namespace brls::literals;
 
-void MineHistoryRequest::onHistoryList(
-    const bilibili::HistoryVideoResultWrapper &result) {}
+void MineHistoryRequest::onHistoryList(const bilibili::HistoryVideoResultWrapper &result) {}
 
 void MineHistoryRequest::onError(const std::string &error) {}
 

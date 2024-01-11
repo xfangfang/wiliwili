@@ -7,16 +7,12 @@
 #include "bilibili/result/home_result.h"
 #include "presenter.h"
 
-enum class FeedType {
-    V1,
-    CLIENT_SELECTED
-};
+enum class FeedType { V1, CLIENT_SELECTED };
 class Home : public Presenter {
 public:
     Home() : requestPage(1) {}
 
-    virtual void onRecommendVideoList(
-        const bilibili::RecommendVideoListResultWrapper &result);
+    virtual void onRecommendVideoList(const bilibili::RecommendVideoListResultWrapper &result);
     virtual void onError(const std::string &error);
 
     void requestData(bool refresh = false, FeedType type = FeedType::V1);

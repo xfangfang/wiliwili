@@ -2,8 +2,11 @@
 // Created by fang on 2022/7/12.
 //
 
-#include <borealis.hpp>
 #include <utility>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/applet_frame.hpp>
+
 #include "fragment/home_live.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
@@ -100,9 +103,7 @@ const std::string GridMainAreaCellContentXML = R"xml(
 
 class GridMainAreaCell : public RecyclingGridItem {
 public:
-    GridMainAreaCell() {
-        this->inflateFromXMLString(GridMainAreaCellContentXML);
-    }
+    GridMainAreaCell() { this->inflateFromXMLString(GridMainAreaCellContentXML); }
 
     void setData(const std::string& name, const std::string& pic) {
         title->setText(name);
@@ -113,9 +114,7 @@ public:
         }
     }
 
-    void setSelected(bool value) {
-        this->title->setTextColor(value ? selectedColor : fontColor);
-    }
+    void setSelected(bool value) { this->title->setTextColor(value ? selectedColor : fontColor); }
 
     void prepareForReuse() override {
         //准备显示该项
@@ -133,33 +132,26 @@ protected:
     BRLS_BIND(brls::Label, title, "area/title");
     BRLS_BIND(brls::Image, image, "area/avatar");
 
-    NVGcolor selectedColor =
-        brls::Application::getTheme().getColor("color/bilibili");
-    NVGcolor fontColor = brls::Application::getTheme().getColor("brls/text");
+    NVGcolor selectedColor = brls::Application::getTheme().getColor("color/bilibili");
+    NVGcolor fontColor     = brls::Application::getTheme().getColor("brls/text");
 };
 
 class DataSourceLiveVideoList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceLiveVideoList(bilibili::LiveVideoListResult result)
-        : videoList(std::move(result)) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
+    explicit DataSourceLiveVideoList(bilibili::LiveVideoListResult result) : videoList(std::move(result)) {}
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
-        RecyclingGridItemLiveVideoCard* item =
-            (RecyclingGridItemLiveVideoCard*)recycler->dequeueReusableCell(
-                "Cell");
+        RecyclingGridItemLiveVideoCard* item = (RecyclingGridItemLiveVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::LiveVideoResult& r = this->videoList[index];
-        item->setCard(r.cover + ImageHelper::h_ext, r.title, r.uname,
-                      r.area_name, r.online, r.following);
+        item->setCard(r.cover + ImageHelper::h_ext, r.title, r.uname, r.area_name, r.online, r.following);
         return item;
     }
 
     size_t getItemCount() override { return videoList.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        Intent::openLive(videoList[index].roomid, videoList[index].title,
-                         videoList[index].watched_show.text_large);
+        Intent::openLive(videoList[index].roomid, videoList[index].title, videoList[index].watched_show.text_large);
     }
 
     void appendData(const bilibili::LiveVideoListResult& data) {
@@ -176,12 +168,10 @@ typedef brls::Event<const bilibili::LiveFullAreaResult> AreaSelectedEvent;
 
 class DataSourceLiveMainAreaList : public RecyclingGridDataSource {
 public:
-    DataSourceLiveMainAreaList(bilibili::LiveFullAreaListResult result,
-                               size_t mainIndex)
+    DataSourceLiveMainAreaList(bilibili::LiveFullAreaListResult result, size_t mainIndex)
         : areaList(std::move(result)), defaultIndex(mainIndex) {}
 
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         auto item = (GridMainAreaCell*)recycler->dequeueReusableCell("Cell");
         auto& r   = this->areaList[index];
@@ -198,8 +188,7 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         this->areaSelectedEvent.fire(areaList[index]);
-        auto* item = dynamic_cast<GridMainAreaCell*>(
-            recycler->getGridItemByIndex(index));
+        auto* item                             = dynamic_cast<GridMainAreaCell*>(recycler->getGridItemByIndex(index));
         std::vector<RecyclingGridItem*>& items = recycler->getGridItems();
         for (auto& i : items) {
             auto* cell = dynamic_cast<GridMainAreaCell*>(i);
@@ -221,15 +210,12 @@ private:
 
 // 主分区id，子分区id，主分区名，子分区名，进入的分区id
 // 某个子分区可能位于全站推荐分区下，“进入的分区id” 这时为 0，其他情况同主分区id
-typedef brls::Event<int, int, std::string, std::string, int>
-    SubAreaSelectedEvent;
+typedef brls::Event<int, int, std::string, std::string, int> SubAreaSelectedEvent;
 
 class DataSourceLiveSubAreaList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceLiveSubAreaList(bilibili::LiveFullAreaResult result)
-        : areaList(std::move(result)) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
+    explicit DataSourceLiveSubAreaList(bilibili::LiveFullAreaResult result) : areaList(std::move(result)) {}
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         auto item = (GridSubAreaCell*)recycler->dequeueReusableCell("Cell");
         auto& r   = this->areaList.area_list[index];
@@ -240,16 +226,13 @@ public:
     size_t getItemCount() override { return areaList.area_list.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        this->subAreaSelectedEvent.fire(
-            areaList.area_list[index].parent_id, areaList.area_list[index].id,
-            areaList.name, areaList.area_list[index].name, areaList.id);
+        this->subAreaSelectedEvent.fire(areaList.area_list[index].parent_id, areaList.area_list[index].id,
+                                        areaList.name, areaList.area_list[index].name, areaList.id);
     }
 
     void clearData() override {}
 
-    SubAreaSelectedEvent* getSelectedEvent() {
-        return &this->subAreaSelectedEvent;
-    }
+    SubAreaSelectedEvent* getSelectedEvent() { return &this->subAreaSelectedEvent; }
 
 private:
     bilibili::LiveFullAreaResult areaList;
@@ -258,21 +241,15 @@ private:
 
 class HomeLiveArea : public EmptyDropdown {
 public:
-    HomeLiveArea(const bilibili::LiveFullAreaListResult& result, int mainID,
-                 int subID)
-        : areaList(result) {
+    HomeLiveArea(const bilibili::LiveFullAreaListResult& result, int mainID, int subID) : areaList(result) {
         this->inflateFromXMLRes("xml/fragment/home_live_area.xml");
 
-        mainGrid->registerCell("Cell",
-                               []() { return GridMainAreaCell::create(); });
-        subGrid->registerCell("Cell",
-                              []() { return GridSubAreaCell::create(); });
+        mainGrid->registerCell("Cell", []() { return GridMainAreaCell::create(); });
+        subGrid->registerCell("Cell", []() { return GridSubAreaCell::create(); });
 
-        applet->addGestureRecognizer(new brls::TapGestureRecognizer(
-            [this](brls::TapGestureStatus status, ...) {
-                if (status.position.y < this->content->getY())
-                    this->applet->dismiss();
-            }));
+        applet->addGestureRecognizer(new brls::TapGestureRecognizer([this](brls::TapGestureStatus status, ...) {
+            if (status.position.y < this->content->getY()) this->applet->dismiss();
+        }));
 
         if (result.empty()) return;
 
@@ -287,18 +264,15 @@ public:
 
         // 生成主分区数据源
         auto mainDS = new DataSourceLiveMainAreaList(result, mainIndex);
-        mainDS->getSelectedEvent()->subscribe(
-            [this](const auto& area) { this->selectMainArea(area, 0); });
+        mainDS->getSelectedEvent()->subscribe([this](const auto& area) { this->selectMainArea(area, 0); });
         mainGrid->setDefaultCellFocus(mainIndex);
         mainGrid->setDataSource(mainDS);
         this->selectMainArea(result[mainIndex], subID);
 
         // 计算高度
-        float height = (float)mainDS->getItemCount() * 70 +
-                       header->getHeight() + 150;  // bottom
+        float height = (float)mainDS->getItemCount() * 70 + header->getHeight() + 150;  // bottom
 
-        content->setHeight(
-            fmin(height, brls::Application::contentHeight * 0.73f));
+        content->setHeight(fmin(height, brls::Application::contentHeight * 0.73f));
     }
 
     void selectMainArea(const bilibili::LiveFullAreaResult& data, int subID) {
@@ -314,20 +288,15 @@ public:
         // 生成子分区数据源
         auto subDS = new DataSourceLiveSubAreaList(data);
         subDS->getSelectedEvent()->subscribe(
-            [this](int mainID, int subID, const std::string& mainName,
-                   const std::string& subName, int entryID) {
-                brls::Logger::debug("live main/{}/{} sub/{}/{}", mainID,
-                                    mainName, subID, subName);
-                subAreaSelectedEvent.fire(mainID, subID, mainName, subName,
-                                          entryID);
+            [this](int mainID, int subID, const std::string& mainName, const std::string& subName, int entryID) {
+                brls::Logger::debug("live main/{}/{} sub/{}/{}", mainID, mainName, subID, subName);
+                subAreaSelectedEvent.fire(mainID, subID, mainName, subName, entryID);
             });
         subGrid->setDefaultCellFocus(subIndex);
         subGrid->setDataSource(subDS);
     }
 
-    SubAreaSelectedEvent* getSelectedEvent() {
-        return &this->subAreaSelectedEvent;
-    }
+    SubAreaSelectedEvent* getSelectedEvent() { return &this->subAreaSelectedEvent; }
 
     View* getDefaultFocus() override { return this->subGrid; }
 
@@ -346,8 +315,7 @@ private:
 HomeLive::HomeLive() {
     this->inflateFromXMLRes("xml/fragment/home_live.xml");
     brls::Logger::debug("Fragment HomeLive: create");
-    recyclingGrid->registerCell(
-        "Cell", []() { return RecyclingGridItemLiveVideoCard::create(); });
+    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemLiveVideoCard::create(); });
     recyclingGrid->onNextPage([this]() { this->requestData(); });
     recyclingGrid->setRefreshAction([this]() {
         AutoTabFrame::focus2Sidebar(this);
@@ -360,11 +328,9 @@ HomeLive::HomeLive() {
     live_label->setText("推荐 - 全部推荐");
 }
 
-void HomeLive::onLiveList(const bilibili::LiveVideoListResult& result,
-                          int index) {
+void HomeLive::onLiveList(const bilibili::LiveVideoListResult& result, int index) {
     brls::Threading::sync([this, result, index]() {
-        auto* datasource = dynamic_cast<DataSourceLiveVideoList*>(
-            recyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourceLiveVideoList*>(recyclingGrid->getDataSource());
         if (datasource && index != 1) {
             if (result.empty()) return;
             if (!result.empty()) {
@@ -375,20 +341,17 @@ void HomeLive::onLiveList(const bilibili::LiveVideoListResult& result,
             if (result.empty())
                 recyclingGrid->setEmpty();
             else
-                recyclingGrid->setDataSource(
-                    new DataSourceLiveVideoList(result));
+                recyclingGrid->setDataSource(new DataSourceLiveVideoList(result));
         }
     });
 }
 
 void HomeLive::onCreate() {
-    this->live_box->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->live_box, [this]() {
-            this->switchChannel();
-            return true;
-        }));
-    this->registerTabAction("wiliwili/home/common/switch"_i18n,
-                            brls::ControllerButton::BUTTON_X,
+    this->live_box->addGestureRecognizer(new brls::TapGestureRecognizer(this->live_box, [this]() {
+        this->switchChannel();
+        return true;
+    }));
+    this->registerTabAction("wiliwili/home/common/switch"_i18n, brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
                                 this->switchChannel();
                                 return true;
@@ -401,8 +364,7 @@ void HomeLive::switchChannel() {
     AutoTabFrame::focus2Sidebar(this);
     auto* area = new HomeLiveArea(fullAreaList, staticEntry, staticSub);
     area->getSelectedEvent()->subscribe(
-        [this](int main, int sub, const std::string& mainName,
-               const std::string& subName, int entryID) {
+        [this](int main, int sub, const std::string& mainName, const std::string& subName, int entryID) {
             this->staticEntry = entryID;
             this->requestData(main, sub, 1);
             live_label->setText(mainName + " - " + subName);
@@ -416,8 +378,6 @@ void HomeLive::onError(const std::string& error) {
     brls::sync([this, error]() { this->recyclingGrid->setError(error); });
 }
 
-HomeLive::~HomeLive() {
-    brls::Logger::debug("Fragment HomeLiveActivity: delete");
-}
+HomeLive::~HomeLive() { brls::Logger::debug("Fragment HomeLiveActivity: delete"); }
 
 brls::View* HomeLive::create() { return new HomeLive(); }

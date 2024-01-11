@@ -23,8 +23,7 @@ public:
     VideoSimpleStateResult stat;
     RecommendReasonResult rcmd_reason;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsAllVideoResult, aid, bvid, cid, pic,
-                                   title, duration, pubdate, owner, stat);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsAllVideoResult, aid, bvid, cid, pic, title, duration, pubdate, owner, stat);
 
 typedef std::vector<HotsAllVideoResult> HotsAllVideoListResult;
 
@@ -33,7 +32,6 @@ public:
     HotsAllVideoListResult list;
     bool no_more;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsAllVideoListResultWrapper, list,
-                                   no_more);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsAllVideoListResultWrapper, list, no_more);
 
 };  // namespace bilibili

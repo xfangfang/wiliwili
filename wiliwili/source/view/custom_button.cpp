@@ -4,13 +4,9 @@
 
 #include "view/custom_button.hpp"
 
-CustomButton::CustomButton() {
-    brls::Logger::debug("View CustomButton: create");
-}
+CustomButton::CustomButton() { brls::Logger::debug("View CustomButton: create"); }
 
-CustomButton::~CustomButton() {
-    brls::Logger::debug("View CustomButton: delete");
-}
+CustomButton::~CustomButton() { brls::Logger::debug("View CustomButton: delete"); }
 
 brls::View* CustomButton::create() { return new CustomButton(); }
 
@@ -26,8 +22,7 @@ void CustomButton::onFocusGained() {
 
 brls::Event<bool>* CustomButton::getFocusEvent() { return &this->focusEvent; }
 
-brls::View* CustomButton::getNextFocus(brls::FocusDirection direction,
-                                       brls::View* currentView) {
+brls::View* CustomButton::getNextFocus(brls::FocusDirection direction, brls::View* currentView) {
     brls::View* next = nullptr;
     if (this->customNavigation) {
         next = this->customNavigation(direction);
@@ -38,7 +33,6 @@ brls::View* CustomButton::getNextFocus(brls::FocusDirection direction,
     return next;
 }
 
-void CustomButton::setCustomNavigation(
-    std::function<brls::View*(brls::FocusDirection)> navigation) {
+void CustomButton::setCustomNavigation(std::function<brls::View*(brls::FocusDirection)> navigation) {
     this->customNavigation = navigation;
 }

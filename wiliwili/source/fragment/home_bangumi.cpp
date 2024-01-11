@@ -2,6 +2,8 @@
 // Created by fang on 2022/7/14.
 //
 
+#include <borealis/core/thread.hpp>
+
 #include "fragment/home_bangumi.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"
@@ -21,8 +23,7 @@ HomeBangumi::HomeBangumi() {
 }
 
 void HomeBangumi::onCreate() {
-    this->registerTabAction("wiliwili/home/common/refresh"_i18n,
-                            brls::ControllerButton::BUTTON_X,
+    this->registerTabAction("wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
                                 this->tabFrame->refresh();
                                 return true;
@@ -46,11 +47,9 @@ void HomeBangumi::onCreate() {
 }
 
 void HomeBangumi::onBangumiList(const bilibili::PGCResultWrapper& result) {
-    if (this->refresh_flag == 1 && this->tabFrame->getActiveTab() != nullptr &&
-        !result.modules.empty()) {
+    if (this->refresh_flag == 1 && this->tabFrame->getActiveTab() != nullptr && !result.modules.empty()) {
         // 加载的是 猜你喜欢的第N页
-        auto tab =
-            (AttachedView*)this->tabFrame->getActiveTab();  // 猜你喜欢页面
+        auto tab  = (AttachedView*)this->tabFrame->getActiveTab();  // 猜你喜欢页面
         auto grid = (RecyclingGrid*)tab->getChildren()[0];
 
         auto* datasource = (DataSourcePGCVideoList*)grid->getDataSource();
@@ -83,29 +82,20 @@ void HomeBangumi::onBangumiList(const bilibili::PGCResultWrapper& result) {
                     grid->applyXMLAttribute("itemSpace", "20");
                     grid->spanCount = span4;
                     grid->applyXMLAttribute("itemHeight", "200");
-                    grid->registerCell("Cell", []() {
-                        return RecyclingGridItemPGCVideoCard::create(false);
-                    });
-                    grid->registerCell("CellMore", []() {
-                        return RecyclingGridItemViewMoreCard::create(false);
-                    });
+                    grid->registerCell("Cell", []() { return RecyclingGridItemPGCVideoCard::create(false); });
+                    grid->registerCell("CellMore", []() { return RecyclingGridItemViewMoreCard::create(false); });
 
                     // 猜你喜欢tab 监控下一页请求
                     if (i.style == "double_feed") {
-                        grid->onNextPage(
-                            [this]() { this->requestData(false); });
+                        grid->onNextPage([this]() { this->requestData(false); });
                     }
                 } else {
                     // 封面竖图
                     grid->applyXMLAttribute("itemSpace", "31.4");
                     grid->spanCount = span5;
                     grid->applyXMLAttribute("itemHeight", "320");
-                    grid->registerCell("Cell", []() {
-                        return RecyclingGridItemPGCVideoCard::create(true);
-                    });
-                    grid->registerCell("CellMore", []() {
-                        return RecyclingGridItemViewMoreCard::create(true);
-                    });
+                    grid->registerCell("Cell", []() { return RecyclingGridItemPGCVideoCard::create(true); });
+                    grid->registerCell("CellMore", []() { return RecyclingGridItemViewMoreCard::create(true); });
                 }
 
                 container->addView(grid);
@@ -116,9 +106,7 @@ void HomeBangumi::onBangumiList(const bilibili::PGCResultWrapper& result) {
     });
 }
 
-HomeBangumi::~HomeBangumi() {
-    brls::Logger::debug("Fragment HomeBangumiActivity: delete");
-}
+HomeBangumi::~HomeBangumi() { brls::Logger::debug("Fragment HomeBangumiActivity: delete"); }
 
 brls::View* HomeBangumi::create() { return new HomeBangumi(); }
 

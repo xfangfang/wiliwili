@@ -9,7 +9,12 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
+namespace brls {
+class Label;
+}
 
 class VideoProfile : public brls::Box {
 public:
@@ -17,8 +22,8 @@ public:
 
     void update();
 
-    void draw(NVGcontext *vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext *ctx) override;
+    void draw(NVGcontext *vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext *ctx) override;
 
     ~VideoProfile() override;
 

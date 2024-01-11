@@ -12,12 +12,9 @@
 SearchHistory::SearchHistory() {
     this->inflateFromXMLRes("xml/fragment/search_history.xml");
     brls::Logger::debug("Fragment SearchHistory: create");
-    recyclingGrid->registerCell(
-        "Cell", []() { return RecyclingGridItemHotsCard::create(); });
+    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemHotsCard::create(); });
 
-    this->registerFloatXMLAttribute("spanCount", [this](float value) {
-        this->recyclingGrid->spanCount = (int)value;
-    });
+    this->registerFloatXMLAttribute("spanCount", [this](float value) { this->recyclingGrid->spanCount = (int)value; });
 }
 
 brls::View *SearchHistory::create() { return new SearchHistory(); }
@@ -32,10 +29,8 @@ public:
     HistoryDataSource(std::vector<std::string> result, UpdateSearchEvent **u)
         : list(std::move(result)), updateSearchEvent(u) {}
 
-    RecyclingGridItem *cellForRow(RecyclingGrid *recycler,
-                                  size_t index) override {
-        auto *item =
-            (RecyclingGridItemHotsCard *)recycler->dequeueReusableCell("Cell");
+    RecyclingGridItem *cellForRow(RecyclingGrid *recycler, size_t index) override {
+        auto *item = (RecyclingGridItemHotsCard *)recycler->dequeueReusableCell("Cell");
         item->setCard(std::to_string(index + 1), this->list[index], "");
         return item;
     }
@@ -56,12 +51,10 @@ private:
 };
 
 void SearchHistory::requestHistory() {
-    recyclingGrid->setDataSource(new HistoryDataSource(
-        ProgramConfig::instance().getHistoryList(), &this->updateSearchEvent));
+    recyclingGrid->setDataSource(
+        new HistoryDataSource(ProgramConfig::instance().getHistoryList(), &this->updateSearchEvent));
 }
 
-void SearchHistory::setSearchCallback(UpdateSearchEvent *event) {
-    this->updateSearchEvent = event;
-}
+void SearchHistory::setSearchCallback(UpdateSearchEvent *event) { this->updateSearchEvent = event; }
 
 RecyclingGrid *SearchHistory::getRecyclingGrid() { return this->recyclingGrid; }

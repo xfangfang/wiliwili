@@ -21,8 +21,7 @@ class HomeHotsHistory : public AttachedView, public HomeHotsHistoryRequest {
 public:
     HomeHotsHistory();
 
-    void onHotsHistoryList(const bilibili::HotsHistoryVideoListResult& result,
-                           const std::string& explain) override;
+    void onHotsHistoryList(const bilibili::HotsHistoryVideoListResult& result, const std::string& explain) override;
 
     ~HomeHotsHistory();
 

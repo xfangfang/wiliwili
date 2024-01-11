@@ -4,11 +4,16 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <unordered_map>
+#include <vector>
+#include <string>
+#include <cstdlib>
+#include <fmt/format.h>
+#include <borealis/core/geometry.hpp>
 #include <borealis/core/singleton.hpp>
+#include <borealis/core/logger.hpp>
 #include <mpv/client.h>
 #include <mpv/render.h>
-#include <fmt/format.h>
 #if defined(MPV_SW_RENDER)
 #elif defined(BOREALIS_USE_DEKO3D)
 #include <mpv/render_dk3d.h>
@@ -47,31 +52,7 @@ struct GLShader {
 #endif
 #endif
 
-typedef enum MpvEventEnum {
-    MPV_LOADED,
-    MPV_PAUSE,
-    MPV_RESUME,
-    MPV_IDLE,
-    MPV_STOP,
-    MPV_FILE_ERROR,
-    LOADING_START,
-    LOADING_END,
-    UPDATE_DURATION,
-    UPDATE_PROGRESS,
-    START_FILE,
-    END_OF_FILE,
-    CACHE_SPEED_CHANGE,
-    VIDEO_SPEED_CHANGE,
-    VIDEO_VOLUME_CHANGE,
-    VIDEO_MUTE,
-    VIDEO_UNMUTE,
-    RESET,
-} MpvEventEnum;
-
-typedef brls::Event<MpvEventEnum> MPVEvent;
-typedef brls::Event<std::string, void *> MPVCustomEvent;
-#define MPV_E MPVCore::instance().getEvent()
-#define MPV_CE MPVCore::instance().getCustomEvent()
+#include "utils/event_helper.hpp"
 
 class MPVCore : public brls::Singleton<MPVCore> {
 public:
@@ -101,8 +82,7 @@ public:
     std::string getString(const std::string &key);
     double getDouble(const std::string &key);
     int64_t getInt(const std::string &key);
-    std::unordered_map<std::string, mpv_node> getNodeMap(
-        const std::string &key);
+    std::unordered_map<std::string, mpv_node> getNodeMap(const std::string &key);
 
     /// Set MPV States
 
@@ -112,8 +92,7 @@ public:
      * @param extra 额外的参数，如 referrer、audio 等，详情见 mpv 文档
      * @param method 行为，默认为替换当前视频，详情见 mpv 文档
      */
-    void setUrl(const std::string &url, const std::string &extra = "",
-                const std::string &method = "replace");
+    void setUrl(const std::string &url, const std::string &extra = "", const std::string &method = "replace");
 
     /**
      * 设置备用链接（可多次调用）
@@ -228,20 +207,13 @@ public:
     MPVEvent *getEvent();
 
     /**
-     * 可以用于共享自定义事件
-     * 传递内容为: string类型的事件名与一个任意类型的指针
-     */
-    MPVCustomEvent *getCustomEvent();
-
-    /**
      * 重启 MPV，用于某些需要重启才能设置的选项
      */
     void restart();
 
     void reset();
 
-    void setShader(const std::string &profile, const std::string &shaders,
-                   bool showHint = true);
+    void setShader(const std::string &profile, const std::string &shaders, bool showHint = true);
 
     void clearShader(bool showHint = true);
 
@@ -252,8 +224,7 @@ public:
             brls::Logger::error("mpv is not initialized");
             return;
         }
-        std::vector<std::string> commands = {
-            fmt::format("{}", std::forward<Args>(args))...};
+        std::vector<std::string> commands = {fmt::format("{}", std::forward<Args>(args))...};
 
         std::vector<const char *> res;
         res.reserve(commands.size() + 1);
@@ -341,10 +312,8 @@ private:
     void *pixels                   = nullptr;
     bool redraw                    = false;
     mpv_render_param mpv_params[5] = {
-        {MPV_RENDER_PARAM_SW_SIZE, &sw_size[0]},
-        {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
-        {MPV_RENDER_PARAM_SW_STRIDE, &pitch},
-        {MPV_RENDER_PARAM_SW_POINTER, pixels},
+        {MPV_RENDER_PARAM_SW_SIZE, &sw_size[0]}, {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
+        {MPV_RENDER_PARAM_SW_STRIDE, &pitch},    {MPV_RENDER_PARAM_SW_POINTER, pixels},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(BOREALIS_USE_DEKO3D)
@@ -379,16 +348,12 @@ private:
         {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
-    float vertices[20] = {1.0f, 1.0f,  0.0f, 1.0f,  1.0f,  1.0f, -1.0f,
-                          0.0f, 1.0f,  0.0f, -1.0f, -1.0f, 0.0f, 0.0f,
-                          0.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f};
+    float vertices[20] = {1.0f,  1.0f,  0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+                          -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f};
 #endif
 
     // MPV 内部事件，传递内容为: 事件类型
     MPVEvent mpvCoreEvent;
-
-    // 自定义的事件，传递内容为: string类型的事件名与一个任意类型的指针
-    MPVCustomEvent mpvCoreCustomEvent;
 
     // 当前软件是否在前台的回调
     brls::Event<bool>::Subscription focusSubscription;

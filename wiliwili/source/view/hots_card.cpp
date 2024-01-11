@@ -5,15 +5,11 @@
 #include "view/hots_card.hpp"
 #include "utils/image_helper.hpp"
 
-RecyclingGridItemHotsCard::RecyclingGridItemHotsCard() {
-    this->inflateFromXMLRes("xml/views/hots_card.xml");
-}
+RecyclingGridItemHotsCard::RecyclingGridItemHotsCard() { this->inflateFromXMLRes("xml/views/hots_card.xml"); }
 
 RecyclingGridItemHotsCard::~RecyclingGridItemHotsCard() = default;
 
-void RecyclingGridItemHotsCard::setCard(const std::string& prefix,
-                                        const std::string& name,
-                                        const std::string& image) {
+void RecyclingGridItemHotsCard::setCard(const std::string& prefix, const std::string& name, const std::string& image) {
     this->order->setText(prefix);
     this->content->setText(name);
     if (image.empty()) {
@@ -24,10 +20,6 @@ void RecyclingGridItemHotsCard::setCard(const std::string& prefix,
     }
 }
 
-void RecyclingGridItemHotsCard::cacheForReuse() {
-    ImageHelper::clear(this->icon);
-}
+void RecyclingGridItemHotsCard::cacheForReuse() { ImageHelper::clear(this->icon); }
 
-RecyclingGridItemHotsCard* RecyclingGridItemHotsCard::create() {
-    return new RecyclingGridItemHotsCard();
-}
+RecyclingGridItemHotsCard* RecyclingGridItemHotsCard::create() { return new RecyclingGridItemHotsCard(); }

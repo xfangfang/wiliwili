@@ -2,19 +2,20 @@
 // Created by fang on 2022/7/9.
 //
 
+#include <borealis/views/applet_frame.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+
 #include "view/grid_dropdown.hpp"
 
 /// EmptyDropDown
 
-void EmptyDropdown::show(std::function<void(void)> cb, bool animate,
-                         float animationDuration) {
+void EmptyDropdown::show(std::function<void(void)> cb, bool animate, float animationDuration) {
     if (animate) {
         content->setTranslationY(30.0f);
 
         showOffset.stop();
         showOffset.reset(30.0f);
-        showOffset.addStep(0, animationDuration,
-                           brls::EasingFunction::quadraticOut);
+        showOffset.addStep(0, animationDuration, brls::EasingFunction::quadraticOut);
         showOffset.setTickCallback([this] { this->offsetTick(); });
         showOffset.start();
     }
@@ -27,49 +28,40 @@ void EmptyDropdown::show(std::function<void(void)> cb, bool animate,
 
         applet->alpha.stop();
         applet->alpha.reset(0);
-        applet->alpha.addStep(1, animationDuration,
-                              brls::EasingFunction::quadraticOut);
+        applet->alpha.addStep(1, animationDuration, brls::EasingFunction::quadraticOut);
         applet->alpha.start();
     }
 }
 
-void EmptyDropdown::hide(std::function<void(void)> cb, bool animated,
-                         float animationDuration) {
+void EmptyDropdown::hide(std::function<void(void)> cb, bool animated, float animationDuration) {
     if (animated) {
         alpha.stop();
         alpha.reset(0);
 
         applet->alpha.stop();
         applet->alpha.reset(1);
-        applet->alpha.addStep(0, animationDuration,
-                              brls::EasingFunction::quadraticOut);
+        applet->alpha.addStep(0, animationDuration, brls::EasingFunction::quadraticOut);
         applet->alpha.start();
     }
 
     Box::hide(cb, animated, animationDuration);
 }
 
-void EmptyDropdown::dismiss(std::function<void(void)> cb) {
-    this->applet->dismiss(cb);
-}
+void EmptyDropdown::dismiss(std::function<void(void)> cb) { this->applet->dismiss(cb); }
 
 bool EmptyDropdown::isTranslucent() { return true; }
 
 brls::Box* EmptyDropdown::getContentView() { return content; }
 
 /// GridRadioCell
-GridRadioCell::GridRadioCell() {
-    this->inflateFromXMLRes("xml/views/grid_radio_cell.xml");
-}
+GridRadioCell::GridRadioCell() { this->inflateFromXMLRes("xml/views/grid_radio_cell.xml"); }
 
 void GridRadioCell::setSelected(bool selected) {
     brls::Theme theme = brls::Application::getTheme();
 
     this->selected = selected;
-    this->checkbox->setVisibility(selected ? brls::Visibility::VISIBLE
-                                           : brls::Visibility::GONE);
-    this->title->setTextColor(selected ? theme["brls/list/listItem_value_color"]
-                                       : theme["brls/text"]);
+    this->checkbox->setVisibility(selected ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
+    this->title->setTextColor(selected ? theme["brls/list/listItem_value_color"] : theme["brls/text"]);
 }
 
 bool GridRadioCell::getSelected() { return this->selected; }
@@ -79,15 +71,13 @@ RecyclingGridItem* GridRadioCell::create() { return new GridRadioCell(); }
 /// DataSourceDropdown
 
 void DataSourceDropdown::onItemSelected(RecyclingGrid* recycler, size_t index) {
-    brls::Application::popActivity(
-        brls::TransitionAnimation::FADE,
-        [this, index]() { this->dropdown->getSelectCallback()(index); });
+    brls::Application::popActivity(brls::TransitionAnimation::FADE,
+                                   [this, index]() { this->dropdown->getSelectCallback()(index); });
 }
 
 /// TextDropdown
 
-RecyclingGridItem* TextDataSourceDropdown::cellForRow(RecyclingGrid* recycler,
-                                                      size_t index) {
+RecyclingGridItem* TextDataSourceDropdown::cellForRow(RecyclingGrid* recycler, size_t index) {
     GridRadioCell* item = (GridRadioCell*)recycler->dequeueReusableCell("Cell");
 
     auto r = this->data[index];
@@ -102,8 +92,7 @@ void TextDataSourceDropdown::clearData() { this->data.clear(); }
 
 /// BaseDropdown
 
-BaseDropdown::BaseDropdown(const std::string& title,
-                           ValueSelectedEvent::Callback cb, int selected)
+BaseDropdown::BaseDropdown(const std::string& title, ValueSelectedEvent::Callback cb, int selected)
     : cb(std::move(cb)), selected(selected) {
     this->inflateFromXMLRes("xml/views/grid_dropdown.xml");
     this->title->setText(title);
@@ -112,8 +101,7 @@ BaseDropdown::BaseDropdown(const std::string& title,
         this->applet->dismiss();
         return true;
     });
-    this->cancel->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->cancel));
+    this->cancel->addGestureRecognizer(new brls::TapGestureRecognizer(this->cancel));
 
     this->setWidth(brls::Application::ORIGINAL_WINDOW_WIDTH);
 }
@@ -127,17 +115,15 @@ void BaseDropdown::setDataSource(DataSourceDropdown* dataSource) {
 
     brls::Style style = brls::Application::getStyle();
 
-    float height =
-        dataSource->getItemCount() * style["brls/dropdown/listItemHeight"] +
-        header->getHeight() + style["brls/dropdown/listPadding"]  // top
-        + style["brls/dropdown/listPadding"]                      // bottom
+    float height = dataSource->getItemCount() * style["brls/dropdown/listItemHeight"] + header->getHeight() +
+                   style["brls/dropdown/listPadding"]    // top
+                   + style["brls/dropdown/listPadding"]  // bottom
         ;
 
     content->setHeight(fmin(height, brls::Application::contentHeight * 0.73f));
 }
 
-brls::View* BaseDropdown::getParentNavigationDecision(
-    View* from, View* newFocus, brls::FocusDirection direction) {
+brls::View* BaseDropdown::getParentNavigationDecision(View* from, View* newFocus, brls::FocusDirection direction) {
     View* result = Box::getParentNavigationDecision(from, newFocus, direction);
 
     auto* cell = dynamic_cast<RecyclingGridItem*>(result);
@@ -148,27 +134,19 @@ brls::View* BaseDropdown::getParentNavigationDecision(
     return result;
 }
 
-brls::Event<RecyclingGridItem*>* BaseDropdown::getCellFocusDidChangeEvent() {
-    return &cellFocusDidChangeEvent;
-}
+brls::Event<RecyclingGridItem*>* BaseDropdown::getCellFocusDidChangeEvent() { return &cellFocusDidChangeEvent; }
 
 size_t BaseDropdown::getSelected() const { return this->selected; }
 
-ValueSelectedEvent::Callback BaseDropdown::getSelectCallback() {
-    return this->cb;
-}
+ValueSelectedEvent::Callback BaseDropdown::getSelectCallback() { return this->cb; }
 
-BaseDropdown* BaseDropdown::text(const std::string& title,
-                                 const std::vector<std::string>& values,
-                                 ValueSelectedEvent::Callback cb,
-                                 int selected) {
+BaseDropdown* BaseDropdown::text(const std::string& title, const std::vector<std::string>& values,
+                                 ValueSelectedEvent::Callback cb, int selected) {
     auto* dropdown = new BaseDropdown(title, std::move(cb), selected);
     dropdown->getRecyclingList()->registerCell("Cell", []() {
         auto* cell = new GridRadioCell();
-        cell->setHeight(
-            brls::Application::getStyle()["brls/dropdown/listItemHeight"]);
-        cell->title->setFontSize(
-            brls::Application::getStyle()["brls/dropdown/listItemTextSize"]);
+        cell->setHeight(brls::Application::getStyle()["brls/dropdown/listItemHeight"]);
+        cell->title->setFontSize(brls::Application::getStyle()["brls/dropdown/listItemTextSize"]);
         return cell;
     });
     dropdown->setDataSource(new TextDataSourceDropdown(values, dropdown));

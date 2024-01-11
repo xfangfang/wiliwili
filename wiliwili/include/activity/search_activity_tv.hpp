@@ -4,9 +4,14 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/activity.hpp>
+#include <borealis/core/bind.hpp>
+
 #include "presenter/presenter.h"
 
+namespace brls {
+class Label;
+}
 class RecyclingGrid;
 class SearchHots;
 class SearchHistory;

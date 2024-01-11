@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/views/label.hpp>
 
 class HintLabel : public brls::Label {
 public:

@@ -2,8 +2,12 @@
 // Created by fang on 2022/8/24.
 //
 
-#include "activity/pgc_index_activity.hpp"
 #include <pystring.h>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/applet_frame.hpp>
+
+#include "activity/pgc_index_activity.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "view/auto_tab_frame.hpp"
@@ -14,15 +18,12 @@
 using namespace brls::literals;
 
 /// 辅助映射 页面出现的顺序
-const std::map<std::string, int> INDEX_TYPE_MAP = {
-    {"1", 0}, {"2", 1}, {"5", 2}, {"3", 3}, {"7", 4}, {"102", 5}};
-const std::vector<std::string> INDEX_TYPE_VECTOR = {"1", "2", "5",
-                                                    "3", "7", "102"};
+const std::map<std::string, int> INDEX_TYPE_MAP  = {{"1", 0}, {"2", 1}, {"5", 2}, {"3", 3}, {"7", 4}, {"102", 5}};
+const std::vector<std::string> INDEX_TYPE_VECTOR = {"1", "2", "5", "3", "7", "102"};
 
 /// 辅助映射：index_type -> index name
-const std::map<std::string, std::string> INDEX_TYPE_NAME_MAP = {
-    {"1", "追番"},   {"2", "电影"}, {"5", "电视剧"},
-    {"3", "纪录片"}, {"7", "综艺"}, {"102", "影视综合"}};
+const std::map<std::string, std::string> INDEX_TYPE_NAME_MAP = {{"1", "追番"},   {"2", "电影"}, {"5", "电视剧"},
+                                                                {"3", "纪录片"}, {"7", "综艺"}, {"102", "影视综合"}};
 
 /// 检索行中的一项
 
@@ -106,9 +107,7 @@ public:
 
     size_t getSelectedIndex() { return this->selectedIndex; }
 
-    IndexItemSinglePairData getData() {
-        return std::make_pair(data.field, data.values[selectedIndex].keyword);
-    }
+    IndexItemSinglePairData getData() { return std::make_pair(data.field, data.values[selectedIndex].keyword); }
 
     void setSelectedIndex(std::string value) {
         auto& children = this->getChildren();
@@ -171,23 +170,20 @@ public:
         }
 
         tabFrame->setHideClickAnimation(true);
-        tabFrame->registerAction("hints/back"_i18n, brls::BUTTON_B,
-                                 [this](View* view) {
-                                     this->close([this]() { this->dismiss(); });
-                                     return true;
-                                 });
+        tabFrame->registerAction("hints/back"_i18n, brls::BUTTON_B, [this](View* view) {
+            this->close([this]() { this->dismiss(); });
+            return true;
+        });
         tabFrame->registerClickAction([this](...) {
             auto data = this->getData();
             for (const auto& i : data) {
-                brls::Logger::debug("Got request params: {} / {}", i.first,
-                                    i.second);
+                brls::Logger::debug("Got request params: {} / {}", i.first, i.second);
             }
             this->event.fire(data);
             this->close([this]() { this->dismiss(); });
             return true;
         });
-        tabFrame->addGestureRecognizer(
-            new brls::TapGestureRecognizer(tabFrame));
+        tabFrame->addGestureRecognizer(new brls::TapGestureRecognizer(tabFrame));
 
         this->registerAction(
             "上一项", brls::ControllerButton::BUTTON_LB,
@@ -218,8 +214,7 @@ public:
 
     void close(std::function<void()> cb = nullptr) {
         contentOffsetY.reset(0.0f);
-        this->startScrolling(-720.0, 200, brls::EasingFunction::quadraticOut,
-                             cb);
+        this->startScrolling(-720.0, 200, brls::EasingFunction::quadraticOut, cb);
     }
 
     UserRequestData getData() {
@@ -235,16 +230,13 @@ public:
         return res;
     }
 
-    std::vector<View*>& getIndexRows() const {
-        return ((AttachedView*)this->tabFrame->getActiveTab())->getChildren();
-    }
+    std::vector<View*>& getIndexRows() const { return ((AttachedView*)this->tabFrame->getActiveTab())->getChildren(); }
 
     // 打开检索表单时设置默认的tab与选项
     void setDefault(UserRequestData data) {
         if (data.count("index_type") == 0) return;  // 未包含 index_type
         std::string index_type = data["index_type"];
-        if (PGCIndexRequest::INDEX_FILTERS.count(index_type) == 0)
-            return;  //包含了不支持的 index_type
+        if (PGCIndexRequest::INDEX_FILTERS.count(index_type) == 0) return;  //包含了不支持的 index_type
 
         int index = INDEX_TYPE_MAP.at(index_type);
 
@@ -252,14 +244,12 @@ public:
         brls::sync([this, index, index_type, data]() {
             this->tabFrame->focusTab(index);
 
-            auto& items = PGCIndexRequest::INDEX_FILTERS[index_type]
-                              .filter;  // index_type 分类下的数据
+            auto& items = PGCIndexRequest::INDEX_FILTERS[index_type].filter;  // index_type 分类下的数据
 
             // 设置默认数据，从后向前遍历保证最后一个选中的是最上面的一行
             auto& rows = this->getIndexRows();
             if (rows.size() != items.size()) {
-                brls::Logger::error("错误的检索数据，页面行数: {} 数据行数: {}",
-                                    rows.size(), items.size());
+                brls::Logger::error("错误的检索数据，页面行数: {} 数据行数: {}", rows.size(), items.size());
                 return;
             }
             // 这里一定用int，不要再改回size_t了
@@ -280,18 +270,16 @@ public:
 
     IndexChangeEvent* getIndexChangeEvent() { return &this->event; }
 
-    void startScrolling(
-        float newScroll, float time = 300,
-        brls::EasingFunction func = brls::EasingFunction::quadraticOut,
-        std::function<void()> cb  = nullptr) {
+    void startScrolling(float newScroll, float time = 300,
+                        brls::EasingFunction func = brls::EasingFunction::quadraticOut,
+                        std::function<void()> cb  = nullptr) {
         if (newScroll == this->contentOffsetY) return;
 
         brls::Application::blockInputs();
         this->contentOffsetY.stop();
         this->contentOffsetY.reset();
         this->contentOffsetY.addStep(newScroll, time, func);
-        this->contentOffsetY.setTickCallback(
-            [this] { this->tabFrame->setTranslationY(this->contentOffsetY); });
+        this->contentOffsetY.setTickCallback([this] { this->tabFrame->setTranslationY(this->contentOffsetY); });
 
         this->contentOffsetY.setEndCallback([cb](bool finished) {
             if (cb) cb();
@@ -308,18 +296,13 @@ public:
 
 class DataSourcePGCIndexVideoList : public RecyclingGridDataSource {
 public:
-    DataSourcePGCIndexVideoList(bilibili::PGCIndexListResult result)
-        : list(std::move(result)) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
+    DataSourcePGCIndexVideoList(bilibili::PGCIndexListResult result) : list(std::move(result)) {}
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
-        RecyclingGridItemPGCVideoCard* item =
-            (RecyclingGridItemPGCVideoCard*)recycler->dequeueReusableCell(
-                "Cell");
+        RecyclingGridItemPGCVideoCard* item = (RecyclingGridItemPGCVideoCard*)recycler->dequeueReusableCell("Cell");
 
         auto& r = this->list[index];
-        item->setCard(r.cover + ImageHelper::v_ext, r.title, r.index_show,
-                      r.badge_info, "", r.order);
+        item->setCard(r.cover + ImageHelper::v_ext, r.title, r.index_show, r.badge_info, "", r.order);
         return item;
     }
 
@@ -358,28 +341,23 @@ void PGCIndexActivity::onContentAvailable() {
         return true;
     });
 
-    recyclingGrid->registerCell(
-        "Cell", []() { return RecyclingGridItemPGCVideoCard::create(); });
-    recyclingGrid->onNextPage(
-        [this]() { this->requestData(this->requestParam, false); });
+    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemPGCVideoCard::create(); });
+    recyclingGrid->onNextPage([this]() { this->requestData(this->requestParam, false); });
 
     // 首次加载 请求过滤表单
     if (PGCIndexRequest::INDEX_FILTERS.empty()) this->requestPGCFilter();
 
     // 使用传入的参数直接加载
-    brls::Logger::debug("PGCIndexActivity requestPGCIndex: {}",
-                        this->originParam);
+    brls::Logger::debug("PGCIndexActivity requestPGCIndex: {}", this->originParam);
     this->requestPGCIndex(this->originParam);
 
-    titleBox->addGestureRecognizer(new brls::TapGestureRecognizer(
-        [this](brls::TapGestureStatus status, brls::Sound*) {
-            if (status.state == brls::GestureState::END) {
-                this->openIndexActivity();
-            }
-        }));
+    titleBox->addGestureRecognizer(new brls::TapGestureRecognizer([this](brls::TapGestureStatus status, brls::Sound*) {
+        if (status.state == brls::GestureState::END) {
+            this->openIndexActivity();
+        }
+    }));
 
-    this->registerAction("wiliwili/home/common/filter"_i18n,
-                         brls::ControllerButton::BUTTON_X,
+    this->registerAction("wiliwili/home/common/filter"_i18n, brls::ControllerButton::BUTTON_X,
                          [this](brls::View* view) {
                              this->openIndexActivity();
                              return true;
@@ -391,19 +369,16 @@ PGCIndexActivity::~PGCIndexActivity() {
     this->alpha.stop();
 }
 
-void PGCIndexActivity::onPGCIndex(
-    const bilibili::PGCIndexResultWrapper& result) {
+void PGCIndexActivity::onPGCIndex(const bilibili::PGCIndexResultWrapper& result) {
     brls::sync([this, result]() {
-        auto* datasource = dynamic_cast<DataSourcePGCIndexVideoList*>(
-            recyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourcePGCIndexVideoList*>(recyclingGrid->getDataSource());
         if (datasource && result.num != 1) {
             if (!result.list.empty()) {
                 datasource->appendData(result.list);
                 recyclingGrid->notifyDataChanged();
             }
         } else {
-            recyclingGrid->setDataSource(
-                new DataSourcePGCIndexVideoList(result.list));
+            recyclingGrid->setDataSource(new DataSourcePGCIndexVideoList(result.list));
         }
     });
 }
@@ -418,30 +393,19 @@ void PGCIndexActivity::onError(const std::string& error) {
 }
 
 // 解析用户选择的检索数据，返回一个 human-readable 字符串列表
-std::vector<std::string> PGCIndexActivity::parseData(
-    const UserRequestData& query) {
-    if (query.count("index_type") == 0)
-        return {"参数错误"};  // 未包含 index_type
+std::vector<std::string> PGCIndexActivity::parseData(const UserRequestData& query) {
+    if (query.count("index_type") == 0) return {"参数错误"};  // 未包含 index_type
     std::string type = query.at("index_type");
-    if (INDEX_TYPE_NAME_MAP.count(type) == 0)
-        return {"未知参数"};  //包含了不支持的 index_type
+    if (INDEX_TYPE_NAME_MAP.count(type) == 0) return {"未知参数"};  //包含了不支持的 index_type
 
     if (PGCIndexRequest::INDEX_FILTERS.empty()) {
         // 从表中查询默认分类
-        return {INDEX_TYPE_NAME_MAP.at(type),
-                "skeleton",
-                "skeleton",
-                "skeleton",
-                "skeleton",
-                "skeleton",
-                "skeleton"};
+        return {INDEX_TYPE_NAME_MAP.at(type), "skeleton", "skeleton", "skeleton", "skeleton", "skeleton", "skeleton"};
     }
 
-    if (PGCIndexRequest::INDEX_FILTERS.count(type) == 0)
-        return {"未知参数"};  //包含了不支持的 index_type
+    if (PGCIndexRequest::INDEX_FILTERS.count(type) == 0) return {"未知参数"};  //包含了不支持的 index_type
 
-    bilibili::PGCIndexFilterWrapper& data =
-        PGCIndexRequest::INDEX_FILTERS.at(type);
+    bilibili::PGCIndexFilterWrapper& data = PGCIndexRequest::INDEX_FILTERS.at(type);
 
     std::vector<std::string> res = {data.index_name};
 
@@ -529,7 +493,6 @@ void PGCIndexActivity::startAnimation(float a) {
     this->alpha.reset();
     this->alpha.addStep(a, 300, brls::EasingFunction::quadraticOut);
     this->alpha.setTickCallback([this] { this->setAlpha(this->alpha); });
-    this->alpha.setEndCallback(
-        [](bool finished) { brls::Application::unblockInputs(); });
+    this->alpha.setEndCallback([](bool finished) { brls::Application::unblockInputs(); });
     this->alpha.start();
 }

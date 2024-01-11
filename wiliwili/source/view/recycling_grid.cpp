@@ -12,8 +12,7 @@ RecyclingGridItem::RecyclingGridItem() {
     this->setFocusable(true);
     this->registerClickAction([this](View* view) {
         auto* recycler = dynamic_cast<RecyclingGrid*>(getParent()->getParent());
-        if (recycler)
-            recycler->getDataSource()->onItemSelected(recycler, index);
+        if (recycler) recycler->getDataSource()->onItemSelected(recycler, index);
         return true;
     });
     this->addGestureRecognizer(new brls::TapGestureRecognizer(this));
@@ -31,8 +30,7 @@ SkeletonCell::SkeletonCell() { this->setFocusable(false); }
 
 RecyclingGridItem* SkeletonCell::create() { return new SkeletonCell(); }
 
-void SkeletonCell::draw(NVGcontext* vg, float x, float y, float width,
-                        float height, brls::Style style,
+void SkeletonCell::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
                         brls::FrameContext* ctx) {
     brls::Time curTime = brls::getCPUTimeUsec() / 1000;
     float p            = (curTime % 1000) * 1.0 / 1000;
@@ -41,8 +39,7 @@ void SkeletonCell::draw(NVGcontext* vg, float x, float y, float width,
     NVGcolor end = background;
     end.a        = p;
 
-    NVGpaint paint = nvgLinearGradient(vg, x, y, x + width, y + height,
-                                       a(background), a(end));
+    NVGpaint paint = nvgLinearGradient(vg, x, y, x + width, y + height, a(background), a(end));
     nvgBeginPath(vg);
     nvgFillPaint(vg, paint);
     nvgRoundedRect(vg, x, y, width, height, 6);
@@ -55,8 +52,7 @@ class DataSourceSkeleton : public RecyclingGridDataSource {
 public:
     DataSourceSkeleton(unsigned int n) : num(n) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) {
-        SkeletonCell* item =
-            (SkeletonCell*)recycler->dequeueReusableCell("Skeleton");
+        SkeletonCell* item = (SkeletonCell*)recycler->dequeueReusableCell("Skeleton");
         item->setHeight(recycler->estimatedRowHeight);
         return item;
     }
@@ -153,8 +149,7 @@ RecyclingGrid::~RecyclingGrid() {
     }
 }
 
-void RecyclingGrid::draw(NVGcontext* vg, float x, float y, float width,
-                         float height, brls::Style style,
+void RecyclingGrid::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
                          brls::FrameContext* ctx) {
     // 触摸或鼠标滑动时会导致屏幕元素位置变更
     // 简单地在draw函数中调用itemsRecyclingLoop 实现动态的增删元素
@@ -168,18 +163,14 @@ void RecyclingGrid::draw(NVGcontext* vg, float x, float y, float width,
         float w1 = hintImage->getWidth(), w2 = hintLabel->getWidth();
         float h1 = hintImage->getHeight(), h2 = hintLabel->getHeight();
         this->hintImage->setAlpha(this->getAlpha());
-        this->hintImage->draw(vg, x + (width - w1) / 2, y + (height - h1) / 2,
-                              w1, h1, style, ctx);
+        this->hintImage->draw(vg, x + (width - w1) / 2, y + (height - h1) / 2, w1, h1, style, ctx);
         this->hintLabel->setAlpha(this->getAlpha());
-        this->hintLabel->draw(vg, x + (width - w2) / 2, y + (height + h1) / 2,
-                              w2, h2, style, ctx);
+        this->hintLabel->draw(vg, x + (width - w2) / 2, y + (height + h1) / 2, w2, h2, style, ctx);
     }
 }
 
-void RecyclingGrid::registerCell(
-    std::string identifier, std::function<RecyclingGridItem*()> allocation) {
-    queueMap.insert(
-        std::make_pair(identifier, new std::vector<RecyclingGridItem*>()));
+void RecyclingGrid::registerCell(std::string identifier, std::function<RecyclingGridItem*()> allocation) {
+    queueMap.insert(std::make_pair(identifier, new std::vector<RecyclingGridItem*>()));
     allocationMap.insert(std::make_pair(identifier, allocation));
 }
 
@@ -189,9 +180,8 @@ void RecyclingGrid::addCellAt(size_t index, bool downSide) {
     cell = dataSource->cellForRow(this, index);
 
     float cellHeight = estimatedRowHeight;
-    float cellWidth =
-        (renderedFrame.getWidth() - paddingLeft - paddingRight) / spanCount -
-        cell->getMarginLeft() - cell->getMarginRight();
+    float cellWidth  = (renderedFrame.getWidth() - paddingLeft - paddingRight) / spanCount - cell->getMarginLeft() -
+                      cell->getMarginRight();
     float cellX = renderedFrame.getMinX() + paddingLeft;
 
     if (isFlowMode) {
@@ -210,13 +200,10 @@ void RecyclingGrid::addCellAt(size_t index, bool downSide) {
             cellHeight = cellHeightCache[index];
         }
 
-        brls::Logger::verbose("Add cell at: y {} height {}",
-                              getHeightByCellIndex(index) + paddingTop,
-                              cellHeight);
+        brls::Logger::verbose("Add cell at: y {} height {}", getHeightByCellIndex(index) + paddingTop, cellHeight);
     } else {
         cell->setWidth(cellWidth - estimatedRowSpace);
-        cellX += (renderedFrame.getWidth() - paddingLeft - paddingRight) /
-                 spanCount * (index % spanCount);
+        cellX += (renderedFrame.getWidth() - paddingLeft - paddingRight) / spanCount * (index % spanCount);
     }
 
     cell->setHeight(cellHeight);
@@ -224,8 +211,7 @@ void RecyclingGrid::addCellAt(size_t index, bool downSide) {
     cell->setDetachedPositionY(getHeightByCellIndex(index) + paddingTop);
     cell->setIndex(index);
 
-    this->contentBox->getChildren().insert(
-        this->contentBox->getChildren().end(), cell);
+    this->contentBox->getChildren().insert(this->contentBox->getChildren().end(), cell);
 
     // Allocate and set parent userdata
     size_t* userdata = (size_t*)malloc(sizeof(size_t));
@@ -250,9 +236,7 @@ void RecyclingGrid::addCellAt(size_t index, bool downSide) {
 
     // 瀑布流模式需要不断修正高度
     if (isFlowMode)
-        contentBox->setHeight(
-            getHeightByCellIndex(this->dataSource->getItemCount()) +
-            paddingTop + paddingBottom);
+        contentBox->setHeight(getHeightByCellIndex(this->dataSource->getItemCount()) + paddingTop + paddingBottom);
 
     brls::Logger::verbose("Cell #{} - added", index);
 }
@@ -289,15 +273,13 @@ void RecyclingGrid::reloadData() {
         return;
     }
     size_t cellFocusIndex = this->defaultCellFocus;
-    if (cellFocusIndex >= dataSource->getItemCount())
-        cellFocusIndex = dataSource->getItemCount() - 1;
+    if (cellFocusIndex >= dataSource->getItemCount()) cellFocusIndex = dataSource->getItemCount() - 1;
 
     // 设置列表的高度（真实高度，非显示的高度）
     if (!isFlowMode || spanCount != 1) {
         // 设置了固定的高度
-        contentBox->setHeight((estimatedRowHeight + estimatedRowSpace) *
-                                  (float)getRowCount() +
-                              paddingTop + paddingBottom);
+        contentBox->setHeight((estimatedRowHeight + estimatedRowSpace) * (float)getRowCount() + paddingTop +
+                              paddingBottom);
         // 添加当前焦点 cell 所在行的第一项到屏幕，其余项通过 selectRowAt 内的 itemsRecyclingLoop 自动添加
         // 这里添加首项是因为添加首项时会变更 renderedFrame 的 height 值，包括 itemsRecyclingLoop 内的计算也都是以首项为基准进行的
         // 原则上这里的 addCellAt 任意添加一项即可（比如添加第零项），但最好能添加到 cellFocusIndex 附近，这有助于提升首屏性能
@@ -312,13 +294,11 @@ void RecyclingGrid::reloadData() {
     } else {
         // 获取每个cell的高度并缓存起来
         cellHeightCache.clear();
-        for (size_t section = 0; section < dataSource->getItemCount();
-             section++) {
+        for (size_t section = 0; section < dataSource->getItemCount(); section++) {
             float height = dataSource->heightForRow(this, section);
             cellHeightCache.push_back(height);
         }
-        contentBox->setHeight(getHeightByCellIndex(dataSource->getItemCount()) +
-                              paddingTop + paddingBottom);
+        contentBox->setHeight(getHeightByCellIndex(dataSource->getItemCount()) + paddingTop + paddingBottom);
         // 流式布局无法准确确定焦点cell的位置，因此暂时只添加第一项，在 itemsRecyclingLoop 中会逐渐添加到 cellFocusIndex，再按需删除
         // 当 cellFocusIndex 过于大时，会导致添加的元素过多，因此需要考虑优化
         this->addCellAt(0, true);
@@ -334,18 +314,14 @@ void RecyclingGrid::notifyDataChanged() {
 
     if (dataSource) {
         if (isFlowMode) {
-            for (size_t i = cellHeightCache.size();
-                 i < dataSource->getItemCount(); i++) {
+            for (size_t i = cellHeightCache.size(); i < dataSource->getItemCount(); i++) {
                 float height = dataSource->heightForRow(this, i);
                 cellHeightCache.push_back(height);
             }
-            contentBox->setHeight(
-                getHeightByCellIndex(this->dataSource->getItemCount()) +
-                paddingTop + paddingBottom);
+            contentBox->setHeight(getHeightByCellIndex(this->dataSource->getItemCount()) + paddingTop + paddingBottom);
         } else {
-            contentBox->setHeight((estimatedRowHeight + estimatedRowSpace) *
-                                      this->getRowCount() +
-                                  paddingTop + paddingBottom);
+            contentBox->setHeight((estimatedRowHeight + estimatedRowSpace) * this->getRowCount() + paddingTop +
+                                  paddingBottom);
         }
     }
     // 数据增多后重新允许加载下一页
@@ -385,25 +361,15 @@ void RecyclingGrid::setError(std::string error) {
     this->clearData();
 }
 
-void RecyclingGrid::setDefaultCellFocus(size_t index) {
-    this->defaultCellFocus = index;
-}
+void RecyclingGrid::setDefaultCellFocus(size_t index) { this->defaultCellFocus = index; }
 
-size_t RecyclingGrid::getDefaultCellFocus() const {
-    return this->defaultCellFocus;
-}
+size_t RecyclingGrid::getDefaultCellFocus() const { return this->defaultCellFocus; }
 
-size_t RecyclingGrid::getItemCount() {
-    return this->dataSource->getItemCount();
-}
+size_t RecyclingGrid::getItemCount() { return this->dataSource->getItemCount(); }
 
-size_t RecyclingGrid::getRowCount() {
-    return (this->dataSource->getItemCount() - 1) / this->spanCount + 1;
-}
+size_t RecyclingGrid::getRowCount() { return (this->dataSource->getItemCount() - 1) / this->spanCount + 1; }
 
-void RecyclingGrid::onNextPage(const std::function<void()>& callback) {
-    this->nextPageCallback = callback;
-}
+void RecyclingGrid::onNextPage(const std::function<void()>& callback) { this->nextPageCallback = callback; }
 
 void RecyclingGrid::itemsRecyclingLoop() {
     if (!dataSource) return;
@@ -416,26 +382,19 @@ void RecyclingGrid::itemsRecyclingLoop() {
         for (auto it : contentBox->getChildren())
 
             // todo: contentBox 循环时加锁？it出现过空指针报错
-            if (*((size_t*)it->getParentUserData()) == visibleMin)
-                minCell = (RecyclingGridItem*)it;
+            if (*((size_t*)it->getParentUserData()) == visibleMin) minCell = (RecyclingGridItem*)it;
 
         // 当第一个cell的顶部 与 组件顶部的距离大于 preFetchLine 行元素的距离时结束
-        if (!minCell ||
-            (minCell->getDetachedPosition().y +
-                 getHeightByCellIndex(
-                     visibleMin + (preFetchLine + 1) * spanCount, visibleMin) >=
-             visibleFrame.getMinY()))
+        if (!minCell || (minCell->getDetachedPosition().y +
+                             getHeightByCellIndex(visibleMin + (preFetchLine + 1) * spanCount, visibleMin) >=
+                         visibleFrame.getMinY()))
             break;
 
         float cellHeight = estimatedRowHeight;
         if (isFlowMode) cellHeight = cellHeightCache[visibleMin];
 
-        renderedFrame.origin.y += minCell->getIndex() % spanCount == 0
-                                      ? cellHeight + estimatedRowSpace
-                                      : 0;
-        renderedFrame.size.height -= minCell->getIndex() % spanCount == 0
-                                         ? cellHeight + estimatedRowSpace
-                                         : 0;
+        renderedFrame.origin.y += minCell->getIndex() % spanCount == 0 ? cellHeight + estimatedRowSpace : 0;
+        renderedFrame.size.height -= minCell->getIndex() % spanCount == 0 ? cellHeight + estimatedRowSpace : 0;
 
         queueReusableCell(minCell);
         this->contentBox->removeView(minCell, false);
@@ -450,23 +409,18 @@ void RecyclingGrid::itemsRecyclingLoop() {
         RecyclingGridItem* maxCell = nullptr;
         // todo: contentBox 循环时加锁？it出现过空指针报错
         for (auto it : contentBox->getChildren())
-            if (*((size_t*)it->getParentUserData()) == visibleMax)
-                maxCell = (RecyclingGridItem*)it;
+            if (*((size_t*)it->getParentUserData()) == visibleMax) maxCell = (RecyclingGridItem*)it;
 
         // 当最后一个cell的顶部 与 组件底部间的距离 小于 preFetchLine 行元素的距离时结束
-        if (!maxCell ||
-            (maxCell->getDetachedPosition().y -
-                 getHeightByCellIndex(visibleMax,
-                                      visibleMax - preFetchLine * spanCount) <=
-             visibleFrame.getMaxY()))
+        if (!maxCell || (maxCell->getDetachedPosition().y -
+                             getHeightByCellIndex(visibleMax, visibleMax - preFetchLine * spanCount) <=
+                         visibleFrame.getMaxY()))
             break;
 
         float cellHeight = estimatedRowHeight;
         if (isFlowMode) cellHeight = cellHeightCache[visibleMax];
 
-        renderedFrame.size.height -= maxCell->getIndex() % spanCount == 0
-                                         ? cellHeight + estimatedRowSpace
-                                         : 0;
+        renderedFrame.size.height -= maxCell->getIndex() % spanCount == 0 ? cellHeight + estimatedRowSpace : 0;
 
         queueReusableCell(maxCell);
         this->contentBox->removeView(maxCell, false);
@@ -480,9 +434,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
     while (visibleMin - 1 < dataSource->getItemCount()) {
         if ((visibleMin) % spanCount == 0)
             // 当 renderedFrame 顶部 与 组件顶部的距离小于 preFetchLine 行cell的距离时结束
-            if (renderedFrame.getMinY() +
-                    getHeightByCellIndex(visibleMin + preFetchLine * spanCount,
-                                         visibleMin) <
+            if (renderedFrame.getMinY() + getHeightByCellIndex(visibleMin + preFetchLine * spanCount, visibleMin) <
                 visibleFrame.getMinY() - paddingTop) {
                 break;
             }
@@ -495,9 +447,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
         if ((visibleMax + 1) % spanCount == 0)
             // 如果 renderedFrame 底部 与 组件底部 距离超过了preFetchLine 行cell的距离时结束
             if (renderedFrame.getMaxY() -
-                    getHeightByCellIndex(
-                        visibleMax + 1,
-                        visibleMax + 1 - preFetchLine * spanCount) >
+                    getHeightByCellIndex(visibleMax + 1, visibleMax + 1 - preFetchLine * spanCount) >
                 visibleFrame.getMaxY() - paddingBottom) {
                 requestNextPage = false;  // 允许加载下一页
                 break;
@@ -509,8 +459,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
         // 只有当 requestNextPage 为false时，才可以请求下一页，避免多次重复请求
         if (!requestNextPage && nextPageCallback) {
             // 有数据、不是骨架屏数据、数据不为空
-            if (dataSource && !dynamic_cast<DataSourceSkeleton*>(dataSource) &&
-                dataSource->getItemCount() > 0) {
+            if (dataSource && !dynamic_cast<DataSourceSkeleton*>(dataSource) && dataSource->getItemCount() > 0) {
                 brls::Logger::debug("RecyclingGrid request next page");
                 requestNextPage = true;
                 this->nextPageCallback();
@@ -519,13 +468,9 @@ void RecyclingGrid::itemsRecyclingLoop() {
     }
 }
 
-RecyclingGridDataSource* RecyclingGrid::getDataSource() const {
-    return this->dataSource;
-}
+RecyclingGridDataSource* RecyclingGrid::getDataSource() const { return this->dataSource; }
 
-void RecyclingGrid::showSkeleton(unsigned int num) {
-    this->setDataSource(new DataSourceSkeleton(num));
-}
+void RecyclingGrid::showSkeleton(unsigned int num) { this->setDataSource(new DataSourceSkeleton(num)); }
 
 void RecyclingGrid::refresh() {
     this->refreshButton->startRotate();
@@ -551,20 +496,15 @@ void RecyclingGrid::selectRowAt(size_t index, bool animated) {
 
 float RecyclingGrid::getHeightByCellIndex(size_t index, size_t start) {
     if (index <= start) return 0;
-    if (!isFlowMode)
-        return (estimatedRowHeight + estimatedRowSpace) *
-               (size_t)((index - start) / spanCount);
+    if (!isFlowMode) return (estimatedRowHeight + estimatedRowSpace) * (size_t)((index - start) / spanCount);
 
     if (cellHeightCache.size() == 0) {
-        brls::Logger::error(
-            "cellHeightCache.size() cannot be zero in flow mode {} {}", start,
-            index);
+        brls::Logger::error("cellHeightCache.size() cannot be zero in flow mode {} {}", start, index);
         return 0;
     }
 
     if (start < 0) start = 0;
-    if (index > this->cellHeightCache.size())
-        index = this->cellHeightCache.size();
+    if (index > this->cellHeightCache.size()) index = this->cellHeightCache.size();
 
     float res = 0;
     for (size_t i = start; i < index && i < cellHeightCache.size(); i++) {
@@ -578,13 +518,11 @@ float RecyclingGrid::getHeightByCellIndex(size_t index, size_t start) {
 
 void RecyclingGrid::forceRequestNextPage() { this->requestNextPage = false; }
 
-brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction,
-                                            brls::View* currentView) {
+brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction, brls::View* currentView) {
     void* parentUserData = currentView->getParentUserData();
 
     // Allow up and down when axis is ROW
-    if ((this->contentBox->getAxis() == brls::Axis::ROW &&
-         direction != brls::FocusDirection::LEFT &&
+    if ((this->contentBox->getAxis() == brls::Axis::ROW && direction != brls::FocusDirection::LEFT &&
          direction != brls::FocusDirection::RIGHT)) {
         int row_offset = spanCount;
         if (direction == brls::FocusDirection::UP) row_offset = -spanCount;
@@ -598,8 +536,7 @@ brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction,
         while (!row_currentFocus && row_currentFocusIndex >= 0 &&
                row_currentFocusIndex < this->dataSource->getItemCount()) {
             for (auto it : this->contentBox->getChildren()) {
-                if (*((size_t*)it->getParentUserData()) ==
-                    row_currentFocusIndex) {
+                if (*((size_t*)it->getParentUserData()) == row_currentFocusIndex) {
                     row_currentFocus = it->getDefaultFocus();
                     break;
                 }
@@ -617,43 +554,35 @@ brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction,
     if (this->contentBox->getAxis() == brls::Axis::ROW) {
         int position = *((size_t*)parentUserData) % spanCount;
         if ((direction == brls::FocusDirection::LEFT && position == 0) ||
-            (direction == brls::FocusDirection::RIGHT &&
-             position == (spanCount - 1))) {
+            (direction == brls::FocusDirection::RIGHT && position == (spanCount - 1))) {
             View* next = getParentNavigationDecision(this, nullptr, direction);
-            if (!next && hasParent())
-                next = getParent()->getNextFocus(direction, this);
+            if (!next && hasParent()) next = getParent()->getNextFocus(direction, this);
             return next;
         }
     }
 
     // Return nullptr immediately if focus direction mismatches the box axis (clang-format refuses to split it in multiple lines...)
-    if ((this->contentBox->getAxis() == brls::Axis::ROW &&
-         direction != brls::FocusDirection::LEFT &&
+    if ((this->contentBox->getAxis() == brls::Axis::ROW && direction != brls::FocusDirection::LEFT &&
          direction != brls::FocusDirection::RIGHT) ||
-        (this->contentBox->getAxis() == brls::Axis::COLUMN &&
-         direction != brls::FocusDirection::UP &&
+        (this->contentBox->getAxis() == brls::Axis::COLUMN && direction != brls::FocusDirection::UP &&
          direction != brls::FocusDirection::DOWN)) {
         View* next = getParentNavigationDecision(this, nullptr, direction);
-        if (!next && hasParent())
-            next = getParent()->getNextFocus(direction, this);
+        if (!next && hasParent()) next = getParent()->getNextFocus(direction, this);
         return next;
     }
 
     // Traverse the children
     size_t offset = 1;  // which way we are going in the children list
 
-    if ((this->contentBox->getAxis() == brls::Axis::ROW &&
-         direction == brls::FocusDirection::LEFT) ||
-        (this->contentBox->getAxis() == brls::Axis::COLUMN &&
-         direction == brls::FocusDirection::UP)) {
+    if ((this->contentBox->getAxis() == brls::Axis::ROW && direction == brls::FocusDirection::LEFT) ||
+        (this->contentBox->getAxis() == brls::Axis::COLUMN && direction == brls::FocusDirection::UP)) {
         offset = -1;
     }
 
     size_t currentFocusIndex = *((size_t*)parentUserData) + offset;
     View* currentFocus       = nullptr;
 
-    while (!currentFocus && currentFocusIndex >= 0 &&
-           currentFocusIndex < this->dataSource->getItemCount()) {
+    while (!currentFocus && currentFocusIndex >= 0 && currentFocusIndex < this->dataSource->getItemCount()) {
         for (auto it : this->contentBox->getChildren()) {
             if (*((size_t*)it->getParentUserData()) == currentFocusIndex) {
                 currentFocus = it->getDefaultFocus();
@@ -664,8 +593,7 @@ brls::View* RecyclingGrid::getNextCellFocus(brls::FocusDirection direction,
     }
 
     currentFocus = getParentNavigationDecision(this, currentFocus, direction);
-    if (!currentFocus && hasParent())
-        currentFocus = getParent()->getNextFocus(direction, this);
+    if (!currentFocus && hasParent()) currentFocus = getParent()->getNextFocus(direction, this);
     return currentFocus;
 }
 
@@ -683,8 +611,7 @@ void RecyclingGrid::onLayout() {
         layouted = true;
         reloadData();
     }
-    this->refreshButton->setDetachedPosition(rect.getWidth() - 80,
-                                             rect.getHeight() - 80);
+    this->refreshButton->setDetachedPosition(rect.getWidth() - 80, rect.getHeight() - 80);
 }
 
 bool RecyclingGrid::checkWidth() {
@@ -693,8 +620,7 @@ bool RecyclingGrid::checkWidth() {
         oldWidth = width;
     }
     if ((int)oldWidth != (int)width && width != 0) {
-        brls::Logger::debug("RecyclingGrid::checkWidth from {} to {}", oldWidth,
-                            width);
+        brls::Logger::debug("RecyclingGrid::checkWidth from {} to {}", oldWidth, width);
         oldWidth = width;
         return true;
     }
@@ -707,12 +633,9 @@ void RecyclingGrid::queueReusableCell(RecyclingGridItem* cell) {
     cell->cacheForReuse();
 }
 
-void RecyclingGrid::setPadding(float padding) {
-    this->setPadding(padding, padding, padding, padding);
-}
+void RecyclingGrid::setPadding(float padding) { this->setPadding(padding, padding, padding, padding); }
 
-void RecyclingGrid::setPadding(float top, float right, float bottom,
-                               float left) {
+void RecyclingGrid::setPadding(float top, float right, float bottom, float left) {
     paddingTop    = top;
     paddingRight  = right;
     paddingBottom = bottom;
@@ -742,8 +665,7 @@ void RecyclingGrid::setPaddingLeft(float left) {
 }
 
 brls::View* RecyclingGrid::getDefaultFocus() {
-    if (this->dataSource && this->dataSource->getItemCount() > 0)
-        return ScrollingFrame::getDefaultFocus();
+    if (this->dataSource && this->dataSource->getItemCount() > 0) return ScrollingFrame::getDefaultFocus();
     return nullptr;
 }
 
@@ -774,10 +696,8 @@ RecyclingGridItem* RecyclingGrid::dequeueReusableCell(std::string identifier) {
 
 /// RecyclingGridContentBox
 
-RecyclingGridContentBox::RecyclingGridContentBox(RecyclingGrid* recycler)
-    : Box(brls::Axis::ROW), recycler(recycler) {}
+RecyclingGridContentBox::RecyclingGridContentBox(RecyclingGrid* recycler) : Box(brls::Axis::ROW), recycler(recycler) {}
 
-brls::View* RecyclingGridContentBox::getNextFocus(
-    brls::FocusDirection direction, brls::View* currentView) {
+brls::View* RecyclingGridContentBox::getNextFocus(brls::FocusDirection direction, brls::View* currentView) {
     return this->recycler->getNextCellFocus(direction, currentView);
 }

@@ -21,8 +21,7 @@ class HomeLive : public AttachedView, public HomeLiveRequest {
 public:
     HomeLive();
 
-    void onLiveList(const bilibili::LiveVideoListResult &result,
-                    int index) override;
+    void onLiveList(const bilibili::LiveVideoListResult &result, int index) override;
 
     void switchChannel();
 

@@ -9,13 +9,12 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/view.hpp>
 
 class CheckBox : public brls::View {
 public:
     CheckBox();
-    virtual void draw(NVGcontext* vg, float x, float y, float width,
-                      float height, brls::Style style,
+    virtual void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
                       brls::FrameContext* ctx) override;
 
     void setChecked(bool value);

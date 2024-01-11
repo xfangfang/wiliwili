@@ -3,6 +3,7 @@
 //
 
 #include <utility>
+#include <borealis/core/thread.hpp>
 
 #include "fragment/search_hots.hpp"
 #include "view/recycling_grid.hpp"
@@ -13,12 +14,9 @@
 SearchHots::SearchHots() {
     this->inflateFromXMLRes("xml/fragment/search_hots.xml");
     brls::Logger::debug("Fragment SearchHots: create");
-    recyclingGrid->registerCell(
-        "Cell", []() { return RecyclingGridItemHotsCard::create(); });
+    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemHotsCard::create(); });
 
-    this->registerFloatXMLAttribute("spanCount", [this](float value) {
-        this->recyclingGrid->spanCount = (int)value;
-    });
+    this->registerFloatXMLAttribute("spanCount", [this](float value) { this->recyclingGrid->spanCount = (int)value; });
 
     try {
         this->requestSearch();
@@ -39,11 +37,9 @@ public:
     HotsDataSource(bilibili::SearchHotsListResult result, UpdateSearchEvent *u)
         : list(std::move(result)), updateSearchEvent(u) {}
 
-    RecyclingGridItem *cellForRow(RecyclingGrid *recycler,
-                                  size_t index) override {
-        RecyclingGridItemHotsCard *item =
-            (RecyclingGridItemHotsCard *)recycler->dequeueReusableCell("Cell");
-        bilibili::SearchHotsResult &r = this->list[index];
+    RecyclingGridItem *cellForRow(RecyclingGrid *recycler, size_t index) override {
+        RecyclingGridItemHotsCard *item = (RecyclingGridItemHotsCard *)recycler->dequeueReusableCell("Cell");
+        bilibili::SearchHotsResult &r   = this->list[index];
         item->setCard(std::to_string(index + 1), r.show_name, r.icon);
         return item;
     }
@@ -70,8 +66,7 @@ void SearchHots::requestSearch() {
         [ASYNC_TOKEN](const bilibili::SearchHotsResultWrapper &result) {
             brls::Threading::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
-                auto ds =
-                    new HotsDataSource(result.list, this->updateSearchEvent);
+                auto ds = new HotsDataSource(result.list, this->updateSearchEvent);
                 recyclingGrid->setDataSource(ds);
             });
         },
@@ -84,8 +79,6 @@ void SearchHots::requestSearch() {
         });
 }
 
-void SearchHots::setSearchCallback(UpdateSearchEvent *event) {
-    this->updateSearchEvent = event;
-}
+void SearchHots::setSearchCallback(UpdateSearchEvent *event) { this->updateSearchEvent = event; }
 
 RecyclingGrid *SearchHots::getRecyclingGrid() { return this->recyclingGrid; }

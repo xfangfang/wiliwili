@@ -10,20 +10,16 @@
 #include <tinyxml2.h>
 #include <borealis/core/singleton.hpp>
 
-using namespace std;
-
 class XmlClass {
 public:
-    int getChildInt(const tinyxml2::XMLElement* element, std::string key,
-                    int defaultInt = 0) {
+    int getChildInt(const tinyxml2::XMLElement* element, std::string key, int defaultInt = 0) {
         if (!element) return defaultInt;
         auto* child = element->FirstChildElement(key.c_str());
         if (!child) return defaultInt;
         return child->IntText(defaultInt);
     }
 
-    std::string getChildText(const tinyxml2::XMLElement* element,
-                             std::string key, std::string defaultText = "") {
+    std::string getChildText(const tinyxml2::XMLElement* element, std::string key, std::string defaultText = "") {
         if (!element) return defaultText;
         auto* child = element->FirstChildElement(key.c_str());
         if (!child) return defaultText;
@@ -43,8 +39,7 @@ public:
     void Deserialize(const tinyxml2::XMLElement* element);
     void setBaseUrl(const std::string& value);
     void print();
-    std::string serviceType, serviceId, controlURL, eventSubURL, SCPDURL,
-        baseURL;
+    std::string serviceType, serviceId, controlURL, eventSubURL, SCPDURL, baseURL;
 };
 
 class DlnaRenderer : public XmlClass {
@@ -53,11 +48,9 @@ public:
 
     void Deserialize(const tinyxml2::XMLElement* element);
     void setBaseUrl(const std::string& value);
-    void play(const std::string& url, const std::string& title,
-              const std::function<void()>& callback,
+    void play(const std::string& url, const std::string& title, const std::function<void()>& callback,
               const std::function<void()>& error) const;
-    void stop(const std::function<void()>& callback,
-              const std::function<void()>& error) const;
+    void stop(const std::function<void()>& callback, const std::function<void()>& error) const;
 
     std::string getAvTransportUrl() const;
 

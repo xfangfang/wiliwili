@@ -3,10 +3,14 @@
 //
 
 #include <cstdlib>
-#include "borealis.hpp"
-#include "fmt/format.h"
-#include "cpr/cpr.h"
+#include <fmt/format.h>
+#include <cpr/cpr.h>
 #include <pystring.h>
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/dialog.hpp>
+
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "api/bilibili/util/http.hpp"
@@ -25,9 +29,7 @@ APPVersion::APPVersion() {
     revision   = atoi(STR(BUILD_VERSION_REVISION));
 }
 
-std::string APPVersion::getVersionStr() {
-    return fmt::format("{}.{}.{}", major, minor, revision);
-}
+std::string APPVersion::getVersionStr() { return fmt::format("{}.{}.{}", major, minor, revision); }
 
 std::string APPVersion::getPlatform() {
 #ifdef IOS
@@ -56,14 +58,11 @@ std::string APPVersion::getPlatform() {
 #endif
 }
 
-std::string APPVersion::getPackageName() {
-    return std::string{STR(BUILD_PACKAGE_NAME)};
-}
+std::string APPVersion::getPackageName() { return std::string{STR(BUILD_PACKAGE_NAME)}; }
 
 bool APPVersion::needUpdate(std::string latestVersion) {
     if (latestVersion.length() < 5) brls::Application::quit();
-    if (latestVersion[0] == 'v')
-        latestVersion = latestVersion.substr(1, latestVersion.length() - 1);
+    if (latestVersion[0] == 'v') latestVersion = latestVersion.substr(1, latestVersion.length() - 1);
     std::vector<std::string> v;
     pystring::split(latestVersion, v, ".");
     if (v.size() < 3) {
@@ -78,37 +77,31 @@ bool APPVersion::needUpdate(std::string latestVersion) {
 
 void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
     brls::Threading::delay(delay, [showUpToDateDialog]() {
-        std::string url = ProgramConfig::instance().getSettingItem(
-            SettingItem::CUSTOM_UPDATE_API, APPVersion::RELEASE_API);
+        std::string url =
+            ProgramConfig::instance().getSettingItem(SettingItem::CUSTOM_UPDATE_API, APPVersion::RELEASE_API);
 
         cpr::GetCallback(
             [showUpToDateDialog](cpr::Response r) {
                 try {
                     nlohmann::json res = nlohmann::json::parse(r.text);
-                    auto info = res.get<ReleaseNote>();
+                    auto info          = res.get<ReleaseNote>();
                     if (!APPVersion::instance().needUpdate(info.tag_name)) {
                         brls::Logger::info("App is up to date");
                         if (showUpToDateDialog) {
-                            brls::sync([]() {
-                                DialogHelper::showDialog(
-                                    "wiliwili/setting/tools/others/up2date"_i18n);
-                            });
+                            brls::sync(
+                                []() { DialogHelper::showDialog("wiliwili/setting/tools/others/up2date"_i18n); });
                         }
                         return;
                     }
                     brls::sync([info]() {
                         auto container = new LatestUpdate(info);
-                        auto dialog = new brls::Dialog((brls::Box*)container);
+                        auto dialog    = new brls::Dialog((brls::Box*)container);
                         dialog->open();
                     });
                 } catch (const std::exception& e) {
-                    brls::Logger::error("check update failed: {} {} {}",
-                                        r.status_code, r.text.c_str(),
-                                        e.what());
+                    brls::Logger::error("check update failed: {} {} {}", r.status_code, r.text.c_str(), e.what());
                 }
             },
-            bilibili::HTTP::VERIFY,
-            bilibili::HTTP::PROXIES,
-            cpr::Url{url}, cpr::Timeout{10000});
+            bilibili::HTTP::VERIFY, bilibili::HTTP::PROXIES, cpr::Url{url}, cpr::Timeout{10000});
     });
 }

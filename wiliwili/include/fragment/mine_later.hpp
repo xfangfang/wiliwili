@@ -4,12 +4,11 @@
 
 #pragma once
 
-#include "borealis.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"
 #include "presenter/mine_later.hpp"
 
-class MineLater :public AttachedView, public MineLaterRequest {
+class MineLater : public AttachedView, public MineLaterRequest {
 public:
     MineLater();
 
@@ -19,8 +18,7 @@ public:
 
     void onCreate() override;
 
-    void onWatchLaterList(
-        const bilibili::WatchLaterListWrapper &result) override;
+    void onWatchLaterList(const bilibili::WatchLaterListWrapper &result) override;
 
     void onError(const std::string &error) override;
 

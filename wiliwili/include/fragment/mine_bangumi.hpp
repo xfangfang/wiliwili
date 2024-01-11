@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include "presenter/mine_bangumi.hpp"
 #include "view/auto_tab_frame.hpp"
 
@@ -27,7 +26,7 @@ public:
 
     void onBangumiList(const bilibili::BangumiCollectionWrapper &result) override;
 
-    static View* create();
+    static View *create();
 
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "mine/bangumi/recyclingGrid");

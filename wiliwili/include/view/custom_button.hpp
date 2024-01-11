@@ -9,13 +9,14 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/event.hpp>
 
 class CustomButton : public brls::Box {
 public:
     CustomButton();
 
-    ~CustomButton();
+    ~CustomButton() override;
 
     static View *create();
 
@@ -25,14 +26,11 @@ public:
 
     brls::Event<bool> *getFocusEvent();
 
-    View *getNextFocus(brls::FocusDirection direction,
-                       View *currentView) override;
+    View *getNextFocus(brls::FocusDirection direction, View *currentView) override;
 
-    void setCustomNavigation(
-        std::function<brls::View *(brls::FocusDirection)> navigation);
+    void setCustomNavigation(std::function<brls::View *(brls::FocusDirection)> navigation);
 
 private:
     brls::Event<bool> focusEvent;
-    std::function<brls::View *(brls::FocusDirection)> customNavigation =
-        nullptr;
+    std::function<brls::View *(brls::FocusDirection)> customNavigation = nullptr;
 };

@@ -2,6 +2,11 @@
 // Created by fang on 2022/9/19.
 //
 
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/header.hpp>
+
 #include "fragment/setting_network.hpp"
 #include "bilibili.h"
 #include "bilibili/result/home_result.h"
@@ -58,8 +63,7 @@ void SettingNetwork::networkTest() {
 
 void SettingNetwork::getUnixTime() {
     // 设置系统时间
-    this->labelSysTime->setText(
-        wiliwili::sec2FullDate(wiliwili::getUnixTime()));
+    this->labelSysTime->setText(wiliwili::sec2FullDate(wiliwili::getUnixTime()));
 
     // 获取网络时间
     ASYNC_RETAIN
@@ -79,8 +83,6 @@ void SettingNetwork::getUnixTime() {
         });
 }
 
-SettingNetwork::~SettingNetwork() {
-    brls::Logger::debug("Fragment SettingNetwork: delete");
-}
+SettingNetwork::~SettingNetwork() { brls::Logger::debug("Fragment SettingNetwork: delete"); }
 
 brls::View* SettingNetwork::create() { return new SettingNetwork(); }

@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "borealis.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"
 #include "presenter/mine_history.hpp"
@@ -24,8 +23,7 @@ public:
 
     void onCreate() override;
 
-    void onHistoryList(
-        const bilibili::HistoryVideoResultWrapper &result) override;
+    void onHistoryList(const bilibili::HistoryVideoResultWrapper &result) override;
 
     void onError(const std::string &error) override;
 

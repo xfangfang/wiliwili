@@ -11,8 +11,7 @@ class MineCollectionRequest : public Presenter {
 public:
     MineCollectionRequest();
 
-    virtual void onCollectionList(
-        const bilibili::CollectionListResultWrapper& result);
+    virtual void onCollectionList(const bilibili::CollectionListResultWrapper& result);
 
     virtual void onError(const std::string& error);
 

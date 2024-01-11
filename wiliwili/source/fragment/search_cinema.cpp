@@ -2,6 +2,8 @@
 // Created by fang on 2022/8/3.
 //
 
+#include <borealis/core/thread.hpp>
+
 #include "fragment/search_cinema.hpp"
 #include "bilibili.h"
 #include "view/recycling_grid.hpp"
@@ -12,10 +14,8 @@
 SearchCinema::SearchCinema() {
     this->inflateFromXMLRes("xml/fragment/search_cinema.xml");
     brls::Logger::debug("Fragment SearchCinema: create");
-    recyclingGrid->registerCell(
-        "Cell", []() { return RecyclingGridItemSearchPGCVideoCard::create(); });
-    recyclingGrid->onNextPage(
-        [this]() { this->_requestSearch(SearchActivity::currentKey); });
+    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemSearchPGCVideoCard::create(); });
+    recyclingGrid->onNextPage([this]() { this->_requestSearch(SearchActivity::currentKey); });
 }
 
 SearchCinema::~SearchCinema() {
@@ -41,12 +41,10 @@ void SearchCinema::_requestSearch(const std::string& key) {
             }
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
-                auto* datasource = dynamic_cast<DataSourceSearchPGCList*>(
-                    recyclingGrid->getDataSource());
+                auto* datasource = dynamic_cast<DataSourceSearchPGCList*>(recyclingGrid->getDataSource());
                 if (result.page != this->requestIndex) {
                     // 请求的顺序和当前需要的顺序不符
-                    brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}",
-                                        result.page, this->requestIndex);
+                    brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}", result.page, this->requestIndex);
                     return;
                 }
                 this->requestIndex = result.page + 1;
@@ -60,8 +58,7 @@ void SearchCinema::_requestSearch(const std::string& key) {
                     recyclingGrid->notifyDataChanged();
                 } else {
                     // 搜索加载的第一页
-                    recyclingGrid->setDataSource(
-                        new DataSourceSearchPGCList(result.result));
+                    recyclingGrid->setDataSource(new DataSourceSearchPGCList(result.result));
                 }
             });
         },

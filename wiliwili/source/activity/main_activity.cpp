@@ -14,7 +14,8 @@
     limitations under the License.
 */
 
-#include <borealis.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+
 #include "activity/main_activity.hpp"
 #include "activity/setting_activity.hpp"
 #include "view/custom_button.hpp"
@@ -46,8 +47,7 @@ void MainActivity::onContentAvailable() {
     });
 
     this->settingBtn->getFocusEvent()->subscribe([this](bool value) {
-        SVGImage* image =
-            dynamic_cast<SVGImage*>(this->settingBtn->getChildren()[0]);
+        SVGImage* image = dynamic_cast<SVGImage*>(this->settingBtn->getChildren()[0]);
         if (!image) return;
         if (value) {
             image->setImageFromSVGRes("svg/ico-setting-activate.svg");
@@ -56,8 +56,7 @@ void MainActivity::onContentAvailable() {
         }
     });
 
-    this->settingBtn->setCustomNavigation(
-        [this](brls::FocusDirection direction) {
+    this->settingBtn->setCustomNavigation([this](brls::FocusDirection direction) {
         if (tabFrame->getSideBarPosition() == AutoTabBarPosition::LEFT) {
             if (direction == brls::FocusDirection::RIGHT) {
                 return (brls::View*)this->tabFrame->getActiveTab();
@@ -73,10 +72,7 @@ void MainActivity::onContentAvailable() {
         }
         return (brls::View*)nullptr;
     });
-    this->settingBtn->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->settingBtn));
+    this->settingBtn->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->settingBtn));
 }
 
-void MainActivity::openSetting() {
-    brls::Application::pushActivity(new SettingActivity());
-}
+void MainActivity::openSetting() { brls::Application::pushActivity(new SettingActivity()); }

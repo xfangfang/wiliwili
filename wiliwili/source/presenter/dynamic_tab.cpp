@@ -9,8 +9,7 @@
 
 using namespace brls::literals;
 
-void DynamicTabRequest::onUpList(
-    const bilibili::DynamicUpListResultWrapper &result) {}
+void DynamicTabRequest::onUpList(const bilibili::DynamicUpListResultWrapper &result) {}
 
 void DynamicTabRequest::onError(const std::string &error) {}
 

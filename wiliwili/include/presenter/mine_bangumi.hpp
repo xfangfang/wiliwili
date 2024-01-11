@@ -9,8 +9,7 @@
 
 class MineBangumiRequest : public Presenter {
 public:
-    virtual void onBangumiList(
-        const bilibili::BangumiCollectionWrapper& result) {}
+    virtual void onBangumiList(const bilibili::BangumiCollectionWrapper& result) {}
     virtual void onError(const std::string& error) {}
 
     MineBangumiRequest();

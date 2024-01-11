@@ -3,9 +3,7 @@
 //
 
 #pragma once
-#include <cstring>
-#include <borealis.hpp>
-#include <cpr/cpr.h>
+#include <borealis/views/image.hpp>
 #include <lunasvg.h>
 
 class SVGImage : public brls::Image {
@@ -14,8 +12,8 @@ public:
 
     ~SVGImage() override;
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext* ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext* ctx) override;
 
     void setImageFromSVGRes(const std::string& value);
 

@@ -2,9 +2,11 @@
 // Created by fang on 2022/7/30.
 //
 
-#include "fragment/mine_collection.hpp"
-
 #include <utility>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/image.hpp>
+
+#include "fragment/mine_collection.hpp"
 #include "fragment/mine_collection_video_list.hpp"
 #include "view/video_card.hpp"
 #include "utils/number_helper.hpp"
@@ -19,15 +21,12 @@ public:
      * @param result 列表数据
      * @param type 1 为收藏列表, 2 为订阅列表
      */
-    DataSourceMineCollectionList(bilibili::CollectionListResult result,
-                                 int type)
+    DataSourceMineCollectionList(bilibili::CollectionListResult result, int type)
         : list(std::move(result)), dataType(type) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemCollectionVideoCard* item =
-            (RecyclingGridItemCollectionVideoCard*)
-                recycler->dequeueReusableCell("Cell");
+            (RecyclingGridItemCollectionVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::CollectionResult& r = this->list[index];
 
@@ -73,16 +72,13 @@ public:
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         bilibili::CollectionResult& r = this->list[index];
 
-        if (this->dataType == COLLECTION_UI_TYPE_2 &&
-            r.type == SUBSCRIPTION_TYPE_2) {
+        if (this->dataType == COLLECTION_UI_TYPE_2 && r.type == SUBSCRIPTION_TYPE_2) {
             brls::Application::pushActivity(
-                new brls::Activity(new MineCollectionVideoList(
-                    list[index], COLLECTION_UI_TYPE_2)),
+                new brls::Activity(new MineCollectionVideoList(list[index], COLLECTION_UI_TYPE_2)),
                 brls::TransitionAnimation::NONE);
         } else {
             brls::Application::pushActivity(
-                new brls::Activity(new MineCollectionVideoList(
-                    list[index], COLLECTION_UI_TYPE_1)),
+                new brls::Activity(new MineCollectionVideoList(list[index], COLLECTION_UI_TYPE_1)),
                 brls::TransitionAnimation::NONE);
         }
     }
@@ -107,9 +103,7 @@ MineCollection::MineCollection() {
         this->requestData(true);
     });
 
-    recyclingGrid->registerCell("Cell", []() {
-        return RecyclingGridItemCollectionVideoCard::create();
-    });
+    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemCollectionVideoCard::create(); });
 
     recyclingGrid->onNextPage([this]() { this->requestData(); });
 
@@ -120,40 +114,33 @@ MineCollection::MineCollection() {
     });
 }
 
-MineCollection::~MineCollection() {
-    brls::Logger::debug("Fragment MineCollectionActivity: delete");
-}
+MineCollection::~MineCollection() { brls::Logger::debug("Fragment MineCollectionActivity: delete"); }
 
 brls::View* MineCollection::create() { return new MineCollection(); }
 
 void MineCollection::onCreate() {
-    this->registerTabAction(getRequestType() == COLLECTION_UI_TYPE_1
-                                ? "wiliwili/mine/refresh_collection"_i18n
-                                : "wiliwili/mine/refresh_subscription"_i18n,
-                            brls::ControllerButton::BUTTON_X,
-                            [this](brls::View* view) -> bool {
+    this->registerTabAction(getRequestType() == COLLECTION_UI_TYPE_1 ? "wiliwili/mine/refresh_collection"_i18n
+                                                                     : "wiliwili/mine/refresh_subscription"_i18n,
+                            brls::ControllerButton::BUTTON_X, [this](brls::View* view) -> bool {
                                 this->recyclingGrid->refresh();
                                 return true;
                             });
 }
 
-void MineCollection::onCollectionList(
-    const bilibili::CollectionListResultWrapper& result) {
+void MineCollection::onCollectionList(const bilibili::CollectionListResultWrapper& result) {
     brls::Logger::debug("collection: {} ", result.count);
     for (auto& i : result.list) {
         brls::Logger::debug("{}", i.title);
     }
     brls::Threading::sync([this, result]() {
-        auto* datasource = dynamic_cast<DataSourceMineCollectionList*>(
-            recyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourceMineCollectionList*>(recyclingGrid->getDataSource());
         if (datasource && result.index != 1) {
             if (!result.list.empty()) {
                 datasource->appendData(result.list);
                 recyclingGrid->notifyDataChanged();
             }
         } else {
-            recyclingGrid->setDataSource(new DataSourceMineCollectionList(
-                result.list, getRequestType()));
+            recyclingGrid->setDataSource(new DataSourceMineCollectionList(result.list, getRequestType()));
         }
     });
 }

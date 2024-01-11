@@ -33,8 +33,7 @@ public:
     LiveQualityList quality_description;
     LiveUrlListResult durl;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveUrlResultWrapper, current_qn, durl,
-                                   quality_description);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveUrlResultWrapper, current_qn, durl, quality_description);
 class LiveQnDesc {
 public:
     int qn;
@@ -58,8 +57,7 @@ public:
     std::string base_url;
     std::vector<LiveStreamUrlInfo> url_info;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveStreamFormatCodec, codec_name,
-                                   current_qn, accept_qn, base_url, url_info);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveStreamFormatCodec, codec_name, current_qn, accept_qn, base_url, url_info);
 
 class LiveStreamFormat {
 public:
@@ -86,8 +84,7 @@ class LivePlayUrlInfo {
 public:
     LivePlayUrl playurl;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      LivePlayUrlInfo& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, LivePlayUrlInfo& nlohmann_json_t) {
     if (!nlohmann_json_j.at("playurl").is_null()) {
         nlohmann_json_j.at("playurl").get_to(nlohmann_json_t.playurl);
     }
@@ -103,14 +100,12 @@ public:
     bool is_locked;  // 是否被封禁
     int lock_till;   // 封禁解锁时间
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      LiveRoomPlayInfo& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, LiveRoomPlayInfo& nlohmann_json_t) {
     if (!nlohmann_json_j.at("playurl_info").is_null()) {
         nlohmann_json_j.at("playurl_info").get_to(nlohmann_json_t.playurl_info);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, room_id, uid,
-                                             live_status, live_time, is_locked,
-                                             lock_till));
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, room_id, uid, live_status, live_time, is_locked, lock_till));
 }
 
 class LivePayInfo {
@@ -128,25 +123,19 @@ public:
     std::string end_time;
     std::string goods_link;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LivePayLink, start_time, end_time,
-                                   goods_link);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LivePayLink, start_time, end_time, goods_link);
 
 class LiveAreaResult {
 public:
     LiveAreaResult() = default;
-    LiveAreaResult(int id, std::string title, int area_v2_id,
-                   int area_v2_parent_id)
-        : id(id),
-          title(title),
-          area_v2_id(area_v2_id),
-          area_v2_parent_id(area_v2_parent_id) {}
+    LiveAreaResult(int id, std::string title, int area_v2_id, int area_v2_parent_id)
+        : id(id), title(title), area_v2_id(area_v2_id), area_v2_parent_id(area_v2_parent_id) {}
     int id;
     std::string title;
     int area_v2_id;
     int area_v2_parent_id;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveAreaResult, id, title, area_v2_id,
-                                   area_v2_parent_id);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveAreaResult, id, title, area_v2_id, area_v2_parent_id);
 
 /**
  * 直播间相关信息
@@ -172,8 +161,7 @@ public:
     ShowInfo watched_show;
 };
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      LiveVideoResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, LiveVideoResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("roomid")) {
         nlohmann_json_j.at("roomid").get_to(nlohmann_json_t.roomid);
     } else if (nlohmann_json_j.contains("id")) {
@@ -181,9 +169,8 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
     } else {
         nlohmann_json_t.roomid = -1;
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, uid, title,
-                                             uname, online, cover, area_name,
-                                             watched_show));
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, uid, title, uname, online, cover, area_name, watched_show));
 }
 
 typedef std::vector<LiveVideoResult> LiveVideoListResult;
@@ -197,26 +184,19 @@ public:
     int has_more;
 };
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      LiveResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, LiveResultWrapper& nlohmann_json_t) {
     for (auto i : nlohmann_json_j.at("card_list")) {
         std::string card_type = i.at("card_type");
         auto& card_data       = i.at("card_data");
 
         if (card_type.compare("area_entrance_v1") == 0) {
-            card_data.at("area_entrance_v1")
-                .at("list")
-                .get_to(nlohmann_json_t.live_list);
+            card_data.at("area_entrance_v1").at("list").get_to(nlohmann_json_t.live_list);
         } else if (card_type.compare("second_card_v1") == 0) {
-            nlohmann_json_t.card_list.push_back(
-                card_data.at("second_card_v1").get<LiveVideoResult>());
+            nlohmann_json_t.card_list.push_back(card_data.at("second_card_v1").get<LiveVideoResult>());
         } else if (card_type.compare("small_card_v1") == 0) {
-            nlohmann_json_t.card_list.push_back(
-                card_data.at("small_card_v1").get<LiveVideoResult>());
+            nlohmann_json_t.card_list.push_back(card_data.at("small_card_v1").get<LiveVideoResult>());
         } else if (card_type.compare("my_idol_v1") == 0) {
-            card_data.at("my_idol_v1")
-                .at("list")
-                .get_to(nlohmann_json_t.my_list);
+            card_data.at("my_idol_v1").at("list").get_to(nlohmann_json_t.my_list);
             for (auto& up : nlohmann_json_t.my_list) {
                 up.following = true;
             }
@@ -230,8 +210,7 @@ class LiveSecondResultWrapper {
 public:
     LiveVideoListResult list;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      LiveSecondResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, LiveSecondResultWrapper& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, list));
 }
 
@@ -253,16 +232,14 @@ public:
     std::string name;
     LiveSubAreaListResult area_list;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      LiveFullAreaResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, LiveFullAreaResult& nlohmann_json_t) {
     if (nlohmann_json_j.at("area_list").is_array()) {
         nlohmann_json_j.at("area_list").get_to(nlohmann_json_t.area_list);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, name))
     if (nlohmann_json_t.id == 0) {
         LiveSubAreaResult all{0, 0, "全部推荐", ""};
-        nlohmann_json_t.area_list.insert(nlohmann_json_t.area_list.begin(),
-                                         all);
+        nlohmann_json_t.area_list.insert(nlohmann_json_t.area_list.begin(), all);
     }
 }
 
@@ -272,8 +249,7 @@ class LiveFullAreaResultWrapper {
 public:
     LiveFullAreaListResult list;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      LiveFullAreaResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, LiveFullAreaResultWrapper& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, list))
 }
 

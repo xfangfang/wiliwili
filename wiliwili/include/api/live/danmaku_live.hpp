@@ -10,7 +10,6 @@
 #include <thread>
 #include <mutex>
 
-#include <borealis.hpp>
 #include <borealis/core/singleton.hpp>
 #include <mongoose.h>
 #include <nlohmann/json.hpp>
@@ -25,8 +24,7 @@ class LiveDanmaku : public brls::Singleton<LiveDanmaku> {
 public:
     int room_id;
     int uid;
-    void connect(int room_id, int64_t uid,
-                 const bilibili::LiveDanmakuinfo &info);
+    void connect(int room_id, int64_t uid, const bilibili::LiveDanmakuinfo &info);
     void disconnect();
     void send_join_request(int room_id, int64_t uid);
 

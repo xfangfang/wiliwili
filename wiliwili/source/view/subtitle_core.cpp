@@ -2,8 +2,11 @@
 // Created by fang on 2023/3/6.
 //
 
-#include "view/subtitle_core.hpp"
+#include <borealis/core/thread.hpp>
+
 #include "bilibili.h"
+#include "view/subtitle_core.hpp"
+#include "view/mpv_core.hpp"
 
 static NVGcolor a(NVGcolor color, float alpha) {
     color.a *= alpha;
@@ -36,12 +39,9 @@ void SubtitleCore::reset() {
     this->clearSubtitle();
 }
 
-[[nodiscard]] bool SubtitleCore::isAvailable() const {
-    return !videoPageData.subtitles.empty();
-}
+[[nodiscard]] bool SubtitleCore::isAvailable() const { return !videoPageData.subtitles.empty(); }
 
-void SubtitleCore::drawSubtitle(NVGcontext* vg, float x, float y, float width,
-                                float height, float alpha) {
+void SubtitleCore::drawSubtitle(NVGcontext* vg, float x, float y, float width, float height, float alpha) {
     double playbackTime = MPVCore::instance().playback_time;
     for (size_t i = subtitleIndex; i < currentSubtitle.data.body.size(); i++) {
         auto& line = currentSubtitle.data.body[i];
@@ -70,32 +70,25 @@ void SubtitleCore::drawSubtitle(NVGcontext* vg, float x, float y, float width,
         // 绘制字幕背景
         nvgBeginPath(vg);
         nvgFillColor(vg, a(backgroundColor, alpha));
-        nvgRoundedRect(vg, x + (width - line.length) / 2 - borderH,
-                       y + height - borderV - fontSize - bottomSpace,
-                       line.length + borderH * 2, fontSize + borderV * 2,
-                       backgroundCornerRadius);
+        nvgRoundedRect(vg, x + (width - line.length) / 2 - borderH, y + height - borderV - fontSize - bottomSpace,
+                       line.length + borderH * 2, fontSize + borderV * 2, backgroundCornerRadius);
         nvgFill(vg);
 
         // 绘制字幕
         nvgFillColor(vg, a(fontColor, alpha));
-        nvgText(vg, x + (width - line.length) / 2,
-                y + height - fontSize - bottomSpace, line.content.c_str(),
-                nullptr);
+        nvgText(vg, x + (width - line.length) / 2, y + height - fontSize - bottomSpace, line.content.c_str(), nullptr);
 
         // 绘制AI标记
         if (!currentSubtitle.data.genByAI) break;
         nvgFontSize(vg, 8);
         nvgFillColor(vg, a(nvgRGBA(255, 255, 255, 127), alpha));
-        nvgText(vg, x + (width + line.length) / 2 + 4,
-                y + height - borderV - fontSize - bottomSpace + 4, "AI",
+        nvgText(vg, x + (width + line.length) / 2 + 4, y + height - borderV - fontSize - bottomSpace + 4, "AI",
                 nullptr);
         break;
     }
 }
 
-bilibili::VideoPageResult SubtitleCore::getSubtitleList() {
-    return videoPageData;
-}
+bilibili::VideoPageResult SubtitleCore::getSubtitleList() { return videoPageData; }
 
 void SubtitleCore::selectSubtitle(size_t index) {
     if (index < 0 || index >= videoPageData.subtitles.size()) return;
@@ -133,10 +126,6 @@ void SubtitleCore::onLoadSubtitle(const bilibili::VideoPageSubtitle& page) {
     brls::Logger::info("select subtitle: {}", page.lan_doc);
 }
 
-void SubtitleCore::clearSubtitle() {
-    currentSubtitle = bilibili::VideoPageSubtitle{};
-}
+void SubtitleCore::clearSubtitle() { currentSubtitle = bilibili::VideoPageSubtitle{}; }
 
-[[nodiscard]] std::string SubtitleCore::getCurrentSubtitleId() const {
-    return currentSubtitle.id_str;
-}
+[[nodiscard]] std::string SubtitleCore::getCurrentSubtitleId() const { return currentSubtitle.id_str; }

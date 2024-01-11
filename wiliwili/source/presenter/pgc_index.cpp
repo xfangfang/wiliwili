@@ -9,8 +9,7 @@
 #include <pystring.h>
 #include "borealis/core/logger.hpp"
 
-void PGCIndexRequest::onPGCIndex(
-    const bilibili::PGCIndexResultWrapper& result) {}
+void PGCIndexRequest::onPGCIndex(const bilibili::PGCIndexResultWrapper& result) {}
 
 void PGCIndexRequest::onPGCFilter(const bilibili::PGCIndexFilters& result) {}
 
@@ -25,8 +24,7 @@ void PGCIndexRequest::requestData(UserRequestData data, bool refresh) {
     if (refresh) {
         this->requestIndex = 1;
     }
-    this->requestPGCIndex(parameters.GetContent(cpr::CurlHolder()),
-                          this->requestIndex);
+    this->requestPGCIndex(parameters.GetContent(cpr::CurlHolder()), this->requestIndex);
 }
 
 void PGCIndexRequest::requestPGCIndex(const std::string& param, int page) {
@@ -36,9 +34,7 @@ void PGCIndexRequest::requestPGCIndex(const std::string& param, int page) {
         [ASYNC_TOKEN](const bilibili::PGCIndexResultWrapper& result) {
             ASYNC_RELEASE
             if (result.num != this->requestIndex) {
-                brls::Logger::error(
-                    "获取视频列表 错误的index: {} 请求的index: {}", result.num,
-                    this->requestIndex);
+                brls::Logger::error("获取视频列表 错误的index: {} 请求的index: {}", result.num, this->requestIndex);
                 return;
             }
             this->requestIndex++;

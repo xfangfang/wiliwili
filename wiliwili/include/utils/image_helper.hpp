@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include <cpr/cpr.h>
 #include <ctime>
 #include <random>
 #include <unordered_map>
+#include <borealis/views/image.hpp>
 
 /**
  * 图片加载请求，每个请求对应一个ImageHelper的实例
@@ -56,11 +56,9 @@ public:
     inline static std::string face_large_ext  = "@60w_60h_1c_1s.webp";
     inline static std::string emoji_size1_ext = "@24w_24h.webp";
     inline static std::string emoji_size2_ext = "@36w_36h.webp";
-    inline static std::string note_ext =
-        "@180w_180h_85q_!note-comment-multiple.webp";
-    inline static std::string note_custom_ext =
-        "@{}w_{}h_85q_!note-comment-multiple.webp";
-    inline static std::string note_raw_ext = "@300h.webp";
+    inline static std::string note_ext        = "@180w_180h_85q_!note-comment-multiple.webp";
+    inline static std::string note_custom_ext = "@{}w_{}h_85q_!note-comment-multiple.webp";
+    inline static std::string note_raw_ext    = "@300h.webp";
 #else
     inline static std::string h_ext           = "@672w_378h_1c.webp";
     inline static std::string v_ext           = "@312w_420h_1c.webp";
@@ -68,11 +66,9 @@ public:
     inline static std::string face_large_ext  = "@160w_160h_1c_1s.webp";
     inline static std::string emoji_size1_ext = "@48w_48h.webp";
     inline static std::string emoji_size2_ext = "@72w_72h.webp";
-    inline static std::string note_ext =
-        "@540w_540h_85q_!note-comment-multiple.webp";
-    inline static std::string note_custom_ext =
-        "@{}w_{}h_85q_!note-comment-multiple.webp";
-    inline static std::string note_raw_ext = "@!web-comment-note.webp";
+    inline static std::string note_ext        = "@540w_540h_85q_!note-comment-multiple.webp";
+    inline static std::string note_custom_ext = "@{}w_{}h_85q_!note-comment-multiple.webp";
+    inline static std::string note_raw_ext    = "@!web-comment-note.webp";
 #endif
 #else
     inline static std::string h_ext           = "@672w_378h_1c.jpg";
@@ -81,11 +77,9 @@ public:
     inline static std::string face_large_ext  = "@160w_160h_1c_1s.jpg";
     inline static std::string emoji_size1_ext = "@40w_40h.png";
     inline static std::string emoji_size2_ext = "@72w_72h.png";
-    inline static std::string note_ext =
-        "@540w_540h_85q_!note-comment-multiple.jpg";
-    inline static std::string note_custom_ext =
-        "@{}w_{}h_85q_!note-comment-multiple.jpg";
-    inline static std::string note_raw_ext = "@!web-comment-note.jpg";
+    inline static std::string note_ext        = "@540w_540h_85q_!note-comment-multiple.jpg";
+    inline static std::string note_custom_ext = "@{}w_{}h_85q_!note-comment-multiple.jpg";
+    inline static std::string note_raw_ext    = "@!web-comment-note.jpg";
 #endif
 
     /// 图片请求线程数

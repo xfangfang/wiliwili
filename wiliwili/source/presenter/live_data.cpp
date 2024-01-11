@@ -17,8 +17,7 @@ void LiveDataRequest::requestData(int roomid) {
         [ASYNC_TOKEN](const auto& result) {
             liveRoomPlayInfo = result;
             qualityDescriptionMap.clear();
-            for (auto& i :
-                 liveRoomPlayInfo.playurl_info.playurl.g_qn_desc) {
+            for (auto& i : liveRoomPlayInfo.playurl_info.playurl.g_qn_desc) {
                 qualityDescriptionMap[i.qn] = i.desc;
             }
 
@@ -61,12 +60,8 @@ void LiveDataRequest::reportHistory(int roomid) {
 
     BILI::report_live_history(
         roomid, ProgramConfig::instance().getCSRF(),
-        [roomid]() {
-            brls::Logger::debug("report live history {}", roomid);
-        },
-        [](BILI_ERR) {
-            brls::Logger::error("report live history: {}", error);
-        });
+        [roomid]() { brls::Logger::debug("report live history {}", roomid); },
+        [](BILI_ERR) { brls::Logger::error("report live history: {}", error); });
 }
 
 void LiveDataRequest::requestPayLiveInfo(int roomid) {
@@ -79,13 +74,10 @@ void LiveDataRequest::requestPayLiveInfo(int roomid) {
             BILI::get_live_pay_link(
                 roomid,
                 [ASYNC_TOKEN, payInfo](const auto& payLink) {
-                    brls::Logger::debug("get live pay link {}",
-                                        payLink.goods_link);
+                    brls::Logger::debug("get live pay link {}", payLink.goods_link);
                     brls::sync([ASYNC_TOKEN, payInfo, payLink]() {
                         ASYNC_RELEASE
-                        this->onNeedPay(payInfo.message, payLink.goods_link,
-                                        payLink.start_time,
-                                        payLink.end_time);
+                        this->onNeedPay(payInfo.message, payLink.goods_link, payLink.start_time, payLink.end_time);
                     });
                 },
                 [ASYNC_TOKEN, payInfo](BILI_ERR) {
@@ -119,7 +111,6 @@ void LiveDataRequest::requestLiveDanmakuToken(int roomid) {
 }
 
 std::string LiveDataRequest::getQualityDescription(int qn) {
-    if (qualityDescriptionMap.count(qn) == 0)
-        return "Unknown Quality " + std::to_string(qn);
+    if (qualityDescriptionMap.count(qn) == 0) return "Unknown Quality " + std::to_string(qn);
     return qualityDescriptionMap[qn];
 }

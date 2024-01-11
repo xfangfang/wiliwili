@@ -2,6 +2,8 @@
 // Created by fang on 2022/12/28.
 //
 
+#include <borealis/core/thread.hpp>
+
 #include "fragment/player_collection.hpp"
 #include "bilibili.h"
 #include "bilibili/result/mine_collection_result.h"
@@ -19,9 +21,7 @@ typedef struct CollectionListRequest {
 
 class CollectionListCell : public RecyclingGridItem {
 public:
-    CollectionListCell() {
-        this->inflateFromXMLRes("xml/views/collection_list_cell.xml");
-    }
+    CollectionListCell() { this->inflateFromXMLRes("xml/views/collection_list_cell.xml"); }
 
     void setSelected(bool selected) { this->checkbox->setChecked(selected); }
 
@@ -36,20 +36,16 @@ public:
 
 class CollectionDataSourceList : public RecyclingGridDataSource {
 public:
-    CollectionDataSourceList(bilibili::SimpleCollectionListResult result,
-                             size_t defaultIndex = 0)
+    CollectionDataSourceList(bilibili::SimpleCollectionListResult result, size_t defaultIndex = 0)
         : data(result), currentIndex(defaultIndex) {
         for (auto& i : data) {
             brls::Logger::debug("{} {} {}", i.title, i.id, i.fav_state);
         }
-        for (size_t i = 0; i < data.size(); i++)
-            selectionData.emplace_back(data[i].fav_state);
+        for (size_t i = 0; i < data.size(); i++) selectionData.emplace_back(data[i].fav_state);
     }
 
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
-        CollectionListCell* item =
-            (CollectionListCell*)recycler->dequeueReusableCell("Cell");
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
+        CollectionListCell* item = (CollectionListCell*)recycler->dequeueReusableCell("Cell");
 
         auto& r = this->data[index];
         item->title->setText(r.title);
@@ -64,8 +60,7 @@ public:
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         currentIndex             = index;
         selectionData[index]     = !selectionData[index];
-        CollectionListCell* item = dynamic_cast<CollectionListCell*>(
-            recycler->getGridItemByIndex(index));
+        CollectionListCell* item = dynamic_cast<CollectionListCell*>(recycler->getGridItemByIndex(index));
         if (!item) return;
 
         item->setSelected(selectionData[index]);
@@ -76,8 +71,7 @@ public:
     std::string getAddCollectionList() {
         std::vector<std::string> res;
         for (size_t i = 0; i < data.size(); i++) {
-            if (!data[i].fav_state && selectionData[i])
-                res.push_back(std::to_string(data[i].id));
+            if (!data[i].fav_state && selectionData[i]) res.push_back(std::to_string(data[i].id));
         }
         return pystring::join(",", res);
     }
@@ -85,8 +79,7 @@ public:
     std::string getDeleteCollectionList() {
         std::vector<std::string> res;
         for (size_t i = 0; i < data.size(); i++) {
-            if (data[i].fav_state && !selectionData[i])
-                res.push_back(std::to_string(data[i].id));
+            if (data[i].fav_state && !selectionData[i]) res.push_back(std::to_string(data[i].id));
         }
         return pystring::join(",", res);
     }
@@ -109,11 +102,9 @@ private:
         auto& r = this->data[index];
         std::string badge;
         if (r.attr & 1) {
-            badge = fmt::format("{} · {}{}", "wiliwili/mine/private"_i18n,
-                                r.media_count, "wiliwili/mine/num"_i18n);
+            badge = fmt::format("{} · {}{}", "wiliwili/mine/private"_i18n, r.media_count, "wiliwili/mine/num"_i18n);
         } else {
-            badge = fmt::format("{} · {}{}", "wiliwili/mine/public"_i18n,
-                                r.media_count, "wiliwili/mine/num"_i18n);
+            badge = fmt::format("{} · {}{}", "wiliwili/mine/public"_i18n, r.media_count, "wiliwili/mine/num"_i18n);
         }
         return badge;
     }
@@ -123,38 +114,31 @@ PlayerCollection::PlayerCollection(int rid, int type) {
     this->inflateFromXMLRes("xml/fragment/player_collection.xml");
     brls::Logger::debug("Fragment PlayerCollection: create");
     this->recyclingGrid->showSkeleton();
-    this->recyclingGrid->registerCell(
-        "Cell", []() { return CollectionListCell::create(); });
+    this->recyclingGrid->registerCell("Cell", []() { return CollectionListCell::create(); });
     this->getCollectionList(rid, type);
 }
 
-PlayerCollection::~PlayerCollection() {
-    brls::Logger::debug("Fragment PlayerCollection: delete");
-}
+PlayerCollection::~PlayerCollection() { brls::Logger::debug("Fragment PlayerCollection: delete"); }
 
 std::string PlayerCollection::getAddCollectionList() {
-    CollectionDataSourceList* dataSource =
-        dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
+    CollectionDataSourceList* dataSource = dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
     if (!dataSource) return "";
     return dataSource->getAddCollectionList();
 }
 
 std::string PlayerCollection::getDeleteCollectionList() {
-    CollectionDataSourceList* dataSource =
-        dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
+    CollectionDataSourceList* dataSource = dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
     if (!dataSource) return "";
     return dataSource->getDeleteCollectionList();
 }
 
 bool PlayerCollection::isFavorite() {
-    CollectionDataSourceList* dataSource =
-        dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
+    CollectionDataSourceList* dataSource = dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
     if (!dataSource) return false;
     return dataSource->isFavorite();
 }
 
-void PlayerCollection::onCollectionList(
-    const bilibili::SimpleCollectionListResultWrapper& result) {
+void PlayerCollection::onCollectionList(const bilibili::SimpleCollectionListResultWrapper& result) {
     recyclingGrid->setDataSource(new CollectionDataSourceList(result.list));
 }
 
@@ -164,8 +148,7 @@ void PlayerCollection::getCollectionList(int rid, int type) {
     ASYNC_RETAIN
     bilibili::BilibiliClient::get_collection_list_all(
         rid, type, mid,
-        [ASYNC_TOKEN](
-            const bilibili::SimpleCollectionListResultWrapper& result) {
+        [ASYNC_TOKEN](const bilibili::SimpleCollectionListResultWrapper& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
                 this->onCollectionList(result);

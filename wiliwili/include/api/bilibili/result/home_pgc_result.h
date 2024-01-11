@@ -20,30 +20,19 @@ public:
     std::string bottom_right_badge;  // text
     std::string badge_info;          // pic link
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      PGCItemResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, PGCItemResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("bottom_right_badge")) {
-        nlohmann_json_j.at("bottom_right_badge")
-            .at("text")
-            .get_to(nlohmann_json_t.bottom_right_badge);
-    } else if (nlohmann_json_j.contains("new_ep") &&
-               nlohmann_json_j.at("new_ep").contains("index_show")) {
-        nlohmann_json_j.at("new_ep")
-            .at("index_show")
-            .get_to(nlohmann_json_t.bottom_right_badge);
+        nlohmann_json_j.at("bottom_right_badge").at("text").get_to(nlohmann_json_t.bottom_right_badge);
+    } else if (nlohmann_json_j.contains("new_ep") && nlohmann_json_j.at("new_ep").contains("index_show")) {
+        nlohmann_json_j.at("new_ep").at("index_show").get_to(nlohmann_json_t.bottom_right_badge);
     }
 
-    if (nlohmann_json_j.contains("badge_info") &&
-        nlohmann_json_j.at("badge_info").contains("img")) {
-        nlohmann_json_j.at("badge_info")
-            .at("img")
-            .get_to(nlohmann_json_t.badge_info);
+    if (nlohmann_json_j.contains("badge_info") && nlohmann_json_j.at("badge_info").contains("img")) {
+        nlohmann_json_j.at("badge_info").at("img").get_to(nlohmann_json_t.badge_info);
     }
 
     if (nlohmann_json_j.contains("bottom_left_badge")) {
-        nlohmann_json_j.at("bottom_left_badge")
-            .at("img")
-            .get_to(nlohmann_json_t.bottom_left_badge);
+        nlohmann_json_j.at("bottom_left_badge").at("img").get_to(nlohmann_json_t.bottom_left_badge);
     }
 
     if (nlohmann_json_j.contains("progress")) {
@@ -52,8 +41,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         nlohmann_json_j.at("desc").get_to(nlohmann_json_t.desc);
     }
 
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, cover, season_id));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, cover, season_id));
 }
 
 typedef std::vector<PGCItemResult> PGCItemListResult;
@@ -68,16 +56,12 @@ public:
     std::string url;
     PGCItemListResult items;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      PGCModuleResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, PGCModuleResult& nlohmann_json_t) {
     if (nlohmann_json_j.at("headers").size() > 0) {
-        nlohmann_json_j.at("headers").at(0).at("title").get_to(
-            nlohmann_json_t.header);
-        nlohmann_json_j.at("headers").at(0).at("url").get_to(
-            nlohmann_json_t.url);
+        nlohmann_json_j.at("headers").at(0).at("title").get_to(nlohmann_json_t.header);
+        nlohmann_json_j.at("headers").at(0).at("url").get_to(nlohmann_json_t.url);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, size,
-                                             style, items, module_id));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, size, style, items, module_id));
 }
 
 typedef std::vector<PGCModuleResult> PGCModuleListResult;
@@ -89,10 +73,8 @@ public:
     PGCModuleListResult modules;
 };
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      PGCResultWrapper& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_next,
-                                             next_cursor, modules));
+inline void from_json(const nlohmann::json& nlohmann_json_j, PGCResultWrapper& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_next, next_cursor, modules));
 }
 
 class PGCIndexResult {
@@ -107,16 +89,12 @@ public:
     std::string index_show;  // eg: 全12话
     std::string badge_info;  // pic link
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      PGCIndexResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, PGCIndexResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("badge_info")) {
-        nlohmann_json_j.at("badge_info")
-            .at("img")
-            .get_to(nlohmann_json_t.badge_info);
+        nlohmann_json_j.at("badge_info").at("img").get_to(nlohmann_json_t.badge_info);
     }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, season_type, season_id,
-                            index_show, is_finish, media_id, cover, order));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, season_type, season_id, index_show, is_finish,
+                                             media_id, cover, order));
 }
 
 typedef std::vector<PGCIndexResult> PGCIndexListResult;
@@ -129,13 +107,11 @@ public:
     int size;
     int total;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      PGCIndexResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, PGCIndexResultWrapper& nlohmann_json_t) {
     if (nlohmann_json_j.contains("list")) {
         nlohmann_json_j.at("list").get_to(nlohmann_json_t.list);
     }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_next, num, size, total));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_next, num, size, total));
 }
 
 class PGCIndexFilterValue {
@@ -163,8 +139,7 @@ public:
     int index_type;
     std::string index_name;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      PGCIndexFilterWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, PGCIndexFilterWrapper& nlohmann_json_t) {
     if (nlohmann_json_j.contains("order")) {
         PGCIndexFilter order;
         order.field = "order";
@@ -180,11 +155,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
 
     if (nlohmann_json_j.contains("filter")) {
         auto filters = nlohmann_json_j.at("filter").get<PGCIndexFilterList>();
-        nlohmann_json_t.filter.insert(nlohmann_json_t.filter.end(),
-                                      filters.begin(), filters.end());
+        nlohmann_json_t.filter.insert(nlohmann_json_t.filter.end(), filters.begin(), filters.end());
     }
 }
 
-typedef std::map<std::string, PGCIndexFilterWrapper>
-    PGCIndexFilters;  // index_type -> PGCIndexFilterWrapper
-};                    // namespace bilibili
+typedef std::map<std::string, PGCIndexFilterWrapper> PGCIndexFilters;  // index_type -> PGCIndexFilterWrapper
+};                                                                     // namespace bilibili

@@ -3,26 +3,25 @@
 //
 
 #include "view/svg_image.hpp"
-#include "borealis/core/cache_helper.hpp"
+
+#include <borealis/core/application.hpp>
+#include <borealis/core/cache_helper.hpp>
 
 SVGImage::SVGImage() {
-    this->registerFilePathXMLAttribute("SVG", [this](const std::string& value) {
-        this->setImageFromSVGFile(value);
-    });
+    this->registerFilePathXMLAttribute("SVG", [this](const std::string& value) { this->setImageFromSVGFile(value); });
 
     // 交给缓存自动处理纹理的删除
     this->setFreeTexture(false);
 
     // 改变窗口大小时自动更新纹理
-    subscription =
-        brls::Application::getWindowSizeChangedEvent()->subscribe([this]() {
-            if (!filePath.empty()) {
-                brls::Visibility v = getVisibility();
-                this->setVisibility(brls::Visibility::VISIBLE);
-                setImageFromSVGFile(filePath);
-                this->setVisibility(v);
-            }
-        });
+    subscription = brls::Application::getWindowSizeChangedEvent()->subscribe([this]() {
+        if (!filePath.empty()) {
+            brls::Visibility v = getVisibility();
+            this->setVisibility(brls::Visibility::VISIBLE);
+            setImageFromSVGFile(filePath);
+            this->setVisibility(v);
+        }
+    });
 }
 
 void SVGImage::setImageFromSVGRes(const std::string& value) {
@@ -30,13 +29,11 @@ void SVGImage::setImageFromSVGRes(const std::string& value) {
     filePath = "@res/" + value;
     if (checkCache(filePath) > 0) return;
     auto image     = romfs::get(value);
-    this->document = lunasvg::Document::loadFromData(
-        (const char*)image.string().data(), image.size());
+    this->document = lunasvg::Document::loadFromData((const char*)image.string().data(), image.size());
     if (this->document) {
         this->updateBitmap();
     } else {
-        brls::Logger::error("setImageFromSVGRes: cannot load svg image: {}",
-                            value);
+        brls::Logger::error("setImageFromSVGRes: cannot load svg image: {}", value);
         return;
     }
 
@@ -55,8 +52,7 @@ void SVGImage::setImageFromSVGRes(const std::string& value) {
 void SVGImage::setImageFromSVGFile(const std::string& value) {
     filePath = value;
 #ifdef USE_LIBROMFS
-    if (value.rfind("@res/", 0) == 0)
-        return this->setImageFromSVGRes(value.substr(5));
+    if (value.rfind("@res/", 0) == 0) return this->setImageFromSVGRes(value.substr(5));
 #endif
     if (checkCache(value) > 0) return;
 
@@ -64,8 +60,7 @@ void SVGImage::setImageFromSVGFile(const std::string& value) {
     if (this->document) {
         this->updateBitmap();
     } else {
-        brls::Logger::error("setImageFromSVGFile: cannot load svg image: {}",
-                            value);
+        brls::Logger::error("setImageFromSVGFile: cannot load svg image: {}", value);
         return;
     }
 
@@ -83,8 +78,7 @@ void SVGImage::setImageFromSVGString(const std::string& value) {
     if (this->document) {
         this->updateBitmap();
     } else {
-        brls::Logger::error("setImageFromSVGString: cannot load svg image: {}",
-                            value);
+        brls::Logger::error("setImageFromSVGString: cannot load svg image: {}", value);
     }
 }
 
@@ -96,8 +90,7 @@ void SVGImage::updateBitmap() {
     auto bitmap  = this->document->renderToBitmap(width, height);
     bitmap.convertToRGBA();
     NVGcontext* vg = brls::Application::getNVGContext();
-    int tex        = nvgCreateImageRGBA(vg, bitmap.width(), bitmap.height(), 0,
-                                        bitmap.data());
+    int tex        = nvgCreateImageRGBA(vg, bitmap.width(), bitmap.height(), 0, bitmap.data());
     if (tex <= 0) {
         brls::Logger::error("svg: {} update bitmap with texture 0.", filePath);
         return;
@@ -107,14 +100,12 @@ void SVGImage::updateBitmap() {
 
 void SVGImage::rotate(float value) { this->angle = value; }
 
-SVGImage::~SVGImage() {
-    brls::Application::getWindowSizeChangedEvent()->unsubscribe(subscription);
-}
+SVGImage::~SVGImage() { brls::Application::getWindowSizeChangedEvent()->unsubscribe(subscription); }
 
 brls::View* SVGImage::create() { return new SVGImage(); }
 
-void SVGImage::draw(NVGcontext* vg, float x, float y, float width, float height,
-                    brls::Style style, brls::FrameContext* ctx) {
+void SVGImage::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+                    brls::FrameContext* ctx) {
     if (this->texture == 0) return;
 
     nvgSave(vg);

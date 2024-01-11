@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include "view/auto_tab_frame.hpp"
 #include "presenter/mine_collection.hpp"
 #include "view/recycling_grid.hpp"
@@ -24,8 +23,7 @@ public:
 
     void onCreate() override;
 
-    void onCollectionList(
-        const bilibili::CollectionListResultWrapper &result) override;
+    void onCollectionList(const bilibili::CollectionListResultWrapper &result) override;
 
     void onError(const std::string &error) override;
 

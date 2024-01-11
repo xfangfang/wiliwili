@@ -39,8 +39,7 @@ public:
     std::string message;
 };
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      QrLoginInfoResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, QrLoginInfoResult& nlohmann_json_t) {
     if (nlohmann_json_j.at("data").is_number()) {
         nlohmann_json_t.data = LoginInfo(nlohmann_json_j.at("data"));
     } else {
@@ -56,8 +55,7 @@ public:
     std::string refresh_token;
 };
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      QrLoginInfoResultV2& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, QrLoginInfoResultV2& nlohmann_json_t) {
     switch (nlohmann_json_j.at("code").get<int>()) {
         case 0:
             nlohmann_json_t.status = true;
@@ -75,8 +73,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j,
         default:
             nlohmann_json_t.data = LoginInfo::OAUTH_KEY_ERROR;
     }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, refresh_token));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, refresh_token));
 }
 
 class UserUploadedVideoResult {
@@ -95,16 +92,14 @@ public:
     unsigned int aid;
     std::string bvid;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      UserUploadedVideoResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, UserUploadedVideoResult& nlohmann_json_t) {
     if (nlohmann_json_j.at("play").is_number()) {
         nlohmann_json_j.at("play").get_to(nlohmann_json_t.play);
     } else {
         nlohmann_json_t.play = -1;
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
-        NLOHMANN_JSON_FROM, comment, pic, description, copyright, title,
-        video_review, author, mid, created, length, aid, bvid));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, comment, pic, description, copyright, title,
+                                             video_review, author, mid, created, length, aid, bvid));
 }
 
 typedef std::vector<UserUploadedVideoResult> UserUploadedVideoListResult;
@@ -123,8 +118,7 @@ public:
     UserUploadedVideoListResult list;
 };
 
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      UserUploadedVideoResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, UserUploadedVideoResultWrapper& nlohmann_json_t) {
     nlohmann_json_j.at("list").at("vlist").get_to(nlohmann_json_t.list);
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, page));
 }
@@ -134,24 +128,18 @@ public:
     UserUploadedVideoPageResult page;
     DynamicVideoListResult archives;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDynamicVideoResultWrapper, page,
-                                   archives);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDynamicVideoResultWrapper, page, archives);
 
 class UserDynamicCount {
 public:
     std::map<std::string, unsigned int> data;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      UserDynamicCount& nlohmann_json_t) {
-    if (!nlohmann_json_j.contains("items") ||
-        !nlohmann_json_j.at("items").is_array())
-        return;
+inline void from_json(const nlohmann::json& nlohmann_json_j, UserDynamicCount& nlohmann_json_t) {
+    if (!nlohmann_json_j.contains("items") || !nlohmann_json_j.at("items").is_array()) return;
 
     for (auto i : nlohmann_json_j.at("items")) {
         if (i.contains("uid") && i.contains("num"))
-            nlohmann_json_t
-                .data[std::to_string(i.at("uid").get<unsigned int>())] =
-                i.at("num").get<unsigned int>();
+            nlohmann_json_t.data[std::to_string(i.at("uid").get<unsigned int>())] = i.at("num").get<unsigned int>();
     }
 }
 
@@ -159,7 +147,6 @@ class UserRelationStat {
 public:
     unsigned int mid, following, black, follower;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserRelationStat, mid, following, black,
-                                   follower);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserRelationStat, mid, following, black, follower);
 
 }  // namespace bilibili

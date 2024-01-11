@@ -5,12 +5,11 @@
 #include "view/check_box.hpp"
 
 CheckBox::CheckBox() {
-    this->registerBoolXMLAttribute(
-        "checked", [this](bool value) { this->setChecked(value); });
+    this->registerBoolXMLAttribute("checked", [this](bool value) { this->setChecked(value); });
 }
 
-void CheckBox::draw(NVGcontext* vg, float x, float y, float width, float height,
-                    brls::Style style, brls::FrameContext* ctx) {
+void CheckBox::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+                    brls::FrameContext* ctx) {
     float corner_radius = getCornerRadius();
     float radius        = std::fmin(width, height) / 2;
     int thickness       = roundf(radius * 0.20f);

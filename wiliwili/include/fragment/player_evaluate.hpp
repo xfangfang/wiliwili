@@ -9,7 +9,13 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
+namespace brls {
+class Label;
+class Image;
+}  // namespace brls
 
 class PlayerEvaluate : public brls::Box {
 public:

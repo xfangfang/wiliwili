@@ -11,20 +11,18 @@
 
 #include <cstdlib>
 #include <cmath>
-#include <borealis.hpp>
-#include <borealis/views/cells/cell_radio.hpp>
 #include <utility>
+#include <borealis/views/cells/cell_radio.hpp>
+
 #include "view/recycling_grid.hpp"
 
 typedef brls::Event<int> ValueSelectedEvent;
 
-class EmptyDropdown: public brls::Box  {
+class EmptyDropdown : public brls::Box {
 public:
-    void show(std::function<void(void)> cb, bool animate,
-              float animationDuration) override;
+    void show(std::function<void(void)> cb, bool animate, float animationDuration) override;
 
-    void hide(std::function<void(void)> cb, bool animated,
-              float animationDuration) override;
+    void hide(std::function<void(void)> cb, bool animated, float animationDuration) override;
 
     void dismiss(std::function<void(void)> cb = [] {}) override;
 
@@ -78,8 +76,7 @@ public:
     TextDataSourceDropdown(std::vector<std::string> result, BaseDropdown* view)
         : DataSourceDropdown(view), data(std::move(result)) {}
 
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override;
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override;
 
     size_t getItemCount() override;
 
@@ -94,15 +91,13 @@ private:
  */
 class BaseDropdown : public EmptyDropdown {
 public:
-    BaseDropdown(const std::string& title, ValueSelectedEvent::Callback cb,
-                 int selected = 0);
+    BaseDropdown(const std::string& title, ValueSelectedEvent::Callback cb, int selected = 0);
 
     RecyclingGrid* getRecyclingList();
 
     void setDataSource(DataSourceDropdown* dataSource);
 
-    virtual View* getParentNavigationDecision(
-        View* from, View* newFocus, brls::FocusDirection direction) override;
+    virtual View* getParentNavigationDecision(View* from, View* newFocus, brls::FocusDirection direction) override;
 
     brls::Event<RecyclingGridItem*>* getCellFocusDidChangeEvent();
 
@@ -110,10 +105,8 @@ public:
 
     ValueSelectedEvent::Callback getSelectCallback();
 
-    static BaseDropdown* text(const std::string& title,
-                              const std::vector<std::string>& values,
-                              ValueSelectedEvent::Callback cb,
-                              int selected = 0);
+    static BaseDropdown* text(const std::string& title, const std::vector<std::string>& values,
+                              ValueSelectedEvent::Callback cb, int selected = 0);
 
 protected:
     BRLS_BIND(RecyclingGrid, recycler, "grid_dropdown/recycler");

@@ -2,7 +2,9 @@
 // Created by fang on 2023/1/18.
 //
 
-#include "borealis.hpp"
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/thread.hpp>
+
 #include "bilibili.h"
 #include "presenter/mine_bangumi.hpp"
 #include "utils/config_helper.hpp"

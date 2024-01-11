@@ -8,10 +8,9 @@
 
 namespace bilibili {
 
-void BilibiliClient::dynamic_video(
-    const unsigned int page, const std::string& offset,
-    const std::function<void(DynamicVideoListResultWrapper)>& callback,
-    const ErrorCallback& error) {
+void BilibiliClient::dynamic_video(const unsigned int page, const std::string& offset,
+                                   const std::function<void(DynamicVideoListResultWrapper)>& callback,
+                                   const ErrorCallback& error) {
     HTTP::getResultAsync<DynamicVideoListResultWrapper>(
         Api::DynamicVideo,
         {
@@ -25,15 +24,11 @@ void BilibiliClient::dynamic_video(
         error);
 }
 
-void BilibiliClient::dynamic_up_list(
-    const std::function<void(DynamicUpListResultWrapper)>& callback,
-    const ErrorCallback& error) {
+void BilibiliClient::dynamic_up_list(const std::function<void(DynamicUpListResultWrapper)>& callback,
+                                     const ErrorCallback& error) {
     HTTP::getResultAsync<DynamicUpListResultWrapper>(
         Api::DynamicUpList, {{"teenagers_mode", "0"}},
-        [callback](const DynamicUpListResultWrapper& wrapper) {
-            callback(wrapper);
-        },
-        error);
+        [callback](const DynamicUpListResultWrapper& wrapper) { callback(wrapper); }, error);
 }
 
 }  // namespace bilibili

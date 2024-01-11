@@ -2,6 +2,11 @@
 // Created by fang on 2022/12/26.
 //
 
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/label.hpp>
+
 #include "fragment/player_coin.hpp"
 #include "view/animation_image.hpp"
 #include "view/check_box.hpp"
@@ -47,12 +52,9 @@ PlayerCoin::PlayerCoin() {
     });
 
     // support touch
-    this->likeBox->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->likeBox));
-    this->img1->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->img1));
-    this->img2->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->img2));
+    this->likeBox->addGestureRecognizer(new brls::TapGestureRecognizer(this->likeBox));
+    this->img1->addGestureRecognizer(new brls::TapGestureRecognizer(this->img1));
+    this->img2->addGestureRecognizer(new brls::TapGestureRecognizer(this->img2));
 
     this->getCoinExp();
 }
@@ -95,20 +97,16 @@ void PlayerCoin::updateHintLabel() {
     }
 }
 
-PlayerCoin::~PlayerCoin() {
-    brls::Logger::debug("Fragment PlayerCoin: delete");
-}
+PlayerCoin::~PlayerCoin() { brls::Logger::debug("Fragment PlayerCoin: delete"); }
 
 brls::View* PlayerCoin::create() { return new PlayerCoin(); }
 
 brls::View* PlayerCoin::getDefaultFocus() {
-    if (this->img2->getVisibility() == brls::Visibility::GONE)
-        return (brls::View*)this->img1.getView();
+    if (this->img2->getVisibility() == brls::Visibility::GONE) return (brls::View*)this->img1.getView();
     return (brls::View*)this->img2.getView();
 }
 
-void PlayerCoin::onChildFocusGained(brls::View* directChild,
-                                    brls::View* focusedView) {
+void PlayerCoin::onChildFocusGained(brls::View* directChild, brls::View* focusedView) {
     Box::onChildFocusGained(directChild, focusedView);
     if (focusedView == this->img2.getView()) {
         this->labelNum->setText(wiliwili::format("wiliwili/player/coin/pcs"_i18n, 2));

@@ -4,6 +4,9 @@
 
 #include <pystring.h>
 #include <regex>
+#include <borealis/core/application.hpp>
+#include <borealis/views/rectangle.hpp>
+#include <borealis/views/image.hpp>
 
 #include "fragment/latest_update.hpp"
 #include "analytics.h"
@@ -12,21 +15,16 @@
 #include "view/text_box.hpp"
 
 static inline bool isSeparator(const std::string& text) {
-    return std::all_of(text.begin(), text.end(),
-                       [](char c) { return c == ' ' || c == '-'; });
+    return std::all_of(text.begin(), text.end(), [](char c) { return c == ' ' || c == '-'; });
 }
 
 static inline bool isListItem(const std::string& text) {
     return pystring::startswith(pystring::lstrip(text, " "), "-");
 }
 
-static inline int getStartSpace(const std::string& text) {
-    return pystring::find(text, "-");
-}
+static inline int getStartSpace(const std::string& text) { return pystring::find(text, "-"); }
 
-static inline bool isHeader(const std::string& text) {
-    return pystring::startswith(text, "#");
-}
+static inline bool isHeader(const std::string& text) { return pystring::startswith(text, "#"); }
 
 static inline size_t getHeaderSize(const std::string& text) {
     size_t res = text.find_first_not_of('#');
@@ -35,9 +33,7 @@ static inline size_t getHeaderSize(const std::string& text) {
     return res;
 }
 
-static inline bool isImage(const std::string& text) {
-    return pystring::startswith(pystring::lstrip(text), "![");
-}
+static inline bool isImage(const std::string& text) { return pystring::startswith(pystring::lstrip(text), "!["); }
 
 #define PARSE_IMAGE_DATA(index, name, def)               \
     if (data.size() > (index) && !data[index].empty()) { \
@@ -49,8 +45,7 @@ static inline bool isImage(const std::string& text) {
     } else {                                             \
         (name) = def;                                    \
     }
-static inline std::string getImageUrl(const std::string& test, int& maxHeight,
-                                      int& margin) {
+static inline std::string getImageUrl(const std::string& test, int& maxHeight, int& margin) {
     std::regex re(R"(\!\[(.*)\]\((.*)\))");
     std::smatch match;
     if (std::regex_search(test, match, re)) {
@@ -79,10 +74,8 @@ LatestUpdate::LatestUpdate(const ReleaseNote& info) {
     brls::Logger::debug("Fragment LatestUpdate: create");
 
     header->setText(info.name);
-    subtitle->setText(fmt::format("新版本已发布，您现在的版本是: {}",
-                                  APPVersion::instance().git_tag));
-    author->setUserInfo(info.author.avatar_url, info.author.login,
-                        info.published_at);
+    subtitle->setText(fmt::format("新版本已发布，您现在的版本是: {}", APPVersion::instance().git_tag));
+    author->setUserInfo(info.author.avatar_url, info.author.login, info.published_at);
 
     // 显示来自 github 的 reactions
     SHOW_REACTION("👍", info.reactions.plus_one);
@@ -134,8 +127,7 @@ LatestUpdate::LatestUpdate(const ReleaseNote& info) {
             auto box   = new brls::Box();
             auto image = new brls::Image();
             image->setMaxHeight((float)maxHeight);
-            image->setMargins((float)margin, (float)margin, (float)margin,
-                              (float)margin);
+            image->setMargins((float)margin, (float)margin, (float)margin, (float)margin);
             ImageHelper::with(image)->load(url);
             box->addView(image);
             box->setJustifyContent(brls::JustifyContent::CENTER);
@@ -160,6 +152,4 @@ LatestUpdate::LatestUpdate(const ReleaseNote& info) {
     GA("show_update_dialog")
 }
 
-LatestUpdate::~LatestUpdate() {
-    brls::Logger::debug("Fragment LatestUpdate: delete");
-}
+LatestUpdate::~LatestUpdate() { brls::Logger::debug("Fragment LatestUpdate: delete"); }

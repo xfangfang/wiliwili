@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include "view/recycling_grid.hpp"
 
 class NetImage;
@@ -27,13 +26,11 @@ public:
 
     ~RecyclingGridItemVideoCard() override;
 
-    void setCard(std::string pic, std::string title, std::string username,
-                 int pubdate = 0, int view_count = 0, int danmaku = 0,
-                 int duration = 0, std::string extra = "");
+    void setCard(std::string pic, std::string title, std::string username, int pubdate = 0, int view_count = 0,
+                 int danmaku = 0, int duration = 0, std::string extra = "");
 
-    void setCard(std::string pic, std::string title, std::string username,
-                 int pubdate = 0, int view_count = 0, int danmaku = 0,
-                 std::string rightBottomBadge = "", std::string extra = "");
+    void setCard(std::string pic, std::string title, std::string username, int pubdate = 0, int view_count = 0,
+                 int danmaku = 0, std::string rightBottomBadge = "", std::string extra = "");
 
     /** 设置视频下方的推荐原因
      * 热门 每周必看 视频下方都包含推荐原因
@@ -65,17 +62,14 @@ private:
 
 class RecyclingGridItemRankVideoCard : public BaseVideoCard {
 public:
-    explicit RecyclingGridItemRankVideoCard(
-        std::string res = "xml/views/video_card_rank.xml");
+    explicit RecyclingGridItemRankVideoCard(std::string res = "xml/views/video_card_rank.xml");
 
     ~RecyclingGridItemRankVideoCard() override;
 
-    void setCard(std::string pic, std::string title, std::string username,
-                 int pubdate = 0, int view_count = 0, int danmaku = 0,
-                 int duration = 0, int index = 0);
+    void setCard(std::string pic, std::string title, std::string username, int pubdate = 0, int view_count = 0,
+                 int danmaku = 0, int duration = 0, int index = 0);
 
-    static RecyclingGridItemRankVideoCard* create(
-        std::string res = "xml/views/video_card_rank.xml");
+    static RecyclingGridItemRankVideoCard* create(std::string res = "xml/views/video_card_rank.xml");
 
 private:
     BRLS_BIND(SVGImage, svgIndex, "video/card/svg/index");
@@ -94,8 +88,8 @@ public:
 
     ~RecyclingGridItemLiveVideoCard() override;
 
-    void setCard(std::string pic, std::string title, std::string username,
-                 std::string area, int view_count = 0, bool following = false);
+    void setCard(std::string pic, std::string title, std::string username, std::string area, int view_count = 0,
+                 bool following = false);
 
     static RecyclingGridItemLiveVideoCard* create();
 
@@ -117,9 +111,8 @@ public:
 
     bool isVertical();
 
-    void setCard(std::string pic, std::string title, std::string username,
-                 std::string badge_top, std::string badge_bottom_left,
-                 std::string badge_bottom_right);
+    void setCard(std::string pic, std::string title, std::string username, std::string badge_top,
+                 std::string badge_bottom_left, std::string badge_bottom_right);
 
     void cacheForReuse() override;
 
@@ -143,10 +136,9 @@ public:
 
     ~RecyclingGridItemSearchPGCVideoCard() override;
 
-    void setCard(std::string pic, std::string title, std::string subtitle,
-                 std::string actor, std::string desc, std::string badge_top,
-                 std::string badge_color, std::string scoreCount,
-                 std::string score, std::string type, std::string bottom);
+    void setCard(std::string pic, std::string title, std::string subtitle, std::string actor, std::string desc,
+                 std::string badge_top, std::string badge_color, std::string scoreCount, std::string score,
+                 std::string type, std::string bottom);
 
     static RecyclingGridItem* create();
 
@@ -188,10 +180,8 @@ public:
 
     ~RecyclingGridItemHistoryVideoCard() override;
 
-    void setCard(std::string pic, std::string title, std::string username,
-                 std::string leftBottomBadge  = "",
-                 std::string rightBottomBadge = "",
-                 std::string rightTopBadge = "", int deviceType = 0,
+    void setCard(std::string pic, std::string title, std::string username, std::string leftBottomBadge = "",
+                 std::string rightBottomBadge = "", std::string rightTopBadge = "", int deviceType = 0,
                  float progress = -1, bool showName = true);
 
     static RecyclingGridItemHistoryVideoCard* create();
@@ -215,8 +205,7 @@ public:
 
     ~RecyclingGridItemCollectionVideoCard() override;
 
-    void setCard(std::string pic, std::string title, std::string username,
-                 std::string leftBottomBadge  = "",
+    void setCard(std::string pic, std::string title, std::string username, std::string leftBottomBadge = "",
                  std::string rightBottomBadge = "");
 
     static RecyclingGridItemCollectionVideoCard* create();
@@ -235,9 +224,8 @@ public:
 
     ~RecyclingGridItemRelatedVideoCard() override;
 
-    void setCard(std::string pic, std::string title, std::string username,
-                 std::string playCount, std::string danmakuCount,
-                 std::string rightBottomBadge = "");
+    void setCard(std::string pic, std::string title, std::string username, std::string playCount,
+                 std::string danmakuCount, std::string rightBottomBadge = "");
 
     static RecyclingGridItemRelatedVideoCard* create();
 
@@ -256,9 +244,8 @@ public:
 
     ~RecyclingGridItemSeasonSeriesVideoCard() override;
 
-    void setCard(const std::string& pic, const std::string& title,
-                 const std::string& username, const std::string& playCount,
-                 const std::string& likeCount, const std::string& badge,
+    void setCard(const std::string& pic, const std::string& title, const std::string& username,
+                 const std::string& playCount, const std::string& likeCount, const std::string& badge,
                  const std::string& badge_color);
 
     static RecyclingGridItem* create();

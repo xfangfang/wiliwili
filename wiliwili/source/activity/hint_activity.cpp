@@ -2,6 +2,11 @@
 // Created by fang on 2022/8/21.
 //
 
+#include <borealis/core/i18n.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/views/label.hpp>
+#include <borealis/views/dialog.hpp>
+
 #include "activity/hint_activity.hpp"
 #include "view/gallery_view.hpp"
 #include "analytics.h"
@@ -98,6 +103,4 @@ void HintActivity::onContentAvailable() {
 #endif
 }
 
-HintActivity::~HintActivity() {
-    brls::Logger::debug("HintActivityActivity: delete");
-}
+HintActivity::~HintActivity() { brls::Logger::debug("HintActivityActivity: delete"); }

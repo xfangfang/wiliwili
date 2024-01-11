@@ -9,9 +9,15 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
 
+namespace brls {
+class Label;
+class Button;
+}  // namespace brls
 class ButtonClose;
+
 class SeasonEvaluate : public brls::Box {
 public:
     SeasonEvaluate();

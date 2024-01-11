@@ -19,7 +19,15 @@
 
 #pragma once
 
-#include "borealis.hpp"
+#include <functional>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+#include <borealis/core/application.hpp>
+
+namespace brls {
+class Label;
+class Rectangle;
+}  // namespace brls
 
 typedef std::function<brls::View*(void)> TabViewCreator;
 
@@ -94,8 +102,7 @@ private:
 
     NVGcolor tabItemBackgroundColor       = nvgRGBA(0, 0, 0, 0);
     NVGcolor tabItemActiveBackgroundColor = nvgRGBA(0, 0, 0, 0);
-    NVGcolor tabItemActiveTextColor =
-        brls::Application::getTheme()["brls/text"];
+    NVGcolor tabItemActiveTextColor       = brls::Application::getTheme()["brls/text"];
 
     bool active                        = false;
     View* attachedView                 = nullptr;
@@ -128,11 +135,8 @@ public:
 
     View* getDefaultFocus() override { return brls::Box::getDefaultFocus(); }
 
-    void registerTabAction(std::string hintText,
-                           enum brls::ControllerButton button,
-                           brls::ActionListener action, bool hidden = false,
-                           bool allowRepeating    = false,
-                           enum brls::Sound sound = brls::SOUND_NONE);
+    void registerTabAction(std::string hintText, enum brls::ControllerButton button, brls::ActionListener action,
+                           bool hidden = false, bool allowRepeating = false, enum brls::Sound sound = brls::SOUND_NONE);
 
 private:
     AutoSidebarItem* tab = nullptr;
@@ -159,8 +163,7 @@ public:
 
     size_t getDefaultTabIndex();
 
-    brls::View* getNextFocus(brls::FocusDirection direction,
-                             brls::View* currentView) override;
+    brls::View* getNextFocus(brls::FocusDirection direction, brls::View* currentView) override;
 
     void setItemDefaultBackgroundColor(NVGcolor c);
 
@@ -178,8 +181,7 @@ public:
 
     void setDemandMode(bool value);
 
-    void addItem(AutoSidebarItem* tab, TabViewCreator creator,
-                 brls::GenericEvent::Callback focusCallback);
+    void addItem(AutoSidebarItem* tab, TabViewCreator creator, brls::GenericEvent::Callback focusCallback);
 
     AutoSidebarItem* getItem(int position);
 
@@ -200,8 +202,8 @@ public:
 
     bool isOnTop = false;
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext* ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext* ctx) override;
 
     void onLayout() override;
 
@@ -237,9 +239,8 @@ private:
     ButtonRefresh* refreshButton        = nullptr;
     std::function<void()> refreshAction = nullptr;
 
-    NVGcolor skeletonBackground = brls::Application::getTheme()["color/grey_3"];
+    NVGcolor skeletonBackground           = brls::Application::getTheme()["color/grey_3"];
     NVGcolor tabItemBackgroundColor       = nvgRGBA(0, 0, 0, 0);
     NVGcolor tabItemActiveBackgroundColor = nvgRGBA(0, 0, 0, 0);
-    NVGcolor tabItemActiveTextColor =
-        brls::Application::getTheme()["brls/text"];
+    NVGcolor tabItemActiveTextColor       = brls::Application::getTheme()["brls/text"];
 };

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include <view/auto_tab_frame.hpp>
 #include "activity/search_activity.hpp"
 

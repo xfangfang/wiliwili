@@ -2,7 +2,7 @@
 // Created by fang on 2022/8/18.
 //
 
-#include <borealis.hpp>
+#include <borealis/core/i18n.hpp>
 
 #include "bilibili.h"
 #include "bilibili/result/mine_result.h"
@@ -11,14 +11,11 @@
 
 using namespace brls::literals;
 
-void DynamicVideoRequest::onDynamicVideoList(
-    const bilibili::DynamicVideoListResult &result, unsigned int index) {}
+void DynamicVideoRequest::onDynamicVideoList(const bilibili::DynamicVideoListResult &result, unsigned int index) {}
 
 void DynamicVideoRequest::onError(const std::string &error) {}
 
-void DynamicVideoRequest::setCurrentUser(int64_t mid) {
-    this->currentUser = mid;
-}
+void DynamicVideoRequest::setCurrentUser(int64_t mid) { this->currentUser = mid; }
 
 void DynamicVideoRequest::requestData(bool refresh) {
     CHECK_REQUEST
@@ -33,8 +30,7 @@ void DynamicVideoRequest::requestData(bool refresh) {
     }
 }
 
-void DynamicVideoRequest::requestDynamicVideoList(unsigned int page,
-                                                  const std::string &offset) {
+void DynamicVideoRequest::requestDynamicVideoList(unsigned int page, const std::string &offset) {
     auto mid = ProgramConfig::instance().getUserID();
     if (mid.empty() || mid == "0") {
         this->onError("wiliwili/home/common/no_login"_i18n);
@@ -45,9 +41,7 @@ void DynamicVideoRequest::requestDynamicVideoList(unsigned int page,
         page, offset,
         [this](const bilibili::DynamicVideoListResultWrapper &result) {
             if (currentPage != result.page) {
-                brls::Logger::error(
-                    "request dynamic video error: current page: {}, got: {}",
-                    currentPage, result.page);
+                brls::Logger::error("request dynamic video error: current page: {}, got: {}", currentPage, result.page);
                 return;
             }
             currentOffset = result.offset;
@@ -61,16 +55,14 @@ void DynamicVideoRequest::requestDynamicVideoList(unsigned int page,
         });
 }
 
-void DynamicVideoRequest::requestUserDynamicVideoList(int64_t mid, int pn,
-                                                      int ps) {
+void DynamicVideoRequest::requestUserDynamicVideoList(int64_t mid, int pn, int ps) {
     CHECK_AND_SET_REQUEST
     BILI::get_user_videos2(
         mid, pn, ps,
         [this](const bilibili::UserDynamicVideoResultWrapper &result) {
             if (currentPage != result.page.pn) {
-                brls::Logger::error(
-                    "request dynamic video error: current page: {}, got: {}",
-                    currentPage, result.page.pn);
+                brls::Logger::error("request dynamic video error: current page: {}, got: {}", currentPage,
+                                    result.page.pn);
                 return;
             }
             currentPage = result.page.pn + 1;

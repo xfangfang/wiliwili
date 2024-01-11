@@ -12,8 +12,7 @@ public:
     static void showDialog(const std::string& msg);
 
     /// 展示带有取消按钮的对话框
-    static void showCancelableDialog(const std::string& msg,
-                                     std::function<void(void)> cb);
+    static void showCancelableDialog(const std::string& msg, std::function<void(void)> cb);
 
     /// 检查本地是否存在登录信息，非联网检查
     static bool checkLogin();

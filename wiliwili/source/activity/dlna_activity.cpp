@@ -3,13 +3,15 @@
 //
 
 #include <borealis/views/dialog.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/core/logger.hpp>
 
-#include "view/video_view.hpp"
-#include "view/subtitle_core.hpp"
 #include "activity/dlna_activity.hpp"
 #include "bilibili/util/uuid.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "view/video_view.hpp"
+#include "view/mpv_core.hpp"
 
 using namespace brls::literals;
 
@@ -31,9 +33,8 @@ DLNAActivity::DLNAActivity() {
     uuid = "uuid:" + bilibili::genUUID(ProgramConfig::instance().getClientID());
     brls::Logger::info("DLNA UUID: {}", uuid);
 
-    std::string defaultName =
-        "wiliwili " + APPVersion::instance().getPlatform();
-    std::string name = GET_SETTING(SettingItem::DLNA_NAME, defaultName);
+    std::string defaultName = "wiliwili " + APPVersion::instance().getPlatform();
+    std::string name        = GET_SETTING(SettingItem::DLNA_NAME, defaultName);
 
     dlna = std::make_shared<pdr::DLNA>(ip, port, uuid);
     dlna->setDeviceInfo("friendlyName", name);
@@ -45,8 +46,7 @@ DLNAActivity::DLNAActivity() {
     dlna->setDeviceInfo("modelURL", "https://github.com/xfangfang/wiliwili");
     dlna->start();
 
-    dlnaEventSubscribeID = DLNA_EVENT.subscribe([this](const std::string& event,
-                                                       void* data) {
+    dlnaEventSubscribeID = DLNA_EVENT.subscribe([this](const std::string& event, void* data) {
         if (event == "CurrentURI") {
             std::string url = std::string{(char*)data};
             brls::Logger::info("CurrentURI: {}", url);
@@ -63,8 +63,7 @@ DLNAActivity::DLNAActivity() {
             brls::sync([this]() {
                 MPVCore::instance().pause();
                 video->showOSD(false);
-                video->setTitle(
-                    "wiliwili/setting/tools/others/dlna_waiting"_i18n);
+                video->setTitle("wiliwili/setting/tools/others/dlna_waiting"_i18n);
             });
         } else if (event == "Play") {
             brls::sync([]() { MPVCore::instance().resume(); });
@@ -76,9 +75,7 @@ DLNAActivity::DLNAActivity() {
             PLAYER_EVENT.fire("TransportState", (void*)value.c_str());
         } else if (event == "Seek") {
             std::string position = std::string{(char*)data};
-            brls::sync([position]() {
-                MPVCore::instance().seek(position);
-            });
+            brls::sync([position]() { MPVCore::instance().seek(position); });
         } else if (event == "SetVolume") {
             std::string volume = std::string{(const char*)data};
             brls::sync([volume]() {
@@ -118,14 +115,12 @@ DLNAActivity::DLNAActivity() {
                 break;
             }
             case MpvEventEnum::UPDATE_DURATION: {
-                std::string value =
-                    wiliwili::sec2TimeDLNA(MPVCore::instance().duration);
+                std::string value = wiliwili::sec2TimeDLNA(MPVCore::instance().duration);
                 PLAYER_EVENT.fire("CurrentTrackDuration", (void*)value.c_str());
                 break;
             }
             case MpvEventEnum::UPDATE_PROGRESS: {
-                std::string value =
-                    wiliwili::sec2TimeDLNA(MPVCore::instance().video_progress);
+                std::string value = wiliwili::sec2TimeDLNA(MPVCore::instance().video_progress);
                 PLAYER_EVENT.fire("AbsoluteTimePosition", (void*)value.c_str());
                 PLAYER_EVENT.fire("RelativeTimePosition", (void*)value.c_str());
                 break;
@@ -181,11 +176,10 @@ void DLNAActivity::onContentAvailable() {
     this->video->showOSD(false);
     this->video->setOnlineCount(fmt::format("http://{}:{}", ip, port));
 
-    this->video->getFullscreenIcon()->getParent()->registerClickAction(
-        [this](...) {
-            this->dismiss();
-            return true;
-        });
+    this->video->getFullscreenIcon()->getParent()->registerClickAction([this](...) {
+        this->dismiss();
+        return true;
+    });
     this->video->registerAction(
         "cancel", brls::ControllerButton::BUTTON_B,
         [this](brls::View* view) -> bool {
@@ -199,12 +193,9 @@ void DLNAActivity::onContentAvailable() {
 }
 
 void DLNAActivity::dismiss() {
-    auto dialog =
-        new brls::Dialog("wiliwili/setting/tools/others/dlna_quit"_i18n);
+    auto dialog = new brls::Dialog("wiliwili/setting/tools/others/dlna_quit"_i18n);
     dialog->addButton("hints/cancel"_i18n, []() {});
-    dialog->addButton("hints/ok"_i18n, []() {
-        brls::Application::popActivity(brls::TransitionAnimation::NONE);
-    });
+    dialog->addButton("hints/ok"_i18n, []() { brls::Application::popActivity(brls::TransitionAnimation::NONE); });
     dialog->open();
     brls::sync([dialog]() { brls::Application::giveFocus(dialog); });
 }

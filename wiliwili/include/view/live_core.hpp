@@ -9,9 +9,10 @@
 #include <chrono>
 #include <cstddef>
 #include <deque>
+#include <map>
+#include <mutex>
 
-#include "nanovg.h"
-#include <borealis.hpp>
+#include <nanovg.h>
 #include <borealis/core/singleton.hpp>
 
 using time_p = std::chrono::time_point<std::chrono::system_clock>;
@@ -49,9 +50,7 @@ public:
 
     void reset();
     void add(const std::vector<LiveDanmakuItem> &dan_l);
-    void draw(NVGcontext *vg, float x, float y, float width, float height,
-              float alpha);
+    void draw(NVGcontext *vg, float x, float y, float width, float height, float alpha);
 
-    bool init_danmaku(NVGcontext *vg, LiveDanmakuItem &i, float width,
-                      int LINES, float SECOND, time_p now, int time);
+    bool init_danmaku(NVGcontext *vg, LiveDanmakuItem &i, float width, int LINES, float SECOND, time_p now, int time);
 };

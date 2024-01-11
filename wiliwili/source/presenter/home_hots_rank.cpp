@@ -25,17 +25,12 @@ void HomeHotsRankRequest::requestData(size_t index) {
 
 void HomeHotsRankRequest::requestHotsRankVideoList(int rid, std::string type) {
     BILI::get_hots_rank(
-        rid, type,
-        [this](auto result, auto note) { this->onHotsRankList(result, note); },
+        rid, type, [this](auto result, auto note) { this->onHotsRankList(result, note); },
         [this](BILI_ERR) { this->onError(error); });
 }
 
-void HomeHotsRankRequest::requestHotsRankPGCVideoList(int season_type,
-                                                      int day) {
+void HomeHotsRankRequest::requestHotsRankPGCVideoList(int season_type, int day) {
     BILI::get_hots_rank_pgc(
-        season_type, day,
-        [this](auto result, auto explain) {
-            this->onHotsRankPGCList(result, explain);
-        },
+        season_type, day, [this](auto result, auto explain) { this->onHotsRankPGCList(result, explain); },
         [this](BILI_ERR) { this->onError(error); });
 }

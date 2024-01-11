@@ -11,7 +11,7 @@
 
 #include <atomic>
 #include <memory>
-#include <borealis.hpp>
+
 #include "view/auto_tab_frame.hpp"
 
 class RecyclingGrid;

@@ -3,10 +3,11 @@
 //
 
 #pragma once
-#include <borealis.hpp>
+
 #include <cpr/cpr.h>
 #include <qrcodegen.hpp>
 #include <pystring.h>
+#include <cstdlib>
 #include <fmt/format.h>
 
 #include "view/svg_image.hpp"
@@ -19,19 +20,13 @@ class QRImage : public SVGImage {
 public:
     QRImage() {
         this->registerStringXMLAttribute("QRContent",
-                                         [this](const std::string& value) {
-                                             this->setImageFromQRContent(value);
-                                         });
+                                         [this](const std::string& value) { this->setImageFromQRContent(value); });
 
-        this->registerColorXMLAttribute("QRBackground", [this](NVGcolor value) {
-            this->setQRBackgroundColor(value);
-        });
+        this->registerColorXMLAttribute("QRBackground", [this](NVGcolor value) { this->setQRBackgroundColor(value); });
 
-        this->registerColorXMLAttribute(
-            "QRColor", [this](NVGcolor value) { this->setQRMainColor(value); });
+        this->registerColorXMLAttribute("QRColor", [this](NVGcolor value) { this->setQRMainColor(value); });
 
-        this->registerFloatXMLAttribute(
-            "QRBorder", [this](float value) { this->setQRBorder((int)value); });
+        this->registerFloatXMLAttribute("QRBorder", [this](float value) { this->setQRBorder((int)value); });
     }
 
     void setImageFromQRContent(const std::string& value) {
@@ -68,8 +63,7 @@ public:
         int size   = qr.getSize();
         int border = this->QRBorder;
         if (border < 0) throw std::domain_error("Border must be non-negative");
-        if (border > INT_MAX / 2 || border * 2 > INT_MAX - size)
-            throw std::overflow_error("Border too large");
+        if (border > INT_MAX / 2 || border * 2 > INT_MAX - size) throw std::overflow_error("Border too large");
 
         std::ostringstream sb;
         sb << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
@@ -77,8 +71,7 @@ public:
               "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
         sb << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" "
               "viewBox=\"0 0 ";
-        sb << (size + border * 2) << " " << (size + border * 2)
-           << "\" stroke=\"none\">\n";
+        sb << (size + border * 2) << " " << (size + border * 2) << "\" stroke=\"none\">\n";
         sb << "\t<rect width=\"100%\" height=\"100%\" fill=\"#";
         sb << getColor(this->backgroundColor);
         sb << "\"/>\n";
@@ -87,8 +80,7 @@ public:
             for (int x = 0; x < size; x++) {
                 if (qr.getModule(x, y)) {
                     if (x != 0 || y != 0) sb << " ";
-                    sb << "M" << (x + border) << "," << (y + border)
-                       << "h1v1h-1z";
+                    sb << "M" << (x + border) << "," << (y + border) << "h1v1h-1z";
                 }
             }
         }

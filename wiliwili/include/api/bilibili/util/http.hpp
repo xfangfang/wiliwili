@@ -40,75 +40,57 @@ public:
     static inline cpr::Proxies PROXIES;
     static inline cpr::VerifySsl VERIFY;
 
-    static cpr::Response get(const std::string& url,
-                             const cpr::Parameters& parameters = {},
-                             int timeout                       = 10000);
+    static cpr::Response get(const std::string& url, const cpr::Parameters& parameters = {}, int timeout = 10000);
 
-    static void __cpr_post(
-        const std::string& url, const cpr::Parameters& parameters = {},
-        const cpr::Payload& payload                               = {},
-        const std::function<void(const cpr::Response&)>& callback = nullptr,
-        const ErrorCallback& error                                = nullptr) {
+    static void __cpr_post(const std::string& url, const cpr::Parameters& parameters = {},
+                           const cpr::Payload& payload                               = {},
+                           const std::function<void(const cpr::Response&)>& callback = nullptr,
+                           const ErrorCallback& error                                = nullptr) {
         cpr::PostCallback(
             [callback, error](const cpr::Response& r) {
                 if (r.status_code == 0) {
                     ERROR_MSG("No network connection", -1);
                     return;
                 } else if (r.status_code != 200) {
-                    ERROR_MSG("Network error. [Status code: " +
-                                  std::to_string(r.status_code) + " ]",
-                              r.status_code);
+                    ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
                     return;
                 }
                 callback(r);
             },
-            cpr::Url{url}, parameters, payload, HTTP::HEADERS, HTTP::COOKIES,
-            HTTP::PROXIES,
-            HTTP::VERIFY,
-            cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS},
-            cpr::Timeout{HTTP::TIMEOUT});
+            cpr::Url{url}, parameters, payload, HTTP::HEADERS, HTTP::COOKIES, HTTP::PROXIES, HTTP::VERIFY,
+            cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS}, cpr::Timeout{HTTP::TIMEOUT});
     }
 
-    static void __cpr_get(
-        const std::string& url, const cpr::Parameters& parameters = {},
-        const std::function<void(const cpr::Response&)>& callback = nullptr,
-        const ErrorCallback& error                                = nullptr) {
+    static void __cpr_get(const std::string& url, const cpr::Parameters& parameters = {},
+                          const std::function<void(const cpr::Response&)>& callback = nullptr,
+                          const ErrorCallback& error                                = nullptr) {
         cpr::GetCallback(
             [callback, error](const cpr::Response& r) {
                 if (r.status_code == 0) {
                     ERROR_MSG("No network connection", -1);
                     return;
                 } else if (r.status_code != 200) {
-                    ERROR_MSG("Network error. [Status code: " +
-                                  std::to_string(r.status_code) + " ]",
-                              r.status_code);
+                    ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
                     return;
                 }
                 callback(r);
             },
-            cpr::Url{url}, parameters, HTTP::HEADERS, HTTP::COOKIES,
-            HTTP::PROXIES,
-            HTTP::VERIFY,
-            cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS},
-            cpr::Timeout{HTTP::TIMEOUT});
+            cpr::Url{url}, parameters, HTTP::HEADERS, HTTP::COOKIES, HTTP::PROXIES, HTTP::VERIFY,
+            cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS}, cpr::Timeout{HTTP::TIMEOUT});
     }
 
     template <typename ReturnType>
-    static void getResultAsync(
-        const std::string& url, cpr::Parameters parameters = {},
-        const std::function<void(ReturnType)>& callback = nullptr,
-        const ErrorCallback& error = nullptr, bool needSign = false) {
+    static void getResultAsync(const std::string& url, cpr::Parameters parameters = {},
+                               const std::function<void(ReturnType)>& callback = nullptr,
+                               const ErrorCallback& error = nullptr, bool needSign = false) {
         if (needSign) {
-            parameters.Add(
-                {{"appkey", BILIBILI_APP_KEY},
-                 {"build", BILIBILI_BUILD},
-                 {"ts", std::to_string(wiliwili::getUnixTime() * 1000)}});
+            parameters.Add({{"appkey", BILIBILI_APP_KEY},
+                            {"build", BILIBILI_BUILD},
+                            {"ts", std::to_string(wiliwili::getUnixTime() * 1000)}});
             std::vector<std::string> kv;
             pystring::split(parameters.GetContent(cpr::CurlHolder()), kv, "&");
             std::sort(kv.begin(), kv.end());
-            parameters.Add(
-                {{"sign", websocketpp::md5::md5_hash_hex(
-                              pystring::join("&", kv) + BILIBILI_APP_SECRET)}});
+            parameters.Add({{"sign", websocketpp::md5::md5_hash_hex(pystring::join("&", kv) + BILIBILI_APP_SECRET)}});
         }
         __cpr_get(
             url, parameters,
@@ -117,11 +99,9 @@ public:
                     nlohmann::json res = nlohmann::json::parse(r.text);
                     int code           = res.at("code").get<int>();
                     if (code == 0) {
-                        if (res.contains("data") &&
-                            res.at("data").is_object()) {
+                        if (res.contains("data") && res.at("data").is_object()) {
                             CALLBACK(res.at("data").get<ReturnType>());
-                        } else if (res.contains("result") &&
-                                   res.at("result").is_object()) {
+                        } else if (res.contains("result") && res.at("result").is_object()) {
                             CALLBACK(res.at("result").get<ReturnType>());
                         } else {
                             printf("data: %s\n", r.text.c_str());
@@ -141,9 +121,7 @@ public:
                     } else if (r.status_code == 0) {
                         ERROR_MSG("No network connection", -1);
                     } else {
-                        ERROR_MSG("Network error. \nStatus code: " +
-                                      std::to_string(r.status_code),
-                                  r.status_code);
+                        ERROR_MSG("Network error. \nStatus code: " + std::to_string(r.status_code), r.status_code);
                     }
                     printf("data: %s\n", r.text.c_str());
                     printf("ERROR: %s\n", e.what());
@@ -153,22 +131,17 @@ public:
     }
 
     template <typename ReturnType>
-    static void postResultAsync(
-        const std::string& url, cpr::Parameters parameters = {},
-        cpr::Payload payload                            = {},
-        const std::function<void(ReturnType)>& callback = nullptr,
-        const ErrorCallback& error = nullptr, bool needSign = false) {
+    static void postResultAsync(const std::string& url, cpr::Parameters parameters = {}, cpr::Payload payload = {},
+                                const std::function<void(ReturnType)>& callback = nullptr,
+                                const ErrorCallback& error = nullptr, bool needSign = false) {
         if (needSign) {
-            parameters.Add(
-                {{"appkey", BILIBILI_APP_KEY},
-                 {"build", BILIBILI_BUILD},
-                 {"ts", std::to_string(wiliwili::getUnixTime() * 1000)}});
+            parameters.Add({{"appkey", BILIBILI_APP_KEY},
+                            {"build", BILIBILI_BUILD},
+                            {"ts", std::to_string(wiliwili::getUnixTime() * 1000)}});
             std::vector<std::string> kv;
             pystring::split(parameters.GetContent(cpr::CurlHolder()), kv, "&");
             std::sort(kv.begin(), kv.end());
-            parameters.Add(
-                {{"sign", websocketpp::md5::md5_hash_hex(
-                              pystring::join("&", kv) + BILIBILI_APP_SECRET)}});
+            parameters.Add({{"sign", websocketpp::md5::md5_hash_hex(pystring::join("&", kv) + BILIBILI_APP_SECRET)}});
         }
         __cpr_post(
             url, parameters, payload,
@@ -197,11 +170,8 @@ public:
             error);
     }
 
-    static void postResultAsync(const std::string& url,
-                                cpr::Parameters parameters            = {},
-                                cpr::Payload payload                  = {},
-                                const std::function<void()>& callback = nullptr,
-                                const ErrorCallback& error = nullptr) {
+    static void postResultAsync(const std::string& url, cpr::Parameters parameters = {}, cpr::Payload payload = {},
+                                const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr) {
         __cpr_post(
             url, parameters, payload,
             [callback, error](const cpr::Response& r) {

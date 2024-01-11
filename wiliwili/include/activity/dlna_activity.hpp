@@ -7,8 +7,7 @@
 #include <borealis/core/activity.hpp>
 #include <libpdr.h>
 
-#include "view/mpv_core.hpp"
-
+#include "utils/event_helper.hpp"
 
 class VideoView;
 class DLNAActivity : public brls::Activity {

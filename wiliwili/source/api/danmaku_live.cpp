@@ -19,17 +19,14 @@
 #endif
 
 namespace bilibili {
-void BilibiliClient::get_live_danmaku_info(
-    int roomid, const std::function<void(LiveDanmakuinfo)> &callback,
-    const ErrorCallback &error) {
-    HTTP::getResultAsync<LiveDanmakuinfo>(
-        Api::LiveDanmakuInfo, {{"type", "0"}, {"id", std::to_string(roomid)}},
-        callback, error);
+void BilibiliClient::get_live_danmaku_info(int roomid, const std::function<void(LiveDanmakuinfo)> &callback,
+                                           const ErrorCallback &error) {
+    HTTP::getResultAsync<LiveDanmakuinfo>(Api::LiveDanmakuInfo, {{"type", "0"}, {"id", std::to_string(roomid)}},
+                                          callback, error);
 }
 }  // namespace bilibili
 
-static void mongoose_event_handler(struct mg_connection *nc, int ev,
-                                   void *ev_data, void *user_data);
+static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_data, void *user_data);
 
 static void heartbeat_timer(void *param) {
     auto liveDanmaku = static_cast<LiveDanmaku *>(param);
@@ -65,8 +62,7 @@ LiveDanmaku::~LiveDanmaku() {
 #endif
 }
 
-void LiveDanmaku::connect(int room_id, int64_t uid,
-                          const bilibili::LiveDanmakuinfo &info) {
+void LiveDanmaku::connect(int room_id, int64_t uid, const bilibili::LiveDanmakuinfo &info) {
     if (connected.load(std::memory_order_acquire)) {
         return;
     }
@@ -85,14 +81,9 @@ void LiveDanmaku::connect(int room_id, int64_t uid,
     this->info = info;
     mg_mgr_init(this->mgr);
 
-    std::string host =
-        "ws://" + this->info.host_list[this->info.host_list.size() - 1].host +
-        ":" +
-        std::to_string(
-            this->info.host_list[this->info.host_list.size() - 1].ws_port) +
-        "/sub";
-    this->nc = mg_ws_connect(this->mgr, host.c_str(), mongoose_event_handler,
-                             this, nullptr);
+    std::string host = "ws://" + this->info.host_list[this->info.host_list.size() - 1].host + ":" +
+                       std::to_string(this->info.host_list[this->info.host_list.size() - 1].ws_port) + "/sub";
+    this->nc = mg_ws_connect(this->mgr, host.c_str(), mongoose_event_handler, this, nullptr);
 
     if (this->nc == nullptr) {
         brls::Logger::error("(LiveDanmaku) nc is null");
@@ -122,8 +113,7 @@ void LiveDanmaku::connect(int room_id, int64_t uid,
     this->task_thread = std::thread([this]() {
         while (true) {
             std::unique_lock<std::mutex> lock(msg_q_mutex);
-            cv.wait(lock,
-                    [this] { return !msg_q.empty() or !this->is_connected(); });
+            cv.wait(lock, [this] { return !msg_q.empty() or !this->is_connected(); });
             if (!this->is_connected()) break;
             auto msg = std::move(msg_q.front());
             msg_q.pop();
@@ -159,9 +149,7 @@ void LiveDanmaku::disconnect() {
 
 void LiveDanmaku::set_wait_time(size_t time) { wait_time = time; }
 
-bool LiveDanmaku::is_connected() {
-    return connected.load(std::memory_order_acquire);
-}
+bool LiveDanmaku::is_connected() { return connected.load(std::memory_order_acquire); }
 
 bool LiveDanmaku::is_evOK() { return ms_ev_ok.load(std::memory_order_acquire); }
 
@@ -179,8 +167,7 @@ void LiveDanmaku::send_join_request(const int room_id, const int64_t uid) {
     std::string packet_str(packet.begin(), packet.end());
     mongoose_mutex.lock();
     if (this->nc == nullptr) return;
-    mg_ws_send(this->nc, packet_str.data(), packet_str.size(),
-               WEBSOCKET_OP_BINARY);
+    mg_ws_send(this->nc, packet_str.data(), packet_str.size(), WEBSOCKET_OP_BINARY);
     mongoose_mutex.unlock();
 }
 
@@ -190,8 +177,7 @@ void LiveDanmaku::send_heartbeat() {
     std::string packet_str(packet.begin(), packet.end());
     mongoose_mutex.lock();
     if (this->nc == nullptr) return;
-    mg_ws_send(this->nc, packet_str.data(), packet_str.size(),
-               WEBSOCKET_OP_BINARY);
+    mg_ws_send(this->nc, packet_str.data(), packet_str.size(), WEBSOCKET_OP_BINARY);
     mongoose_mutex.unlock();
 }
 
@@ -199,8 +185,7 @@ void LiveDanmaku::send_text_message(const std::string &message) {
     //暂时不用
 }
 
-static void mongoose_event_handler(struct mg_connection *nc, int ev,
-                                   void *ev_data, void *user_data) {
+static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_data, void *user_data) {
     LiveDanmaku *liveDanmaku = static_cast<LiveDanmaku *>(user_data);
     liveDanmaku->ms_ev_ok.store(true, std::memory_order_release);
     if (ev == MG_EV_OPEN) {
@@ -216,8 +201,7 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev,
     } else if (ev == MG_EV_WS_OPEN) {
         MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         liveDanmaku->send_join_request(liveDanmaku->room_id, liveDanmaku->uid);
-        mg_timer_add(liveDanmaku->mgr, 30000, MG_TIMER_REPEAT, heartbeat_timer,
-                     user_data);
+        mg_timer_add(liveDanmaku->mgr, 30000, MG_TIMER_REPEAT, heartbeat_timer, user_data);
     } else if (ev == MG_EV_WS_MSG) {
         MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         struct mg_ws_message *wm = (struct mg_ws_message *)ev_data;

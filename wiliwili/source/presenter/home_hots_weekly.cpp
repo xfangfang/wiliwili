@@ -27,10 +27,8 @@ void HomeHotsWeeklyRequest::requestHotsWeeklyList() {
 void HomeHotsWeeklyRequest::requestHotsWeeklyVideoList(int number) {
     BILI::get_hots_weekly(
         number,
-        [this](const bilibili::HotsWeeklyVideoListResult& result,
-               const std::string& label, const std::string& reminder) {
-            this->onHotsWeeklyVideoList(result, label, reminder);
-        },
+        [this](const bilibili::HotsWeeklyVideoListResult& result, const std::string& label,
+               const std::string& reminder) { this->onHotsWeeklyVideoList(result, label, reminder); },
         [this](BILI_ERR) { this->onError(error); });
 }
 

@@ -2,6 +2,11 @@
 // Created by fang on 2022/8/15.
 //
 
+#include <borealis/views/rectangle.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/touch/pan_gesture.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
+
 #include "view/video_progress_slider.hpp"
 #include "view/svg_image.hpp"
 
@@ -54,8 +59,7 @@ VideoProgressSlider::VideoProgressSlider() {
                 return;
             }
 
-            else if (status.state == GestureState::INTERRUPTED ||
-                     status.state == GestureState::FAILED) {
+            else if (status.state == GestureState::INTERRUPTED || status.state == GestureState::FAILED) {
                 *soundToPlay = SOUND_TOUCH_UNFOCUS;
                 return;
             }
@@ -71,21 +75,18 @@ VideoProgressSlider::VideoProgressSlider() {
             progressEvent.fire(this->progress);
 
             if (status.state == GestureState::END) {
-                Application::getPlatform()->getAudioPlayer()->play(
-                    SOUND_SLIDER_RELEASE);
+                Application::getPlatform()->getAudioPlayer()->play(SOUND_SLIDER_RELEASE);
                 progressSetEvent.fire(this->progress);
-                Application::giveFocus(
-                    this->getParentActivity()->getContentView());
+                Application::giveFocus(this->getParentActivity()->getContentView());
             }
         },
         PanAxis::HORIZONTAL));
 
-    this->addGestureRecognizer(new TapGestureRecognizer(
-        [this](brls::TapGestureStatus status, brls::Sound* soundToPlay) {
+    this->addGestureRecognizer(
+        new TapGestureRecognizer([this](brls::TapGestureStatus status, brls::Sound* soundToPlay) {
             if (status.state != GestureState::END) return;
             float paddingWidth = getWidth() - pointer->getWidth();
-            float delta =
-                status.position.x - pointer->getWidth() / 2 - pointer->getX();
+            float delta        = status.position.x - pointer->getWidth() / 2 - pointer->getX();
             setProgress(progress + delta / paddingWidth);
             progressSetEvent.fire(this->progress);
             Application::giveFocus(this->getParentActivity()->getContentView());
@@ -134,28 +135,21 @@ void VideoProgressSlider::updateUI() {
     lineEmpty->setDetachedPosition(round(lineEnd), lineYPos);
     lineEmpty->setWidth(lineEndWidth);
 
-    pointer->setDetachedPosition(lineEnd - pointer->getWidth() / 2,
-                                 getHeight() / 2 - pointer->getHeight() / 2);
+    pointer->setDetachedPosition(lineEnd - pointer->getWidth() / 2, getHeight() / 2 - pointer->getHeight() / 2);
 }
 
 VideoProgressSlider::~VideoProgressSlider() = default;
 
-void VideoProgressSlider::addClipPoint(float point) {
-    clipPointList.emplace_back(point);
-}
+void VideoProgressSlider::addClipPoint(float point) { clipPointList.emplace_back(point); }
 
 void VideoProgressSlider::clearClipPoint() { clipPointList.clear(); }
 
-void VideoProgressSlider::setClipPoint(const std::vector<float>& data) {
-    clipPointList = data;
-}
+void VideoProgressSlider::setClipPoint(const std::vector<float>& data) { clipPointList = data; }
 
-const std::vector<float>& VideoProgressSlider::getClipPoint() {
-    return clipPointList;
-}
+const std::vector<float>& VideoProgressSlider::getClipPoint() { return clipPointList; }
 
-void VideoProgressSlider::draw(NVGcontext* vg, float x, float y, float width,
-                               float height, Style style, FrameContext* ctx) {
+void VideoProgressSlider::draw(NVGcontext* vg, float x, float y, float width, float height, Style style,
+                               FrameContext* ctx) {
     for (View* child : this->getChildren()) {
         if (child == this->pointer) {
             // draw clip point before pointer

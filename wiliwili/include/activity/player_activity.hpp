@@ -5,13 +5,12 @@
 #pragma once
 
 #include <chrono>
-#include <borealis.hpp>
 #include "presenter/video_detail.hpp"
 
 #include "view/video_comment.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/auto_tab_frame.hpp"
-#include "view/mpv_core.hpp"
+#include "utils/event_helper.hpp"
 
 class VideoView;
 class UserInfoView;
@@ -38,14 +37,12 @@ public:
     void onContentAvailable() override;
 
     void onVideoPlayUrl(const bilibili::VideoUrlResult& result) override;
-    void onCommentInfo(
-        const bilibili::VideoCommentResultWrapper& result) override;
+    void onCommentInfo(const bilibili::VideoCommentResultWrapper& result) override;
     void onError(const std::string& error) override;
     void onRequestCommentError(const std::string& error) override;
     void onVideoOnlineCount(const bilibili::VideoOnlineTotal& count) override;
     void onVideoRelationInfo(const bilibili::VideoRelation& result) override;
-    void onHighlightProgress(
-        const bilibili::VideoHighlightProgress& result) override;
+    void onHighlightProgress(const bilibili::VideoHighlightProgress& result) override;
 
     // 初始化设置 播放界面通用内容
     void setCommonData();
@@ -135,7 +132,7 @@ protected:
 
     // 监控mpv事件
     MPVEvent::Subscription eventSubscribeID;
-    MPVCustomEvent::Subscription customEventSubscribeID;
+    CustomEvent::Subscription customEventSubscribeID;
 
     // 在软件自动切换分集时，传递当前跳转的索引值给列表用于更新ui
     ChangeIndexEvent changeIndexEvent;
@@ -147,8 +144,7 @@ private:
 
 class PlayerActivity : public BasePlayerActivity {
 public:
-    PlayerActivity(const std::string& bvid, unsigned int cid = 0,
-                   int progress = -1);
+    PlayerActivity(const std::string& bvid, unsigned int cid = 0, int progress = -1);
 
     void setProgress(int p) override;
     int getProgress() override;
@@ -159,13 +155,10 @@ public:
 
     void onVideoInfo(const bilibili::VideoDetailResult& result) override;
     void onUpInfo(const bilibili::UserDetailResultWrapper& result) override;
-    void onVideoPageListInfo(
-        const bilibili::VideoDetailPageListResult& result) override;
+    void onVideoPageListInfo(const bilibili::VideoDetailPageListResult& result) override;
     void onUGCSeasonInfo(const bilibili::UGCSeason& result) override;
-    void onUploadedVideos(
-        const bilibili::UserUploadedVideoResultWrapper& result) override;
-    void onRelatedVideoList(
-        const bilibili::VideoDetailListResult& result) override;
+    void onUploadedVideos(const bilibili::UserUploadedVideoResultWrapper& result) override;
+    void onRelatedVideoList(const bilibili::VideoDetailListResult& result) override;
     void onRedirectToEp(const std::string& url) override;
     void onCastPlayUrl(const bilibili::VideoUrlResult& result) override;
     size_t getAid() override;
@@ -181,9 +174,7 @@ private:
 
 class PlayerSeasonActivity : public BasePlayerActivity {
 public:
-    PlayerSeasonActivity(const unsigned int id,
-                         PGC_ID_TYPE type = PGC_ID_TYPE::SEASON_ID,
-                         int progress     = -1);
+    PlayerSeasonActivity(const unsigned int id, PGC_ID_TYPE type = PGC_ID_TYPE::SEASON_ID, int progress = -1);
 
     ~PlayerSeasonActivity() override;
 
@@ -195,18 +186,15 @@ public:
 
     void onContentAvailable() override;
 
-    void onSeasonVideoInfo(
-        const bilibili::SeasonResultWrapper& result) override;
+    void onSeasonVideoInfo(const bilibili::SeasonResultWrapper& result) override;
 
     void onSeasonSeriesInfo(const bilibili::SeasonSeries& result) override;
 
-    void onSeasonRecommend(
-        const bilibili::SeasonRecommendWrapper& result) override;
+    void onSeasonRecommend(const bilibili::SeasonRecommendWrapper& result) override;
 
     void onSeasonStatus(const bilibili::SeasonStatusResult& result) override;
 
-    void onSeasonEpisodeInfo(
-        const bilibili::SeasonEpisodeResult& result) override;
+    void onSeasonEpisodeInfo(const bilibili::SeasonEpisodeResult& result) override;
 
     void onIndexChange(size_t index) override;
 

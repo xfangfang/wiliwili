@@ -14,13 +14,10 @@ public:
     std::string name;
     std::string face;
 };
-inline void to_json(nlohmann::json& nlohmann_json_j,
-                    const UserSimpleResult& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, mid, name, face));
+inline void to_json(nlohmann::json& nlohmann_json_j, const UserSimpleResult& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, mid, name, face));
 }
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      UserSimpleResult& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, UserSimpleResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("face")) {
         nlohmann_json_j.at("face").get_to(nlohmann_json_t.face);
     }
@@ -57,8 +54,7 @@ public:
     std::string sex;
     std::string sign;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserResult, mid, level, following, follower,
-                                   name, face, sex, sign, coins);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserResult, mid, level, following, follower, name, face, sex, sign, coins);
 
 class SeasonUserResult {
 public:
@@ -69,7 +65,6 @@ public:
     std::string avatar;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonUserResult, mid, uname, avatar,
-                                   follower, is_follow);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonUserResult, mid, uname, avatar, follower, is_follow);
 
 }  // namespace bilibili

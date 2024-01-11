@@ -7,6 +7,8 @@
 #include <cstring>
 #include <iostream>
 #include <locale>
+#include <borealis/core/thread.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
 
 #include "activity/search_activity_tv.hpp"
 #include "fragment/search_hots.hpp"
@@ -30,8 +32,7 @@ public:
         key = new brls::Label();
         key->setVerticalAlign(brls::VerticalAlign::CENTER);
         key->setHorizontalAlign(brls::HorizontalAlign::CENTER);
-        this->setBackgroundColor(
-            brls::Application::getTheme().getColor("color/grey_2"));
+        this->setBackgroundColor(brls::Application::getTheme().getColor("color/grey_2"));
         this->setAlignItems(brls::AlignItems::CENTER);
         this->setJustifyContent(brls::JustifyContent::CENTER);
         this->setCornerRadius(4);
@@ -52,10 +53,8 @@ private:
 
 class DataSourceKeyboard : public RecyclingGridDataSource {
 public:
-    explicit DataSourceKeyboard(KeyboardData result)
-        : list(std::move(result)) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
+    explicit DataSourceKeyboard(KeyboardData result) : list(std::move(result)) {}
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         auto* item = (KeyboardButton*)recycler->dequeueReusableCell("Cell");
         item->setValue(std::string{this->list[index]});
         return item;
@@ -63,13 +62,9 @@ public:
 
     size_t getItemCount() override { return list.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        this->keyboardEvent.fire(list[index]);
-    }
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override { this->keyboardEvent.fire(list[index]); }
 
-    void appendData(const KeyboardData& data) {
-        this->list.insert(this->list.end(), data.begin(), data.end());
-    }
+    void appendData(const KeyboardData& data) { this->list.insert(this->list.end(), data.begin(), data.end()); }
 
     KeyboardEvent* getKeyboardEvent() { return &this->keyboardEvent; }
 
@@ -85,10 +80,8 @@ public:
     DataSourceSuggest(bilibili::SearchSuggestList result, UpdateSearchEvent* u)
         : list(std::move(result)), updateSearchEvent(u) {}
 
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
-        auto* item =
-            (RecyclingGridItemHotsCard*)recycler->dequeueReusableCell("Cell");
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
+        auto* item = (RecyclingGridItemHotsCard*)recycler->dequeueReusableCell("Cell");
         item->setCard(std::to_string(index + 1), list.tag[index].value, "");
         return item;
     }
@@ -121,8 +114,7 @@ void TVSearchActivity::requestSearchSuggest() {
             brls::Threading::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
                 this->hotsHeaderLabel->setText("wiliwili/search/tv/suggest"_i18n);
-                this->searchHots->getRecyclingGrid()->setDataSource(
-                    new DataSourceSuggest(result, &updateSearchEvent));
+                this->searchHots->getRecyclingGrid()->setDataSource(new DataSourceSuggest(result, &updateSearchEvent));
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {
@@ -138,15 +130,13 @@ void TVSearchActivity::updateInputLabel() {
     std::string value = getCurrentSearch();
     if (value.empty()) {
         this->inputLabel->setText("wiliwili/search/tv/hint"_i18n);
-        this->inputLabel->setTextColor(
-            brls::Application::getTheme().getColor("font/grey"));
+        this->inputLabel->setTextColor(brls::Application::getTheme().getColor("font/grey"));
         this->searchHots->getRecyclingGrid()->showSkeleton();
         this->searchHots->requestSearch();
         this->hotsHeaderLabel->setText("wiliwili/search/tv/hots"_i18n);
     } else {
         this->inputLabel->setText(getCurrentSearch());
-        this->inputLabel->setTextColor(
-            brls::Application::getTheme().getColor("brls/text"));
+        this->inputLabel->setTextColor(brls::Application::getTheme().getColor("brls/text"));
         this->requestSearchSuggest();
     }
 }
@@ -161,8 +151,7 @@ void TVSearchActivity::onContentAvailable() {
     }
 
     inputLabel->setText("wiliwili/search/tv/hint"_i18n);
-    inputLabel->setTextColor(
-        brls::Application::getTheme().getColor("font/grey"));
+    inputLabel->setTextColor(brls::Application::getTheme().getColor("font/grey"));
 
     inputLabel->getParent()->registerClickAction([this](...) {
         brls::Application::getImeManager()->openForText(
@@ -170,12 +159,10 @@ void TVSearchActivity::onContentAvailable() {
                 this->setCurrentSearch(text);
                 this->updateInputLabel();
             },
-            "wiliwili/search/tv/hint"_i18n, "", 32, getCurrentSearch(),
-            0);
+            "wiliwili/search/tv/hint"_i18n, "", 32, getCurrentSearch(), 0);
         return true;
     });
-    inputLabel->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->inputLabel->getParent()));
+    inputLabel->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->inputLabel->getParent()));
 
     KeyboardData keyboard;
     for (int i = 'A'; i <= 'Z'; i++) {
@@ -190,8 +177,7 @@ void TVSearchActivity::onContentAvailable() {
         this->currentSearch += key;
         this->updateInputLabel();
     });
-    recyclingGrid->registerCell("Cell",
-                                []() { return KeyboardButton::create(); });
+    recyclingGrid->registerCell("Cell", []() { return KeyboardButton::create(); });
     recyclingGrid->setDataSource(ds);
 
     clearLabel->registerClickAction([this](...) {
@@ -199,8 +185,7 @@ void TVSearchActivity::onContentAvailable() {
         this->updateInputLabel();
         return true;
     });
-    clearLabel->addGestureRecognizer(
-        new brls::TapGestureRecognizer(clearLabel));
+    clearLabel->addGestureRecognizer(new brls::TapGestureRecognizer(clearLabel));
 
     deleteLabel->registerClickAction([this](...) {
         if (currentSearch.empty()) {
@@ -210,22 +195,19 @@ void TVSearchActivity::onContentAvailable() {
         this->updateInputLabel();
         return true;
     });
-    deleteLabel->addGestureRecognizer(
-        new brls::TapGestureRecognizer(deleteLabel));
+    deleteLabel->addGestureRecognizer(new brls::TapGestureRecognizer(deleteLabel));
 
     searchLabel->registerClickAction([this](...) {
         this->search(getCurrentSearch());
         return true;
     });
-    searchLabel->addGestureRecognizer(
-        new brls::TapGestureRecognizer(searchLabel));
+    searchLabel->addGestureRecognizer(new brls::TapGestureRecognizer(searchLabel));
 
     updateSearchEvent.subscribe([this](const std::string& value) {
         brls::Application::giveFocus(this->inputLabel->getParent());
         this->setCurrentSearch(value);
         this->inputLabel->setText(value);
-        this->inputLabel->setTextColor(
-            brls::Application::getTheme().getColor("brls/text"));
+        this->inputLabel->setTextColor(brls::Application::getTheme().getColor("brls/text"));
         this->search(value);
     });
 
@@ -234,22 +216,18 @@ void TVSearchActivity::onContentAvailable() {
     searchHistory->requestHistory();
 }
 
-TVSearchActivity::~TVSearchActivity() {
-    brls::Logger::debug("TVSearchActivity: delete");
-}
+TVSearchActivity::~TVSearchActivity() { brls::Logger::debug("TVSearchActivity: delete"); }
 
 std::string TVSearchActivity::getCurrentSearch() {
-    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(
-        currentSearch);
+    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(currentSearch);
 }
 
 void TVSearchActivity::setCurrentSearch(const std::string& value) {
-    currentSearch =
-        std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(value);
+    currentSearch = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(value);
 }
 
 void TVSearchActivity::search(const std::string& key) {
-    if (key.empty()) return ;
+    if (key.empty()) return;
     Intent::openSearch(key);
 }
 

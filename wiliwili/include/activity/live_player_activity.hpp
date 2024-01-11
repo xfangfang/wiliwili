@@ -3,10 +3,12 @@
 //
 
 #pragma once
-#include "view/mpv_core.hpp"
-#include "presenter/live_data.hpp"
 
-#include <borealis.hpp>
+#include <borealis/core/activity.hpp>
+#include <borealis/core/bind.hpp>
+
+#include "utils/event_helper.hpp"
+#include "presenter/live_data.hpp"
 
 class VideoView;
 
@@ -15,8 +17,7 @@ public:
     // Declare that the content of this activity is the given XML file
     CONTENT_FROM_XML_RES("activity/video_activity.xml");
 
-    explicit LiveActivity(int roomid, const std::string& name = "",
-                          const std::string& views = "");
+    explicit LiveActivity(int roomid, const std::string& name = "", const std::string& views = "");
 
     void setCommonData();
 
@@ -28,12 +29,10 @@ public:
 
     void onError(const std::string& error) override;
 
-    void onNeedPay(const std::string& msg, const std::string& link,
-                   const std::string& startTime,
+    void onNeedPay(const std::string& msg, const std::string& link, const std::string& startTime,
                    const std::string& endTime) override;
 
-    void onDanmakuInfo(int roomid,
-                       const bilibili::LiveDanmakuinfo& info) override;
+    void onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& info) override;
 
     std::vector<std::string> getQualityDescriptionList();
     int getCurrentQualityIndex();
@@ -55,5 +54,5 @@ private:
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;
     //视频清晰度
-    MPVCustomEvent::Subscription event_id;
+    CustomEvent::Subscription event_id;
 };

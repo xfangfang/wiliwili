@@ -14,19 +14,14 @@ using namespace brls::literals;
 
 class DataSourceMineBangumiVideoList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceMineBangumiVideoList(bilibili::PGCItemListResult result)
-        : videoList(std::move(result)) {}
+    explicit DataSourceMineBangumiVideoList(bilibili::PGCItemListResult result) : videoList(std::move(result)) {}
 
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
-        RecyclingGridItemPGCVideoCard* item =
-            (RecyclingGridItemPGCVideoCard*)recycler->dequeueReusableCell(
-                "Cell");
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
+        RecyclingGridItemPGCVideoCard* item = (RecyclingGridItemPGCVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::PGCItemResult& r = this->videoList[index];
 
-        item->setCard(r.cover + ImageHelper::v_ext, r.title,
-                      r.desc.empty() ? "尚未观看" : r.desc, r.badge_info, "",
+        item->setCard(r.cover + ImageHelper::v_ext, r.title, r.desc.empty() ? "尚未观看" : r.desc, r.badge_info, "",
                       r.bottom_right_badge);
 
         return item;
@@ -57,43 +52,31 @@ MineBangumi::MineBangumi() {
         this->requestData(true);
     });
 
-    this->registerFloatXMLAttribute("spanCount", [this](float value) {
-        this->recyclingGrid->spanCount = value;
-    });
+    this->registerFloatXMLAttribute("spanCount", [this](float value) { this->recyclingGrid->spanCount = value; });
 
-    this->registerFloatXMLAttribute("itemSpace", [this](float value) {
-        this->recyclingGrid->estimatedRowSpace = value;
-    });
+    this->registerFloatXMLAttribute("itemSpace",
+                                    [this](float value) { this->recyclingGrid->estimatedRowSpace = value; });
 
-    this->registerFloatXMLAttribute("itemHeight", [this](float value) {
-        this->recyclingGrid->estimatedRowHeight = value;
-    });
+    this->registerFloatXMLAttribute("itemHeight",
+                                    [this](float value) { this->recyclingGrid->estimatedRowHeight = value; });
 
-    recyclingGrid->registerCell(
-        "Cell", []() { return RecyclingGridItemPGCVideoCard::create(true); });
+    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemPGCVideoCard::create(true); });
     recyclingGrid->onNextPage([this]() { this->requestData(); });
 }
 
-MineBangumi::~MineBangumi() {
-    brls::Logger::debug("Fragment MineBangumi: delete");
-}
+MineBangumi::~MineBangumi() { brls::Logger::debug("Fragment MineBangumi: delete"); }
 
 brls::View* MineBangumi::create() { return new MineBangumi(); }
 
-void MineBangumi::onError(const std::string& error) {
-    this->recyclingGrid->setError(error);
-}
+void MineBangumi::onError(const std::string& error) { this->recyclingGrid->setError(error); }
 
-void MineBangumi::onBangumiList(
-    const bilibili::BangumiCollectionWrapper& result) {
+void MineBangumi::onBangumiList(const bilibili::BangumiCollectionWrapper& result) {
     if (result.pn == 1) {
         // 第一页
-        this->recyclingGrid->setDataSource(
-            new DataSourceMineBangumiVideoList(result.list));
+        this->recyclingGrid->setDataSource(new DataSourceMineBangumiVideoList(result.list));
     } else {
         // 第N页
-        auto* datasource = dynamic_cast<DataSourceMineBangumiVideoList*>(
-            recyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourceMineBangumiVideoList*>(recyclingGrid->getDataSource());
         if (!datasource) return;
         if (!result.list.empty()) {
             datasource->appendData(result.list);
@@ -107,11 +90,9 @@ void MineBangumi::onCreate() {
         this->recyclingGrid->showSkeleton();
         this->requestData(true);
     });
-    this->registerTabAction(
-        requestType == 1 ? "wiliwili/mine/refresh_anime"_i18n
-                         : "wiliwili/mine/refresh_series"_i18n,
-        brls::ControllerButton::BUTTON_X, [this](brls::View* view) -> bool {
-            this->recyclingGrid->refresh();
-            return true;
-        });
+    this->registerTabAction(requestType == 1 ? "wiliwili/mine/refresh_anime"_i18n : "wiliwili/mine/refresh_series"_i18n,
+                            brls::ControllerButton::BUTTON_X, [this](brls::View* view) -> bool {
+                                this->recyclingGrid->refresh();
+                                return true;
+                            });
 }

@@ -9,8 +9,12 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
 
+namespace brls {
+class Label;
+}
 class AnimationImage;
 class CheckBox;
 
@@ -46,7 +50,7 @@ private:
     BRLS_BIND(brls::Box, likeBox, "coin/like");
 
     int coin = 2;
-    int exp = -1;
+    int exp  = -1;
 
     brls::Event<int> coinEvent;
 };

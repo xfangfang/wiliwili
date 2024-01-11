@@ -3,6 +3,10 @@
 //
 
 #include <utility>
+#include <borealis/core/application.hpp>
+#include <borealis/core/thread.hpp>
+#include <borealis/views/label.hpp>
+
 #include "fragment/mine_qr_login.hpp"
 #include "utils/config_helper.hpp"
 #include "bilibili/result/mine_result.h"
@@ -18,16 +22,13 @@ MineQrLogin::~MineQrLogin() {
     this->cancel = true;
 }
 
-brls::Box* MineQrLogin::create(const loginStatusEvent& cb) {
-    return new MineQrLogin(cb);
-}
+brls::Box* MineQrLogin::create(const loginStatusEvent& cb) { return new MineQrLogin(cb); }
 
 void MineQrLogin::onError() {
     ASYNC_RETAIN
     brls::sync([ASYNC_TOKEN]() {
         ASYNC_RELEASE
-        this->qrImage->setQRMainColor(
-            brls::Application::getTheme().getColor("font/grey"));
+        this->qrImage->setQRMainColor(brls::Application::getTheme().getColor("font/grey"));
         qrImage->setImageFromQRContent("");
         this->hint->setText("wiliwili/mine/login/network_error"_i18n);
     });
@@ -56,8 +57,7 @@ void MineQrLogin::onLoginError() {
     brls::sync([ASYNC_TOKEN]() {
         ASYNC_RELEASE
         this->qrImage->setImageFromQRContent("");
-        this->qrImage->setQRMainColor(
-            brls::Application::getTheme().getColor("font/grey"));
+        this->qrImage->setQRMainColor(brls::Application::getTheme().getColor("font/grey"));
     });
 }
 
@@ -82,8 +82,7 @@ void MineQrLogin::checkLogin() {
     brls::Logger::debug("check login");
     ASYNC_RETAIN
     bilibili::BilibiliClient::get_login_info_v2(
-        this->oauthKey, "wiliwili - " + APPVersion::instance().getPlatform(),
-        ProgramConfig::instance().getDeviceID(),
+        this->oauthKey, "wiliwili - " + APPVersion::instance().getPlatform(), ProgramConfig::instance().getDeviceID(),
         [ASYNC_TOKEN](bilibili::LoginInfo info) {
             this->loginCb.fire(info);
             brls::Logger::debug("return code:{}", (int)info);
@@ -92,12 +91,10 @@ void MineQrLogin::checkLogin() {
                 case bilibili::LoginInfo::OAUTH_KEY_TIMEOUT:
                 case bilibili::LoginInfo::OAUTH_KEY_ERROR:
                     this->onLoginError();
-                    this->onLoginStateChange(
-                        "wiliwili/mine/login/qr_not_available"_i18n);
+                    this->onLoginStateChange("wiliwili/mine/login/qr_not_available"_i18n);
                     break;
                 case bilibili::LoginInfo::NEED_CONFIRM:
-                    this->onLoginStateChange(
-                        "wiliwili/mine/login/need_confirm"_i18n);
+                    this->onLoginStateChange("wiliwili/mine/login/need_confirm"_i18n);
                     {
                         ASYNC_RETAIN
                         brls::Threading::delay(1000, [ASYNC_TOKEN]() {
@@ -107,8 +104,7 @@ void MineQrLogin::checkLogin() {
                     }
                     break;
                 case bilibili::LoginInfo::NEED_SCAN:
-                    this->onLoginStateChange(
-                        "wiliwili/mine/login/need_scan"_i18n);
+                    this->onLoginStateChange("wiliwili/mine/login/need_scan"_i18n);
                     {
                         ASYNC_RETAIN
                         brls::Threading::delay(3000, [ASYNC_TOKEN]() {

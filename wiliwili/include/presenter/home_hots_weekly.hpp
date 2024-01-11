@@ -8,11 +8,9 @@
 
 class HomeHotsWeeklyRequest {
 public:
-    virtual void onHotsWeeklyList(
-        const bilibili::HotsWeeklyListResult& result) {}
-    virtual void onHotsWeeklyVideoList(
-        const bilibili::HotsWeeklyVideoListResult& result,
-        const std::string& label, const std::string& reminder) {}
+    virtual void onHotsWeeklyList(const bilibili::HotsWeeklyListResult& result) {}
+    virtual void onHotsWeeklyVideoList(const bilibili::HotsWeeklyVideoListResult& result, const std::string& label,
+                                       const std::string& reminder) {}
     virtual void onError(const std::string& error) {}
 
     void requestData();

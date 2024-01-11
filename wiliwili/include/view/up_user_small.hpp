@@ -7,16 +7,13 @@
 // brls::Application::registerXMLView("UpUserSmall", UpUserSmall::create);
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
 
 class UpUserSmall : public brls::Box {
 public:
     UpUserSmall();
 
-    ~UpUserSmall();
+    ~UpUserSmall() override;
 
     static View *create() { return new UpUserSmall(); }
-
-private:
-    // BRLS_BIND(brls::Label, label, "UpUserSmall/label")
 };

@@ -2,9 +2,11 @@
 // Created by fang on 2022/7/28.
 //
 
-#include "fragment/mine_history.hpp"
-
 #include <utility>
+#include <borealis/views/dialog.hpp>
+#include <borealis/core/thread.hpp>
+
+#include "fragment/mine_history.hpp"
 #include "view/video_card.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/activity_helper.hpp"
@@ -14,15 +16,11 @@ using namespace brls::literals;
 
 class DataSourceMineHistoryVideoList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceMineHistoryVideoList(
-        bilibili::HistoryVideoListResult result)
-        : list(std::move(result)) {}
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
+    explicit DataSourceMineHistoryVideoList(bilibili::HistoryVideoListResult result) : list(std::move(result)) {}
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemHistoryVideoCard* item =
-            (RecyclingGridItemHistoryVideoCard*)recycler->dequeueReusableCell(
-                "Cell");
+            (RecyclingGridItemHistoryVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::HistoryVideoResult& r = this->list[index];
         auto badge                      = r.badge;
@@ -41,17 +39,15 @@ public:
 
         std::string duration;
         float progress = -1;
-        if (r.duration >= 0 && r.progress >= 0 &&
-            (r.history.business == "pgc" || r.history.business == "archive")) {
-            duration = wiliwili::sec2Time(r.progress) + "/" +
-                       wiliwili::sec2Time(r.duration);
+        if (r.duration >= 0 && r.progress >= 0 && (r.history.business == "pgc" || r.history.business == "archive")) {
+            duration = wiliwili::sec2Time(r.progress) + "/" + wiliwili::sec2Time(r.duration);
             progress = r.progress * 1.0 / r.duration;
         } else if (r.progress < 0) {
             progress = 1.0;
         }
 
-        item->setCard(r.cover + ImageHelper::h_ext, r.title, author, time,
-                      duration, badge, r.history.dt, progress, showUpName);
+        item->setCard(r.cover + ImageHelper::h_ext, r.title, author, time, duration, badge, r.history.dt, progress,
+                      showUpName);
 
         return item;
     }
@@ -84,16 +80,13 @@ public:
             l1->setText("wiliwili/mine/article"_i18n);
             auto l2 = new brls::Label();
             l2->setMarginTop(10);
-            l2->setTextColor(
-                brls::Application::getTheme().getColor("color/link"));
+            l2->setTextColor(brls::Application::getTheme().getColor("color/link"));
             l2->setText(url);
             container->setHeight(200);
             container->addView(l1);
             container->addView(l2);
             auto dialog = new brls::Dialog(container);
-            dialog->addButton("hints/ok"_i18n, [url]() {
-                brls::Application::getPlatform()->openBrowser(url);
-            });
+            dialog->addButton("hints/ok"_i18n, [url]() { brls::Application::getPlatform()->openBrowser(url); });
             dialog->open();
         }
     }
@@ -112,8 +105,7 @@ MineHistory::MineHistory() {
     this->inflateFromXMLRes("xml/fragment/mine_history.xml");
     brls::Logger::debug("Fragment MineHistory: create");
 
-    recyclingGrid->registerCell(
-        "Cell", []() { return RecyclingGridItemHistoryVideoCard::create(); });
+    recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemHistoryVideoCard::create(); });
     recyclingGrid->onNextPage([this]() { this->requestData(); });
     recyclingGrid->setRefreshAction([this]() {
         AutoTabFrame::focus2Sidebar(this);
@@ -123,39 +115,33 @@ MineHistory::MineHistory() {
     this->requestData();
 }
 
-MineHistory::~MineHistory() {
-    brls::Logger::debug("Fragment MineHistoryActivity: delete");
-}
+MineHistory::~MineHistory() { brls::Logger::debug("Fragment MineHistoryActivity: delete"); }
 
 brls::View* MineHistory::create() { return new MineHistory(); }
 
 void MineHistory::onCreate() {
-    this->registerTabAction("wiliwili/mine/refresh_history"_i18n,
-                            brls::ControllerButton::BUTTON_X,
+    this->registerTabAction("wiliwili/mine/refresh_history"_i18n, brls::ControllerButton::BUTTON_X,
                             [this](brls::View* view) -> bool {
                                 this->recyclingGrid->refresh();
                                 return true;
                             });
 }
 
-void MineHistory::onHistoryList(
-    const bilibili::HistoryVideoResultWrapper& result) {
+void MineHistory::onHistoryList(const bilibili::HistoryVideoResultWrapper& result) {
     for (auto i : result.list) {
         brls::Logger::verbose("history: {}: {}", i.title, i.progress);
     }
 
     int view_at = this->cursor.view_at;
     brls::Threading::sync([this, result, view_at]() {
-        auto* datasource = dynamic_cast<DataSourceMineHistoryVideoList*>(
-            recyclingGrid->getDataSource());
+        auto* datasource = dynamic_cast<DataSourceMineHistoryVideoList*>(recyclingGrid->getDataSource());
         if (datasource && view_at != 0) {
             if (!result.list.empty()) {
                 datasource->appendData(result.list);
                 recyclingGrid->notifyDataChanged();
             }
         } else {
-            recyclingGrid->setDataSource(
-                new DataSourceMineHistoryVideoList(result.list));
+            recyclingGrid->setDataSource(new DataSourceMineHistoryVideoList(result.list));
         }
     });
 }

@@ -15,8 +15,7 @@ public:
     std::string business = "";
     int ps               = 20;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HistoryVideoListCursor, max, view_at,
-                                   business, ps);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HistoryVideoListCursor, max, view_at, business, ps);
 
 class HistoryVideoData {
 public:
@@ -27,8 +26,7 @@ public:
     std::string business;
     int dt;  // device type: 4: 平板  1： 手机  2：电脑
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HistoryVideoData, oid, epid, cid, business,
-                                   dt, bvid);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HistoryVideoData, oid, epid, cid, business, dt, bvid);
 
 class HistoryVideoResult {
 public:
@@ -43,17 +41,14 @@ public:
     int progress;         // -1：表示看完了
     int live_status = 0;  // 是否在直播
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      HistoryVideoResult& nlohmann_json_t) {
-    if (nlohmann_json_j.at("covers").is_array() &&
-        nlohmann_json_j.at("covers").size() != 0) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, HistoryVideoResult& nlohmann_json_t) {
+    if (nlohmann_json_j.at("covers").is_array() && nlohmann_json_j.at("covers").size() != 0) {
         nlohmann_json_j.at("covers")[0].get_to(nlohmann_json_t.cover);
     } else {
         nlohmann_json_j.at("cover").get_to(nlohmann_json_t.cover);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(
-        NLOHMANN_JSON_FROM, title, show_title, author_name, badge, progress,
-        duration, view_at, history, live_status));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, show_title, author_name, badge, progress,
+                                             duration, view_at, history, live_status));
 }
 
 typedef std::vector<HistoryVideoResult> HistoryVideoListResult;
@@ -63,8 +58,7 @@ public:
     HistoryVideoListCursor cursor;
     HistoryVideoListResult list;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j,
-                      HistoryVideoResultWrapper& nlohmann_json_t) {
+inline void from_json(const nlohmann::json& nlohmann_json_j, HistoryVideoResultWrapper& nlohmann_json_t) {
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor, list));
 }
 

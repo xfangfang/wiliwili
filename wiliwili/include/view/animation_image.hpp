@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
 
 class AnimationImage : public brls::Box {
 public:

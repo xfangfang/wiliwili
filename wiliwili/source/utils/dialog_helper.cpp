@@ -14,8 +14,7 @@ void DialogHelper::showDialog(const std::string& msg) {
     dialog->open();
 }
 
-void DialogHelper::showCancelableDialog(const std::string& msg,
-                                        std::function<void(void)> cb) {
+void DialogHelper::showCancelableDialog(const std::string& msg, std::function<void(void)> cb) {
     auto dialog = new brls::Dialog(msg);
     dialog->addButton("hints/cancel"_i18n, []() {});
     dialog->addButton("hints/ok"_i18n, [cb]() { cb(); });
@@ -45,10 +44,8 @@ void DialogHelper::quitApp(bool restart) {
         hint->setFontSize(32);
         hint->setText("wiliwili/dialog/quit_hint"_i18n);
         container->addView(hint);
-        container->setBackgroundColor(
-            brls::Application::getTheme().getColor("brls/background"));
-        brls::Application::pushActivity(new brls::Activity(container),
-                                        brls::TransitionAnimation::NONE);
+        container->setBackgroundColor(brls::Application::getTheme().getColor("brls/background"));
+        brls::Application::pushActivity(new brls::Activity(container), brls::TransitionAnimation::NONE);
         brls::Application::getPlatform()->exitToHomeMode(!restart);
         brls::Application::quit();
 #endif /* IOS */

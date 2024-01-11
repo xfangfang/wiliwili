@@ -9,7 +9,10 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
+class RecyclingGrid;
 
 enum class VideoType {
     Plain      = 2,   // 普通视频
@@ -27,7 +30,7 @@ class PlayerCollection : public brls::Box {
 public:
     PlayerCollection(int rid, int type);
 
-    ~PlayerCollection();
+    ~PlayerCollection() override;
 
     std::string getAddCollectionList();
 
@@ -35,8 +38,7 @@ public:
 
     bool isFavorite();
 
-    void onCollectionList(
-        const bilibili::SimpleCollectionListResultWrapper& result);
+    void onCollectionList(const bilibili::SimpleCollectionListResultWrapper& result);
 
     /// 获取收藏列表
     void getCollectionList(int rid, int type);

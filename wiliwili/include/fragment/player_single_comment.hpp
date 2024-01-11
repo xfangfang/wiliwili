@@ -9,7 +9,9 @@
 
 #pragma once
 
-#include <borealis.hpp>
+#include <borealis/core/box.hpp>
+#include <borealis/core/bind.hpp>
+
 #include "bilibili/result/video_detail_result.h"
 
 class VideoComment;
@@ -44,8 +46,7 @@ public:
 private:
     bilibili::VideoCommentResult root;
     bilibili::VideoCommentCursor cursor;
-    BRLS_BIND(RecyclingGrid, recyclingGrid,
-              "player/single/comment/recyclingGrid");
+    BRLS_BIND(RecyclingGrid, recyclingGrid, "player/single/comment/recyclingGrid");
     BRLS_BIND(ButtonClose, closeBtn, "button/close");
     BRLS_BIND(brls::Box, backgroundBox, "box/background");
     BRLS_BIND(brls::Box, cancel, "player/cancel");

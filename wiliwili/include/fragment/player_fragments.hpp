@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <borealis.hpp>
 #include "view/recycling_grid.hpp"
 #include "view/auto_tab_frame.hpp"
 
@@ -33,8 +32,8 @@ public:
 
     static RecyclingGridItem* create();
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext* ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext* ctx) override;
 
     BRLS_BIND(brls::Label, title, "player/tab/cell/title");
     BRLS_BIND(brls::Box, badgeBox, "player/tab/cell/badgeBox");
@@ -56,13 +55,9 @@ public:
 template <class T>
 class PlayerTabDataSource : public RecyclingGridDataSource {
 public:
-    typedef std::function<RecyclingGridItem*(RecyclingGrid*,
-                                             PlayerTabDataSource*, T&)>
-        Cell4RowFunc;
-    typedef std::function<float(RecyclingGrid*, PlayerTabDataSource*, T&)>
-        Height4RowFunc;
-    typedef brls::Event<RecyclingGrid*, PlayerTabDataSource<T>*, size_t, T>
-        SelectEvent;
+    typedef std::function<RecyclingGridItem*(RecyclingGrid*, PlayerTabDataSource*, T&)> Cell4RowFunc;
+    typedef std::function<float(RecyclingGrid*, PlayerTabDataSource*, T&)> Height4RowFunc;
+    typedef brls::Event<RecyclingGrid*, PlayerTabDataSource<T>*, size_t, T> SelectEvent;
 
     /**
      *
@@ -72,17 +67,11 @@ public:
      * @param heightFun 用来设置cell高度的回调
      * @param defaultIndex
      */
-    PlayerTabDataSource(std::vector<T> result, SelectEvent* cb,
-                        Cell4RowFunc fun, Height4RowFunc heightFun = nullptr,
+    PlayerTabDataSource(std::vector<T> result, SelectEvent* cb, Cell4RowFunc fun, Height4RowFunc heightFun = nullptr,
                         size_t defaultIndex = 0)
-        : data(result),
-          selectEvent(cb),
-          cell4Row(fun),
-          height4Row(heightFun),
-          currentIndex(defaultIndex) {}
+        : data(result), selectEvent(cb), cell4Row(fun), height4Row(heightFun), currentIndex(defaultIndex) {}
 
-    RecyclingGridItem* cellForRow(RecyclingGrid* recycler,
-                                  size_t index) override {
+    RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         return cell4Row(recycler, this, data[index]);
     }
 
@@ -116,15 +105,10 @@ private:
 template <class T>
 class BasePlayerTabFragment : public AttachedView {
 public:
-    typedef std::function<RecyclingGridItem*(RecyclingGrid*,
-                                             PlayerTabDataSource<T>*, T&)>
-        Cell4RowFunc;
-    typedef std::function<float(RecyclingGrid*, PlayerTabDataSource<T>*, T&)>
-        Height4RowFunc;
-    typedef brls::Event<RecyclingGrid*, PlayerTabDataSource<T>*, size_t, T>
-        SelectEvent;
-    typedef std::function<void(RecyclingGrid*, PlayerTabDataSource<T>*)>
-        InitFun;
+    typedef std::function<RecyclingGridItem*(RecyclingGrid*, PlayerTabDataSource<T>*, T&)> Cell4RowFunc;
+    typedef std::function<float(RecyclingGrid*, PlayerTabDataSource<T>*, T&)> Height4RowFunc;
+    typedef brls::Event<RecyclingGrid*, PlayerTabDataSource<T>*, size_t, T> SelectEvent;
+    typedef std::function<void(RecyclingGrid*, PlayerTabDataSource<T>*)> InitFun;
 
     /**
      *
@@ -134,8 +118,7 @@ public:
      * @param init 构造函数中调用，用来自定义初始化列表
      * @param defaultIndex 列表默认选中序号
      */
-    BasePlayerTabFragment(std::vector<T> result, Cell4RowFunc fun,
-                          InitFun init = nullptr, size_t defaultIndex = 0,
+    BasePlayerTabFragment(std::vector<T> result, Cell4RowFunc fun, InitFun init = nullptr, size_t defaultIndex = 0,
                           Height4RowFunc heightFun = nullptr) {
         this->setMarginTop(12);
         this->setMarginBottom(12);
@@ -147,12 +130,10 @@ public:
         grid->applyXMLAttribute("itemSpace", "0");
         grid->applyXMLAttribute("itemHeight", "50");
         grid->registerCell("Cell", []() { return PlayerTabCell::create(); });
-        grid->registerCell("Header",
-                           []() { return PlayerTabHeader::create(); });
+        grid->registerCell("Header", []() { return PlayerTabHeader::create(); });
         grid->setDefaultCellFocus(defaultIndex);
         if (heightFun) grid->applyXMLAttribute("flowMode", "true");
-        ds = new PlayerTabDataSource<T>(result, &callback, fun, heightFun,
-                                        defaultIndex);
+        ds = new PlayerTabDataSource<T>(result, &callback, fun, heightFun, defaultIndex);
         grid->setDataSource(ds);
         this->addView(grid);
 

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <borealis/core/thread.hpp>
+
 #include "bilibili.h"
 #include "bilibili/result/home_live_result.h"
 #include "presenter/presenter.h"
@@ -13,9 +15,7 @@
 
 class CommentRequest : public Presenter {
 public:
-    virtual void onError(const std::string& error) {
-        DialogHelper::showDialog(error);
-    }
+    virtual void onError(const std::string& error) { DialogHelper::showDialog(error); }
 
     void commentLike(size_t oid, int64_t rpid, int action) {
         ASYNC_RETAIN
@@ -23,12 +23,10 @@ public:
             ProgramConfig::instance().getCSRF(), oid, rpid, action,
             [ASYNC_TOKEN, oid, rpid, action]() {
                 ASYNC_RELEASE
-                brls::Logger::debug("Comment action success: {} {} {}", oid,
-                                    rpid, action);
+                brls::Logger::debug("Comment action success: {} {} {}", oid, rpid, action);
             },
             [ASYNC_TOKEN, oid, rpid, action](BILI_ERR) {
-                brls::Logger::error("Comment action error: {} {} {}", oid, rpid,
-                                    action);
+                brls::Logger::error("Comment action error: {} {} {}", oid, rpid, action);
                 brls::sync([ASYNC_TOKEN, error]() {
                     ASYNC_RELEASE
                     this->onError(error);
@@ -36,10 +34,8 @@ public:
             });
     }
 
-    void commentReply(
-        const std::string& text, size_t oid, int64_t rpid, int64_t root,
-        std::function<void(const bilibili::VideoCommentAddResult&)> cb =
-            nullptr) {
+    void commentReply(const std::string& text, size_t oid, int64_t rpid, int64_t root,
+                      std::function<void(const bilibili::VideoCommentAddResult&)> cb = nullptr) {
         ASYNC_RETAIN
         BILI::add_comment(
             ProgramConfig::instance().getCSRF(), text, oid, rpid, root,
