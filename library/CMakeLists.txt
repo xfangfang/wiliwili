@@ -93,6 +93,12 @@ else ()
     add_subdirectory(mongoose EXCLUDE_FROM_ALL)
 endif ()
 
+# add MemoryModule
+if (MPV_BUNDLE_DLL)
+    add_library (MemoryModule STATIC ${CMAKE_CURRENT_SOURCE_DIR}/MemoryModule/MemoryModule.c)
+    target_include_directories(MemoryModule PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/MemoryModule)
+endif ()
+
 # add borealis
 add_subdirectory(borealis/library)
 

@@ -12,6 +12,31 @@
 #include "utils/number_helper.hpp"
 #include "view/mpv_core.hpp"
 
+#ifdef MPV_BUNDLE_DLL
+#include <romfs/romfs.hpp>
+mpvSetOptionStringFunc mpvSetOptionString;
+mpvObservePropertyFunc mpvObserveProperty;
+mpvCreateFunc mpvCreate;
+mpvInitializeFunc mpvInitialize;
+mpvTerminateDestroyFunc mpvTerminateDestroy;
+mpvSetWakeupCallbackFunc mpvSetWakeupCallback;
+mpvCommandStringFunc mpvCommandString;
+mpvErrorStringFunc mpvErrorString;
+mpvWaitEventFunc mpvWaitEvent;
+mpvGetPropertyFunc mpvGetProperty;
+mpvCommandAsyncFunc mpvCommandAsync;
+mpvGetPropertyStringFunc mpvGetPropertyString;
+mpvFreeNodeContentsFunc mpvFreeNodeContents;
+mpvSetOptionFunc mpvSetOption;
+mpvFreeFunc mpvFree;
+mpvRenderContextCreateFunc mpvRenderContextCreate;
+mpvRenderContextSetUpdateCallbackFunc mpvRenderContextSetUpdateCallback;
+mpvRenderContextRenderFunc mpvRenderContextRender;
+mpvRenderContextReportSwapFunc mpvRenderContextReportSwap;
+mpvRenderContextUpdateFunc mpvRenderContextUpdate;
+mpvRenderContextFreeFunc mpvRenderContextFree;
+#endif
+
 #ifdef MPV_USE_FB
 #ifdef PS4
 #include "utils/ps4_mpv_shaders.hpp"
@@ -126,7 +151,7 @@ static GLuint linkProgram(GLuint s1, GLuint s2) {
 
 static inline void check_error(int status) {
     if (status < 0) {
-        brls::Logger::error("MPV ERROR ====> {}", mpv_error_string(status));
+        brls::Logger::error("MPV ERROR ====> {}", mpvErrorString(status));
     }
 }
 
@@ -162,7 +187,7 @@ static inline float aspectConverter(const std::string &value) {
 
 void MPVCore::on_update(void *self) {
     brls::sync([]() {
-        uint64_t flags = mpv_render_context_update(MPVCore::instance().getContext());
+        uint64_t flags = mpvRenderContextUpdate(MPVCore::instance().getContext());
 #if defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D) || defined(USE_GL2)
         (void)flags;
 #else
@@ -170,13 +195,13 @@ void MPVCore::on_update(void *self) {
         if (MPVCore::instance().redraw) {
 #ifdef MPV_SW_RENDER
             if (!MPVCore::instance().pixels) return;
-            mpv_render_context_render(MPVCore::instance().mpv_context, MPVCore::instance().mpv_params);
-            mpv_render_context_report_swap(MPVCore::instance().mpv_context);
+            mpvRenderContextRender(MPVCore::instance().mpv_context, MPVCore::instance().mpv_params);
+            mpvRenderContextReportSwap(MPVCore::instance().mpv_context);
 #else
-            mpv_render_context_render(MPVCore::instance().mpv_context, MPVCore::instance().mpv_params);
+            mpvRenderContextRender(MPVCore::instance().mpv_context, MPVCore::instance().mpv_params);
             glBindFramebuffer(GL_FRAMEBUFFER, MPVCore::instance().default_framebuffer);
             glViewport(0, 0, (GLsizei)brls::Application::windowWidth, (GLsizei)brls::Application::windowHeight);
-            mpv_render_context_report_swap(MPVCore::instance().mpv_context);
+            mpvRenderContextReportSwap(MPVCore::instance().mpv_context);
 #endif
         }
 #endif
@@ -188,6 +213,35 @@ void MPVCore::on_wakeup(void *self) {
 }
 
 MPVCore::MPVCore() {
+#if defined(MPV_BUNDLE_DLL)
+    auto &dllData = romfs::get("libmpv-2.dll");
+    dll           = MemoryLoadLibrary(dllData.data(), dllData.size());
+    brls::Logger::info("Load libmpv-2.dll, size: {}", dllData.size());
+
+    mpvSetOptionString     = (mpvSetOptionStringFunc)MemoryGetProcAddress(dll, "mpv_set_option_string");
+    mpvObserveProperty     = (mpvObservePropertyFunc)MemoryGetProcAddress(dll, "mpv_observe_property");
+    mpvCreate              = (mpvCreateFunc)MemoryGetProcAddress(dll, "mpv_create");
+    mpvInitialize          = (mpvInitializeFunc)MemoryGetProcAddress(dll, "mpv_initialize");
+    mpvTerminateDestroy    = (mpvTerminateDestroyFunc)MemoryGetProcAddress(dll, "mpv_terminate_destroy");
+    mpvSetWakeupCallback   = (mpvSetWakeupCallbackFunc)MemoryGetProcAddress(dll, "mpv_set_wakeup_callback");
+    mpvCommandString       = (mpvCommandStringFunc)MemoryGetProcAddress(dll, "mpv_command_string");
+    mpvErrorString         = (mpvErrorStringFunc)MemoryGetProcAddress(dll, "mpv_error_string");
+    mpvWaitEvent           = (mpvWaitEventFunc)MemoryGetProcAddress(dll, "mpv_wait_event");
+    mpvGetProperty         = (mpvGetPropertyFunc)MemoryGetProcAddress(dll, "mpv_get_property");
+    mpvCommandAsync        = (mpvCommandAsyncFunc)MemoryGetProcAddress(dll, "mpv_command_async");
+    mpvGetPropertyString   = (mpvGetPropertyStringFunc)MemoryGetProcAddress(dll, "mpv_get_property_string");
+    mpvFreeNodeContents    = (mpvFreeNodeContentsFunc)MemoryGetProcAddress(dll, "mpv_free_node_contents");
+    mpvSetOption           = (mpvSetOptionFunc)MemoryGetProcAddress(dll, "mpv_set_option");
+    mpvFree                = (mpvFreeFunc)MemoryGetProcAddress(dll, "mpv_free");
+    mpvRenderContextCreate = (mpvRenderContextCreateFunc)MemoryGetProcAddress(dll, "mpv_render_context_create");
+    mpvRenderContextUpdate = (mpvRenderContextUpdateFunc)MemoryGetProcAddress(dll, "mpv_render_context_update");
+    mpvRenderContextFree   = (mpvRenderContextFreeFunc)MemoryGetProcAddress(dll, "mpv_render_context_free");
+    mpvRenderContextRender = (mpvRenderContextRenderFunc)MemoryGetProcAddress(dll, "mpv_render_context_render");
+    mpvRenderContextSetUpdateCallback =
+        (mpvRenderContextSetUpdateCallbackFunc)MemoryGetProcAddress(dll, "mpv_render_context_set_update_callback");
+    mpvRenderContextReportSwap =
+        (mpvRenderContextReportSwapFunc)MemoryGetProcAddress(dll, "mpv_render_context_report_swap");
+#endif
     this->init();
     // Destroy mpv when application exit
     brls::Application::getExitDoneEvent()->subscribe([this]() {
@@ -204,123 +258,123 @@ MPVCore::MPVCore() {
 
 void MPVCore::init() {
     setlocale(LC_NUMERIC, "C");
-    this->mpv = mpv_create();
+    this->mpv = mpvCreate();
     if (!mpv) {
         brls::fatal("Error Create mpv Handle");
     }
 
     // misc
-    mpv_set_option_string(mpv, "config", "yes");
-    mpv_set_option_string(mpv, "config-dir", ProgramConfig::instance().getConfigDir().c_str());
-    mpv_set_option_string(mpv, "ytdl", "no");
-    mpv_set_option_string(mpv, "audio-channels", "stereo");
-    mpv_set_option_string(mpv, "idle", "yes");
-    mpv_set_option_string(mpv, "loop-file", "no");
-    mpv_set_option_string(mpv, "osd-level", "0");
-    mpv_set_option_string(mpv, "video-timing-offset", "0");  // 60fps
-    mpv_set_option_string(mpv, "keep-open", "yes");
-    mpv_set_option_string(mpv, "hr-seek", "yes");
-    mpv_set_option_string(mpv, "reset-on-next-file", "speed,pause");
+    mpvSetOptionString(mpv, "config", "yes");
+    mpvSetOptionString(mpv, "config-dir", ProgramConfig::instance().getConfigDir().c_str());
+    mpvSetOptionString(mpv, "ytdl", "no");
+    mpvSetOptionString(mpv, "audio-channels", "stereo");
+    mpvSetOptionString(mpv, "idle", "yes");
+    mpvSetOptionString(mpv, "loop-file", "no");
+    mpvSetOptionString(mpv, "osd-level", "0");
+    mpvSetOptionString(mpv, "video-timing-offset", "0");  // 60fps
+    mpvSetOptionString(mpv, "keep-open", "yes");
+    mpvSetOptionString(mpv, "hr-seek", "yes");
+    mpvSetOptionString(mpv, "reset-on-next-file", "speed,pause");
 
     if (MPVCore::VIDEO_ASPECT != "-1") {
-        mpv_set_option_string(mpv, "video-aspect-override", MPVCore::VIDEO_ASPECT.c_str());
+        mpvSetOptionString(mpv, "video-aspect-override", MPVCore::VIDEO_ASPECT.c_str());
         video_aspect = aspectConverter(MPVCore::VIDEO_ASPECT);
     }
 
-    mpv_set_option(mpv, "brightness", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_BRIGHTNESS);
-    mpv_set_option(mpv, "contrast", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_CONTRAST);
-    mpv_set_option(mpv, "saturation", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_SATURATION);
-    mpv_set_option(mpv, "hue", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_HUE);
-    mpv_set_option(mpv, "gamma", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_GAMMA);
+    mpvSetOption(mpv, "brightness", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_BRIGHTNESS);
+    mpvSetOption(mpv, "contrast", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_CONTRAST);
+    mpvSetOption(mpv, "saturation", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_SATURATION);
+    mpvSetOption(mpv, "hue", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_HUE);
+    mpvSetOption(mpv, "gamma", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_GAMMA);
 
     if (MPVCore::LOW_QUALITY) {
         // Less cpu cost
         brls::Logger::info("lavc: skip loop filter and set fast decode");
-        mpv_set_option_string(mpv, "vd-lavc-skiploopfilter", "all");
-        mpv_set_option_string(mpv, "vd-lavc-fast", "yes");
+        mpvSetOptionString(mpv, "vd-lavc-skiploopfilter", "all");
+        mpvSetOptionString(mpv, "vd-lavc-fast", "yes");
     }
 
     if (MPVCore::INMEMORY_CACHE) {
         // cache
         brls::Logger::info("set memory cache: {}MB", MPVCore::INMEMORY_CACHE);
-        mpv_set_option_string(mpv, "demuxer-max-bytes", fmt::format("{}MiB", MPVCore::INMEMORY_CACHE).c_str());
-        mpv_set_option_string(mpv, "demuxer-max-back-bytes", fmt::format("{}MiB", MPVCore::INMEMORY_CACHE / 2).c_str());
+        mpvSetOptionString(mpv, "demuxer-max-bytes", fmt::format("{}MiB", MPVCore::INMEMORY_CACHE).c_str());
+        mpvSetOptionString(mpv, "demuxer-max-back-bytes", fmt::format("{}MiB", MPVCore::INMEMORY_CACHE / 2).c_str());
     } else {
-        mpv_set_option_string(mpv, "cache", "no");
+        mpvSetOptionString(mpv, "cache", "no");
     }
 
     // hardware decoding
     if (HARDWARE_DEC) {
 #ifdef __SWITCH__
-        mpv_set_option_string(mpv, "hwdec", "auto");
+        mpvSetOptionString(mpv, "hwdec", "auto");
 #elif defined(__PSV__)
-        mpv_set_option_string(mpv, "hwdec", "vita-copy");
+        mpvSetOptionString(mpv, "hwdec", "vita-copy");
         brls::Logger::info("MPV hardware decode: vita-copy");
 #elif defined(PS4)
-        mpv_set_option_string(mpv, "hwdec", "no");
+        mpvSetOptionString(mpv, "hwdec", "no");
 #else
-        mpv_set_option_string(mpv, "hwdec", PLAYER_HWDEC_METHOD.c_str());
+        mpvSetOptionString(mpv, "hwdec", PLAYER_HWDEC_METHOD.c_str());
         brls::Logger::info("MPV hardware decode: {}", PLAYER_HWDEC_METHOD);
 #endif
     } else {
-        mpv_set_option_string(mpv, "hwdec", "no");
+        mpvSetOptionString(mpv, "hwdec", "no");
     }
 
     // Making the loading process faster
 #if defined(__SWITCH__)
-    mpv_set_option_string(mpv, "vd-lavc-dr", "no");
-    mpv_set_option_string(mpv, "vd-lavc-threads", "4");
+    mpvSetOptionString(mpv, "vd-lavc-dr", "no");
+    mpvSetOptionString(mpv, "vd-lavc-threads", "4");
 #elif defined(PS4)
-    mpv_set_option_string(mpv, "vd-lavc-threads", "6");
+    mpvSetOptionString(mpv, "vd-lavc-threads", "6");
 #elif defined(__PSV__)
-    mpv_set_option_string(mpv, "vd-lavc-dr", "no");
-    mpv_set_option_string(mpv, "vd-lavc-threads", "4");
+    mpvSetOptionString(mpv, "vd-lavc-dr", "no");
+    mpvSetOptionString(mpv, "vd-lavc-threads", "4");
 
     // Fix vo_wait_frame() cannot be wakeup
-    mpv_set_option_string(mpv, "video-latency-hacks", "yes");
+    mpvSetOptionString(mpv, "video-latency-hacks", "yes");
 #endif
     // 过低的值可能导致部分直播流无法正确播放
-    mpv_set_option_string(mpv, "demuxer-lavf-analyzeduration", "0.4");
-    mpv_set_option_string(mpv, "demuxer-lavf-probe-info", "nostreams");
-    mpv_set_option_string(mpv, "demuxer-lavf-probescore", "24");
+    mpvSetOptionString(mpv, "demuxer-lavf-analyzeduration", "0.4");
+    mpvSetOptionString(mpv, "demuxer-lavf-probe-info", "nostreams");
+    mpvSetOptionString(mpv, "demuxer-lavf-probescore", "24");
 
     // log
-    // mpv_set_option_string(mpv, "msg-level", "ffmpeg=trace");
-    // mpv_set_option_string(mpv, "msg-level", "all=no");
+    // mpvSetOptionString(mpv, "msg-level", "ffmpeg=trace");
+    // mpvSetOptionString(mpv, "msg-level", "all=no");
     if (MPVCore::TERMINAL) {
-        mpv_set_option_string(mpv, "terminal", "yes");
+        mpvSetOptionString(mpv, "terminal", "yes");
 #ifdef _DEBUG
-        mpv_set_option_string(mpv, "msg-level", "all=v");
+        mpvSetOptionString(mpv, "msg-level", "all=v");
 #endif
     }
 
-    if (mpv_initialize(mpv) < 0) {
-        mpv_terminate_destroy(mpv);
+    if (mpvInitialize(mpv) < 0) {
+        mpvTerminateDestroy(mpv);
         brls::fatal("Could not initialize mpv context");
     }
 
     // set observe properties
-    check_error(mpv_observe_property(mpv, 1, "core-idle", MPV_FORMAT_FLAG));
-    check_error(mpv_observe_property(mpv, 2, "eof-reached", MPV_FORMAT_FLAG));
-    check_error(mpv_observe_property(mpv, 3, "duration", MPV_FORMAT_INT64));
-    check_error(mpv_observe_property(mpv, 4, "playback-time", MPV_FORMAT_DOUBLE));
-    check_error(mpv_observe_property(mpv, 5, "cache-speed", MPV_FORMAT_INT64));
-    check_error(mpv_observe_property(mpv, 6, "percent-pos", MPV_FORMAT_DOUBLE));
-    check_error(mpv_observe_property(mpv, 7, "paused-for-cache", MPV_FORMAT_FLAG));
-    //    check_error(mpv_observe_property(mpv, 8, "demuxer-cache-time", MPV_FORMAT_DOUBLE));
-    //    check_error(mpv_observe_property(mpv, 9, "demuxer-cache-state", MPV_FORMAT_NODE));
-    check_error(mpv_observe_property(mpv, 10, "speed", MPV_FORMAT_DOUBLE));
-    check_error(mpv_observe_property(mpv, 11, "volume", MPV_FORMAT_INT64));
-    check_error(mpv_observe_property(mpv, 12, "pause", MPV_FORMAT_FLAG));
-    check_error(mpv_observe_property(mpv, 13, "playback-abort", MPV_FORMAT_FLAG));
-    check_error(mpv_observe_property(mpv, 14, "seeking", MPV_FORMAT_FLAG));
-    check_error(mpv_observe_property(mpv, 15, "hwdec-current", MPV_FORMAT_STRING));
-    check_error(mpv_observe_property(mpv, 16, "path", MPV_FORMAT_STRING));
-    check_error(mpv_observe_property(mpv, 17, "brightness", MPV_FORMAT_DOUBLE));
-    check_error(mpv_observe_property(mpv, 18, "contrast", MPV_FORMAT_DOUBLE));
-    check_error(mpv_observe_property(mpv, 19, "saturation", MPV_FORMAT_DOUBLE));
-    check_error(mpv_observe_property(mpv, 20, "gamma", MPV_FORMAT_DOUBLE));
-    check_error(mpv_observe_property(mpv, 21, "hue", MPV_FORMAT_DOUBLE));
+    check_error(mpvObserveProperty(mpv, 1, "core-idle", MPV_FORMAT_FLAG));
+    check_error(mpvObserveProperty(mpv, 2, "eof-reached", MPV_FORMAT_FLAG));
+    check_error(mpvObserveProperty(mpv, 3, "duration", MPV_FORMAT_INT64));
+    check_error(mpvObserveProperty(mpv, 4, "playback-time", MPV_FORMAT_DOUBLE));
+    check_error(mpvObserveProperty(mpv, 5, "cache-speed", MPV_FORMAT_INT64));
+    check_error(mpvObserveProperty(mpv, 6, "percent-pos", MPV_FORMAT_DOUBLE));
+    check_error(mpvObserveProperty(mpv, 7, "paused-for-cache", MPV_FORMAT_FLAG));
+    //    check_error(mpvObserveProperty(mpv, 8, "demuxer-cache-time", MPV_FORMAT_DOUBLE));
+    //    check_error(mpvObserveProperty(mpv, 9, "demuxer-cache-state", MPV_FORMAT_NODE));
+    check_error(mpvObserveProperty(mpv, 10, "speed", MPV_FORMAT_DOUBLE));
+    check_error(mpvObserveProperty(mpv, 11, "volume", MPV_FORMAT_INT64));
+    check_error(mpvObserveProperty(mpv, 12, "pause", MPV_FORMAT_FLAG));
+    check_error(mpvObserveProperty(mpv, 13, "playback-abort", MPV_FORMAT_FLAG));
+    check_error(mpvObserveProperty(mpv, 14, "seeking", MPV_FORMAT_FLAG));
+    check_error(mpvObserveProperty(mpv, 15, "hwdec-current", MPV_FORMAT_STRING));
+    check_error(mpvObserveProperty(mpv, 16, "path", MPV_FORMAT_STRING));
+    check_error(mpvObserveProperty(mpv, 17, "brightness", MPV_FORMAT_DOUBLE));
+    check_error(mpvObserveProperty(mpv, 18, "contrast", MPV_FORMAT_DOUBLE));
+    check_error(mpvObserveProperty(mpv, 19, "saturation", MPV_FORMAT_DOUBLE));
+    check_error(mpvObserveProperty(mpv, 20, "gamma", MPV_FORMAT_DOUBLE));
+    check_error(mpvObserveProperty(mpv, 21, "hue", MPV_FORMAT_DOUBLE));
 
     // init renderer params
 #ifdef MPV_SW_RENDER
@@ -343,20 +397,20 @@ void MPVCore::init() {
                               {MPV_RENDER_PARAM_INVALID, nullptr}};
 #endif
 
-    if (mpv_render_context_create(&mpv_context, mpv, params) < 0) {
-        mpv_terminate_destroy(mpv);
+    if (mpvRenderContextCreate(&mpv_context, mpv, params) < 0) {
+        mpvTerminateDestroy(mpv);
         brls::fatal("failed to initialize mpv GL context");
     }
 
-    brls::Logger::info("MPV Version: {}", mpv_get_property_string(mpv, "mpv-version"));
-    brls::Logger::info("FFMPEG Version: {}", mpv_get_property_string(mpv, "ffmpeg-version"));
+    brls::Logger::info("MPV Version: {}", mpvGetPropertyString(mpv, "mpv-version"));
+    brls::Logger::info("FFMPEG Version: {}", mpvGetPropertyString(mpv, "ffmpeg-version"));
     command_async("set", "audio-client-name", APPVersion::getPackageName());
     setVolume(MPVCore::VIDEO_VOLUME);
 
     // set event callback
-    mpv_set_wakeup_callback(mpv, on_wakeup, this);
+    mpvSetWakeupCallback(mpv, on_wakeup, this);
     // set render callback
-    mpv_render_context_set_update_callback(mpv_context, on_update, this);
+    mpvRenderContextSetUpdateCallback(mpv_context, on_update, this);
 
     focusSubscription = brls::Application::getWindowFocusChangedEvent()->subscribe([this](bool focus) {
         static bool playing = false;
@@ -386,10 +440,14 @@ void MPVCore::init() {
     this->initializeVideo();
 }
 
+#ifdef MPV_BUNDLE_DLL
+MPVCore::~MPVCore() { MemoryFreeLibrary(dll); }
+#else
 MPVCore::~MPVCore() = default;
+#endif
 
 void MPVCore::clean() {
-    check_error(mpv_command_string(this->mpv, "quit"));
+    check_error(mpvCommandString(this->mpv, "quit"));
 
     brls::Application::getWindowFocusChangedEvent()->unsubscribe(focusSubscription);
 
@@ -398,13 +456,13 @@ void MPVCore::clean() {
 
     brls::Logger::info("trying free mpv context");
     if (this->mpv_context) {
-        mpv_render_context_free(this->mpv_context);
+        mpvRenderContextFree(this->mpv_context);
         this->mpv_context = nullptr;
     }
 
     brls::Logger::info("trying terminate mpv");
     if (this->mpv) {
-        mpv_terminate_destroy(this->mpv);
+        mpvTerminateDestroy(this->mpv);
         this->mpv = nullptr;
     }
 }
@@ -560,8 +618,8 @@ void MPVCore::setFrameSize(brls::Rect r) {
     pitch      = PIXCEL_SIZE * drawWidth;
 
     // 在视频暂停时调整纹理尺寸，视频画面会被清空为黑色，强制重新绘制一次，避免这个问题
-    mpv_render_context_render(mpv_context, mpv_params);
-    mpv_render_context_report_swap(mpv_context);
+    mpvRenderContextRender(mpv_context, mpv_params);
+    mpvRenderContextReportSwap(mpv_context);
 #elif !defined(MPV_USE_FB)
     // Using default framebuffer
     this->mpv_fbo.w = brls::Application::windowWidth;
@@ -602,10 +660,10 @@ void MPVCore::setFrameSize(brls::Rect r) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // 在视频暂停时调整纹理尺寸，视频画面会被清空为黑色，强制重新绘制一次，避免这个问题
-    mpv_render_context_render(mpv_context, mpv_params);
+    mpvRenderContextRender(mpv_context, mpv_params);
     glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
     glViewport(0, 0, (GLsizei)brls::Application::windowWidth, (GLsizei)brls::Application::windowHeight);
-    mpv_render_context_report_swap(mpv_context);
+    mpvRenderContextReportSwap(mpv_context);
 #endif
 }
 
@@ -644,14 +702,14 @@ void MPVCore::draw(brls::Rect area, float alpha) {
         videoContext->queueFlush();
 #endif
         // 绘制视频
-        mpv_render_context_render(this->mpv_context, mpv_params);
+        mpvRenderContextRender(this->mpv_context, mpv_params);
 #ifdef BOREALIS_USE_DEKO3D
         videoContext->queueWaitFence(&doneFence);
 #else
         glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
         glViewport(0, 0, brls::Application::windowWidth, brls::Application::windowHeight);
 #endif
-        mpv_render_context_report_swap(this->mpv_context);
+        mpvRenderContextReportSwap(this->mpv_context);
 
         // 画背景来覆盖mpv的黑色边框
         if (rect.getWidth() < brls::Application::contentWidth) {
@@ -717,7 +775,7 @@ std::string MPVCore::getCacheSpeed() const {
 
 void MPVCore::eventMainLoop() {
     while (true) {
-        auto event = mpv_wait_event(this->mpv, 0);
+        auto event = mpvWaitEvent(this->mpv, 0);
         switch (event->event_id) {
             case MPV_EVENT_NONE:
                 return;
@@ -775,7 +833,7 @@ void MPVCore::eventMainLoop() {
                 auto node     = (mpv_event_end_file *)event->data;
                 if (node->reason == MPV_END_FILE_REASON_ERROR) {
                     mpv_error_code = node->error;
-                    brls::Logger::error("========> MPV ERROR: {}", mpv_error_string(node->error));
+                    brls::Logger::error("========> MPV ERROR: {}", mpvErrorString(node->error));
                     mpvCoreEvent.fire(MpvEventEnum::MPV_FILE_ERROR);
                 }
 
@@ -1078,29 +1136,29 @@ int MPVCore::getHue() const { return video_hue; }
 // todo: remove these sync function
 std::string MPVCore::getString(const std::string &key) {
     char *value = nullptr;
-    mpv_get_property(mpv, key.c_str(), MPV_FORMAT_STRING, &value);
+    mpvGetProperty(mpv, key.c_str(), MPV_FORMAT_STRING, &value);
     if (!value) return "";
     std::string result = std::string{value};
-    mpv_free(value);
+    mpvFree(value);
     return result;
 }
 
 double MPVCore::getDouble(const std::string &key) {
     double value = 0;
-    mpv_get_property(mpv, key.c_str(), MPV_FORMAT_DOUBLE, &value);
+    mpvGetProperty(mpv, key.c_str(), MPV_FORMAT_DOUBLE, &value);
     return value;
 }
 
 int64_t MPVCore::getInt(const std::string &key) {
     int64_t value = 0;
-    mpv_get_property(mpv, key.c_str(), MPV_FORMAT_INT64, &value);
+    mpvGetProperty(mpv, key.c_str(), MPV_FORMAT_INT64, &value);
     return value;
 }
 
 std::unordered_map<std::string, mpv_node> MPVCore::getNodeMap(const std::string &key) {
     mpv_node node;
     std::unordered_map<std::string, mpv_node> nodeMap;
-    if (mpv_get_property(mpv, key.c_str(), MPV_FORMAT_NODE, &node) < 0) return nodeMap;
+    if (mpvGetProperty(mpv, key.c_str(), MPV_FORMAT_NODE, &node) < 0) return nodeMap;
     if (node.format != MPV_FORMAT_NODE_MAP) return nodeMap;
     // todo: 目前不要使用 mpv_node中有指针的部分，因为这些内容指向的内存会在这个函数结束的时候删除
     for (int i = 0; i < node.u.list->num; i++) {
@@ -1108,7 +1166,7 @@ std::unordered_map<std::string, mpv_node> MPVCore::getNodeMap(const std::string 
         if (nodeKey == nullptr) continue;
         nodeMap.insert(std::make_pair(std::string{nodeKey}, node.u.list->values[i]));
     }
-    mpv_free_node_contents(&node);
+    mpvFreeNodeContents(&node);
     return nodeMap;
 }
 

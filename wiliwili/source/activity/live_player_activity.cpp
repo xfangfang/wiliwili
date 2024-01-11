@@ -129,7 +129,7 @@ void LiveActivity::setCommonData() {
                     this->retryRequestData();
                     break;
                 default:
-                    this->video->setOnlineCount({mpv_error_string(MPVCore::instance().mpv_error_code)});
+                    this->video->setOnlineCount({mpvErrorString(MPVCore::instance().mpv_error_code)});
             }
         } else if (e == END_OF_FILE) {
             // flv 直播遇到网络错误不会报错，而是输出 END_OF_FILE

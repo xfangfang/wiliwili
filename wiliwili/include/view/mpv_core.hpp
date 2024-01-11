@@ -54,6 +54,76 @@ struct GLShader {
 
 #include "utils/event_helper.hpp"
 
+#ifdef MPV_BUNDLE_DLL
+#include <MemoryModule.h>
+typedef int (*mpvSetOptionStringFunc)(mpv_handle *ctx, const char *name, const char *data);
+typedef int (*mpvObservePropertyFunc)(mpv_handle *mpv, uint64_t reply_userdata, const char *name, mpv_format format);
+typedef mpv_handle *(*mpvCreateFunc)(void);
+typedef int (*mpvInitializeFunc)(mpv_handle *ctx);
+typedef void (*mpvTerminateDestroyFunc)(mpv_handle *ctx);
+typedef void (*mpvSetWakeupCallbackFunc)(mpv_handle *ctx, void (*cb)(void *d), void *d);
+typedef int (*mpvCommandStringFunc)(mpv_handle *ctx, const char *args);
+typedef const char *(*mpvErrorStringFunc)(int error);
+typedef mpv_event *(*mpvWaitEventFunc)(mpv_handle *ctx, double timeout);
+typedef int (*mpvGetPropertyFunc)(mpv_handle *ctx, const char *name, mpv_format format, void *data);
+typedef int (*mpvCommandAsyncFunc)(mpv_handle *ctx, uint64_t reply_userdata, const char **args);
+typedef char *(*mpvGetPropertyStringFunc)(mpv_handle *ctx, const char *name);
+typedef void (*mpvFreeNodeContentsFunc)(mpv_node *node);
+typedef int (*mpvSetOptionFunc)(mpv_handle *ctx, const char *name, mpv_format format, void *data);
+typedef void (*mpvFreeFunc)(void *data);
+typedef int (*mpvRenderContextCreateFunc)(mpv_render_context **res, mpv_handle *mpv, mpv_render_param *params);
+typedef void (*mpvRenderContextSetUpdateCallbackFunc)(mpv_render_context *ctx, mpv_render_update_fn callback,
+                                                      void *callback_ctx);
+typedef int (*mpvRenderContextRenderFunc)(mpv_render_context *ctx, mpv_render_param *params);
+typedef void (*mpvRenderContextReportSwapFunc)(mpv_render_context *ctx);
+typedef uint64_t (*mpvRenderContextUpdateFunc)(mpv_render_context *ctx);
+typedef void (*mpvRenderContextFreeFunc)(mpv_render_context *ctx);
+
+extern mpvSetOptionStringFunc mpvSetOptionString;
+extern mpvObservePropertyFunc mpvObserveProperty;
+extern mpvCreateFunc mpvCreate;
+extern mpvInitializeFunc mpvInitialize;
+extern mpvTerminateDestroyFunc mpvTerminateDestroy;
+extern mpvSetWakeupCallbackFunc mpvSetWakeupCallback;
+extern mpvCommandStringFunc mpvCommandString;
+extern mpvErrorStringFunc mpvErrorString;
+extern mpvWaitEventFunc mpvWaitEvent;
+extern mpvGetPropertyFunc mpvGetProperty;
+extern mpvCommandAsyncFunc mpvCommandAsync;
+extern mpvGetPropertyStringFunc mpvGetPropertyString;
+extern mpvFreeNodeContentsFunc mpvFreeNodeContents;
+extern mpvSetOptionFunc mpvSetOption;
+extern mpvFreeFunc mpvFree;
+extern mpvRenderContextCreateFunc mpvRenderContextCreate;
+extern mpvRenderContextSetUpdateCallbackFunc mpvRenderContextSetUpdateCallback;
+extern mpvRenderContextRenderFunc mpvRenderContextRender;
+extern mpvRenderContextReportSwapFunc mpvRenderContextReportSwap;
+extern mpvRenderContextUpdateFunc mpvRenderContextUpdate;
+extern mpvRenderContextFreeFunc mpvRenderContextFree;
+#else
+#define mpvSetOptionString mpv_set_option_string
+#define mpvObserveProperty mpv_observe_property
+#define mpvCreate mpv_create
+#define mpvInitialize mpv_initialize
+#define mpvTerminateDestroy mpv_terminate_destroy
+#define mpvSetWakeupCallback mpv_set_wakeup_callback
+#define mpvCommandString mpv_command_string
+#define mpvErrorString mpv_error_string
+#define mpvWaitEvent mpv_wait_event
+#define mpvGetProperty mpv_get_property
+#define mpvCommandAsync mpv_command_async
+#define mpvGetPropertyString mpv_get_property_string
+#define mpvFreeNodeContents mpv_free_node_contents
+#define mpvSetOption mpv_set_option
+#define mpvFree mpv_free
+#define mpvRenderContextCreate mpv_render_context_create
+#define mpvRenderContextSetUpdateCallback mpv_render_context_set_update_callback
+#define mpvRenderContextRender mpv_render_context_render
+#define mpvRenderContextReportSwap mpv_render_context_report_swap
+#define mpvRenderContextUpdate mpv_render_context_update
+#define mpvRenderContextFree mpv_render_context_free
+#endif
+
 class MPVCore : public brls::Singleton<MPVCore> {
 public:
     MPVCore();
@@ -233,7 +303,7 @@ public:
         }
         res.emplace_back(nullptr);
 
-        mpv_command_async(mpv, 0, res.data());
+        mpvCommandAsync(mpv, 0, res.data());
     }
 
     // core states
@@ -350,6 +420,10 @@ private:
     };
     float vertices[20] = {1.0f,  1.0f,  0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
                           -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f,  0.0f, 0.0f, 1.0f};
+#endif
+
+#ifdef MPV_BUNDLE_DLL
+    HMEMORYMODULE dll;
 #endif
 
     // MPV 内部事件，传递内容为: 事件类型

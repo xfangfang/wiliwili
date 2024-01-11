@@ -59,6 +59,13 @@ if (MPV_NO_FB)
     list(APPEND APP_PLATFORM_OPTION -DMPV_NO_FB)
 endif()
 
+# Bundle mpv.dll into wiliwili.exe (Windows only)
+cmake_dependent_option(MPV_BUNDLE_DLL "Bundle mpv.dll" OFF "USE_LIBROMFS;WIN32" OFF)
+if (MPV_BUNDLE_DLL)
+    list(APPEND APP_PLATFORM_OPTION -DMPV_BUNDLE_DLL)
+    list(APPEND APP_PLATFORM_LIB MemoryModule)
+endif ()
+
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)
 
 # toolchain
