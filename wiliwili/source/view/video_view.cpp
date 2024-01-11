@@ -541,10 +541,10 @@ void VideoView::requestSeeking(int seek, int delay) {
     brls::cancelDelay(seeking_iter);
     if (delay <= 0) {
         this->hideCenterHint();
-        if (seek == 0) return;
-        mpvCore->seekRelative(seek);
         seeking_range = 0;
         is_seeking    = false;
+        if (seek == 0) return;
+        mpvCore->seekRelative(seek);
     } else {
         // 延迟触发跳转进度
         is_seeking = true;
@@ -552,10 +552,10 @@ void VideoView::requestSeeking(int seek, int delay) {
         seeking_iter = brls::delay(delay, [ASYNC_TOKEN, seek]() {
             ASYNC_RELEASE
             this->hideCenterHint();
-            if (seek == 0) return;
-            mpvCore->seekRelative(seek);
             seeking_range = 0;
             is_seeking    = false;
+            if (seek == 0) return;
+            mpvCore->seekRelative(seek);
         });
     }
 }
