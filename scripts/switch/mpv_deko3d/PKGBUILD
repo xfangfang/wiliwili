@@ -4,8 +4,8 @@
 
 pkgbasename=libmpv
 pkgname=switch-${pkgbasename}
-pkgver=0.35.1
-pkgrel=4
+pkgver=0.36.0
+pkgrel=1
 pkgdesc='Command line video player (library only)'
 arch=('any')
 url='https://mpv.io/'
@@ -22,6 +22,11 @@ groups=('switch-portlibs')
 
 prepare() {
   cd mpv-$pkgver
+  rm -rf video/out/hwdec/hwdec_deko3d.c
+  rm -rf video/out/deko3d/
+  rm -rf osdep/switch/sys/mman.h
+  rm -rf libmpv/render_dk3d.h
+  rm -rf audio/out/ao_hos.c
   patch -Np1 -i "$srcdir/mpv.patch"
 }
 
@@ -36,7 +41,7 @@ build() {
     --prefix="${PORTLIBS_PREFIX}" --disable-libmpv-shared \
     --enable-libmpv-static --disable-cplayer --disable-sdl2 \
     --disable-gl --disable-plain-gl \
-    --enable-deko3d --enable-hos-audio --enable-hos-video \
+    --enable-deko3d --enable-hos-audio \
     --disable-iconv --disable-jpeg --disable-libavdevice --disable-debug-build
   sed -i 's/#define HAVE_POSIX 1/#define HAVE_POSIX 0/' build/config.h
   ./waf build

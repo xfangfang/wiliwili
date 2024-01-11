@@ -7,7 +7,7 @@
 pkgname=switch-ffmpeg
 pkgver=6.1
 commit=ff3429991ec1bac1d1b71215402e3d195162e125
-pkgrel=4
+pkgrel=5
 pkgdesc='ffmpeg port (for Nintendo Switch homebrew development)'
 arch=('any')
 url='https://ffmpeg.org/'
@@ -27,20 +27,20 @@ groups=('switch-portlibs')
 prepare() {
   cd FFmpeg-$commit
 
-  rm -rf libavutil/hwcontext_tx1.c
-  rm -rf libavutil/hwcontext_tx1.h
+  rm -rf libavutil/hwcontext_nvtegra.c
+  rm -rf libavutil/hwcontext_nvtegra.h
   rm -rf libavutil/nvdec_drv.h
   rm -rf libavutil/nvhost_ioctl.h
   rm -rf libavutil/nvjpg_drv.h
   rm -rf libavutil/nvmap_ioctl.h
-  rm -rf libavutil/tx1.c
-  rm -rf libavutil/tx1.h
-  rm -rf libavutil/tx1_host1x.h
+  rm -rf libavutil/nvtegra.c
+  rm -rf libavutil/nvtegra.h
+  rm -rf libavutil/nvtegra_host1x.h
   rm -rf libavutil/vic_drv.h
   rm -rf libavutil/clb0b6.h
   rm -rf libavutil/clc5b0.h
   rm -rf libavutil/cle7d0.h
-  rm -rf libavcodec/tx1_*
+  rm -rf libavcodec/nvtegra_*
 
   patch -Np1 -i "$srcdir/ffmpeg.patch"
   patch -Np1 -i "$srcdir/network.patch"
@@ -63,7 +63,7 @@ build() {
     --enable-swscale --enable-swresample --enable-network  \
     --disable-protocols --enable-protocol=file,http,tcp,udp,rtmp,hls,https,tls,ftp,rtp,crypto,httpproxy \
     --enable-zlib --enable-bzlib --enable-libass --enable-libfreetype --enable-libfribidi --enable-libdav1d \
-    --enable-gpl --enable-tx1 \
+    --enable-gpl --enable-nvtegra \
     --enable-version3 --enable-mbedtls
 
   make -j$(nproc)

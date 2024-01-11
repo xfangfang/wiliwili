@@ -14,8 +14,8 @@ PKGS=(
     "libuam-f8c9eef01ffe06334d530393d636d69e2b52744b-1-any.pkg.tar.zst"
     "switch-dav1d-1.2.1-1-any.pkg.tar.zst"
     "switch-libass-0.17.1-1-any.pkg.tar.zst"
-    "switch-ffmpeg-6.1-4-any.pkg.tar.zst"
-    "switch-libmpv_deko3d-0.35.1-4-any.pkg.tar.zst"
+    "switch-ffmpeg-6.1-5-any.pkg.tar.zst"
+    "switch-libmpv_deko3d-0.36.0-1-any.pkg.tar.zst"
     "switch-nspmini-48d4fc2-1-any.pkg.tar.xz"
 )
 for PKG in "${PKGS[@]}"; do
