@@ -1,0 +1,30 @@
+name: Build l4t
+
+on:
+  push:
+    branches: ["yoga"]
+
+  workflow_dispatch:
+
+jobs:
+  build-l4t:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout wiliwili
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Build docker
+        run: docker build -t ubuntu:l4t scripts/l4t
+      - name: Build wiliwili
+        run: docker run --rm -u $(id -u):$(id -g) -v $PWD:/opt -w /opt ubuntu:l4t bash scripts/l4t/build.sh
+      - name: Upload dist
+        uses: actions/upload-artifact@v3
+        with:
+          name: wiliwili-Linux-aarch64-switchroot-ubuntu
+          path: wiliwili-*.deb
+      
+

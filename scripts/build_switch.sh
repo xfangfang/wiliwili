@@ -15,15 +15,12 @@ PKGS=(
     "switch-ffmpeg-6.1-5-any.pkg.tar.zst"
     "switch-libmpv-0.36.0-2-any.pkg.tar.zst"
     "switch-nspmini-48d4fc2-1-any.pkg.tar.xz"
+    "hacBrewPack-3.05-1-any.pkg.tar.zst"
 )
 for PKG in "${PKGS[@]}"; do
     [ -f "${PKG}" ] || curl -LO ${BASE_URL}${PKG}
     dkp-pacman -U --noconfirm ${PKG}
 done
-
-HACBREWPACK="hacbrewpack-v3.06_linux-amd64.tar.gz"
-[ -f "${HACBREWPACK}" ] || curl -LO https://github.com/dragonflylee/hacBrewPack/releases/download/v3.06/${HACBREWPACK}
-tar zxf ${HACBREWPACK} -C /usr/local/bin
 
 cmake -B ${BUILD_DIR} -DCMAKE_BUILD_TYPE=Release -DBUILTIN_NSP=ON -DPLATFORM_SWITCH=ON
 make -C ${BUILD_DIR} wiliwili.nro -j$(nproc)
