@@ -24,6 +24,8 @@ public:
 
     static View* create();
 
+    void willAppear(bool resetState) override;
+
     void requestSearch(const std::string& key);
 
     void _requestSearch(const std::string& key);
@@ -31,5 +33,6 @@ public:
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "search/video/recyclingGrid");
 
+    std::string requestOrder;
     unsigned int requestIndex = 1;
 };

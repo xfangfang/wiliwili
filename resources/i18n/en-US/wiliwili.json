@@ -217,6 +217,13 @@
       "history_delete": "Delete",
       "suggest": "Suggest"
     },
+    "order": {
+      "all": "All",
+      "click": "Click",
+      "pubdate": "PublishDate",
+      "dm": "Danmaku",
+      "stow": "Favorite"
+    },
     "tab": "Search",
     "t0": "History",
     "t1": "Hots",
