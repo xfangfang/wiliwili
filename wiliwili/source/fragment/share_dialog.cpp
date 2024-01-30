@@ -5,7 +5,7 @@
 #include <cpr/cpr.h>
 
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
-#include <clip.h>
+#include <clip/clip.h>
 #endif
 
 #include "fragment/share_dialog.hpp"

@@ -89,9 +89,7 @@ if (PLATFORM_DESKTOP)
     set(CLIP_EXAMPLES OFF)
     set(CLIP_TESTS OFF)
     add_subdirectory(clip EXCLUDE_FROM_ALL)
-    target_include_directories(clip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/clip)
-    list(APPEND APP_PLATFORM_LIB clip)
-    set(APP_PLATFORM_LIB ${APP_PLATFORM_LIB} PARENT_SCOPE)
+    target_include_directories(clip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 endif ()
 
 # add mongoose
