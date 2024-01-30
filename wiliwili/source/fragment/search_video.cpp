@@ -35,7 +35,9 @@ void SearchVideo::requestSearch(const std::string& key) {
 
 void SearchVideo::willAppear(bool resetState) {
     brls::Box::willAppear(resetState);
-    this->requestSearch(SearchActivity::currentKey);
+
+    if (!dynamic_cast<DataSourceSearchVideoList*>(recyclingGrid->getDataSource()))
+        this->requestSearch(SearchActivity::currentKey);
 }
 
 void SearchVideo::_requestSearch(const std::string& key) {
