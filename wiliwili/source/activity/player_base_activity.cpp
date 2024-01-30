@@ -12,6 +12,7 @@
 #include "fragment/player_collection.hpp"
 #include "fragment/player_coin.hpp"
 #include "fragment/player_single_comment.hpp"
+#include "fragment/share_dialog.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/number_helper.hpp"
@@ -358,20 +359,15 @@ void BasePlayerActivity::setCommonData() {
 }
 
 void BasePlayerActivity::showShareDialog(const std::string& link) {
-    auto container = new brls::Box(brls::Axis::COLUMN);
-    container->setJustifyContent(brls::JustifyContent::CENTER);
-    container->setAlignItems(brls::AlignItems::CENTER);
-    auto qr = new QRImage();
-    qr->setSize(brls::Size(256, 256));
-    qr->setImageFromQRContent(link);
-    qr->setMargins(20, 10, 10, 10);
-    container->addView(qr);
-    auto hint = new brls::Label();
-    hint->setText("wiliwili/player/qr"_i18n);
-    hint->setMargins(0, 10, 10, 10);
-    container->addView(hint);
-    auto dialog = new brls::Dialog(container);
-    dialog->addButton("hints/ok"_i18n, []() {});
+    brls::Box* container = new ShareDialog(link);
+    brls::Dialog* dialog = new brls::Dialog(container);
+    dialog->getAppletFrame()->setWidth(350);
+    dialog->open();
+}
+
+void BasePlayerActivity::showShareDialog(const bilibili::VideoDetailResult& result) {
+    brls::Box* container = new ShareDialog(result);
+    brls::Dialog* dialog = new brls::Dialog(container);
     dialog->open();
 }
 

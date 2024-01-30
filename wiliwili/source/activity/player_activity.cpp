@@ -181,7 +181,11 @@ void PlayerActivity::onContentAvailable() {
 
     // 二维码按钮
     this->btnQR->getParent()->registerClickAction([this](...) {
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+        this->showShareDialog(videoDetailResult);
+#else
         this->showShareDialog("https://www.bilibili.com/video/" + this->videoDetailResult.bvid);
+#endif
         return true;
     });
 

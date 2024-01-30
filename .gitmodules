@@ -25,3 +25,6 @@
 [submodule "library/MemoryModule"]
 	path = library/MemoryModule
 	url = https://github.com/fancycode/MemoryModule.git
+[submodule "library/clip"]
+	path = library/clip
+	url = https://github.com/dacap/clip.git
