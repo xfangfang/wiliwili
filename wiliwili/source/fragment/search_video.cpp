@@ -16,6 +16,8 @@ SearchVideo::SearchVideo() {
     brls::Logger::debug("Fragment SearchVideo: create");
     recyclingGrid->registerCell("Cell", []() { return RecyclingGridItemVideoCard::create(); });
     recyclingGrid->onNextPage([this]() { this->_requestSearch(SearchActivity::currentKey); });
+
+    this->registerStringXMLAttribute("order", [this](std::string value) { this->requestOrder = value; });
 }
 
 SearchVideo::~SearchVideo() {
@@ -31,10 +33,17 @@ void SearchVideo::requestSearch(const std::string& key) {
     this->_requestSearch(key);
 }
 
+void SearchVideo::willAppear(bool resetState) {
+    brls::Box::willAppear(resetState);
+
+    if (!dynamic_cast<DataSourceSearchVideoList*>(recyclingGrid->getDataSource()))
+        this->requestSearch(SearchActivity::currentKey);
+}
+
 void SearchVideo::_requestSearch(const std::string& key) {
     ASYNC_RETAIN
     BILI::search_video(
-        key, "video", requestIndex, "",
+        key, "video", requestIndex, this->requestOrder,
         [ASYNC_TOKEN](const bilibili::SearchResult& result) {
             for (auto i : result.result) {
                 brls::Logger::debug("search: {}", i.title);

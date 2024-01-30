@@ -1,0 +1,48 @@
+<brls:Box
+        wireframe="false"
+        positionTop="-15"
+        axis="column"
+        width="auto"
+        height="auto">
+
+    <AutoTabFrame
+        id="search/video/tabFrame"
+        grow="1"
+        defaultTab="0"
+        tabHeight="45"
+        tabItemDefaultBackgroundColor="@theme/color/grey_1"
+        tabItemActiveBackgroundColor="@theme/color/pink_1"
+        tabItemActiveTextColor="@theme/color/bilibili"
+        sidebarPosition="top">
+
+        <Tab label="@i18n/wiliwili/search/order/all"
+            style="plain"
+            fontSize="16">
+            <SearchVideo />
+        </Tab>
+
+        <Tab label="@i18n/wiliwili/search/order/click"
+            style="plain"
+            fontSize="16">
+            <SearchVideo order="click" />
+        </Tab>
+
+        <Tab label="@i18n/wiliwili/search/order/pubdate"
+            style="plain"
+            fontSize="16">
+            <SearchVideo order="pubdate" />
+        </Tab>
+
+        <Tab label="@i18n/wiliwili/search/order/dm"
+            style="plain"
+            fontSize="16">
+            <SearchVideo order="dm" />
+        </Tab>
+
+        <Tab label="@i18n/wiliwili/search/order/stow"
+            style="plain"
+            fontSize="16">
+            <SearchVideo order="stow" />
+        </Tab>
+    </AutoTabFrame>
+</brls:Box>

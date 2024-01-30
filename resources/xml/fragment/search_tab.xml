@@ -25,7 +25,7 @@
 
         <Tab label="@i18n/wiliwili/search/t2"
              fontSize="18">
-            <SearchVideo id="search/tab/video"/>
+            <SearchOrder id="search/tab/video"/>
         </Tab>
 
         <Tab label="@i18n/wiliwili/search/t3"

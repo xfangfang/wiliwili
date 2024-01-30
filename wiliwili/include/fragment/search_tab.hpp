@@ -19,7 +19,7 @@
 #include "utils/image_helper.hpp"
 #include "utils/number_helper.hpp"
 
-class SearchVideo;
+class SearchOrder;
 class SearchBangumi;
 class SearchCinema;
 class SearchHots;
@@ -127,14 +127,14 @@ public:
 
     SearchHots* getSearchHotsTab();
 
-    SearchVideo* getSearchVideoTab();
+    SearchOrder* getSearchVideoTab();
 
     SearchBangumi* getSearchBangumiTab();
 
     SearchCinema* getSearchCinemaTab();
 
 private:
-    BRLS_BIND(SearchVideo, searchVideoTab, "search/tab/video");
+    BRLS_BIND(SearchOrder, searchVideoTab, "search/tab/video");
     BRLS_BIND(SearchBangumi, searchBangumiTab, "search/tab/bangumi");
     BRLS_BIND(SearchCinema, searchCinemaTab, "search/tab/cinema");
     BRLS_BIND(SearchHots, searchHotsTab, "search/tab/hots");
