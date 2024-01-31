@@ -26,6 +26,7 @@
 #include "fragment/search_bangumi.hpp"
 #include "fragment/search_hots.hpp"
 #include "fragment/search_history.hpp"
+#include "fragment/share_dialog.hpp"
 
 #include "utils/config_helper.hpp"
 
@@ -72,6 +73,7 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("CheckBox", CheckBox::create);
     brls::Application::registerXMLView("SelectorCell", SelectorCell::create);
     brls::Application::registerXMLView("AnimationImage", AnimationImage::create);
+    brls::Application::registerXMLView("ShareBox", ShareBox::create);
 
     //     Register fragments
     brls::Application::registerXMLView("HomeTab", HomeTab::create);

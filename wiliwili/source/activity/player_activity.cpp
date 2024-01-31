@@ -17,6 +17,7 @@
 #include "fragment/player_collection.hpp"
 #include "fragment/player_fragments.hpp"
 #include "fragment/player_evaluate.hpp"
+#include "fragment/share_dialog.hpp"
 #include "view/grid_dropdown.hpp"
 #include "view/svg_image.hpp"
 #include "view/video_view.hpp"
@@ -181,7 +182,12 @@ void PlayerActivity::onContentAvailable() {
 
     // 二维码按钮
     this->btnQR->getParent()->registerClickAction([this](...) {
-        this->showShareDialog("https://www.bilibili.com/video/" + this->videoDetailResult.bvid);
+        ShareDialog* dialog = new ShareDialog();
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+        dialog->open(videoDetailResult);
+#else
+        dialog->open("https://www.bilibili.com/video/" + this->videoDetailResult.bvid);
+#endif
         return true;
     });
 

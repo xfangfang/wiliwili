@@ -231,6 +231,8 @@ if (PLATFORM_DESKTOP)
                 "${CMAKE_CURRENT_SOURCE_DIR}/scripts/linux/${PACKAGE_NAME}.appdata.xml"
                 "${CMAKE_CURRENT_SOURCE_DIR}/scripts/linux/${PACKAGE_NAME}.desktop")
     endif ()
+
+    list(APPEND APP_PLATFORM_LIB clip)
 elseif (PLATFORM_IOS)
     ios_bundle(
             "${CMAKE_CURRENT_SOURCE_DIR}/library/borealis/demo/ios/tvos/Splash.storyboard"

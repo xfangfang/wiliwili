@@ -157,6 +157,7 @@ else
 end
 add_requires("mpv", {configs={shared=true}})
 add_requires("cpr")
+add_requires("clip")
 add_requires("lunasvg")
 add_requires("opencc")
 add_requires("pystring")
@@ -218,6 +219,7 @@ target("wiliwili")
         "borealis",
         "mpv",
         "cpr",
+        "clip",
         "qr-code-generator",
         "lunasvg",
         "opencc",

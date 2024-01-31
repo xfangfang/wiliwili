@@ -1,0 +1,13 @@
+<brls:Box
+        axis="column"
+        alignItems="center"
+        padding="15">
+        <SVGImage
+                width="64"
+                height="64"
+                marginBottom="10"
+                id="share/image"/>
+        <brls:Label
+                fontSize="18"
+                id="share/title"/>
+</brls:Box>

@@ -1,0 +1,108 @@
+<brls:Box
+    padding="30"
+    justifyContent="center"
+    alignItems="center">
+
+    <ButtonClose
+        positionType="absolute"
+        positionTop="10"
+        positionRight="10" />
+
+    <brls:Box
+        axis="column"
+        alignItems="center"
+        margin="10">
+
+        <QRImage
+            width="220"
+            height="220"
+            margin="10"
+            focusable="true"
+            id="share/qrcode" />
+
+        <brls:Label
+            fontSize="18"
+            text="@i18n/wiliwili/player/qr" />
+    </brls:Box>
+
+    <brls:Box
+        axis="column"
+        grow="1.0"
+        lineColor="@theme/color/line"
+        lineLeft="2"
+        id="share/box"
+        marginLeft="25"
+        paddingLeft="20"
+        paddingRight="20">
+
+        <brls:Box
+            justifyContent="spaceBetween">
+            <ShareBox
+                title="QQ"
+                icon="@res/svg/share-qq.svg"
+                focusable="true"
+                focusUp="share/box/qq"
+                focusDown="share/box/tieba"
+                id="share/box/qq" />
+            <ShareBox
+                title="QQ空间"
+                icon="@res/svg/share-qzone.svg"
+                focusable="true"
+                focusUp="share/box/qzone"
+                focusDown="share/box/weibo"
+                id="share/box/qzone" />
+            <ShareBox
+                title="微信"
+                icon="@res/svg/share-wechat.svg"
+                focusable="true"
+                focusUp="share/box/wechat"
+                focusDown="share/box/dynamic"
+                action="clipboard"
+                id="share/box/wechat" />
+        </brls:Box>
+
+        <brls:Box
+            justifyContent="spaceBetween">
+            <ShareBox
+                title="贴吧"
+                icon="@res/svg/share-tieba.svg"
+                focusable="true"
+                focusUp="share/box/qq"
+                focusDown="share/box/tieba"
+                id="share/box/tieba" />
+            <ShareBox
+                title="微博"
+                icon="@res/svg/share-weibo.svg"
+                focusable="true"
+                focusUp="share/box/qzone"
+                focusDown="share/box/weibo"
+                id="share/box/weibo" />
+            <ShareBox
+                title="动态"
+                icon="@res/svg/share-dynamic.svg"
+                focusable="true"
+                focusUp="share/box/wechat"
+                focusDown="share/box/dynamic"
+                action="clipboard"
+                id="share/box/dynamic" />
+        </brls:Box>
+
+    </brls:Box>
+
+    <brls:Box
+        cornerRadius="4"
+        backgroundColor="@theme/brls/backdrop"
+        positionBottom="150"
+        positionLeft="300"
+        positionType="absolute"
+        justifyContent="center"
+        alignItems="center"
+        visibility="gone"
+        id="share/hint/box">
+        <brls:Label
+            margin="10"
+            textColor="#FFFFFF"
+            text="@i18n/wiliwili/player/clipboard" />
+    </brls:Box>
+
+</brls:Box>
