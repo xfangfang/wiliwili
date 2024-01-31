@@ -12,7 +12,6 @@
 #include "fragment/player_collection.hpp"
 #include "fragment/player_coin.hpp"
 #include "fragment/player_single_comment.hpp"
-#include "fragment/share_dialog.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/number_helper.hpp"
@@ -356,19 +355,6 @@ void BasePlayerActivity::setCommonData() {
     if (brls::Application::ORIGINAL_WINDOW_HEIGHT < 720) video->hideStatusLabel();
 
     video->hideOSDLockButton();
-}
-
-void BasePlayerActivity::showShareDialog(const std::string& link) {
-    brls::Box* container = new ShareDialog(link);
-    brls::Dialog* dialog = new brls::Dialog(container);
-    dialog->getAppletFrame()->setWidth(350);
-    dialog->open();
-}
-
-void BasePlayerActivity::showShareDialog(const bilibili::VideoDetailResult& result) {
-    brls::Box* container = new ShareDialog(result);
-    brls::Dialog* dialog = new brls::Dialog(container);
-    dialog->open();
 }
 
 void BasePlayerActivity::showCollectionDialog(int64_t id, int videoType) {

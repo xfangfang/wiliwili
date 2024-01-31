@@ -49,20 +49,20 @@
                 focusable="true"
                 id="share/box/qzone" />
             <ShareBox
-                title="贴吧"
-                icon="@res/svg/share-tieba.svg"
-                focusable="true"
-                id="share/box/tieba" />
-        </brls:Box>
-
-        <brls:Box
-            justifyContent="spaceBetween">
-            <ShareBox
                 title="微信"
                 icon="@res/svg/share-wechat.svg"
                 focusable="true"
                 action="clipboard"
                 id="share/box/wechat" />
+        </brls:Box>
+
+        <brls:Box
+            justifyContent="spaceBetween">
+            <ShareBox
+                title="贴吧"
+                icon="@res/svg/share-tieba.svg"
+                focusable="true"
+                id="share/box/tieba" />
             <ShareBox
                 title="微博"
                 icon="@res/svg/share-weibo.svg"

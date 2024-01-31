@@ -4,6 +4,7 @@
 #include <borealis/core/bind.hpp>
 #include <borealis/core/event.hpp>
 #include <api/bilibili/result/video_detail_result.h>
+#include <api/bilibili/result/home_pgc_season_result.h>
 
 namespace brls {
 class Label;
@@ -35,9 +36,13 @@ private:
 
 class ShareDialog : public brls::Box {
 public:
-    ShareDialog(const std::string& link);
-    ShareDialog(const bilibili::VideoDetailResult& result);
+    ShareDialog();
     ~ShareDialog() override;
+
+    void open(const std::string& link);
+    void open(const bilibili::VideoDetailResult& result);
+    void open(const bilibili::SeasonEpisodeResult& result, const std::string& pics = "",
+              const std::string& summary = "");
 
 private:
     BRLS_BIND(QRImage, qrcode, "share/qrcode");
@@ -49,4 +54,6 @@ private:
     BRLS_BIND(ShareBox, wechat, "share/box/wechat");
     BRLS_BIND(ShareBox, weibo, "share/box/weibo");
     BRLS_BIND(ShareBox, dynamic, "share/box/dynamic");
+
+    void showHint();
 };

@@ -206,6 +206,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, SeasonRecommendWrap
 class SeasonResultWrapper {
 public:
     unsigned int season_id;
+    std::string cover;
     std::string season_title;
     std::string season_desc;
     SeasonEpisodeListResult episodes;
@@ -256,6 +257,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, SeasonResultWrapper
     }
     if (nlohmann_json_j.contains("user_status")) {
         nlohmann_json_j.at("user_status").get_to(nlohmann_json_t.user_status);
+    }
+    if (nlohmann_json_j.contains("cover")) {
+        nlohmann_json_j.at("cover").get_to(nlohmann_json_t.cover);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, season_id, season_title, evaluate));
 }
