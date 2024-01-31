@@ -33,12 +33,7 @@ void SearchVideo::requestSearch(const std::string& key) {
     this->_requestSearch(key);
 }
 
-void SearchVideo::willAppear(bool resetState) {
-    brls::Box::willAppear(resetState);
-
-    if (!dynamic_cast<DataSourceSearchVideoList*>(recyclingGrid->getDataSource()))
-        this->requestSearch(SearchActivity::currentKey);
-}
+void SearchVideo::onCreate() { this->requestSearch(SearchActivity::currentKey); }
 
 void SearchVideo::_requestSearch(const std::string& key) {
     ASYNC_RETAIN
@@ -54,7 +49,7 @@ void SearchVideo::_requestSearch(const std::string& key) {
                     dynamic_cast<DataSourceSearchVideoList*>(recyclingGrid->getDataSource());
                 if (result.page != this->requestIndex) {
                     // 请求的顺序和当前需要的顺序不符
-                    brls::Logger::error("请求的顺序和当前需要的顺序不符 {} /{}", result.page, this->requestIndex);
+                    brls::Logger::error("SearchVideo 顺序不符 {} /{}", result.page, this->requestIndex);
                     return;
                 }
                 this->requestIndex = result.page + 1;

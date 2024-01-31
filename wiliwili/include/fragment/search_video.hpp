@@ -24,7 +24,7 @@ public:
 
     static View* create();
 
-    void willAppear(bool resetState) override;
+    void onCreate() override;
 
     void requestSearch(const std::string& key);
 
