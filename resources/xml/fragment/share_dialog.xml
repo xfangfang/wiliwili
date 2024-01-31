@@ -4,7 +4,6 @@
     alignItems="center">
 
     <ButtonClose
-        textColor="#FFFFFF"
         positionType="absolute"
         positionTop="10"
         positionRight="10" />
@@ -29,7 +28,7 @@
     <brls:Box
         axis="column"
         grow="1.0"
-        lineColor="@theme/color/grey_1"
+        lineColor="@theme/color/line"
         lineLeft="2"
         id="share/box"
         marginLeft="25"
@@ -42,16 +41,22 @@
                 title="QQ"
                 icon="@res/svg/share-qq.svg"
                 focusable="true"
+                focusUp="share/box/qq"
+                focusDown="share/box/tieba"
                 id="share/box/qq" />
             <ShareBox
                 title="QQ空间"
                 icon="@res/svg/share-qzone.svg"
                 focusable="true"
+                focusUp="share/box/qzone"
+                focusDown="share/box/weibo"
                 id="share/box/qzone" />
             <ShareBox
                 title="微信"
                 icon="@res/svg/share-wechat.svg"
                 focusable="true"
+                focusUp="share/box/wechat"
+                focusDown="share/box/dynamic"
                 action="clipboard"
                 id="share/box/wechat" />
         </brls:Box>
@@ -62,16 +67,22 @@
                 title="贴吧"
                 icon="@res/svg/share-tieba.svg"
                 focusable="true"
+                focusUp="share/box/qq"
+                focusDown="share/box/tieba"
                 id="share/box/tieba" />
             <ShareBox
                 title="微博"
                 icon="@res/svg/share-weibo.svg"
                 focusable="true"
+                focusUp="share/box/qzone"
+                focusDown="share/box/weibo"
                 id="share/box/weibo" />
             <ShareBox
                 title="动态"
                 icon="@res/svg/share-dynamic.svg"
                 focusable="true"
+                focusUp="share/box/wechat"
+                focusDown="share/box/dynamic"
                 action="clipboard"
                 id="share/box/dynamic" />
         </brls:Box>
