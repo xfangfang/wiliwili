@@ -3,6 +3,8 @@
 //
 
 #include <limits>
+#include <cstdlib>
+#include <cmath>
 
 #include <borealis/views/label.hpp>
 #include <borealis/views/progress_spinner.hpp>
