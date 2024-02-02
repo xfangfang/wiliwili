@@ -40,9 +40,8 @@ public:
     ~ShareDialog() override;
 
     void open(const std::string& link);
-    void open(const bilibili::VideoDetailResult& result);
-    void open(const bilibili::SeasonEpisodeResult& result, const std::string& pics = "",
-              const std::string& summary = "");
+    void open(const std::string& link, const std::string& title, const std::string& desc, const std::string& pic,
+              const std::string& uploader = "");
 
 private:
     BRLS_BIND(QRImage, qrcode, "share/qrcode");

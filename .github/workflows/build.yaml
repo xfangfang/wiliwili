@@ -93,7 +93,9 @@ jobs:
       - uses: actions/download-artifact@v4
 
       - name: Rename Flatpak
+        if: github.event.inputs.release == 'true' && !cancelled()
         run: |
+          tree
           mv ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak \
             ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak
 
@@ -560,7 +562,7 @@ jobs:
       - name: Upload vpk
         uses: actions/upload-artifact@v4
         with:
-          name: wiliwili-PSVita-${{ needs.version.outputs.VERSION }}.vpk
+          name: wiliwili-PSVita-${{ needs.version.outputs.VERSION }}
           path: build/wiliwili.vpk
 
       - name: Upload eboot

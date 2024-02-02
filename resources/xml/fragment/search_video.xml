@@ -2,6 +2,7 @@
         wireframe="false"
         axis="column"
         width="auto"
+        marginTop="5"
         height="auto">
     <RecyclingGrid
             paddingLeft="30"

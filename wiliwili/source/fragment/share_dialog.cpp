@@ -45,36 +45,40 @@ ShareDialog::ShareDialog() {
 
 void ShareDialog::open(const std::string& link) {
     this->qrcode->setImageFromQRContent(link);
+    this->qrcode->setCustomNavigationRoute(brls::FocusDirection::RIGHT, this->qrcode);
     this->boxShare->setVisibility(brls::Visibility::GONE);
-    brls::Dialog* dialog = new brls::Dialog(this);
+    auto dialog = new brls::Dialog(this);
     dialog->getAppletFrame()->setWidth(350);
     dialog->open();
 }
 
-void ShareDialog::open(const bilibili::VideoDetailResult& result) {
-    std::string link = fmt::format("https://www.bilibili.com/video/{}/", result.bvid);
+void ShareDialog::open(const std::string& link, const std::string& title, const std::string& desc,
+                       const std::string& pic, const std::string& uploader) {
     this->qrcode->setImageFromQRContent(link);
 
-    std::string desc = fmt::format("{} UP: {}", result.title, result.owner.name);
+    std::string content = uploader;
+    if (!uploader.empty())
+        content = fmt::format("{} UP: {}", title, uploader);
+
     this->qq->setLink(
         fmt::format("https://connect.qq.com/widget/shareqq/index.html?"
-                    "url={}&title={}&desc={}&summary={}&pics={}&style=201&width=32&height=32",
-                    cpr::util::urlEncode(link), cpr::util::urlEncode(result.title), cpr::util::urlEncode(desc),
-                    cpr::util::urlEncode(result.desc), cpr::util::urlEncode(result.pic)));
+                    "url={}&desc={}&title={}&summary={}&pics={}&style=201&width=32&height=32",
+                    cpr::util::urlEncode(link), cpr::util::urlEncode(content), cpr::util::urlEncode(title), cpr::util::urlEncode(desc),
+                    cpr::util::urlEncode(pic)));
     this->qzone->setLink(
         fmt::format("https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?"
-                    "url={}&showcount=1&title={}&desc={}&summary={}&pics={}",
-                    cpr::util::urlEncode(link), cpr::util::urlEncode(result.title), cpr::util::urlEncode(desc),
-                    cpr::util::urlEncode(result.desc), cpr::util::urlEncode(result.pic)));
+                    "url={}&showcount=1&desc={}&title={}&summary={}&pics={}",
+                    cpr::util::urlEncode(link), cpr::util::urlEncode(content), cpr::util::urlEncode(title),
+                    cpr::util::urlEncode(desc), cpr::util::urlEncode(pic)));
     this->tieba->setLink(
         fmt::format("http://tieba.baidu.com/f/commit/share/openShareApi?"
                     "url={}&title={}&uid=726865&to=tieba&type=text&comment={}&pic={}",
-                    cpr::util::urlEncode(link), cpr::util::urlEncode(result.title), cpr::util::urlEncode(result.desc),
-                    cpr::util::urlEncode(result.pic)));
+                    cpr::util::urlEncode(link), cpr::util::urlEncode(title), cpr::util::urlEncode(content),
+                    cpr::util::urlEncode(pic)));
     this->weibo->setLink(
         fmt::format("https://service.weibo.com/share/share.php?"
                     "url={}&type=3&count=1&appkey=2841902482&title={}&pic={}&language=zh_cn",
-                    cpr::util::urlEncode(link), cpr::util::urlEncode(result.title), cpr::util::urlEncode(result.pic)));
+                    cpr::util::urlEncode(link), cpr::util::urlEncode(title + "#哔哩哔哩动画#"), cpr::util::urlEncode(pic)));
 
     this->boxHint->hide([]() {}, false, 0);
     this->boxHint->setVisibility(brls::Visibility::VISIBLE);
@@ -84,43 +88,7 @@ void ShareDialog::open(const bilibili::VideoDetailResult& result) {
     this->wechat->setLink(link);
     this->wechat->getEvent()->subscribe([this]() { this->showHint(); });
 
-    brls::Dialog* dialog = new brls::Dialog(this);
-    dialog->open();
-}
-
-void ShareDialog::open(const bilibili::SeasonEpisodeResult& result, const std::string& pics,
-                       const std::string& summary) {
-    this->qrcode->setImageFromQRContent(result.link);
-
-    this->qq->setLink(
-        fmt::format("https://connect.qq.com/widget/shareqq/index.html?"
-                    "url={}&title={}&summary={}&pics={}&style=201&width=32&height=32",
-                    cpr::util::urlEncode(result.link), cpr::util::urlEncode(result.title),
-                    cpr::util::urlEncode(summary), cpr::util::urlEncode(pics)));
-    this->qzone->setLink(
-        fmt::format("https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?"
-                    "url={}&showcount=1&title={}&summary={}&pics={}",
-                    cpr::util::urlEncode(result.link), cpr::util::urlEncode(result.title),
-                    cpr::util::urlEncode(summary), cpr::util::urlEncode(pics)));
-    this->tieba->setLink(
-        fmt::format("http://tieba.baidu.com/f/commit/share/openShareApi?"
-                    "url={}&title={}&uid=726865&to=tieba&type=text&comment={}&pic={}",
-                    cpr::util::urlEncode(result.link), cpr::util::urlEncode(result.title),
-                    cpr::util::urlEncode(summary), cpr::util::urlEncode(pics)));
-    this->weibo->setLink(
-        fmt::format("https://service.weibo.com/share/share.php?"
-                    "url={}&type=3&count=1&appkey=2841902482&title={}&pic={}&language=zh_cn",
-                    cpr::util::urlEncode(result.link), cpr::util::urlEncode(result.title), cpr::util::urlEncode(pics)));
-
-    this->boxHint->hide([]() {}, false, 0);
-    this->boxHint->setVisibility(brls::Visibility::VISIBLE);
-
-    this->dynamic->setLink(result.link);
-    this->dynamic->getEvent()->subscribe([this]() { this->showHint(); });
-    this->wechat->setLink(result.link);
-    this->wechat->getEvent()->subscribe([this]() { this->showHint(); });
-
-    brls::Dialog* dialog = new brls::Dialog(this);
+    auto dialog = new brls::Dialog(this);
     dialog->open();
 }
 

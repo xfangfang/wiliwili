@@ -142,7 +142,7 @@ void Register::initCustomTheme() {
 
     // 分割线颜色
     brls::Theme::getLightTheme().addColor("color/line", nvgRGB(208, 208, 208));
-    brls::Theme::getDarkTheme().addColor("color/line", nvgRGB(208, 208, 208));
+    brls::Theme::getDarkTheme().addColor("color/line", nvgRGB(100, 100, 100));
 
     // 粉色背景，用于扁平TabBar背景色
     brls::Theme::getLightTheme().addColor("color/pink_1", nvgRGB(252, 237, 241));

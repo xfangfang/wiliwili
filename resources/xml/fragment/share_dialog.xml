@@ -29,7 +29,7 @@
         axis="column"
         grow="1.0"
         lineColor="@theme/color/line"
-        lineLeft="2"
+        lineLeft="1"
         id="share/box"
         marginLeft="25"
         paddingLeft="20"

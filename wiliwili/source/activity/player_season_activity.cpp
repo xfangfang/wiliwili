@@ -110,9 +110,10 @@ void PlayerSeasonActivity::onContentAvailable() {
 
     // 二维码按钮
     this->btnQR->getParent()->registerClickAction([this](...) {
-        ShareDialog* dialog = new ShareDialog();
+        auto dialog = new ShareDialog();
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
-        dialog->open(this->episodeResult, this->seasonInfo.cover, this->seasonInfo.season_desc);
+        dialog->open(episodeResult.link, seasonInfo.season_title + " " + episodeResult.title, seasonInfo.evaluate,
+                     seasonInfo.cover);
 #else
         dialog->open(this->episodeResult.link);
 #endif
