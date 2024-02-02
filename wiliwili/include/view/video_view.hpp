@@ -343,6 +343,12 @@ private:
     int volume_init    = 0;
     size_t volume_iter = 0;  // 音量UI关闭的延迟函数 handle
 
+    /**
+     * 预览应用背光调节，实时调节
+     */
+    void requestBrightness(float brightness);
+    float brightness_init = 0.0f;
+
     /// 绘制高能进度条
     void drawHighlightProgress(NVGcontext* vg, float x, float y, float width, float alpha);
 

@@ -173,8 +173,7 @@ VideoView::VideoView() {
     /// 双击控制播放与暂停
     /// 长按加速
     /// 滑动调整进度
-    /// 左右侧滑动调整音量
-    //todo: 左侧滑动调节背光亮度，右侧调节音量
+    /// 左右侧滑动调整音量，在支持调节背光的设备上左侧滑动调节背光亮度，右侧调节音量
     this->addGestureRecognizer(new OsdGestureRecognizer([this](OsdGestureStatus status) {
         switch (status.osdGestureType) {
             case OsdGestureType::TAP:
@@ -228,6 +227,13 @@ VideoView::VideoView() {
                 this->requestSeeking(120.0f * status.deltaX, VIDEO_SEEK_IMMEDIATELY);
                 break;
             case OsdGestureType::LEFT_VERTICAL_PAN_START:
+                if (is_osd_lock) break;
+                if (brls::Application::getPlatform()->canSetBacklightBrightness()) {
+                    this->brightness_init = brls::Application::getPlatform()->getBacklightBrightness();
+                    this->showCenterHint();
+                    this->setCenterHintIcon("svg/sun-fill.svg");
+                    break;
+                }
             case OsdGestureType::RIGHT_VERTICAL_PAN_START:
                 if (is_osd_lock) break;
                 this->volume_init = (int)MPVCore::instance().volume;
@@ -235,14 +241,26 @@ VideoView::VideoView() {
                 this->setCenterHintIcon("svg/bpx-svg-sprite-volume.svg");
                 break;
             case OsdGestureType::LEFT_VERTICAL_PAN_UPDATE:
-            case OsdGestureType::RIGHT_VERTICAL_PAN_UPDATE: {
+                if (is_osd_lock) break;
+                if (brls::Application::getPlatform()->canSetBacklightBrightness()) {
+                    this->requestBrightness(this->brightness_init + status.deltaY);
+                    break;
+                }
+            case OsdGestureType::RIGHT_VERTICAL_PAN_UPDATE:
                 if (is_osd_lock) break;
                 this->requestVolume(this->volume_init + status.deltaY * 100);
                 break;
-            }
             case OsdGestureType::LEFT_VERTICAL_PAN_CANCEL:
-            case OsdGestureType::RIGHT_VERTICAL_PAN_CANCEL:
             case OsdGestureType::LEFT_VERTICAL_PAN_END:
+                if (is_osd_lock) {
+                    this->toggleOSD();
+                    break;
+                }
+                if (brls::Application::getPlatform()->canSetBacklightBrightness()) {
+                    this->hideCenterHint();
+                    break;
+                }
+            case OsdGestureType::RIGHT_VERTICAL_PAN_CANCEL:
             case OsdGestureType::RIGHT_VERTICAL_PAN_END:
                 if (is_osd_lock) {
                     this->toggleOSD();
@@ -551,6 +569,13 @@ void VideoView::requestVolume(int volume, int delay) {
         this->hideCenterHint();
         this->volume_iter = 0;
     });
+}
+
+void VideoView::requestBrightness(float brightness) {
+    if (brightness < 0) brightness = 0.0f;
+    if (brightness > 1) brightness = 1.0f;
+    brls::Application::getPlatform()->setBacklightBrightness(brightness);
+    setCenterHintText(fmt::format("{} %", (int)(brightness * 100)));
 }
 
 void VideoView::requestSeeking(int seek, int delay) {

@@ -90,7 +90,7 @@ jobs:
     needs: [ build-win, build-switch, build-macos, build-flatpak, version ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
 
       - name: Rename Flatpak
         run: |
@@ -214,7 +214,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
       - name: Cache xmake packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-xmake
           path: |
@@ -452,7 +452,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: restore-pvr-cache
         with:
           path: /vita/dependencies
@@ -492,7 +492,7 @@ jobs:
           rm -rf /tmp/PSVita_Release.zip
           rm -rf /tmp/PSVita_Release
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: ${{ !steps.restore-pvr-cache.outputs.cache-hit }}
         with:
           path: /vita/dependencies
@@ -505,7 +505,7 @@ jobs:
           ls -lah ${VITASDK}/arm-vita-eabi
           ls -lah scripts/psv/module/
 
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: restore-common-deps-cache
         with:
           path: /vita/common_deps
@@ -536,7 +536,7 @@ jobs:
           mv $(pwd)/scripts/psv/mpv/*-arm.tar.xz /vita/common_deps/
           ls -lah /vita/common_deps/
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: ${{ !steps.restore-common-deps-cache.outputs.cache-hit }}
         with:
           path: /vita/common_deps
