@@ -196,7 +196,7 @@ jobs:
           7z a -mx=9 -tzip  ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}.zip \
             ./build/resources ${MINGW_PREFIX}/bin/libmpv-2.dll
       - name: Upload dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}
           path: "${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}.zip"
@@ -230,7 +230,7 @@ jobs:
           xmake b -y -v wiliwili
           cp winrt/key.pfx build/
           cp winrt/docs/key.pdf build/key.pdf
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ needs.version.outputs.DIST_UWP }}
           path: |
@@ -260,7 +260,7 @@ jobs:
           docker run --rm -v $(pwd):/data devkitpro/devkita64:20240202 bash -c "/data/scripts/build_switch${{ matrix.shuffix }}.sh"
 
       - name: Upload dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ needs.version.outputs.DIST_NRO }}${{ matrix.shuffix }}
           path: "cmake-build-switch/wiliwili.nro"
@@ -286,13 +286,13 @@ jobs:
                 make -C cmake-build-ps4 -j$(nproc)"
 
       - name: Upload dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ needs.version.outputs.DIST_PS4 }}
           path: "cmake-build-ps4/*.pkg"
 
       - name: Upload oelf
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ps4_dev_oelf
           path: "cmake-build-ps4/*.oelf"
@@ -362,7 +362,7 @@ jobs:
 
       - name: Upload dist
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.name.outputs.DMG }}
           path: "${{ steps.name.outputs.DMG }}.dmg"
@@ -558,19 +558,19 @@ jobs:
           mv build/wiliwili.self build/eboot.bin
 
       - name: Upload vpk
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wiliwili-PSVita-${{ needs.version.outputs.VERSION }}.vpk
           path: build/wiliwili.vpk
 
       - name: Upload eboot
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: psv_dev_eboot.bin
           path: build/eboot.bin
 
       - name: Upload elf
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: psv_dev_elf
           path: build/wiliwili

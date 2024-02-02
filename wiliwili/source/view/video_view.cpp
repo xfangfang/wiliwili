@@ -3,8 +3,6 @@
 //
 
 #include <limits>
-#include <cstdlib>
-#include <cmath>
 
 #include <borealis/views/label.hpp>
 #include <borealis/views/progress_spinner.hpp>
@@ -36,7 +34,7 @@ using namespace brls;
 
 enum ClickState { IDLE = 0, PRESS = 1, FAST_RELEASE = 3, FAST_PRESS = 4, CLICK_DOUBLE = 5 };
 
-static int64_t getSeekRange(int64_t current) {
+static int getSeekRange(int current) {
     current = abs(current);
     if (current < 60) return 5;
     if (current < 300) return 10;

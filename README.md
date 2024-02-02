@@ -92,7 +92,8 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 
 下载对应系统的安装包运行即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 
-现在Linux & Steam Deck 用户可以通过系统自带的软件商店（如Discover、GNOME Software）搜索 `wiliwili` 进行下载。
+> [!TIP]
+> 现在 Linux & Steam Deck 用户可以通过系统自带的软件商店（如Discover、GNOME Software）搜索 `wiliwili` 进行下载。
 
 <details>
 
@@ -391,6 +392,7 @@ The development of wiliwili cannot do without the support of the following open 
     - https://github.com/cesanta/mongoose
     - https://chromium.googlesource.com/webm/libwebp
     - https://github.com/fancycode/MemoryModule
+    - https://github.com/dacap/clip
 
 # Special thanks
 
