@@ -335,9 +335,11 @@ private:
     /**
      *  预览视频音量调节，实时调节
      * @param volume
+     * @param delay 当值不为 0 时，自动处理音量UI的显示与隐藏
      */
-    void requestVolume(int volume);
-    int volume_init = 0;
+    void requestVolume(int volume, int delay = 0);
+    int volume_init    = 0;
+    size_t volume_iter = 0;  // 音量UI关闭的延迟函数 handle
 
     /// 绘制高能进度条
     void drawHighlightProgress(NVGcontext* vg, float x, float y, float width, float alpha);

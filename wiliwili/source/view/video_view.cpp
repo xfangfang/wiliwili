@@ -122,6 +122,34 @@ VideoView::VideoView() {
         },
         true);
 
+    this->registerAction(
+        "volumeUp", brls::ControllerButton::BUTTON_NAV_UP,
+        [this](brls::View* view) -> bool {
+            CHECK_OSD(true);
+            ControllerState state{};
+            input->updateUnifiedControllerState(&state);
+            if (state.buttons[BUTTON_RT]) {
+                this->requestVolume((int)MPVCore::instance().volume + 5, 400);
+                return true;
+            }
+            return false;
+        },
+        true, true);
+
+    this->registerAction(
+        "volumeDown", brls::ControllerButton::BUTTON_NAV_DOWN,
+        [this](brls::View* view) -> bool {
+            CHECK_OSD(true);
+            ControllerState state{};
+            input->updateUnifiedControllerState(&state);
+            if (state.buttons[BUTTON_RT]) {
+                this->requestVolume((int)MPVCore::instance().volume - 5, 400);
+                return true;
+            }
+            return false;
+        },
+        true, true);
+
     this->registerMpvEvent();
 
     osdSlider->getProgressSetEvent()->subscribe([this](float progress) {
@@ -505,11 +533,24 @@ VideoView::VideoView() {
     });
 }
 
-void VideoView::requestVolume(int volume) {
+void VideoView::requestVolume(int volume, int delay) {
     if (volume < 0) volume = 0;
     if (volume > 100) volume = 100;
     MPVCore::instance().setVolume(volume);
     setCenterHintText(fmt::format("{} %", volume));
+    if (delay == 0) return;
+    if (volume_iter == 0) {
+        this->showCenterHint();
+        this->setCenterHintIcon("svg/bpx-svg-sprite-volume.svg");
+    } else {
+        cancelDelay(volume_iter);
+    }
+    ASYNC_RETAIN
+    volume_iter = brls::delay(delay, [ASYNC_TOKEN]() {
+        ASYNC_RELEASE
+        this->hideCenterHint();
+        this->volume_iter = 0;
+    });
 }
 
 void VideoView::requestSeeking(int seek, int delay) {

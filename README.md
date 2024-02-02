@@ -66,9 +66,11 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验
 
 <br>
 
-桌面图标会优先尝试打开 `switch/wiliwili.nro`，如果其不存在，则尝试打开 `switch/wiliwili/wiliwili.nro`，如果这两个路径都不存在，则打开 hbmenu 自行选择路径。
+桌面图标会优先尝试打开 `switch/wiliwili.nro`，如果其不存在，则尝试打开 `switch/wiliwili/wiliwili.nro`，如果这两个路径都不存在，则打开
+hbmenu 自行选择路径。
 
-默认提供的为 OpenGL 版本，最高只能播放 4k@30，你也可以下载到支持原生图形 api 的 [deko3d 版本](https://nightly.link/xfangfang/wiliwili/workflows/build.yaml/dev)，可以流畅播放 4k@60，不过可能会偶尔崩溃。
+默认提供的为 OpenGL 版本，最高只能播放 4k@30，你也可以下载到支持原生图形 api
+的 [deko3d 版本](https://nightly.link/xfangfang/wiliwili/workflows/build.yaml/dev)，可以流畅播放 4k@60，不过可能会偶尔崩溃。
 
 </details>
 
@@ -86,32 +88,22 @@ wiliwili 拥有非常接近官方PC客户端的B站浏览体验
 
 ### PC
 
-PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标操控（左键点击 右键返回）
+PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标操控（左键点击 右键返回 中键刷新）
 
 下载对应系统的安装包运行即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 
-现在Linux & Steam Deck 用户可以通过系统自带的软件商店（如Discover、GNOME Software）搜索wiliwili进行下载。
+现在Linux & Steam Deck 用户可以通过系统自带的软件商店（如Discover、GNOME Software）搜索 `wiliwili` 进行下载。
 
 <details>
 
 <br>
 注意：
 
-1. 显卡驱动需要支持 `OpenGL 3.2` 以运行此程序
-2. Linux: 对于 Linux 系统只提供 Flatpak 安装包供 Steam Deck 安装，如有其他打包需求欢迎提交完善的打包脚本
+1. 显卡驱动需要支持 `OpenGL 3.2` 以运行此程序，OpenGL 2.0+, OpenGL ES 2.0+
+   设备需要自行编译，请参考 [项目 WIKI](https://github.com/xfangfang/wiliwili/wiki)
+2. Linux: 如有其他打包需求欢迎提交完善的打包脚本
 3. macOS: 欢迎 macOS 用户提交 Homebrew 安装方式到官方仓库
-4. Windows: 不提供 x86 安装包，如有需求可以自行编译
-
-补充信息：
-
-1. 可以从 [Github-Actions](https://github.com/xfangfang/wiliwili/actions/workflows/build.yaml) 下载自动构建的测试版客户端
-2. 如果不知道如何从 Github-Actions 下载软件，这里是 [教程](https://xfangfang.github.io/036)
-3. 你也可以从 [nightly.link](https://nightly.link/xfangfang/wiliwili/workflows/build.yaml/dev) 免登录下载测试版 （可能不稳定）
-4. Windows用户可以通过下载 [debug版](https://github.com/xfangfang/DIY/actions/workflows/wiliwili_win_debug.yml) 来查看log
-5. 自定义字体或按键图标：[#38](https://github.com/xfangfang/wiliwili/discussions/38)
-6. 目前支持的键盘映射见：[#47](https://github.com/xfangfang/wiliwili/discussions/47)
-7. Steam Deck 安装教程：[#41](https://github.com/xfangfang/wiliwili/discussions/41)
-8. 从包管理安装 wiliwili: [#92](https://github.com/xfangfang/wiliwili/discussions/92)
+4. 支持诸多包管理器，请参考 [项目 WIKI](https://github.com/xfangfang/wiliwili/wiki)
 
 </details>
 
@@ -269,9 +261,10 @@ cmake -B build -G "MinGW Makefiles" -DPLATFORM_DESKTOP=ON
 mingw32-make -C build wiliwili -j$(nproc)
 ```
 
-#### SDL2 （测试支持）
+#### SDL2
 
-由于 SDL2 支持的平台更多，考虑到未来向其他平台移植，所以 wiliwili 也支持切换到 SDL2 环境构建。
+wiliwili 在 switch 和 PC 平台默认使用 GLFW, 由于 SDL2 支持的平台更多，考虑到向更多平台移植 (比如 PSV PS4 等)，所以
+wiliwili 也支持切换到 SDL2 环境构建。
 
 ```shell
 cmake -B build -DPLATFORM_DESKTOP=ON -DUSE_SDL2=ON
@@ -322,11 +315,13 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 ### 交叉编译 PSV 可执行文件
 
 参考 `.github/workflows/build.yaml` 使用 docker 来编译。  
-编译时，请不要忘记将需要的四个 suprx 文件放入 `scripts/psv/module` 目录下。 详情请参考：[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv) 和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
+请参考：[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv)
+和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
 
 <details>
 
-在 Apple Silicon 上编译，推荐使用 [OrbStack](https://orbstack.dev) 代替 Docker Desktop，因为前者支持 Rosetta 运行 x86_64 的 Docker 镜像。
+在 Apple Silicon 上编译，推荐使用 [OrbStack](https://orbstack.dev) 代替 Docker Desktop，因为前者支持 Rosetta 运行 x86_64 的
+Docker 镜像。
 
 ```shell
 docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_psv_builder:latest \
@@ -341,11 +336,13 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_psv_builder:latest \
 ### 交叉编译 PS4 可执行文件
 
 参考 `.github/workflows/build.yaml` 使用 docker 来编译。  
-或本地安装 [PacBrew](https://github.com/PacBrew/pacbrew-packages) 环境（只支持 x86_64 Linux），并手动添加依赖库，请参考：[scripts/ps4/Dockerfile](https://github.com/xfangfang/wiliwili/blob/dev/scripts/ps4/Dockerfile)
+或本地安装 [PacBrew](https://github.com/PacBrew/pacbrew-packages) 环境（只支持 x86_64
+Linux），并手动添加依赖库，请参考：[scripts/ps4/Dockerfile](https://github.com/xfangfang/wiliwili/blob/dev/scripts/ps4/Dockerfile)
 
 <details>
 
-在 Apple Silicon 上编译，推荐使用 [OrbStack](https://orbstack.dev) 代替 Docker Desktop，因为前者支持 Rosetta 运行 x86_64 的 Docker 镜像。
+在 Apple Silicon 上编译，推荐使用 [OrbStack](https://orbstack.dev) 代替 Docker Desktop，因为前者支持 Rosetta 运行 x86_64 的
+Docker 镜像。
 
 ```shell
 docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
@@ -371,8 +368,7 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
 The development of wiliwili cannot do without the support of the following open source projects.
 
 - Toolchain: devkitpro, switchbrew, vitasdk OpenOrbis and PacBrew
-    - https://github.com/devkitPro/pacman/releases
-    - https://github.com/devkitPro/pacman-packages
+    - https://github.com/devkitPro
     - https://github.com/switchbrew/libnx
     - https://github.com/vitasdk
     - https://github.com/OpenOrbis
@@ -386,15 +382,15 @@ The development of wiliwili cannot do without the support of the following open 
     - https://github.com/fish47/FFmpeg-vita
     - https://github.com/averne
 - Misc
-  - https://github.com/libcpr/cpr
-  - https://github.com/nlohmann/json
-  - https://github.com/nayuki/QR-Code-generator
-  - https://github.com/BYVoid/OpenCC
-  - https://github.com/imageworks/pystring
-  - https://github.com/sammycage/lunasvg
-  - https://github.com/cesanta/mongoose
-  - https://chromium.googlesource.com/webm/libwebp
-  - https://github.com/fancycode/MemoryModule
+    - https://github.com/libcpr/cpr
+    - https://github.com/nlohmann/json
+    - https://github.com/nayuki/QR-Code-generator
+    - https://github.com/BYVoid/OpenCC
+    - https://github.com/imageworks/pystring
+    - https://github.com/sammycage/lunasvg
+    - https://github.com/cesanta/mongoose
+    - https://chromium.googlesource.com/webm/libwebp
+    - https://github.com/fancycode/MemoryModule
 
 # Special thanks
 
