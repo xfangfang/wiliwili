@@ -183,7 +183,11 @@ void DLNAActivity::onContentAvailable() {
     this->video->registerAction(
         "cancel", brls::ControllerButton::BUTTON_B,
         [this](brls::View* view) -> bool {
-            this->dismiss();
+            if (this->video->isOSDLock()) {
+                this->video->toggleOSD();
+            } else {
+                this->dismiss();
+            }
             return true;
         },
         true);

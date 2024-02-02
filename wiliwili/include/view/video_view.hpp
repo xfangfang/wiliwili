@@ -83,6 +83,8 @@ public:
 
     bool isOSDShown() const;
 
+    bool isOSDLock() const;
+
     void onOSDStateChanged(bool state);
 
     void toggleOSDLock();
@@ -240,7 +242,7 @@ public:
 private:
     bool allowFullscreen  = true;
     bool registerMPVEvent = false;
-    bool showDanmaku      = true;
+    bool enableDanmaku    = true;
     // 和前面的 EXIT_FULLSCREEN_ON_END 共同控制，closeOnEndOfFile用来控制单个VideoView行为
     bool closeOnEndOfFile = true;
     // 播放设置中显示 上传历史记录

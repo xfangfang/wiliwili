@@ -635,7 +635,7 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
     }
 
     // draw danmaku
-    if (showDanmaku) {
+    if (enableDanmaku) {
         isLiveMode ? LiveDanmakuCore::instance().draw(vg, x, y, width, height, alpha)
                    : DanmakuCore::instance().draw(vg, x, y, width, height, alpha);
     }
@@ -881,6 +881,8 @@ void VideoView::hideOSD() {
 
 bool VideoView::isOSDShown() const { return this->is_osd_shown; }
 
+bool VideoView::isOSDLock() const { return this->is_osd_lock; }
+
 void VideoView::onOSDStateChanged(bool state) {
     // 当焦点位于video组件内部重新赋予焦点，用来隐藏屏幕上的高亮框
     if (!state && isChildFocused()) {
@@ -892,8 +894,8 @@ void VideoView::toggleOSDLock() {
     is_osd_lock = !is_osd_lock;
     this->osdLockIcon->setImageFromSVGRes(is_osd_lock ? "svg/player-lock.svg" : "svg/player-unlock.svg");
     if (is_osd_lock) {
-        osdTopBox->setVisibility(brls::Visibility::GONE);
-        osdBottomBox->setVisibility(brls::Visibility::GONE);
+        osdTopBox->setVisibility(brls::Visibility::INVISIBLE);
+        osdBottomBox->setVisibility(brls::Visibility::INVISIBLE);
         // 锁定时上下按键不可用
         osdLockBox->setCustomNavigationRoute(FocusDirection::UP, "video/osd/lock/box");
         osdLockBox->setCustomNavigationRoute(FocusDirection::DOWN, "video/osd/lock/box");
@@ -906,6 +908,7 @@ void VideoView::toggleOSDLock() {
 }
 
 void VideoView::toggleDanmaku() {
+    if (!enableDanmaku) return;
     DanmakuCore::DANMAKU_ON = !DanmakuCore::DANMAKU_ON;
     this->refreshDanmakuIcon();
     DanmakuCore::save();
@@ -936,7 +939,7 @@ void VideoView::showCenterHint() { osdCenterBox2->setVisibility(brls::Visibility
 void VideoView::hideCenterHint() { osdCenterBox2->setVisibility(brls::Visibility::GONE); }
 
 void VideoView::hideDanmakuButton() {
-    showDanmaku = false;
+    enableDanmaku = false;
     btnDanmakuIcon->setVisibility(brls::Visibility::GONE);
     btnDanmakuIcon->getParent()->setVisibility(brls::Visibility::GONE);
     btnDanmakuSettingIcon->setVisibility(brls::Visibility::GONE);
