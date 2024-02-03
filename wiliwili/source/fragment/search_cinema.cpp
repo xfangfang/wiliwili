@@ -37,7 +37,7 @@ void SearchCinema::_requestSearch(const std::string& key) {
         key, "media_ft", requestIndex, "",
         [ASYNC_TOKEN](const bilibili::SearchResult& result) {
             for (auto i : result.result) {
-                brls::Logger::debug("search: {}", i.title);
+                brls::Logger::verbose("search: {}", i.title);
             }
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE

@@ -129,9 +129,13 @@ public:
     void setTabBar(AutoSidebarItem* view);
     AutoSidebarItem* getTabBar();
 
-    ~AttachedView();
+    ~AttachedView() override;
 
     virtual void onCreate();
+
+    virtual void onShow();
+
+    virtual void onHide();
 
     View* getDefaultFocus() override { return brls::Box::getDefaultFocus(); }
 

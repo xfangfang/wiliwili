@@ -15,10 +15,12 @@ SearchOrder::SearchOrder() {
     brls::Logger::debug("Fragment SearchOrder: create");
     this->tabFrame->setRefreshAction([this]() {
         AutoTabFrame::focus2Sidebar(this);
-        SearchVideo *tab = dynamic_cast<SearchVideo*>(this->tabFrame->getActiveTab());
+        auto *tab = dynamic_cast<SearchVideo*>(this->tabFrame->getActiveTab());
         if (tab != nullptr) tab->requestSearch(SearchActivity::currentKey);
     });
 }
+
+void SearchOrder::focusNthTab(int i) { this->tabFrame->focusTab(i); }
 
 SearchOrder::~SearchOrder() {
     brls::Logger::debug("Fragment SearchOrder: delete");

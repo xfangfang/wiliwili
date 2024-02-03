@@ -15,7 +15,9 @@ class SearchOrder : public AttachedView {
 public:
     SearchOrder();
 
-    ~SearchOrder();
+    ~SearchOrder() override;
+
+    void focusNthTab(int i);
 
     void onCreate() override;
 
@@ -23,6 +25,4 @@ public:
 
 private:
     BRLS_BIND(AutoTabFrame, tabFrame, "search/video/tabFrame");
-
-    unsigned int requestIndex = 1;
 };

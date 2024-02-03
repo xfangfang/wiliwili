@@ -211,7 +211,7 @@ VideoView::VideoView() {
                 break;
             case OsdGestureType::HORIZONTAL_PAN_UPDATE:
                 if (is_osd_lock) break;
-                this->requestSeeking(120.0f * status.deltaX);
+                this->requestSeeking(fmin(120.0f, getRealDuration()) * status.deltaX);
                 break;
             case OsdGestureType::HORIZONTAL_PAN_CANCEL:
                 if (is_osd_lock) break;
@@ -224,7 +224,7 @@ VideoView::VideoView() {
                     break;
                 }
                 // 立即跳转
-                this->requestSeeking(120.0f * status.deltaX, VIDEO_SEEK_IMMEDIATELY);
+                this->requestSeeking(fmin(120.0f, getRealDuration()) * status.deltaX, VIDEO_SEEK_IMMEDIATELY);
                 break;
             case OsdGestureType::LEFT_VERTICAL_PAN_START:
                 if (is_osd_lock) break;

@@ -331,8 +331,11 @@ AutoTabFrame::~AutoTabFrame() {
 void AutoTabFrame::setTabAttachedView(brls::View* newContent) {
     // Remove the existing tab if it exists
     if (this->activeTab) {
-        this->removeView(this->activeTab,
-                         false);  // will call willDisappear but not delete
+        // will call willDisappear but not delete
+        this->removeView(this->activeTab, false);
+        // onHide will be called
+        auto v = dynamic_cast<AttachedView*>(this->activeTab);
+        if (v) v->onHide();
         this->activeTab = nullptr;
     }
     if (!newContent) {
@@ -341,6 +344,9 @@ void AutoTabFrame::setTabAttachedView(brls::View* newContent) {
     newContent->setGrow(1.0f);
     this->addView(newContent);  // addView calls willAppear
     this->activeTab = newContent;
+    // onHide will be called
+    auto v = dynamic_cast<AttachedView*>(this->activeTab);
+    if (v) v->onShow();
 }
 
 void AutoTabFrame::setDefaultTabIndex(size_t index) { this->sidebar->setDefaultFocusedIndex(index); }
@@ -966,6 +972,10 @@ void AttachedView::setTabBar(AutoSidebarItem* view) { this->tab = view; }
 AutoSidebarItem* AttachedView::getTabBar() { return this->tab; }
 
 void AttachedView::onCreate() {}
+
+void AttachedView::onShow() {}
+
+void AttachedView::onHide() {}
 
 void AttachedView::registerTabAction(std::string hintText, enum brls::ControllerButton button,
                                      brls::ActionListener action, bool hidden, bool allowRepeating, enum Sound sound) {

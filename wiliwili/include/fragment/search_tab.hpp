@@ -117,10 +117,6 @@ public:
 
     static View* create();
 
-    void requestData(const std::string& key);
-
-    inline static std::string keyWord;
-
     void focusNthTab(int i);
 
     SearchHistory* getSearchHistoryTab();

@@ -41,9 +41,17 @@ public:
      */
     CustomEvent *getCustomEvent();
 
+    /**
+     * 专门用于搜索页面的事件
+     * 传递内容为: string类型的事件名与一个任意类型的指针
+     */
+    CustomEvent *getSearchEvent();
+
     // 自定义的事件，传递内容为: string类型的事件名与一个任意类型的指针
     CustomEvent customEvent;
+    CustomEvent searchEvent;
 };
 
 #define MPV_E EventHelper::instance().getMpvEvent()
 #define APP_E EventHelper::instance().getCustomEvent()
+#define SEARCH_E EventHelper::instance().getSearchEvent()

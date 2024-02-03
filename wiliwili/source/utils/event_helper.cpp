@@ -8,3 +8,5 @@
 MPVEvent *EventHelper::getMpvEvent() { return MPVCore::instance().getEvent(); }
 
 CustomEvent *EventHelper::getCustomEvent() { return &customEvent; }
+
+CustomEvent *EventHelper::getSearchEvent() { return &searchEvent; }

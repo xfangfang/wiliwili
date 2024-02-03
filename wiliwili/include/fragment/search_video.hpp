@@ -12,21 +12,19 @@
 #include <atomic>
 #include <memory>
 
-#include "view/auto_tab_frame.hpp"
+#include "fragment/search_interface.hpp"
 
 class RecyclingGrid;
 
-class SearchVideo : public AttachedView {
+class SearchVideo : public SearchAttachedView {
 public:
     SearchVideo();
 
-    ~SearchVideo();
+    ~SearchVideo() override;
 
-    static View* create();
+    static brls::View* create();
 
-    void onCreate() override;
-
-    void requestSearch(const std::string& key);
+    void requestSearch(const std::string& key) override;
 
     void _requestSearch(const std::string& key);
 

@@ -37,7 +37,7 @@ void SearchBangumi::_requestSearch(const std::string& key) {
         key, "media_bangumi", requestIndex, "",
         [ASYNC_TOKEN](const bilibili::SearchResult& result) {
             for (const auto& i : result.result) {
-                brls::Logger::debug("search: {}", i.title);
+                brls::Logger::verbose("search: {}", i.title);
             }
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
