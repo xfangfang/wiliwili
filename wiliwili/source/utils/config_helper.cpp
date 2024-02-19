@@ -942,3 +942,11 @@ void ProgramConfig::setSeasonCustomSetting(const SeasonCustomSetting& value) {
     this->seasonCustom = value;
     this->save();
 }
+
+void ProgramConfig::toggleFullscreen() {
+    bool value = !getBoolOption(SettingItem::FULLSCREEN);
+    setSettingItem(SettingItem::FULLSCREEN, value);
+    VideoContext::FULLSCREEN = value;
+    brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
+    GA("player_setting", {{"fullscreen", value ? "true" : "false"}});
+}

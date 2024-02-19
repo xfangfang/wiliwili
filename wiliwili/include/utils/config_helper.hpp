@@ -256,6 +256,8 @@ public:
 
     void setSeasonCustomSetting(const SeasonCustomSetting& setting);
 
+    void toggleFullscreen();
+
     std::vector<CustomTheme> customThemes;
     Cookie cookie = {{"DedeUserID", "0"}};
     std::string refreshToken;

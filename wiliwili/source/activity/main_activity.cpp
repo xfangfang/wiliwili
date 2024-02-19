@@ -17,7 +17,7 @@
 #include <borealis/core/touch/tap_gesture.hpp>
 
 #include "activity/main_activity.hpp"
-#include "activity/setting_activity.hpp"
+#include "utils/activity_helper.hpp"
 #include "view/custom_button.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/svg_image.hpp"
@@ -28,7 +28,7 @@ void MainActivity::onContentAvailable() {
     this->registerAction(
         "Settings", brls::ControllerButton::BUTTON_BACK,
         [](brls::View* view) -> bool {
-            MainActivity::openSetting();
+            Intent::openSetting();
             return true;
         },
         true);
@@ -36,13 +36,13 @@ void MainActivity::onContentAvailable() {
     this->registerAction(
         "Settings", brls::ControllerButton::BUTTON_START,
         [](brls::View* view) -> bool {
-            MainActivity::openSetting();
+            Intent::openSetting();
             return true;
         },
         true);
 
     this->settingBtn->registerClickAction([](brls::View* view) -> bool {
-        MainActivity::openSetting();
+        Intent::openSetting();
         return true;
     });
 
@@ -74,5 +74,3 @@ void MainActivity::onContentAvailable() {
     });
     this->settingBtn->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->settingBtn));
 }
-
-void MainActivity::openSetting() { brls::Application::pushActivity(new SettingActivity()); }

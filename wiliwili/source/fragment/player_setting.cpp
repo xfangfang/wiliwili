@@ -11,6 +11,7 @@
 #include "utils/config_helper.hpp"
 #include "utils/shader_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/activity_helper.hpp"
 #include "activity/player_activity.hpp"
 #include "fragment/player_setting.hpp"
 #include "view/danmaku_core.hpp"
@@ -255,7 +256,7 @@ void PlayerSetting::setupCommonSetting() {
     });
 
 /// Fullscreen
-#if defined(__linux__) || defined(_WIN32)
+#ifdef ALLOW_FULLSCREEN
     btnFullscreen->init("wiliwili/setting/app/others/fullscreen"_i18n, conf.getBoolOption(SettingItem::FULLSCREEN),
                         [](bool value) {
                             ProgramConfig::instance().setSettingItem(SettingItem::FULLSCREEN, value);

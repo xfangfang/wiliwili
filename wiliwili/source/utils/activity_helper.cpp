@@ -15,54 +15,90 @@
 #include "activity/dlna_activity.hpp"
 #include "fragment/mine_collection_video_list.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/config_helper.hpp"
 
 #include "presenter/video_detail.hpp"
 
 void Intent::openBV(const std::string& bvid, int cid, int progress) {
-    brls::Application::pushActivity(new PlayerActivity(bvid, cid, progress), brls::TransitionAnimation::NONE);
+    auto activity = new PlayerActivity(bvid, cid, progress);
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
 }
 
 void Intent::openSeasonBySeasonId(int seasonId, int progress) {
-    brls::Application::pushActivity(new PlayerSeasonActivity(seasonId, PGC_ID_TYPE::SEASON_ID, progress),
-                                    brls::TransitionAnimation::NONE);
+    auto activity = new PlayerSeasonActivity(seasonId, PGC_ID_TYPE::SEASON_ID, progress);
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
 }
 
 void Intent::openSeasonByEpId(int epId, int progress) {
-    brls::Application::pushActivity(new PlayerSeasonActivity(epId, PGC_ID_TYPE::EP_ID, progress),
-                                    brls::TransitionAnimation::NONE);
+    auto activity = new PlayerSeasonActivity(epId, PGC_ID_TYPE::EP_ID, progress);
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
 }
 
 void Intent::openLive(int live, const std::string& name, const std::string& views) {
-    brls::Application::pushActivity(new LiveActivity(live, name, views), brls::TransitionAnimation::NONE);
+    auto activity = new LiveActivity(live, name, views);
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
 }
 
 void Intent::openCollection(const std::string& mid, const std::string& type) {
     auto collection = new MineCollectionVideoList();
     collection->applyXMLAttribute("type", type);
     collection->applyXMLAttribute("collection", mid);
-    brls::Application::pushActivity(new brls::Activity(collection), brls::TransitionAnimation::NONE);
+    auto activity = new brls::Activity(collection);
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
 }
 
 void Intent::openSearch(const std::string& key) {
-    brls::Application::pushActivity(new SearchActivity(key), brls::TransitionAnimation::NONE);
+    auto activity = new SearchActivity(key);
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
 }
 
 void Intent::openTVSearch() {
-    brls::Application::pushActivity(new TVSearchActivity(), brls::TransitionAnimation::NONE);
+    auto activity = new TVSearchActivity();
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
 }
 
 void Intent::openPgcFilter(const std::string& filter) {
-    brls::Application::pushActivity(new PGCIndexActivity(filter), brls::TransitionAnimation::NONE);
+    auto activity = new PGCIndexActivity(filter);
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
 }
 
-void Intent::openSetting() { brls::Application::pushActivity(new SettingActivity()); }
+void Intent::openSetting() {
+    auto activity = new SettingActivity();
+    brls::Application::pushActivity(activity);
+    registerFullscreen(activity);
+}
 
 void Intent::openHint() { brls::Application::pushActivity(new HintActivity()); }
 
-void Intent::openMain() { brls::Application::pushActivity(new MainActivity()); }
-
-void Intent::openGallery(const std::vector<std::string>& data) {
-    brls::Application::pushActivity(new GalleryActivity(data), brls::TransitionAnimation::NONE);
+void Intent::openMain() {
+    auto activity = new MainActivity();
+    brls::Application::pushActivity(activity);
+    registerFullscreen(activity);
 }
 
-void Intent::openDLNA() { brls::Application::pushActivity(new DLNAActivity(), brls::TransitionAnimation::NONE); }
+void Intent::openGallery(const std::vector<std::string>& data) {
+    auto activity = new GalleryActivity(data);
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
+}
+
+void Intent::openDLNA() {
+    auto activity = new DLNAActivity();
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
+}
+
+void Intent::_registerFullscreen(brls::Activity* activity) {
+    activity->registerAction("", brls::BUTTON_F, [](...) {
+        ProgramConfig::instance().toggleFullscreen();
+        return true;
+    });
+}

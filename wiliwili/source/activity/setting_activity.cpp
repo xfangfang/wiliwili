@@ -327,7 +327,7 @@ void SettingActivity::onContentAvailable() {
 #endif
 
 /// Fullscreen
-#if defined(__linux__) || defined(_WIN32)
+#ifdef ALLOW_FULLSCREEN
     cellFullscreen->init("wiliwili/setting/app/others/fullscreen"_i18n, conf.getBoolOption(SettingItem::FULLSCREEN),
                          [](bool value) {
                              ProgramConfig::instance().setSettingItem(SettingItem::FULLSCREEN, value);

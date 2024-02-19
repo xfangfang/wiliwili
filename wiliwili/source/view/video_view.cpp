@@ -16,6 +16,7 @@
 #include "utils/config_helper.hpp"
 #include "utils/string_helper.hpp"
 #include "utils/gesture_helper.hpp"
+#include "utils/activity_helper.hpp"
 #include "activity/player_activity.hpp"
 #include "fragment/player_danmaku_setting.hpp"
 #include "fragment/player_setting.hpp"
@@ -1200,7 +1201,9 @@ void VideoView::setFullScreen(bool fs) {
             video->hideLoading();
         }
         container->addView(video);
-        brls::Application::pushActivity(new brls::Activity(container), brls::TransitionAnimation::NONE);
+        auto activity = new brls::Activity(container);
+        brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+        registerFullscreen(activity);
 
         // 手动将焦点 赋给新的video组件
         brls::sync([video]() { brls::Application::giveFocus(video); });
