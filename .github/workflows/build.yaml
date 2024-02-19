@@ -105,7 +105,7 @@ jobs:
           tree
           mv ${{ needs.version.outputs.DIST_EXE }}-d3d-x86_64/${{ needs.version.outputs.DIST_EXE }}-d3d-x86_64.zip \
              ${{ needs.version.outputs.DIST_EXE }}-x86_64.zip
-          mv ${{ needs.version.outputs.DIST_EXE }}-d3d-x86/${{ needs.version.outputs.DIST_EXE }}-d3d-x86.zip \
+          mv ${{ needs.version.outputs.DIST_EXE }}-gl-x86/${{ needs.version.outputs.DIST_EXE }}-gl-x86.zip \
              ${{ needs.version.outputs.DIST_EXE }}-x86.zip
 
       - name: Upload Release
@@ -202,12 +202,12 @@ jobs:
             -DZLIB_USE_STATIC_LIBS=ON
           cmake --build build
           strip build/wiliwili.exe
-          7z a -mx=9 -tzip ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}.zip \
+          7z a -mx=9 -tzip ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}.zip \
             ./build/wiliwili.exe README.md 
       - name: Append resources
         if: matrix.arch == 'x86'
         run: | 
-          7z a -mx=9 -tzip  ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}.zip \
+          7z a -mx=9 -tzip  ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}.zip \
             ./build/resources ${MINGW_PREFIX}/bin/libmpv-2.dll
       - name: Upload dist
         uses: actions/upload-artifact@v4
