@@ -139,6 +139,7 @@ jobs:
           - { arch: x86, msystem: MINGW32, driver: gl, cmake: "-DUSE_GL2=ON" }
           - { arch: x86, msystem: MINGW32, driver: d3d, cmake: "-DUSE_D3D11=ON" }
         arch: [ x86_64, x86 ]
+        driver: [gl, d3d]
     env:
       MSYSTEM: ${{ matrix.msystem }}
       MSYS2_PATH_TYPE: inherit
