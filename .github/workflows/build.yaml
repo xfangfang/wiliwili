@@ -99,6 +99,15 @@ jobs:
           mv ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak \
             ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak
 
+      - name: Rename exe
+        if: github.event.inputs.release == 'true' && !cancelled()
+        run: |
+          tree
+          mv ${{ needs.version.outputs.DIST_EXE }}-d3d-x86_64/${{ needs.version.outputs.DIST_EXE }}-d3d-x86_64.zip \
+             ${{ needs.version.outputs.DIST_EXE }}-x86_64.zip
+          mv ${{ needs.version.outputs.DIST_EXE }}-d3d-x86/${{ needs.version.outputs.DIST_EXE }}-d3d-x86.zip \
+             ${{ needs.version.outputs.DIST_EXE }}-x86.zip
+
       - name: Upload Release
         if: github.event.inputs.release == 'true' && !cancelled()
         uses: ncipollo/release-action@v1
@@ -110,8 +119,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
           artifacts: >
-            ${{ needs.version.outputs.DIST_EXE }}-x86_64/${{ needs.version.outputs.DIST_EXE }}-x86_64.zip
-            ${{ needs.version.outputs.DIST_EXE }}-x86/${{ needs.version.outputs.DIST_EXE }}-x86.zip
+            ${{ needs.version.outputs.DIST_EXE }}-x86_64.zip
+            ${{ needs.version.outputs.DIST_EXE }}-x86.zip
             ${{ needs.version.outputs.DIST_NRO }}/${{ needs.version.outputs.DIST_NRO }}.tar.gz
             ${{ needs.version.outputs.DIST_INTEL_DMG }}/${{ needs.version.outputs.DIST_INTEL_DMG }}.dmg
             ${{ needs.version.outputs.DIST_ARM_DMG }}/${{ needs.version.outputs.DIST_ARM_DMG }}.dmg
@@ -125,8 +134,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { arch: x86_64, msystem: MINGW64, cmake: "-DUSE_LIBROMFS=ON -DMPV_BUNDLE_DLL=ON" }
-          - { arch: x86, msystem: MINGW32, cmake: "-DUSE_GL2=ON" }
+          - { arch: x86_64, msystem: MINGW64, driver: gl, cmake: "-DUSE_LIBROMFS=ON -DMPV_BUNDLE_DLL=ON" }
+          - { arch: x86_64, msystem: MINGW64, driver: d3d, cmake: "-DUSE_D3D11=ON -DUSE_LIBROMFS=ON -DMPV_BUNDLE_DLL=ON" }
+          - { arch: x86, msystem: MINGW32, driver: gl, cmake: "-DUSE_GL2=ON" }
+          - { arch: x86, msystem: MINGW32, driver: d3d, cmake: "-DUSE_D3D11=ON" }
         arch: [ x86_64, x86 ]
     env:
       MSYSTEM: ${{ matrix.msystem }}
@@ -146,7 +157,7 @@ jobs:
             ${MINGW_PACKAGE_PREFIX}-gcc \
             ${MINGW_PACKAGE_PREFIX}-ninja
 
-          curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.36.0-3-any.pkg.tar.zst
+          curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.36.0-4-any.pkg.tar.zst
           pacman -U --noconfirm *.pkg.tar.zst
       - name: Update gamepad db
         run: |
@@ -200,8 +211,8 @@ jobs:
       - name: Upload dist
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}
-          path: "${{ needs.version.outputs.DIST_EXE }}-${{ matrix.arch }}.zip"
+          name: ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}
+          path: "${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}.zip"
 
   build-win-uwp:
     needs: [ version ]

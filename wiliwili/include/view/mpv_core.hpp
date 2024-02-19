@@ -17,6 +17,8 @@
 #if defined(MPV_SW_RENDER)
 #elif defined(BOREALIS_USE_DEKO3D)
 #include <mpv/render_dk3d.h>
+#elif defined(BOREALIS_USE_D3D11)
+#include <mpv/render_dxgi.h>
 #elif defined(BOREALIS_USE_OPENGL)
 #include <mpv/render_gl.h>
 #if defined(__PSV__) || defined(PS4)
@@ -38,7 +40,7 @@
 // 将视频绘制到独立的 framebuffer
 #define MPV_USE_FB
 #if !defined(USE_GLES2) && !defined(USE_GLES3)
-// 虽然 gles3 理论时也支持 vao 但是部分平台上实际不支持（比如 ANGLE）
+// 虽然 gles3 理论上也支持 vao 但是部分平台上实际不支持（比如 ANGLE）
 #define MPV_USE_VAO
 #endif
 struct GLShader {
@@ -394,6 +396,10 @@ private:
     };
     mpv_render_param mpv_params[3] = {
         {MPV_RENDER_PARAM_DEKO3D_FBO, &mpv_fbo},
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
+#elif defined(BOREALIS_USE_D3D11)
+    mpv_render_param mpv_params[1] = {
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(MPV_NO_FB)
