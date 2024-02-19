@@ -105,7 +105,7 @@ jobs:
           tree
           mv ${{ needs.version.outputs.DIST_EXE }}-d3d-x86_64/${{ needs.version.outputs.DIST_EXE }}-d3d-x86_64.zip \
              ${{ needs.version.outputs.DIST_EXE }}-x86_64.zip
-          mv ${{ needs.version.outputs.DIST_EXE }}-gl-x86/${{ needs.version.outputs.DIST_EXE }}-gl-x86.zip \
+          mv ${{ needs.version.outputs.DIST_EXE }}-d3d-x86/${{ needs.version.outputs.DIST_EXE }}-d3d-x86.zip \
              ${{ needs.version.outputs.DIST_EXE }}-x86.zip
 
       - name: Upload Release
