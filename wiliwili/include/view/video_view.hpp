@@ -137,6 +137,14 @@ public:
     /// 将OSD改为直播样式
     void setLiveMode();
 
+    // 使用 TV 客户端的控制逻辑
+    // 1. 焦点可以选到控制条上，通过确定键选中并调整，再次点击确定完成进度调整（之前：无法通过方向键调整进度）
+    // 2. osd 隐藏状态下，按下确定键显示 osd。（之前：确定键控制播放和暂停）
+    // 3. 全屏时 osd 显示状态下按返回键隐藏 osd，隐藏后再按返回键退出全屏。（之前：返回键控制直接退出全屏）
+    void setTvControlMode(bool state);
+
+    bool getTvControlMode();
+
     /// 设置播放时间 (左下角: 00:00:00/00:00:00 中左侧的值)
     void setStatusLabelLeft(const std::string& value);
 
@@ -259,6 +267,8 @@ private:
     bool showOpeningCreditsSetting = true;
     // 是否为直播样式
     bool isLiveMode = false;
+    // 是否开启 TV 客户端的控制逻辑
+    bool isTvControlMode = false;
     // 是否展示重播按钮
     bool showReplay = false;
     std::string bangumiTitle;
@@ -292,6 +302,8 @@ private:
     BRLS_BIND(brls::Label, speedHintLabel, "video/speed/hint/label");
     BRLS_BIND(brls::Box, speedHintBox, "video/speed/hint/box");
     BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");
+    // 底部菜单键
+    BRLS_BIND(brls::Box, iconBox, "video/osd/icon/box");
     BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
     BRLS_BIND(SVGImage, btnFullscreenIcon, "video/osd/fullscreen/icon");
     BRLS_BIND(SVGImage, btnDanmakuIcon, "video/osd/danmaku/icon");
@@ -318,7 +330,7 @@ private:
     time_t hintLastShowTime    = 0;
     int64_t lastPlayedPosition = POSITION_UNDEFINED;
     int highlight_step_sec     = 0;
-    std::vector<float> highlight_data;
+    std::vector<float> highlight_data;  // 在播放器进度条上显示的标记点（用来展示片头片尾标记）
 
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
@@ -351,6 +363,8 @@ private:
 
     /// 绘制高能进度条
     void drawHighlightProgress(NVGcontext* vg, float x, float y, float width, float alpha);
+
+    void _setTvControlMode(bool state);
 
     float getRealDuration();
 };

@@ -61,6 +61,7 @@ enum class SettingItem {
     PLAYER_SATURATION,
     PLAYER_HUE,
     PLAYER_GAMMA,
+    PLAYER_OSD_TV_MODE,
     VIDEO_QUALITY,
     TEXTURE_CACHE_NUM,
     OPENCC_ON,

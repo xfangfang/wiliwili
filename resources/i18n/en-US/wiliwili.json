@@ -36,6 +36,10 @@
         "proxy": "Proxy",
         "proxy_hint": "example: http://127.0.0.1:7890"
       },
+      "ui": {
+        "header": "UI",
+        "tv_osd": "TV style OSD control"
+      },
       "others": {
         "header": "Others",
         "vibration": "Gamepad vibration",

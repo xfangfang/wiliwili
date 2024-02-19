@@ -104,16 +104,13 @@
                         <brls:Header
                                 width="auto"
                                 height="auto"
-                                title="@i18n/wiliwili/setting/app/others/header"
+                                title="@i18n/wiliwili/setting/app/ui/header"
                                 marginBottom="0px"/>
                         <brls:Box
                                 width="100%"
                                 height="auto"
                                 axis="column"
-                                marginBottom="0px">
-
-                            <brls:BooleanCell
-                                    id="cell/fullscreen"/>
+                                marginBottom="30px">
 
                             <brls:BooleanCell
                                     id="cell/hideBottomBar"/>
@@ -125,13 +122,7 @@
                                     id="cell/tvSearch"/>
 
                             <brls:BooleanCell
-                                    id="cell/gamepadVibration"/>
-
-                            <brls:BooleanCell
-                                    id="setting/opencc"/>
-
-                            <SelectorCell
-                                    id="setting/fps"/>
+                                    id="cell/tvOSD"/>
 
                             <SelectorCell
                                     id="setting/custom/theme"/>
@@ -144,6 +135,29 @@
 
                             <SelectorCell
                                     id="setting/ui/theme"/>
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/app/others/header"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="0px">
+
+                            <brls:BooleanCell
+                                    id="cell/fullscreen"/>
+
+                            <brls:BooleanCell
+                                    id="cell/gamepadVibration"/>
+
+                            <SelectorCell
+                                    id="setting/fps"/>
+
+                            <brls:BooleanCell
+                                    id="setting/opencc"/>
 
                             <SelectorCell
                                     id="setting/language"/>

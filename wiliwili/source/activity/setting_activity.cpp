@@ -310,6 +310,11 @@ void SettingActivity::onContentAvailable() {
                            TVSearchActivity::TV_MODE = value;
                        });
 
+    /// TV OSD Control Mode
+    cellTvOSD->init(
+        "wiliwili/setting/app/ui/tv_osd"_i18n, conf.getBoolOption(SettingItem::PLAYER_OSD_TV_MODE),
+        [](bool value) { ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_OSD_TV_MODE, value); });
+
 /// Gamepad vibration
 #ifdef __SWITCH__
     cellVibration->init("wiliwili/setting/app/others/vibration"_i18n,

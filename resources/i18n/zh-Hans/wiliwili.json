@@ -36,6 +36,10 @@
         "proxy": "网络代理",
         "proxy_hint": "示例: http://127.0.0.1:7890"
       },
+      "ui": {
+        "header": "界面设置",
+        "tv_osd": "电视风格播放器"
+      },
       "others": {
         "header": "其他",
         "vibration": "手柄振动",

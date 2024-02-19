@@ -28,8 +28,8 @@ public:
 
     brls::View* getDefaultFocus() override;
 
-    void draw(NVGcontext* vg, float x, float y, float width, float height,
-              brls::Style style, brls::FrameContext* ctx) override;
+    void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+              brls::FrameContext* ctx) override;
 
     void setProgress(float progress);
 
@@ -52,6 +52,7 @@ public:
     const std::vector<float>& getClipPoint();
 
 private:
+    brls::InputManager* input;
     brls::Rectangle* line;
     brls::Rectangle* lineEmpty;
     SVGImage* pointerIcon;
@@ -62,7 +63,14 @@ private:
 
     std::vector<float> clipPointList;
 
-    float progress = 1;
+    float progress             = 1;
+    bool pointerSelected       = false;
+    // while pointer is selected ignore progress setting
+    bool ignoreProgressSetting = false;
+    // while pointer is selected, the last progress value set by setProgress()
+    // is stored here to be restored when canceling the selection
+    float lastProgress         = 1;
 
+    void buttonsProcessing();
     void updateUI();
 };

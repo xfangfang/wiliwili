@@ -13,6 +13,8 @@
 using namespace brls;
 
 VideoProgressSlider::VideoProgressSlider() {
+    input = Application::getPlatform()->getInputManager();
+
     line        = new brls::Rectangle();
     lineEmpty   = new brls::Rectangle();
     pointerIcon = new SVGImage();
@@ -34,10 +36,39 @@ VideoProgressSlider::VideoProgressSlider() {
     pointerIcon->setImageFromSVGRes("svg/bpx-svg-sprite-thumb.svg");
 
     pointer->setDimensions(60, 60);
-    pointer->setFocusable(false);
+    pointer->setFocusable(true);
+    pointer->setHighlightCornerRadius(60);
+    pointer->setHideHighlightBackground(true);
+    pointer->setHideClickAnimation(true);
     pointer->setAlignItems(brls::AlignItems::CENTER);
     pointer->setJustifyContent(brls::JustifyContent::CENTER);
     pointer->addView(pointerIcon);
+    this->forwardXMLAttribute("focusUp", pointer);
+    this->forwardXMLAttribute("focusRight", pointer);
+
+    pointer->registerClickAction([this](...) {
+        pointerSelected = !pointerSelected;
+        pointer->setHideHighlightBackground(!pointerSelected);
+        ignoreProgressSetting = pointerSelected;
+        if (!pointerSelected) progressSetEvent.fire(this->progress);
+        return true;
+    });
+
+    pointer->registerAction("left", brls::BUTTON_NAV_LEFT, [this](...) { return pointerSelected; }, true, true);
+
+    pointer->registerAction("right", brls::BUTTON_NAV_RIGHT, [this](...) { return pointerSelected; }, true, true);
+
+    pointer->registerAction("cancel", brls::BUTTON_B, [this](...) {
+        if (!pointerSelected) return false;
+        pointerSelected       = false;
+        ignoreProgressSetting = false;
+        pointer->setHideHighlightBackground(true);
+        this->progress = lastProgress;
+        if (this->progress < 0) this->progress = 0;
+        if (this->progress > 1) this->progress = 1;
+        updateUI();
+        return true;
+    });
 
     addView(pointer);
     addView(line);
@@ -92,7 +123,8 @@ VideoProgressSlider::VideoProgressSlider() {
             Application::giveFocus(this->getParentActivity()->getContentView());
         }));
 
-    progress = 0;
+    progress     = 0;
+    lastProgress = 0;
 }
 
 brls::View* VideoProgressSlider::create() { return new VideoProgressSlider(); }
@@ -105,19 +137,12 @@ void VideoProgressSlider::onLayout() {
 View* VideoProgressSlider::getDefaultFocus() { return pointer; }
 
 void VideoProgressSlider::setProgress(float progress) {
-    static int lastProgressTicker = this->progress * 10;
+    lastProgress = progress;
+    if (ignoreProgressSetting) return;
 
     this->progress = progress;
-
     if (this->progress < 0) this->progress = 0;
-
     if (this->progress > 1) this->progress = 1;
-
-    if (lastProgressTicker != (int)(this->progress * 10)) {
-        lastProgressTicker = this->progress * 10;
-        Application::getAudioPlayer()->play(SOUND_SLIDER_TICK);
-    }
-
     updateUI();
 }
 
@@ -150,6 +175,10 @@ const std::vector<float>& VideoProgressSlider::getClipPoint() { return clipPoint
 
 void VideoProgressSlider::draw(NVGcontext* vg, float x, float y, float width, float height, Style style,
                                FrameContext* ctx) {
+    if (pointerSelected) {
+        buttonsProcessing();
+    }
+
     for (View* child : this->getChildren()) {
         if (child == this->pointer) {
             // draw clip point before pointer
@@ -161,5 +190,41 @@ void VideoProgressSlider::draw(NVGcontext* vg, float x, float y, float width, fl
             nvgFill(vg);
         }
         child->frame(ctx);
+    }
+}
+
+void VideoProgressSlider::buttonsProcessing() {
+    ControllerState state{};
+    input->updateUnifiedControllerState(&state);
+    static bool repeat = false;
+
+    if (state.buttons[BUTTON_NAV_RIGHT] && state.buttons[BUTTON_NAV_LEFT]) return;
+
+    float step = 0.2f;
+
+    if (state.buttons[BUTTON_NAV_RIGHT]) {
+        progress += step / Application::getFPS();
+        if (progress >= 1 && !repeat) {
+            repeat = true;
+            pointer->shakeHighlight(FocusDirection::RIGHT);
+        }
+    }
+
+    if (state.buttons[BUTTON_NAV_LEFT]) {
+        progress -= step / Application::getFPS();
+        if (progress <= 0 && !repeat) {
+            repeat = true;
+            pointer->shakeHighlight(FocusDirection::LEFT);
+        }
+    }
+
+    if (progress > 1) progress = 1;
+    if (progress < 0) progress = 0;
+    progressEvent.fire(progress);
+    updateUI();
+
+    if ((!state.buttons[BUTTON_NAV_RIGHT] && !state.buttons[BUTTON_NAV_LEFT]) ||
+        (progress > 0.01f && progress < 0.99f)) {
+        repeat = false;
     }
 }

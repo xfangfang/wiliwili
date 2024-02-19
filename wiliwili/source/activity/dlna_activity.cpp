@@ -157,11 +157,6 @@ DLNAActivity::DLNAActivity() {
 }
 
 void DLNAActivity::onContentAvailable() {
-    this->video->registerAction("", brls::BUTTON_B, [](...) {
-        brls::Application::popActivity();
-        return true;
-    });
-
     this->video->hideDLNAButton();
     this->video->hideDanmakuButton();
     this->video->hideVideoQualityButton();

@@ -60,6 +60,8 @@ VideoView::VideoView() {
     this->setHideHighlightBackground(true);
     this->setHideClickAnimation(true);
 
+    setTvControlMode(ProgramConfig::instance().getBoolOption(SettingItem::PLAYER_OSD_TV_MODE));
+
     input = brls::Application::getPlatform()->getInputManager();
 
     this->registerBoolXMLAttribute("allowFullscreen", [this](bool value) {
@@ -275,9 +277,12 @@ VideoView::VideoView() {
     }));
 
     /// 播放/暂停 按钮
-    this->btnToggle->addGestureRecognizer(new brls::TapGestureRecognizer(
-        this->btnToggle, [this]() { this->togglePlay(); },
-        brls::TapGestureConfig(false, brls::SOUND_NONE, brls::SOUND_NONE, brls::SOUND_NONE)));
+    this->btnToggle->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->btnToggle, [this]() { this->togglePlay(); }));
+    this->btnToggle->registerClickAction([this](...) {
+        this->togglePlay();
+        return true;
+    });
 
     /// 清晰度按钮
     this->videoQuality->getParent()->registerClickAction([](...) {
@@ -501,6 +506,10 @@ VideoView::VideoView() {
                 return true;
             }
             if (this->isFullscreen()) {
+                if (isTvControlMode && isOSDShown()) {
+                    this->toggleOSD();
+                    return true;
+                }
                 this->setFullScreen(false);
             } else {
                 this->dismiss();
@@ -512,9 +521,14 @@ VideoView::VideoView() {
     this->registerAction("wiliwili/player/fs"_i18n, brls::ControllerButton::BUTTON_A, [this](brls::View* view) {
         CHECK_OSD(false);
         if (this->isFullscreen()) {
-            //全屏状态下切换播放状态
-            this->togglePlay();
             this->showOSD(true);
+            if (isTvControlMode) {
+                // 焦点设置在默认位置
+                brls::sync([this]() { brls::Application::giveFocus(this); });
+            } else {
+                // 直接切换播放状态
+                this->togglePlay();
+            }
         } else {
             //非全屏状态点击视频组件进入全屏
             this->setFullScreen(true);
@@ -1001,6 +1015,27 @@ void VideoView::setLiveMode() {
     isLiveMode = true;
     centerStatusLabel->setVisibility(brls::Visibility::GONE);
     rightStatusLabel->setVisibility(brls::Visibility::GONE);
+    _setTvControlMode(false);
+}
+
+void VideoView::setTvControlMode(bool state) {
+    isTvControlMode = state;
+    // 直播模式下不显示进度条
+    _setTvControlMode(isTvControlMode && !isLiveMode);
+}
+
+bool VideoView::getTvControlMode() { return isTvControlMode; }
+
+void VideoView::_setTvControlMode(bool state) {
+    btnToggle->setCustomNavigationRoute(FocusDirection::RIGHT, state ? osdSlider : iconBox);
+    btnVolumeIcon->setCustomNavigationRoute(FocusDirection::UP, state ? osdSlider : osdLockBox);
+    btnDanmakuSettingIcon->setCustomNavigationRoute(FocusDirection::UP, state ? osdSlider : osdLockBox);
+    btnDanmakuIcon->setCustomNavigationRoute(FocusDirection::UP, state ? osdSlider : osdLockBox);
+    videoQuality->setCustomNavigationRoute(FocusDirection::UP, state ? osdSlider : osdLockBox);
+    videoSpeed->setCustomNavigationRoute(FocusDirection::UP, state ? osdSlider : osdLockBox);
+    btnFullscreenIcon->setCustomNavigationRoute(FocusDirection::UP, state ? osdSlider : osdLockBox);
+    osdLockBox->setCustomNavigationRoute(FocusDirection::DOWN, state ? osdSlider : iconBox);
+    osdSlider->setFocusable(state);
 }
 
 void VideoView::setStatusLabelLeft(const std::string& value) { leftStatusLabel->setText(value); }

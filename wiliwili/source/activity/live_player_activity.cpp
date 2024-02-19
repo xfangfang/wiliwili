@@ -164,9 +164,17 @@ void LiveActivity::setVideoQuality() {
 void LiveActivity::onContentAvailable() {
     brls::Logger::debug("LiveActivity: onContentAvailable");
 
-    this->video->registerAction("", brls::BUTTON_B, [](...) {
-        brls::Logger::debug("exit live");
-        brls::Application::popActivity();
+    this->video->registerAction("", brls::BUTTON_B, [this](...) {
+        if (this->video->isOSDLock()) {
+            this->video->toggleOSD();
+        } else {
+            if (this->video->getTvControlMode() && this->video->isOSDShown()) {
+                this->video->toggleOSD();
+                return true;
+            }
+            brls::Logger::debug("exit live");
+            brls::Application::popActivity();
+        }
         return true;
     });
 
