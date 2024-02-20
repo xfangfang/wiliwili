@@ -100,5 +100,5 @@ void Intent::_registerFullscreen(brls::Activity* activity) {
     activity->registerAction("", brls::BUTTON_F, [](...) {
         ProgramConfig::instance().toggleFullscreen();
         return true;
-    });
+    }, true);
 }

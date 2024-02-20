@@ -147,6 +147,9 @@ static GLuint linkProgram(GLuint s1, GLuint s2) {
 
 #ifdef BOREALIS_USE_DEKO3D
 #include <borealis/platforms/switch/switch_video.hpp>
+#elif defined(BOREALIS_USE_D3D11)
+#include <borealis/platforms/driver/d3d11.hpp>
+extern std::unique_ptr<brls::D3D11Context> D3D11_CONTEXT;
 #endif
 
 static inline void check_error(int status) {
@@ -155,7 +158,7 @@ static inline void check_error(int status) {
     }
 }
 
-#if !defined(MPV_SW_RENDER) && !defined(BOREALIS_USE_DEKO3D)
+#if defined(BOREALIS_USE_OPENGL) && !defined(MPV_SW_RENDER)
 static void *get_proc_address(void *unused, const char *name) {
 #ifdef __SDL2__
     SDL_GL_GetCurrentContext();
@@ -188,7 +191,7 @@ static inline float aspectConverter(const std::string &value) {
 void MPVCore::on_update(void *self) {
     brls::sync([]() {
         uint64_t flags = mpvRenderContextUpdate(MPVCore::instance().getContext());
-#if defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D) || defined(USE_GL2)
+#if !defined(MPV_SW_RENDER) && !defined(MPV_USE_FB)
         (void)flags;
 #else
         MPVCore::instance().redraw = flags & MPV_RENDER_UPDATE_FRAME;
@@ -388,6 +391,13 @@ void MPVCore::init() {
                               {MPV_RENDER_PARAM_DEKO3D_INIT_PARAMS, &deko_init_params},
                               {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
                               {MPV_RENDER_PARAM_INVALID, nullptr}};
+#elif defined(BOREALIS_USE_D3D11)
+    mpv_dxgi_init_params init_params{D3D11_CONTEXT->getDevice(), D3D11_CONTEXT->getSwapChain()};
+    mpv_render_param params[] {
+        {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_DXGI)},
+        {MPV_RENDER_PARAM_DXGI_INIT_PARAMS, &init_params},
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
 #else
     int advanced_control{1};
     mpv_opengl_init_params gl_init_params{get_proc_address, nullptr};
@@ -622,8 +632,10 @@ void MPVCore::setFrameSize(brls::Rect r) {
     mpvRenderContextReportSwap(mpv_context);
 #elif !defined(MPV_USE_FB)
     // Using default framebuffer
+#ifndef BOREALIS_USE_D3D11
     this->mpv_fbo.w = brls::Application::windowWidth;
     this->mpv_fbo.h = brls::Application::windowHeight;
+#endif
     command_async("set", "video-margin-ratio-right",
                   (brls::Application::contentWidth - rect.getMaxX()) / brls::Application::contentWidth);
     command_async("set", "video-margin-ratio-bottom",
@@ -705,6 +717,8 @@ void MPVCore::draw(brls::Rect area, float alpha) {
         mpvRenderContextRender(this->mpv_context, mpv_params);
 #ifdef BOREALIS_USE_DEKO3D
         videoContext->queueWaitFence(&doneFence);
+#elif defined(BOREALIS_USE_D3D11)
+        D3D11_CONTEXT->beginFrame();
 #else
         glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
         glViewport(0, 0, brls::Application::windowWidth, brls::Application::windowHeight);

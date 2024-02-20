@@ -238,12 +238,20 @@ void SettingActivity::onContentAvailable() {
     });
 
     labelAboutVersion->setText(version
-#ifdef __SWITCH__
-#ifdef BOREALIS_USE_DEKO3D
-                               + " (deko3d)"
+#if defined(BOREALIS_USE_DEKO3D)
+                                + " (deko3d)"
+#elif defined(BOREALIS_USE_OPENGL)
+#if defined(USE_GL2)
+                                + " (OpenGL2)"
+#elif defined(USE_GLES2)
+                                + " (OpenGL ES2)"
+#elif defined(USE_GLES3)
+                                + " (OpenGL ES3)"
 #else
-                               + " (OpenGL)"
+                                + " (OpenGL)"
 #endif
+#elif defined(BOREALIS_USE_D3D11)
+                                + " (D3D11)"
 #endif
     );
     labelOpensource->setText(OPENSOURCE);
