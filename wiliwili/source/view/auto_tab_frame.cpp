@@ -165,19 +165,6 @@ void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator) {
         if (newContent == this->getActiveTab()) return;
 
         this->setTabAttachedView(newContent);
-
-        if (!newContent) return;
-
-        newContent->registerAction(
-            "hints/back"_i18n, brls::BUTTON_B,
-            [this](View* view) {
-                if (brls::Application::getInputType() == brls::InputType::TOUCH)
-                    this->dismiss();
-                else
-                    brls::Application::giveFocus(this->sidebar);
-                return true;
-            },
-            false, false, brls::SOUND_BACK);
     });
     auto isDefaultTab = this->sidebar->getChildren().size() - 1 == this->getDefaultTabIndex();
 
@@ -837,6 +824,16 @@ brls::View* AutoSidebarItem::createAttachedView() {
     if (!this->attachedView) {
         brls::fatal("AutoSidebarItem create attached View error");
     }
+    this->attachedView->registerAction(
+        "hints/back"_i18n, brls::BUTTON_B,
+        [this](View* view) {
+            if (brls::Application::getInputType() == brls::InputType::TOUCH)
+                this->dismiss();
+            else
+                brls::Application::giveFocus(this);
+            return true;
+        },
+        false, false, brls::SOUND_BACK);
     return this->attachedView;
 }
 
