@@ -40,6 +40,6 @@ add_custom_target(${PROJECT_NAME}.nsp DEPENDS ${PROJECT_NAME}.pfs0
     COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_RESOURCES}/icon/logo.png" "logo/NintendoLogo.png"
     COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_RESOURCES}/icon/logo.gif" "logo/StartupMovie.gif"
     COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_ICON}" "control/icon_AmericanEnglish.dat"
-    COMMAND ${HACBREWPACK_EXE} -k "${PROJECT_KEYSET}" --titleid ${PROJECT_TITLEID} --titlename ${CMAKE_PROJECT_NAME} --noromfs
+    COMMAND ${HACBREWPACK_EXE} -k "${PROJECT_KEYSET}" --titleid ${PROJECT_TITLEID} --titlename ${CMAKE_PROJECT_NAME} --noromfs --nostartupuser
     COMMAND ${CMAKE_COMMAND} -E rename "hacbrewpack_nsp/${PROJECT_TITLEID}.nsp" "${PROJECT_RESOURCES}/${PROJECT_NAME}.nsp"
 )
