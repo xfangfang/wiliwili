@@ -203,7 +203,7 @@ jobs:
             -DCURL_USE_LIBPSL=OFF \
             -DUSE_LIBROMFS=ON \
             -DBRLS_UNITY_BUILD=ON \
-            -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
+            -DCMAKE_UNITY_BUILD_BATCH_SIZE=20 \
             -DZLIB_USE_STATIC_LIBS=ON \
             -DMPV_BUNDLE_DLL=${MINGW_PREFIX}/bin/libmpv-2.dll \
             -DVERSION_BUILD=${{ github.run_number }}

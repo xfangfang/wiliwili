@@ -199,8 +199,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_STANDARD 17
         UNITY_BUILD ${BRLS_UNITY_BUILD}
 )
-set_source_files_properties(wiliwili/source/utils/config_helper.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
-set_source_files_properties(wiliwili/source/activity/setting_activity.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+set_source_files_properties(
+        wiliwili/source/utils/config_helper.cpp
+        wiliwili/source/activity/setting_activity.cpp
+        wiliwili/source/activity/dlna_activity.cpp
+        PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 
 # building release file
 if (PLATFORM_DESKTOP)
