@@ -202,6 +202,8 @@ jobs:
             -DCURL_USE_LIBSSH2=OFF \
             -DCURL_USE_LIBPSL=OFF \
             -DUSE_LIBROMFS=ON \
+            -DBRLS_UNITY_BUILD=ON \
+            -DCMAKE_UNITY_BUILD_BATCH_SIZE=8 \
             -DZLIB_USE_STATIC_LIBS=ON \
             -DMPV_BUNDLE_DLL=${MINGW_PREFIX}/bin/libmpv-2.dll \
             -DVERSION_BUILD=${{ github.run_number }}
@@ -296,6 +298,8 @@ jobs:
              cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON \
                 -DCMAKE_BUILD_TYPE=Release \
                 -DMPV_NO_FB=ON \
+                -DBRLS_UNITY_BUILD=ON \
+                -DCMAKE_UNITY_BUILD_BATCH_SIZE=8 \
                 -DUSE_SYSTEM_CPR=ON && \
                 make -C cmake-build-ps4 -j$(nproc)"
 
@@ -352,7 +356,14 @@ jobs:
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         id: compile
         run: |
-          cmake -B build -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release -DMAC_${{ matrix.arch }}=ON -DMAC_DOWNLOAD_DYLIB=ON -DCURL_USE_LIBPSL=OFF
+          cmake -B build 
+            -DPLATFORM_DESKTOP=ON \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DMAC_${{ matrix.arch }}=ON \
+            -DMAC_DOWNLOAD_DYLIB=ON \
+            -DBRLS_UNITY_BUILD=ON \
+            -DCMAKE_UNITY_BUILD_BATCH_SIZE=8 \
+            -DCURL_USE_LIBPSL=OFF
           make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
 
       - name: Name
@@ -567,6 +578,8 @@ jobs:
             -DUSE_SYSTEM_SDL2=ON \
             -DMPV_NO_FB=ON \
             -DCMAKE_BUILD_TYPE=Release \
+            -DBRLS_UNITY_BUILD=ON \
+            -DCMAKE_UNITY_BUILD_BATCH_SIZE=8 \
             -DCMAKE_CXX_FLAGS="-Wno-error=pedantic -Wno-psabi"
           cmake --build build --verbose
           mv build/wiliwili.self build/eboot.bin
