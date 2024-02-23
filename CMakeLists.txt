@@ -195,7 +195,12 @@ add_subdirectory(library)
 
 # Main Target
 program_target(${PROJECT_NAME} "${MAIN_SRC}")
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        CXX_STANDARD 17
+        UNITY_BUILD ${BRLS_UNITY_BUILD}
+)
+set_source_files_properties(wiliwili/source/utils/config_helper.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+set_source_files_properties(wiliwili/source/activity/setting_activity.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 
 # building release file
 if (PLATFORM_DESKTOP)

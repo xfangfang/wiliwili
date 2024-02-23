@@ -15,7 +15,7 @@ class Label;
 }  // namespace brls
 
 class TextBox;
-class SelectorCell;
+class BiliSelectorCell;
 
 class SettingActivity : public brls::Activity {
 public:
@@ -44,21 +44,21 @@ private:
     BRLS_BIND(brls::BooleanCell, btnTls, "setting/network/tls");
     BRLS_BIND(brls::BooleanCell, btnProxy, "setting/network/proxy");
     BRLS_BIND(brls::InputCell, btnProxyInput, "setting/network/input");
-    BRLS_BIND(SelectorCell, selectorLang, "setting/language");
-    BRLS_BIND(SelectorCell, selectorTheme, "setting/ui/theme");
-    BRLS_BIND(SelectorCell, selectorCustomTheme, "setting/custom/theme");
-    BRLS_BIND(SelectorCell, selectorUIScale, "setting/ui/scale");
-    BRLS_BIND(SelectorCell, selectorTexture, "setting/image/texture");
-    BRLS_BIND(SelectorCell, selectorThreads, "setting/image/threads");
-    BRLS_BIND(SelectorCell, selectorKeymap, "setting/keymap");
+    BRLS_BIND(BiliSelectorCell, selectorLang, "setting/language");
+    BRLS_BIND(BiliSelectorCell, selectorTheme, "setting/ui/theme");
+    BRLS_BIND(BiliSelectorCell, selectorCustomTheme, "setting/custom/theme");
+    BRLS_BIND(BiliSelectorCell, selectorUIScale, "setting/ui/scale");
+    BRLS_BIND(BiliSelectorCell, selectorTexture, "setting/image/texture");
+    BRLS_BIND(BiliSelectorCell, selectorThreads, "setting/image/threads");
+    BRLS_BIND(BiliSelectorCell, selectorKeymap, "setting/keymap");
     BRLS_BIND(brls::BooleanCell, btnOpencc, "setting/opencc");
     BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/quality");
     BRLS_BIND(brls::BooleanCell, btnHWDEC, "setting/video/hwdec");
-    BRLS_BIND(SelectorCell, selectorInmemory, "setting/video/inmemory");
-    BRLS_BIND(SelectorCell, selectorFormat, "setting/video/format");
-    BRLS_BIND(SelectorCell, selectorCodec, "setting/video/codec");
-    BRLS_BIND(SelectorCell, selectorQuality, "setting/audio/quality");
-    BRLS_BIND(SelectorCell, selectorFPS, "setting/fps");
+    BRLS_BIND(BiliSelectorCell, selectorInmemory, "setting/video/inmemory");
+    BRLS_BIND(BiliSelectorCell, selectorFormat, "setting/video/format");
+    BRLS_BIND(BiliSelectorCell, selectorCodec, "setting/video/codec");
+    BRLS_BIND(BiliSelectorCell, selectorQuality, "setting/audio/quality");
+    BRLS_BIND(BiliSelectorCell, selectorFPS, "setting/fps");
     BRLS_BIND(TextBox, labelOpensource, "setting/label/opensource");
     BRLS_BIND(brls::BooleanCell, cellHideBar, "cell/hideBottomBar");
     BRLS_BIND(brls::BooleanCell, cellHideFPS, "cell/hideFPS");
