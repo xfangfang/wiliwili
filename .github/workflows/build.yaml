@@ -134,15 +134,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { arch: x86_64, msystem: MINGW64, driver: gl, cmake: "-DMPV_BUNDLE_DLL=ON" }
-          - { arch: x86_64, msystem: MINGW64, driver: d3d, cmake: "-DUSE_D3D11=ON -DMPV_BUNDLE_DLL=ON" }
+          - { arch: x86_64, msystem: MINGW64, driver: gl }
+          - { arch: x86_64, msystem: MINGW64, driver: d3d, cmake: "-DUSE_D3D11=ON" }
           - { arch: x86, msystem: MINGW32, driver: gl, cmake: "-DUSE_GL2=ON" }
           - { arch: x86, msystem: MINGW32, driver: d3d, cmake: "-DUSE_D3D11=ON" }
         arch: [ x86_64, x86 ]
         driver: [gl, d3d]
     env:
       MSYSTEM: ${{ matrix.msystem }}
-      CXXFLAGS: ${{ matrix.cxxflags }}
       MSYS2_PATH_TYPE: inherit
     defaults:
       run:
@@ -191,10 +190,6 @@ jobs:
             -DWEBP_BUILD_EXTRAS=OFF
           cmake --build build
           cmake --install build
-      - name: Copy dll
-        if: matrix.arch == 'x86_64'
-        run: |
-          cp ${MINGW_PREFIX}/bin/libmpv-2.dll resources/
       - name: Build
         run: |
           cmake -B build -G Ninja ${{ matrix.cmake }} \
@@ -207,16 +202,13 @@ jobs:
             -DCURL_USE_LIBSSH2=OFF \
             -DCURL_USE_LIBPSL=OFF \
             -DUSE_LIBROMFS=ON \
-            -DZLIB_USE_STATIC_LIBS=ON
+            -DZLIB_USE_STATIC_LIBS=ON \
+            -DMPV_BUNDLE_DLL=${MINGW_PREFIX}/bin/libmpv-2.dll \
+            -DVERSION_BUILD=${{ github.run_number }}
           cmake --build build
           strip build/wiliwili.exe
           7z a -mx=9 -tzip ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}.zip \
             ./build/wiliwili.exe README.md 
-      - name: Append resources
-        if: matrix.arch == 'x86'
-        run: | 
-          7z a -mx=9 -tzip  ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}.zip \
-            ${MINGW_PREFIX}/bin/libmpv-2.dll
       - name: Upload dist
         uses: actions/upload-artifact@v4
         with:

@@ -25,6 +25,10 @@ BEGIN
     END
 END
 
-IDI_ICON1 ICON DISCARDABLE "${CMAKE_SOURCE_DIR}/wiliwili/wiliwili.ico"
+101 ICON DISCARDABLE "${CMAKE_SOURCE_DIR}/wiliwili/wiliwili.ico"
+
+#ifdef MPV_BUNDLE_DLL
+MPV RCDATA "@MPV_BUNDLE_DLL@"
+#endif 
 
 1 24 "${CMAKE_SOURCE_DIR}/wiliwili/source/resource.manifest"

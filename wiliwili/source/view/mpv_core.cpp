@@ -217,9 +217,14 @@ void MPVCore::on_wakeup(void *self) {
 
 MPVCore::MPVCore() {
 #if defined(MPV_BUNDLE_DLL)
-    auto &dllData = romfs::get("libmpv-2.dll");
-    dll           = MemoryLoadLibrary(dllData.data(), dllData.size());
-    brls::Logger::info("Load libmpv-2.dll, size: {}", dllData.size());
+    HMODULE hModule = ::GetModuleHandle(nullptr);
+    HRSRC hSrc = ::FindResource(hModule, "MPV", RT_RCDATA);
+    HGLOBAL hRes = ::LoadResource(hModule, hSrc);
+    DWORD dwSize = ::SizeofResource(hModule, hSrc);
+    dll = MemoryLoadLibrary(::LockResource(hRes), dwSize);
+    ::FreeResource(hRes);
+    
+    brls::Logger::info("Load libmpv-2.dll, size: {}", dwSize);
 
     mpvSetOptionString     = (mpvSetOptionStringFunc)MemoryGetProcAddress(dll, "mpv_set_option_string");
     mpvObserveProperty     = (mpvObservePropertyFunc)MemoryGetProcAddress(dll, "mpv_observe_property");
