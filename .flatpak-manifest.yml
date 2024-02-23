@@ -137,7 +137,7 @@ modules:
       - -DUSE_SYSTEM_CURL=ON
       - -DUSE_SYSTEM_SDL2=ON
       - -DBRLS_UNITY_BUILD=ON
-      - -DCMAKE_UNITY_BUILD_BATCH_SIZE=12
+      - -DCMAKE_UNITY_BUILD_BATCH_SIZE=16
     builddir: true
     sources:
       - type: dir
