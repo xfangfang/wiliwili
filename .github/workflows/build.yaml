@@ -356,7 +356,7 @@ jobs:
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         id: compile
         run: |
-          cmake -B build 
+          cmake -B build \
             -DPLATFORM_DESKTOP=ON \
             -DCMAKE_BUILD_TYPE=Release \
             -DMAC_${{ matrix.arch }}=ON \
