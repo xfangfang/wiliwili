@@ -36,10 +36,6 @@ on:
         description: 'Unity build'
         required: false
         default: 'ON'
-        type: choice
-        options:
-          - ON
-          - OFF
 
 jobs:
   version:
@@ -280,7 +276,7 @@ jobs:
           fetch-depth: 0
 
       - name: Disable unity build
-        if: inputs.unity_build == 'false' || inputs.unity_build == 'OFF'
+        if: inputs.unity_build != 'ON'
         run: |
           sed -i 's/BRLS_UNITY_BUILD=ON/BRLS_UNITY_BUILD=OFF/' scripts/build_switch${{ matrix.shuffix }}.sh
 
@@ -436,7 +432,7 @@ jobs:
           sed -i 's/USE_GLES2=OFF/USE_GLES2=ON/' .flatpak-manifest.yml
 
       - name: Disable unity build
-        if: ( inputs.unity_build == 'false' || inputs.unity_build == 'OFF' ) && ( matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true') )
+        if: ( inputs.unity_build != 'ON' ) && ( matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true') )
         run: |
           sed -i 's/BRLS_UNITY_BUILD=ON/BRLS_UNITY_BUILD=OFF/' .flatpak-manifest.yml
 
@@ -596,7 +592,7 @@ jobs:
             -DUSE_SYSTEM_SDL2=ON \
             -DMPV_NO_FB=ON \
             -DCMAKE_BUILD_TYPE=Release \
-            -DBRLS_UNITY_BUILD=ON \
+            -DBRLS_UNITY_BUILD=${{ inputs.unity_build }} \
             -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
             -DCMAKE_CXX_FLAGS="-Wno-error=pedantic -Wno-psabi"
           cmake --build build --verbose
