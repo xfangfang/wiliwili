@@ -433,7 +433,12 @@ jobs:
       - name: Add OpenGL ES 2.0 build option
         if: matrix.driver == 'gles2' && ( matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true' ) )
         run: |
-          sed -i "138i \      - '-DUSE_GLES2=ON'" .flatpak-manifest.yml
+          sed -i 's/USE_GLES2=OFF/USE_GLES2=ON/' .flatpak-manifest.yml
+
+      - name: Disable unity build
+        if: ( inputs.unity_build == 'false' || inputs.unity_build == 'OFF' ) && ( matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true') )
+        run: |
+          sed -i 's/BRLS_UNITY_BUILD=ON/BRLS_UNITY_BUILD=OFF/' .flatpak-manifest.yml
 
       - name: Rename package
         if: matrix.arch == 'aarch64'
@@ -454,11 +459,6 @@ jobs:
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
           echo "FLATPAK_NAME=${FLATPAK_NAME}"  >> $GITHUB_OUTPUT
           echo ${FLATPAK_NAME}
-
-      - name: Disable unity build
-        if: inputs.unity_build == 'false' || inputs.unity_build == 'OFF'
-        run: |
-          sed -i 's/BRLS_UNITY_BUILD=ON/BRLS_UNITY_BUILD=OFF/' .flatpak-manifest.yml
 
       - name: Set up QEMU
         id: qemu
