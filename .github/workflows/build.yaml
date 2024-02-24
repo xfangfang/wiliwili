@@ -239,6 +239,9 @@ jobs:
           key: ${{ runner.os }}-xmake
           path: |
             ${{ runner.temp }}/.xmake/packages
+      - name: Disable unity build
+        run: |
+          sed -i 's/batchsize = 16/batchsize = 1/' library/borealis/xmake.lua
       - name: build
         shell: powershell
         env:
