@@ -32,10 +32,10 @@ on:
         description: 'Version'
         required: false
         default: '0.0.0'
-      unity_build:
-        description: 'Unity build'
+      disable_unity_build:
+        description: 'Disable unity build'
         required: false
-        default: true
+        default: false
         type: boolean
 
 jobs:
@@ -207,7 +207,7 @@ jobs:
             -DCURL_USE_LIBSSH2=OFF \
             -DCURL_USE_LIBPSL=OFF \
             -DUSE_LIBROMFS=ON \
-            -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build && 'ON' || 'OFF' }} \
+            -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build && 'OFF' || 'ON' }} \
             -DCMAKE_UNITY_BUILD_BATCH_SIZE=20 \
             -DZLIB_USE_STATIC_LIBS=ON \
             -DMPV_BUNDLE_DLL=${MINGW_PREFIX}/bin/libmpv-2.dll \
@@ -277,7 +277,7 @@ jobs:
           fetch-depth: 0
 
       - name: Disable unity build
-        if: github.event.inputs.unity_build != 'ON'
+        if: ${{ github.event.inputs.disable_unity_build }}
         run: |
           sed -i 's/BRLS_UNITY_BUILD=ON/BRLS_UNITY_BUILD=OFF/' scripts/build_switch${{ matrix.shuffix }}.sh
 
@@ -308,7 +308,7 @@ jobs:
              cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON \
                 -DCMAKE_BUILD_TYPE=Release \
                 -DMPV_NO_FB=ON \
-                -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build && 'ON' || 'OFF' }} \
+                -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build && 'OFF' || 'ON' }} \
                 -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
                 -DUSE_SYSTEM_CPR=ON && \
                 make -C cmake-build-ps4 -j$(nproc)"
@@ -371,7 +371,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DMAC_${{ matrix.arch }}=ON \
             -DMAC_DOWNLOAD_DYLIB=ON \
-            -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build && 'ON' || 'OFF' }} \
+            -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build && 'OFF' || 'ON' }} \
             -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
             -DCURL_USE_LIBPSL=OFF
           make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
@@ -433,7 +433,7 @@ jobs:
           sed -i 's/USE_GLES2=OFF/USE_GLES2=ON/' .flatpak-manifest.yml
 
       - name: Disable unity build
-        if: ( github.event.inputs.unity_build != 'ON' ) && ( matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true') )
+        if: ${{ github.event.inputs.disable_unity_build }} && ( matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true') )
         run: |
           sed -i 's/BRLS_UNITY_BUILD=ON/BRLS_UNITY_BUILD=OFF/' .flatpak-manifest.yml
 
@@ -593,7 +593,7 @@ jobs:
             -DUSE_SYSTEM_SDL2=ON \
             -DMPV_NO_FB=ON \
             -DCMAKE_BUILD_TYPE=Release \
-            -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build && 'ON' || 'OFF' }} \
+            -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build && 'OFF' || 'ON' }} \
             -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
             -DCMAKE_CXX_FLAGS="-Wno-error=pedantic -Wno-psabi"
           cmake --build build --verbose
