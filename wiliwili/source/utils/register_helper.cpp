@@ -70,8 +70,8 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("UpUserSmall", UpUserSmall::create);
     brls::Application::registerXMLView("VideoComment", VideoComment::create);
     brls::Application::registerXMLView("ButtonClose", ButtonClose::create);
-    brls::Application::registerXMLView("CheckBox", CheckBox::create);
-    brls::Application::registerXMLView("SelectorCell", SelectorCell::create);
+    brls::Application::registerXMLView("CheckBox", BiliCheckBox::create);
+    brls::Application::registerXMLView("SelectorCell", BiliSelectorCell::create);
     brls::Application::registerXMLView("AnimationImage", AnimationImage::create);
     brls::Application::registerXMLView("ShareBox", ShareBox::create);
 

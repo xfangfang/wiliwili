@@ -13,7 +13,6 @@
 #include "view/mpv_core.hpp"
 
 #ifdef MPV_BUNDLE_DLL
-#include <romfs/romfs.hpp>
 mpvSetOptionStringFunc mpvSetOptionString;
 mpvObservePropertyFunc mpvObserveProperty;
 mpvCreateFunc mpvCreate;

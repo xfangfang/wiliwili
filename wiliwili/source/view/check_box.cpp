@@ -4,11 +4,11 @@
 
 #include "view/check_box.hpp"
 
-CheckBox::CheckBox() {
+BiliCheckBox::BiliCheckBox() {
     this->registerBoolXMLAttribute("checked", [this](bool value) { this->setChecked(value); });
 }
 
-void CheckBox::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+void BiliCheckBox::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
                     brls::FrameContext* ctx) {
     float corner_radius = getCornerRadius();
     float radius        = std::fmin(width, height) / 2;
@@ -56,8 +56,8 @@ void CheckBox::draw(NVGcontext* vg, float x, float y, float width, float height,
     nvgRestore(vg);
 }
 
-void CheckBox::setChecked(bool value) { this->checked = value; }
+void BiliCheckBox::setChecked(bool value) { this->checked = value; }
 
-bool CheckBox::getChecked() { return this->checked; }
+bool BiliCheckBox::getChecked() { return this->checked; }
 
-brls::View* CheckBox::create() { return new CheckBox(); }
+brls::View* BiliCheckBox::create() { return new BiliCheckBox(); }

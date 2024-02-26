@@ -31,7 +31,7 @@ public:
 
     BRLS_BIND(brls::Label, title, "fav/title");
     BRLS_BIND(brls::Label, subtitle, "fav/subtitle");
-    BRLS_BIND(CheckBox, checkbox, "fav/checkbox");
+    BRLS_BIND(BiliCheckBox, checkbox, "fav/checkbox");
 };
 
 class CollectionDataSourceList : public RecyclingGridDataSource {

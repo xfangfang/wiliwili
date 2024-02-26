@@ -27,7 +27,6 @@
  * auto tab frame
  */
 using namespace brls::literals;
-using namespace brls;
 
 const std::string autoTabFrameContentXML = R"xml(
     <brls:Box
@@ -434,9 +433,9 @@ void AutoTabFrame::clearItems() {
     this->setLastFocusedView(nullptr);
 }
 
-Box* AutoTabFrame::getSidebar() { return this->sidebar; }
+brls::Box* AutoTabFrame::getSidebar() { return this->sidebar; }
 
-View* AutoTabFrame::getActiveTab() { return this->activeTab; }
+brls::View* AutoTabFrame::getActiveTab() { return this->activeTab; }
 
 void AutoTabFrame::focus2Sidebar(View* tabView) {
     AutoTabFrame* frame = dynamic_cast<AutoTabFrame*>(tabView->getParent());
@@ -485,7 +484,7 @@ void AutoTabFrame::setItemActiveTextColor(NVGcolor c) {
     }
 }
 
-void AutoTabFrame::draw(NVGcontext* vg, float x, float y, float width, float height, Style style, FrameContext* ctx) {
+void AutoTabFrame::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx) {
     //todo: 最后绘制刷新按钮
 
     if (this->sidebar && this->sidebar->getChildren().size() == 0) {
@@ -837,7 +836,7 @@ brls::View* AutoSidebarItem::createAttachedView() {
     return this->attachedView;
 }
 
-View* AutoSidebarItem::getView(std::string id) {
+brls::View* AutoSidebarItem::getView(std::string id) {
     View* v = Box::getView(id);
     if (v) return v;
     if (this->attachedView) {
@@ -905,7 +904,7 @@ AutoTabBarStyle AutoSidebarItem::getTabStyle(std::string value) {
     if (enumMap.count(value) > 0)
         return enumMap[value];
     else
-        fatal("Illegal value \"" + value + "\" for AutoSidebarItem attribute \"style\"");
+        brls::fatal("Illegal value \"" + value + "\" for AutoSidebarItem attribute \"style\"");
 }
 
 void AutoSidebarItem::setDefaultBackgroundColor(NVGcolor c) {
@@ -975,7 +974,7 @@ void AttachedView::onShow() {}
 void AttachedView::onHide() {}
 
 void AttachedView::registerTabAction(std::string hintText, enum brls::ControllerButton button,
-                                     brls::ActionListener action, bool hidden, bool allowRepeating, enum Sound sound) {
+                                     brls::ActionListener action, bool hidden, bool allowRepeating, enum brls::Sound sound) {
     this->registerAction(hintText, button, action, hidden, allowRepeating, sound);
     if (this->tab) this->tab->registerAction(hintText, button, action, hidden, allowRepeating, sound);
 }

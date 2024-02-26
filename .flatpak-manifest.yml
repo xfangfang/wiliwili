@@ -135,7 +135,9 @@ modules:
       - -DGLFW_BUILD_WAYLAND=ON
       - -DGLFW_BUILD_X11=ON
       - -DUSE_SYSTEM_CURL=ON
-      - -DUSE_SYSTEM_SDL2=ON
+      - -USE_GLES2=OFF
+      - -DBRLS_UNITY_BUILD=ON
+      - -DCMAKE_UNITY_BUILD_BATCH_SIZE=16
     builddir: true
     sources:
       - type: dir

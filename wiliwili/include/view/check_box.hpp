@@ -11,9 +11,9 @@
 
 #include <borealis/core/view.hpp>
 
-class CheckBox : public brls::View {
+class BiliCheckBox : public brls::View {
 public:
-    CheckBox();
+    BiliCheckBox();
     virtual void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
                       brls::FrameContext* ctx) override;
 

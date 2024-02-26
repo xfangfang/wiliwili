@@ -8,7 +8,7 @@
 #include <borealis/core/bind.hpp>
 
 class ButtonClose;
-class SelectorCell;
+class BiliSelectorCell;
 enum class SettingItem;
 namespace brls {
 class ScrollingFrame;
@@ -76,7 +76,7 @@ private:
     BRLS_BIND(brls::DetailCell, btnPlayStrategy, "setting/play/strategy");
     BRLS_BIND(brls::BooleanCell, btnExitFullscreen, "setting/auto/exit");
     BRLS_BIND(brls::BooleanCell, btnMirror, "setting/video/mirror");
-    BRLS_BIND(SelectorCell, btnAspect, "setting/video/aspect");
+    BRLS_BIND(BiliSelectorCell, btnAspect, "setting/video/aspect");
     BRLS_BIND(brls::BooleanCell, btnHighlight, "setting/video/highlight");
     BRLS_BIND(brls::DetailCell, btnSleep, "setting/sleep");
     BRLS_BIND(brls::BooleanCell, btnSkip, "setting/auto/skip");
@@ -92,7 +92,7 @@ private:
     // bangumi custom setting
     BRLS_BIND(brls::Header, bangumiHeader, "setting/video/custom/header");
     BRLS_BIND(brls::Box, bangumiBox, "setting/video/custom/box");
-    BRLS_BIND(SelectorCell, btnCustomAspect, "setting/video/custom/aspect");
+    BRLS_BIND(BiliSelectorCell, btnCustomAspect, "setting/video/custom/aspect");
     BRLS_BIND(brls::BooleanCell, btnClip, "setting/video/custom/clip");
     BRLS_BIND(brls::InputNumericCell, btnClipStart, "setting/video/custom/clip/start");
     BRLS_BIND(brls::InputNumericCell, btnClipEnd, "setting/video/custom/clip/end");
