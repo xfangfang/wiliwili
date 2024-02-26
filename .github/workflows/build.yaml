@@ -35,7 +35,8 @@ on:
       unity_build:
         description: 'Unity build'
         required: false
-        default: 'ON'
+        default: true
+        type: boolean
 
 jobs:
   version:
@@ -206,7 +207,7 @@ jobs:
             -DCURL_USE_LIBSSH2=OFF \
             -DCURL_USE_LIBPSL=OFF \
             -DUSE_LIBROMFS=ON \
-            -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build }} \
+            -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build && 'ON' || 'OFF' }} \
             -DCMAKE_UNITY_BUILD_BATCH_SIZE=20 \
             -DZLIB_USE_STATIC_LIBS=ON \
             -DMPV_BUNDLE_DLL=${MINGW_PREFIX}/bin/libmpv-2.dll \
@@ -239,9 +240,6 @@ jobs:
           key: ${{ runner.os }}-xmake
           path: |
             ${{ runner.temp }}/.xmake/packages
-      - name: Disable unity build
-        run: |
-          sed -i 's/batchsize = 16/batchsize = 1/' library/borealis/xmake.lua
       - name: build
         shell: powershell
         env:
@@ -310,7 +308,7 @@ jobs:
              cmake -B cmake-build-ps4 -DPLATFORM_PS4=ON \
                 -DCMAKE_BUILD_TYPE=Release \
                 -DMPV_NO_FB=ON \
-                -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build }} \
+                -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build && 'ON' || 'OFF' }} \
                 -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
                 -DUSE_SYSTEM_CPR=ON && \
                 make -C cmake-build-ps4 -j$(nproc)"
@@ -373,7 +371,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DMAC_${{ matrix.arch }}=ON \
             -DMAC_DOWNLOAD_DYLIB=ON \
-            -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build }} \
+            -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build && 'ON' || 'OFF' }} \
             -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
             -DCURL_USE_LIBPSL=OFF
           make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
@@ -595,7 +593,7 @@ jobs:
             -DUSE_SYSTEM_SDL2=ON \
             -DMPV_NO_FB=ON \
             -DCMAKE_BUILD_TYPE=Release \
-            -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build }} \
+            -DBRLS_UNITY_BUILD=${{ github.event.inputs.unity_build && 'ON' || 'OFF' }} \
             -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
             -DCMAKE_CXX_FLAGS="-Wno-error=pedantic -Wno-psabi"
           cmake --build build --verbose
