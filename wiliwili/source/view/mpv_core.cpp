@@ -214,40 +214,53 @@ void MPVCore::on_wakeup(void *self) {
     brls::sync([]() { MPVCore::instance().eventMainLoop(); });
 }
 
+#if defined(MPV_BUNDLE_DLL)
+template <typename Module, typename fnGetProcAddress>
+void initMpvProc(Module dll, fnGetProcAddress pGetProcAddress)
+{
+    mpvSetOptionString     = (mpvSetOptionStringFunc)pGetProcAddress(dll, "mpv_set_option_string");
+    mpvObserveProperty     = (mpvObservePropertyFunc)pGetProcAddress(dll, "mpv_observe_property");
+    mpvCreate              = (mpvCreateFunc)pGetProcAddress(dll, "mpv_create");
+    mpvInitialize          = (mpvInitializeFunc)pGetProcAddress(dll, "mpv_initialize");
+    mpvTerminateDestroy    = (mpvTerminateDestroyFunc)pGetProcAddress(dll, "mpv_terminate_destroy");
+    mpvSetWakeupCallback   = (mpvSetWakeupCallbackFunc)pGetProcAddress(dll, "mpv_set_wakeup_callback");
+    mpvCommandString       = (mpvCommandStringFunc)pGetProcAddress(dll, "mpv_command_string");
+    mpvErrorString         = (mpvErrorStringFunc)pGetProcAddress(dll, "mpv_error_string");
+    mpvWaitEvent           = (mpvWaitEventFunc)pGetProcAddress(dll, "mpv_wait_event");
+    mpvGetProperty         = (mpvGetPropertyFunc)pGetProcAddress(dll, "mpv_get_property");
+    mpvCommandAsync        = (mpvCommandAsyncFunc)pGetProcAddress(dll, "mpv_command_async");
+    mpvGetPropertyString   = (mpvGetPropertyStringFunc)pGetProcAddress(dll, "mpv_get_property_string");
+    mpvFreeNodeContents    = (mpvFreeNodeContentsFunc)pGetProcAddress(dll, "mpv_free_node_contents");
+    mpvSetOption           = (mpvSetOptionFunc)pGetProcAddress(dll, "mpv_set_option");
+    mpvFree                = (mpvFreeFunc)pGetProcAddress(dll, "mpv_free");
+    mpvRenderContextCreate = (mpvRenderContextCreateFunc)pGetProcAddress(dll, "mpv_render_context_create");
+    mpvRenderContextUpdate = (mpvRenderContextUpdateFunc)pGetProcAddress(dll, "mpv_render_context_update");
+    mpvRenderContextFree   = (mpvRenderContextFreeFunc)pGetProcAddress(dll, "mpv_render_context_free");
+    mpvRenderContextRender = (mpvRenderContextRenderFunc)pGetProcAddress(dll, "mpv_render_context_render");
+    mpvRenderContextSetUpdateCallback = (mpvRenderContextSetUpdateCallbackFunc)pGetProcAddress(dll, "mpv_render_context_set_update_callback");
+    mpvRenderContextReportSwap = (mpvRenderContextReportSwapFunc)pGetProcAddress(dll, "mpv_render_context_report_swap");
+}
+#endif
+
 MPVCore::MPVCore() {
 #if defined(MPV_BUNDLE_DLL)
-    HMODULE hModule = ::GetModuleHandle(nullptr);
-    HRSRC hSrc = ::FindResource(hModule, "MPV", RT_RCDATA);
-    HGLOBAL hRes = ::LoadResource(hModule, hSrc);
-    DWORD dwSize = ::SizeofResource(hModule, hSrc);
-    dll = MemoryLoadLibrary(::LockResource(hRes), dwSize);
-    ::FreeResource(hRes);
-    
-    brls::Logger::info("Load libmpv-2.dll, size: {}", dwSize);
+    HMODULE hMpv = ::LoadLibraryW(L"libmpv-2.dll");
+    if (!hMpv) {
+        HRSRC hSrc = ::FindResource(nullptr, "MPV", RT_RCDATA);
+        HGLOBAL hRes = ::LoadResource(nullptr, hSrc);
+        DWORD dwSize = ::SizeofResource(nullptr, hSrc);
+        dll = MemoryLoadLibrary(::LockResource(hRes), dwSize);
+        ::FreeResource(hRes);
+        
+        brls::Logger::info("Load bundled libmpv-2.dll, size: {}", dwSize);
+        initMpvProc(dll, MemoryGetProcAddress);
+    } else {
+        char dllPath[MAX_PATH];
+        ::GetModuleFileNameA(hMpv, dllPath, sizeof(dllPath));
 
-    mpvSetOptionString     = (mpvSetOptionStringFunc)MemoryGetProcAddress(dll, "mpv_set_option_string");
-    mpvObserveProperty     = (mpvObservePropertyFunc)MemoryGetProcAddress(dll, "mpv_observe_property");
-    mpvCreate              = (mpvCreateFunc)MemoryGetProcAddress(dll, "mpv_create");
-    mpvInitialize          = (mpvInitializeFunc)MemoryGetProcAddress(dll, "mpv_initialize");
-    mpvTerminateDestroy    = (mpvTerminateDestroyFunc)MemoryGetProcAddress(dll, "mpv_terminate_destroy");
-    mpvSetWakeupCallback   = (mpvSetWakeupCallbackFunc)MemoryGetProcAddress(dll, "mpv_set_wakeup_callback");
-    mpvCommandString       = (mpvCommandStringFunc)MemoryGetProcAddress(dll, "mpv_command_string");
-    mpvErrorString         = (mpvErrorStringFunc)MemoryGetProcAddress(dll, "mpv_error_string");
-    mpvWaitEvent           = (mpvWaitEventFunc)MemoryGetProcAddress(dll, "mpv_wait_event");
-    mpvGetProperty         = (mpvGetPropertyFunc)MemoryGetProcAddress(dll, "mpv_get_property");
-    mpvCommandAsync        = (mpvCommandAsyncFunc)MemoryGetProcAddress(dll, "mpv_command_async");
-    mpvGetPropertyString   = (mpvGetPropertyStringFunc)MemoryGetProcAddress(dll, "mpv_get_property_string");
-    mpvFreeNodeContents    = (mpvFreeNodeContentsFunc)MemoryGetProcAddress(dll, "mpv_free_node_contents");
-    mpvSetOption           = (mpvSetOptionFunc)MemoryGetProcAddress(dll, "mpv_set_option");
-    mpvFree                = (mpvFreeFunc)MemoryGetProcAddress(dll, "mpv_free");
-    mpvRenderContextCreate = (mpvRenderContextCreateFunc)MemoryGetProcAddress(dll, "mpv_render_context_create");
-    mpvRenderContextUpdate = (mpvRenderContextUpdateFunc)MemoryGetProcAddress(dll, "mpv_render_context_update");
-    mpvRenderContextFree   = (mpvRenderContextFreeFunc)MemoryGetProcAddress(dll, "mpv_render_context_free");
-    mpvRenderContextRender = (mpvRenderContextRenderFunc)MemoryGetProcAddress(dll, "mpv_render_context_render");
-    mpvRenderContextSetUpdateCallback =
-        (mpvRenderContextSetUpdateCallbackFunc)MemoryGetProcAddress(dll, "mpv_render_context_set_update_callback");
-    mpvRenderContextReportSwap =
-        (mpvRenderContextReportSwapFunc)MemoryGetProcAddress(dll, "mpv_render_context_report_swap");
+        brls::Logger::info("Load external `{}`", dllPath);
+        initMpvProc(hMpv, GetProcAddress);
+    }
 #endif
     this->init();
     // Destroy mpv when application exit
