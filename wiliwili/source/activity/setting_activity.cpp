@@ -543,8 +543,7 @@ void SettingActivity::onContentAvailable() {
 #ifdef __PSV__
                            {"0MB (" + "hints/off"_i18n + ")", "5MB", "10MB"},
 #else
-        {"0MB (" + "hints/off"_i18n + ")", "10MB", "20MB", "50MB", "100MB",
-         "200MB", "500MB"},
+        {"0MB (" + "hints/off"_i18n + ")", "10MB", "20MB", "50MB", "100MB"},
 #endif
                            conf.getIntOptionIndex(SettingItem::PLAYER_INMEMORY_CACHE), [](int data) {
                                auto inmemoryOption =

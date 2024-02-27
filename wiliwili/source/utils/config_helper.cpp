@@ -147,16 +147,16 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #else
     {SettingItem::PLAYER_INMEMORY_CACHE,
      {"player_inmemory_cache",
-      {"0MB", "10MB", "20MB", "50MB", "100MB", "200MB", "500MB"},
-      {0, 10, 20, 50, 100, 200, 500},
+      {"0MB", "10MB", "20MB", "50MB", "100MB"},
+      {0, 10, 20, 50, 100},
       1}},
 #endif
     {
         SettingItem::PLAYER_DEFAULT_SPEED,
         {"player_default_speed",
-         {"2.0x", "1.75x", "1.5x", "1.25x", "1.0x", "0.75x", "0.5x"},
-         {200, 175, 150, 125, 100, 75, 50},
-         0},
+         {"4.0x", "3.0x", "2.0x", "1.75x", "1.5x", "1.25x", "1.0x", "0.75x", "0.5x", "0.25x"},
+         {400, 300, 200, 175, 150, 125, 100, 75, 50, 25},
+         2},
     },
     {SettingItem::PLAYER_VOLUME, {"player_volume", {}, {}, 0}},
     {SettingItem::TEXTURE_CACHE_NUM, {"texture_cache_num", {}, {}, 0}},
