@@ -10,6 +10,7 @@
 
 #include "utils/config_helper.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/crash_helper.hpp"
 #include "view/mpv_core.hpp"
 
 #ifdef MPV_BUNDLE_DLL
@@ -428,7 +429,9 @@ void MPVCore::init() {
         mpvTerminateDestroy(mpv);
         brls::fatal("failed to initialize mpv GL context");
     }
-
+#ifdef BOREALIS_USE_D3D11
+    wiliwili::initCrashDump();
+#endif
     brls::Logger::info("MPV Version: {}", mpvGetPropertyString(mpv, "mpv-version"));
     brls::Logger::info("FFMPEG Version: {}", mpvGetPropertyString(mpv, "ffmpeg-version"));
     command_async("set", "audio-client-name", APPVersion::getPackageName());
