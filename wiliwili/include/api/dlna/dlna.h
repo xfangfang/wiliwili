@@ -70,5 +70,12 @@ public:
      */
     std::vector<DlnaRenderer> searchRenderer(int timeout = 5000);
 
+    void stopSearch();
+
     static inline std::set<std::string> rendererList;
+
+private:
+    struct mg_mgr* mgr               = nullptr;
+    struct mg_connection* connection = nullptr;
+    std::atomic_bool running         = false;
 };

@@ -26,7 +26,7 @@ void BilibiliClient::get_live_danmaku_info(int roomid, const std::function<void(
 }
 }  // namespace bilibili
 
-static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_data, void *user_data);
+static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_data);
 
 static void heartbeat_timer(void *param) {
     auto liveDanmaku = static_cast<LiveDanmaku *>(param);
@@ -70,16 +70,13 @@ void LiveDanmaku::connect(int room_id, int64_t uid, const bilibili::LiveDanmakui
 
     // Create and configure Mongoose connection
     this->mgr = new mg_mgr;
-    if (this->mgr == nullptr) {
-        disconnect();
-        return;
-    }
 
     // get_live_s(room_id);
     mg_log_set(MG_LL_NONE);
 
     this->info = info;
     mg_mgr_init(this->mgr);
+    mg_wakeup_init(this->mgr);
 
     std::string host = "ws://" + this->info.host_list[this->info.host_list.size() - 1].host + ":" +
                        std::to_string(this->info.host_list[this->info.host_list.size() - 1].ws_port) + "/sub";
@@ -134,6 +131,10 @@ void LiveDanmaku::disconnect() {
     // Stop Mongoose event loop thread
     connected.store(false, std::memory_order_release);
 
+    // Wakeup the mainloop
+    if (mgr && nc)
+        mg_wakeup(this->mgr, this->nc->id, nullptr, 0);
+
     // Stop Mongoose event loop thread
     if (mongoose_thread.joinable()) {
         mongoose_thread.join();
@@ -185,8 +186,8 @@ void LiveDanmaku::send_text_message(const std::string &message) {
     //暂时不用
 }
 
-static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_data, void *user_data) {
-    LiveDanmaku *liveDanmaku = static_cast<LiveDanmaku *>(user_data);
+static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_data) {
+    auto *liveDanmaku = static_cast<LiveDanmaku *>(nc->fn_data);
     liveDanmaku->ms_ev_ok.store(true, std::memory_order_release);
     if (ev == MG_EV_OPEN) {
         MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
@@ -201,7 +202,7 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_da
     } else if (ev == MG_EV_WS_OPEN) {
         MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         liveDanmaku->send_join_request(liveDanmaku->room_id, liveDanmaku->uid);
-        mg_timer_add(liveDanmaku->mgr, 30000, MG_TIMER_REPEAT, heartbeat_timer, user_data);
+        mg_timer_add(liveDanmaku->mgr, 30000, MG_TIMER_REPEAT, heartbeat_timer, nc->fn_data);
     } else if (ev == MG_EV_WS_MSG) {
         MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         struct mg_ws_message *wm = (struct mg_ws_message *)ev_data;

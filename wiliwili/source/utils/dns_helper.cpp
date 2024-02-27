@@ -16,9 +16,9 @@ struct dns_data {
     uint16_t txnid;
 };
 
-static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *user_data) {
+static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     if (ev == MG_EV_RESOLVE) {
-        auto cb        = *static_cast<std::function<void(const std::string &)> *>(user_data);
+        auto cb        = *static_cast<std::function<void(const std::string &)> *>(nc->fn_data);
         auto &p        = nc->rem.ip;
         std::string ip = nc->rem.is_ip6 ? fmt::format("[{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}]", mg_ntohs(p[0]),
                                                       mg_ntohs(p[1]), mg_ntohs(p[2]), mg_ntohs(p[3]), mg_ntohs(p[4]),
@@ -26,6 +26,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *us
                                         : fmt::format("{}.{}.{}.{}", p[0], p[1], p[2], p[3]);
         cb(ip);
     }
+    (void)ev_data;
 }
 
 void dns_connect_resolved(struct mg_connection *c) {
@@ -41,7 +42,7 @@ static void mg_dns_free(struct dns_data **head, struct dns_data *d) {
 
 static void mg_sendnsreq(struct mg_connection *, struct mg_str *, int, struct mg_dns *, bool);
 
-static void dns_cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
+static void dns_cb(struct mg_connection *c, int ev, void *ev_data) {
     struct dns_data *d, *tmp;
     struct dns_data **head = (struct dns_data **)&c->mgr->active_dns_requests;
     if (ev == MG_EV_POLL) {
@@ -61,7 +62,7 @@ static void dns_cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data
             // MG_VERBOSE(("%s %d", dm.name, dm.resolved));
             for (d = *head; d != NULL; d = tmp) {
                 tmp = d->next;
-                MG_INFO(("d %p %hu %hu", d, d->txnid, dm.txnid));
+                // MG_INFO(("d %p %hu %hu", d, d->txnid, dm.txnid));
                 if (dm.txnid != d->txnid) continue;
                 if (d->c->is_resolving) {
                     if (dm.resolved) {
@@ -93,7 +94,6 @@ static void dns_cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data
             mg_dns_free(head, d);
         }
     }
-    (void)fn_data;
 }
 
 static bool mg_dns_send(struct mg_connection *c, const struct mg_str *name, uint16_t txnid, bool ipv6) {
@@ -191,24 +191,27 @@ DNSHelper::~DNSHelper() { stop(); }
 void DNSHelper::start() {
     if (running.load()) return;
     mg_mgr_init(&mgr);
+    mg_wakeup_init(&mgr);
     this->_setDNSServer(dns4, dns6);
     this->_setDNSTimeout(dnsTimeout);
     running.store(true);
     dnsRequestThread = std::thread([this]() {
         while (running.load()) {
-            mg_mgr_poll(&mgr, 100);
+            mg_mgr_poll(&mgr, 200);
         }
     });
 }
 
 void DNSHelper::stop() {
     running.store(false);
+    // set a random connection id to wake up the socket
+    mg_wakeup(&mgr, 2, nullptr, 0);
     if (dnsRequestThread.joinable()) dnsRequestThread.join();
     mg_mgr_free(&mgr);
 }
 
 struct mg_connection *DNSHelper::resolve(const std::string &url, std::function<void(const std::string &)> callback) {
-    if(!running.load()) start();
+    if (!running.load()) start();
     // todo: dns cache
     return dns_resolve(&mgr, url.c_str(), ev_handler, &callback);
 }
