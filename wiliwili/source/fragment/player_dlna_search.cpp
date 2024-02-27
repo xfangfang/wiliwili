@@ -49,6 +49,7 @@ bool RepeatDuratoinTimer::onUpdate(brls::Time delta) {
 
 void PlayerDlnaSearch::searchStop() {
     running.store(false);
+    UpnpDlna::instance().stopSearch();
     if (dlnaSearchThread.joinable()) dlnaSearchThread.join();
     brls::Logger::debug("PlayerDlnaSearch::searchStop()");
 }
@@ -98,13 +99,11 @@ PlayerDlnaSearch::PlayerDlnaSearch() {
     });
 
     closebtn->registerClickAction([](...) {
-        if (PlayerDlnaSearch::isRunning()) return true;
         brls::Application::popActivity();
         return true;
     });
 
     cancel->registerClickAction([](...) {
-        if (PlayerDlnaSearch::isRunning()) return true;
         brls::Application::popActivity();
         return true;
     });
@@ -118,7 +117,6 @@ PlayerDlnaSearch::PlayerDlnaSearch() {
     btnRefresh->addGestureRecognizer(new brls::TapGestureRecognizer(this));
 
     this->registerAction("hints/back"_i18n, brls::BUTTON_B, [](View* view) {
-        if (PlayerDlnaSearch::isRunning()) return true;
         brls::Application::popActivity();
         return true;
     });

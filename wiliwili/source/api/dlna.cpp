@@ -50,8 +50,8 @@ static std::string Stop =
 
 static const char* s_ssdp_url = "udp://239.255.255.250:1900";
 
-static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data) {
-    MG_DEBUG(("%p got event: %d %p %p", c, ev, ev_data, fn_data));
+static void fn(struct mg_connection* c, int ev, void* ev_data) {
+    MG_DEBUG(("%p got event: %d %p %p", c, ev, ev_data, c->fn_data));
     if (ev == MG_EV_OPEN) {
         //    c->is_hexdumping = 1;
     } else if (ev == MG_EV_RESOLVE) {
@@ -95,24 +95,29 @@ static void sendSearch(void* param) {
 }
 
 std::vector<DlnaRenderer> UpnpDlna::searchRenderer(int timeout) {
-    MG_INFO(("开始SSDP搜索"));
-    struct mg_mgr mgr {};
-    static struct mg_connection* c;
-    mg_mgr_init(&mgr);
-    c = mg_connect(&mgr, s_ssdp_url, fn, nullptr);
-    sendSearch(c);
+    brls::Logger::info("开始SSDP搜索");
+    if (mgr != nullptr) return {};
+    running.store(true);
+    mgr = new struct mg_mgr;
+    mg_mgr_init(mgr);
+    mg_wakeup_init(mgr);
+    connection = mg_connect(mgr, s_ssdp_url, fn, nullptr);
+    sendSearch(connection);
     rendererList.clear();
     auto startTime = std::chrono::system_clock::now();
-    while (true) {
+    while (running) {
         auto nowTime = std::chrono::system_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - startTime);
         if (elapsed.count() >= timeout) {
             break;
         }
-        mg_mgr_poll(&mgr, 200);
+        mg_mgr_poll(mgr, 200);
     }
-    mg_mgr_free(&mgr);
-    MG_INFO(("SSDP搜索结束，开始获取renderer信息"));
+    mg_mgr_free(mgr);
+    delete mgr;
+    mgr = nullptr;
+    connection = nullptr;
+    brls::Logger::info("SSDP搜索结束，开始获取renderer信息");
     std::vector<DlnaRenderer> list;
 
     cpr::MultiPerform multiperform;
@@ -136,8 +141,15 @@ std::vector<DlnaRenderer> UpnpDlna::searchRenderer(int timeout) {
         list.emplace_back(renderer);
     }
 
-    MG_INFO(("renderer信息获取结束"));
+    brls::Logger::info("renderer信息获取结束");
     return list;
+}
+
+void UpnpDlna::stopSearch() {
+    if (!running.load()) return;
+    running.store(false);
+    if (mgr && connection)
+        mg_wakeup(this->mgr, connection->id, nullptr, 0);
 }
 
 void DlnaRenderer::play(const std::string& url, const std::string& title, const std::function<void()>& callback,
