@@ -104,14 +104,12 @@ jobs:
           mv ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak \
             ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak
 
-      - name: Rename exe
+      - name: Package exe
         if: github.event.inputs.release == 'true' && !cancelled()
         run: |
           tree
-          mv ${{ needs.version.outputs.DIST_EXE }}-d3d-x86_64/${{ needs.version.outputs.DIST_EXE }}-d3d-x86_64.zip \
-             ${{ needs.version.outputs.DIST_EXE }}-x86_64.zip
-          mv ${{ needs.version.outputs.DIST_EXE }}-d3d-x86/${{ needs.version.outputs.DIST_EXE }}-d3d-x86.zip \
-             ${{ needs.version.outputs.DIST_EXE }}-x86.zip
+          zip -r -9 ${{ needs.version.outputs.DIST_EXE }}-x86_64.zip ${{ needs.version.outputs.DIST_EXE }}-d3d-x86_64
+          zip -r -9 ${{ needs.version.outputs.DIST_EXE }}-x86.zip ${{ needs.version.outputs.DIST_EXE }}-d3d-x86
 
       - name: Upload Release
         if: github.event.inputs.release == 'true' && !cancelled()
@@ -161,10 +159,13 @@ jobs:
         run: |
           pacman -S --needed --noconfirm --noprogressbar \
             ${MINGW_PACKAGE_PREFIX}-gcc \
-            ${MINGW_PACKAGE_PREFIX}-ninja
+            ${MINGW_PACKAGE_PREFIX}-ninja unzip
 
           curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.36.0-4-any.pkg.tar.zst
           pacman -U --noconfirm *.pkg.tar.zst
+
+          curl -LO https://github.com/rainers/cv2pdb/releases/download/v0.52/cv2pdb-0.52.zip
+          unzip cv2pdb-0.52.zip cv2pdb64.exe -d /usr/bin
       - if: matrix.arch == 'x86'
         name: Config Editbin
         shell: powershell
@@ -198,7 +199,7 @@ jobs:
       - name: Build
         run: |
           cmake -B build -G Ninja ${{ matrix.cmake }} \
-            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DPLATFORM_DESKTOP=ON \
             -DWIN32_TERMINAL=OFF \
             -DCURL_DISABLE_PROGRESS_METER=ON \
@@ -213,14 +214,16 @@ jobs:
             -DMPV_BUNDLE_DLL=${MINGW_PREFIX}/bin/libmpv-2.dll \
             -DVERSION_BUILD=${{ github.run_number }}
           cmake --build build
-          strip build/wiliwili.exe
-          7z a -mx=9 -tzip ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}.zip \
-            ./build/wiliwili.exe README.md 
+          cv2pdb64 build/wiliwili.exe
+          cp -a README.md build
       - name: Upload dist
         uses: actions/upload-artifact@v4
         with:
           name: ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}
-          path: "${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}.zip"
+          path: |
+            build/wiliwili.exe
+            build/wiliwili.pdb
+            build/README.md
 
   build-win-uwp:
     needs: [ version ]
