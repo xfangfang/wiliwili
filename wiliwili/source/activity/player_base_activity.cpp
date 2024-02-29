@@ -252,12 +252,6 @@ void BasePlayerActivity::setCommonData() {
                              return true;
                          });
 
-    // 暂停
-    this->registerAction("toggle", brls::ControllerButton::BUTTON_SPACE, [this](...) -> bool {
-        this->video->togglePlay();
-        return true;
-    }, true);
-
     this->btnQR->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnQR->getParent()));
 
     this->btnAgree->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnAgree->getParent()));

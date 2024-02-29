@@ -137,6 +137,12 @@ VideoView::VideoView() {
         },
         true, true);
 
+    // 暂停
+    this->registerAction("toggle", brls::ControllerButton::BUTTON_SPACE, [this](...) -> bool {
+        this->togglePlay();
+        return true;
+    }, true);
+
     this->registerAction(
         "volumeDown", brls::ControllerButton::BUTTON_NAV_DOWN,
         [this](brls::View* view) -> bool {
