@@ -57,6 +57,16 @@ VideoProgressSlider::VideoProgressSlider() {
 
     pointer->registerAction("right", brls::BUTTON_NAV_RIGHT, [this](...) { return pointerSelected; }, true, true);
 
+    pointer->registerAction("up", brls::BUTTON_NAV_UP, [this](...) {
+        if (pointerSelected) pointer->shakeHighlight(brls::FocusDirection::UP);
+        return pointerSelected;
+    }, true, true);
+
+    pointer->registerAction("down", brls::BUTTON_NAV_DOWN, [this](...) {
+        if (pointerSelected) pointer->shakeHighlight(brls::FocusDirection::DOWN);
+        return pointerSelected;
+    }, true, true);
+
     pointer->registerAction("cancel", brls::BUTTON_B, [this](...) {
         if (!pointerSelected) return false;
         pointerSelected       = false;
