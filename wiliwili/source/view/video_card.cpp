@@ -418,6 +418,10 @@ void RecyclingGridItemRelatedVideoCard::setCard(std::string pic, std::string tit
     this->labelDuration->setText(rightBottomBadge);
 }
 
+void RecyclingGridItemRelatedVideoCard::setCharging(bool value) {
+    boxCharging-> setVisibility(value ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
+}
+
 /// 相关番剧卡片
 
 RecyclingGridItemSeasonSeriesVideoCard::RecyclingGridItemSeasonSeriesVideoCard() {

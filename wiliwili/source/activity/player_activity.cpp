@@ -39,6 +39,7 @@ public:
         bilibili::UserUploadedVideoResult& r = this->list[index];
         item->setCard(r.pic + ImageHelper::h_ext, r.title, r.author + " · " + wiliwili::sec2TimeDate(r.created),
                       r.play == -1 ? "-" : wiliwili::num2w(r.play), wiliwili::num2w(r.video_review), r.length);
+        item->setCharging(r.is_charging_arc);
         return item;
     }
 

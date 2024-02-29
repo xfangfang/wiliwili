@@ -91,12 +91,16 @@ public:
     std::string length;
     unsigned int aid;
     std::string bvid;
+    bool is_charging_arc; // 充电专属视频
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j, UserUploadedVideoResult& nlohmann_json_t) {
     if (nlohmann_json_j.at("play").is_number()) {
         nlohmann_json_j.at("play").get_to(nlohmann_json_t.play);
     } else {
         nlohmann_json_t.play = -1;
+    }
+    if (nlohmann_json_j.contains("is_charging_arc")) {
+        nlohmann_json_j.at("is_charging_arc").get_to(nlohmann_json_t.is_charging_arc);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, comment, pic, description, copyright, title,
                                              video_review, author, mid, created, length, aid, bvid));

@@ -227,6 +227,11 @@ public:
     void setCard(std::string pic, std::string title, std::string username, std::string playCount,
                  std::string danmakuCount, std::string rightBottomBadge = "");
 
+    /**
+     * 设置是否显示充电图标
+     */
+    void setCharging(bool value);
+
     static RecyclingGridItemRelatedVideoCard* create();
 
 private:
@@ -236,6 +241,7 @@ private:
     BRLS_BIND(brls::Label, labelDanmaku, "video/card/label/danmaku");
     BRLS_BIND(brls::Label, labelDuration, "video/card/label/duration");
     BRLS_BIND(brls::Box, boxPic, "video/card/pic_box");
+    BRLS_BIND(brls::Box, boxCharging, "video/card/box/charging");
 };
 
 class RecyclingGridItemSeasonSeriesVideoCard : public BaseVideoCard {
