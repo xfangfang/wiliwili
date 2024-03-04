@@ -689,7 +689,10 @@ void BasePlayerActivity::onError(const std::string& error) {
     MPVCore::instance().reset();
     bool forceClose = true;
     std::string msg = error;
-    if (pystring::count(error, "10403") > 0) {
+    if (pystring::count(error, "87007") > 0 || pystring::count(error, "87008") > 0) {
+        forceClose = false;
+        msg        = "该视频为「充电」专属视频";
+    } else if (pystring::count(error, "10403") > 0) {
         forceClose = false;
         msg        = "大会员专享限制";
     } else if (pystring::count(error, "404") > 0) {

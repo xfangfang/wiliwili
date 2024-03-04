@@ -168,6 +168,7 @@
                 focusRight="video/osd/icon/box"
                 hideHighlightBackground="true"
                 highlightCornerRadius="100"
+                hideClickAnimation="true"
                 alignItems="center"
                 justifyContent="center"
                 marginLeft="20"
@@ -320,6 +321,7 @@
                     </brls:Box>
                     <brls:Box
                             id="video/osd/fullscreen"
+                            hideClickAnimation="true"
                             alignItems="center"
                             justifyContent="center"
                             height="60"

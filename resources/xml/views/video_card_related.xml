@@ -43,6 +43,7 @@
                 width="84"
                 height="20"
                 cornerRadius="4"
+                visibility="gone"
                 backgroundColor="@theme/color/bilibili">
             <SVGImage
                     marginTop="2"

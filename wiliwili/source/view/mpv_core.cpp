@@ -1071,7 +1071,11 @@ void MPVCore::setUrl(const std::string &url, const std::string &extra, const std
     if (extra.empty()) {
         command_async("loadfile", url, method);
     } else {
+#if MPV_CLIENT_API_VERSION < MPV_MAKE_VERSION(2, 3)
         command_async("loadfile", url, method, extra);
+#else
+        command_async("loadfile", url, method, "0", extra);
+#endif
     }
 }
 
