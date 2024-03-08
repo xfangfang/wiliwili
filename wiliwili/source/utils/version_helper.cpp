@@ -10,6 +10,7 @@
 #include <borealis/core/application.hpp>
 #include <borealis/core/thread.hpp>
 #include <borealis/views/dialog.hpp>
+#include <borealis/platforms/desktop/steam_deck.hpp>
 
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
@@ -39,7 +40,7 @@ std::string APPVersion::getPlatform() {
 #elif defined(PS4)
     return "PS4";
 #elif defined(__linux__)
-    if (getenv("SteamDeck")) return "SteamDeck";
+    if (brls::isSteamDeck()) return "SteamDeck";
     return "Linux";
 #elif defined(__WINRT__)
     return "UWP";
