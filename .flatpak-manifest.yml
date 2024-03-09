@@ -19,7 +19,7 @@ finish-args:
   # xdg-open
   - --talk-name=org.freedesktop.portal.Desktop
   # control steam client
-  - --filesystem=~/.steam/steam.pipe
+  - --filesystem=~/.steam
 cleanup-commands:
   - mkdir -p /app/lib/ffmpeg
 cleanup:
