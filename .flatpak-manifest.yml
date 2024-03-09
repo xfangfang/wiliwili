@@ -16,6 +16,10 @@ finish-args:
   - --talk-name=org.freedesktop.PowerManagement
   - --talk-name=org.gnome.SessionManager
   - --talk-name=org.mate.SessionManager
+  # xdg-open
+  - --talk-name=org.freedesktop.portal.Desktop
+  # control steam client
+  - --filesystem=home/.steam/steam.pipe
 cleanup-commands:
   - mkdir -p /app/lib/ffmpeg
 cleanup:
