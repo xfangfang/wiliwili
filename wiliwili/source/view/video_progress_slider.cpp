@@ -68,15 +68,7 @@ VideoProgressSlider::VideoProgressSlider() {
     }, true, true);
 
     pointer->registerAction("cancel", brls::BUTTON_B, [this](...) {
-        if (!pointerSelected) return false;
-        pointerSelected       = false;
-        ignoreProgressSetting = false;
-        pointer->setHideHighlightBackground(true);
-        this->progress = lastProgress;
-        if (this->progress < 0) this->progress = 0;
-        if (this->progress > 1) this->progress = 1;
-        updateUI();
-        return true;
+        return cancelPointerChange();
     });
 
     addView(pointer);
@@ -236,4 +228,23 @@ void VideoProgressSlider::buttonsProcessing() {
         (progress > 0.01f && progress < 0.99f)) {
         repeat = false;
     }
+}
+
+void VideoProgressSlider::onChildFocusLost(brls::View* directChild, brls::View* focusedView) {
+    Box::onChildFocusLost(directChild, focusedView);
+    if (directChild == pointer) {
+        cancelPointerChange();
+    }
+}
+
+bool VideoProgressSlider::cancelPointerChange() {
+    if (!pointerSelected) return false;
+    pointerSelected       = false;
+    ignoreProgressSetting = false;
+    pointer->setHideHighlightBackground(true);
+    this->progress = lastProgress;
+    if (this->progress < 0) this->progress = 0;
+    if (this->progress > 1) this->progress = 1;
+    updateUI();
+    return true;
 }

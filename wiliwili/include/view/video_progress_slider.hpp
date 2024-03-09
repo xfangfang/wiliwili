@@ -28,6 +28,8 @@ public:
 
     brls::View* getDefaultFocus() override;
 
+    void onChildFocusLost(brls::View* directChild, brls::View* focusedView) override;
+
     void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
               brls::FrameContext* ctx) override;
 
@@ -73,4 +75,5 @@ private:
 
     void buttonsProcessing();
     void updateUI();
+    bool cancelPointerChange();
 };
