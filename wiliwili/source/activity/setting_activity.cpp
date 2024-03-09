@@ -29,6 +29,10 @@
 #include "borealis/platforms/desktop/desktop_platform.hpp"
 #endif
 
+#ifdef __linux__
+#include "borealis/platforms/desktop/steam_deck.hpp"
+#endif
+
 using namespace brls::literals;
 
 const std::string OPENSOURCE =
@@ -191,6 +195,11 @@ void SettingActivity::onContentAvailable() {
         p->openBrowser(ProgramConfig::instance().getConfigDir());
         return true;
     });
+#ifdef __linux__
+    if (brls::isSteamDeck()) {
+        btnOpenConfig->setVisibility(brls::Visibility::GONE);
+    }
+#endif
 #else
     btnOpenConfig->setVisibility(brls::Visibility::GONE);
 #endif
