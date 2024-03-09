@@ -99,8 +99,8 @@ private:
 
     unsigned int seasonId{};
 
-    // 获取需要现实的倒计时关闭字符串
-    static inline std::string getCountdown(size_t now);
+    // 更新倒计时
+    void updateCountdown(size_t now);
 
     void setupEqualizerSetting(brls::SliderCell* cell, const std::string& title, SettingItem item, int initValue);
 

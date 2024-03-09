@@ -229,7 +229,7 @@ void PlayerSetting::setupCommonSetting() {
 
     /// Auto Sleep
     btnSleep->setText("wiliwili/setting/app/playback/sleep"_i18n);
-    btnSleep->setDetailText(getCountdown(wiliwili::getUnixTime()));
+    updateCountdown(wiliwili::getUnixTime());
     btnSleep->registerClickAction([this](View* view) {
         std::vector<int> timeList           = {15, 30, 60, 90, 120};
         std::string min                     = "wiliwili/home/common/min"_i18n;
@@ -250,7 +250,7 @@ void PlayerSetting::setupCommonSetting() {
                     MPVCore::CLOSE_TIME = wiliwili::getUnixTime() + timeList[data] * 60;
                     GA("player_setting", {{"sleep", timeList[data]}});
                 }
-                btnSleep->setDetailText(getCountdown(wiliwili::getUnixTime()));
+                updateCountdown(wiliwili::getUnixTime());
             },
             -1);
         return true;
@@ -393,16 +393,18 @@ void PlayerSetting::draw(NVGcontext* vg, float x, float y, float width, float he
     size_t now               = wiliwili::getUnixTime();
     if (now != updateTime) {
         updateTime = now;
-        btnSleep->detail->setText(getCountdown(now));
+        updateCountdown(now);
     }
     Box::draw(vg, x, y, width, height, style, ctx);
 }
 
-std::string PlayerSetting::getCountdown(size_t now) {
+void PlayerSetting::updateCountdown(size_t now) {
     if (MPVCore::CLOSE_TIME == 0 || now > MPVCore::CLOSE_TIME) {
-        return "hints/off"_i18n;
+        btnSleep->setDetailTextColor(brls::Application::getTheme()["brls/text_disabled"]);
+        btnSleep->setDetailText("hints/off"_i18n);
     } else {
-        return wiliwili::sec2Time(MPVCore::CLOSE_TIME - now);
+        btnSleep->setDetailTextColor(brls::Application::getTheme()["brls/list/listItem_value_color"]);
+        btnSleep->setDetailText(wiliwili::sec2Time(MPVCore::CLOSE_TIME - now));
     }
 }
 
