@@ -29,11 +29,6 @@ cleanup:
   - /man
   - /share/man
   - /share/gtk-doc
-add-extensions:
-  org.freedesktop.Platform.ffmpeg-full:
-    directory: lib/ffmpeg
-    version: '23.08'
-    add-ld-path: .
 
 modules:
 
@@ -127,6 +122,41 @@ modules:
             x-checker-data:
               type: git
               tag-pattern: ^v([\d.]+)$
+
+      - name: ffmpeg
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+          - /share/ffmpeg/examples
+        config-opts:
+          - --disable-debug
+          - --enable-shared
+          - --disable-static
+          - --enable-gnutls
+          - --enable-gpl
+          - --disable-doc
+          - --disable-programs
+          - --disable-encoders
+          - --disable-muxers
+          - --enable-encoder=png
+          - --enable-libdav1d
+          - --enable-libfontconfig
+          - --enable-libfreetype
+          - --enable-libopus
+          - --enable-librsvg
+          - --enable-libvpx
+          - --enable-libmp3lame
+
+        sources:
+          - type: git
+            url: https://github.com/FFmpeg/FFmpeg.git
+            mirror-urls:
+              - https://git.ffmpeg.org/ffmpeg.git
+            commit: e38092ef9395d7049f871ef4d5411eb410e283e0
+            tag: n6.1.1
+            x-checker-data:
+              type: git
+              tag-pattern: ^n([\d.]{3,7})$
 
   - name: wiliwili
     buildsystem: cmake-ninja
