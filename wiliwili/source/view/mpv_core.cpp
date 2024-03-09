@@ -351,7 +351,6 @@ void MPVCore::init() {
 #endif
     // 过低的值可能导致部分直播流无法正确播放
     mpvSetOptionString(mpv, "demuxer-lavf-analyzeduration", "0.4");
-    mpvSetOptionString(mpv, "demuxer-lavf-probe-info", "nostreams");
     mpvSetOptionString(mpv, "demuxer-lavf-probescore", "24");
 
     // log
