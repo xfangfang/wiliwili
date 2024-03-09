@@ -18,6 +18,7 @@ finish-args:
   - --talk-name=org.mate.SessionManager
   # xdg-open
   - --talk-name=org.freedesktop.portal.Desktop
+  - --talk-name=org.freedesktop.FileManager1
   # control steam client
   - --filesystem=~/.steam
 cleanup-commands:
