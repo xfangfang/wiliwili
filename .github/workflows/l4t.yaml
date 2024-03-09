@@ -7,24 +7,27 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-l4t:
+  build-deb:
+    strategy:
+      fail-fast: false
+      matrix:
+        release: [ switchroot-bionic ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout wiliwili
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Build docker
-        run: docker build -t ubuntu:l4t scripts/l4t
+        run: docker build -t build:${{ matrix.release }} scripts/deb/${{ matrix.release }}
       - name: Build wiliwili
-        run: docker run --rm -u $(id -u):$(id -g) -v $PWD:/opt -w /opt ubuntu:l4t bash scripts/l4t/build.sh
+        run: docker run --rm -u $(id -u):$(id -g) -v $PWD:/opt build:${{ matrix.release }} bash /opt/scripts/deb/${{ matrix.release }}/build.sh
       - name: Upload dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: wiliwili-Linux-aarch64-switchroot-ubuntu
+          name: wiliwili-Linux-${{ matrix.release }}
           path: wiliwili-*.deb
-      
 

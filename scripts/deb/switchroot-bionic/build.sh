@@ -12,14 +12,16 @@ git clone https://github.com/curl/curl.git --depth=1 --branch=curl-8_5_0 /tmp/cu
 
 cd /opt/library/borealis/library/lib/extern/glfw
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
-  -DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
+  -DCMAKE_INSTALL_RPATH=$CMAKE_PREFIX_PATH/lib -DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_WAYLAND=OFF \
+  -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
 cmake --build build -j$(nproc)
 cmake --install build
 
 cd /tmp/curl
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
-  -DBUILD_SHARED_LIBS=ON -DCURL_USE_OPENSSL=ON -DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON \
-  -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DUSE_LIBIDN2=OFF -DCURL_USE_LIBSSH2=OFF -DCURL_USE_LIBPSL=OFF
+  -DCMAKE_INSTALL_RPATH=$CMAKE_PREFIX_PATH/lib -DBUILD_SHARED_LIBS=ON -DCURL_USE_OPENSSL=ON \
+  -DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF \
+  -DUSE_LIBIDN2=OFF -DCURL_USE_LIBSSH2=OFF -DCURL_USE_LIBPSL=OFF -DBUILD_LIBCURL_DOCS=OFF
 cmake --build build -j$(nproc)
 cmake --install build
 
@@ -28,11 +30,11 @@ cd /tmp/ffmpeg
   --extra-cflags='-march=armv8-a+simd+crypto+crc -mtune=cortex-a57 -I/usr/src/jetson_multimedia_api/include' \
   --extra-ldflags='-L/usr/lib/aarch64-linux-gnu/tegra' \
   --extra-libs='-lpthread -lm -lnvbuf_utils -lv4l2' \
-  --ld=g++ --enable-nonfree --enable-openssl --enable-libv4l2 \
-  --enable-opengl --enable-nvv4l2 --disable-doc --enable-asm \
-  --enable-neon --enable-zlib --enable-demuxer=hls --disable-avdevice \
+  --ld=g++ --enable-nonfree --enable-openssl --enable-libv4l2 --enable-nvv4l2 \
+  --enable-opengl --disable-doc --enable-asm --enable-neon --disable-debug \
+  --enable-libass --enable-demuxer=hls --disable-muxers --disable-avdevice \
   --disable-protocols --enable-protocol='file,http,tcp,rtmp,hls,https,tls' \
-  --disable-encoders --disable-programs --disable-doc --enable-rpath
+  --disable-encoders --disable-programs --enable-rpath
 make -j$(nproc)
 make install
 
@@ -43,15 +45,16 @@ LIBDIR=$CMAKE_PREFIX_PATH/lib RPATH=$CMAKE_PREFIX_PATH/lib ./waf configure --pre
 ./waf install
 
 cd /opt
+mkdir -p /tmp/deb/DEBIAN /tmp/deb/usr /tmp/deb/opt/wiliwili/lib
+
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH -DPLATFORM_DESKTOP=ON \
   -DUSE_SYSTEM_CURL=ON -DUSE_SYSTEM_GLFW=ON -DHOMEBREW_MPV=$CMAKE_PREFIX_PATH \
   -DINSTALL=ON -DCUSTOM_RESOURCES_DIR=$CMAKE_PREFIX_PATH -DCMAKE_INSTALL_RPATH=$CMAKE_PREFIX_PATH/lib
 cmake --build build -j$(nproc)
-mkdir -p /tmp/deb/usr /tmp/deb/opt/wiliwili/lib
 DESTDIR="/tmp/deb" cmake --install build
 
-cp -r /opt/wiliwili/lib/*.so.* /tmp/deb/opt/wiliwili/lib
-cp -r scripts/l4t/DEBIAN /tmp/deb
+cp -d /opt/wiliwili/lib/*.so.* /tmp/deb/opt/wiliwili/lib
 mv /tmp/deb/opt/wiliwili/share /tmp/deb/usr
 sed -i 's|Exec=wiliwili|Exec=/opt/wiliwili/bin/wiliwili|' /tmp/deb/usr/share/applications/cn.xfangfang.wiliwili.desktop
+cp scripts/deb/switchroot-bionic/control /tmp/deb/DEBIAN
 dpkg --build /tmp/deb wiliwili-Linux-aarch64-switchroot-ubuntu.deb
