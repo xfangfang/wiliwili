@@ -21,6 +21,8 @@ DLNAActivity::DLNAActivity() {
     GA("open_dlna")
 
     MPVCore::instance().reset();
+    MPVCore::instance().setAspect(
+        ProgramConfig::instance().getSettingItem(SettingItem::PLAYER_ASPECT, std::string{"-1"}));
 
     ip = brls::Application::getPlatform()->getIpAddress();
     ip = GET_SETTING(SettingItem::DLNA_IP, ip);

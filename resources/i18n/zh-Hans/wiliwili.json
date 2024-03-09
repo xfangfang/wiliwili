@@ -355,6 +355,8 @@
       },
       "aspect": {
         "header": "视频比例",
+        "crop": "填充",
+        "stretch": "拉伸",
         "auto": "自动"
       },
       "shader": {

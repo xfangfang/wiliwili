@@ -164,6 +164,9 @@ void LiveActivity::setVideoQuality() {
 void LiveActivity::onContentAvailable() {
     brls::Logger::debug("LiveActivity: onContentAvailable");
 
+    MPVCore::instance().setAspect(
+        ProgramConfig::instance().getSettingItem(SettingItem::PLAYER_ASPECT, std::string{"-1"}));
+
     this->video->registerAction("", brls::BUTTON_B, [this](...) {
         if (this->video->isOSDLock()) {
             this->video->toggleOSD();

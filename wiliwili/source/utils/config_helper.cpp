@@ -85,7 +85,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::HOME_WINDOW_STATE, {"home_window_state", {}, {}, 0}},
     {SettingItem::DLNA_IP, {"dlna_ip", {}, {}, 0}},
     {SettingItem::DLNA_NAME, {"dlna_name", {}, {}, 0}},
-    {SettingItem::PLAYER_ASPECT, {"player_aspect", {"-1", "4:3", "16:9"}, {}, 0}},
+    {SettingItem::PLAYER_ASPECT, {"player_aspect", {"-1", "-2", "-3", "4:3", "16:9"}, {}, 0}},
     {SettingItem::HTTP_PROXY, {"http_proxy", {}, {}, 0}},
     {SettingItem::DANMAKU_STYLE_FONT, {"danmaku_style_font", {"stroke", "incline", "shadow", "pure"}, {}, 0}},
 
@@ -145,12 +145,12 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 /// number
 #if defined(__PSV__)
     {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {"0MB", "5MB", "10MB"}, {0, 5, 10}, 0}},
+#elif defined(__SWITCH__)
+    {SettingItem::PLAYER_INMEMORY_CACHE,
+     {"player_inmemory_cache", {"0MB", "10MB", "20MB", "50MB", "100MB"}, {0, 10, 20, 50, 100}, 0}},
 #else
     {SettingItem::PLAYER_INMEMORY_CACHE,
-     {"player_inmemory_cache",
-      {"0MB", "10MB", "20MB", "50MB", "100MB"},
-      {0, 10, 20, 50, 100},
-      1}},
+     {"player_inmemory_cache", {"0MB", "10MB", "20MB", "50MB", "100MB"}, {0, 10, 20, 50, 100}, 1}},
 #endif
     {
         SettingItem::PLAYER_DEFAULT_SPEED,
@@ -235,11 +235,6 @@ void ProgramConfig::setProgramConfig(const ProgramConfig& conf) {
     this->refreshToken  = conf.refreshToken;
     this->searchHistory = conf.searchHistory;
     this->seasonCustom  = conf.seasonCustom;
-    brls::Logger::info("client: {}/{}", conf.client, conf.device);
-    for (const auto& c : conf.cookie) {
-        brls::Logger::info("cookie: {}:{}", c.first, c.second);
-    }
-    brls::Logger::info("refreshToken: {}", conf.refreshToken);
     brls::Logger::info("setting: {}", conf.setting.dump());
 }
 
@@ -586,7 +581,9 @@ void ProgramConfig::load() {
     brls::Application::getWindowCreationDoneEvent()->subscribe([this]() {
         // 初始化弹幕字体
         std::string danmakuFont = getConfigDir() + "/danmaku.ttf";
-        if (access(danmakuFont.c_str(), F_OK) != -1 && brls::Application::loadFontFromFile("danmaku", danmakuFont)) {
+        // 只在应用模式下加载自定义字体 减少switch上的内存占用
+        if (brls::Application::getPlatform()->isApplicationMode() && access(danmakuFont.c_str(), F_OK) != -1 &&
+            brls::Application::loadFontFromFile("danmaku", danmakuFont)) {
             // 自定义弹幕字体
             int danmakuFontId = brls::Application::getFont("danmaku");
             nvgAddFallbackFontId(brls::Application::getNVGContext(), danmakuFontId,
@@ -771,10 +768,6 @@ void ProgramConfig::init() {
         diskCookie,
         [](const Cookie& newCookie, const std::string& token) {
             brls::Logger::info("======== write cookies to disk");
-            for (const auto& c : newCookie) {
-                brls::Logger::info("cookie: {}:{}", c.first, c.second);
-            }
-            brls::Logger::info("refreshToken: {}", token);
             ProgramConfig::instance().setCookie(newCookie);
             ProgramConfig::instance().setRefreshToken(token);
             // 用户登录后，将默认清晰度设置为 1080P 60FPS

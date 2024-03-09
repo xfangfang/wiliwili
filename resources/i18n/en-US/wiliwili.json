@@ -355,6 +355,8 @@
       },
       "aspect": {
         "header": "Video aspect",
+        "crop": "Crop",
+        "stretch": "Stretch",
         "auto": "Auto"
       },
       "shader": {

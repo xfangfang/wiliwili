@@ -297,11 +297,6 @@ void MPVCore::init() {
     mpvSetOptionString(mpv, "hr-seek", "yes");
     mpvSetOptionString(mpv, "reset-on-next-file", "speed,pause");
 
-    if (MPVCore::VIDEO_ASPECT != "-1") {
-        mpvSetOptionString(mpv, "video-aspect-override", MPVCore::VIDEO_ASPECT.c_str());
-        video_aspect = aspectConverter(MPVCore::VIDEO_ASPECT);
-    }
-
     mpvSetOption(mpv, "brightness", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_BRIGHTNESS);
     mpvSetOption(mpv, "contrast", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_CONTRAST);
     mpvSetOption(mpv, "saturation", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_SATURATION);
@@ -1060,6 +1055,7 @@ void MPVCore::reset() {
     this->playback_time  = 0;
     this->video_progress = 0;
     this->mpv_error_code = 0;
+    this->video_aspect   = aspectConverter(MPVCore::VIDEO_ASPECT);
 
     // 软硬解切换后应该手动设置一次渲染尺寸
     // 切换视频前设置渲染尺寸可以顺便将上一条视频的最后一帧画面清空
@@ -1123,7 +1119,22 @@ void MPVCore::setSpeed(double value) {
 void MPVCore::setAspect(const std::string &value) {
     MPVCore::VIDEO_ASPECT = value;
     video_aspect          = aspectConverter(MPVCore::VIDEO_ASPECT);
-    command_async("set", "video-aspect-override", MPVCore::VIDEO_ASPECT);
+    if (value == "-2") {
+        // 拉伸全屏
+        command_async("set", "keepaspect", "no");
+        command_async("set", "video-aspect-override", "-1");
+        command_async("set", "panscan", "0.0");
+    } else if (value == "-3") {
+        // 裁剪填充
+        command_async("set", "keepaspect", "yes");
+        command_async("set", "video-aspect-override", "-1");
+        command_async("set", "panscan", "1.0");
+    } else {
+        // 指定比例
+        command_async("set", "keepaspect", "yes");
+        command_async("set", "video-aspect-override", MPVCore::VIDEO_ASPECT);
+        command_async("set", "panscan", "0.0");
+    }
 }
 
 void MPVCore::setBrightness(int value) {
