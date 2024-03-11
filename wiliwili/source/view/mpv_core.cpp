@@ -358,9 +358,9 @@ void MPVCore::init() {
     // mpvSetOptionString(mpv, "msg-level", "all=no");
     if (MPVCore::TERMINAL) {
         mpvSetOptionString(mpv, "terminal", "yes");
-#ifdef _DEBUG
-        mpvSetOptionString(mpv, "msg-level", "all=v");
-#endif
+        if ( brls::Logger::getLogLevel() >= brls::LogLevel::LOG_DEBUG ) {
+            mpvSetOptionString(mpv, "msg-level", "all=v");
+        }
     }
 
     if (mpvInitialize(mpv) < 0) {

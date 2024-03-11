@@ -143,7 +143,7 @@ public:
     // 3. 全屏时 osd 显示状态下按返回键隐藏 osd，隐藏后再按返回键退出全屏。（之前：返回键控制直接退出全屏）
     void setTvControlMode(bool state);
 
-    bool getTvControlMode();
+    bool getTvControlMode() const;
 
     /// 设置播放时间 (左下角: 00:00:00/00:00:00 中左侧的值)
     void setStatusLabelLeft(const std::string& value);

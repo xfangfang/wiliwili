@@ -139,6 +139,7 @@ VideoView::VideoView() {
 
     // 暂停
     this->registerAction("toggle", brls::ControllerButton::BUTTON_SPACE, [this](...) -> bool {
+        CHECK_OSD(true);
         this->togglePlay();
         return true;
     }, true);
@@ -1029,7 +1030,7 @@ void VideoView::setTvControlMode(bool state) {
     _setTvControlMode(isTvControlMode && !isLiveMode);
 }
 
-bool VideoView::getTvControlMode() { return isTvControlMode; }
+bool VideoView::getTvControlMode() const { return isTvControlMode; }
 
 void VideoView::_setTvControlMode(bool state) {
     btnToggle->setCustomNavigationRoute(brls::FocusDirection::RIGHT, state ? osdSlider : iconBox);
