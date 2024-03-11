@@ -27,7 +27,7 @@ void BilibiliClient::dynamic_video(const unsigned int page, const std::string& o
 void BilibiliClient::dynamic_up_list(const std::function<void(DynamicUpListResultWrapper)>& callback,
                                      const ErrorCallback& error) {
     HTTP::getResultAsync<DynamicUpListResultWrapper>(
-        Api::DynamicUpList, {{"teenagers_mode", "0"}},
+        Api::DynamicUpListV2, {},
         [callback](const DynamicUpListResultWrapper& wrapper) { callback(wrapper); }, error);
 }
 

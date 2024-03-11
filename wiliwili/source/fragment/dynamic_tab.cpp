@@ -54,7 +54,7 @@ public:
         DynamicUserInfoView* item = (DynamicUserInfoView*)recycler->dequeueReusableCell("Cell");
 
         auto& r = this->list[index - 1];
-        item->setUserInfo(r.user_profile.info.face + ImageHelper::face_ext, r.user_profile.info.uname);
+        item->setUserInfo(r.face + ImageHelper::face_ext, r.uname);
         return item;
     }
 
@@ -66,7 +66,7 @@ public:
             userSelectedEvent.fire(0);
         } else {
             // 选择具体的某个up主
-            userSelectedEvent.fire(list[index - 1].user_profile.info.uid);
+            userSelectedEvent.fire(list[index - 1].mid);
         }
     }
 

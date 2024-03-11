@@ -57,19 +57,14 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicVideoListRes
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more, offset, update_baseline, update_num));
 }
 
-class DynamicUp {
-public:
-    UserSimpleResult3 info;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicUp, info);
-
 class DynamicUpResult {
 public:
-    unsigned int has_update;
-    bool is_reserve_recall;
-    DynamicUp user_profile;
+    bool has_update;
+    std::string face;
+    std::string uname;
+    int64_t mid;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicUpResult, is_reserve_recall, has_update, user_profile);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicUpResult, has_update, face, uname, mid);
 
 typedef std::vector<DynamicUpResult> DynamicUpListResult;
 

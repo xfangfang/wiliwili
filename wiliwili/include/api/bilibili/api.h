@@ -191,6 +191,8 @@ const std::string SearchHots = _apiBase + "/x/web-interface/search/square";
 /// ===
 const std::string DynamicVideo     = _apiBase + "/x/polymer/web-dynamic/desktop/v1/feed/video";
 const std::string DynamicUpList    = _vcBase + "/dynamic_svr/v1/dynamic_svr/w_dyn_uplist";
+const std::string DynamicUpListV2  = _apiBase + "/x/polymer/web-dynamic/v1/uplist";
+
 const std::string UserDynamicVideo = _apiBase + "/x/space/arc/list";
 
 /// ===
