@@ -458,7 +458,7 @@ jobs:
       - name: Set up QEMU
         id: qemu
         if: matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true'
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
 

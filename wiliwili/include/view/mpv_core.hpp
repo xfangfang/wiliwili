@@ -345,7 +345,17 @@ public:
 
     // 硬件解码
     inline static bool HARDWARE_DEC               = false;
+
+    // 硬解方式
+#ifdef __SWITCH__
+    inline static std::string PLAYER_HWDEC_METHOD = "auto";
+#elif defined(__PSV__)
+    inline static std::string PLAYER_HWDEC_METHOD = "vita-copy";
+#elif defined(PS4)
+    inline static std::string PLAYER_HWDEC_METHOD = "no";
+#else
     inline static std::string PLAYER_HWDEC_METHOD = "auto-safe";
+#endif
 
     // 此变量为真时，加载结束后自动播放视频
     inline static bool AUTO_PLAY = true;

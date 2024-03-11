@@ -201,6 +201,13 @@ void PlayerSetting::setupCommonSetting() {
         MPVCore::VIDEO_MIRROR = !MPVCore::VIDEO_MIRROR;
         MPVCore::instance().command_async("set", "vf", MPVCore::VIDEO_MIRROR ? "hflip" : "");
         GA("player_setting", {{"mirror", value ? "true" : "false"}});
+
+        // 如果正在使用硬解，那么将硬解更新为 auto-copy，避免直接硬解因为不经过 cpu 处理导致镜像翻转无效
+        if (MPVCore::HARDWARE_DEC) {
+            std::string hwdec = MPVCore::VIDEO_MIRROR ? "auto-copy" : MPVCore::PLAYER_HWDEC_METHOD;
+            MPVCore::instance().command_async("set", "hwdec", hwdec);
+            brls::Logger::info("MPV hardware decode: {}", hwdec);
+        }
     });
 
     /// Player aspect

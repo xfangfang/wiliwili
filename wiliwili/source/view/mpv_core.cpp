@@ -321,17 +321,8 @@ void MPVCore::init() {
 
     // hardware decoding
     if (HARDWARE_DEC) {
-#ifdef __SWITCH__
-        mpvSetOptionString(mpv, "hwdec", "auto");
-#elif defined(__PSV__)
-        mpvSetOptionString(mpv, "hwdec", "vita-copy");
-        brls::Logger::info("MPV hardware decode: vita-copy");
-#elif defined(PS4)
-        mpvSetOptionString(mpv, "hwdec", "no");
-#else
         mpvSetOptionString(mpv, "hwdec", PLAYER_HWDEC_METHOD.c_str());
         brls::Logger::info("MPV hardware decode: {}", PLAYER_HWDEC_METHOD);
-#endif
     } else {
         mpvSetOptionString(mpv, "hwdec", "no");
     }
