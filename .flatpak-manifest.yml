@@ -18,6 +18,8 @@ finish-args:
   - --talk-name=org.mate.SessionManager
   # control steam client
   - --filesystem=~/.steam
+  # control steam deck backlight
+  - --filesystem=/sys/class/backlight
 cleanup-commands:
   - mkdir -p /app/lib/ffmpeg
 cleanup:
