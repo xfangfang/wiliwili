@@ -34,44 +34,49 @@ void DynamicArticleView::setCard(const bilibili::DynamicArticleResult& result) {
     for (auto& j : result.modules) {
         switch ((bilibili::DynamicArticleModuleType)j.data.index()) {
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_AUTHOR: {
-                auto& data = std::get<bilibili::DynamicArticleModuleAuthor>(j.data);
+                auto* data = std::get_if<bilibili::DynamicArticleModuleAuthor>(&j.data);
+                if (!data) break;
                 // 作者
-                this->author->setUserInfo(data.user.face + ImageHelper::face_ext, data.user.name, data.pub_text);
+                this->author->setUserInfo(data->user.face + ImageHelper::face_ext, data->user.name, data->pub_text);
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_DESC: {
-                auto& data = std::get<bilibili::DynamicArticleModuleDesc>(j.data);
+                auto* data = std::get_if<bilibili::DynamicArticleModuleDesc>(&j.data);
+                if (!data) break;
                 // 文本
-                this->textBox->setText(data.text);
+                this->textBox->setText(data->text);
                 this->contentArea->setVisibility(brls::Visibility::VISIBLE);
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_DATA: {
-                auto& internal = std::get<bilibili::DynamicArticleModuleData>(j.data);
+                auto* internal = std::get_if<bilibili::DynamicArticleModuleData>(&j.data);
+                if (!internal) break;
                 // 内嵌数据
-                switch ((bilibili::DynamicArticleModuleDataType)internal.data.index()) {
+                switch ((bilibili::DynamicArticleModuleDataType)internal->data.index()) {
                     case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_VIDEO: {
-                        auto& video = std::get<bilibili::DynamicArticleModuleArchive>(internal.data);
+                        auto* video = std::get_if<bilibili::DynamicArticleModuleArchive>(&internal->data);
+                        if (!video) break;
                         // 视频
-                        this->videoArea->setCard(video.cover + ImageHelper::h_ext, video.title, video.stat.play, video.stat.danmaku,
-                                                 video.duration_text);
+                        this->videoArea->setCard(video->cover + ImageHelper::h_ext, video->title, video->stat.play, video->stat.danmaku,
+                                                 video->duration_text);
                         this->videoArea->setVisibility(brls::Visibility::VISIBLE);
                         break;
                     }
                     case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_IMAGE: {
-                        auto& image = std::get<bilibili::DynamicArticleModuleDraw>(internal.data);
+                        auto* image = std::get_if<bilibili::DynamicArticleModuleDraw>(&internal->data);
+                        if (!image) break;
                         // 图片
                         RichTextData d;
                         float size = brls::Application::ORIGINAL_WINDOW_HEIGHT == 544 ? 18 : 36;
-                        if (image.items.size() <= 3)
+                        if (image->items.size() <= 3)
                             size *= 4;
-                        else if (image.items.size() <= 6)
+                        else if (image->items.size() <= 6)
                             size *= 3;
                         else
                             size *= 2;
                         float margin = brls::Application::ORIGINAL_WINDOW_HEIGHT == 544 ? 4: 8;
                         int i = 0;
-                        for (auto& p : image.items) {
+                        for (auto& p : image->items) {
                             auto item = std::make_shared<RichTextImage>(p.src + ImageHelper::note_ext, size, size);
                             item->r_margin = margin;
                             item->t_margin = margin;
@@ -84,44 +89,48 @@ void DynamicArticleView::setCard(const bilibili::DynamicArticleResult& result) {
                         break;
                     }
                     case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_FORWARD: {
-                        auto forward = std::get<bilibili::DynamicArticleModuleForward>(internal.data);
+                        auto* forward = std::get_if<bilibili::DynamicArticleModuleForward>(&internal->data);
+                        if (!forward) break;
                         // 转发
                         this->forwardArea->setVisibility(brls::Visibility::VISIBLE);
-                        this->setForwardCard(forward.item);
+                        this->setForwardCard(forward->item);
                         break;
                     }
                     case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_NONE:
                     default:
-                        brls::Logger::error("\t unknown module data type: {}", internal.type);
+                        brls::Logger::error("\t unknown module data type: {}", internal->type);
                         break;
                 }
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_STAT: {
-                auto& data = std::get<bilibili::DynamicArticleModuleState>(j.data);
+                auto* data = std::get_if<bilibili::DynamicArticleModuleState>(&j.data);
+                if (!data) break;
                 // 转发 回复 点赞
                 // todo: is_forbidden: 是否禁止转发，评论和点赞是否也有类似情况?
-                this->labelFroward->setText(data.forward.count == 0 ? "转发" : wiliwili::num2w(data.forward.count));
-                this->labelReply->setText(data.comment.count == 0 ? "评论" : wiliwili::num2w(data.comment.count));
-                this->labelLike->setText(data.like.count == 0 ? "点赞" : wiliwili::num2w(data.like.count));
+                this->labelFroward->setText(data->forward.count == 0 ? "转发" : wiliwili::num2w(data->forward.count));
+                this->labelReply->setText(data->comment.count == 0 ? "评论" : wiliwili::num2w(data->comment.count));
+                this->labelLike->setText(data->like.count == 0 ? "点赞" : wiliwili::num2w(data->like.count));
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_TOPIC: {
                 // 话题
-                auto& data = std::get<bilibili::DynamicArticleModuleTopic>(j.data);
-                this->labelTopic->setText(data.name);
+                auto* data = std::get_if<bilibili::DynamicArticleModuleTopic>(&j.data);
+                if (!data) break;
+                this->labelTopic->setText(data->name);
                 this->topicArea->setVisibility(brls::Visibility::VISIBLE);
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_NULL: {
                 // 转发的动态已失效
-                auto& data = std::get<bilibili::DynamicArticleModuleNull>(j.data);
+                auto* data = std::get_if<bilibili::DynamicArticleModuleNull>(&j.data);
+                if (!data) break;
                 this->forwardArea->setVisibility(brls::Visibility::VISIBLE);
                 this->contentAreaForward->setVisibility(brls::Visibility::GONE);
                 this->imageAreaForward->setVisibility(brls::Visibility::GONE);
                 this->videoAreaForward->setVisibility(brls::Visibility::GONE);
                 this->topicAreaForward->setVisibility(brls::Visibility::GONE);
-                this->authorForward->setText(data.text);
+                this->authorForward->setText(data->text);
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_NONE:
@@ -142,40 +151,45 @@ void DynamicArticleView::setForwardCard(const bilibili::dynamic_forward::Dynamic
     for (auto& j : result.modules) {
         switch ((bilibili::DynamicArticleModuleType)j.data.index()) {
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_AUTHOR: {
-                auto& data = std::get<bilibili::DynamicArticleModuleAuthor>(j.data);
+                auto* data = std::get_if<bilibili::DynamicArticleModuleAuthor>(&j.data);
+                if (!data) break;
                 // 作者
-                this->authorForward->setText("@" + data.user.name);
+                this->authorForward->setText("@" + data->user.name);
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_DESC: {
-                auto& data = std::get<bilibili::DynamicArticleModuleDesc>(j.data);
+                auto* data = std::get_if<bilibili::DynamicArticleModuleDesc>(&j.data);
+                if (!data) break;
                 // 文本
-                this->textBoxForward->setText(data.text);
+                this->textBoxForward->setText(data->text);
                 this->contentAreaForward->setVisibility(brls::Visibility::VISIBLE);
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_DATA: {
-                auto& internal = std::get<bilibili::dynamic_forward::DynamicArticleModuleData>(j.data);
+                auto* internal = std::get_if<bilibili::dynamic_forward::DynamicArticleModuleData>(&j.data);
+                if (!internal) break;
                 // 内嵌数据
-                switch ((bilibili::DynamicArticleModuleDataType)internal.data.index()) {
+                switch ((bilibili::DynamicArticleModuleDataType)internal->data.index()) {
                     case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_VIDEO: {
-                        auto& video = std::get<bilibili::DynamicArticleModuleArchive>(internal.data);
+                        auto* video = std::get_if<bilibili::DynamicArticleModuleArchive>(&internal->data);
+                        if (!video) break;
                         // 视频
-                        this->videoAreaForward->setCard(video.cover + ImageHelper::h_ext, video.title, video.stat.play,
-                                                        video.stat.danmaku, video.duration_text);
+                        this->videoAreaForward->setCard(video->cover + ImageHelper::h_ext, video->title, video->stat.play,
+                                                        video->stat.danmaku, video->duration_text);
                         this->videoAreaForward->setVisibility(brls::Visibility::VISIBLE);
                         break;
                     }
                     case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_IMAGE: {
-                        auto& image = std::get<bilibili::DynamicArticleModuleDraw>(internal.data);
+                        auto* image = std::get_if<bilibili::DynamicArticleModuleDraw>(&internal->data);
+                        if (!image) break;
                         // 图片
                         RichTextData d;
                         float size = brls::Application::ORIGINAL_WINDOW_HEIGHT == 544 ? 18 : 36;
-                        size *= 4 - ((image.items.size() - 1) / 3);
+                        size *= 4 - ((image->items.size() - 1) / 3);
                         float margin = brls::Application::ORIGINAL_WINDOW_HEIGHT == 544 ? 4: 8;
                         // 显示为正方形缩略图
                         int i = 0;
-                        for (auto& p : image.items) {
+                        for (auto& p : image->items) {
                             auto item = std::make_shared<RichTextImage>(p.src + ImageHelper::note_ext, size, size);
                             item->r_margin = margin;
                             item->t_margin = margin;
@@ -188,15 +202,16 @@ void DynamicArticleView::setForwardCard(const bilibili::dynamic_forward::Dynamic
                     }
                     case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_NONE:
                     default:
-                        brls::Logger::error("\t unknown module data type: {}", internal.type);
+                        brls::Logger::error("\t unknown module data type: {}", internal->type);
                         break;
                 }
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_TOPIC: {
                 // 话题
-                auto& data = std::get<bilibili::DynamicArticleModuleTopic>(j.data);
-                this->labelTopicForward->setText(data.name);
+                auto* data = std::get_if<bilibili::DynamicArticleModuleTopic>(&j.data);
+                if (!data) break;
+                this->labelTopicForward->setText(data->name);
                 this->topicAreaForward->setVisibility(brls::Visibility::VISIBLE);
                 break;
             }
