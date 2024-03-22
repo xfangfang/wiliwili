@@ -204,13 +204,7 @@ void VideoDetail::requestVideoInfo(const std::string& bvid) {
                     for (const auto& i : this->videoDetailResult.pages) {
                         if (i.cid == videoDetailPage.cid) {
                             brls::Logger::debug("获取视频分P列表: PV {}", i.cid);
-                            int progress    = videoDetailPage.progress;
                             videoDetailPage = i;
-                            //用于从历史记录加载进播放页面，视频开始播放时自动跳转
-                            videoDetailPage.progress = progress;
-
-                            //上报历史记录
-                            if (progress < 0) progress = 0;
                             break;
                         }
                     }

@@ -900,7 +900,10 @@ void VideoView::setCustomToggleAction(std::function<void()> action) { this->cust
 
 void VideoView::setSpeed(float speed) { mpvCore->setSpeed(speed); }
 
-void VideoView::setLastPlayedPosition(int64_t p) { lastPlayedPosition = p; }
+void VideoView::setLastPlayedPosition(int64_t p) {
+    lastPlayedPosition = p;
+    mpvCore->seek(p);
+}
 
 int64_t VideoView::getLastPlayedPosition() const { return lastPlayedPosition; }
 
