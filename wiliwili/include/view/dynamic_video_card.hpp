@@ -5,6 +5,8 @@
 #include <borealis/core/box.hpp>
 #include <borealis/core/bind.hpp>
 
+#pragma once
+
 namespace brls {
 class Label;
 class Image;

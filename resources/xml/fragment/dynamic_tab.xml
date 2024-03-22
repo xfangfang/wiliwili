@@ -41,8 +41,8 @@
         <Tab label="@i18n/wiliwili/dynamic/article"
              fontSize="22">
             <RecyclingGrid
-                    paddingLeft="20%"
-                    paddingRight="20%"
+                    paddingLeft="18%"
+                    paddingRight="18%"
                     grow="1"
                     preFetchLine="2"
                     spanCount="1"
