@@ -41,6 +41,10 @@ brls::View* UserInfoView::create() { return new UserInfoView(); }
 
 brls::Image* UserInfoView::getAvatar() { return this->avatarView; }
 
+brls::Label* UserInfoView::getLabelName() { return this->labelUsername; }
+
+brls::Label* UserInfoView::getLabelMisc() { return this->labeMisc; }
+
 void UserInfoView::setHintType(InfoHintType type) {
     if (type == InfoHintType::NONE) {
         this->boxHint->setVisibility(brls::Visibility::GONE);

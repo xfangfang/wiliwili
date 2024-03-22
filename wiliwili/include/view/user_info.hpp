@@ -38,6 +38,10 @@ public:
 
     brls::Image* getAvatar();
 
+    brls::Label* getLabelName();
+
+    brls::Label* getLabelMisc();
+
     void setHintType(InfoHintType type);
 
 private:

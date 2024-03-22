@@ -6,7 +6,6 @@
         alignItems="center">
 
     <brls:Box
-            width="18%"
             wireframe="false"
             axis="column">
         <brls:Image
