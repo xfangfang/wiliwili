@@ -93,7 +93,8 @@ VideoView::VideoView() {
             CHECK_OSD(true);
             brls::ControllerState state{};
             input->updateUnifiedControllerState(&state);
-            bool buttonY = brls::Application::isSwapInputKeys() ? state.buttons[brls::BUTTON_X] : state.buttons[brls::BUTTON_Y];
+            bool buttonY =
+                brls::Application::isSwapInputKeys() ? state.buttons[brls::BUTTON_X] : state.buttons[brls::BUTTON_Y];
             if (buttonY) {
                 seeking_range -= getSeekRange(seeking_range);
             } else {
@@ -138,11 +139,14 @@ VideoView::VideoView() {
         true, true);
 
     // 暂停
-    this->registerAction("toggle", brls::ControllerButton::BUTTON_SPACE, [this](...) -> bool {
-        CHECK_OSD(true);
-        this->togglePlay();
-        return true;
-    }, true);
+    this->registerAction(
+        "toggle", brls::ControllerButton::BUTTON_SPACE,
+        [this](...) -> bool {
+            CHECK_OSD(true);
+            this->togglePlay();
+            return true;
+        },
+        true);
 
     this->registerAction(
         "volumeDown", brls::ControllerButton::BUTTON_NAV_DOWN,
@@ -557,8 +561,11 @@ VideoView::VideoView() {
         } else if (event == VideoView::LAST_TIME) {
             if (*(int64_t*)data == VideoView::POSITION_DISCARD)
                 this->setLastPlayedPosition(VideoView::POSITION_DISCARD);
-            else if (this->getLastPlayedPosition() != VideoView::POSITION_DISCARD)
-                this->setLastPlayedPosition(*(int64_t*)data / 1000);
+            else if (this->getLastPlayedPosition() != VideoView::POSITION_DISCARD) {
+                int64_t p = *(int64_t*)data / 1000;
+                this->setLastPlayedPosition(p);
+                mpvCore->seek(p);
+            }
         } else if (event == VideoView::HINT) {
             this->showHint((const char*)data);
         } else if (event == VideoView::CLIP_INFO) {
@@ -653,7 +660,8 @@ VideoView::~VideoView() {
     brls::Logger::debug("Delete VideoView done");
 }
 
-void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style, brls::FrameContext* ctx) {
+void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
+                     brls::FrameContext* ctx) {
     if (!mpvCore->isValid()) return;
     float alpha    = this->getAlpha();
     time_t current = wiliwili::unix_time();
@@ -900,10 +908,7 @@ void VideoView::setCustomToggleAction(std::function<void()> action) { this->cust
 
 void VideoView::setSpeed(float speed) { mpvCore->setSpeed(speed); }
 
-void VideoView::setLastPlayedPosition(int64_t p) {
-    lastPlayedPosition = p;
-    mpvCore->seek(p);
-}
+void VideoView::setLastPlayedPosition(int64_t p) { lastPlayedPosition = p; }
 
 int64_t VideoView::getLastPlayedPosition() const { return lastPlayedPosition; }
 
