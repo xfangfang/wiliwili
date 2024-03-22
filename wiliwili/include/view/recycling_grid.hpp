@@ -158,6 +158,12 @@ public:
     void setPaddingBottom(float bottom) override;
     void setPaddingLeft(float left) override;
 
+    void setPaddingRightPercentage(float right);
+    void setPaddingLeftPercentage(float left);
+
+    float getPaddingLeft();
+    float getPaddingRight();
+
     // 获取一个列表项组件
     // 如果缓存列表中存在就从中取出一个
     // 如果缓存列表为空则生成一个新的
@@ -201,6 +207,8 @@ private:
     float paddingRight  = 0;
     float paddingBottom = 0;
     float paddingLeft   = 0;
+
+    bool paddingPercentage = false;
 
     std::function<void()> nextPageCallback = nullptr;
     std::function<void()> refreshAction    = nullptr;
