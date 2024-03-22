@@ -8,7 +8,7 @@
 #include "utils/image_helper.hpp"
 #include "utils/number_helper.hpp"
 
-enum class RichTextType { Text, Image };
+enum class RichTextType { Text, Image, Break };
 
 class RichTextComponent {
 public:
@@ -33,6 +33,7 @@ public:
     float t_margin = 0;
 };
 
+/// 富文本 文字组件
 class RichTextSpan : public RichTextComponent {
 public:
     RichTextSpan(std::string t, NVGcolor c = nvgRGB(0, 0, 0))
@@ -43,6 +44,7 @@ public:
     NVGcolor color;
 };
 
+/// 富文本 图片组件
 class RichTextImage : public RichTextComponent {
 public:
     RichTextImage(std::string url, float width, float height, bool autoLoad = false);
@@ -52,6 +54,12 @@ public:
     std::string url;
     brls::Image* image;
     float width, height;
+};
+
+/// 富文本 换行组件
+class RichTextBreak : public RichTextComponent {
+public:
+    RichTextBreak();
 };
 
 typedef std::vector<std::shared_ptr<RichTextComponent>> RichTextData;

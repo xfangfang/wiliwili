@@ -212,7 +212,7 @@ float TextBox::cutRichTextLines(float width) {
                 // 提交之前的行
                 this->lineContent.emplace_back(tempData);
                 tempData.clear();
-                // 设置下一行的其实位置
+                // 设置下一行的起始位置
                 lx = 0;
                 ly += fontSize * lineHeight;
             }
@@ -221,6 +221,13 @@ float TextBox::cutRichTextLines(float width) {
             item->t_margin = t->t_margin;
             tempData.emplace_back(item);
             lx += t->width + t->l_margin + t->r_margin;
+        } else if (i->type == RichTextType::Break) {
+            // 提交之前的行
+            this->lineContent.emplace_back(tempData);
+            tempData.clear();
+            // 设置下一行的起始位置
+            lx = 0;
+            ly += fontSize * lineHeight;
         }
     }
     if (!tempData.empty()) lineContent.emplace_back(tempData);
@@ -309,7 +316,7 @@ void TextBox::draw(NVGcontext* vg, float x, float y, float width, float height, 
     // 显示 "更多" 提示
     if (!showMoreText) return;
     static auto linkColor = ctx->theme.getColor("color/link");
-    nvgFontSize(vg, 18);
+    nvgFontSize(vg, this->fontSize);
     nvgFillColor(vg, a(linkColor));
     nvgText(vg, x, y + getLineY(maxRows), TEXTBOX_MORE, nullptr);
 }
@@ -354,3 +361,7 @@ RichTextImage::~RichTextImage() {
         this->image->freeView();
     }
 }
+
+/// RichTextGrow
+
+RichTextBreak::RichTextBreak(): RichTextComponent(RichTextType::Break) {}
