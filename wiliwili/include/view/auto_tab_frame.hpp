@@ -73,7 +73,7 @@ public:
 
     void setAttachedViewCreator(TabViewCreator creator);
 
-    ~AutoSidebarItem();
+    ~AutoSidebarItem() override;
 
     brls::GenericEvent* getActiveEvent();
 
@@ -225,6 +225,8 @@ public:
 
     void setRefreshAction(const std::function<void()>& event);
 
+    void setTabChangedAction(const std::function<void(size_t)>& event);
+
 private:
     BRLS_BIND(Box, sidebar, "auto_tab_frame/auto_sidebar");
 
@@ -242,6 +244,8 @@ private:
 
     ButtonRefresh* refreshButton        = nullptr;
     std::function<void()> refreshAction = nullptr;
+
+    std::function<void(size_t)> tabChangedAction = nullptr;
 
     NVGcolor skeletonBackground           = brls::Application::getTheme()["color/grey_3"];
     NVGcolor tabItemBackgroundColor       = nvgRGBA(0, 0, 0, 0);

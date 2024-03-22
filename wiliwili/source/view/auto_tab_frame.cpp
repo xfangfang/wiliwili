@@ -18,6 +18,7 @@
 */
 
 #include <borealis/views/rectangle.hpp>
+#include <utility>
 
 #include "view/auto_tab_frame.hpp"
 #include "view/svg_image.hpp"
@@ -112,6 +113,8 @@ void AutoTabFrame::setRefreshAction(const std::function<void()>& event) {
     this->refreshButton->setVisibility(brls::Visibility::VISIBLE);
 }
 
+void AutoTabFrame::setTabChangedAction(const std::function<void(size_t)>& event) { this->tabChangedAction = event; }
+
 void AutoTabFrame::setDemandMode(bool value) { this->isDemandMode = value; }
 
 void AutoTabFrame::setSideBarPosition(AutoTabBarPosition position) {
@@ -149,8 +152,8 @@ void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator) {
     tab->setActiveBackgroundColor(this->tabItemActiveBackgroundColor);
     tab->setActiveTextColor(this->tabItemActiveTextColor);
 
-    this->addItem(tab, creator, [this](brls::View* view) {
-        AutoSidebarItem* sidebarItem = (AutoSidebarItem*)view;
+    this->addItem(tab, std::move(creator), [this](brls::View* view) {
+        auto* sidebarItem = (AutoSidebarItem*)view;
 
         // Only trigger when the sidebar item gains focus
         if (!view->isFocused()) return;
@@ -164,11 +167,13 @@ void AutoTabFrame::addTab(AutoSidebarItem* tab, TabViewCreator creator) {
         if (newContent == this->getActiveTab()) return;
 
         this->setTabAttachedView(newContent);
+
+        if (this->tabChangedAction) this->tabChangedAction(sidebarItem->getCurrentIndex());
     });
     auto isDefaultTab = this->sidebar->getChildren().size() - 1 == this->getDefaultTabIndex();
 
     if (isDefaultTab || !isDemandMode) {
-        AutoSidebarItem* item = (AutoSidebarItem*)this->sidebar->getChildren()[this->sidebar->getChildren().size() - 1];
+        auto* item = (AutoSidebarItem*)this->sidebar->getChildren()[this->sidebar->getChildren().size() - 1];
         View* newContent      = item->getAttachedView();
         if (!newContent) {
             newContent = item->createAttachedView();
