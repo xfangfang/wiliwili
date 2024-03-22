@@ -1,0 +1,71 @@
+<brls:Box
+        id="dynamic/video_box"
+        axis="column">
+
+    <brls:Image
+            id="video/card/picture"
+            scalingType="fill"
+            height="auto"
+            width="100%"
+            aspectRatio="1.78"
+            image="@res/pictures/video-card-bg.png"/>
+
+    <brls:Box
+            positionType="absolute"
+            positionLeft="0"
+            positionTop="0"
+            background="vertical_linear"
+            backgroundStartColor="#000000CC"
+            backgroundEndColor="#00000000"
+            width="100%"
+            height="20%"
+            paddingLeft="20"
+            paddingRight="20">
+        <brls:Label
+                id="dynamic/title"
+                textColor="#FFFFFF"
+                singleLine="true"
+                fontSize="16"/>
+    </brls:Box>
+
+    <brls:Box
+            positionBottom="0"
+            positionType="absolute"
+            background="vertical_linear"
+            paddingLeft="10"
+            paddingRight="10"
+            width="100%"
+            height="20%"
+            alignItems="center">
+        <SVGImage
+                width="18"
+                height="18"
+                marginTop="2"
+                SVG="@res/svg/widget-video-play-count.svg"/>
+        <brls:Label
+                marginLeft="4"
+                marginRight="4"
+                textColor="#FFFFFF"
+                id="video/card/label/count"
+                fontSize="16"
+                text=""/>
+        <SVGImage
+                width="18"
+                height="18"
+                marginTop="2"
+                SVG="@res/svg/widget-video-danmaku.svg"/>
+        <brls:Label
+                marginLeft="4"
+                id="video/card/label/danmaku"
+                textColor="#FFFFFF"
+                fontSize="16"
+                text=""/>
+        <brls:Label
+                id="video/card/label/duration"
+                positionType="absolute"
+                positionRight="10"
+                textColor="#FFFFFF"
+                fontSize="16"/>
+    </brls:Box>
+
+</brls:Box>

@@ -50,6 +50,7 @@
 #include "view/selector_cell.hpp"
 #include "view/hint_label.hpp"
 #include "view/mpv_core.hpp"
+#include "view/dynamic_video_card.hpp"
 
 void Register::initCustomView() {
     // Register extended views
@@ -74,6 +75,7 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("SelectorCell", BiliSelectorCell::create);
     brls::Application::registerXMLView("AnimationImage", AnimationImage::create);
     brls::Application::registerXMLView("ShareBox", ShareBox::create);
+    brls::Application::registerXMLView("DynamicVideoCardView", DynamicVideoCardView::create);
 
     //     Register fragments
     brls::Application::registerXMLView("HomeTab", HomeTab::create);
@@ -147,6 +149,10 @@ void Register::initCustomTheme() {
     // 粉色背景，用于扁平TabBar背景色
     brls::Theme::getLightTheme().addColor("color/pink_1", nvgRGB(252, 237, 241));
     brls::Theme::getDarkTheme().addColor("color/pink_1", nvgRGB(44, 27, 34));
+
+    // 红色，用于提示小红点
+    brls::Theme::getLightTheme().addColor("color/tip/red", nvgRGB(250, 88, 87));
+    brls::Theme::getDarkTheme().addColor("color/tip/red", nvgRGB(211, 63, 64));
 
     brls::Theme::getLightTheme().addColor("color/white", nvgRGB(255, 255, 255));
     brls::Theme::getDarkTheme().addColor("color/white", nvgRGBA(255, 255, 255, 180));

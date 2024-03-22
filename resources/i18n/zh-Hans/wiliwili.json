@@ -210,6 +210,10 @@
       "tab": "影视"
     }
   },
+  "dynamic": {
+    "video": "视频",
+    "article": "综合"
+  },
   "search": {
     "tv": {
       "hint": "支持关键字及关键字首字母",

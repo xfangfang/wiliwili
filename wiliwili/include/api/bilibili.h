@@ -17,9 +17,16 @@ class LivePayLink;                // 大航海专属直播付费链接
 class LiveFullAreaResultWrapper;  // 直播分区列表
 class LiveSecondResultWrapper;    // 直播二级分区推荐
 class SearchResult;
-class DynamicVideoListResultWrapper;  // 动态 全部关注的视频列表
-class DynamicUpListResultWrapper;     // 动态 最近更新的UP主列表
-class UserDynamicVideoResultWrapper;  // 动态 单个up主视频列表
+template <typename Item>
+class DynamicListResultWrapper; // 动态页列表基类
+class DynamicVideoResult;       // 一条视频动态
+class DynamicArticleResult;     // 一条图文动态
+typedef std::vector<DynamicVideoResult> DynamicVideoListResult;     // 视频动态列表
+typedef std::vector<DynamicArticleResult> DynamicArticleListResult; // 图文动态列表
+typedef DynamicListResultWrapper<DynamicVideoListResult> DynamicVideoListResultWrapper;     // 动态 全部关注的视频列表
+typedef DynamicListResultWrapper<DynamicArticleListResult> DynamicArticleListResultWrapper; // 动态 全部或指定UP主图文列表
+class DynamicUpListResultWrapper;      // 动态 最近更新的UP主列表
+class UserDynamicVideoResultWrapper;   // 动态 单个up主视频列表
 class PGCIndexResultWrapper;
 class PGCIndexFilterWrapper;
 class PGCResultWrapper;
@@ -508,10 +515,15 @@ public:
                                       const std::function<void(SearchSuggestList)>& callback = nullptr,
                                       const ErrorCallback& error                             = nullptr);
 
-    /// 动态页 获取全部关注用户的最近动态
+    /// 动态页 获取全部关注用户的最近动态 视频
     static void dynamic_video(const unsigned int page, const std::string& offset = "",
                               const std::function<void(DynamicVideoListResultWrapper)>& callback = nullptr,
                               const ErrorCallback& error                                         = nullptr);
+
+    /// 动态页 获取全部关注用户的最近动态 图文
+    static void dynamic_article(const unsigned int page, const std::string& offset = "", const int64_t mid = 0,
+                              const std::function<void(DynamicArticleListResultWrapper)>& callback = nullptr,
+                              const ErrorCallback& error                                           = nullptr);
 
     /// 动态页 获取有最近动态的关注用户列表
     static void dynamic_up_list(const std::function<void(DynamicUpListResultWrapper)>& callback = nullptr,

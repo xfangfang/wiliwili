@@ -210,6 +210,10 @@
       "tab": "影視"
     }
   },
+  "dynamic": {
+    "video": "影片",
+    "article": "綜合"
+  },
   "search": {
     "tv": {
       "hint": "支持關鍵字及關鍵字首字母",

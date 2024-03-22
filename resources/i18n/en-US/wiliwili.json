@@ -210,6 +210,10 @@
       "tab": "Cinema"
     }
   },
+  "dynamic": {
+    "video": "Video",
+    "article": "Activity"
+  },
   "search": {
     "tv": {
       "hint": "Support keywords and their initial letters",

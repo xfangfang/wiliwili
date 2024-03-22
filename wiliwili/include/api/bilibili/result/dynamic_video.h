@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 #include "user_result.h"
 #include "home_result.h"
+#include "dynamic_article.h"
 
 namespace bilibili {
 
@@ -40,17 +41,20 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicVideoResult&
 }
 
 typedef std::vector<DynamicVideoResult> DynamicVideoListResult;
+typedef std::vector<DynamicArticleResult> DynamicArticleListResult;
 
-class DynamicVideoListResultWrapper {
+template <typename Item>
+class DynamicListResultWrapper {
 public:
-    DynamicVideoListResult items;
-    bool has_more;
+    Item items;
+    bool has_more{};
     std::string offset;
     std::string update_baseline;
-    unsigned int update_num;
-    unsigned int page;
+    unsigned int update_num{};
+    unsigned int page{};
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicVideoListResultWrapper& nlohmann_json_t) {
+template <typename Item>
+inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicListResultWrapper<Item>& nlohmann_json_t) {
     if (nlohmann_json_j.contains("items") && nlohmann_json_j.at("items").is_array()) {
         nlohmann_json_j.at("items").get_to(nlohmann_json_t.items);
     }

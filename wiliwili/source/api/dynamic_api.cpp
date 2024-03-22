@@ -24,6 +24,23 @@ void BilibiliClient::dynamic_video(const unsigned int page, const std::string& o
         error);
 }
 
+void BilibiliClient::dynamic_article(const unsigned int page, const std::string& offset, const int64_t mid,
+                                   const std::function<void(DynamicArticleListResultWrapper)>& callback,
+                                   const ErrorCallback& error) {
+    HTTP::getResultAsync<DynamicArticleListResultWrapper>(
+        Api::DynamicArticle,
+        {
+            {"page", std::to_string(page)},
+            {"offset", offset},
+            {"host_mid", std::to_string(mid)},
+        },
+        [callback, page](DynamicArticleListResultWrapper wrapper) {
+            wrapper.page = page;
+            callback(wrapper);
+        },
+        error);
+}
+
 void BilibiliClient::dynamic_up_list(const std::function<void(DynamicUpListResultWrapper)>& callback,
                                      const ErrorCallback& error) {
     HTTP::getResultAsync<DynamicUpListResultWrapper>(
