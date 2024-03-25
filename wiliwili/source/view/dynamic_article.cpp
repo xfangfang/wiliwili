@@ -210,13 +210,11 @@ private:
 
 DynamicArticleView::DynamicArticleView() {
     this->inflateFromXMLRes("xml/views/dynamic_card.xml");
-    author->getLabelName()->setFontSize(18);
-    author->getLabelMisc()->setFontSize(16);
-    author->getLabelName()->setMarginBottom(4);
-    author->getLabelMisc()->setMarginTop(4);
     if (brls::Application::ORIGINAL_WINDOW_HEIGHT == 544) {
         videoArea->setWidthPercentage(80);
         videoAreaForward->setWidthPercentage(80);
+        textBox->setMaxRows(3);
+        textBoxForward->setMaxRows(2);
     }
 }
 
