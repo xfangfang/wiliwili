@@ -47,6 +47,13 @@ public:
             return item;
         }
 
+        if (dataList[index - 3].rpid == 1) {  // 添加评论结束提示
+            GridHintView* bottom = (GridHintView*)recycler->dequeueReusableCell("Hint");
+            bottom->setJustifyContent(brls::JustifyContent::CENTER);
+            bottom->hintLabel->setText("wiliwili/player/single_comment/end"_i18n);
+            return bottom;
+        }
+
         //从缓存列表中取出 或者 新生成一个表单项
         VideoComment* item = (VideoComment*)recycler->dequeueReusableCell("Comment");
 
@@ -155,16 +162,18 @@ public:
 
         this->recyclingGrid->registerCell("Sort", []() { return VideoCommentSort::create(); });
 
+        this->recyclingGrid->registerCell("Hint", []() { return GridHintView::create(); });
+
         this->recyclingGrid->registerCell("Comment", []() { return VideoComment::create(); });
 
         this->recyclingGrid->setDataSource(new DataSourceDynamicDetailList(data, state, this->getVideoCommentMode(),
                                                                            [this]() { this->toggleCommentMode(); }));
 
         this->recyclingGrid->registerAction("wiliwili/home/common/switch"_i18n, brls::ControllerButton::BUTTON_X,
-                                      [this](brls::View* view) -> bool {
-                                          this->toggleCommentMode();
-                                          return true;
-                                      });
+                                            [this](brls::View* view) -> bool {
+                                                this->toggleCommentMode();
+                                                return true;
+                                            });
 
         this->recyclingGrid->onNextPage([this]() {
             this->requestVideoComment(this->state.comment.comment_id, -1, -1, this->state.comment.comment_type);
@@ -180,14 +189,18 @@ public:
             std::vector<bilibili::VideoCommentResult> comments(result.top_replies);
             comments.insert(comments.end(), result.replies.begin(), result.replies.end());
             datasource->appendData(comments);
-            recyclingGrid->notifyDataChanged();
         } else {
             // 第N页评论
             if (!result.replies.empty()) {
                 datasource->appendData(result.replies);
-                recyclingGrid->notifyDataChanged();
             }
         }
+        if (result.cursor.is_end) {
+            bilibili::VideoCommentResult bottom;
+            bottom.rpid = 1;
+            datasource->appendData({bottom});
+        }
+        recyclingGrid->notifyDataChanged();
     }
 
     void toggleCommentMode() {
