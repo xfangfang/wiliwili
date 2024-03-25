@@ -211,6 +211,7 @@
     }
   },
   "dynamic": {
+    "detail": "Activity detail",
     "video": "Video",
     "article": "Activity"
   },

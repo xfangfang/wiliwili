@@ -7,6 +7,7 @@
 
     <brls:Box
             wireframe="false"
+            marginRight="4"
             axis="column">
         <brls:Image
                 id="userinfo/avatar"

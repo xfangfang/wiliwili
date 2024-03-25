@@ -22,7 +22,7 @@
 #include "view/subtitle_core.hpp"
 #include "view/mpv_core.hpp"
 
-class DataSourceCommentList : public RecyclingGridDataSource, public CommentRequest {
+class DataSourceCommentList : public RecyclingGridDataSource, public CommentAction {
 public:
     DataSourceCommentList(bilibili::VideoCommentListResult result, size_t aid, int mode, std::function<void(void)> cb)
         : dataList(std::move(result)), aid(aid), commentMode(mode), switchModeCallback(cb) {}
@@ -66,7 +66,7 @@ public:
             brls::Application::getImeManager()->openForText(
                 [this, recycler](const std::string& text) {
                     if (text.empty()) return;
-                    this->commentReply(text, aid, 0, 0,
+                    this->commentReply(text, std::to_string(aid), 0, 0, 1,
                                        [this, recycler](const bilibili::VideoCommentAddResult& result) {
                                            this->dataList.insert(dataList.begin(), result.reply);
                                            recycler->reloadData();
@@ -80,7 +80,7 @@ public:
         if (!item) return;
 
         auto* view = new PlayerSingleComment();
-        view->setCommentData(dataList[index - 2], item->getY());
+        view->setCommentData(dataList[index - 2], item->getY(), 1);
         auto container = new brls::AppletFrame(view);
         container->setHeaderVisibility(brls::Visibility::GONE);
         container->setFooterVisibility(brls::Visibility::GONE);
@@ -465,7 +465,7 @@ void BasePlayerActivity::setCommentMode() {
     this->recyclingGrid->estimatedRowHeight = 100;
     this->recyclingGrid->showSkeleton();
     tabFrame->focusTab(0);
-    requestVideoComment(this->getAid(), 0, getVideoCommentMode() == 3 ? 2 : 3);
+    requestVideoComment(std::to_string(this->getAid()), 0, getVideoCommentMode() == 3 ? 2 : 3);
 }
 
 void BasePlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) {

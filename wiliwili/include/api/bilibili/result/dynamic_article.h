@@ -151,7 +151,6 @@ enum class DynamicArticleModuleDataType {
     }
 
 /// 动态定义
-/// type: DYNAMIC_TYPE_AV: 视频; DYNAMIC_TYPE_DRAW: 图文; DYNAMIC_TYPE_FORWARD: 转发
 #define DynamicArticleResult_DELC                                                                         \
     class DynamicArticleResult {                                                                          \
     public:                                                                                               \

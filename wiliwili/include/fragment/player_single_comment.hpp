@@ -19,12 +19,18 @@ class RecyclingGrid;
 class SVGImage;
 class ButtonClose;
 
+enum CommentUiType {
+    COMMENT_UI_TYPE_VIDEO,
+    COMMENT_UI_TYPE_DYNAMIC,
+
+};
+
 /// 评论详情页面
 class PlayerSingleComment : public brls::Box {
 public:
-    PlayerSingleComment();
+    PlayerSingleComment(CommentUiType type = COMMENT_UI_TYPE_VIDEO);
 
-    void setCommentData(const bilibili::VideoCommentResult& result, float y);
+    void setCommentData(const bilibili::VideoCommentResult& result, float y, int type);
 
     void requestData();
 
@@ -53,12 +59,14 @@ private:
 
     brls::Animatable position     = 0.0f;
     float commentOriginalPosition = 0.0f;
+    int commentType               = 1;
+    CommentUiType uiType          = COMMENT_UI_TYPE_VIDEO;
 };
 
 /// 选择对单条评论的行为：点赞、回复、删除
 class PlayerCommentAction : public brls::Box {
 public:
-    PlayerCommentAction();
+    PlayerCommentAction(CommentUiType type);
 
     void setActionData(const bilibili::VideoCommentResult& data, float y);
 

@@ -10,6 +10,7 @@
 #include "bilibili.h"
 #include "bilibili/result/video_detail_result.h"
 #include "bilibili/result/home_pgc_season_result.h"
+#include "presenter/comment_related.hpp"
 
 // 指明一个id的类型
 enum class PGC_ID_TYPE {
@@ -17,7 +18,7 @@ enum class PGC_ID_TYPE {
     EP_ID       // 集ID
 };
 
-class VideoDetail : public Presenter {
+class VideoDetail : public CommentRequest {
 public:
     virtual void onVideoInfo(const bilibili::VideoDetailResult& result) {}
     virtual void onSeasonVideoInfo(const bilibili::SeasonResultWrapper& result) {}
@@ -31,8 +32,6 @@ public:
     virtual void onUploadedVideos(const bilibili::UserUploadedVideoResultWrapper& result) {}
     virtual void onDanmakuInfo() {}
     virtual void onHighlightProgress(const bilibili::VideoHighlightProgress& result) {}
-    virtual void onCommentInfo(const bilibili::VideoCommentResultWrapper& result) {}
-    virtual void onRequestCommentError(const std::string& error) {}
     virtual void onVideoRecommend() {}
     virtual void onError(const std::string& error) {}
     virtual void onVideoOnlineCount(const bilibili::VideoOnlineTotal& result) {}
@@ -79,17 +78,6 @@ public:
 
     /// 切换番剧分集
     void changeEpisode(const bilibili::SeasonEpisodeResult& i);
-
-    /**
-     * 获取视频评论
-     * @param next -1 自动加载下一页；0 加载首页
-     * @param mode -1 按上次使用的顺序；2 按时间排序；3 按热度排序
-     */
-    void requestVideoComment(int aid, int next = -1, int mode = -1);
-
-    int getVideoCommentMode();
-
-    void setVideoCommentMode(int mode);
 
     /// 获取Up主的其他视频: pn 为0 自动获取下一页
     void requestUploadedVideos(int64_t mid, int pn = 0, int ps = 10);
@@ -156,8 +144,6 @@ protected:
     // 番剧/综艺/影视 剧集列表（包括非正片）
     bilibili::SeasonEpisodeListResult episodeList;
 
-    int commentRequestIndex                    = 0;
-    int commentMode                            = 3;
     unsigned int userUploadedVideoRequestIndex = 1;
 
     // 触发此事件，传入 SeasonEpisodeResult， 会播放对应epid的内容

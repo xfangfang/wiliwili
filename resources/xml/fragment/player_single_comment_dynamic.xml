@@ -1,0 +1,48 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        justifyContent="center"
+        id="player/cancel"
+        hideClickAnimation="true"
+        backgroundColor="@theme/brls/backdrop">
+
+    <brls:Box
+            id="box/background"
+            width="60%"
+            height="100%"
+            axis="column"
+            justifyContent="flexStart"
+            alignItems="center"
+            backgroundColor="@theme/brls/background">
+
+        <ButtonClose
+                id="button/close"
+                focusable="true"
+                positionType="absolute"
+                positionTop="10"
+                positionRight="10"/>
+
+        <brls:Label
+                fontSize="24"
+                text="@i18n/wiliwili/player/single_comment/detail"
+                positionType="absolute"
+                positionTop="20"
+                positionLeft="20"/>
+
+        <RecyclingGrid
+                id="player/single/comment/recyclingGrid"
+                focusable="true"
+                marginTop="60"
+                paddingLeft="20"
+                paddingRight="30"
+                width="100%"
+                grow="1"
+                preFetchLine="2"
+                spanCount="1"
+                flowMode="true"
+                itemHeight="650"
+                wireframe="false"/>
+
+    </brls:Box>
+
+</brls:Box>

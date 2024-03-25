@@ -338,7 +338,7 @@ VideoView::VideoView() {
         }
 
         // 展示倍速列表
-        auto* drop = BaseDropdown::text(
+        BaseDropdown::text(
             "wiliwili/player/speed"_i18n, conf.optionList,
             [conf](int selected) {
                 // 设置播放器倍速
@@ -1211,7 +1211,6 @@ void VideoView::setFullScreen(bool fs) {
         auto activity = new brls::Activity(container);
         brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
         registerFullscreen(activity);
-
     } else {
         ASYNC_RETAIN
         brls::sync([ASYNC_TOKEN]() {

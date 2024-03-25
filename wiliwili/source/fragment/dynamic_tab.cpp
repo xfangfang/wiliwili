@@ -147,7 +147,11 @@ public:
 
     size_t getItemCount() override { return list.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override {}
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
+        auto* item = dynamic_cast<DynamicArticleView*>(recycler->getGridItemByIndex(index));
+        if (!item) return;
+        item->openDetail();
+    }
 
     void appendData(const bilibili::DynamicArticleListResult& data) {
         bool skip = false;

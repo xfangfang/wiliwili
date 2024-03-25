@@ -8,6 +8,7 @@
 
 #include "view/recycling_grid.hpp"
 #include "bilibili/result/dynamic_article.h"
+#include "presenter/comment_related.hpp"
 
 class UserInfoView;
 class TextBox;
@@ -20,6 +21,8 @@ public:
     void setCard(const bilibili::DynamicArticleResult& result);
 
     void setForwardCard(const bilibili::dynamic_forward::DynamicArticleResult& result);
+
+    void openDetail();
 
     void prepareForReuse() override;
 
@@ -61,4 +64,9 @@ private:
     BRLS_BIND(brls::Box, contentAreaForward, "dynamic/content_box/forward");
     BRLS_BIND(brls::Box, imageAreaForward, "dynamic/image_box/forward");
     BRLS_BIND(DynamicVideoCardView, videoAreaForward, "dynamic/video_box/forward");
+
+    // 动态数据
+    bilibili::DynamicArticleResult articleData;
+    // 转评赞数据
+    bilibili::DynamicArticleModuleState state;
 };

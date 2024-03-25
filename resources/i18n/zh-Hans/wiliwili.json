@@ -211,6 +211,7 @@
     }
   },
   "dynamic": {
+    "detail": "动态详情",
     "video": "视频",
     "article": "综合"
   },
@@ -424,7 +425,7 @@
       }
     },
     "single_comment": {
-      "detail": "详情",
+      "detail": "评论详情",
       "hint": "发一条友善的评论",
       "related": "相关回复共{}条",
       "end": "没有更多评论",

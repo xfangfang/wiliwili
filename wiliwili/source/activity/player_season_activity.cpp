@@ -106,7 +106,7 @@ void PlayerSeasonActivity::onContentAvailable() {
 
     //评论加载下一页
     recyclingGrid->onNextPage([this]() {
-        if (this->episodeResult.aid != 0) this->requestVideoComment(this->episodeResult.aid);
+        if (this->episodeResult.aid != 0) this->requestVideoComment(std::to_string(this->episodeResult.aid));
     });
 
     // 二维码按钮
