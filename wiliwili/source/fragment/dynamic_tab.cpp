@@ -18,7 +18,12 @@ using namespace brls::literals;
 
 class DynamicUserInfoView : public RecyclingGridItem {
 public:
-    explicit DynamicUserInfoView(const std::string& xml) { this->inflateFromXMLRes(xml); }
+    explicit DynamicUserInfoView(const std::string& xml) {
+        this->inflateFromXMLRes(xml);
+        auto theme = brls::Application::getTheme();
+        selectedColor = theme.getColor("color/bilibili");
+        fontColor = theme.getColor("brls/text");
+    }
 
     void setUserInfo(const std::string& avatar, const std::string& username, bool isUpdate = false) {
         this->labelUsername->setText(username);
@@ -27,6 +32,10 @@ public:
 
     void setNotice(bool show) {
         this->notice->setVisibility(show ? brls::Visibility::VISIBLE : brls::Visibility::INVISIBLE);
+    }
+
+    void setSelected(bool selected) {
+        this->labelUsername->setTextColor(selected ? selectedColor: fontColor);
     }
 
     brls::Image* getAvatar() { return this->avatarView; }
@@ -45,6 +54,8 @@ private:
     BRLS_BIND(brls::Rectangle, notice, "notice");
     BRLS_BIND(brls::Image, avatarView, "avatar");
     BRLS_BIND(brls::Label, labelUsername, "username");
+    NVGcolor selectedColor{};
+    NVGcolor fontColor{};
 };
 
 class DataSourceUpList : public RecyclingGridDataSource {
@@ -53,6 +64,7 @@ public:
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         if (index == 0) {
             DynamicUserInfoView* item = (DynamicUserInfoView*)recycler->dequeueReusableCell("CellAll");
+            item->setSelected(selectedIndex == index);
             return item;
         }
 
@@ -62,15 +74,27 @@ public:
         auto& r = this->list[index - 1];
         item->setUserInfo(r.face + ImageHelper::face_ext, r.uname);
         item->setNotice(r.has_update);
+        item->setSelected(selectedIndex == index);
         return item;
     }
 
     size_t getItemCount() override { return list.size() + 1; }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
+        // 取消选中
+        std::vector<RecyclingGridItem*>& items = recycler->getGridItems();
+        for (auto& i : items) {
+            auto* cell = dynamic_cast<DynamicUserInfoView*>(i);
+            if (cell) cell->setSelected(false);
+        }
+
+        selectedIndex = index;
         if (index == 0) {
             // 选择全部
             userSelectedEvent.fire(0);
+            auto* item = dynamic_cast<DynamicUserInfoView*>(recycler->getGridItemByIndex(index));
+            if (!item) return;
+            item->setSelected(true);
         } else {
             // 选择具体的某个up主
             userSelectedEvent.fire(list[index - 1].mid);
@@ -79,6 +103,7 @@ public:
             if (!item) return;
             this->list[index - 1].has_update = false;
             item->setNotice(false);
+            item->setSelected(true);
         }
     }
 
@@ -93,6 +118,7 @@ public:
 private:
     bilibili::DynamicUpListResult list;
     UserSelectedEvent userSelectedEvent;
+    size_t selectedIndex = 0;
 };
 
 class DataSourceDynamicVideoList : public RecyclingGridDataSource {
