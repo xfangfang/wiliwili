@@ -13,6 +13,7 @@
 class UserInfoView;
 class TextBox;
 class DynamicVideoCardView;
+class SVGImage;
 
 class DynamicArticleView : public RecyclingGridItem {
 public:
@@ -45,6 +46,7 @@ private:
     BRLS_BIND(brls::Label, labelFroward, "comment/label/forward");
     BRLS_BIND(brls::Label, labelReply, "comment/label/reply");
     BRLS_BIND(brls::Label, labelLike, "comment/label/like");
+    BRLS_BIND(SVGImage, svgLike, "comment/svg/like");
     // 动态不同分区
     BRLS_BIND(brls::Box, disputeArea, "dynamic/dispute_box");
     BRLS_BIND(brls::Box, topicArea, "dynamic/topic_box");

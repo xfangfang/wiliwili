@@ -112,34 +112,12 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentControl
     }
 }
 
-class LevelInfo {
-public:
-    LevelInfo() { current_level = 0; }
-    int current_level;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelInfo, current_level);
-
-class CommentUserResult {
-public:
-    CommentUserResult() {
-        is_uploader      = false;
-        is_senior_member = 0;
-    }
-
-    std::string mid, uname, avatar;
-    int is_senior_member{};
-    LevelInfo level_info{};
-    bool is_uploader{};
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CommentUserResult, mid, uname, avatar, is_senior_member, level_info);
-
 class VideoCommentResult {
 public:
     size_t ctime;
     int64_t rpid, parent, root;
     size_t oid;
-    CommentUserResult member;
+    UserCommentResult member;
     VideoCommentContent content;
     std::vector<VideoCommentResult> replies;
     VideoCommentControl reply_control;

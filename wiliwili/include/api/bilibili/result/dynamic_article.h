@@ -18,7 +18,7 @@ class DynamicArticleModuleNone {};
 class DynamicArticleModuleAuthor {
 public:
     std::string pub_text;
-    UserSimpleResult user;
+    UserDynamicResult user;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleAuthor, pub_text, user);
 

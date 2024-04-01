@@ -3,15 +3,15 @@
 //
 
 #include <borealis/views/applet_frame.hpp>
-#include <borealis/core/thread.hpp>
+#include <utility>
 
 #include "view/dynamic_article.hpp"
 #include "view/text_box.hpp"
 #include "view/dynamic_video_card.hpp"
 #include "view/video_comment.hpp"
+#include "view/svg_image.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/number_helper.hpp"
-#include "utils/string_helper.hpp"
 #include "fragment/player_single_comment.hpp"
 #include "utils/dialog_helper.hpp"
 
@@ -22,7 +22,7 @@ public:
     DataSourceDynamicDetailList(const bilibili::DynamicArticleResult& data,
                                 const bilibili::DynamicArticleModuleState& state, int mode,
                                 std::function<void(void)> cb)
-        : data(data), state(state), commentMode(mode), switchModeCallback(cb) {}
+        : data(data), state(state), commentMode(mode), switchModeCallback(std::move(cb)) {}
 
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         if (index == 0) {
@@ -124,9 +124,9 @@ public:
         });
     }
 
-    void appendData(const bilibili::VideoCommentListResult& data) {
+    void appendData(const bilibili::VideoCommentListResult& result) {
         bool skip = false;
-        for (auto& i : data) {
+        for (auto& i : result) {
             skip = false;
             for (auto& j : this->dataList) {
                 if (j.rpid == i.rpid) {
@@ -249,6 +249,12 @@ void DynamicArticleView::setCard(const bilibili::DynamicArticleResult& result) {
                 if (!data) break;
                 // 作者
                 this->author->setUserInfo(data->user.face + ImageHelper::face_ext, data->user.name, data->pub_text);
+                // 设置作者颜色
+                if (data->user.vip.nickname_color.empty()) {
+                    this->author->setMainTextColor(brls::Application::getTheme().getColor("brls/text"));
+                } else {
+                    this->author->getLabelName()->applyXMLAttribute("textColor", data->user.vip.nickname_color);
+                }
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_DESC: {
@@ -320,10 +326,14 @@ void DynamicArticleView::setCard(const bilibili::DynamicArticleResult& result) {
                 state = *data;
                 // 转发 回复 点赞
                 // todo: is_forbidden: 是否禁止转发，评论和点赞是否也有类似情况?
-                // todo: 自己是否已经点过赞
                 this->labelFroward->setText(data->forward.count == 0 ? "转发" : wiliwili::num2w(data->forward.count));
                 this->labelReply->setText(data->comment.count == 0 ? "评论" : wiliwili::num2w(data->comment.count));
                 this->labelLike->setText(data->like.count == 0 ? "点赞" : wiliwili::num2w(data->like.count));
+                if (data->like.like_state) {
+                    this->svgLike->setImageFromSVGRes("svg/comment-agree-active.svg");
+                } else {
+                    this->svgLike->setImageFromSVGRes("svg/comment-agree-grey.svg");
+                }
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_TOPIC: {
@@ -377,6 +387,11 @@ void DynamicArticleView::setForwardCard(const bilibili::dynamic_forward::Dynamic
                 if (!data) break;
                 // 作者
                 this->authorForward->setText("@" + data->user.name);
+                if (data->user.vip.nickname_color.empty()) {
+                    this->authorForward->setTextColor(brls::Application::getTheme().getColor("color/link"));
+                } else {
+                    this->authorForward->applyXMLAttribute("textColor", data->user.vip.nickname_color);
+                }
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_DESC: {
