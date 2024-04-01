@@ -239,6 +239,7 @@ void DynamicArticleView::setCard(const bilibili::DynamicArticleResult& result) {
     this->videoArea->setVisibility(brls::Visibility::GONE);
     this->forwardArea->setVisibility(brls::Visibility::GONE);
     this->topicArea->setVisibility(brls::Visibility::GONE);
+    this->disputeArea->setVisibility(brls::Visibility::GONE);
     this->state = bilibili::DynamicArticleModuleState();
 
     for (auto& j : result.modules) {
@@ -333,6 +334,14 @@ void DynamicArticleView::setCard(const bilibili::DynamicArticleResult& result) {
                 this->topicArea->setVisibility(brls::Visibility::VISIBLE);
                 break;
             }
+            case bilibili::DynamicArticleModuleType::MODULE_TYPE_DISPUTE: {
+                // 警告
+                auto* data = std::get_if<bilibili::DynamicArticleModuleDispute>(&j.data);
+                if (!data) break;
+                this->labelDispute->setText(data->title);
+                this->disputeArea->setVisibility(brls::Visibility::VISIBLE);
+                break;
+            }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_NULL: {
                 // 转发的动态已失效
                 auto* data = std::get_if<bilibili::DynamicArticleModuleNull>(&j.data);
@@ -359,6 +368,7 @@ void DynamicArticleView::setForwardCard(const bilibili::dynamic_forward::Dynamic
     this->imageAreaForward->setVisibility(brls::Visibility::GONE);
     this->videoAreaForward->setVisibility(brls::Visibility::GONE);
     this->topicAreaForward->setVisibility(brls::Visibility::GONE);
+    this->disputeAreaForward->setVisibility(brls::Visibility::GONE);
 
     for (auto& j : result.modules) {
         switch ((bilibili::DynamicArticleModuleType)j.data.index()) {
@@ -425,6 +435,14 @@ void DynamicArticleView::setForwardCard(const bilibili::dynamic_forward::Dynamic
                 if (!data) break;
                 this->labelTopicForward->setText(data->name);
                 this->topicAreaForward->setVisibility(brls::Visibility::VISIBLE);
+                break;
+            }
+            case bilibili::DynamicArticleModuleType::MODULE_TYPE_DISPUTE: {
+                // 警告
+                auto* data = std::get_if<bilibili::DynamicArticleModuleDispute>(&j.data);
+                if (!data) break;
+                this->labelDisputeForward->setText(data->title);
+                this->disputeAreaForward->setVisibility(brls::Visibility::VISIBLE);
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_NONE:

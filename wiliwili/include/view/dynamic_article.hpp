@@ -35,6 +35,8 @@ private:
     BRLS_BIND(UserInfoView, author, "dynamic/author");
     // 动态话题
     BRLS_BIND(brls::Label, labelTopic, "dynamic/topic");
+    // 动态警告
+    BRLS_BIND(brls::Label, labelDispute, "dynamic/dispute");
     // 动态文本
     BRLS_BIND(TextBox, textBox, "dynamic/content");
     // 动态图片
@@ -44,6 +46,7 @@ private:
     BRLS_BIND(brls::Label, labelReply, "comment/label/reply");
     BRLS_BIND(brls::Label, labelLike, "comment/label/like");
     // 动态不同分区
+    BRLS_BIND(brls::Box, disputeArea, "dynamic/dispute_box");
     BRLS_BIND(brls::Box, topicArea, "dynamic/topic_box");
     BRLS_BIND(brls::Box, contentArea, "dynamic/content_box");
     BRLS_BIND(brls::Box, imageArea, "dynamic/image_box");
@@ -53,6 +56,8 @@ private:
     /// 转发内容
     // 作者
     BRLS_BIND(brls::Label, authorForward, "dynamic/author/forward");
+    // 动态警告
+    BRLS_BIND(brls::Label, labelDisputeForward, "dynamic/dispute/forward");
     // 动态话题
     BRLS_BIND(brls::Label, labelTopicForward, "dynamic/topic/forward");
     // 动态文本
@@ -60,6 +65,7 @@ private:
     // 动态图片
     BRLS_BIND(TextBox, imageBoxForward, "dynamic/image/forward");
     // 动态不同分区
+    BRLS_BIND(brls::Box, disputeAreaForward, "dynamic/dispute_box/forward");
     BRLS_BIND(brls::Box, topicAreaForward, "dynamic/topic_box/forward");
     BRLS_BIND(brls::Box, contentAreaForward, "dynamic/content_box/forward");
     BRLS_BIND(brls::Box, imageAreaForward, "dynamic/image_box/forward");

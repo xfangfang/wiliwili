@@ -21,6 +21,34 @@
                 id="dynamic/author"/>
     </brls:Box>
 
+    <!--警告-->
+    <brls:Box
+            id="dynamic/dispute_box"
+            width="100%"
+            paddingBottom="10"
+            paddingLeft="30"
+            paddingRight="30">
+        <brls:Box
+                grow="1"
+                backgroundColor="@theme/color/yellow_1"
+                cornerRadius="4"
+                alignItems="center"
+                height="24">
+            <SVGImage
+                    height="16"
+                    width="16"
+                    marginLeft="8"
+                    marginTop="4"
+                    SVG="@res/svg/bili-dyn-dispute.svg"/>
+            <brls:Label
+                    id="dynamic/dispute"
+                    fontSize="16"
+                    marginLeft="4"
+                    textColor="@theme/font/yellow_1"/>
+        </brls:Box>
+    </brls:Box>
+
+    <!--话题-->
     <brls:Box
             id="dynamic/topic_box"
             width="100%"
@@ -101,6 +129,34 @@
                     textColor="@theme/color/link"/>
         </brls:Box>
 
+        <!--警告-->
+        <brls:Box
+                id="dynamic/dispute_box/forward"
+                width="100%"
+                paddingBottom="10"
+                paddingLeft="30"
+                paddingRight="30">
+            <brls:Box
+                    grow="1"
+                    backgroundColor="@theme/color/yellow_1"
+                    cornerRadius="4"
+                    alignItems="center"
+                    height="24">
+                <SVGImage
+                        height="16"
+                        width="16"
+                        marginLeft="8"
+                        marginTop="4"
+                        SVG="@res/svg/bili-dyn-dispute.svg"/>
+                <brls:Label
+                        id="dynamic/dispute/forward"
+                        fontSize="16"
+                        marginLeft="4"
+                        textColor="@theme/font/yellow_1"/>
+            </brls:Box>
+        </brls:Box>
+
+        <!--话题-->
         <brls:Box
                 id="dynamic/topic_box/forward"
                 width="100%"

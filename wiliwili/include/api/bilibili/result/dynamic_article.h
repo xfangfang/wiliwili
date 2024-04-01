@@ -33,7 +33,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleStateComment, count, type
 class DynamicArticleModuleStateForward {
 public:
     int count{}, type{};
-    std::string forbidden_msg; // 无法转发时的提示语
+    std::string forbidden_msg;  // 无法转发时的提示语
     bool is_forbidden{};
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleStateForward, count, type, forbidden_msg, is_forbidden);
@@ -90,17 +90,24 @@ public:
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleDraw, items);
 
 /// 动态话题
-class DynamicArticleModuleTopic{
+class DynamicArticleModuleTopic {
 public:
     int id{};
     std::string jump_url, name;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleTopic, id, jump_url, name);
 
+/// 警告话题
+class DynamicArticleModuleDispute {
+public:
+    std::string title;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleDispute, title);
+
 /// 动态空白
 class DynamicArticleModuleNull {
 public:
-    std::string text; // 动态失效具体的原因
+    std::string text;  // 动态失效具体的原因
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleNull, text);
 
@@ -111,6 +118,7 @@ enum class DynamicArticleModuleType {
     MODULE_TYPE_DATA,
     MODULE_TYPE_STAT,
     MODULE_TYPE_TOPIC,
+    MODULE_TYPE_DISPUTE,
     MODULE_TYPE_NULL,  // 转发的动态已失效
 };
 
@@ -128,7 +136,7 @@ enum class DynamicArticleModuleDataType {
         std::string module_type;                                                                                \
         std::variant<DynamicArticleModuleNone, DynamicArticleModuleAuthor, DynamicArticleModuleDesc,            \
                      DynamicArticleModuleData, DynamicArticleModuleState, DynamicArticleModuleTopic,            \
-                     DynamicArticleModuleNull>                                                                  \
+                     DynamicArticleModuleDispute, DynamicArticleModuleNull>                                     \
             data;                                                                                               \
     };                                                                                                          \
     inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicArticleModuleResult& nlohmann_json_t) { \
@@ -142,7 +150,12 @@ enum class DynamicArticleModuleDataType {
         } else if (nlohmann_json_t.module_type == "MODULE_TYPE_DESC") {                                         \
             nlohmann_json_t.data = nlohmann_json_j.at("module_desc").get<DynamicArticleModuleDesc>();           \
         } else if (nlohmann_json_t.module_type == "MODULE_TYPE_TOPIC") {                                        \
-            nlohmann_json_t.data = nlohmann_json_j.at("module_topic").get<DynamicArticleModuleTopic>();          \
+            if (nlohmann_json_j.contains("module_topic")) {                                                     \
+                nlohmann_json_t.data = nlohmann_json_j.at("module_topic").get<DynamicArticleModuleTopic>();     \
+            }                                                                                                   \
+            if (nlohmann_json_j.contains("module_dispute")) {                                                   \
+                nlohmann_json_t.data = nlohmann_json_j.at("module_dispute").get<DynamicArticleModuleDispute>();   \
+            }                                                                                                   \
         } else if (nlohmann_json_t.module_type == "MODULE_TYPE_ITEM_NULL") {                                    \
             nlohmann_json_t.data = nlohmann_json_j.at("module_item_null").get<DynamicArticleModuleNull>();      \
         } else {                                                                                                \
