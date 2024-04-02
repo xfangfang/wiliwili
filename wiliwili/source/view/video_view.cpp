@@ -53,6 +53,41 @@ static int getSeekRange(int current) {
         return true;                                                                  \
     }
 
+bool VideoView::openPlayerSetting(View *view) {
+    auto setting = new PlayerSetting();
+
+    if (this->localViewMode) {
+        setting->setupTrack();
+    }
+
+    setting->setBangumiCustomSetting(bangumiTitle, bangumiSeasonId);
+
+    // 不显示弹幕则认为不是在播放B站视频，此时隐藏设置菜单中的上传历史记录
+    if (!showHistorySetting) {
+        setting->hideHistoryCell();
+    }
+    if (!showVideoRelatedSetting) {
+        setting->hideVideoRelatedCells();
+    }
+    if (!showSubtitleSetting) {
+        setting->hideSubtitleCells();
+    }
+    if (!showBottomLineSetting) {
+        setting->hideBottomLineCells();
+    }
+    if (!showHighlightLineSetting) {
+        setting->hideHighlightLineCells();
+    }
+    if (!showOpeningCreditsSetting) {
+        setting->hideSkipOpeningCreditsSetting();
+    }
+    brls::Application::pushActivity(new brls::Activity(setting));
+    // 手动将焦点赋给设置页面
+    brls::sync([setting]() { brls::Application::giveFocus(setting); });
+    GA("open_player_setting");
+    return true;
+}
+
 VideoView::VideoView() {
     mpvCore = &MPVCore::instance();
     this->inflateFromXMLRes("xml/views/video_view.xml");
@@ -101,11 +136,11 @@ VideoView::VideoView() {
 
             /// 绑定设置按钮
             this->registerAction("PLAYER_SETTING", brls::ControllerButton::BUTTON_START,
-                                 [this](brls::View* view) -> bool {
-                                     CHECK_OSD(true);
-                                     APP_E->fire(VideoView::PLAYER_SETTING, nullptr);
-                                     return true;
-                                 });
+                 [this](brls::View* view) -> bool {
+                     CHECK_OSD(true);
+
+                     return this->openPlayerSetting(view);
+                 });
         } else {
             /// 清晰度按钮
             this->videoQuality->getParent()->registerClickAction([](...) {
@@ -155,6 +190,7 @@ VideoView::VideoView() {
                 new brls::TapGestureRecognizer(this->btnDanmakuSettingIcon->getParent()));
         }
     });
+    this->applyXMLAttribute("local", "false");
 
     this->registerAction(
         "\uE08F", brls::ControllerButton::BUTTON_LB,
@@ -424,9 +460,8 @@ VideoView::VideoView() {
     this->videoSpeed->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->videoSpeed->getParent()));
 
     /// 播放器设置按钮
-    this->btnSettingIcon->getParent()->registerClickAction([this](...) {
-        APP_E->fire(PLAYER_SETTING, nullptr);
-        return true;
+    this->btnSettingIcon->getParent()->registerClickAction([this](View *view) {
+        return this->openPlayerSetting(view);
     });
 
     this->btnSettingIcon->getParent()->addGestureRecognizer(
@@ -582,38 +617,6 @@ VideoView::VideoView() {
             // 显示重播按钮
             showReplay = true;
             this->refreshToggleIcon();
-        } else if (event == VideoView::PLAYER_SETTING) {
-            auto setting = new PlayerSetting();
-
-            if (this->localViewMode) {
-                setting->setupTrack();
-            }
-
-            setting->setBangumiCustomSetting(bangumiTitle, bangumiSeasonId);
-
-            // 不显示弹幕则认为不是在播放B站视频，此时隐藏设置菜单中的上传历史记录
-            if (!showHistorySetting) {
-                setting->hideHistoryCell();
-            }
-            if (!showVideoRelatedSetting) {
-                setting->hideVideoRelatedCells();
-            }
-            if (!showSubtitleSetting) {
-                setting->hideSubtitleCells();
-            }
-            if (!showBottomLineSetting) {
-                setting->hideBottomLineCells();
-            }
-            if (!showHighlightLineSetting) {
-                setting->hideHighlightLineCells();
-            }
-            if (!showOpeningCreditsSetting) {
-                setting->hideSkipOpeningCreditsSetting();
-            }
-            brls::Application::pushActivity(new brls::Activity(setting));
-            // 手动将焦点赋给设置页面
-            brls::sync([setting]() { brls::Application::giveFocus(setting); });
-            GA("open_player_setting")
         }
     });
 }
@@ -1226,6 +1229,7 @@ void VideoView::setFullScreen(bool fs) {
     brls::Logger::info("VideoView set fullscreen state: {}", fs);
     if (fs) {
         this->unRegisterMpvEvent();
+
         auto container = new brls::Box();
         auto video     = new VideoView();
         float width    = brls::Application::contentWidth;
@@ -1548,3 +1552,4 @@ void VideoView::onChildFocusGained(View* directChild, View* focusedView) {
 }
 
 float VideoView::getRealDuration() { return real_duration > 0 ? (float)real_duration : (float)mpvCore->duration; }
+

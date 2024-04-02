@@ -13,4 +13,6 @@ LocalPlayerActivity::~LocalPlayerActivity() {
 
 void LocalPlayerActivity::onContentAvailable() {
     this->video->setPath(this->filepath);
+    this->video->setTitle(this->filepath.filename().string());
+    MPV_E->fire(MpvEventEnum::RESET);
 }

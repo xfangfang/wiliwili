@@ -238,7 +238,6 @@ public:
     inline static const std::string REPLAY         = "REPLAY";
     inline static const std::string CLIP_INFO      = "CLIP_INFO";
     inline static const std::string REAL_DURATION  = "REAL_DURATION";
-    inline static const std::string PLAYER_SETTING = "PLAYER_SETTING";
 
     // 用于指定 lastPlayedPosition 的值
     // 若无历史记录，则为 -1，若不使用历史记录的值，则为 -2
@@ -375,4 +374,6 @@ private:
     void _setTvControlMode(bool state);
 
     float getRealDuration();
+
+    bool openPlayerSetting(View *view);
 };
