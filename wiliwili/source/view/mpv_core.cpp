@@ -1209,6 +1209,72 @@ std::unordered_map<std::string, mpv_node> MPVCore::getNodeMap(const std::string 
     return nodeMap;
 }
 
+mpv_node * getNodeFromMap(const char *key, mpv_node node) {
+    if (node.format != MPV_FORMAT_NODE_MAP) return nullptr;
+    for (int i = 0; i < node.u.list->num; i++) {
+        char *cur = node.u.list->keys[i];
+        if (strcmp(cur, key) == 0) {
+            return &node.u.list->values[i];
+        }
+    }
+    return nullptr;
+}
+
+std::vector<Track> MPVCore::getTracks() {
+    mpv_node node;
+    std::vector<Track> tracks;
+    if (mpvGetProperty(mpv, "track-list", MPV_FORMAT_NODE, &node) < 0) return tracks;
+    if (node.format != MPV_FORMAT_NODE_ARRAY) return tracks;
+
+    for (int i = 0; i < node.u.list->num; i++) {
+        mpv_node child = node.u.list->values[i];
+        if (child.format != MPV_FORMAT_NODE_MAP) return tracks;
+        Track track;
+
+        auto raw_id = getNodeFromMap("id", child);
+        if (raw_id != nullptr && raw_id->format == MPV_FORMAT_INT64) {
+            track.id = raw_id->u.int64;
+        }
+
+        auto raw_type = getNodeFromMap("type", child);
+        if (raw_type != nullptr && raw_type->format == MPV_FORMAT_STRING) {
+            track.type = std::string(raw_type->u.string);
+        }
+
+        auto raw_title = getNodeFromMap("title", child);
+        if (raw_title != nullptr && raw_title->format == MPV_FORMAT_STRING) {
+            track.title = std::string(raw_title->u.string);
+        }
+
+        auto raw_lang = getNodeFromMap("lang", child);
+        if (raw_lang != nullptr && raw_lang->format == MPV_FORMAT_STRING) {
+            track.lang = std::string(raw_lang->u.string);
+        }
+
+        auto raw_codec = getNodeFromMap("codec", child);
+        if (raw_codec != nullptr && raw_codec->format == MPV_FORMAT_STRING) {
+            track.codec = std::string(raw_codec->u.string);
+        }
+
+        auto raw_selected = getNodeFromMap("selected", child);
+        if (raw_selected != nullptr && raw_selected->format == MPV_FORMAT_FLAG) {
+            track.selected = raw_selected->u.flag;
+        }
+
+        tracks.push_back(track);
+    }
+    mpvFreeNodeContents(&node);
+    return tracks;
+}
+
+void MPVCore::setAudioId(int64_t aid) {
+    command_async("set", "aid", aid);
+}
+
+void MPVCore::setSubtitleId(int64_t sid) {
+    command_async("set", "sid", sid);
+}
+
 double MPVCore::getPlaybackTime() const { return playback_time; }
 
 void MPVCore::disableDimming(bool disable) {

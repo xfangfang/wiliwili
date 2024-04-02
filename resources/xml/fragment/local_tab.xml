@@ -1,0 +1,16 @@
+<brls:Box
+        marginLeft="8">
+    <AutoTabFrame
+            id="home/tab/frame"
+            defaultTab="0"
+            tabHeight="70"
+            tabItemActiveTextColor="@theme/color/bilibili"
+            disableNavigationRight="true"
+            sidebarPosition="top">
+
+        <Tab label="@i18n/wiliwili/local/disk/tab"
+             fontSize="22">
+            <LocalDisk/>
+        </Tab>
+    </AutoTabFrame>
+</brls:Box>

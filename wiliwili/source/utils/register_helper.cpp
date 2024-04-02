@@ -5,6 +5,8 @@
 #include "fragment/home_tab.hpp"
 #include "fragment/dynamic_tab.hpp"
 #include "fragment/mine_tab.hpp"
+#include "fragment/local_tab.hpp"
+#include "fragment/local_disk.hpp"
 #include "fragment/home_recommends.hpp"
 #include "fragment/home_hots_all.hpp"
 #include "fragment/home_hots_history.hpp"
@@ -79,6 +81,8 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("HomeTab", HomeTab::create);
     brls::Application::registerXMLView("DynamicTab", DynamicTab::create);
     brls::Application::registerXMLView("MineTab", MineTab::create);
+    brls::Application::registerXMLView("LocalTab", LocalTab::create);
+    brls::Application::registerXMLView("LocalDisk", LocalDisk::create);
     brls::Application::registerXMLView("HomeRecommends", HomeRecommends::create);
     brls::Application::registerXMLView("HomeHotsAll", HomeHotsAll::create);
     brls::Application::registerXMLView("HomeHotsHistory", HomeHotsHistory::create);

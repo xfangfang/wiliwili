@@ -57,6 +57,24 @@
                         marginBottom="30px">
 
                 </brls:Box>
+
+                <brls:Header
+                        id="setting/track/audio/header"
+                        width="auto"
+                        height="auto"
+                        visibility="gone"
+                        title="@i18n/wiliwili/player/setting/track/audio"
+                        marginBottom="0px"/>
+                <brls:Box
+                        id="setting/track/audio/box"
+                        width="100%"
+                        height="auto"
+                        visibility="gone"
+                        axis="column"
+                        marginBottom="30px">
+
+                </brls:Box>
+
                 <brls:Header
                         width="auto"
                         height="auto"
@@ -125,6 +143,7 @@
                             id="setting/video/custom/clip/end"
                             visibility="gone"/>
                 </brls:Box>
+
                 <brls:Header
                         id="setting/shaders/header"
                         width="auto"
@@ -137,9 +156,8 @@
                         height="auto"
                         axis="column"
                         marginBottom="30px">
-
-
                 </brls:Box>
+
                 <brls:Header
                         width="auto"
                         height="auto"

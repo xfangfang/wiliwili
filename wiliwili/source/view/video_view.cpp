@@ -66,14 +66,93 @@ VideoView::VideoView() {
     this->registerBoolXMLAttribute("allowFullscreen", [this](bool value) {
         this->allowFullscreen = value;
         if (!value) {
+            this->btnFullscreenIcon->setVisibility(brls::Visibility::GONE);
             this->btnFullscreenIcon->getParent()->setVisibility(brls::Visibility::GONE);
+            this->videoSpeed->applyXMLAttribute("focusRight", "video/speed");
             this->registerAction(
                 "cancel", brls::ControllerButton::BUTTON_B,
                 [this](brls::View* view) -> bool {
-                    this->dismiss();
+                    if (this->isOSDLock()) {
+                        this->toggleOSD();
+                    } else {
+                        if (this->getTvControlMode() && this->isOSDShown()) {
+                            this->toggleOSD();
+                            return true;
+                        }
+                        brls::Application::popActivity();
+                    }
                     return true;
                 },
                 true);
+        }
+    });
+
+    this->registerBoolXMLAttribute("local", [this](bool value) {
+        this->localViewMode = value;
+        if (value) {
+            this->hideOnlineCount();
+            this->hideDanmakuButton();
+            this->hideVideoQualityButton();
+            this->hideSkipOpeningCreditsSetting();
+            this->hideHighlightLineSetting();
+            this->hideHistorySetting();
+            this->hideVideoRelatedSetting();
+            this->hideDLNAButton();
+
+            /// 绑定设置按钮
+            this->registerAction("PLAYER_SETTING", brls::ControllerButton::BUTTON_START,
+                                 [this](brls::View* view) -> bool {
+                                     CHECK_OSD(true);
+                                     APP_E->fire(VideoView::PLAYER_SETTING, nullptr);
+                                     return true;
+                                 });
+        } else {
+            /// 清晰度按钮
+            this->videoQuality->getParent()->registerClickAction([](...) {
+                APP_E->fire(VideoView::QUALITY_CHANGE, nullptr);
+                return true;
+            });
+            this->videoQuality->getParent()->addGestureRecognizer(
+                new brls::TapGestureRecognizer(this->videoQuality->getParent()));
+
+            this->registerAction("wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
+                                 [this](brls::View* view) -> bool {
+                                     CHECK_OSD(true);
+                                     APP_E->fire(VideoView::QUALITY_CHANGE, nullptr);
+                                     return true;
+                                 });
+
+            /// 全屏按钮
+            this->btnFullscreenIcon->getParent()->registerClickAction([this](...) {
+                if (this->isFullscreen()) {
+                    this->setFullScreen(false);
+                } else {
+                    this->setFullScreen(true);
+                }
+                return true;
+            });
+            this->btnFullscreenIcon->getParent()->addGestureRecognizer(
+                new brls::TapGestureRecognizer(this->btnFullscreenIcon->getParent()));
+
+            /// 弹幕切换按钮
+            this->btnDanmakuIcon->getParent()->registerClickAction([this](...) {
+                this->toggleDanmaku();
+                return true;
+            });
+            this->btnDanmakuIcon->getParent()->addGestureRecognizer(
+                new brls::TapGestureRecognizer(this->btnDanmakuIcon->getParent()));
+
+            /// 弹幕设置按钮
+            this->btnDanmakuSettingIcon->getParent()->registerClickAction([](...) {
+                auto setting = new PlayerDanmakuSetting();
+                brls::Application::pushActivity(new brls::Activity(setting));
+                // 手动将焦点赋给设置页面
+                brls::sync([setting]() { brls::Application::giveFocus(setting); });
+                GA("open_danmaku_setting")
+                return true;
+            });
+            this->btnDanmakuSettingIcon->getParent()->addGestureRecognizer(
+                new brls::TapGestureRecognizer(this->btnDanmakuSettingIcon->getParent()));
         }
     });
 
@@ -294,20 +373,6 @@ VideoView::VideoView() {
         return true;
     });
 
-    /// 清晰度按钮
-    this->videoQuality->getParent()->registerClickAction([](...) {
-        APP_E->fire(VideoView::QUALITY_CHANGE, nullptr);
-        return true;
-    });
-    this->videoQuality->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->videoQuality->getParent()));
-    this->registerAction("wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
-                         [this](brls::View* view) -> bool {
-                             CHECK_OSD(true);
-                             APP_E->fire(VideoView::QUALITY_CHANGE, nullptr);
-                             return true;
-                         });
-
     /// 视频详情信息
     this->registerAction(
         "profile", brls::ControllerButton::BUTTON_BACK,
@@ -358,69 +423,12 @@ VideoView::VideoView() {
     });
     this->videoSpeed->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->videoSpeed->getParent()));
 
-    /// 全屏按钮
-    this->btnFullscreenIcon->getParent()->registerClickAction([this](...) {
-        if (this->isFullscreen()) {
-            this->setFullScreen(false);
-        } else {
-            this->setFullScreen(true);
-        }
-        return true;
-    });
-    this->btnFullscreenIcon->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->btnFullscreenIcon->getParent()));
-
-    /// 弹幕切换按钮
-    this->btnDanmakuIcon->getParent()->registerClickAction([this](...) {
-        this->toggleDanmaku();
-        return true;
-    });
-    this->btnDanmakuIcon->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->btnDanmakuIcon->getParent()));
-
-    /// 弹幕设置按钮
-    this->btnDanmakuSettingIcon->getParent()->registerClickAction([](...) {
-        auto setting = new PlayerDanmakuSetting();
-        brls::Application::pushActivity(new brls::Activity(setting));
-        // 手动将焦点赋给设置页面
-        brls::sync([setting]() { brls::Application::giveFocus(setting); });
-        GA("open_danmaku_setting")
-        return true;
-    });
-    this->btnDanmakuSettingIcon->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->btnDanmakuSettingIcon->getParent()));
-
     /// 播放器设置按钮
     this->btnSettingIcon->getParent()->registerClickAction([this](...) {
-        auto setting = new PlayerSetting();
-
-        setting->setBangumiCustomSetting(bangumiTitle, bangumiSeasonId);
-
-        // 不显示弹幕则认为不是在播放B站视频，此时隐藏设置菜单中的上传历史记录
-        if (!showHistorySetting) {
-            setting->hideHistoryCell();
-        }
-        if (!showVideoRelatedSetting) {
-            setting->hideVideoRelatedCells();
-        }
-        if (!showSubtitleSetting) {
-            setting->hideSubtitleCells();
-        }
-        if (!showBottomLineSetting) {
-            setting->hideBottomLineCells();
-        }
-        if (!showHighlightLineSetting) {
-            setting->hideHighlightLineCells();
-        }
-        if (!showOpeningCreditsSetting) {
-            setting->hideSkipOpeningCreditsSetting();
-        }
-        brls::Application::pushActivity(new brls::Activity(setting));
-        // 手动将焦点赋给设置页面
-        brls::sync([setting]() { brls::Application::giveFocus(setting); });
-        GA("open_player_setting")
+        APP_E->fire(PLAYER_SETTING, nullptr);
         return true;
     });
+
     this->btnSettingIcon->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnSettingIcon->getParent()));
 
@@ -574,6 +582,38 @@ VideoView::VideoView() {
             // 显示重播按钮
             showReplay = true;
             this->refreshToggleIcon();
+        } else if (event == VideoView::PLAYER_SETTING) {
+            auto setting = new PlayerSetting();
+
+            if (this->localViewMode) {
+                setting->setupTrack();
+            }
+
+            setting->setBangumiCustomSetting(bangumiTitle, bangumiSeasonId);
+
+            // 不显示弹幕则认为不是在播放B站视频，此时隐藏设置菜单中的上传历史记录
+            if (!showHistorySetting) {
+                setting->hideHistoryCell();
+            }
+            if (!showVideoRelatedSetting) {
+                setting->hideVideoRelatedCells();
+            }
+            if (!showSubtitleSetting) {
+                setting->hideSubtitleCells();
+            }
+            if (!showBottomLineSetting) {
+                setting->hideBottomLineCells();
+            }
+            if (!showHighlightLineSetting) {
+                setting->hideHighlightLineCells();
+            }
+            if (!showOpeningCreditsSetting) {
+                setting->hideSkipOpeningCreditsSetting();
+            }
+            brls::Application::pushActivity(new brls::Activity(setting));
+            // 手动将焦点赋给设置页面
+            brls::sync([setting]() { brls::Application::giveFocus(setting); });
+            GA("open_player_setting")
         }
     });
 }
@@ -843,6 +883,10 @@ std::string VideoView::genExtraUrlParam(int start, int end, const std::vector<st
     return extra;
 }
 
+void VideoView::setPath(const cpr::fs::path& path) {
+    mpvCore->setUrl(path.string());
+}
+
 void VideoView::setUrl(const std::string& url, int start, int end, const std::string& audio) {
     std::vector<std::string> audios;
     if (!audio.empty()) {
@@ -990,6 +1034,11 @@ void VideoView::setCenterHintIcon(const std::string& svg) { centerIcon2->setImag
 void VideoView::showCenterHint() { osdCenterBox2->setVisibility(brls::Visibility::VISIBLE); }
 
 void VideoView::hideCenterHint() { osdCenterBox2->setVisibility(brls::Visibility::GONE); }
+
+void VideoView::hideOnlineCount() {
+    this->videoOnlineCountLabel->setVisibility(brls::Visibility::GONE);
+    this->videoOnlineCountLabel->getParent()->setVisibility(brls::Visibility::GONE);
+}
 
 void VideoView::hideDanmakuButton() {
     enableDanmaku = false;

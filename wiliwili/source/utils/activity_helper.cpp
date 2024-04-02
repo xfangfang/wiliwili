@@ -5,6 +5,7 @@
 #include <borealis/core/application.hpp>
 #include "activity/player_activity.hpp"
 #include "activity/live_player_activity.hpp"
+#include "activity/local_player_activity.hpp"
 #include "activity/hint_activity.hpp"
 #include "activity/setting_activity.hpp"
 #include "activity/search_activity.hpp"
@@ -39,6 +40,12 @@ void Intent::openSeasonByEpId(int epId, int progress) {
 
 void Intent::openLive(int live, const std::string& name, const std::string& views) {
     auto activity = new LiveActivity(live, name, views);
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
+}
+
+void Intent::openLocal(const cpr::fs::path &path) {
+    auto activity = new LocalPlayerActivity(path);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);
 }

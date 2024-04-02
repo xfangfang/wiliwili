@@ -31,10 +31,17 @@
 
             <Tab label=""
                  fontSize="18"
-                 focusDown="main/setting"
                  icon="@res/svg/ico-mine.svg"
                  iconActivate="@res/svg/ico-mine-activate.svg">
                 <MineTab/>
+            </Tab>
+
+            <Tab label=""
+                 fontSize="18"
+                 focusDown="main/setting"
+                 icon="@res/svg/ico-local.svg"
+                 iconActivate="@res/svg/ico-local-activate.svg">
+                <LocalTab/>
             </Tab>
         </AutoTabFrame>
         <brls:Box

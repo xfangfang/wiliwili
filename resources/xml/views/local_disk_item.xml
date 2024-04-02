@@ -1,0 +1,52 @@
+<brls:Box width="auto"
+          height="auto"
+          alignItems="center"
+          justifyContent="spaceBetween">
+
+    <brls:Box width="auto"
+              height="auto"
+              grow="1"
+              paddingRight="16"
+              alignItems="center">
+        <SVGImage
+                id="icon"
+                marginLeft="10"
+                marginRight="10"
+                width="24"
+                height="24"
+                scalingType="fit"
+                SVG="@res/svg/ico-dynamic-hollow.svg"/>
+
+        <brls:Label singleLine="true" fontSize="18" width="auto" height="auto" id="local/disk/item/path" />
+    </brls:Box>
+
+    <brls:Box
+        width="240"
+        height="auto"
+        lineColor="@theme/color/line"
+        lineLeft="1"
+        lineRight="1"
+        justifyContent="center">
+        <brls:Label
+                singleLine="true"
+                fontSize="18"
+                width="auto"
+                height="auto"
+                id="local/disk/item/time" />
+    </brls:Box>
+
+
+    <brls:Box
+        height="auto"
+        width="120"
+        paddingLeft="10"
+        paddingRight="10"
+        justifyContent="flexEnd">
+        <brls:Label
+                singleLine="true"
+                fontSize="18"
+                width="auto"
+                height="auto"
+                id="local/disk/item/size" />
+    </brls:Box>
+</brls:Box>

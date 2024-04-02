@@ -1,0 +1,22 @@
+<!--<svg  width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--<path d="M6 6.25V8.25" stroke="#FF6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--<path d="M10 6.25V8.25" stroke="#FF6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--<path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#FF6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--<path d="M6 16V18" stroke="#FF6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--<path d="M10 16V18" stroke="#FF6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--<path d="M14 7.25H18" stroke="#FF6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--<path d="M14 17H18" stroke="#FF6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--<path d="M2 12H22" stroke="#FF6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--</svg>-->
+
+<!--<svg width="26" height="26" viewBox="0 0 238.687 238.687" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--<path d="M9.287,104.344h220.114c3.039,0,5.808,1.135,7.595,3.11c0.874,0.965,1.871,2.556,1.664,4.641l-10.773,108.326-->
+<!--	c-0.372,3.742-4.438,6.923-9.258,6.923H22.96c-4.721,0-8.78-3.103-9.243-6.766L0.044,112.143c-0.266-2.106,0.712-3.691,1.579-4.676-->
+<!--	C3.38,105.475,6.245,104.344,9.287,104.344z M31.01,89.344V71.198c0-5.216,4.427-9.854,9.642-9.854h157.383-->
+<!--	c5.216,0,8.976,4.639,8.976,9.854v18.146h20V47.605c0-4.143-2.606-7.262-6.749-7.262H132.01v-4.467-->
+<!--	c0-14.037-9.021-24.533-20.723-24.533H31.793c-11.701,0-20.783,10.496-20.783,24.533v53.467H31.01z" fill="#FF6699"/>-->
+<!--</svg>-->
+
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M19,8H7A3,3,0,0,0,4.26,9.78L2,14.87V5A2,2,0,0,1,4,3H8a2.05,2.05,0,0,1,1.4.56L11.83,6H17A2,2,0,0,1,19,8Zm2.81,2.42A1,1,0,0,0,21,10H7a1,1,0,0,0-.91.59l-4,9A1,1,0,0,0,3,21H18a1,1,0,0,0,.95-.68l3-9A1,1,0,0,0,21.81,10.42Z" fill="#FF6699"></path>
+</svg>

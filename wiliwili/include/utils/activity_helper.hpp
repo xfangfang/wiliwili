@@ -4,6 +4,7 @@
 
 #pragma once
 #include <string>
+#include <cpr/filesystem.h>
 
 class Intent {
 public:
@@ -12,6 +13,7 @@ public:
     static void openSeasonBySeasonId(int seasonId, int progress = -1);
     static void openSeasonByEpId(int epId, int progress = -1);
     static void openLive(int id, const std::string& name = "", const std::string& views = "");
+    static void openLocal(const cpr::fs::path &path);
 
     /// 开启收藏夹
     /// \param mid 收藏夹id

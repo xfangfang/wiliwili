@@ -8,6 +8,8 @@
 #include <borealis/core/box.hpp>
 #include <borealis/core/application.hpp>
 
+#include <cpr/filesystem.h>
+
 #include "utils/event_helper.hpp"
 
 namespace brls {
@@ -44,6 +46,8 @@ public:
     ~VideoView() override;
 
     /// Video control
+    void setPath(const cpr::fs::path& url);
+
     void setUrl(const std::string& url, int start = 0, int end = -1, const std::string& audio = "");
 
     void setBackupUrl(const std::string& url, int start = 0, int end = -1, const std::string& audio = "");
@@ -104,6 +108,8 @@ public:
     void setCenterHintIcon(const std::string& svg);
 
     void hideCenterHint();
+
+    void hideOnlineCount();
 
     void hideDanmakuButton();
 
@@ -232,6 +238,7 @@ public:
     inline static const std::string REPLAY         = "REPLAY";
     inline static const std::string CLIP_INFO      = "CLIP_INFO";
     inline static const std::string REAL_DURATION  = "REAL_DURATION";
+    inline static const std::string PLAYER_SETTING = "PLAYER_SETTING";
 
     // 用于指定 lastPlayedPosition 的值
     // 若无历史记录，则为 -1，若不使用历史记录的值，则为 -2
@@ -248,6 +255,7 @@ public:
     inline static bool HIGHLIGHT_PROGRESS_BAR = false;
 
 private:
+    bool localViewMode = false;
     bool allowFullscreen  = true;
     bool registerMPVEvent = false;
     bool enableDanmaku    = true;

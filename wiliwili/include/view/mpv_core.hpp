@@ -126,6 +126,16 @@ extern mpvRenderContextFreeFunc mpvRenderContextFree;
 #define mpvRenderContextFree mpv_render_context_free
 #endif
 
+class Track {
+public:
+    int64_t id;
+    std::string type;
+    std::string title;
+    std::string lang;
+    std::string codec;
+    bool selected;
+};
+
 class MPVCore : public brls::Singleton<MPVCore> {
 public:
     MPVCore();
@@ -156,6 +166,8 @@ public:
     int64_t getInt(const std::string &key);
     std::unordered_map<std::string, mpv_node> getNodeMap(const std::string &key);
 
+    std::vector<Track> getTracks();
+
     /// Set MPV States
 
     /**
@@ -181,6 +193,9 @@ public:
 
     void setVolume(int64_t value);
     void setVolume(const std::string &value);
+
+    void setAudioId(int64_t aid);
+    void setSubtitleId(int64_t aid);
 
     void resume();
 

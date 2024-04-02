@@ -39,6 +39,8 @@ public:
 
     void setupCommonSetting();
 
+    void setupTrack();
+
     void setupSubtitle();
 
     void hideHistoryCell();
@@ -96,6 +98,10 @@ private:
     BRLS_BIND(brls::BooleanCell, btnClip, "setting/video/custom/clip");
     BRLS_BIND(brls::InputNumericCell, btnClipStart, "setting/video/custom/clip/start");
     BRLS_BIND(brls::InputNumericCell, btnClipEnd, "setting/video/custom/clip/end");
+
+    // audio track setting
+    BRLS_BIND(brls::Header, trackAudioHeader, "setting/track/audio/header");
+    BRLS_BIND(brls::Box, trackAudioBox, "setting/track/audio/box");
 
     unsigned int seasonId{};
 

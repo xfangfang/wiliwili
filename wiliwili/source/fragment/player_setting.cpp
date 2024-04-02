@@ -22,7 +22,24 @@
 #include "view/svg_image.hpp"
 #include "view/mpv_core.hpp"
 
+#include <format>
+#include <utility>
+
 using namespace brls::literals;
+
+class TrackCell : public brls::RadioCell {
+public:
+    explicit TrackCell(int64_t id, std::string type): id(id), type(std::move(type)) {}
+    int64_t getId() {
+        return this->id;
+    }
+    std::string getType() {
+        return this->type;
+    }
+private:
+    int64_t id;
+    std::string type;
+};
 
 PlayerSetting::PlayerSetting() {
     this->inflateFromXMLRes("xml/fragment/player_setting.xml");
@@ -354,6 +371,78 @@ void PlayerSetting::registerHideBackground(brls::View* view) {
 
     view->getFocusLostEvent()->subscribe(
         [this](...) { this->setBackgroundColor(brls::Application::getTheme().getColor("brls/backdrop")); });
+}
+
+void PlayerSetting::setupTrack() {
+    auto &mpv = MPVCore::instance();
+    if (!mpv.isValid()) {
+        return;
+    }
+
+    auto& sub = SubtitleCore::instance();
+
+    std::vector<Track> tracks = mpv.getTracks();
+    for (auto &track : tracks) {
+        TrackCell *cell = nullptr;
+
+        std::string lang;
+        if (!track.lang.empty()) {
+            lang = brls::internal::getRawStr(fmt::format("iso639/{}", track.lang));
+        } else {
+            lang = "iso639/und"_i18n;
+        }
+
+        if (track.type == "audio") {
+            cell = new TrackCell(track.id, track.type);
+
+            if (trackAudioBox->getVisibility() == brls::Visibility::GONE) {
+                trackAudioBox->setVisibility(brls::Visibility::VISIBLE);
+                trackAudioHeader->setVisibility(brls::Visibility::VISIBLE);
+            }
+
+            trackAudioBox->addView(cell);
+        } else if (track.type == "sub" && !sub.isAvailable()) {
+            cell = new TrackCell(track.id, track.type);
+
+            registerHideBackground(cell);
+
+            if (subtitleBox->getVisibility() == brls::Visibility::GONE) {
+                subtitleBox->setVisibility(brls::Visibility::VISIBLE);
+                subtitleHeader->setVisibility(brls::Visibility::VISIBLE);
+            }
+
+            subtitleBox->addView(cell);
+        }
+
+        if (cell != nullptr) {
+            if (track.title.empty()) {
+                cell->title->setText(lang);
+            } else {
+                cell->title->setText(fmt::format("{} - {}", lang, track.title));
+            }
+
+            cell->setSelected(track.selected);
+
+            cell->registerClickAction([cell, this](...) {
+                if (cell->getSelected()) return false;
+
+                cell->setSelected(true);
+
+                for (auto& child : cell->getParent()->getChildren()) {
+                    auto* v = dynamic_cast<brls::RadioCell*>(child);
+                    if (cell == v) continue;
+                    if (v) v->setSelected(false);
+                }
+
+                if (cell->getType() == "audio") {
+                    MPVCore::instance().setAudioId(cell->getId());
+                } else if (cell->getType() == "sub") {
+                    MPVCore::instance().setSubtitleId(cell->getId());
+                }
+                return true;
+            });
+        }
+    }
 }
 
 void PlayerSetting::setupSubtitle() {

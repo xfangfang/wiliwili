@@ -361,6 +361,9 @@
       },
       "shader": {
         "header": "着色器"
+      },
+      "track": {
+        "audio": "音轨"
       }
     },
     "cast": {
@@ -429,5 +432,10 @@
   "dialog": {
     "not_supported": "不支持此功能",
     "quit_hint": "正在退出应用..."
+  },
+  "local": {
+    "disk": {
+      "tab":"本地磁盘"
+    }
   }
 }
