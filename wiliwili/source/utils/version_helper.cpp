@@ -67,7 +67,7 @@ bool APPVersion::needUpdate(std::string latestVersion) {
     std::vector<std::string> v;
     pystring::split(latestVersion, v, ".");
     if (v.size() < 3) {
-        brls::Logger::error("Cannot parse version info");
+        brls::Logger::error("Cannot parse version info: {}", latestVersion);
         return false;
     }
     if (atoi(v[0].c_str()) > major) return true;

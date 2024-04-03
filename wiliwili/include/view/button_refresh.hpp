@@ -21,7 +21,6 @@ public:
         refreshIcon->setDimensions(32, 32);
         if (brls::Application::getThemeVariant() == brls::ThemeVariant::LIGHT) {
             refreshIcon->setImageFromSVGRes("svg/bpx-svg-sprite-replay-grey.svg");
-
         } else {
             refreshIcon->setImageFromSVGRes("svg/bpx-svg-sprite-replay.svg");
         }
