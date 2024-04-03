@@ -8,6 +8,7 @@
             height="auto"
             width="100%"
             aspectRatio="1.78"
+            cornerRadius="8"
             image="@res/pictures/video-card-bg.png"/>
 
     <brls:Box
@@ -17,6 +18,8 @@
             background="vertical_linear"
             backgroundStartColor="#000000CC"
             backgroundEndColor="#00000000"
+            backgroundTopLeftRadius="8"
+            backgroundTopRightRadius="8"
             width="100%"
             height="20%"
             paddingLeft="20"
@@ -32,6 +35,8 @@
             positionBottom="0"
             positionType="absolute"
             background="vertical_linear"
+            backgroundBottomLeftRadius="8"
+            backgroundBottomRightRadius="8"
             paddingLeft="10"
             paddingRight="10"
             width="100%"

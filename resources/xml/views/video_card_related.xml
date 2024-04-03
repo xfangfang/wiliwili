@@ -28,7 +28,7 @@
             <brls:Label
                     id="video/card/label/duration"
                     positionType="absolute"
-                    positionRight="0"
+                    positionRight="2"
                     textColor="#FFFFFF"
                     fontSize="16"/>
         </brls:Box>

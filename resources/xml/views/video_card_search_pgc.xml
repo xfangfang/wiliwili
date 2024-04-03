@@ -46,10 +46,10 @@
             <brls:Label
                     id="video/card/label/bottom"
                     positionType="absolute"
-                    positionRight="0"
+                    positionRight="8"
+                    positionBottom="8"
                     textColor="#FFFFFF"
-                    fontSize="16"
-                    text=""/>
+                    fontSize="16"/>
         </brls:Box>
     </brls:Box>
 
