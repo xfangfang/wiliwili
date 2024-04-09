@@ -17,12 +17,16 @@
 #include "utils/config_helper.hpp"
 #include "utils/activity_helper.hpp"
 #include "view/mpv_core.hpp"
+#include <iostream>
+
 
 #ifdef IOS
 #include <SDL2/SDL_main.h>
 #endif
 
 int main(int argc, char* argv[]) {
+    std::string bv_url;
+    std::string bv;
     for (int i = 1; i < argc; i++) {
         if (std::strcmp(argv[i], "-d") == 0) {
             brls::Logger::setLogLevel(brls::LogLevel::LOG_DEBUG);
@@ -33,6 +37,10 @@ int main(int argc, char* argv[]) {
         } else if (std::strcmp(argv[i], "-o") == 0) {
             const char* path = (i + 1 < argc) ? argv[++i] : "wiliwili.log";
             brls::Logger::setLogOutput(std::fopen(path, "w+"));
+        } else if (std::strcmp(argv[i], "-u") == 0) {
+            bv_url = (i + 1 < argc) ? std::string(argv[++i]) : "";
+            bv = bv_url.substr(bv_url.find(":")+1);
+            std::cout << bv << '\n' ;
         }
     }
 
@@ -61,7 +69,9 @@ int main(int argc, char* argv[]) {
     if (brls::Application::getPlatform()->isApplicationMode()) {
         Intent::openMain();
         // Uncomment these lines to debug activities
-        //        Intent::openBV("BV1Da411Y7U4");  // 弹幕防遮挡 (横屏)
+            if (bv != "") {
+                Intent::openBV(bv);  // 弹幕防遮挡 (横屏)
+            }
         //        Intent::openBV("BV1iN4y1m7J3");  // 弹幕防遮挡 (竖屏)
         //        Intent::openBV("BV1kT4y1s7od"); // 高级弹幕 测试0
         //        Intent::openBV("BV1eN4y147bC"); // 高级弹幕 测试1
