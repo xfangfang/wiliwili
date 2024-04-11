@@ -1,0 +1,85 @@
+<brls:Box
+        wireframe="false"
+        axis="column"
+        width="auto"
+        height="auto">
+
+        <brls:Label
+                width="100%"
+                height="auto"
+                fontSize="16"
+                marginBottom="10"
+                horizontalAlign="center"
+                visibility="gone"
+                id="msg/time"
+                wireframe="false"
+                textColor="@theme/font/grey" />
+
+        <brls:Box
+                focusable="true"
+                wireframe="false"
+                paddingLeft="10"
+                paddingRight="10"
+                width="auto"
+                height="auto">
+
+                <brls:Box
+                        wireframe="false"
+                        marginRight="15">
+                        <brls:Image
+                                id="avatar/talker"
+                                width="40"
+                                height="40"
+                                visibility="invisible"
+                                aspectRatio="1"
+                                scalingType="fit"
+                                borderThickness="4"
+                                borderColor="@theme/color/grey_1"
+                                cornerRadius="100"
+                                image="@res/pictures/default_avatar.png" />
+                </brls:Box>
+
+                <brls:Box
+                        id="msg/content_box"
+                        backgroundColor="@theme/color/grey_1"
+                        highlightCornerRadius="16"
+                        cornerRadius="16"
+                        visibility="gone"
+                        axis="column"
+                        grow="1"
+                        padding="15">
+                        <TextBox
+                                id="msg/content"
+                                lineHeight="1.5"
+                                width="100%" />
+                </brls:Box>
+
+                <brls:Box
+                        id="msg/picture_box"
+                        visibility="gone"
+                        grow="1">
+                        <brls:Image
+                                id="msg/picture"
+                                scalingType="fit"
+                                image="@res/pictures/video-card-bg.png" />
+                </brls:Box>
+
+                <brls:Box
+                        wireframe="false"
+                        marginLeft="15">
+                        <brls:Image
+                                id="avatar/mine"
+                                width="40"
+                                height="40"
+                                visibility="invisible"
+                                aspectRatio="1"
+                                scalingType="fit"
+                                borderThickness="4"
+                                borderColor="@theme/color/grey_1"
+                                cornerRadius="100"
+                                image="@res/pictures/default_avatar.png" />
+                </brls:Box>
+
+        </brls:Box>
+
+</brls:Box>

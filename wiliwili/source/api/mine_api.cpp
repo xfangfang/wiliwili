@@ -3,12 +3,14 @@
 //
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
+#include <fmt/format.h>
 #include "bilibili.h"
 #include "bilibili/util/md5.hpp"
 #include "curl/curl.h"
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/home_result.h"
 #include "bilibili/result/setting.h"
+#include "bilibili/result/inbox_result.h"
 #include "bilibili/result/mine_collection_result.h"
 #include "bilibili/result/mine_bangumi_result.h"
 #include "bilibili/result/mine_result.h"
@@ -122,6 +124,59 @@ void BilibiliClient::get_user_dynamic_count(const std::string& mid,
                                             const std::function<void(UserDynamicCount)>& callback,
                                             const ErrorCallback& error) {
     HTTP::getResultAsync<UserDynamicCount>(Api::UserDynamicStat, {{"uids", mid}}, callback, error);
+}
+
+void BilibiliClient::get_user_cards(const std::vector<unsigned int> uids,
+                                    const std::function<void(UserCardListResult)>& callback,
+                                    const ErrorCallback& error) {
+    std::string mid = fmt::format("{}", fmt::join(uids, ","));
+    HTTP::getResultAsync<UserCardListResult>(Api::UserCards, {{"uids", mid}}, callback, error);
+}
+
+void BilibiliClient::new_inbox_sessions(time_t begin_ts,
+                        const std::function<void(InboxChatResultWrapper)>& callback,
+                        const ErrorCallback& error) {
+    HTTP::getResultAsync<InboxChatResultWrapper>(Api::ChatSessions, {{"begin_ts", std::to_string(begin_ts)}}, callback, error);        
+}
+
+void BilibiliClient::fetch_inbox_msgs(const std::string& talker_id, size_t size,
+                                  int session_type,
+                                  const std::string& begin_seqno,
+                                  const std::function<void(InboxMessageResultWrapper)>& callback,
+                                  const ErrorCallback& error) {
+    HTTP::getResultAsync<InboxMessageResultWrapper>(Api::ChatFetchMsgs, {
+        {"talker_id", talker_id},
+        {"session_type", std::to_string(session_type)},
+        {"begin_seqno", begin_seqno},
+        {"size", std::to_string(size)},
+    }, callback, error);              
+}
+
+void BilibiliClient::msg_feed_reply(const MsgFeedCursor& cursor,
+                                    const std::function<void(FeedReplyResultWrapper)>& callback,
+                                    const ErrorCallback& error) {
+    HTTP::getResultAsync<FeedReplyResultWrapper>(Api::MsgFeedReply,
+                                                    {{"id", std::to_string(cursor.id)},
+                                                     {"reply_time", std::to_string(cursor.time)}},
+                                                    callback, error);
+}
+
+void BilibiliClient::msg_feed_at(const MsgFeedCursor& cursor,
+                                    const std::function<void(FeedAtResultWrapper)>& callback,
+                                    const ErrorCallback& error) {
+    HTTP::getResultAsync<FeedAtResultWrapper>(Api::MsgFeedAt,
+                                                    {{"id", std::to_string(cursor.id)},
+                                                     {"at_time", std::to_string(cursor.time)}},
+                                                    callback, error);
+}
+
+void BilibiliClient::msg_feed_like(const MsgFeedCursor& cursor,
+                                    const std::function<void(FeedLikeResultWrapper)>& callback,
+                                    const ErrorCallback& error) {
+    HTTP::getResultAsync<FeedLikeResultWrapper>(Api::MsgFeedLike,
+                                                    {{"id", std::to_string(cursor.id)},
+                                                     {"like_time", std::to_string(cursor.time)}},
+                                                    callback, error);
 }
 
 /// get person history videos

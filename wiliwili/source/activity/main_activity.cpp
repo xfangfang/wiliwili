@@ -72,5 +72,21 @@ void MainActivity::onContentAvailable() {
         }
         return (brls::View*)nullptr;
     });
-    this->settingBtn->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->settingBtn));
+    this->settingBtn->addGestureRecognizer(new brls::TapGestureRecognizer(this->settingBtn));
+
+    this->inboxBtn->registerClickAction([](brls::View* view) -> bool {
+        Intent::openInbox();
+        return true;
+    });
+
+    this->inboxBtn->getFocusEvent()->subscribe([this](bool value) {
+        SVGImage* image = dynamic_cast<SVGImage*>(this->inboxBtn->getChildren()[0]);
+        if (!image) return;
+        if (value) {
+            image->setImageFromSVGRes("svg/ico-inbox-activate.svg");
+        } else {
+            image->setImageFromSVGRes("svg/ico-inbox.svg");
+        }
+    });
+    this->inboxBtn->addGestureRecognizer(new brls::TapGestureRecognizer(this->inboxBtn));
 }

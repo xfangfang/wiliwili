@@ -169,7 +169,14 @@ const std::string CollectionVideoList     = _apiBase + "/x/v3/fav/resource/list"
 const std::string CollectionVideoListSave = _apiBase + "/x/v3/fav/resource/deal";
 const std::string UserUploadedVideo       = _apiBase + "/x/space/arc/search";
 const std::string UserRelationStat        = _apiBase + "/x/relation/stat";
+const std::string MsgFeedLike             = _apiBase + "/x/msgfeed/like";
+const std::string MsgFeedAt               = _apiBase + "/x/msgfeed/at";
+const std::string MsgFeedReply            = _apiBase + "/x/msgfeed/reply";
+const std::string UserCards               = _vcBase + "/account/v1/user/cards";
 const std::string UserDynamicStat         = _vcBase + "/dynamic_svr/v1/dynamic_svr/space_num_ex";
+const std::string ChatSessions            = _vcBase + "/session_svr/v1/session_svr/new_sessions";
+const std::string ChatFetchMsgs           = _vcBase + "/svr_sync/v1/svr_sync/fetch_session_msgs";
+const std::string ChatSendMsg             = _vcBase + "/web_im/v1/web_im/send_msg";
 /// 用户追番/追剧
 const std::string UserBangumiCollection = _apiBase + "/x/space/bangumi/follow/list";
 /// 用户订阅合集列表

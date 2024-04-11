@@ -28,6 +28,9 @@ public:
     // 开启应用设置
     static void openSetting();
 
+    // 开启消息盒子
+    static void openInbox();
+
     // switch 应用开启教程
     static void openHint();
 

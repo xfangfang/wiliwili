@@ -28,6 +28,15 @@ typedef DynamicListResultWrapper<DynamicArticleListResult>
     DynamicArticleListResultWrapper;  // 动态 全部或指定UP主图文列表
 class DynamicUpListResultWrapper;     // 动态 最近更新的UP主列表
 class UserDynamicVideoResultWrapper;  // 动态 单个up主视频列表
+class MsgFeedCursor;                  // 消息页 回复列表游标
+class FeedReplyResultWrapper;         // 消息页 回复列表
+class FeedAtResultWrapper;            // 消息页 at 列表
+class FeedLikeResultWrapper;          // 消息页 赞列表
+class UserCardResult;
+typedef std::vector<UserCardResult> UserCardListResult;
+class InboxChatResultWrapper;
+class InboxMessageResultWrapper;
+class DynamicVideoResult;
 class PGCIndexResultWrapper;
 class PGCIndexFilterWrapper;
 class PGCResultWrapper;
@@ -123,6 +132,37 @@ public:
     static void get_user_dynamic_count(const std::string& mid,
                                        const std::function<void(UserDynamicCount)>& callback = nullptr,
                                        const ErrorCallback& error                            = nullptr);
+
+    /// 批量获取用户昵称头像
+    static void get_user_cards(const std::vector<unsigned int> uids,
+                               const std::function<void(UserCardListResult)>& callback = nullptr,
+                               const ErrorCallback& error                              = nullptr);
+
+    /// 私信消息记录
+    static void new_inbox_sessions(time_t begin_ts = 0,
+                                  const std::function<void(InboxChatResultWrapper)>& callback = nullptr,
+                                  const ErrorCallback& error                                  = nullptr);
+
+    /// 私信消息记录
+    static void fetch_inbox_msgs(const std::string& talker_id, size_t size = 20, int session_type = 1,
+                                 const std::string& begin_seqno = "",
+                                 const std::function<void(InboxMessageResultWrapper)>& callback = nullptr,
+                                 const ErrorCallback& error                                     = nullptr);
+
+    /// 消息页 回复列表
+    static void msg_feed_reply(const MsgFeedCursor& cursor,
+                                    const std::function<void(FeedReplyResultWrapper)>& callback = nullptr,
+                                    const ErrorCallback& error                                  = nullptr);
+
+    /// 消息页 at 列表
+    static void msg_feed_at(const MsgFeedCursor& cursor,
+                                    const std::function<void(FeedAtResultWrapper)>& callback = nullptr,
+                                    const ErrorCallback& error                               = nullptr);
+
+    /// 消息页 收到的赞列表
+    static void msg_feed_like(const MsgFeedCursor& cursor,
+                                    const std::function<void(FeedLikeResultWrapper)>& callback = nullptr,
+                                    const ErrorCallback& error                                 = nullptr);
 
     /// get person history videos
     static void get_my_history(const HistoryVideoListCursor& cursor,
@@ -222,7 +262,7 @@ public:
                                 const ErrorCallback& error                           = nullptr);
 
     /// 获取视频防遮挡数据
-    static void get_webmask(const std::string& url, uint64_t rangeStart, uint64_t rangeEnd,
+    static void get_webmask(const std::string& url, int64_t rangeStart, int64_t rangeEnd,
                             const std::function<void(std::string)>& callback = nullptr,
                             const ErrorCallback& error                       = nullptr);
 

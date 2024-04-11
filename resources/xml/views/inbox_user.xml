@@ -1,0 +1,25 @@
+<brls:Box
+        wireframe="false"
+        highlightCornerRadius="8"
+        cornerRadius="8"
+        alignItems="center"
+        justifyContent="spaceBetween"
+        paddingLeft="20"
+        paddingRight="20"
+        width="auto"
+        height="auto">
+
+        <UserInfoView
+                height="100%"
+                id="chat/talker" />
+
+        <brls:Label
+                id="inbox/lastTime"
+                width="80"
+                height="auto"
+                fontSize="16"
+                horizontalAlign="right"
+                wireframe="false"
+                textColor="@theme/font/grey" />
+
+</brls:Box>

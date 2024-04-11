@@ -45,6 +45,7 @@
                 alignItems="center"
                 positionType="absolute"
                 positionBottom="20">
+
             <CustomButton
                     id="main/setting"
                     focusable="true"
@@ -56,6 +57,19 @@
                         width="48"
                         height="48"
                         SVG="@res/svg/ico-setting.svg"/>
+            </CustomButton>
+
+            <CustomButton
+                id="main/inbox"
+                focusable="true"
+                highlightCornerRadius="50"
+                cornerRadius="50"
+                wireframe="false">
+                <SVGImage
+                        focusable="true"
+                        width="48"
+                        height="48"
+                        SVG="@res/svg/ico-inbox.svg"/>
             </CustomButton>
         </brls:Box>
     </brls:Box>

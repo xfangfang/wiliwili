@@ -14,6 +14,7 @@
 #include "activity/gallery_activity.hpp"
 #include "activity/dlna_activity.hpp"
 #include "fragment/mine_collection_video_list.hpp"
+#include "fragment/inbox_view.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/config_helper.hpp"
 
@@ -74,6 +75,11 @@ void Intent::openSetting() {
     auto activity = new SettingActivity();
     brls::Application::pushActivity(activity);
     registerFullscreen(activity);
+}
+
+void Intent::openInbox() {
+    auto inbox = new InboxView();
+    brls::Application::pushActivity(new brls::Activity(inbox));
 }
 
 void Intent::openHint() { brls::Application::pushActivity(new HintActivity()); }

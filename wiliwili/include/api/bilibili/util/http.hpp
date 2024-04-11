@@ -99,7 +99,7 @@ public:
                     nlohmann::json res = nlohmann::json::parse(r.text);
                     int code           = res.at("code").get<int>();
                     if (code == 0) {
-                        if (res.contains("data") && res.at("data").is_object()) {
+                        if (res.contains("data") && (res.at("data").is_object() || res.at("data").is_array())) {
                             CALLBACK(res.at("data").get<ReturnType>());
                         } else if (res.contains("result") && res.at("result").is_object()) {
                             CALLBACK(res.at("result").get<ReturnType>());

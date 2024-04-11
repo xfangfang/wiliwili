@@ -1,0 +1,29 @@
+<brls:Box
+        wireframe="false"
+        axis="column"
+        height="auto"
+        width="auto">
+
+        <ButtonClose
+                id="button/close"
+                focusable="true"
+                positionType="absolute"
+                positionTop="10"
+                positionRight="10" />
+
+        <brls:Box
+                height="50">
+
+        </brls:Box>
+
+        <RecyclingGrid
+                grow="1"
+                preFetchLine="2"
+                spanCount="1"
+                flowMode="true"
+                itemHeight="1000"
+                paddingLeft="15"
+                paddingRight="20"
+                wireframe="false"
+                id="inbox/msgList" />
+</brls:Box>
