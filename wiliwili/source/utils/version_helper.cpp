@@ -84,8 +84,16 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
         cpr::GetCallback(
             [showUpToDateDialog](cpr::Response r) {
                 try {
+                    if (r.status_code != 200 || r.text.empty()) {
+                        brls::Logger::error("Cannot check update: {} {}", r.status_code, r.text);
+                        return;
+                    }
                     nlohmann::json res = nlohmann::json::parse(r.text);
                     auto info          = res.get<ReleaseNote>();
+                    if (info.tag_name.empty()) {
+                        brls::Logger::error("Cannot parse update info, tag_name is empty");
+                        return;
+                    }
                     if (!APPVersion::instance().needUpdate(info.tag_name)) {
                         brls::Logger::info("App is up to date");
                         if (showUpToDateDialog) {
