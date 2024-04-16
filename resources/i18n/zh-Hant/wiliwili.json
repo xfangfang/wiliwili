@@ -48,6 +48,7 @@
         "limited_fps": "最高幀數限制",
         "limited_fps_vsync": "垂直同步",
         "fullscreen": "全荧幕顯示",
+        "always_on_top": "窗口置頂",
         "tv_search": "電視風格搜尋頁",
         "clear_history": "清空搜尋記錄",
         "clear_season": "清空番劇自定義設定",

@@ -274,8 +274,17 @@ void PlayerSetting::setupCommonSetting() {
                             brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
                             GA("player_setting", {{"fullscreen", value ? "true" : "false"}});
                         });
+
+    btnAlwaysOnTop->init("wiliwili/setting/app/others/always_on_top"_i18n, conf.getBoolOption(SettingItem::ALWAYS_ON_TOP),
+                        [](bool value) {
+                            ProgramConfig::instance().setSettingItem(SettingItem::ALWAYS_ON_TOP, value);
+                            // 设置当前状态
+                            brls::Application::getPlatform()->setWindowAlwaysOnTop(value);
+                            GA("player_setting", {{"always_on_top", value ? "true" : "false"}});
+                        });
 #else
     btnFullscreen->setVisibility(brls::Visibility::GONE);
+    btnAlwaysOnTop->setVisibility(brls::Visibility::GONE);
 #endif
 
     btnEqualizerReset->registerClickAction([this](View* view) {
