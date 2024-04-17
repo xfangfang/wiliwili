@@ -52,7 +52,7 @@ RUN mkdir /src/ &&\
     echo \#\!/bin/bash -i >> /entrypoint.sh &&\
     echo >> /entrypoint.sh &&\
     echo "set -e" >> /entrypoint.sh &&\
-    echo "make -p /src/scripts/psv/module/" >> /entrypoint.sh &&\
+    echo "mkdir -p /src/scripts/psv/module/" >> /entrypoint.sh &&\
     echo "cp ${VITASDK}/arm-vita-eabi/suprx/*.suprx /src/scripts/psv/module/" >> /entrypoint.sh &&\
     echo "cd /src" >> /entrypoint.sh &&\
     echo "echo \"\$@\"" >> /entrypoint.sh &&\

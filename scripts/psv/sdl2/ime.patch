@@ -1,15 +1,93 @@
 diff --git a/src/video/vita/SDL_vitavideo.c b/src/video/vita/SDL_vitavideo.c
-index 9e823996e..f887ca4d0 100644
+index 9e823996e..52580f7cf 100644
 --- a/src/video/vita/SDL_vitavideo.c
 +++ b/src/video/vita/SDL_vitavideo.c
-@@ -438,16 +438,11 @@ void VITA_ImeEventHandler(void *arg, const SceImeEventData *e)
+@@ -400,10 +400,10 @@ SDL_bool VITA_HasScreenKeyboardSupport(_THIS)
+ #define SCE_IME_LANGUAGE_ENGLISH_US SCE_IME_LANGUAGE_ENGLISH
+ #endif
+
+-static void utf16_to_utf8(const uint16_t *src, uint8_t *dst)
++static void _utf16_to_utf8(const uint16_t *src, uint8_t *dst, uint32_t length)
+ {
+     int i;
+-    for (i = 0; src[i]; i++) {
++    for (i = 0; src[i] != 0 && i < length; i++) {
+         if (!(src[i] & 0xFF80)) {
+             *(dst++) = src[i] & 0xFF;
+         } else if (!(src[i] & 0xF800)) {
+@@ -425,41 +425,102 @@ static void utf16_to_utf8(const uint16_t *src, uint8_t *dst)
+     *dst = '\0';
+ }
+
++static void utf16_to_utf8(const uint16_t *src, uint8_t *dst) {
++    return _utf16_to_utf8(src, dst, SCE_IME_MAX_TEXT_LENGTH);
++}
++
++static void utf8_to_utf16(const uint8_t *src, uint16_t *dst) {
++    int i;
++    for (i = 0; src[i];) {
++        if ((src[i] & 0xE0) == 0xE0) {
++            *(dst++) = ((src[i] & 0x0F) << 12) | ((src[i + 1] & 0x3F) << 6) | (src[i + 2] & 0x3F);
++            i += 3;
++        } else if ((src[i] & 0xC0) == 0xC0) {
++            *(dst++) = ((src[i] & 0x1F) << 6) | (src[i + 1] & 0x3F);
++            i += 2;
++        } else {
++            *(dst++) = src[i];
++            i += 1;
++        }
++    }
++
++    *dst = '\0';
++}
++
++static SceUInt32 textFieldLength(const SceWChar16 *str, SceUInt32 maxLength)
++{
++    int i;
++    if (str == NULL)
++        return 0;
++    for (i = 0; i < maxLength; i++) {
++        if (str[i] == 0)
++            return i;
++    }
++    return i;
++}
++
+ #if defined(SDL_VIDEO_VITA_PVR)
+ SceWChar16 libime_out[SCE_IME_MAX_PREEDIT_LENGTH + SCE_IME_MAX_TEXT_LENGTH + 1];
+-char libime_initval[8] = { 1 };
++SceWChar16 libime_initval[SCE_IME_MAX_TEXT_LENGTH + 1];
+ SceImeCaret caret_rev;
++SceUInt32 caret_index;
++__attribute__((weak)) uint8_t* vita_ime_init_text = NULL;
++__attribute__((weak)) uint32_t vita_ime_max_text = 32;
++__attribute__((weak)) uint32_t vita_ime_type = 0;
+
+ void VITA_ImeEventHandler(void *arg, const SceImeEventData *e)
+ {
+     SDL_VideoData *videodata = (SDL_VideoData *)arg;
+-    SDL_Scancode scancode;
+     uint8_t utf8_buffer[SCE_IME_MAX_TEXT_LENGTH];
      switch (e->id) {
      case SCE_IME_EVENT_UPDATE_TEXT:
-         if (e->param.text.caretIndex == 0) {
--            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_BACKSPACE);
-+            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_ESCAPE);
-             sceImeSetText((SceWChar16 *)libime_initval, 4);
-         } else {
+-        if (e->param.text.caretIndex == 0) {
++        if (e->param.text.caretIndex < e->param.text.preeditIndex + e->param.text.preeditLength) {
++            // Prohibit adjusting the caret index during editing.
++            SDL_memset(&caret_rev, 0, sizeof(SceImeCaret));
++            caret_rev.index = e->param.text.preeditIndex + e->param.text.preeditLength;
++            sceImeSetCaret(&caret_rev);
++            break;
++        }
++
++        // Update caret index
++        caret_index = e->param.text.caretIndex;
++
++        // Update text
++        utf16_to_utf8(libime_out, utf8_buffer);
++        if (e->param.text.editLengthChange < 0) {
+             SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_BACKSPACE);
+-            sceImeSetText((SceWChar16 *)libime_initval, 4);
+-        } else {
 -            scancode = SDL_GetScancodeFromKey(*(SceWChar16 *)&libime_out[1]);
 -            if (scancode == SDL_SCANCODE_SPACE) {
 -                SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_SPACE);
@@ -17,8 +95,80 @@ index 9e823996e..f887ca4d0 100644
 -                utf16_to_utf8((SceWChar16 *)&libime_out[1], utf8_buffer);
 -                SDL_SendKeyboardText((const char *)utf8_buffer);
 -            }
-+            utf16_to_utf8((SceWChar16 *)&libime_out[1], utf8_buffer);
++        } else if (e->param.text.editLengthChange > 0) {
++            _utf16_to_utf8(&libime_out[e->param.text.editIndex], utf8_buffer, e->param.text.editLengthChange);
 +            SDL_SendKeyboardText((const char *)utf8_buffer);
++            sceImeSetText(libime_out, textFieldLength(libime_out, SCE_IME_MAX_TEXT_LENGTH));
              SDL_memset(&caret_rev, 0, sizeof(SceImeCaret));
-             SDL_memset(libime_out, 0, ((SCE_IME_MAX_PREEDIT_LENGTH + SCE_IME_MAX_TEXT_LENGTH + 1) * sizeof(SceWChar16)));
-             caret_rev.index = 1;
+-            SDL_memset(libime_out, 0, ((SCE_IME_MAX_PREEDIT_LENGTH + SCE_IME_MAX_TEXT_LENGTH + 1) * sizeof(SceWChar16)));
+-            caret_rev.index = 1;
++            caret_rev.index = e->param.text.caretIndex;
+             sceImeSetCaret(&caret_rev);
+-            sceImeSetText((SceWChar16 *)libime_initval, 4);
++        }
++
++        // Update preedit text
++        if (e->param.text.preeditLength == 0) {
++            SDL_memset(utf8_buffer, 0, SCE_IME_MAX_TEXT_LENGTH * sizeof(uint8_t));
++            SDL_SendEditingText((const char *)utf8_buffer, 0, 0);
++        } else {
++            _utf16_to_utf8(&libime_out[e->param.text.preeditIndex], utf8_buffer, e->param.text.preeditLength);
++            SDL_SendEditingText((const char *)utf8_buffer, 0, strlen((const char *)utf8_buffer));
+         }
+         break;
++    case SCE_IME_EVENT_UPDATE_CARET:
++        if (e->param.caretIndex < caret_index) {
++            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_LEFT);
++        } else {
++            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_RIGHT);
++        }
++        caret_index = e->param.caretIndex;
++        break;
+     case SCE_IME_EVENT_PRESS_ENTER:
+         SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_RETURN);
+     case SCE_IME_EVENT_PRESS_CLOSE:
+         sceImeClose();
+         videodata->ime_active = SDL_FALSE;
++        vita_ime_init_text = NULL;
+         break;
+     }
+ }
+@@ -478,16 +539,21 @@ void VITA_ShowScreenKeyboard(_THIS, SDL_Window *window)
+     sceImeParamInit(&param);
+
+     SDL_memset(libime_out, 0, ((SCE_IME_MAX_PREEDIT_LENGTH + SCE_IME_MAX_TEXT_LENGTH + 1) * sizeof(SceWChar16)));
++    SDL_memset(libime_initval, 0, ((SCE_IME_MAX_TEXT_LENGTH + 1) * sizeof(SceWChar16)));
++    caret_index = 0;
+
+-    param.supportedLanguages = SCE_IME_LANGUAGE_ENGLISH_US;
++    if (vita_ime_init_text != NULL)
++        utf8_to_utf16(vita_ime_init_text, libime_initval);
++
++    param.supportedLanguages = 0;
+     param.languagesForced = SCE_FALSE;
+-    param.type = SCE_IME_TYPE_DEFAULT;
+-    param.option = SCE_IME_OPTION_NO_ASSISTANCE;
++    param.type = (SceImeType) vita_ime_type;
++    param.option = SCE_IME_OPTION_NO_AUTO_CAPITALIZATION;
+     param.inputTextBuffer = libime_out;
+-    param.maxTextLength = SCE_IME_MAX_TEXT_LENGTH;
++    param.maxTextLength = vita_ime_max_text;
+     param.handler = VITA_ImeEventHandler;
+     param.filter = NULL;
+-    param.initialText = (SceWChar16 *)libime_initval;
++    param.initialText = libime_initval;
+     param.arg = videodata;
+     param.work = libime_work;
+
+@@ -544,6 +610,11 @@ void VITA_HideScreenKeyboard(_THIS, SDL_Window *window)
+     }
+
+     videodata->ime_active = SDL_FALSE;
++#else
++    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
++    videodata->ime_active = SDL_FALSE;
++    sceImeClose();
++    vita_ime_init_text = NULL;
+ #endif
+ }
+

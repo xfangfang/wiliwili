@@ -28,6 +28,7 @@
             <SVGImage
                     width="18"
                     height="18"
+                    marginTop="-1"
                     SVG="@res/svg/widget-people.svg"/>
             <brls:Label
                     marginLeft="4"
