@@ -72,7 +72,7 @@ public:
                                            recycler->reloadData();
                                        });
                 },
-                "", "", 500, "", 0);
+                "wiliwili/player/single_comment/hint"_i18n, "", 500, "", 0);
             return;
         }
 
