@@ -207,6 +207,9 @@ public:
 
     void setFullScreen(bool fs);
 
+    /// 分集点击事件
+    void setSeasonAction(brls::ActionListener action);
+
     void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
               brls::FrameContext* ctx) override;
 
@@ -276,6 +279,7 @@ private:
     MPVEvent::Subscription eventSubscribeID;
     CustomEvent::Subscription customEventSubscribeID;
     std::function<void()> customToggleAction = nullptr;
+    brls::ActionListener seasonAction = nullptr;
     brls::InputManager* input;
     NVGcolor bottomBarColor = brls::Application::getTheme().getColor("color/bilibili");
 
@@ -299,6 +303,7 @@ private:
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
     BRLS_BIND(brls::Label, videoQuality, "video/quality");
     BRLS_BIND(brls::Label, videoSpeed, "video/speed");
+    BRLS_BIND(brls::Label, showEpisode, "show/episode");
     BRLS_BIND(brls::Label, speedHintLabel, "video/speed/hint/label");
     BRLS_BIND(brls::Box, speedHintBox, "video/speed/hint/box");
     BRLS_BIND(brls::Box, btnToggle, "video/osd/toggle");

@@ -1213,6 +1213,12 @@ void VideoView::setFullScreen(bool fs) {
         if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
             video->hideLoading();
         }
+        if (this->seasonAction != nullptr) {
+            brls::View *view = video->showEpisode->getParent();
+            view->registerClickAction(this->seasonAction);
+            view->addGestureRecognizer(new brls::TapGestureRecognizer(view));
+            view->setVisibility(brls::Visibility::VISIBLE);
+        }
         container->addView(video);
         auto activity = new brls::Activity(container);
         brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
@@ -1272,6 +1278,10 @@ void VideoView::setFullScreen(bool fs) {
             brls::Application::popActivity(brls::TransitionAnimation::NONE);
         });
     }
+}
+
+void VideoView::setSeasonAction(brls::ActionListener action) {
+    this->seasonAction = action;
 }
 
 brls::View* VideoView::getDefaultFocus() {

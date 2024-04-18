@@ -3,6 +3,7 @@
 //
 
 #include <borealis/views/dialog.hpp>
+#include <borealis/views/dropdown.hpp>
 #include <borealis/core/touch/tap_gesture.hpp>
 
 #include "bilibili/result/home_pgc_season_result.h"
@@ -274,6 +275,19 @@ void PlayerSeasonActivity::onSeasonVideoInfo(const bilibili::SeasonResultWrapper
         item->setSubtitle(wiliwili::num2w(whole));
 
         return container;
+    });
+
+    video->setSeasonAction([this](brls::View *view){
+        std::vector<std::string> values;
+        for (const auto& item : this->episodeList) {
+            values.push_back(fmt::format("{} {}", item.title, item.long_title));
+        }
+        brls::Dropdown* dropdown = new brls::Dropdown(
+            "wiliwili/player/p"_i18n, values, [this](int selected) {
+                this->onIndexChange(selected); 
+            }, episodeResult.index);
+        brls::Application::pushActivity(new brls::Activity(dropdown));
+        return true;
     });
 }
 
