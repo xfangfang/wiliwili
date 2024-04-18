@@ -71,6 +71,7 @@ private:
 
     // common setting
     BRLS_BIND(brls::BooleanCell, btnFullscreen, "setting/fullscreen");
+    BRLS_BIND(brls::BooleanCell, btnAlwaysOnTop, "setting/alwaysontop");
     BRLS_BIND(brls::BooleanCell, btnProgress, "setting/video/progress");
     BRLS_BIND(brls::BooleanCell, btnHistory, "setting/history/log");
     BRLS_BIND(brls::DetailCell, btnPlayStrategy, "setting/play/strategy");

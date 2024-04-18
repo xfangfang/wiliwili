@@ -39,6 +39,7 @@ enum class SettingItem {
     HIDE_BOTTOM_BAR,
     HIDE_FPS,
     FULLSCREEN,
+    ALWAYS_ON_TOP,
     APP_THEME,      // 深浅主题色
     APP_LANG,       // 应用语言
     APP_RESOURCES,  // 自定义界面布局

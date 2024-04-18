@@ -353,8 +353,16 @@ void SettingActivity::onContentAvailable() {
                              // 设置当前状态
                              brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
                          });
+
+    cellAlwaysOnTop->init("wiliwili/setting/app/others/always_on_top"_i18n, conf.getBoolOption(SettingItem::ALWAYS_ON_TOP),
+                         [](bool value) {
+                             ProgramConfig::instance().setSettingItem(SettingItem::ALWAYS_ON_TOP, value);
+                             // 设置当前状态
+                             brls::Application::getPlatform()->setWindowAlwaysOnTop(value);
+                         });
 #else
     cellFullscreen->setVisibility(brls::Visibility::GONE);
+    cellAlwaysOnTop->setVisibility(brls::Visibility::GONE);
 #endif
 
     /// App theme

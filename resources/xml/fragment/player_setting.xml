@@ -78,6 +78,9 @@
                             id="setting/fullscreen"/>
 
                     <brls:BooleanCell
+                            id="setting/alwaysontop"/>
+
+                    <brls:BooleanCell
                             id="setting/video/mirror"/>
 
                     <SelectorCell

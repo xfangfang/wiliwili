@@ -105,6 +105,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     // release 下默认全屏
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
 #endif
+    {SettingItem::ALWAYS_ON_TOP, {"always_on_top"}},
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_HIGHLIGHT_BAR, {"player_highlight_bar", {}, {}, 0}},
@@ -616,6 +617,9 @@ void ProgramConfig::load() {
 #ifdef IOS
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
         brls::Application::getPlatform()->setWindowSizeLimits(MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT, 0, 0);
+        if (getBoolOption(SettingItem::ALWAYS_ON_TOP)) {
+            brls::Application::getPlatform()->setWindowAlwaysOnTop(true);
+        }
 #endif
     });
 
