@@ -296,6 +296,7 @@ void MPVCore::init() {
     mpvSetOptionString(mpv, "keep-open", "yes");
     mpvSetOptionString(mpv, "hr-seek", "yes");
     mpvSetOptionString(mpv, "reset-on-next-file", "speed,pause");
+    mpvSetOptionString(mpv, "vo", "libmpv");
 
     mpvSetOption(mpv, "brightness", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_BRIGHTNESS);
     mpvSetOption(mpv, "contrast", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_CONTRAST);
@@ -1057,11 +1058,10 @@ void MPVCore::setUrl(const std::string &url, const std::string &extra, const std
     if (extra.empty()) {
         command_async("loadfile", url, method);
     } else {
-#if MPV_CLIENT_API_VERSION < MPV_MAKE_VERSION(2, 3)
-        command_async("loadfile", url, method, extra);
-#else
-        command_async("loadfile", url, method, "0", extra);
-#endif
+        if (mpv_client_api_version() >= MPV_MAKE_VERSION(2, 3))
+            command_async("loadfile", url, method, "0", extra);
+        else
+            command_async("loadfile", url, method, extra);
     }
 }
 
