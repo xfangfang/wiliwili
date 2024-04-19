@@ -35,6 +35,7 @@ mpvRenderContextRenderFunc mpvRenderContextRender;
 mpvRenderContextReportSwapFunc mpvRenderContextReportSwap;
 mpvRenderContextUpdateFunc mpvRenderContextUpdate;
 mpvRenderContextFreeFunc mpvRenderContextFree;
+mpvClientApiVersionFunc mpvClientApiVersion;
 #endif
 
 #ifdef MPV_USE_FB
@@ -240,6 +241,7 @@ void initMpvProc(Module dll, fnGetProcAddress pGetProcAddress)
     mpvRenderContextRender = (mpvRenderContextRenderFunc)pGetProcAddress(dll, "mpv_render_context_render");
     mpvRenderContextSetUpdateCallback = (mpvRenderContextSetUpdateCallbackFunc)pGetProcAddress(dll, "mpv_render_context_set_update_callback");
     mpvRenderContextReportSwap = (mpvRenderContextReportSwapFunc)pGetProcAddress(dll, "mpv_render_context_report_swap");
+    mpvClientApiVersion = (mpvClientApiVersionFunc)pGetProcAddress(dll, "mpv_client_api_version");
 }
 #endif
 
@@ -1058,7 +1060,7 @@ void MPVCore::setUrl(const std::string &url, const std::string &extra, const std
     if (extra.empty()) {
         command_async("loadfile", url, method);
     } else {
-        if (mpv_client_api_version() >= MPV_MAKE_VERSION(2, 3))
+        if (mpvClientApiVersion() >= MPV_MAKE_VERSION(2, 3))
             command_async("loadfile", url, method, "0", extra);
         else
             command_async("loadfile", url, method, extra);
