@@ -80,6 +80,7 @@ typedef int (*mpvRenderContextRenderFunc)(mpv_render_context *ctx, mpv_render_pa
 typedef void (*mpvRenderContextReportSwapFunc)(mpv_render_context *ctx);
 typedef uint64_t (*mpvRenderContextUpdateFunc)(mpv_render_context *ctx);
 typedef void (*mpvRenderContextFreeFunc)(mpv_render_context *ctx);
+typedef unsigned long (*mpvClientApiVersionFunc)();
 
 extern mpvSetOptionStringFunc mpvSetOptionString;
 extern mpvObservePropertyFunc mpvObserveProperty;
@@ -102,6 +103,7 @@ extern mpvRenderContextRenderFunc mpvRenderContextRender;
 extern mpvRenderContextReportSwapFunc mpvRenderContextReportSwap;
 extern mpvRenderContextUpdateFunc mpvRenderContextUpdate;
 extern mpvRenderContextFreeFunc mpvRenderContextFree;
+extern mpvClientApiVersionFunc mpvClientApiVersion;
 #else
 #define mpvSetOptionString mpv_set_option_string
 #define mpvObserveProperty mpv_observe_property
@@ -124,6 +126,7 @@ extern mpvRenderContextFreeFunc mpvRenderContextFree;
 #define mpvRenderContextReportSwap mpv_render_context_report_swap
 #define mpvRenderContextUpdate mpv_render_context_update
 #define mpvRenderContextFree mpv_render_context_free
+#define mpvClientApiVersion mpv_client_api_version
 #endif
 
 class MPVCore : public brls::Singleton<MPVCore> {
