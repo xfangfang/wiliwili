@@ -4,57 +4,21 @@
         justifyContent="center"
         hideClickAnimation="true"
         id="player/cancel"
-        direction="rightToLeft"
         alignItems="center">
 
     <brls:Box
-            width="60%"
-            height="100%"
-            id="box/background"
-            direction="leftToRight"
-            backgroundColor="@theme/brls/background">
-        <brls:Label
-                fontSize="24"
-                text="@i18n/wiliwili/player/single_comment/detail"
-                positionType="absolute"
-                positionTop="20"
-                positionLeft="20"/>
-
-        <brls:ScrollingFrame
-                width="60%"
-                height="auto"
-                focusable="true"
-                marginTop="60"
-                grow="1.0">
-
-            <brls:Box
-                    axis="column"
-                    paddingLeft="20"
-                    paddingRight="30"
-                    grow="1.0">
-                <VideoComment
-                        id="comment/action/comment"
-                        focusable="false"
-                        hideClickAnimation="true"/>
-            </brls:Box>
-
-        </brls:ScrollingFrame>
-    </brls:Box>
-
-    <brls:Box
-            id="comment/action/box"
             positionType="absolute"
             positionTop="60"
-            positionRight="82%"
-            cornerRadius="30"
-            height="60"
-            axis="column"
+            positionLeft="0"
             justifyContent="center"
-            alignItems="center"
-            backgroundColor="@theme/brls/background">
-
+            width="20%">
         <brls:Box
-                direction="leftToRight">
+                id="comment/action/box"
+                cornerRadius="30"
+                height="60"
+                justifyContent="center"
+                alignItems="center"
+                backgroundColor="@theme/brls/background">
 
             <SVGImage
                     focusable="true"
@@ -97,9 +61,40 @@
                     highlightCornerRadius="36"
                     visibility="gone"
                     SVG="@res/svg/bpx-svg-sprite-fullpage.svg"/>
-
         </brls:Box>
+    </brls:Box>
 
+    <brls:Box
+            width="60%"
+            height="100%"
+            id="box/background"
+            backgroundColor="@theme/brls/background">
+        <brls:Label
+                fontSize="24"
+                text="@i18n/wiliwili/player/single_comment/detail"
+                positionType="absolute"
+                positionTop="20"
+                positionLeft="20"/>
+
+        <brls:ScrollingFrame
+                width="60%"
+                height="auto"
+                focusable="true"
+                marginTop="60"
+                grow="1.0">
+
+            <brls:Box
+                    axis="column"
+                    paddingLeft="20"
+                    paddingRight="30"
+                    grow="1.0">
+                <VideoComment
+                        id="comment/action/comment"
+                        focusable="false"
+                        hideClickAnimation="true"/>
+            </brls:Box>
+
+        </brls:ScrollingFrame>
     </brls:Box>
 
     <ButtonClose

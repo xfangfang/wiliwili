@@ -379,6 +379,10 @@ public:
     static void be_agree_comment(const std::string& access_key, const std::string& oid, int64_t rpid, bool is_like,
                                  int type = 1, const std::function<void()>& callback = nullptr,
                                  const ErrorCallback& error = nullptr);
+    /// 点赞动态
+    static void be_agree_dynamic(const std::string& access_key, const std::string& id, bool is_like,
+                                 const std::function<void()>& callback = nullptr,
+                                 const ErrorCallback& error = nullptr);
 
     /**
      * 回复评论

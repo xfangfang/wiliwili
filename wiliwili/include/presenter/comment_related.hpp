@@ -41,3 +41,10 @@ protected:
     int commentMode         = 3;
     bool end                = false;
 };
+
+class DynamicAction: public Presenter {
+public:
+    virtual void onError(const std::string& error);
+
+    void dynamicLike(const std::string& id, bool action);
+};

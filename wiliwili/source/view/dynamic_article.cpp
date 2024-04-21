@@ -3,6 +3,7 @@
 //
 
 #include <borealis/views/applet_frame.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
 #include <utility>
 
 #include "view/dynamic_article.hpp"
@@ -10,24 +11,223 @@
 #include "view/dynamic_video_card.hpp"
 #include "view/video_comment.hpp"
 #include "view/svg_image.hpp"
+#include "view/button_close.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/number_helper.hpp"
 #include "fragment/player_single_comment.hpp"
 #include "utils/dialog_helper.hpp"
+#include "utils/activity_helper.hpp"
 
 using namespace brls::literals;
 
-class DataSourceDynamicDetailList : public RecyclingGridDataSource, public CommentAction {
+class DynamicCommentAction : public brls::Box {
 public:
-    DataSourceDynamicDetailList(const bilibili::DynamicArticleResult& data,
-                                const bilibili::DynamicArticleModuleState& state, int mode,
+    DynamicCommentAction() {
+        this->inflateFromXMLRes("xml/fragment/dynamic_card_action.xml");
+
+        this->article->setGrow();
+
+        this->svgLike->registerClickAction([this](...) {
+            this->dismiss();
+            this->likeClickEvent.fire();
+            return true;
+        });
+        this->svgOpen->registerClickAction([this](...) {
+            brls::Application::popActivity(brls::TransitionAnimation::NONE);
+            if (video.epid != 0) {
+                Intent::openSeasonByEpId(video.epid);
+            } else {
+                Intent::openBV(video.bvid);
+            }
+            return true;
+        });
+        this->svgGallery->registerClickAction([this](...) {
+            Intent::openGallery(images);
+            return true;
+        });
+
+        this->svgLike->addGestureRecognizer(new brls::TapGestureRecognizer(this->svgLike));
+        this->svgOpen->addGestureRecognizer(new brls::TapGestureRecognizer(this->svgOpen));
+        this->svgGallery->addGestureRecognizer(new brls::TapGestureRecognizer(this->svgGallery));
+
+        this->closeBtn->registerClickAction([this](...) {
+            this->dismiss();
+            return true;
+        });
+
+        this->cancel->registerClickAction([this](...) {
+            this->dismiss();
+            return true;
+        });
+        this->cancel->addGestureRecognizer(new brls::TapGestureRecognizer(this->cancel));
+
+        this->position.setTickCallback([this] {
+            this->actionBox->setPositionTop(this->position);
+            this->article->getParent()->setPositionTop(this->position - defaultPosition);
+            float alpha =
+                1 - fabs((this->position - defaultPosition) / fabs(commentOriginalPosition - defaultPosition));
+            this->backgroundBox->setAlpha(alpha);
+            this->actionBox->setAlpha(alpha);
+            this->cancel->setAlpha(alpha);
+        });
+    }
+
+    void setGalleryData(const bilibili::DynamicArticleModuleDraw* imageData) {
+#ifdef __PSV__
+        const std::string note_raw_ext = "@300h.jpg";
+#else
+        const std::string note_raw_ext = "@!web-comment-note.jpg";
+#endif
+        this->svgGallery->setVisibility(brls::Visibility::VISIBLE);
+        for (auto& i : imageData->items) {
+            std::string raw_ext = ImageHelper::note_raw_ext;
+            if (i.src.size() > 4 && i.src.substr(i.src.size() - 4, 4) == ".gif") {
+                // gif 图片暂时按照 jpg 来解析
+                raw_ext = note_raw_ext;
+            }
+            this->images.emplace_back(i.src + raw_ext);
+        }
+    }
+
+    void setActionData(const bilibili::DynamicArticleResult& data, const bilibili::DynamicArticleModuleState& state,
+                       float y, float width) {
+        this->article->setCard(data);
+        this->article->setForwardNum(state.forward.count);
+        this->article->setReplyNum(state.comment.count);
+        this->article->setLikeNum(state.like.count);
+        this->article->setLiked(state.like.like_state);
+        this->backgroundBox->setWidth(width + 48);
+
+        for (auto& module : data.modules) {
+            auto moduleType = (bilibili::DynamicArticleModuleType)module.data.index();
+            if (moduleType != bilibili::DynamicArticleModuleType::MODULE_TYPE_DATA) continue;
+            auto* desc = std::get_if<bilibili::DynamicArticleModuleData>(&module.data);
+            if (!desc) break;
+            auto dataType = (bilibili::DynamicArticleModuleDataType)desc->data.index();
+            if (dataType == bilibili::DynamicArticleModuleDataType::MODULE_TYPE_IMAGE) {
+                // 正文图片
+                auto* imageData = std::get_if<bilibili::DynamicArticleModuleDraw>(&desc->data);
+                if (!imageData) break;
+                this->setGalleryData(imageData);
+            } else if (dataType == bilibili::DynamicArticleModuleDataType::MODULE_TYPE_VIDEO) {
+                // 正文视频
+                auto* videoData = std::get_if<bilibili::DynamicArticleModuleArchive>(&desc->data);
+                if (!videoData) break;
+                this->svgOpen->setVisibility(brls::Visibility::VISIBLE);
+                video = *videoData;
+            } else if (dataType == bilibili::DynamicArticleModuleDataType::MODULE_TYPE_FORWARD) {
+                auto* forwardData = std::get_if<bilibili::DynamicArticleModuleForward>(&desc->data);
+                if (!forwardData) break;
+                // 转发内容
+                for (auto& moduleForward : forwardData->item.modules) {
+                    auto forwardModuleType = (bilibili::DynamicArticleModuleType)moduleForward.data.index();
+                    if (forwardModuleType != bilibili::DynamicArticleModuleType::MODULE_TYPE_DATA) continue;
+                    auto* descForward =
+                        std::get_if<bilibili::dynamic_forward::DynamicArticleModuleData>(&moduleForward.data);
+                    if (!descForward) break;
+                    auto forwardDataType = (bilibili::DynamicArticleModuleDataType)descForward->data.index();
+                    if (forwardDataType == bilibili::DynamicArticleModuleDataType::MODULE_TYPE_IMAGE) {
+                        // 转发图片
+                        auto* imageData = std::get_if<bilibili::DynamicArticleModuleDraw>(&descForward->data);
+                        if (!imageData) break;
+                        this->setGalleryData(imageData);
+                    } else if (forwardDataType == bilibili::DynamicArticleModuleDataType::MODULE_TYPE_VIDEO) {
+                        // 转发视频
+                        auto* videoData = std::get_if<bilibili::DynamicArticleModuleArchive>(&descForward->data);
+                        if (!videoData) break;
+                        this->svgOpen->setVisibility(brls::Visibility::VISIBLE);
+                        video = *videoData;
+                    }
+                }
+            }
+            break;
+        }
+        commentOriginalPosition = y;
+        this->showStartAnimation();
+    }
+
+    void showStartAnimation() {
+        if (commentOriginalPosition == defaultPosition) return;
+
+        brls::Application::blockInputs();
+        this->position.stop();
+        this->position.reset(commentOriginalPosition);
+        this->position.addStep(defaultPosition, 300, brls::EasingFunction::quadraticOut);
+        this->position.setEndCallback([](bool finished) { brls::Application::unblockInputs(); });
+        this->position.start();
+    }
+
+    void showDismissAnimation() {
+        if (commentOriginalPosition == defaultPosition) {
+            brls::Application::popActivity(brls::TransitionAnimation::NONE);
+            return;
+        }
+
+        brls::Application::blockInputs();
+        this->position.stop();
+        this->position.reset(defaultPosition);
+        this->position.addStep(commentOriginalPosition, 300, brls::EasingFunction::quadraticIn);
+        this->position.setEndCallback([](bool finished) {
+            brls::Application::unblockInputs();
+            brls::Application::popActivity(brls::TransitionAnimation::NONE);
+        });
+        this->position.start();
+    }
+
+    brls::View* getDefaultFocus() override {
+        if (this->svgGallery->getVisibility() == brls::Visibility::VISIBLE) {
+            return this->svgGallery;
+        } else if (this->svgOpen->getVisibility() == brls::Visibility::VISIBLE) {
+            return this->svgOpen;
+        }
+        return this->svgLike;
+    }
+
+    void dismiss(std::function<void(void)> cb = nullptr) override { this->showDismissAnimation(); }
+
+    brls::Event<> likeClickEvent;
+
+private:
+    BRLS_BIND(SVGImage, svgLike, "action/svg/like");
+    BRLS_BIND(SVGImage, svgOpen, "action/svg/open");
+    BRLS_BIND(SVGImage, svgGallery, "action/svg/gallery");
+    BRLS_BIND(brls::Box, actionBox, "action/box");
+    BRLS_BIND(DynamicArticleView, article, "action/article");
+    BRLS_BIND(ButtonClose, closeBtn, "button/close");
+    BRLS_BIND(brls::Box, backgroundBox, "box/background");
+    BRLS_BIND(brls::Box, cancel, "player/cancel");
+    BRLS_BIND(brls::ScrollingFrame, scroll, "action/scroll");
+
+    brls::Animatable position     = 0.0f;
+    float commentOriginalPosition = 1.0f;
+    std::vector<std::string> images;
+    const float defaultPosition = 20.0f;
+
+    bilibili::DynamicArticleModuleDraw image;
+    bilibili::DynamicArticleModuleArchive video;
+};
+
+class DataSourceDynamicDetailList : public RecyclingGridDataSource, public CommentAction, public DynamicAction {
+public:
+    DataSourceDynamicDetailList(const bilibili::DynamicArticleResult& data, bilibili::DynamicArticleModuleState state,
+                                brls::Event<bool>* likeState, brls::Event<size_t>* likeNum, int mode,
                                 std::function<void(void)> cb)
-        : data(data), state(state), commentMode(mode), switchModeCallback(std::move(cb)) {}
+        : data(data),
+          state(std::move(state)),
+          likeState(likeState),
+          likeNum(likeNum),
+          commentMode(mode),
+          switchModeCallback(std::move(cb)) {}
 
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         if (index == 0) {
             DynamicArticleView* item = (DynamicArticleView*)recycler->dequeueReusableCell("Cell");
             item->setCard(data);
+            // 为方便修改，使用 state 内的数据
+            item->setForwardNum(state.forward.count);
+            item->setReplyNum(state.comment.count);
+            item->setLikeNum(state.like.count);
+            item->setLiked(state.like.like_state);
             return item;
         } else if (index == 1) {
             VideoCommentSort* item = (VideoCommentSort*)recycler->dequeueReusableCell("Sort");
@@ -65,7 +265,27 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         if (index == 0) {
-            // todo: 展开详情
+            auto* item = dynamic_cast<DynamicArticleView*>(recycler->getGridItemByIndex(index));
+            if (!item) return;
+
+            auto* view = new DynamicCommentAction();
+            view->setActionData(data, state, item->getY(), item->getWidth());
+            auto container = new brls::AppletFrame(view);
+            container->setHeaderVisibility(brls::Visibility::GONE);
+            container->setFooterVisibility(brls::Visibility::GONE);
+            container->setInFadeAnimation(true);
+            brls::Application::pushActivity(new brls::Activity(container));
+
+            view->likeClickEvent.subscribe([this, item]() {
+                state.like.like_state = !state.like.like_state;
+                state.like.count += state.like.like_state ? 1 : -1;
+                item->setLiked(state.like.like_state);
+                item->setLikeNum(state.like.count);
+                // 将点赞情况传递给上一级列表
+                likeState->fire(state.like.like_state);
+                likeNum->fire(state.like.count);
+                this->dynamicLike(data.id_str, state.like.like_state);
+            });
             return;
         }
         if (index == 1) {
@@ -141,9 +361,10 @@ public:
     void clearData() override { this->dataList.clear(); }
 
 private:
-    const bilibili::DynamicArticleResult& data;
-    const bilibili::DynamicArticleModuleState& state;
-
+    const bilibili::DynamicArticleResult& data;  // 动态原始数据
+    bilibili::DynamicArticleModuleState state;  // 动态赞评转数据，为方便修改，不使用 data 内的数据
+    brls::Event<bool>* likeState;
+    brls::Event<size_t>* likeNum;
     bilibili::VideoCommentListResult dataList;
     int commentMode                              = 3;  // 2: 按时间；3: 按热度
     std::function<void(void)> switchModeCallback = nullptr;
@@ -166,7 +387,8 @@ public:
 
         this->recyclingGrid->registerCell("Comment", []() { return VideoComment::create(); });
 
-        this->recyclingGrid->setDataSource(new DataSourceDynamicDetailList(data, state, this->getVideoCommentMode(),
+        this->recyclingGrid->setDataSource(new DataSourceDynamicDetailList(data, state, &likeStateEvent, &likeNumEvent,
+                                                                           this->getVideoCommentMode(),
                                                                            [this]() { this->toggleCommentMode(); }));
 
         this->recyclingGrid->registerAction("wiliwili/home/common/switch"_i18n, brls::ControllerButton::BUTTON_X,
@@ -208,15 +430,17 @@ public:
         int newMode = this->getVideoCommentMode() == 3 ? 2 : 3;
         this->setVideoCommentMode(newMode);
         // 清空评论列表
-        this->recyclingGrid->setDataSource(
-            new DataSourceDynamicDetailList(data, state, newMode, [this]() { this->toggleCommentMode(); }));
+        this->recyclingGrid->setDataSource(new DataSourceDynamicDetailList(
+            data, state, &likeStateEvent, &likeNumEvent, newMode, [this]() { this->toggleCommentMode(); }));
         // 焦点切换到动态
         brls::Application::giveFocus(this->recyclingGrid);
     }
 
+    brls::Event<bool> likeStateEvent;
+    brls::Event<size_t> likeNumEvent;
+
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "dynamic/detail/grid");
-
     bilibili::DynamicArticleResult data;
     bilibili::DynamicArticleModuleState state;
 };
@@ -326,14 +550,10 @@ void DynamicArticleView::setCard(const bilibili::DynamicArticleResult& result) {
                 state = *data;
                 // 转发 回复 点赞
                 // todo: is_forbidden: 是否禁止转发，评论和点赞是否也有类似情况?
-                this->labelFroward->setText(data->forward.count == 0 ? "转发" : wiliwili::num2w(data->forward.count));
-                this->labelReply->setText(data->comment.count == 0 ? "评论" : wiliwili::num2w(data->comment.count));
-                this->labelLike->setText(data->like.count == 0 ? "点赞" : wiliwili::num2w(data->like.count));
-                if (data->like.like_state) {
-                    this->svgLike->setImageFromSVGRes("svg/comment-agree-active.svg");
-                } else {
-                    this->svgLike->setImageFromSVGRes("svg/comment-agree-grey.svg");
-                }
+                this->setForwardNum(data->forward.count);
+                this->setReplyNum(data->comment.count);
+                this->setLikeNum(data->like.count);
+                this->setLiked(data->like.like_state);
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_TOPIC: {
@@ -469,11 +689,22 @@ void DynamicArticleView::setForwardCard(const bilibili::dynamic_forward::Dynamic
 }
 
 void DynamicArticleView::openDetail() {
-    auto container = new brls::AppletFrame(new DynamicArticleDetail(articleData, state));
+    auto* detail    = new DynamicArticleDetail(articleData, state);
+    auto* container = new brls::AppletFrame(detail);
     container->setHeaderVisibility(brls::Visibility::GONE);
     container->setFooterVisibility(brls::AppletFrame::HIDE_BOTTOM_BAR ? brls::Visibility::GONE
                                                                       : brls::Visibility::VISIBLE);
     brls::Application::pushActivity(new brls::Activity(container), brls::TransitionAnimation::NONE);
+
+    detail->likeNumEvent.subscribe([this](size_t num) {
+        this->setLikeNum(num);
+        this->state.like.count = num;
+    });
+
+    detail->likeStateEvent.subscribe([this](bool value) {
+        this->setLiked(value);
+        this->state.like.like_state = value;
+    });
 }
 
 void DynamicArticleView::prepareForReuse() {}
@@ -486,6 +717,29 @@ void DynamicArticleView::cacheForReuse() {
     if (this->videoAreaForward->getVisibility() == brls::Visibility::VISIBLE) {
         ImageHelper::clear(this->videoAreaForward->picture);
     }
+}
+
+void DynamicArticleView::setGrow() {
+    this->textBox->setMaxRows(SIZE_T_MAX);
+    this->textBoxForward->setMaxRows(SIZE_T_MAX);
+}
+
+void DynamicArticleView::setLiked(bool liked) {
+    if (liked) {
+        this->svgLike->setImageFromSVGRes("svg/comment-agree-active.svg");
+    } else {
+        this->svgLike->setImageFromSVGRes("svg/comment-agree-grey.svg");
+    }
+}
+
+void DynamicArticleView::setLikeNum(size_t num) { this->labelLike->setText(num == 0 ? "点赞" : wiliwili::num2w(num)); }
+
+void DynamicArticleView::setReplyNum(size_t num) {
+    this->labelReply->setText(num == 0 ? "评论" : wiliwili::num2w(num));
+}
+
+void DynamicArticleView::setForwardNum(size_t num) {
+    this->labelFroward->setText(num == 0 ? "转发" : wiliwili::num2w(num));
 }
 
 RecyclingGridItem* DynamicArticleView::create() { return new DynamicArticleView(); }

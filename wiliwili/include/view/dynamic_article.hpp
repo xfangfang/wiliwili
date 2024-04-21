@@ -29,6 +29,16 @@ public:
 
     void cacheForReuse() override;
 
+    void setGrow();
+
+    void setLiked(bool liked);
+
+    void setLikeNum(size_t num);
+
+    void setReplyNum(size_t num);
+
+    void setForwardNum(size_t num);
+
     static RecyclingGridItem* create();
 
 private:

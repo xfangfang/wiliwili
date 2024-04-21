@@ -51,6 +51,7 @@
 #include "view/hint_label.hpp"
 #include "view/mpv_core.hpp"
 #include "view/dynamic_video_card.hpp"
+#include "view/dynamic_article.hpp"
 
 void Register::initCustomView() {
     // Register extended views
@@ -76,6 +77,7 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("AnimationImage", AnimationImage::create);
     brls::Application::registerXMLView("ShareBox", ShareBox::create);
     brls::Application::registerXMLView("DynamicVideoCardView", DynamicVideoCardView::create);
+    brls::Application::registerXMLView("DynamicArticleView", DynamicArticleView::create);
 
     //     Register fragments
     brls::Application::registerXMLView("HomeTab", HomeTab::create);

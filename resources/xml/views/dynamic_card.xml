@@ -88,6 +88,7 @@
             id="dynamic/image_box"
             axis="column"
             grow="1"
+            paddingTop="4"
             paddingBottom="10"
             paddingLeft="30"
             paddingRight="30">
@@ -197,6 +198,7 @@
                 id="dynamic/image_box/forward"
                 axis="column"
                 grow="1"
+                paddingTop="4"
                 paddingBottom="10"
                 paddingLeft="30"
                 paddingRight="30">

@@ -111,7 +111,26 @@ void CommentRequest::requestVideoComment(const std::string& oid, int next, int m
 int CommentRequest::getVideoCommentMode() const { return commentMode; }
 
 void CommentRequest::setVideoCommentMode(int mode) {
-    this->commentMode = mode;
+    this->commentMode         = mode;
     this->commentRequestIndex = 0;
-    this->end = false;
+    this->end                 = false;
+}
+
+void DynamicAction::onError(const std::string& error) {}
+
+void DynamicAction::dynamicLike(const std::string& id, bool action) {
+    ASYNC_RETAIN
+    BILI::be_agree_dynamic(
+        ProgramConfig::instance().getCSRF(), id, action,
+        [ASYNC_TOKEN, id, action]() {
+            ASYNC_RELEASE
+            brls::Logger::debug("Dynamic action success: {} {}", id, action);
+        },
+        [ASYNC_TOKEN, id, action](BILI_ERR) {
+            brls::Logger::error("Comment action error: {} {}", id, action);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError(error);
+            });
+        });
 }
