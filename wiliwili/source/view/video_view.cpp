@@ -1206,6 +1206,9 @@ void VideoView::setFullScreen(bool fs) {
             view->registerClickAction(this->seasonAction);
             view->addGestureRecognizer(new brls::TapGestureRecognizer(view));
             view->setVisibility(brls::Visibility::VISIBLE);
+
+            video->videoSpeed->setCustomNavigationRoute(brls::FocusDirection::RIGHT, video->showEpisode);
+            video->btnFullscreenIcon->setCustomNavigationRoute(brls::FocusDirection::LEFT, video->showEpisode);
         }
         container->addView(video);
         auto activity = new brls::Activity(container);
