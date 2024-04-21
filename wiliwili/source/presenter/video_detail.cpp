@@ -238,7 +238,7 @@ void VideoDetail::requestVideoInfo(const std::string& bvid) {
                 if (!videoDetailResult.ugc_season.sections.empty()) this->onUGCSeasonInfo(videoDetailResult.ugc_season);
 
                 // 请求视频评论
-                this->requestVideoComment(this->videoDetailResult.aid, 0, 3);
+                this->requestVideoComment(std::to_string(this->videoDetailResult.aid), 0, 3);
 
                 // 请求用户投稿列表
                 this->requestUploadedVideos(videoDetailResult.owner.mid, 1);
@@ -381,49 +381,10 @@ void VideoDetail::changeEpisode(const bilibili::SeasonEpisodeResult& i) {
 
     this->onSeasonEpisodeInfo(i);
     this->requestSeasonVideoUrl(i.bvid, i.cid);
-    this->requestVideoComment(i.aid, 0, 3);
+    this->requestVideoComment(std::to_string(i.aid), 0, 3);
     this->requestVideoRelationInfo(i.id);
     GA("season_video", {{"bvid", i.bvid}})
 }
-
-/// 获取视频评论
-void VideoDetail::requestVideoComment(int aid, int next, int mode) {
-    if (mode != -1) {
-        this->setVideoCommentMode(mode);
-    }
-    if (next >= 0) {
-        this->commentRequestIndex = next;
-    }
-    brls::Logger::debug("请求视频评论: {} 页号 {}", aid, commentRequestIndex);
-    ASYNC_RETAIN
-    BILI::get_comment(
-        aid, commentRequestIndex, getVideoCommentMode(),
-        [ASYNC_TOKEN, aid](const bilibili::VideoCommentResultWrapper& result) {
-            brls::sync([ASYNC_TOKEN, aid, result]() {
-                ASYNC_RELEASE
-                if (this->commentRequestIndex != (int)result.requestIndex) {
-                    brls::Logger::error("request comment {}/{} got: {}", aid, commentRequestIndex, result.requestIndex);
-                    return;
-                }
-                if (!result.cursor.is_end) {
-                    this->commentRequestIndex = result.cursor.next;
-                }
-                bilibili::VideoCommentResultWrapper res = result;
-                std::string& video_uploader             = userDetailResult.card.mid;
-                for (auto& i : res.top_replies) i.member.is_uploader = i.member.mid == video_uploader;
-                for (auto& i : res.replies) i.member.is_uploader = i.member.mid == video_uploader;
-                this->onCommentInfo(res);
-            });
-        },
-        [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
-            this->onRequestCommentError(error);
-        });
-}
-
-int VideoDetail::getVideoCommentMode() { return commentMode; }
-
-void VideoDetail::setVideoCommentMode(int mode) { this->commentMode = mode; }
 
 /// 获取Up主的其他视频
 void VideoDetail::requestUploadedVideos(int64_t mid, int pn, int ps) {

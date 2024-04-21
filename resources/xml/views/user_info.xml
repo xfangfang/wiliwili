@@ -7,6 +7,7 @@
 
     <brls:Box
             wireframe="false"
+            marginRight="4"
             axis="column">
         <brls:Image
                 id="userinfo/avatar"
@@ -36,7 +37,7 @@
                 wireframe="false"
                 grow="1"
                 fontSize="20"
-                marginBottom="8"
+                marginBottom="4"
                 verticalAlign="bottom"/>
 
         <brls:Label
@@ -45,7 +46,7 @@
                 height="auto"
                 fontSize="16"
                 grow="1"
-                marginTop="8"
+                marginTop="4"
                 verticalAlign="top"
                 wireframe="false"
                 textColor="@theme/font/grey"/>

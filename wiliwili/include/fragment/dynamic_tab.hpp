@@ -23,11 +23,15 @@ class DynamicTab : public AttachedView, public DynamicTabRequest, public Dynamic
 public:
     DynamicTab();
 
-    ~DynamicTab();
+    ~DynamicTab() override;
 
-    virtual void onUpList(const bilibili::DynamicUpListResultWrapper& result) override;
+    void onUpList(const bilibili::DynamicUpListResultWrapper& result) override;
 
-    virtual void onError(const std::string& error) override;
+    void onError(const std::string& error) override;
+
+    void onVideoError(const std::string& error) override;
+
+    void onArticleError(const std::string& error) override;
 
     static View* create();
 
@@ -37,7 +41,17 @@ public:
 
     void onDynamicVideoList(const bilibili::DynamicVideoListResult& result, unsigned int index) override;
 
+    void onDynamicArticleList(const bilibili::DynamicArticleListResult& result, unsigned int index) override;
+
 private:
+    BRLS_BIND(AutoTabFrame, tabFrame, "dynamic/tab/frame");
     BRLS_BIND(RecyclingGrid, upRecyclingGrid, "dynamic/up/recyclingGrid");
     BRLS_BIND(RecyclingGrid, videoRecyclingGrid, "dynamic/videoList");
+    BRLS_BIND(RecyclingGrid, articleRecyclingGrid, "dynamic/articleList");
+
+    // 动态页会切换用户或者刷新时同时加载视频和图文
+    // 当某视频页或图文页处于隐藏时，autoTabFrame 的实现会导致无法获取该页宽度，导致列表无法正常渲染
+    // 这里临时将数据储存在下面变量中，在对应页面展示时再加载数据
+    bilibili::DynamicVideoListResult tempVideoList;
+    bilibili::DynamicArticleListResult tempArticleList;
 };

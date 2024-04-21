@@ -338,7 +338,7 @@ VideoView::VideoView() {
         }
 
         // 展示倍速列表
-        auto* drop = BaseDropdown::text(
+        BaseDropdown::text(
             "wiliwili/player/speed"_i18n, conf.optionList,
             [conf](int selected) {
                 // 设置播放器倍速
@@ -350,9 +350,6 @@ VideoView::VideoView() {
                 }
             },
             selectedIndex);
-
-        // 手动将焦点赋给菜单页面
-        brls::sync([drop]() { brls::Application::giveFocus(drop); });
 
         return true;
     });
@@ -382,8 +379,6 @@ VideoView::VideoView() {
     this->btnDanmakuSettingIcon->getParent()->registerClickAction([](...) {
         auto setting = new PlayerDanmakuSetting();
         brls::Application::pushActivity(new brls::Activity(setting));
-        // 手动将焦点赋给设置页面
-        brls::sync([setting]() { brls::Application::giveFocus(setting); });
         GA("open_danmaku_setting")
         return true;
     });
@@ -416,8 +411,6 @@ VideoView::VideoView() {
             setting->hideSkipOpeningCreditsSetting();
         }
         brls::Application::pushActivity(new brls::Activity(setting));
-        // 手动将焦点赋给设置页面
-        brls::sync([setting]() { brls::Application::giveFocus(setting); });
         GA("open_player_setting")
         return true;
     });
@@ -473,9 +466,6 @@ VideoView::VideoView() {
             return true;
         });
         brls::Application::pushActivity(new brls::Activity(frame));
-
-        // 手动将焦点赋给音量组件
-        brls::sync([container]() { brls::Application::giveFocus(container); });
         return true;
     });
     this->btnVolumeIcon->getParent()->addGestureRecognizer(
@@ -491,8 +481,6 @@ VideoView::VideoView() {
         auto dlna = new PlayerDlnaSearch();
         brls::Application::pushActivity(new brls::Activity(dlna));
 
-        // 手动将焦点赋给设置页面
-        brls::sync([dlna]() { brls::Application::giveFocus(dlna); });
         GA("open_player_cast")
         return true;
     });
@@ -1223,9 +1211,6 @@ void VideoView::setFullScreen(bool fs) {
         auto activity = new brls::Activity(container);
         brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
         registerFullscreen(activity);
-
-        // 手动将焦点 赋给新的video组件
-        brls::sync([video]() { brls::Application::giveFocus(video); });
     } else {
         ASYNC_RETAIN
         brls::sync([ASYNC_TOKEN]() {

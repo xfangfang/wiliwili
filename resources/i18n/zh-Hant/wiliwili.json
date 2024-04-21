@@ -210,6 +210,11 @@
       "tab": "影視"
     }
   },
+  "dynamic": {
+    "detail": "動態詳情",
+    "video": "影片",
+    "article": "綜合"
+  },
   "search": {
     "tv": {
       "hint": "支持關鍵字及關鍵字首字母",
@@ -420,7 +425,7 @@
       }
     },
     "single_comment": {
-      "detail": "詳情",
+      "detail": "評論詳情",
       "hint": "發一條友善的評論",
       "related": "總共{}個答覆",
       "end": "沒有更多的評論",

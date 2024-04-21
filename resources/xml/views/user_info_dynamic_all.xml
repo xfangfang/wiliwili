@@ -4,6 +4,15 @@
         axis="row"
         alignItems="center">
 
+    <brls:Rectangle
+            id="notice"
+            width="8"
+            height="8"
+            cornerRadius="8"
+            marginLeft="10"
+            visibility="invisible"
+            color="@theme/color/tip/red"/>
+
     <brls:Box
             width="40"
             height="40"

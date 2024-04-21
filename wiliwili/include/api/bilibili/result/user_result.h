@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 
 namespace bilibili {
 
@@ -14,33 +14,7 @@ public:
     std::string name;
     std::string face;
 };
-inline void to_json(nlohmann::json& nlohmann_json_j, const UserSimpleResult& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, mid, name, face));
-}
-inline void from_json(const nlohmann::json& nlohmann_json_j, UserSimpleResult& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("face")) {
-        nlohmann_json_j.at("face").get_to(nlohmann_json_t.face);
-    }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, mid, name));
-}
-
-class UserSimpleResult2 {
-public:
-    std::string mid;
-    std::string uname;
-    std::string avatar;
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult2, mid, uname, avatar);
-
-class UserSimpleResult3 {
-public:
-    int64_t uid = -1;
-    std::string uname;
-    std::string face;
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult3, uid, uname, face);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult, mid, name, face);
 
 class UserResult {
 public:
@@ -66,5 +40,37 @@ public:
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SeasonUserResult, mid, uname, avatar, follower, is_follow);
+
+class UserCommentVip {
+public:
+    std::string nickname_color;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserCommentVip, nickname_color);
+
+class UserDynamicResult {
+public:
+    int64_t mid = 0;
+    std::string name;
+    std::string face;
+    UserCommentVip vip;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDynamicResult, mid, name, face, vip);
+
+class LevelInfo {
+public:
+    int current_level{};
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelInfo, current_level);
+
+class UserCommentResult {
+public:
+    std::string mid, uname, avatar;
+    UserCommentVip vip;
+    int is_senior_member{};
+    LevelInfo level_info{};
+    bool is_uploader{};
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserCommentResult, mid, uname, avatar, is_senior_member, level_info, vip);
 
 }  // namespace bilibili

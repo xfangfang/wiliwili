@@ -27,9 +27,16 @@ public:
 
     static View* create();
 
+    void setWidth(float width);
+
+    void setHeight(float height);
+
+    void setDimensions(float width, float height);
+
 private:
     std::unique_ptr<lunasvg::Document> document = nullptr;
     brls::VoidEvent::Subscription subscription;
     std::string filePath;
     float angle = 0;
+    float _width = 0.0f, _height = 0.0f;
 };
