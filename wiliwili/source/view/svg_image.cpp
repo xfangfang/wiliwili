@@ -148,3 +148,9 @@ void SVGImage::setDimensions(float width, float height) {
     _height = height;
     brls::View::setDimensions(width, height);
 }
+
+void SVGImage::setSize(brls::Size size) {
+    _width  = size.width;
+    _height = size.height;
+    brls::View::setSize(size);
+}

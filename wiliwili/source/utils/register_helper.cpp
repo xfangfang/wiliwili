@@ -183,6 +183,7 @@ void Register::initCustomStyle() {
         brls::getStyle().addMetric("wiliwili/mine/num", 18);
         brls::getStyle().addMetric("wiliwili/mine/type", 12);
         brls::getStyle().addMetric("wiliwili/setting/about/bottom", 0);
+        brls::getStyle().addMetric("wiliwili/dynamic/video/card/padding", 10);
     } else {
         switch (brls::Application::ORIGINAL_WINDOW_HEIGHT) {
             case 1080:
@@ -215,5 +216,6 @@ void Register::initCustomStyle() {
         brls::getStyle().addMetric("wiliwili/mine/num", 24);
         brls::getStyle().addMetric("wiliwili/mine/type", 16);
         brls::getStyle().addMetric("wiliwili/setting/about/bottom", 50);
+        brls::getStyle().addMetric("wiliwili/dynamic/video/card/padding", 20);
     }
 }

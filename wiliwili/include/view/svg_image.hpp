@@ -33,6 +33,8 @@ public:
 
     void setDimensions(float width, float height);
 
+    void setSize(brls::Size size);
+
 private:
     std::unique_ptr<lunasvg::Document> document = nullptr;
     brls::VoidEvent::Subscription subscription;

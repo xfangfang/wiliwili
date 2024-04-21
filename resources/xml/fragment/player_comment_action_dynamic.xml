@@ -7,13 +7,13 @@
         alignItems="center">
 
     <brls:Box
+            id="comment/action/box"
             positionType="absolute"
             positionTop="60"
             positionLeft="0"
             justifyContent="center"
             width="20%">
         <brls:Box
-                id="comment/action/box"
                 cornerRadius="30"
                 height="60"
                 justifyContent="center"
@@ -24,10 +24,10 @@
                     focusable="true"
                     id="comment/action/svg/delete"
                     margin="8"
-                    width="36"
-                    height="36"
-                    cornerRadius="36"
-                    highlightCornerRadius="36"
+                    width="48"
+                    height="48"
+                    cornerRadius="48"
+                    highlightCornerRadius="48"
                     visibility="gone"
                     SVG="@res/svg/bpx-svg-sprite-delete.svg"/>
 
@@ -35,30 +35,30 @@
                     focusable="true"
                     id="comment/action/svg/reply"
                     margin="8"
-                    width="36"
-                    height="36"
-                    cornerRadius="36"
-                    highlightCornerRadius="36"
+                    width="48"
+                    height="48"
+                    cornerRadius="48"
+                    highlightCornerRadius="48"
                     SVG="@res/svg/bpx-svg-sprite-reply.svg"/>
 
             <SVGImage
                     focusable="true"
                     id="comment/action/svg/like"
                     margin="8"
-                    width="36"
-                    height="36"
-                    cornerRadius="36"
-                    highlightCornerRadius="36"
+                    width="48"
+                    height="48"
+                    cornerRadius="48"
+                    highlightCornerRadius="48"
                     SVG="@res/svg/bpx-svg-sprite-liked.svg"/>
 
             <SVGImage
                     focusable="true"
                     id="comment/action/svg/gallery"
                     margin="8"
-                    width="36"
-                    height="36"
-                    cornerRadius="36"
-                    highlightCornerRadius="36"
+                    width="48"
+                    height="48"
+                    cornerRadius="48"
+                    highlightCornerRadius="48"
                     visibility="gone"
                     SVG="@res/svg/bpx-svg-sprite-fullpage.svg"/>
         </brls:Box>
