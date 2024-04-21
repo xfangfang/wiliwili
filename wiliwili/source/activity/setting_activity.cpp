@@ -558,7 +558,7 @@ void SettingActivity::onContentAvailable() {
 
     selectorInmemory->init("wiliwili/setting/app/playback/in_memory_cache"_i18n,
 #ifdef __PSV__
-                           {"0MB (" + "hints/off"_i18n + ")", "5MB", "10MB"},
+                           {"0MB (" + "hints/off"_i18n + ")", "1MB", "5MB", "10MB"},
 #else
         {"0MB (" + "hints/off"_i18n + ")", "10MB", "20MB", "50MB", "100MB"},
 #endif

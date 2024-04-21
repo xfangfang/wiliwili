@@ -145,7 +145,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 
 /// number
 #if defined(__PSV__)
-    {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {"0MB", "5MB", "10MB"}, {0, 5, 10}, 0}},
+    {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {"0MB", "1MB", "5MB", "10MB"}, {0, 1, 5, 10}, 0}},
 #elif defined(__SWITCH__)
     {SettingItem::PLAYER_INMEMORY_CACHE,
      {"player_inmemory_cache", {"0MB", "10MB", "20MB", "50MB", "100MB"}, {0, 10, 20, 50, 100}, 0}},
