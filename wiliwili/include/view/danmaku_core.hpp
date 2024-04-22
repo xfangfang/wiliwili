@@ -62,6 +62,12 @@ enum class DanmakuFontStyle {
     DANMAKU_FONT_PURE    = 3,  // 纯色
 };
 
+enum class DanmakuImageType {
+    DANMAKU_IMAGE_NONE = 0,  // 无图片
+    DANMAKU_IMAGE_OHH,
+    DANMAKU_IMAGE_HIGHLIGHT,
+};
+
 class AdvancedAnimation {
 public:
     // 起点和结束点的坐标
@@ -104,6 +110,7 @@ public:
     NVGcolor borderColor = nvgRGBA(0, 0, 0, 160);
     int level;  // 弹幕等级 1-10
     std::optional<AdvancedAnimation> advancedAnimation;
+    DanmakuImageType image{}; // 弹幕图片类型
     // 暂时用不到的信息，先不使用
     //    int pubDate; // 弹幕发送时间
     //    int pool; // 弹幕池类型
@@ -214,6 +221,10 @@ public:
 
     // 弹幕字体 (在 config_helper 中对此初始化)
     static inline int DANMAKU_FONT = brls::FONT_INVALID;
+
+    // 弹幕图片
+    static inline int DANMAKU_IMAGE_OHH{};
+    static inline int DANMAKU_IMAGE_HIGHLIGHT{};
 
 private:
     std::mutex danmakuMutex;

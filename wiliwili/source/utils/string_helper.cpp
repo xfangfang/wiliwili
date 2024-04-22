@@ -81,4 +81,17 @@ std::string decompressGzipData(const std::string &compressedData) {
     return decompressedData;
 }
 
+std::string toUpper( const std::string & str, std::string::size_type length )
+{
+    std::string::size_type len = std::min(str.size(), length), i;
+    std::string s = str.substr(0, len);
+
+    for ( i = 0; i < len; ++i )
+    {
+        if ( ::islower( s[i] ) ) s[i] = (char) ::toupper( s[i] );
+    }
+
+    return s;
+}
+
 };  // namespace wiliwili

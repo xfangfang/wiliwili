@@ -156,15 +156,41 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes) : msg(std:
         }
     }
 
-    // 设置弹幕内容 (根据需要做简繁转换)
+    // 调整弹幕内容
+    if (msg.size() > 1 && msg[0] == '[' && msg[msg.size() - 1] == ']') {
+        // 检查是否是彩蛋弹幕: [ohh] [前方高能]
+        if (pystring::startswith(msg, "[前方高能")) {
+            image = DanmakuImageType::DANMAKU_IMAGE_HIGHLIGHT;
+        } else if (pystring::startswith(wiliwili::toUpper(msg, 4), "[OHH")) {
+            image = DanmakuImageType::DANMAKU_IMAGE_OHH;
+        }
+    } else {
+        // 根据需要做简繁转换
 #ifdef OPENCC
-    static bool ZH_T =
-        brls::Application::getLocale() == brls::LOCALE_ZH_HANT || brls::Application::getLocale() == brls::LOCALE_ZH_TW;
-    if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
+        static bool ZH_T = brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
+                           brls::Application::getLocale() == brls::LOCALE_ZH_TW;
+        if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
 #endif
+    }
 }
 
 void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha, bool multiLine) const {
+    if (image != DanmakuImageType::DANMAKU_IMAGE_NONE) {
+        // 绘制图片弹幕
+        float width  = DanmakuCore::DANMAKU_STYLE_FONTSIZE * 3;
+        float height = DanmakuCore::DANMAKU_STYLE_FONTSIZE;
+        float newAlpha = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.01f * alpha;
+        nvgBeginPath(vg);
+        auto paint =
+            nvgImagePattern(vg, x, y, width, height, 0,
+                            image == DanmakuImageType::DANMAKU_IMAGE_OHH ? DanmakuCore::DANMAKU_IMAGE_OHH
+                                                                         : DanmakuCore::DANMAKU_IMAGE_HIGHLIGHT,
+                            newAlpha);
+        nvgRect(vg, x, y, width, height);
+        nvgFillPaint(vg, paint);
+        nvgFill(vg);
+        return;
+    }
     float blur   = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::DANMAKU_FONT_SHADOW;
     float dilate = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::DANMAKU_FONT_STROKE;
     float dx, dy;
@@ -207,11 +233,31 @@ DanmakuCore::DanmakuCore() {
         }
     });
 
+    NVGcontext *vg = brls::Application::getNVGContext();
+#ifdef USE_LIBROMFS
+    auto image1             = romfs::get("pictures/danmaku_ohh.png");
+    DANMAKU_IMAGE_OHH       = nvgCreateImageMem(vg, 0, (unsigned char*)image1.data(), image1.size());
+    auto image2             = romfs::get("pictures/danmaku_highlight.png");
+    DANMAKU_IMAGE_HIGHLIGHT = nvgCreateImageMem(vg, 0, (unsigned char*)image2.data(), image2.size());
+#else
+    DANMAKU_IMAGE_OHH       = nvgCreateImage(vg, BRLS_ASSET("pictures/danmaku_ohh.png"), 0);
+    DANMAKU_IMAGE_HIGHLIGHT = nvgCreateImage(vg, BRLS_ASSET("pictures/danmaku_highlight.png"), 0);
+#endif
+
     // 退出前清空遮罩纹理
     brls::Application::getExitDoneEvent()->subscribe([this]() {
+        NVGcontext *vg = brls::Application::getNVGContext();
         if (maskTex != 0) {
-            nvgDeleteImage(brls::Application::getNVGContext(), maskTex);
+            nvgDeleteImage(vg, maskTex);
             maskTex = 0;
+        }
+        if (DANMAKU_IMAGE_OHH != 0) {
+            nvgDeleteImage(vg, DANMAKU_IMAGE_OHH);
+            DANMAKU_IMAGE_OHH = 0;
+        }
+        if (DANMAKU_IMAGE_HIGHLIGHT != 0) {
+            nvgDeleteImage(vg, DANMAKU_IMAGE_HIGHLIGHT);
+            DANMAKU_IMAGE_HIGHLIGHT = 0;
         }
     });
 }
@@ -318,7 +364,7 @@ void DanmakuCore::refresh() {
     }
 
     // 重新设置行高
-    lineHeight     = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
+    lineHeight = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
 
     // 更新弹幕透明度
     for (auto &d : danmakuData) {
@@ -664,9 +710,13 @@ skip_mask:
             }
 
             /// 处理即将要显示的弹幕
-            nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
-            nvgTextBounds(vg, 0, 0, i.msg.c_str(), nullptr, bounds);
-            i.length  = bounds[2] - bounds[0];
+            if (i.image != DanmakuImageType::DANMAKU_IMAGE_NONE) {
+                i.length = DANMAKU_STYLE_FONTSIZE * 3;
+            } else {
+                nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
+                nvgTextBounds(vg, 0, 0, i.msg.c_str(), nullptr, bounds);
+                i.length = bounds[2] - bounds[0];
+            }
             i.speed   = (width + i.length) / SECOND;
             i.showing = true;
             for (int k = 0; k < LINES; k++) {
