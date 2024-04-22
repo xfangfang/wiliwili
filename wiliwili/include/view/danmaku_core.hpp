@@ -239,9 +239,6 @@ private:
     // 弹幕显示的最大行数
     size_t lineNum;
 
-    // 当前弹幕显示的行数
-    size_t lineNumCurrent;
-
     // 当前视频播放速度
     double videoSpeed;
 

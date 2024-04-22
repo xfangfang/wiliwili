@@ -230,7 +230,6 @@ void DanmakuCore::reset() {
     maskSliceIndex      = 0;
     videoSpeed          = MPVCore::instance().getSpeed();
     lineHeight          = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
-    lineNumCurrent      = 0;
     maskData.clear();
     if (maskTex != 0) {
         nvgDeleteImage(brls::Application::getNVGContext(), maskTex);
@@ -245,6 +244,9 @@ void DanmakuCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
     if (!data.empty()) danmakuLoaded = true;
     std::sort(danmakuData.begin(), danmakuData.end());
     danmakuMutex.unlock();
+
+    // 更新显示总行数等信息
+    this->refresh();
 
     // 通过mpv来通知弹幕加载完成
     APP_E->fire("DANMAKU_LOADED", nullptr);
@@ -317,7 +319,6 @@ void DanmakuCore::refresh() {
 
     // 重新设置行高
     lineHeight     = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
-    lineNumCurrent = 0;
 
     // 更新弹幕透明度
     for (auto &d : danmakuData) {
@@ -493,10 +494,9 @@ skip_mask:
         nvgFontQuality(vg, 0.01f * DANMAKU_RENDER_QUALITY);
     }
 
-    int LINES = lineNumCurrent;
-    if (LINES == 0) {
-        LINES = height / lineHeight * DANMAKU_STYLE_AREA * 0.01;
-    }
+    // 实际弹幕显示行数 （小于等于总行数且受弹幕显示区域限制）
+    int LINES = height / lineHeight * DANMAKU_STYLE_AREA * 0.01f;
+    if (LINES > lineNum) LINES = lineNum;
 
     //取出需要的弹幕
     float bounds[4];
