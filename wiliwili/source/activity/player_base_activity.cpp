@@ -668,7 +668,8 @@ void BasePlayerActivity::onVideoRelationInfo(const bilibili::VideoRelation& resu
 
 void BasePlayerActivity::onHighlightProgress(const bilibili::VideoHighlightProgress& result) {
     brls::Logger::debug("highlight: {}/{}", result.step_sec, result.data.size());
-    this->video->setHighlightProgress(result.step_sec, result.data);
+    VideoHighlightData data{result.step_sec, result.data};
+    APP_E->fire(VideoView::HIGHLIGHT_INFO, (void*)&data);
 }
 
 void BasePlayerActivity::setRelationButton(bool liked, bool coin, bool favorite) {

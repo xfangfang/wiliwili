@@ -558,6 +558,8 @@ VideoView::VideoView() {
             this->showHint((const char*)data);
         } else if (event == VideoView::CLIP_INFO) {
             osdSlider->addClipPoint(*(float*)data);
+        } else if (event == VideoView::HIGHLIGHT_INFO) {
+            this->setHighlightProgress(*(VideoHighlightData*)data);
         } else if (event == VideoView::REPLAY) {
             // 显示重播按钮
             showReplay = true;
@@ -768,11 +770,11 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
 }
 
 void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y, float width, float alpha) {
-    if (highlight_data.size() <= 1) return;
+    if (highlightData.data.size() <= 1) return;
     nvgBeginPath(vg);
     nvgFillColor(vg, nvgRGBAf(1.0f, 1.0f, 1.0f, 0.5f * alpha));
     float baseY  = y;
-    float dX     = width / ((float)highlight_data.size() - 1);
+    float dX     = width / ((float)highlightData.data.size() - 1);
     float halfDx = dX / 2;
     float pointX = x, lastX = x;
     float lastY = baseY;
@@ -780,8 +782,8 @@ void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y, float wi
     lastY -= 12;
     nvgLineTo(vg, lastX, lastY);
 
-    for (size_t i = 1; i < highlight_data.size(); i++) {
-        float item = highlight_data[i];
+    for (size_t i = 1; i < highlightData.data.size(); i++) {
+        float item = highlightData.data[i];
         pointX += dX;
         float pointY = baseY - 12 - item * 48;
         float cx     = lastX + halfDx;
@@ -1124,9 +1126,8 @@ void VideoView::setProgress(float value) {
 
 float VideoView::getProgress() { return this->osdSlider->getProgress(); }
 
-void VideoView::setHighlightProgress(int sec, const std::vector<float>& data) {
-    highlight_step_sec = sec;
-    highlight_data     = data;
+void VideoView::setHighlightProgress(const VideoHighlightData& data) {
+    this->highlightData = data;
 }
 
 void VideoView::showHint(const std::string& value) {
@@ -1193,7 +1194,7 @@ void VideoView::setFullScreen(bool fs) {
         video->setLastPlayedPosition(lastPlayedPosition);
         video->osdSlider->setClipPoint(osdSlider->getClipPoint());
         video->refreshToggleIcon();
-        video->setHighlightProgress(highlight_step_sec, highlight_data);
+        video->setHighlightProgress(highlightData);
         if (video->isLiveMode) video->setLiveMode();
         video->setCustomToggleAction(customToggleAction);
         DanmakuCore::instance().refresh();
@@ -1250,6 +1251,7 @@ void VideoView::setFullScreen(bool fs) {
                     video->osdSlider->setClipPoint(osdSlider->getClipPoint());
                     video->setBangumiCustomSetting(this->bangumiTitle, this->bangumiSeasonId);
                     video->refreshToggleIcon();
+                    video->setHighlightProgress(highlightData);
                     video->refreshDanmakuIcon();
                     video->setQuality(this->getQuality());
                     video->videoSpeed->setText(this->videoSpeed->getFullText());
