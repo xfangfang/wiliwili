@@ -613,7 +613,9 @@ void DynamicArticleView::setCard(const bilibili::DynamicArticleResult& result) {
                 this->imageAreaForward->setVisibility(brls::Visibility::GONE);
                 this->videoAreaForward->setVisibility(brls::Visibility::GONE);
                 this->topicAreaForward->setVisibility(brls::Visibility::GONE);
+                this->disputeAreaForward->setVisibility(brls::Visibility::GONE);
                 this->authorForward->setText(data->text);
+                this->authorForward->setTextColor(brls::Application::getTheme().getColor("font/grey"));
                 break;
             }
             case bilibili::DynamicArticleModuleType::MODULE_TYPE_NONE:
