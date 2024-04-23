@@ -314,7 +314,6 @@
                                 focusable="true"
                                 focusUp="video/osd/lock/box"
                                 focusDown="video/speed"
-                                focusRight="video/osd/fullscreen/icon"
                                 horizontalAlign="center"
                                 text="@i18n/wiliwili/player/speed"
                                 hideHighlightBackground="true"
@@ -335,6 +334,7 @@
                                 focusUp="video/osd/lock/box"
                                 focusDown="show/episode"
                                 horizontalAlign="center"
+                                visibility="gone"
                                 text="@i18n/wiliwili/player/p"
                                 hideHighlightBackground="true"
                                 highlightCornerRadius="8" />
@@ -353,7 +353,6 @@
                                 focusUp="video/osd/lock/box"
                                 focusDown="video/osd/fullscreen/icon"
                                 focusRight="video/osd/fullscreen/icon"
-                                focusLeft="video/speed"
                                 hideHighlightBackground="true"
                                 highlightCornerRadius="30"
                                 height="30"
