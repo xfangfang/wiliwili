@@ -9,6 +9,7 @@
 #include "bilibili/util/json.hpp"
 #include "user_result.h"
 #include "home_result.h"
+#include "home_live_result.h"
 
 namespace bilibili {
 
@@ -89,6 +90,36 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleDraw, items);
 
+/// 动态直播
+class DynamicArticleModuleLiveCardInfo {
+public:
+    std::string parent_area_name, area_name;
+    std::string cover;
+    size_t live_start_time;
+    int room_id{};
+    std::string title;
+    //    int area_id{}, parent_area_id{};
+    //    int64_t uid{};
+    //    int live_status{}, online{};
+    ShowInfo watched_show;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleLiveCardInfo, room_id, parent_area_name, area_name, cover, title,
+                                   watched_show, live_start_time);
+
+class DynamicArticleModuleLiveCard {
+public:
+    int type{};
+    DynamicArticleModuleLiveCardInfo live_play_info;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleLiveCard, type, live_play_info);
+
+class DynamicArticleModuleLive {
+public:
+    int reserve_type{};
+    DynamicArticleModuleLiveCard card_info;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicArticleModuleLive, reserve_type, card_info);
+
 /// 动态话题
 class DynamicArticleModuleTopic {
 public:
@@ -126,6 +157,7 @@ enum class DynamicArticleModuleDataType {
     MODULE_TYPE_NONE = 0,
     MODULE_TYPE_VIDEO,
     MODULE_TYPE_IMAGE,
+    MODULE_TYPE_LIVE,
     MODULE_TYPE_FORWARD,
 };
 
@@ -154,7 +186,7 @@ enum class DynamicArticleModuleDataType {
                 nlohmann_json_t.data = nlohmann_json_j.at("module_topic").get<DynamicArticleModuleTopic>();     \
             }                                                                                                   \
             if (nlohmann_json_j.contains("module_dispute")) {                                                   \
-                nlohmann_json_t.data = nlohmann_json_j.at("module_dispute").get<DynamicArticleModuleDispute>();   \
+                nlohmann_json_t.data = nlohmann_json_j.at("module_dispute").get<DynamicArticleModuleDispute>(); \
             }                                                                                                   \
         } else if (nlohmann_json_t.module_type == "MODULE_TYPE_ITEM_NULL") {                                    \
             nlohmann_json_t.data = nlohmann_json_j.at("module_item_null").get<DynamicArticleModuleNull>();      \
@@ -182,7 +214,9 @@ namespace dynamic_forward {
 class DynamicArticleModuleData {
 public:
     std::string type;
-    std::variant<DynamicArticleModuleNone, DynamicArticleModuleArchive, DynamicArticleModuleDraw> data;
+    std::variant<DynamicArticleModuleNone, DynamicArticleModuleArchive, DynamicArticleModuleDraw,
+                 DynamicArticleModuleLive>
+        data;
 };
 
 inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicArticleModuleData& nlohmann_json_t) {
@@ -193,6 +227,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicArticleModul
     } else if (nlohmann_json_t.type == "MDL_DYN_TYPE_DRAW") {
         // 图片
         nlohmann_json_t.data = nlohmann_json_j.at("dyn_draw").get<DynamicArticleModuleDraw>();
+    } else if (nlohmann_json_t.type == "MDL_DYN_TYPE_LIVE_RCMD") {
+        // 直播
+        nlohmann_json_t.data = nlohmann_json_j.at("dyn_live_rcmd").get<DynamicArticleModuleLive>();
     } else {
         printf("unknown module data type: %s\n", nlohmann_json_t.type.c_str());
     }
@@ -217,7 +254,7 @@ class DynamicArticleModuleData {
 public:
     std::string type;
     std::variant<DynamicArticleModuleNone, DynamicArticleModuleArchive, DynamicArticleModuleDraw,
-                 DynamicArticleModuleForward>
+                 DynamicArticleModuleLive, DynamicArticleModuleForward>
         data;
 };
 
@@ -229,6 +266,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicArticleModul
     } else if (nlohmann_json_t.type == "MDL_DYN_TYPE_DRAW") {
         // 图片
         nlohmann_json_t.data = nlohmann_json_j.at("dyn_draw").get<DynamicArticleModuleDraw>();
+    } else if (nlohmann_json_t.type == "MDL_DYN_TYPE_LIVE_RCMD") {
+        // 直播
+        nlohmann_json_t.data = nlohmann_json_j.at("dyn_live_rcmd").get<DynamicArticleModuleLive>();
     } else if (nlohmann_json_t.type == "MDL_DYN_TYPE_FORWARD") {
         // 转发
         nlohmann_json_t.data = nlohmann_json_j.at("dyn_forward").get<DynamicArticleModuleForward>();

@@ -34,7 +34,9 @@ public:
         });
         this->svgOpen->registerClickAction([this](...) {
             brls::Application::popActivity(brls::TransitionAnimation::NONE);
-            if (video.epid != 0) {
+            if (this->live.room_id != 0) {
+                Intent::openLive(this->live.room_id, this->live.title, this->live.watched_show.text_large);
+            } else if (video.epid != 0) {
                 Intent::openSeasonByEpId(video.epid);
             } else {
                 Intent::openBV(video.bvid);
@@ -97,6 +99,9 @@ public:
         this->article->setLikeNum(state.like.count);
         this->article->setLiked(state.like.like_state);
         this->backgroundBox->setWidth(width + 48);
+        this->live.room_id = 0;
+        this->video.epid = 0;
+        this->video.bvid = "";
 
         for (auto& module : data.modules) {
             auto moduleType = (bilibili::DynamicArticleModuleType)module.data.index();
@@ -115,6 +120,12 @@ public:
                 if (!videoData) break;
                 this->svgOpen->setVisibility(brls::Visibility::VISIBLE);
                 video = *videoData;
+            } else if (dataType == bilibili::DynamicArticleModuleDataType::MODULE_TYPE_LIVE) {
+                // 正文直播
+                auto* liveData = std::get_if<bilibili::DynamicArticleModuleLive>(&desc->data);
+                if (!liveData) break;
+                this->svgOpen->setVisibility(brls::Visibility::VISIBLE);
+                live = liveData->card_info.live_play_info;
             } else if (dataType == bilibili::DynamicArticleModuleDataType::MODULE_TYPE_FORWARD) {
                 auto* forwardData = std::get_if<bilibili::DynamicArticleModuleForward>(&desc->data);
                 if (!forwardData) break;
@@ -137,6 +148,12 @@ public:
                         if (!videoData) break;
                         this->svgOpen->setVisibility(brls::Visibility::VISIBLE);
                         video = *videoData;
+                    } else if (forwardDataType == bilibili::DynamicArticleModuleDataType::MODULE_TYPE_LIVE) {
+                        // 转发直播
+                        auto* liveData = std::get_if<bilibili::DynamicArticleModuleLive>(&descForward->data);
+                        if (!liveData) break;
+                        this->svgOpen->setVisibility(brls::Visibility::VISIBLE);
+                        live = liveData->card_info.live_play_info;
                     }
                 }
             }
@@ -205,6 +222,7 @@ private:
 
     bilibili::DynamicArticleModuleDraw image;
     bilibili::DynamicArticleModuleArchive video;
+    bilibili::DynamicArticleModuleLiveCardInfo live{};
 };
 
 class DataSourceDynamicDetailList : public RecyclingGridDataSource, public CommentAction, public DynamicAction {
@@ -529,6 +547,20 @@ void DynamicArticleView::setCard(const bilibili::DynamicArticleResult& result) {
                         this->imageArea->setVisibility(brls::Visibility::VISIBLE);
                         break;
                     }
+                    case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_LIVE: {
+                        auto* live = std::get_if<bilibili::DynamicArticleModuleLive>(&internal->data);
+                        if (!live) break;
+                        // 直播
+                        this->videoArea->setCard(
+                            live->card_info.live_play_info.cover + ImageHelper::h_ext,
+                            live->card_info.live_play_info.title,
+                            live->card_info.live_play_info.watched_show.text_large,
+                            fmt::format("{} {}", live->card_info.live_play_info.parent_area_name,
+                                        live->card_info.live_play_info.area_name),
+                            fmt::format("{} 开始", wiliwili::sec2date(live->card_info.live_play_info.live_start_time)));
+                        this->videoArea->setVisibility(brls::Visibility::VISIBLE);
+                        break;
+                    }
                     case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_FORWARD: {
                         auto* forward = std::get_if<bilibili::DynamicArticleModuleForward>(&internal->data);
                         if (!forward) break;
@@ -655,6 +687,20 @@ void DynamicArticleView::setForwardCard(const bilibili::dynamic_forward::Dynamic
                         }
                         this->imageBoxForward->setRichText(d);
                         this->imageAreaForward->setVisibility(brls::Visibility::VISIBLE);
+                        break;
+                    }
+                    case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_LIVE: {
+                        auto* live = std::get_if<bilibili::DynamicArticleModuleLive>(&internal->data);
+                        if (!live) break;
+                        // 直播
+                        this->videoAreaForward->setCard(
+                            live->card_info.live_play_info.cover + ImageHelper::h_ext,
+                            live->card_info.live_play_info.title,
+                            live->card_info.live_play_info.watched_show.text_large,
+                            fmt::format("{} {}", live->card_info.live_play_info.parent_area_name,
+                                        live->card_info.live_play_info.area_name),
+                            fmt::format("{} 开始", wiliwili::sec2date(live->card_info.live_play_info.live_start_time)));
+                        this->videoAreaForward->setVisibility(brls::Visibility::VISIBLE);
                         break;
                     }
                     case bilibili::DynamicArticleModuleDataType::MODULE_TYPE_NONE:
