@@ -36,6 +36,10 @@
         "proxy": "プロキシ",
         "proxy_hint": "例：http://127.0.0.1:7890"
       },
+      "ui": {
+        "header": "UI",
+        "tv_osd": "TV style OSD control"
+      },
       "others": {
         "header": "その他",
         "vibration": "ゲームパッドの振動",
@@ -44,6 +48,7 @@
         "limited_fps": "最大フレーム数制限",
         "limited_fps_vsync": "垂直同期",
         "fullscreen": "フルスクリーン",
+        "always_on_top": "Always on top",
         "tv_search": "テレビスタイルの検索ページ",
         "clear_history": "検索履歴を削除",
         "clear_season": "番組のカスタム設定を消去",
@@ -205,6 +210,11 @@
       "tab": "シネマ"
     }
   },
+  "dynamic": {
+    "detail": "Activity detail",
+    "video": "Video",
+    "article": "Activity"
+  },
   "search": {
     "tv": {
       "hint": "キーワードと最初の文字をサポート",
@@ -216,6 +226,13 @@
       "history_clear": "全て消去",
       "history_delete": "削除",
       "suggest": "提案"
+    },
+    "order": {
+      "all": "All",
+      "click": "Click",
+      "pubdate": "PublishDate",
+      "dm": "Danmaku",
+      "stow": "Favorite"
     },
     "tab": "検索",
     "t0": "履歴",
@@ -276,6 +293,7 @@
     "recommend": "おすすめ",
     "uploaded": "その他",
     "qr": "QRコードを読み取って視聴/共有",
+    "clipboard": "Copied to clipboard",
     "comment": "コメント",
     "current": " みんなが見ている",
     "share": "シェア",
@@ -343,6 +361,8 @@
       },
       "aspect": {
         "header": "ビデオアスペクト比",
+        "crop": "Crop",
+        "stretch": "Stretch",
         "auto": "自動"
       },
       "shader": {
