@@ -331,19 +331,19 @@
         "skip_hint1": "次の動画からオープニング クレジットを自動的にスキップします",
         "skip_hint2": "次の動画からオープニングクレジットをスキップをオフにする",
         "skip_hint3": "次の動画からカスタムオープニングクレジットを使用",
-        "skip_hint4": "Disable custom opening credits from next video",
+        "skip_hint4": "次のビデオからカスタムオープニングクレジットを無効にする",
         "wiki": "シェーダーの仕組みを学ぶには、wikiにアクセスしてください"
       },
       "season": {
-        "aspect": "Custom video aspect",
-        "clip": "Custom opening credits",
-        "clip_start": "Intro length",
-        "clip_end": "Outro length",
-        "unit": "Unit: seconds"
+        "aspect": "カスタムビデオアスペクト",
+        "clip": "カスタムオープニングクレジット",
+        "clip_start": "イントロの長さ",
+        "clip_end": "アウトロの長さ",
+        "unit": "単位：秒"
       },
       "aspect": {
-        "header": "Video aspect",
-        "auto": "Auto"
+        "header": "ビデオアスペクト比",
+        "auto": "自動"
       },
       "shader": {
         "header": "シェーダー"
@@ -367,26 +367,26 @@
         "hint": "素敵なことをコメントしましょう"
       },
       "performance": {
-        "header": "Performance",
-        "render": "Rendering quality"
+        "header": "パフォーマンス",
+        "render": "レンダリングの品質"
       },
       "filter": {
         "header": "弾幕フィルター",
-        "mask": "Smart mask",
+        "mask": "スマートマスク",
         "top": "トップ",
         "scroll": "スクロール",
         "bottom": "下",
         "color": "カラー",
-        "advanced": "Advanced",
+        "advanced": "高度",
         "level": "フィルターレベル",
         "level_n": "レベル {}"
       },
       "style": {
         "header": "弾幕のスタイル",
-        "font": "Stroke Style",
-        "font_stroke": "Stroke",
-        "font_incline": "Incline",
-        "font_shadow": "Shadow",
+        "font": "ストロークスタイル",
+        "font_stroke": "ストローク",
+        "font_incline": "インクライン",
+        "font_shadow": "シャドウ",
         "font_pure": "Pure",
         "area": "表示範囲",
         "area_1_4": "1/4 スクリーン",
@@ -413,7 +413,7 @@
     }
   },
   "dialog": {
-    "not_supported": "Not Supported",
+    "not_supported": "サポートされていません",
     "quit_hint": "アプリを終了しています..."
   }
 }
