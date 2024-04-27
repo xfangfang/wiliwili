@@ -30,8 +30,9 @@ public:
     std::string title;
     std::string image;
     std::string source_content;
+    std::string uri;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(MsgFeedItem, subject_id, source_id, type, title, image, source_content);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MsgFeedItem, subject_id, source_id, type, title, image, source_content, uri);
 
 class FeedReplyResult {
 public:
@@ -116,12 +117,17 @@ public:
     uint64_t sender_uid, receiver_id;
     uint64_t msg_seqno;
     std::vector<uint64_t> at_uids;
-    int receiver_type, msg_type;
-    std::string content;
+    int msg_type, msg_source;
+    nlohmann::json content;
     time_t timestamp;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InboxMessageResult, sender_uid, receiver_id, receiver_type, msg_seqno, at_uids,
-                                   msg_type, content, timestamp);
+inline void from_json(const nlohmann::json& nlohmann_json_j, InboxMessageResult& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("content") && nlohmann_json_j.at("content").is_string()) {
+        nlohmann::json::parse(nlohmann_json_j.at("content").get<std::string>()).get_to(nlohmann_json_t.content);
+    }
+    NLOHMANN_JSON_EXPAND(
+        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, sender_uid, receiver_id, msg_seqno, msg_type, msg_source, timestamp));
+}
 
 typedef std::vector<InboxMessageResult> InboxMessageListResult;
 
@@ -162,11 +168,18 @@ public:
     uint64_t talker_id;
     int session_type;
     time_t session_ts;
+    uint64_t max_seqno;
+    int unread_count;
     InboxAccountInfo account_info;
     InboxMessageResult last_msg;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(InboxChatResult, talker_id, session_type, session_ts, account_info,
-                                                last_msg);
+inline void from_json(const nlohmann::json& nlohmann_json_j, InboxChatResult& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("last_msg") && nlohmann_json_j.at("last_msg").is_object()) {
+        nlohmann_json_j.at("last_msg").get_to(nlohmann_json_t.last_msg);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, talker_id, session_type, session_ts, max_seqno,
+                                             unread_count, account_info));
+}
 
 typedef std::vector<InboxChatResult> InboxChatListResult;
 

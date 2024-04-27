@@ -7,6 +7,8 @@
 #include "bilibili/result/inbox_result.h"
 #include "presenter.h"
 
+typedef std::unordered_map<unsigned int, bilibili::UserCardResult> InboxUserMap;
+
 class InboxChatRequest : public Presenter {
 public:
     virtual void onChatList(const bilibili::InboxChatListResult& result, bool refresh);
@@ -17,6 +19,4 @@ public:
 
 protected:
     time_t last_time = 0;
-
-    std::unordered_map<unsigned int, bilibili::UserCardResult> user_map;
 };

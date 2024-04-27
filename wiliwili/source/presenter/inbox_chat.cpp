@@ -8,12 +8,12 @@ void InboxChatRequest::onError(const std::string& error) {}
 
 void InboxChatRequest::requestData(bool refresh) {
     BILI::new_inbox_sessions(
-        this->last_time,
+        refresh ? 0 : this->last_time,
         [this, refresh](const bilibili::InboxChatResultWrapper& result) {
-            std::vector<unsigned int> uids;
+            std::vector<std::string> uids;
             for (auto& s : result.session_list) {
                 if (s.account_info.name.empty()) {
-                    uids.push_back(s.talker_id);
+                    uids.push_back(std::to_string(s.talker_id));
                 }
             }
             this->last_time = wiliwili::unix_time() * 1000000;
@@ -21,21 +21,21 @@ void InboxChatRequest::requestData(bool refresh) {
                 BILI::get_user_cards(
                     uids,
                     [this, result, refresh](const bilibili::UserCardListResult& users) {
-                        for (auto& u : users) {
-                            user_map[u.mid] = u;
-                        }
+                        InboxUserMap user_map;
+                        for (auto& u : users) user_map[u.mid] = u;
+
                         auto list = result.session_list;
                         for (auto& s : list) {
                             auto it = user_map.find(s.talker_id);
                             if (it != user_map.end()) {
-                                s.account_info.name = it->second.name;
+                                s.account_info.name    = it->second.name;
                                 s.account_info.pic_url = it->second.face;
                             }
                         }
                         this->onChatList(list, refresh);
                     },
                     [this](BILI_ERR) { this->onError(error); });
-            }            
+            }
         },
         [this](BILI_ERR) { this->onError(error); });
 }

@@ -126,7 +126,7 @@ void BilibiliClient::get_user_dynamic_count(const std::string& mid,
     HTTP::getResultAsync<UserDynamicCount>(Api::UserDynamicStat, {{"uids", mid}}, callback, error);
 }
 
-void BilibiliClient::get_user_cards(const std::vector<unsigned int> uids,
+void BilibiliClient::get_user_cards(const std::vector<std::string>& uids,
                                     const std::function<void(UserCardListResult)>& callback,
                                     const ErrorCallback& error) {
     std::string mid = fmt::format("{}", fmt::join(uids, ","));
@@ -136,7 +136,10 @@ void BilibiliClient::get_user_cards(const std::vector<unsigned int> uids,
 void BilibiliClient::new_inbox_sessions(time_t begin_ts,
                         const std::function<void(InboxChatResultWrapper)>& callback,
                         const ErrorCallback& error) {
-    HTTP::getResultAsync<InboxChatResultWrapper>(Api::ChatSessions, {{"begin_ts", std::to_string(begin_ts)}}, callback, error);        
+    HTTP::getResultAsync<InboxChatResultWrapper>(Api::ChatSessions, {
+        {"begin_ts", std::to_string(begin_ts)},
+        {"mobi_app", "web"},
+    }, callback, error);        
 }
 
 void BilibiliClient::fetch_inbox_msgs(const std::string& talker_id, size_t size,
@@ -145,10 +148,12 @@ void BilibiliClient::fetch_inbox_msgs(const std::string& talker_id, size_t size,
                                   const std::function<void(InboxMessageResultWrapper)>& callback,
                                   const ErrorCallback& error) {
     HTTP::getResultAsync<InboxMessageResultWrapper>(Api::ChatFetchMsgs, {
+        {"sender_device_id", "1"},
         {"talker_id", talker_id},
         {"session_type", std::to_string(session_type)},
         {"begin_seqno", begin_seqno},
         {"size", std::to_string(size)},
+        {"mobi_app", "web"},
     }, callback, error);              
 }
 

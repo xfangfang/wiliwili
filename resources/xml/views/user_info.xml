@@ -47,6 +47,7 @@
                 fontSize="16"
                 grow="1"
                 marginTop="4"
+                autoAnimate="false"
                 verticalAlign="top"
                 wireframe="false"
                 textColor="@theme/font/grey"/>

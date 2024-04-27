@@ -2,100 +2,57 @@
 #include <algorithm>
 
 #include "fragment/inbox_chat.hpp"
-#include "view/recycling_grid.hpp"
-
-#include "view/text_box.hpp"
+#include "view/inbox_msg_card.hpp"
+#include "utils/number_helper.hpp"
 
 using namespace brls::literals;
 
-class ChatMsgCard : public RecyclingGridItem {
+class InboxNoticeCard : public RecyclingGridItem {
 public:
-    ChatMsgCard() { this->inflateFromXMLRes("xml/views/inbox_msg.xml"); }
+    InboxNoticeCard() {
+        auto theme = brls::Application::getTheme();
+        this->setFocusable(false);
+        this->setJustifyContent(brls::JustifyContent::CENTER);
+        noticeLabel = new brls::Label();
+        this->noticeLabel->setFontSize(16);
+        this->noticeLabel->setTextColor(theme.getColor("font/grey"));
+        this->addView(noticeLabel);
+    }
 
     void setCard(const bilibili::InboxMessageResult& r) {
-        try {
-            auto j = nlohmann::json::parse(r.content);
-            switch (r.msg_type) {
-                case 1:
-                    this->textBox->setText(j.at("content").get<std::string>());
-                    this->msgBox->setVisibility(brls::Visibility::VISIBLE);
-                    this->picBox->setVisibility(brls::Visibility::GONE);
-                    break;
-                case 2: {
-                    std::string pic = j.at("url").get<std::string>();
-                    float width     = j.at("width").get<float>();
-                    float height    = j.at("height").get<float>();
-
-                    if (width > 400.f) {
-                        height = height * 400.f / width;
-                        width  = 400.f;
-                    }
-                    this->picBox->setWidth(width);
-                    this->picBox->setHeight(height);
-                    ImageHelper::with(this->msgPic)->load(pic);
-
-                    this->picBox->setVisibility(brls::Visibility::VISIBLE);
-                    this->msgBox->setVisibility(brls::Visibility::GONE);
-                    break;
-                }
-            }
-
-        } catch (const std::exception& ex) {
-        }
-    }
-
-    void setTime(const std::string& time_str) {
-        if (time_str.empty()) {
-            this->labelTime->setVisibility(brls::Visibility::GONE);
-        } else {
-            this->labelTime->setText(time_str);
-            this->labelTime->setVisibility(brls::Visibility::VISIBLE);
-        }
-    }
-
-    void setTalker(bool talker) {
-        auto theme = brls::Application::getTheme();
-        if (talker) {
-            this->talker->setVisibility(brls::Visibility::VISIBLE);
-            this->mine->setVisibility(brls::Visibility::INVISIBLE);
-            this->msgBox->setBackgroundColor(theme.getColor("color/grey_2"));
-        } else {
-            this->talker->setVisibility(brls::Visibility::INVISIBLE);
-            this->mine->setVisibility(brls::Visibility::VISIBLE);
-            this->msgBox->setBackgroundColor(theme.getColor("color/bilibili"));
-        }
+        std::string msg = r.content.at("content");
+        auto result     = nlohmann::json::parse(msg);
+        this->noticeLabel->setText(result[0]["text"]);
     }
 
 private:
-    BRLS_BIND(TextBox, textBox, "msg/content");
-    BRLS_BIND(brls::Box, msgBox, "msg/content_box");
-    BRLS_BIND(brls::Box, picBox, "msg/picture_box");
-    BRLS_BIND(brls::Image, msgPic, "msg/picture");
-    BRLS_BIND(brls::Image, talker, "avatar/talker");
-    BRLS_BIND(brls::Image, mine, "avatar/mine");
-    BRLS_BIND(brls::Label, labelTime, "msg/time");
+    brls::Label* noticeLabel;
 };
 
 class DataSourceMsgList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceMsgList(const bilibili::InboxMessageListResult& result, uint64_t mid)
-        : list(std::move(result)), talkerId(mid) {
-        std::reverse(this->list.begin(), this->list.end());
+    explicit DataSourceMsgList(const bilibili::InboxMessageResultWrapper& result, uint64_t mid)
+        : list(std::move(result.messages)), talkerId(mid) {
+        std::sort(this->list.begin(), this->list.end(),
+                  [](const bilibili::InboxMessageResult& x, const bilibili::InboxMessageResult& y) {
+                      return x.msg_seqno < y.msg_seqno;
+                  });
+
+        for (auto& e : result.e_infos) {
+            this->emotes.insert({e.text, std::make_shared<bilibili::InboxEmote>(e)});
+        }
     }
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
-        //从缓存列表中取出 或者 新生成一个表单项
-        auto* item = (ChatMsgCard*)recycler->dequeueReusableCell("Cell");
-        auto& r    = this->list[index];
+        auto& r = this->list[index];
 
-        std::string t = wiliwili::sec2date(r.timestamp);
-        item->setTalker(r.sender_uid == this->talkerId);
-        item->setCard(r);
-        if (this->lastTime == t) {
-            item->setTime("");
-        } else {
-            item->setTime(t);
-            this->lastTime = t;
+        if (r.msg_type == 18) {
+            auto* item = (InboxNoticeCard*)recycler->dequeueReusableCell("Notice");
+            item->setCard(r);
+            return item;
         }
+
+        auto* item = (InboxMsgCard*)recycler->dequeueReusableCell("Cell");
+        item->setCard(r, this->emotes, this->talkerId);
         return item;
     }
 
@@ -123,11 +80,11 @@ public:
 
 private:
     bilibili::InboxMessageListResult list;
+    IEMap emotes;
     uint64_t talkerId;
-    std::string lastTime;
 };
 
-InboxChat::InboxChat(uint64_t talker_id, int session_type) {
+InboxChat::InboxChat(const bilibili::InboxChatResult& r) {
     this->inflateFromXMLRes("xml/fragment/inbox_chat.xml");
     brls::Logger::debug("Fragment InboxChat: create");
 
@@ -136,12 +93,19 @@ InboxChat::InboxChat(uint64_t talker_id, int session_type) {
         return true;
     });
 
-    this->setTalkerId(talker_id);
+    this->setTalkerId(r.talker_id);
 
-    recyclingGrid->registerCell("Cell", []() { return new ChatMsgCard(); });
-    recyclingGrid->onNextPage([this, session_type]() { this->requestData(false, session_type); });
+    recyclingGrid->registerCell("Cell", [r]() {
+        auto* card = new InboxMsgCard();
+        card->setAvatar(r.account_info.pic_url);
+        return card;
+    });
+    recyclingGrid->registerCell("Notice", []() { return new InboxNoticeCard(); });
+    recyclingGrid->onNextPage([this, r]() { this->requestData(false, r.session_type); });
 
-    this->requestData(true, session_type);
+    labelTalker->setText(r.account_info.name);
+
+    this->requestData(true, r.session_type);
 }
 
 InboxChat::~InboxChat() { brls::Logger::debug("Fragment InboxChat: delete"); }
@@ -159,7 +123,8 @@ void InboxChat::onMsgList(const bilibili::InboxMessageResultWrapper& result, boo
                 recyclingGrid->notifyDataChanged();
             }
         } else {
-            auto dataSource = new DataSourceMsgList(result.messages, this->talkerId);
+            auto dataSource = new DataSourceMsgList(result, this->talkerId);
+            recyclingGrid->setDefaultCellFocus(dataSource->getItemCount() - 1);
             recyclingGrid->setDataSource(dataSource);
         }
     });

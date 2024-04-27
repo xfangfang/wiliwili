@@ -18,6 +18,7 @@
 
 #include "activity/main_activity.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/dialog_helper.hpp"
 #include "view/custom_button.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/svg_image.hpp"
@@ -74,8 +75,8 @@ void MainActivity::onContentAvailable() {
     });
     this->settingBtn->addGestureRecognizer(new brls::TapGestureRecognizer(this->settingBtn));
 
-    this->inboxBtn->registerClickAction([](brls::View* view) -> bool {
-        Intent::openInbox();
+    this->inboxBtn->registerClickAction([this](brls::View* view) -> bool {
+        if (DialogHelper::checkLogin()) Intent::openInbox();
         return true;
     });
 

@@ -175,6 +175,7 @@ const std::string MsgFeedReply            = _apiBase + "/x/msgfeed/reply";
 const std::string UserCards               = _vcBase + "/account/v1/user/cards";
 const std::string UserDynamicStat         = _vcBase + "/dynamic_svr/v1/dynamic_svr/space_num_ex";
 const std::string ChatSessions            = _vcBase + "/session_svr/v1/session_svr/new_sessions";
+const std::string ChatUpdateAct           = _vcBase + "/session_svr/v1/session_svr/update_ack";
 const std::string ChatFetchMsgs           = _vcBase + "/svr_sync/v1/svr_sync/fetch_session_msgs";
 const std::string ChatSendMsg             = _vcBase + "/web_im/v1/web_im/send_msg";
 /// 用户追番/追剧

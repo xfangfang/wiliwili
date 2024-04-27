@@ -5,11 +5,14 @@
 
 #include "presenter/inbox_msg.hpp"
 
+namespace brls {
+class Label;
+};
 class RecyclingGrid;
 
 class InboxChat : public brls::Box, public InboxMsgRequest {
 public:
-    InboxChat(uint64_t talker_id, int session_type);
+    InboxChat(const bilibili::InboxChatResult& r);
 
     ~InboxChat() override;
 
@@ -19,4 +22,5 @@ public:
 
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "inbox/msgList");
+    BRLS_BIND(brls::Label, labelTalker, "inbox/talker");
 };

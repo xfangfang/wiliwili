@@ -311,7 +311,7 @@ void RecyclingGrid::reloadData() {
     }
 
     // 在前面的操作中，列表增加了一项，通过 selectRowAt 再精确地显示出具体选中项
-    selectRowAt(cellFocusIndex, false);
+    selectRowAt(cellFocusIndex, this->isFlowMode);
 }
 
 void RecyclingGrid::notifyDataChanged() {

@@ -62,7 +62,7 @@
                         </AutoTabFrame>
 
                         <ButtonClose
-                                id="button/close"
+                                id="inbox/close"
                                 focusable="true"
                                 positionType="absolute"
                                 positionTop="10"

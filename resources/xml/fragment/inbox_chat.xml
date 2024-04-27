@@ -4,16 +4,19 @@
         height="auto"
         width="auto">
 
-        <ButtonClose
-                id="button/close"
-                focusable="true"
-                positionType="absolute"
-                positionTop="10"
-                positionRight="10" />
+        <brls:Box>
+                <ButtonClose
+                        id="inbox/back"
+                        focusable="true"
+                        positionType="absolute"
+                        positionTop="10"
+                        positionRight="10" />
 
-        <brls:Box
-                height="50">
-
+                <brls:Label
+                        marginTop="20"
+                        marginBottom="15"
+                        marginLeft="30"
+                        id="inbox/talker" />
         </brls:Box>
 
         <RecyclingGrid

@@ -5,6 +5,7 @@
 #include "view/recycling_grid.hpp"
 #include "view/text_box.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/activity_helper.hpp"
 
 using namespace brls::literals;
 
@@ -40,6 +41,16 @@ public:
         this->labelMisc->setText(brls::getStr("wiliwili/inbox/reply/" + r.item.type));
     }
 
+    void prepareForReuse() override {
+        this->avatar->setImageFromRes("pictures/default_avatar.png");
+        this->picture->setImageFromRes("pictures/video-card-bg.png");
+    }
+
+    void cacheForReuse() override {
+        ImageHelper::clear(this->avatar);
+        ImageHelper::clear(this->picture);
+    }
+
 private:
     BRLS_BIND(brls::Image, avatar, "feed/avatar");
     BRLS_BIND(brls::Label, labelAuthor, "feed/label/author");
@@ -63,9 +74,16 @@ public:
 
     size_t getItemCount() override { return list.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override {}
-
-    void appendData(const std::vector<T>& data) {}
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
+        auto& r    = this->list[index];
+        if (r.item.type == "video" || r.item.type == "reply") {
+            // 解析BV号
+            size_t pos = r.item.uri.find_last_of('/');
+            if (pos > 0) {
+                Intent::openBV(r.item.uri.substr(pos + 1, r.item.source_id));
+            }
+        }
+    }
 
     void clearData() override { this->list.clear(); }
 

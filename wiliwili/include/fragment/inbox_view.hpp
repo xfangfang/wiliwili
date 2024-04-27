@@ -23,8 +23,8 @@ public:
     void onError(const std::string& error) override;
 
 private:
-    BRLS_BIND(ButtonClose, closebtn, "button/close");
+    BRLS_BIND(ButtonClose, closebtn, "inbox/close");
     BRLS_BIND(brls::Box, cancel, "player/cancel");
-    BRLS_BIND(AutoTabFrame, inboxFrame, "inbox/tab/frame");
+    BRLS_BIND(AutoTabFrame, tabFrame, "inbox/tab/frame");
     BRLS_BIND(RecyclingGrid, recyclingGrid, "inbox/chatList");
 };

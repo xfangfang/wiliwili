@@ -19,20 +19,31 @@ public:
     void setCard(const bilibili::InboxChatResult& r) {
         std::string misc;
         if (r.last_msg.msg_type == 1) {
-            auto j = nlohmann::json::parse(r.last_msg.content);
-            misc   = j.at("content").get<std::string>();
+            misc = r.last_msg.content.at("content");
         } else if (r.last_msg.msg_type == 2) {
-            misc = "Image";
+            misc = "[图片]";
+        } else if (r.last_msg.msg_type == 10) {
+            misc = r.last_msg.content.at("title");
         }
         this->talker->setUserInfo(r.account_info.pic_url + ImageHelper::face_ext, r.account_info.name, misc);
         if (r.last_msg.timestamp > 0) {
             this->time->setText(wiliwili::sec2date(r.last_msg.timestamp));
         }
+        if (r.unread_count > 0) {
+            this->badge->setVisibility(brls::Visibility::VISIBLE);
+        } else {
+            this->badge->setVisibility(brls::Visibility::INVISIBLE);
+        }
     }
+
+    void prepareForReuse() override { this->talker->getAvatar()->setImageFromRes("pictures/default_avatar.png"); }
+
+    void cacheForReuse() override { ImageHelper::clear(this->talker->getAvatar()); }
 
 private:
     BRLS_BIND(UserInfoView, talker, "chat/talker");
     BRLS_BIND(brls::Label, time, "inbox/lastTime");
+    BRLS_BIND(brls::Rectangle, badge, "badge");
 };
 
 class DataSourceChatList : public RecyclingGridDataSource {
@@ -50,7 +61,7 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         auto& r    = this->list[index];
-        auto* view = new InboxChat(r.talker_id, r.session_type);
+        auto* view = new InboxChat(r);
         recycler->present(view);
         brls::sync([view]() { brls::Application::giveFocus(view); });
     }
@@ -67,7 +78,7 @@ InboxView::InboxView() {
     this->inflateFromXMLRes("xml/fragment/inbox_view.xml");
     brls::Logger::debug("Fragment InboxView: create");
 
-    this->registerAction("hints/cancel"_i18n, brls::BUTTON_X, [](...) {
+    this->registerAction("hints/cancel"_i18n, brls::BUTTON_B, [](...) {
         brls::Application::popActivity();
         return true;
     });
@@ -83,6 +94,36 @@ InboxView::InboxView() {
         return true;
     });
 
+    this->registerAction(
+        "上一项", brls::ControllerButton::BUTTON_LT,
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2LastTab();
+            return true;
+        },
+        true);
+    this->registerAction(
+        "上一项", brls::ControllerButton::BUTTON_LB,
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2LastTab();
+            return true;
+        },
+        true);
+
+    this->registerAction(
+        "下一项", brls::ControllerButton::BUTTON_RT,
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2NextTab();
+            return true;
+        },
+        true);
+    this->registerAction(
+        "下一项", brls::ControllerButton::BUTTON_RB,
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2NextTab();
+            return true;
+        },
+        true);
+
     recyclingGrid->registerCell("Cell", []() { return new ChatUserCard(); });
     recyclingGrid->onNextPage([this]() { this->requestData(false); });
 
@@ -93,7 +134,7 @@ InboxView::~InboxView() { brls::Logger::debug("Fragment InboxView: delete"); }
 
 bool InboxView::isTranslucent() { return true; }
 
-brls::View* InboxView::getDefaultFocus() { return this->inboxFrame->getDefaultFocus(); }
+brls::View* InboxView::getDefaultFocus() { return this->tabFrame->getDefaultFocus(); }
 
 void InboxView::onChatList(const bilibili::InboxChatListResult& result, bool refresh) {
     brls::Threading::sync([this, result, refresh]() {

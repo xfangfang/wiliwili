@@ -134,7 +134,7 @@ public:
                                        const ErrorCallback& error                            = nullptr);
 
     /// 批量获取用户昵称头像
-    static void get_user_cards(const std::vector<unsigned int> uids,
+    static void get_user_cards(const std::vector<std::string>& uids,
                                const std::function<void(UserCardListResult)>& callback = nullptr,
                                const ErrorCallback& error                              = nullptr);
 
