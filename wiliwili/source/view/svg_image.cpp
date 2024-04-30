@@ -126,7 +126,10 @@ void SVGImage::draw(NVGcontext* vg, float x, float y, float width, float height,
     this->paint.xform[5] = -cy;
 
     nvgBeginPath(vg);
-    nvgRoundedRect(vg, -cx, -cy, width, height, getCornerRadius());
+    if (this->getCornerRadius() > 0.0f)
+        nvgRoundedRect(vg, -cx, -cy, width, height, getCornerRadius());
+    else
+        nvgRect(vg, -cx, -cy, width, height);
     nvgFillPaint(vg, a(this->paint));
     nvgFill(vg);
 
