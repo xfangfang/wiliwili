@@ -478,7 +478,7 @@ void DanmakuCore::drawMask(NVGcontext *vg, float x, float y, float width, float 
         if (maskTex != 0) {
             nvgUpdateImage(vg, maskTex, bitmap.data());
         } else {
-            maskTex = nvgCreateImageRGBA(vg, (int)maskWidth, (int)maskHeight, 0, bitmap.data());
+            maskTex = nvgCreateImageRGBA(vg, (int)maskWidth, (int)maskHeight, imageFlags, bitmap.data());
         }
     }
     if (maskTex == 0) return;

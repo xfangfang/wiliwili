@@ -81,7 +81,7 @@ add_definitions(-DFONS_HASH_LUT_SIZE=4096)
 # Project Info
 project(wiliwili)
 set(VERSION_MAJOR "1")
-set(VERSION_MINOR "3")
+set(VERSION_MINOR "4")
 set(VERSION_REVISION "0")
 if (NOT VERSION_BUILD)
     set(VERSION_BUILD "0")
