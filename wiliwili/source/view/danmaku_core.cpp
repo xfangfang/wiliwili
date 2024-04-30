@@ -14,6 +14,7 @@
 #include "view/danmaku_core.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/string_helper.hpp"
+#include "utils/number_helper.hpp"
 #include "bilibili.h"
 
 // include ntohl / ntohll
