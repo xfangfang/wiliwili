@@ -110,7 +110,7 @@ public:
     NVGcolor borderColor = nvgRGBA(0, 0, 0, 160);
     int level;  // 弹幕等级 1-10
     std::optional<AdvancedAnimation> advancedAnimation;
-    DanmakuImageType image{}; // 弹幕图片类型
+    DanmakuImageType image{};  // 弹幕图片类型
     // 暂时用不到的信息，先不使用
     //    int pubDate; // 弹幕发送时间
     //    int pool; // 弹幕池类型
@@ -238,8 +238,13 @@ private:
 
     WebMask maskData{};
     size_t maskIndex      = 0;
+    size_t maskLastIndex  = 0;
     size_t maskSliceIndex = 0;
     int maskTex           = 0;
+
+    // 遮罩纹理的宽高
+    uint32_t maskWidth = 0;
+    uint32_t maskHeight = 0;
 
     // 滚动弹幕的信息 <起始时间，结束时间>
     std::vector<std::pair<float, float>> scrollLines;
@@ -257,4 +262,8 @@ private:
     float lineHeight;
 
     MPVEvent::Subscription event_id;
+
+    void drawMask(NVGcontext *vg, float x, float y, float width, float height);
+
+    void clearMask(NVGcontext *vg, float x, float y, float width, float height);
 };
