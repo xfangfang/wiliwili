@@ -49,6 +49,7 @@ private:
     BRLS_BIND(MineHistory, mineHistory, "mine/history");
     BRLS_BIND(MineLater, mineLater, "mine/Later");
     BRLS_BIND(MineCollection, mineCollection, "mine/collection");
+    BRLS_BIND(MineCollection, mineSubscription, "mine/subscription");
     BRLS_BIND(MineBangumi, mineAnime, "mine/anime");
     BRLS_BIND(MineBangumi, mineSeries, "mine/series");
     BRLS_BIND(brls::Label, labelSign, "mine/label/sign");

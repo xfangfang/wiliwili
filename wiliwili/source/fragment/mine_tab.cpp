@@ -40,6 +40,10 @@ MineTab::MineTab() {
             } catch (...) {
             }
             try {
+                this->mineSubscription->requestData(true);
+            } catch (...) {
+            }
+            try {
                 this->mineAnime->requestData(true);
             } catch (...) {
             }
