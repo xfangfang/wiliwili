@@ -43,7 +43,7 @@ package("borealis")
     add_configs("winrt", {description = "use winrt api", default = false, type = "boolean"})
     add_deps(
         "nanovg",
-        "yoga",
+        "yoga =2.0.1",
         "nlohmann_json",
         "fmt",
         "tweeny",
@@ -53,7 +53,7 @@ package("borealis")
     add_includedirs("include")
     if is_plat("windows") then
         add_includedirs("include/compat")
-        add_syslinks("Wlanapi", "iphlpapi", "Ws2_32")
+        add_syslinks("wlanapi", "iphlpapi", "ws2_32")
     end
     on_load(function (package)
         local window = package:config("window")
@@ -65,7 +65,7 @@ package("borealis")
             package:add("deps", "sdl2")
         end
         if driver == "opengl" then
-            package:add("deps", "glad")
+            package:add("deps", "glad =0.1.36")
         elseif driver == "d3d11" then
             package:add("syslinks", "d3d11")
         end
