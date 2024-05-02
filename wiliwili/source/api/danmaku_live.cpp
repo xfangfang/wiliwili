@@ -60,6 +60,7 @@ LiveDanmaku::~LiveDanmaku() {
 #ifdef _WIN32
     WSACleanup();
 #endif
+    while (!msg_q.empty()) msg_q.pop();
 }
 
 void LiveDanmaku::connect(int room_id, int64_t uid, const bilibili::LiveDanmakuinfo &info) {
@@ -132,8 +133,7 @@ void LiveDanmaku::disconnect() {
     connected.store(false, std::memory_order_release);
 
     // Wakeup the mainloop
-    if (mgr && nc)
-        mg_wakeup(this->mgr, this->nc->id, nullptr, 0);
+    if (mgr && nc) mg_wakeup(this->mgr, this->nc->id, nullptr, 0);
 
     // Stop Mongoose event loop thread
     if (mongoose_thread.joinable()) {

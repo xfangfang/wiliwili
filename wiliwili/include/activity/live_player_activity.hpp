@@ -9,6 +9,7 @@
 
 #include "utils/event_helper.hpp"
 #include "presenter/live_data.hpp"
+#include "live/danmaku_live.hpp"
 
 class VideoView;
 
@@ -48,6 +49,8 @@ private:
     size_t toggleDelayIter = 0;
     // 遇到错误重试的延时函数 handle
     size_t errorDelayIter = 0;
+
+    LiveDanmaku danmaku;
 
     bilibili::LiveVideoResult liveData;
 

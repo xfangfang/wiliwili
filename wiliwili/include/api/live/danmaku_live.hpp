@@ -20,7 +20,7 @@
 using json = nlohmann::json;
 
 typedef void (*on_message_func_t)(const std::string &);
-class LiveDanmaku : public brls::Singleton<LiveDanmaku> {
+class LiveDanmaku {
 public:
     int room_id;
     int uid;
