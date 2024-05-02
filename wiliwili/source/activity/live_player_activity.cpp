@@ -279,6 +279,7 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
         // todo: 支持轮播视频
         this->video->showOSD(false);
         showDialog("未开播", "pictures/sorry.png", true);
+        return;
     }
     brls::Logger::debug("current quality: {}", liveUrl.current_qn);
     for (auto& i : liveUrl.accept_qn) {
@@ -296,6 +297,10 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
         // 设置视频链接
         brls::Logger::debug("Live stream url: {}", url);
         this->video->setUrl(url);
+        if (dialog) {
+            dialog->close();
+            dialog = nullptr;
+        }
         return;
     }
 
@@ -348,8 +353,7 @@ void LiveActivity::onNeedPay(const std::string& msg, const std::string& link, co
     box->addView(subtitle);
     box->addView(img);
     box->addView(label);
-    if (dialog) delete dialog;
-    dialog = new brls::Dialog(box);
+    auto dialog = new brls::Dialog(box);
 
     dialog->setCancelable(false);
     dialog->addButton("hints/ok"_i18n, []() { brls::sync([]() { brls::Application::popActivity(); }); });
@@ -377,6 +381,5 @@ LiveActivity::~LiveActivity() {
     LiveDanmakuCore::instance().reset();
     brls::cancelDelay(toggleDelayIter);
     brls::cancelDelay(errorDelayIter);
-    delete dialog;
     dialog = nullptr;
 }
