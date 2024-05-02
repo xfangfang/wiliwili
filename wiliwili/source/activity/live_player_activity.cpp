@@ -58,8 +58,9 @@ static void onDanmakuReceived(const std::string& msg) {
     process_danmaku(danmaku_list);
 }
 
+static brls::Dialog* dialog = nullptr;
 static void showDialog(const std::string& msg, const std::string& pic, bool forceQuit) {
-    brls::Dialog* dialog;
+    if (dialog) return;
     if (pic.empty()) {
         dialog = new brls::Dialog(msg);
     } else {
@@ -347,7 +348,8 @@ void LiveActivity::onNeedPay(const std::string& msg, const std::string& link, co
     box->addView(subtitle);
     box->addView(img);
     box->addView(label);
-    auto dialog = new brls::Dialog(box);
+    if (dialog) delete dialog;
+    dialog = new brls::Dialog(box);
 
     dialog->setCancelable(false);
     dialog->addButton("hints/ok"_i18n, []() { brls::sync([]() { brls::Application::popActivity(); }); });
@@ -375,4 +377,6 @@ LiveActivity::~LiveActivity() {
     LiveDanmakuCore::instance().reset();
     brls::cancelDelay(toggleDelayIter);
     brls::cancelDelay(errorDelayIter);
+    delete dialog;
+    dialog = nullptr;
 }
