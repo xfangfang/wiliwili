@@ -22,18 +22,7 @@
 #include <SDL2/SDL_main.h>
 #endif
 
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
-
 int main(int argc, char* argv[]) {
-#ifdef _WIN32
-    WSADATA wsaData;
-    int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (result != 0) {
-        printf("WSAStartup failed with error: %d\n", result);
-    }
-#endif
     for (int i = 1; i < argc; i++) {
         if (std::strcmp(argv[i], "-d") == 0) {
             brls::Logger::setLogLevel(brls::LogLevel::LOG_DEBUG);
@@ -116,9 +105,6 @@ int main(int argc, char* argv[]) {
     // Cleanup curl and Check whether restart is required
     ProgramConfig::instance().exit(argv);
 
-#ifdef _WIN32
-    WSACleanup();
-#endif
     // Exit
     return EXIT_SUCCESS;
 }

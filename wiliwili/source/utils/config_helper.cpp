@@ -41,6 +41,10 @@ extern in_addr_t secondary_dns;
 }
 #endif
 
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
+
 #ifndef PATH_MAX
 #define PATH_MAX 256
 #endif
@@ -717,6 +721,13 @@ void ProgramConfig::init() {
     curl_global_init(CURL_GLOBAL_DEFAULT);
     cpr::async::startup(THREAD_POOL_MIN_THREAD_NUM, THREAD_POOL_MAX_THREAD_NUM, std::chrono::milliseconds(5000));
 
+#ifdef _WIN32
+    WSADATA wsaData;
+    int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (result != 0) {
+        printf("WSAStartup failed with error: %d\n", result);
+    }
+#endif
 #if defined(_MSC_VER)
 #elif defined(__PSV__)
 #elif defined(PS4)
@@ -843,6 +854,9 @@ void ProgramConfig::exit(char* argv[]) {
     cpr::async::cleanup();
     curl_global_cleanup();
 
+#ifdef _WIN32
+    WSACleanup();
+#endif
 #ifdef IOS
 #elif defined(PS4)
 #elif __PSV__
