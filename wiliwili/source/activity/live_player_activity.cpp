@@ -58,9 +58,8 @@ static void onDanmakuReceived(const std::string& msg) {
     process_danmaku(danmaku_list);
 }
 
-static brls::Dialog* dialog = nullptr;
 static void showDialog(const std::string& msg, const std::string& pic, bool forceQuit) {
-    if (dialog) return;
+    brls::Dialog* dialog;
     if (pic.empty()) {
         dialog = new brls::Dialog(msg);
     } else {
@@ -297,10 +296,6 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
         // 设置视频链接
         brls::Logger::debug("Live stream url: {}", url);
         this->video->setUrl(url);
-        if (dialog) {
-            dialog->close();
-            dialog = nullptr;
-        }
         return;
     }
 
@@ -381,5 +376,4 @@ LiveActivity::~LiveActivity() {
     LiveDanmakuCore::instance().reset();
     brls::cancelDelay(toggleDelayIter);
     brls::cancelDelay(errorDelayIter);
-    dialog = nullptr;
 }

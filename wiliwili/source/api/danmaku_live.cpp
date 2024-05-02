@@ -60,6 +60,7 @@ LiveDanmaku::~LiveDanmaku() {
 #ifdef _WIN32
     WSACleanup();
 #endif
+    std::lock_guard<std::mutex> lock(msg_q_mutex);
     while (!msg_q.empty()) msg_q.pop();
 }
 
