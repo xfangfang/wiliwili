@@ -23,7 +23,7 @@ option_end()
 
 if is_plat("windows") then
     add_cxflags("/utf-8")
-    add_defines("NOMINMAX", "MG_ENABLE_WINSOCK=0")
+    add_defines("NOMINMAX")
     set_languages("c++20")
     if is_mode("release") then
         set_optimize("faster")
