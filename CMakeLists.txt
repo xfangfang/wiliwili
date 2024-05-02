@@ -118,6 +118,7 @@ if (PLATFORM_DESKTOP)
 
     if (MINGW)
         set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static" CACHE STRING "" FORCE)
+        add_definitions(-DMG_ENABLE_WINSOCK=0)
     endif ()
 elseif (APP_PLATFORM_CUSTOM_LIBS)
     message(STATUS "Using custom libraries for mpv and webp")
