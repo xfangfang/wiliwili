@@ -53,6 +53,9 @@
                                     id="setting/video/inmemory"/>
 
                             <SelectorCell
+                                    id="setting/video/cache_secs"/>
+
+                            <SelectorCell
                                     id="setting/video/format"/>
 
                             <SelectorCell

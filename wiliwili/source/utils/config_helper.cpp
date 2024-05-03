@@ -157,6 +157,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_INMEMORY_CACHE,
      {"player_inmemory_cache", {"0MB", "10MB", "20MB", "50MB", "100MB"}, {0, 10, 20, 50, 100}, 1}},
 #endif
+    {SettingItem::PLAYER_CACHE_SECS,
+     {"player_cache_secs", {"1s", "5s", "10s", "15s", "20s", "30s"}, {1, 5, 10, 15, 20, 30}, 1}},
     {
         SettingItem::PLAYER_DEFAULT_SPEED,
         {"player_default_speed",

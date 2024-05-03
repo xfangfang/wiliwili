@@ -218,8 +218,7 @@ void MPVCore::on_wakeup(void *self) {
 
 #if defined(MPV_BUNDLE_DLL)
 template <typename Module, typename fnGetProcAddress>
-void initMpvProc(Module dll, fnGetProcAddress pGetProcAddress)
-{
+void initMpvProc(Module dll, fnGetProcAddress pGetProcAddress) {
     mpvSetOptionString     = (mpvSetOptionStringFunc)pGetProcAddress(dll, "mpv_set_option_string");
     mpvObserveProperty     = (mpvObservePropertyFunc)pGetProcAddress(dll, "mpv_observe_property");
     mpvCreate              = (mpvCreateFunc)pGetProcAddress(dll, "mpv_create");
@@ -239,9 +238,10 @@ void initMpvProc(Module dll, fnGetProcAddress pGetProcAddress)
     mpvRenderContextUpdate = (mpvRenderContextUpdateFunc)pGetProcAddress(dll, "mpv_render_context_update");
     mpvRenderContextFree   = (mpvRenderContextFreeFunc)pGetProcAddress(dll, "mpv_render_context_free");
     mpvRenderContextRender = (mpvRenderContextRenderFunc)pGetProcAddress(dll, "mpv_render_context_render");
-    mpvRenderContextSetUpdateCallback = (mpvRenderContextSetUpdateCallbackFunc)pGetProcAddress(dll, "mpv_render_context_set_update_callback");
+    mpvRenderContextSetUpdateCallback =
+        (mpvRenderContextSetUpdateCallbackFunc)pGetProcAddress(dll, "mpv_render_context_set_update_callback");
     mpvRenderContextReportSwap = (mpvRenderContextReportSwapFunc)pGetProcAddress(dll, "mpv_render_context_report_swap");
-    mpvClientApiVersion = (mpvClientApiVersionFunc)pGetProcAddress(dll, "mpv_client_api_version");
+    mpvClientApiVersion        = (mpvClientApiVersionFunc)pGetProcAddress(dll, "mpv_client_api_version");
 }
 #endif
 
@@ -249,12 +249,12 @@ MPVCore::MPVCore() {
 #if defined(MPV_BUNDLE_DLL)
     HMODULE hMpv = ::LoadLibraryW(L"libmpv-2.dll");
     if (!hMpv) {
-        HRSRC hSrc = ::FindResource(nullptr, "MPV", RT_RCDATA);
+        HRSRC hSrc   = ::FindResource(nullptr, "MPV", RT_RCDATA);
         HGLOBAL hRes = ::LoadResource(nullptr, hSrc);
         DWORD dwSize = ::SizeofResource(nullptr, hSrc);
-        dll = MemoryLoadLibrary(::LockResource(hRes), dwSize);
+        dll          = MemoryLoadLibrary(::LockResource(hRes), dwSize);
         ::FreeResource(hRes);
-        
+
         brls::Logger::info("Load bundled libmpv-2.dll, size: {}", dwSize);
         initMpvProc(dll, MemoryGetProcAddress);
     } else {
@@ -322,6 +322,8 @@ void MPVCore::init() {
         mpvSetOptionString(mpv, "cache", "no");
     }
 
+    mpvSetOption(mpv, "cache-secs", MPV_FORMAT_INT64, &MPVCore::CACHE_SECS);
+
     // hardware decoding
     if (HARDWARE_DEC) {
         mpvSetOptionString(mpv, "hwdec", PLAYER_HWDEC_METHOD.c_str());
@@ -352,7 +354,7 @@ void MPVCore::init() {
     // mpvSetOptionString(mpv, "msg-level", "all=no");
     if (MPVCore::TERMINAL) {
         mpvSetOptionString(mpv, "terminal", "yes");
-        if ( brls::Logger::getLogLevel() >= brls::LogLevel::LOG_DEBUG ) {
+        if (brls::Logger::getLogLevel() >= brls::LogLevel::LOG_DEBUG) {
             mpvSetOptionString(mpv, "msg-level", "all=v");
         }
     }
@@ -399,7 +401,7 @@ void MPVCore::init() {
                               {MPV_RENDER_PARAM_INVALID, nullptr}};
 #elif defined(BOREALIS_USE_D3D11)
     mpv_dxgi_init_params init_params{D3D11_CONTEXT->getDevice(), D3D11_CONTEXT->getSwapChain()};
-    mpv_render_param params[] {
+    mpv_render_param params[]{
         {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_DXGI)},
         {MPV_RENDER_PARAM_DXGI_INIT_PARAMS, &init_params},
         {MPV_RENDER_PARAM_INVALID, nullptr},
@@ -639,7 +641,7 @@ void MPVCore::setFrameSize(brls::Rect r) {
     mpvRenderContextRender(mpv_context, mpv_params);
     mpvRenderContextReportSwap(mpv_context);
 #elif !defined(MPV_USE_FB)
-    // Using default framebuffer
+        // Using default framebuffer
 #ifndef BOREALIS_USE_D3D11
     this->mpv_fbo.w = brls::Application::windowWidth;
     this->mpv_fbo.h = brls::Application::windowHeight;

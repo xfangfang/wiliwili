@@ -55,6 +55,7 @@ private:
     BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/quality");
     BRLS_BIND(brls::BooleanCell, btnHWDEC, "setting/video/hwdec");
     BRLS_BIND(BiliSelectorCell, selectorInmemory, "setting/video/inmemory");
+    BRLS_BIND(BiliSelectorCell, selectorCacheSecs, "setting/video/cache_secs");
     BRLS_BIND(BiliSelectorCell, selectorFormat, "setting/video/format");
     BRLS_BIND(BiliSelectorCell, selectorCodec, "setting/video/codec");
     BRLS_BIND(BiliSelectorCell, selectorQuality, "setting/audio/quality");

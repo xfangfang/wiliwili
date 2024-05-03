@@ -343,11 +343,14 @@ public:
     // 视频缓存（是否使用内存缓存视频，值为缓存的大小，单位MB）
     inline static int INMEMORY_CACHE = 0;
 
+    // 直播/视频流缓冲（单位秒）
+    inline static int CACHE_SECS = 5;
+
     // 开启 Terminal 日志
     inline static bool TERMINAL = false;
 
     // 硬件解码
-    inline static bool HARDWARE_DEC               = false;
+    inline static bool HARDWARE_DEC = false;
 
     // 硬解方式
 #ifdef __SWITCH__

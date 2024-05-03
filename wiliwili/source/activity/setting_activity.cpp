@@ -248,19 +248,19 @@ void SettingActivity::onContentAvailable() {
 
     labelAboutVersion->setText(version
 #if defined(BOREALIS_USE_DEKO3D)
-                                + " (deko3d)"
+                               + " (deko3d)"
 #elif defined(BOREALIS_USE_OPENGL)
 #if defined(USE_GL2)
-                                + " (OpenGL2)"
+                               + " (OpenGL2)"
 #elif defined(USE_GLES2)
-                                + " (OpenGL ES2)"
+                               + " (OpenGL ES2)"
 #elif defined(USE_GLES3)
-                                + " (OpenGL ES3)"
+                               + " (OpenGL ES3)"
 #else
-                                + " (OpenGL)"
+                               + " (OpenGL)"
 #endif
 #elif defined(BOREALIS_USE_D3D11)
-                                + " (D3D11)"
+                               + " (D3D11)"
 #endif
     );
     labelOpensource->setText(OPENSOURCE);
@@ -354,12 +354,12 @@ void SettingActivity::onContentAvailable() {
                              brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
                          });
 
-    cellAlwaysOnTop->init("wiliwili/setting/app/others/always_on_top"_i18n, conf.getBoolOption(SettingItem::ALWAYS_ON_TOP),
-                         [](bool value) {
-                             ProgramConfig::instance().setSettingItem(SettingItem::ALWAYS_ON_TOP, value);
-                             // 设置当前状态
-                             brls::Application::getPlatform()->setWindowAlwaysOnTop(value);
-                         });
+    cellAlwaysOnTop->init("wiliwili/setting/app/others/always_on_top"_i18n,
+                          conf.getBoolOption(SettingItem::ALWAYS_ON_TOP), [](bool value) {
+                              ProgramConfig::instance().setSettingItem(SettingItem::ALWAYS_ON_TOP, value);
+                              // 设置当前状态
+                              brls::Application::getPlatform()->setWindowAlwaysOnTop(value);
+                          });
 #else
     cellFullscreen->setVisibility(brls::Visibility::GONE);
     cellAlwaysOnTop->setVisibility(brls::Visibility::GONE);
@@ -571,6 +571,16 @@ void SettingActivity::onContentAvailable() {
                                MPVCore::INMEMORY_CACHE = inmemoryOption.rawOptionList[data];
                                MPVCore::instance().restart();
                            });
+
+    selectorCacheSecs->init(
+        "wiliwili/setting/app/playback/cache_secs"_i18n, {"1s", "5s", "10s", "15s", "20s", "30s"},
+        conf.getIntOptionIndex(SettingItem::PLAYER_CACHE_SECS), [](int data) {
+            auto secsOption = ProgramConfig::instance().getOptionData(SettingItem::PLAYER_CACHE_SECS);
+            ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_CACHE_SECS, secsOption.rawOptionList[data]);
+            if (MPVCore::CACHE_SECS == secsOption.rawOptionList[data]) return;
+            MPVCore::CACHE_SECS = secsOption.rawOptionList[data];
+            MPVCore::instance().restart();
+        });
 
     /// TLS verify
     btnTls->init("wiliwili/setting/app/network/tls"_i18n, conf.getBoolOption(SettingItem::TLS_VERIFY), [](bool data) {
