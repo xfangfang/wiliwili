@@ -14,7 +14,6 @@
 #include "utils/shader_helper.hpp"
 #include "utils/config_helper.hpp"
 
-#include "live/danmaku_live.hpp"
 #include "live/extract_messages.hpp"
 #include "live/ws_utils.hpp"
 
@@ -279,6 +278,7 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
         // todo: 支持轮播视频
         this->video->showOSD(false);
         showDialog("未开播", "pictures/sorry.png", true);
+        return;
     }
     brls::Logger::debug("current quality: {}", liveUrl.current_qn);
     for (auto& i : liveUrl.accept_qn) {
@@ -304,8 +304,8 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
 }
 
 void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& info) {
-    LiveDanmaku::instance().setonMessage(onDanmakuReceived);
-    LiveDanmaku::instance().connect(roomid, std::stoll(ProgramConfig::instance().getUserID()), info);
+    danmaku.setonMessage(onDanmakuReceived);
+    danmaku.connect(roomid, std::stoll(ProgramConfig::instance().getUserID()), info);
 }
 
 void LiveActivity::onError(const std::string& error) {
@@ -367,7 +367,7 @@ void LiveActivity::retryRequestData() {
 
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
-    LiveDanmaku::instance().disconnect();
+    danmaku.disconnect();
     // 取消监控mpv
     APP_E->unsubscribe(event_id);
     MPV_E->unsubscribe(tl_event_id);

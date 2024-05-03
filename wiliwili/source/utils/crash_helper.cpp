@@ -26,17 +26,17 @@ LONG WINAPI createMiniDump(_EXCEPTION_POINTERS* pep) {
     HMODULE dbghelp = ::LoadLibraryA("dbghelp.dll");
     if (!dbghelp) return EXCEPTION_CONTINUE_SEARCH;
 
-    auto fnMiniDumpWriteDump = (WINBOOL(WINAPI*)(HANDLE, DWORD, HANDLE, MINIDUMP_TYPE,
+    auto fnMiniDumpWriteDump = (BOOL(WINAPI*)(HANDLE, DWORD, HANDLE, MINIDUMP_TYPE,
         CONST PMINIDUMP_EXCEPTION_INFORMATION, CONST PMINIDUMP_USER_STREAM_INFORMATION,
         CONST PMINIDUMP_CALLBACK_INFORMATION))::GetProcAddress(dbghelp, "MiniDumpWriteDump");
-    auto fnSymInitialize = (WINBOOL(WINAPI*)(HANDLE, PCSTR, WINBOOL))::GetProcAddress(dbghelp, "SymInitialize");
-    auto fnSymCleanup = (WINBOOL(WINAPI*)(HANDLE))::GetProcAddress(dbghelp, "SymCleanup");
+    auto fnSymInitialize = (BOOL(WINAPI*)(HANDLE, PCSTR, BOOL))::GetProcAddress(dbghelp, "SymInitialize");
+    auto fnSymCleanup = (BOOL(WINAPI*)(HANDLE))::GetProcAddress(dbghelp, "SymCleanup");
     auto fnSymSetOptions = (DWORD(WINAPI*)(DWORD))::GetProcAddress(dbghelp, "SymSetOptions");
-    auto fnStackWalk64 = (WINBOOL(WINAPI*)(DWORD, HANDLE, HANDLE, LPSTACKFRAME64, PVOID, PREAD_PROCESS_MEMORY_ROUTINE64,
+    auto fnStackWalk64 = (BOOL(WINAPI*)(DWORD, HANDLE, HANDLE, LPSTACKFRAME64, PVOID, PREAD_PROCESS_MEMORY_ROUTINE64,
         PFUNCTION_TABLE_ACCESS_ROUTINE64, PGET_MODULE_BASE_ROUTINE64, PTRANSLATE_ADDRESS_ROUTINE64))::GetProcAddress(dbghelp, "StackWalk64");
-    auto fnSymGetSymFromAddr64 = (WINBOOL(WINAPI*)(HANDLE, DWORD64, PDWORD64, PIMAGEHLP_SYMBOL64))::GetProcAddress(dbghelp, "SymGetSymFromAddr64");
-    auto fnSymGetLineFromAddr64 = (WINBOOL(WINAPI*)(HANDLE, DWORD64, PDWORD, PIMAGEHLP_LINE64))::GetProcAddress(dbghelp, "SymGetLineFromAddr64");
-    auto fnSymGetModuleInfo64 = (WINBOOL(WINAPI*)(HANDLE, DWORD64, PIMAGEHLP_MODULE64))::GetProcAddress(dbghelp, "SymGetModuleInfo64");
+    auto fnSymGetSymFromAddr64 = (BOOL(WINAPI*)(HANDLE, DWORD64, PDWORD64, PIMAGEHLP_SYMBOL64))::GetProcAddress(dbghelp, "SymGetSymFromAddr64");
+    auto fnSymGetLineFromAddr64 = (BOOL(WINAPI*)(HANDLE, DWORD64, PDWORD, PIMAGEHLP_LINE64))::GetProcAddress(dbghelp, "SymGetLineFromAddr64");
+    auto fnSymGetModuleInfo64 = (BOOL(WINAPI*)(HANDLE, DWORD64, PIMAGEHLP_MODULE64))::GetProcAddress(dbghelp, "SymGetModuleInfo64");
     auto fnSymFTA64 = (PFUNCTION_TABLE_ACCESS_ROUTINE64)::GetProcAddress(dbghelp, "SymFunctionTableAccess64");
     auto fnSymGMB64 = (PGET_MODULE_BASE_ROUTINE64)::GetProcAddress(dbghelp, "SymGetModuleBase64");
 
