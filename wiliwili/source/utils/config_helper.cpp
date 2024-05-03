@@ -724,7 +724,7 @@ void ProgramConfig::init() {
 #ifdef _WIN32
     WSADATA wsaData;
     int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (result != 0) brls::Logger::error("WSAStartup failed with error: {}\n", result);
+    if (result != 0) brls::Logger::error("WSAStartup failed with error: {}", result);
 #endif
 #if defined(_MSC_VER)
 #elif defined(__PSV__)

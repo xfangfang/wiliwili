@@ -99,7 +99,7 @@ void LiveActivity::setCommonData() {
     MPVCore::instance().reset();
 
     // 清空自定义着色器
-    // ShaderHelper::instance().clearShader(false);
+    ShaderHelper::instance().clearShader(false);
 
     event_id    = APP_E->subscribe([this](const std::string& event, void* data) {
         if (event == VideoView::QUALITY_CHANGE) {
