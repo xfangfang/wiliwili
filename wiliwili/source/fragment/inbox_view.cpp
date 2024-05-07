@@ -125,7 +125,6 @@ InboxView::InboxView() {
         true);
 
     recyclingGrid->registerCell("Cell", []() { return new ChatUserCard(); });
-    recyclingGrid->onNextPage([this]() { this->requestData(false); });
 
     this->requestData(true);
 }

@@ -157,6 +157,30 @@ void BilibiliClient::fetch_inbox_msgs(const std::string& talker_id, size_t size,
     }, callback, error);              
 }
 
+void BilibiliClient::send_inbox_msg(const std::string& sender_id,
+                               const std::string& receiver_id,
+                               const std::string& message,
+                               const std::string& csrf,
+                               const std::function<void(InboxSendResult)>& callback,
+                               const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"msg[msg_type]", "1"},
+        {"msg[content]", message},
+        {"msg[sender_uid]", sender_id},
+        {"msg[receiver_id]", receiver_id},
+        {"msg[receiver_type]", "1"},
+        {"msg[msg_status]", "0"},
+        {"msg[timestamp]", std::to_string(wiliwili::unix_time())},
+        {"msg[dev_id]", "0"},
+        {"msg[new_face_version]", "1"},
+        {"csrf", csrf},
+    };
+    HTTP::postResultAsync<InboxSendResult>(Api::ChatSendMsg, {
+        {"w_sender_uid", sender_id},
+        {"w_receiver_id", receiver_id},
+    }, payload, callback, error);
+}
+
 void BilibiliClient::msg_feed_reply(const MsgFeedCursor& cursor,
                                     const std::function<void(FeedReplyResultWrapper)>& callback,
                                     const ErrorCallback& error) {

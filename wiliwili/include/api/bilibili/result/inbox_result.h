@@ -115,7 +115,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(FeedLikeResultWrapper, total);
 class InboxMessageResult {
 public:
     uint64_t sender_uid, receiver_id;
-    uint64_t msg_seqno;
+    uint64_t msg_seqno, msg_key;
     std::vector<uint64_t> at_uids;
     int msg_type, msg_source;
     nlohmann::json content;
@@ -125,8 +125,8 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, InboxMessageResult&
     if (nlohmann_json_j.contains("content") && nlohmann_json_j.at("content").is_string()) {
         nlohmann::json::parse(nlohmann_json_j.at("content").get<std::string>()).get_to(nlohmann_json_t.content);
     }
-    NLOHMANN_JSON_EXPAND(
-        NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, sender_uid, receiver_id, msg_seqno, msg_type, msg_source, timestamp));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, sender_uid, receiver_id, msg_seqno, msg_key, msg_type,
+                                             msg_source, timestamp));
 }
 
 typedef std::vector<InboxMessageResult> InboxMessageListResult;
@@ -156,6 +156,19 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, InboxMessageResultW
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more, max_seqno));
 }
 
+class InboxSendResult {
+public:
+    std::vector<InboxEmote> e_infos;
+    std::string msg_content;
+    uint64_t msg_key;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j, InboxSendResult& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("e_infos") && nlohmann_json_j.at("e_infos").is_array()) {
+        nlohmann_json_j.at("e_infos").get_to(nlohmann_json_t.e_infos);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, msg_content, msg_key));
+}
+
 class InboxAccountInfo {
 public:
     std::string name;
@@ -170,6 +183,8 @@ public:
     time_t session_ts;
     uint64_t max_seqno;
     int unread_count;
+    int system_msg_type;
+    int new_push_msg;
     InboxAccountInfo account_info;
     InboxMessageResult last_msg;
 };
@@ -178,7 +193,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, InboxChatResult& nl
         nlohmann_json_j.at("last_msg").get_to(nlohmann_json_t.last_msg);
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, talker_id, session_type, session_ts, max_seqno,
-                                             unread_count, account_info));
+                                             unread_count, system_msg_type, new_push_msg, account_info));
 }
 
 typedef std::vector<InboxChatResult> InboxChatListResult;
@@ -194,5 +209,14 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, InboxChatResultWrap
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, has_more));
 }
+
+class BroadcastServerResult {
+public:
+    std::string domain;
+    int ws_port;
+    int wss_port;
+    int heartbeat;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BroadcastServerResult, domain, ws_port, heartbeat);
 
 }  // namespace bilibili

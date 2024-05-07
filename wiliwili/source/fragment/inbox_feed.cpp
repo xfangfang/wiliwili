@@ -75,13 +75,11 @@ public:
     size_t getItemCount() override { return list.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        auto& r    = this->list[index];
+        auto& r = this->list[index];
         if (r.item.type == "video" || r.item.type == "reply") {
             // 解析BV号
             size_t pos = r.item.uri.find_last_of('/');
-            if (pos > 0) {
-                Intent::openBV(r.item.uri.substr(pos + 1, r.item.source_id));
-            }
+            if (pos > 0) Intent::openBV(r.item.uri.substr(pos + 1));
         }
     }
 
@@ -95,13 +93,12 @@ InboxFeed::InboxFeed() {
     this->inflateFromXMLRes("xml/fragment/inbox_feed.xml");
     brls::Logger::debug("Fragment InboxFeed: create");
 
-    BRLS_REGISTER_ENUM_XML_ATTRIBUTE(
-        "mode", MsgFeedMode, this->setMode,
-        {
-            {"reply", MsgFeedMode::REPLY},
-            {"at", MsgFeedMode::AT},
-            {"like", MsgFeedMode::LIKE},
-        });
+    BRLS_REGISTER_ENUM_XML_ATTRIBUTE("mode", MsgFeedMode, this->setMode,
+                                     {
+                                         {"reply", MsgFeedMode::REPLY},
+                                         {"at", MsgFeedMode::AT},
+                                         {"like", MsgFeedMode::LIKE},
+                                     });
 
     // 消息列表
     recyclingGrid->registerCell("Cell", []() { return new FeedCard(); });

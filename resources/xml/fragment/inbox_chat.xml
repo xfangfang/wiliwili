@@ -29,4 +29,20 @@
                 paddingRight="20"
                 wireframe="false"
                 id="inbox/msgList" />
+
+        <brls:Box
+                focusable="true"
+                marginLeft="20"
+                marginRight="20"
+                marginTop="15"
+                marginBottom="15"
+                height="40"
+                id="inbox/reply/hint"
+                backgroundColor="@theme/color/grey_2">
+                <brls:Label
+                        marginLeft="20"
+                        text="@i18n/wiliwili/inbox/chat/hint"
+                        textColor="@theme/font/grey"
+                        fontSize="18" />
+        </brls:Box>
 </brls:Box>

@@ -163,6 +163,7 @@ const std::string QrLoginInfoV2           = _passBase + "/x/passport-login/web/q
 const std::string CheckRefreshToken       = _passBase + "/x/passport-login/web/cookie/info";
 const std::string MyInfo                  = _apiBase + "/x/space/myinfo";
 const std::string HistoryVideo            = _apiBase + "/x/web-interface/history/cursor";
+const std::string BroadcastServers        = _apiBase + "/x/web-interface/broadcast/servers";
 const std::string CollectionList          = _apiBase + "/x/v3/fav/folder/created/list";
 const std::string CollectionListAll       = _apiBase + "/x/v3/fav/folder/created/list-all";
 const std::string CollectionVideoList     = _apiBase + "/x/v3/fav/resource/list";

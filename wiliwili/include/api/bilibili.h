@@ -36,6 +36,7 @@ class UserCardResult;
 typedef std::vector<UserCardResult> UserCardListResult;
 class InboxChatResultWrapper;
 class InboxMessageResultWrapper;
+class InboxSendResult;
 class DynamicVideoResult;
 class PGCIndexResultWrapper;
 class PGCIndexFilterWrapper;
@@ -148,6 +149,13 @@ public:
                                  const std::string& begin_seqno = "",
                                  const std::function<void(InboxMessageResultWrapper)>& callback = nullptr,
                                  const ErrorCallback& error                                     = nullptr);
+
+    static void send_inbox_msg(const std::string& sender_id,
+                               const std::string& receiver_id,
+                               const std::string& message,
+                               const std::string& csrf = "",
+                               const std::function<void(InboxSendResult)>& callback              = nullptr,
+                               const ErrorCallback& error                                        = nullptr);
 
     /// 消息页 回复列表
     static void msg_feed_reply(const MsgFeedCursor& cursor,

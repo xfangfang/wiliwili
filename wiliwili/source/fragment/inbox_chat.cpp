@@ -1,3 +1,4 @@
+#include <borealis/core/touch/tap_gesture.hpp>
 #include <borealis/core/thread.hpp>
 #include <algorithm>
 
@@ -60,9 +61,9 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {}
 
-    void appendData(const bilibili::InboxMessageListResult& data) {
+    void appendData(const bilibili::InboxMessageResultWrapper& result) {
         bool skip = false;
-        for (const auto& i : data) {
+        for (const auto& i : result.messages) {
             skip = false;
             for (const auto& j : this->list) {
                 if (j.msg_seqno == i.msg_seqno) {
@@ -73,6 +74,10 @@ public:
             if (!skip) {
                 this->list.push_back(i);
             }
+        }
+
+        for (auto& e : result.e_infos) {
+            this->emotes[e.text] = std::make_shared<bilibili::InboxEmote>(e);
         }
     }
 
@@ -102,8 +107,23 @@ InboxChat::InboxChat(const bilibili::InboxChatResult& r) {
     });
     recyclingGrid->registerCell("Notice", []() { return new InboxNoticeCard(); });
     recyclingGrid->onNextPage([this, r]() { this->requestData(false, r.session_type); });
+    recyclingGrid->setRefreshAction([this]() { this->recyclingGrid->forceRequestNextPage(); });
 
     labelTalker->setText(r.account_info.name);
+
+    if (r.system_msg_type > 0) {
+        inputReply->setVisibility(brls::Visibility::GONE);
+    } else {
+        inputReply->registerClickAction([this](...) {
+            return brls::Application::getImeManager()->openForText(
+                [this](const std::string& text) {
+                    if (text.empty()) return;
+                    this->sendMsg(text);
+                },
+                "wiliwili/inbox/chat/hint"_i18n, "", 500, "", 0);
+        });
+        inputReply->addGestureRecognizer(new brls::TapGestureRecognizer(this->inputReply));
+    }
 
     this->requestData(true, r.session_type);
 }
@@ -119,13 +139,18 @@ void InboxChat::onMsgList(const bilibili::InboxMessageResultWrapper& result, boo
         auto* datasource = dynamic_cast<DataSourceMsgList*>(recyclingGrid->getDataSource());
         if (datasource && !refresh) {
             if (!result.messages.empty()) {
-                datasource->appendData(result.messages);
+                datasource->appendData(result);
                 recyclingGrid->notifyDataChanged();
+                recyclingGrid->selectRowAt(datasource->getItemCount() - 1, true);
             }
         } else {
-            auto dataSource = new DataSourceMsgList(result, this->talkerId);
-            recyclingGrid->setDefaultCellFocus(dataSource->getItemCount() - 1);
-            recyclingGrid->setDataSource(dataSource);
+            datasource = new DataSourceMsgList(result, this->talkerId);
+            recyclingGrid->setDefaultCellFocus(datasource->getItemCount() - 1);
+            recyclingGrid->setDataSource(datasource);
         }
     });
+}
+
+void InboxChat::onSendMsg(const bilibili::InboxSendResult& result) {
+    brls::Threading::sync([this]() { this->recyclingGrid->forceRequestNextPage(); });
 }

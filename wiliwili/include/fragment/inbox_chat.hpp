@@ -18,9 +18,12 @@ public:
 
     void onMsgList(const bilibili::InboxMessageResultWrapper& result, bool refresh) override;
 
+    void onSendMsg(const bilibili::InboxSendResult& result) override;
+
     void onError(const std::string& error) override;
 
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "inbox/msgList");
     BRLS_BIND(brls::Label, labelTalker, "inbox/talker");
+    BRLS_BIND(brls::Box, inputReply, "inbox/reply/hint");
 };
