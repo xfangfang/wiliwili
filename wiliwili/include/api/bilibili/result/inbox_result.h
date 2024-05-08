@@ -180,7 +180,7 @@ class InboxChatResult {
 public:
     uint64_t talker_id;
     int session_type;
-    time_t session_ts;
+    uint64_t ack_seqno;
     uint64_t max_seqno;
     int unread_count;
     int system_msg_type;
@@ -192,7 +192,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, InboxChatResult& nl
     if (nlohmann_json_j.contains("last_msg") && nlohmann_json_j.at("last_msg").is_object()) {
         nlohmann_json_j.at("last_msg").get_to(nlohmann_json_t.last_msg);
     }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, talker_id, session_type, session_ts, max_seqno,
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, talker_id, session_type, ack_seqno, max_seqno,
                                              unread_count, system_msg_type, new_push_msg, account_info));
 }
 

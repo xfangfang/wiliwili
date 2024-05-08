@@ -17,7 +17,11 @@ public:
 
     void setTalkerId(uint64_t mid);
 
-    void requestData(bool refresh = false, int session_type = 1);
+    void setMsgSeq(uint64_t seq);
+
+    void requestData(bool refresh = false, int session_type = 1, size_t size = 20);
+
+    void updateAck(int session_type = 1);
 
     void sendMsg(const std::string& text);
 

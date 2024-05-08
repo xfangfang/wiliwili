@@ -9,10 +9,11 @@ namespace brls {
 class Label;
 };
 class RecyclingGrid;
+class CustomButton;
 
 class InboxChat : public brls::Box, public InboxMsgRequest {
 public:
-    InboxChat(const bilibili::InboxChatResult& r);
+    InboxChat(const bilibili::InboxChatResult& r, std::function<void()> cb);
 
     ~InboxChat() override;
 
@@ -25,5 +26,7 @@ public:
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "inbox/msgList");
     BRLS_BIND(brls::Label, labelTalker, "inbox/talker");
-    BRLS_BIND(brls::Box, inputReply, "inbox/reply/hint");
+    BRLS_BIND(CustomButton, inputReply, "inbox/reply/hint");
+
+    bool toggleSend();
 };

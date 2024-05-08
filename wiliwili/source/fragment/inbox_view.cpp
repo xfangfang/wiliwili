@@ -61,9 +61,8 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         auto& r    = this->list[index];
-        auto* view = new InboxChat(r);
+        auto* view = new InboxChat(r, [recycler]() { recycler->refresh(); });
         recycler->present(view);
-        brls::sync([view]() { brls::Application::giveFocus(view); });
     }
 
     void appendData(const bilibili::InboxChatListResult& data) {}
@@ -125,6 +124,11 @@ InboxView::InboxView() {
         true);
 
     recyclingGrid->registerCell("Cell", []() { return new ChatUserCard(); });
+    recyclingGrid->setRefreshAction([this]() { this->requestData(true); });
+    recyclingGrid->registerAction("wiliwili/home/common/refresh"_i18n, brls::BUTTON_X, [this](brls::View* view) {
+        this->requestData(true);
+        return true;
+    });
 
     this->requestData(true);
 }

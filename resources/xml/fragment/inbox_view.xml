@@ -13,7 +13,6 @@
         <brls:AppletFrame
                 width="600"
                 height="100%"
-                axis="column"
                 headerHidden="true"
                 footerHidden="true"
                 backgroundColor="@theme/brls/background">
@@ -29,20 +28,17 @@
 
                                 <Tab label="@i18n/wiliwili/inbox/chat/tab"
                                         fontSize="22">
-                                        <brls:Box
-                                                width="auto"
-                                                height="auto"
-                                                paddingTop="10">
-                                                <RecyclingGrid
-                                                        grow="1"
-                                                        preFetchLine="2"
-                                                        spanCount="1"
-                                                        itemHeight="60"
-                                                        paddingLeft="15"
-                                                        paddingRight="15"
-                                                        wireframe="false"
-                                                        id="inbox/chatList" />
-                                        </brls:Box>
+
+                                        <RecyclingGrid
+                                                grow="1"
+                                                paddingTop="10"
+                                                preFetchLine="2"
+                                                spanCount="1"
+                                                itemHeight="60"
+                                                paddingLeft="15"
+                                                paddingRight="15"
+                                                wireframe="false"
+                                                id="inbox/chatList" />
                                 </Tab>
 
                                 <Tab label="@i18n/wiliwili/inbox/feed/reply"

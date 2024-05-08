@@ -30,19 +30,29 @@
                 wireframe="false"
                 id="inbox/msgList" />
 
-        <brls:Box
+        <CustomButton
                 focusable="true"
+                highlightCornerRadius="8"
+                hideHighlightBackground="true"
+                backgroundColor="#E3E5E7"
                 marginLeft="20"
                 marginRight="20"
                 marginTop="15"
                 marginBottom="15"
-                height="40"
+                height="35"
+                paddingLeft="30"
                 id="inbox/reply/hint"
-                backgroundColor="@theme/color/grey_2">
+                cornerRadius="8">
                 <brls:Label
-                        marginLeft="20"
-                        text="@i18n/wiliwili/inbox/chat/hint"
-                        textColor="@theme/font/grey"
-                        fontSize="18" />
-        </brls:Box>
+                        fontSize="16"
+                        textColor="#18191c"
+                        text="@i18n/wiliwili/inbox/chat/hint" />
+                <HintLabel
+                        height="35"
+                        positionType="absolute"
+                        positionRight="15"
+                        fontSize="16"
+                        textColor="#18191c"
+                        text="y" />
+        </CustomButton>
 </brls:Box>

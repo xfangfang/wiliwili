@@ -145,17 +145,25 @@ public:
                                   const ErrorCallback& error                                  = nullptr);
 
     /// 私信消息记录
-    static void fetch_inbox_msgs(const std::string& talker_id, size_t size = 20, int session_type = 1,
+    static void fetch_inbox_msgs(const std::string& talker_id, size_t size = 20,
+                                 int session_type = 1,
                                  const std::string& begin_seqno = "",
                                  const std::function<void(InboxMessageResultWrapper)>& callback = nullptr,
                                  const ErrorCallback& error                                     = nullptr);
+
+    static void update_inbox_ack(const std::string& talker_id,
+                                 int session_type = 1,
+                                 const std::string& ack_seqno = "",
+                                 const std::string& csrf = "",
+                                 const std::function<void(Cookies)>& callback = nullptr,
+                                 const ErrorCallback& error                   = nullptr);
 
     static void send_inbox_msg(const std::string& sender_id,
                                const std::string& receiver_id,
                                const std::string& message,
                                const std::string& csrf = "",
-                               const std::function<void(InboxSendResult)>& callback              = nullptr,
-                               const ErrorCallback& error                                        = nullptr);
+                               const std::function<void(InboxSendResult)>& callback = nullptr,
+                               const ErrorCallback& error                           = nullptr);
 
     /// 消息页 回复列表
     static void msg_feed_reply(const MsgFeedCursor& cursor,

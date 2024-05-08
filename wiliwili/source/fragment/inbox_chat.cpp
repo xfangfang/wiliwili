@@ -4,6 +4,7 @@
 
 #include "fragment/inbox_chat.hpp"
 #include "view/inbox_msg_card.hpp"
+#include "view/custom_button.hpp"
 #include "utils/number_helper.hpp"
 
 using namespace brls::literals;
@@ -89,16 +90,17 @@ private:
     uint64_t talkerId;
 };
 
-InboxChat::InboxChat(const bilibili::InboxChatResult& r) {
+InboxChat::InboxChat(const bilibili::InboxChatResult& r, std::function<void()> cb) {
     this->inflateFromXMLRes("xml/fragment/inbox_chat.xml");
     brls::Logger::debug("Fragment InboxChat: create");
 
-    this->registerAction("hints/cancel"_i18n, brls::BUTTON_B, [](...) {
-        brls::Application::popActivity();
+    this->registerAction("hints/cancel"_i18n, brls::BUTTON_B, [this, cb](...) {
+        this->dismiss(cb);
         return true;
     });
 
     this->setTalkerId(r.talker_id);
+    this->setMsgSeq(r.ack_seqno);
 
     recyclingGrid->registerCell("Cell", [r]() {
         auto* card = new InboxMsgCard();
@@ -109,26 +111,35 @@ InboxChat::InboxChat(const bilibili::InboxChatResult& r) {
     recyclingGrid->onNextPage([this, r]() { this->requestData(false, r.session_type); });
     recyclingGrid->setRefreshAction([this]() { this->recyclingGrid->forceRequestNextPage(); });
 
+    this->registerAction("wiliwili/home/common/refresh"_i18n, brls::BUTTON_X, [this](brls::View* view) {
+        this->recyclingGrid->forceRequestNextPage();
+        return true;
+    });
+
     labelTalker->setText(r.account_info.name);
 
     if (r.system_msg_type > 0) {
         inputReply->setVisibility(brls::Visibility::GONE);
     } else {
-        inputReply->registerClickAction([this](...) {
-            return brls::Application::getImeManager()->openForText(
-                [this](const std::string& text) {
-                    if (text.empty()) return;
-                    this->sendMsg(text);
-                },
-                "wiliwili/inbox/chat/hint"_i18n, "", 500, "", 0);
-        });
+        inputReply->registerClickAction([this](...) { return this->toggleSend(); });
         inputReply->addGestureRecognizer(new brls::TapGestureRecognizer(this->inputReply));
+
+        this->registerAction("", brls::BUTTON_Y, [this](brls::View* view) { return this->toggleSend(); }, true);
     }
 
     this->requestData(true, r.session_type);
 }
 
 InboxChat::~InboxChat() { brls::Logger::debug("Fragment InboxChat: delete"); }
+
+bool InboxChat::toggleSend() {
+    return brls::Application::getImeManager()->openForText(
+        [this](const std::string& text) {
+            if (text.empty()) return;
+            this->sendMsg(text);
+        },
+        "wiliwili/inbox/chat/hint"_i18n, "", 500, "", 0);
+}
 
 void InboxChat::onError(const std::string& error) {
     brls::Threading::sync([this, error]() { this->recyclingGrid->setError(error); });

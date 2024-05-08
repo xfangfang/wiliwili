@@ -8,13 +8,16 @@ void InboxMsgRequest::onSendMsg(const bilibili::InboxSendResult& result) {}
 
 void InboxMsgRequest::onError(const std::string& error) {}
 
-void InboxMsgRequest::requestData(bool refresh, int session_type) {
+void InboxMsgRequest::requestData(bool refresh, int session_type, size_t size) {
     CHECK_AND_SET_REQUEST
     BILI::fetch_inbox_msgs(
-        std::to_string(this->talkerId), 20, session_type, std::to_string(this->msgSeq),
-        [this, refresh](const bilibili::InboxMessageResultWrapper& result) {
+        std::to_string(this->talkerId), size, session_type, refresh ? "" : std::to_string(this->msgSeq),
+        [this, refresh, session_type](const bilibili::InboxMessageResultWrapper& result) {
             this->onMsgList(result, refresh);
-            this->msgSeq = result.max_seqno;
+            if (this->msgSeq != result.max_seqno) {
+                this->msgSeq = result.max_seqno;
+                this->updateAck(session_type);
+            }
             UNSET_REQUEST
         },
         [this](BILI_ERR) {
@@ -24,6 +27,8 @@ void InboxMsgRequest::requestData(bool refresh, int session_type) {
 }
 
 void InboxMsgRequest::setTalkerId(uint64_t mid) { this->talkerId = mid; }
+
+void InboxMsgRequest::setMsgSeq(uint64_t seq) { this->msgSeq = seq; }
 
 void InboxMsgRequest::sendMsg(const std::string& text) {
     CHECK_AND_SET_REQUEST
@@ -39,4 +44,10 @@ void InboxMsgRequest::sendMsg(const std::string& text) {
             this->onError(error);
             UNSET_REQUEST
         });
+}
+
+void InboxMsgRequest::updateAck(int session_type) {
+    BILI::update_inbox_ack(
+        std::to_string(this->talkerId), session_type, std::to_string(this->msgSeq), ProgramConfig::instance().getCSRF(),
+        [this](...) {}, [this](BILI_ERR) {});
 }
