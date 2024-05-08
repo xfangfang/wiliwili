@@ -1,6 +1,8 @@
 #include "view/inbox_msg_card.hpp"
 #include "view/text_box.hpp"
 
+using namespace brls::literals;
+
 InboxMsgCard::InboxMsgCard() { this->inflateFromXMLRes("xml/views/inbox_msg.xml"); }
 
 void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m, uint64_t talker) {
@@ -9,7 +11,7 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
     auto textColor = theme.getColor("brls/text");
 
     // 设置用户头像
-    if (r.msg_type >= 10) {
+    if (r.msg_type == 10) {
         this->talker->setVisibility(brls::Visibility::GONE);
         this->mine->setVisibility(brls::Visibility::GONE);
     } else if (talker == r.sender_uid) {
@@ -20,8 +22,34 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
         this->mine->setVisibility(brls::Visibility::VISIBLE);
     }
 
+    // 分享消息
+    if (r.msg_type == 7) {
+        if (r.content.contains("title")) {
+            std::string title = r.content.at("title");
+            this->shareMisc->setText(title);
+        }
+        if (r.content.contains("thumb")) {
+            std::string thumb = r.content.at("thumb");
+            ImageHelper::with(this->shareThumb)->load(thumb);
+        }
+        if (r.content.contains("author")) {
+            std::string author = r.content.at("author");
+            this->shareAuthor->setText(author);
+        } else if (r.content.contains("source_desc")) {
+            std::string desc = r.content.at("source_desc");
+            this->shareAuthor->setText(desc);
+        }
+        this->shareBox->setVisibility(brls::Visibility::VISIBLE);
+        this->msgBox->setVisibility(brls::Visibility::GONE);
+        return;
+    }
+
+    this->shareBox->setVisibility(brls::Visibility::GONE);
+    this->msgBox->setVisibility(brls::Visibility::VISIBLE);
+
     switch (r.msg_type) {
         case 1: {  // 文本消息
+            if (!r.content.contains("content")) break;
             std::string msg = r.content.at("content");
             size_t start    = 0;
             for (size_t i = 0; i < msg.length(); i++) {
@@ -62,6 +90,7 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
             break;
         }
         case 2: {  // 图片消息
+            if (!r.content.contains("url")) break;
             std::string pic = r.content.at("url");
             float width     = r.content.at("width");
             float height    = r.content.at("height");
@@ -73,22 +102,20 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
             d.push_back(std::make_shared<RichTextImage>(pic, width, height));
             break;
         }
-        case 7: {  // 分享消息
-            std::string title = r.content.at("title");
-            std::string thumb = r.content.at("thumb");
-            d.push_back(std::make_shared<RichTextSpan>(title, textColor));
-            d.push_back(std::make_shared<RichTextImage>(thumb, 400.f, 100.f));
-            break;
-        }
         case 10: {  // 系统消息
+            if (!r.content.contains("title")) break;
+            auto titleColor   = theme.getColor("color/bilibili");
             std::string title = r.content.at("title");
             std::string text  = r.content.at("text");
-            d.push_back(std::make_shared<RichTextSpan>(title, theme.getColor("color/bilibili")));
+            d.push_back(std::make_shared<RichTextSpan>(title, titleColor));
             d.push_back(std::make_shared<RichTextBreak>());
             d.push_back(std::make_shared<RichTextSpan>(text, textColor));
             break;
         }
-        default:;
+        default: {
+            auto fontGrey = theme.getColor("font/grey");
+            d.push_back(std::make_shared<RichTextSpan>("wiliwili/inbox/chat/unknown"_i18n, fontGrey));
+        }
     }
 
     this->textBox->setRichText(d);

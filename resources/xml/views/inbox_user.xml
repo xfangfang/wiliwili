@@ -3,7 +3,6 @@
         highlightCornerRadius="8"
         cornerRadius="8"
         alignItems="center"
-        justifyContent="spaceBetween"
         paddingLeft="15"
         paddingRight="20"
         width="auto"

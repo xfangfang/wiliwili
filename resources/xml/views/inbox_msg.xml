@@ -28,6 +28,7 @@
                 backgroundColor="@theme/color/grey_1"
                 highlightCornerRadius="16"
                 cornerRadius="16"
+                visibility="gone"
                 focusable="true"
                 axis="column"
                 grow="1"
@@ -38,6 +39,53 @@
                         height="auto"
                         grow="1"
                         wireframe="false" />
+        </brls:Box>
+
+        <brls:Box
+                id="msg/share_box"
+                backgroundColor="@theme/color/grey_1"
+                highlightCornerRadius="16"
+                cornerRadius="16"
+                focusable="true"
+                visibility="gone"
+                axis="column"
+                grow="1"
+                padding="5">
+
+                <brls:Image
+                        id="msg/share/thumb"
+                        height="200"
+                        image="@res/pictures/video-card-bg.png"
+                        scalingType="fill" />
+
+                <brls:Label
+                        id="msg/share/misc"
+                        width="auto"
+                        height="auto"
+                        fontSize="18"
+                        singleLine="true"
+                        margin="12"
+                        autoAnimate="false"
+                        wireframe="false" />
+
+                <brls:Box
+                        width="100%"
+                        padding="12"
+                        alignItems="center"
+                        lineColor="@theme/color/line"
+                        lineTop="1">
+                        <SVGImage
+                                height="14"
+                                width="18"
+                                SVG="@res/svg/widget-up.svg" />
+                        <brls:Label
+                                id="msg/share/author"
+                                marginLeft="4"
+                                fontSize="16"
+                                singleLine="true"
+                                textColor="@theme/font/grey"
+                                height="100%" />
+                </brls:Box>
         </brls:Box>
 
         <brls:Box

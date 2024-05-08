@@ -19,6 +19,10 @@ public:
 private:
     BRLS_BIND(TextBox, textBox, "msg/content");
     BRLS_BIND(brls::Box, msgBox, "msg/content_box");
+    BRLS_BIND(brls::Box, shareBox, "msg/share_box");
+    BRLS_BIND(brls::Label, shareMisc, "msg/share/misc");
+    BRLS_BIND(brls::Label, shareAuthor, "msg/share/author");
+    BRLS_BIND(brls::Image, shareThumb, "msg/share/thumb");
     BRLS_BIND(brls::Image, talker, "avatar/talker");
     BRLS_BIND(brls::Image, mine, "avatar/mine");
 };

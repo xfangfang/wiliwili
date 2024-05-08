@@ -22,7 +22,13 @@ public:
             misc = r.last_msg.content.at("content");
         } else if (r.last_msg.msg_type == 2) {
             misc = "[图片]";
-        } else if (r.last_msg.msg_type == 10) {
+        } else if (r.last_msg.msg_type == 7) {
+            misc = "[分享] ";
+            misc.append(r.last_msg.content.at("title"));
+        } else if (r.last_msg.msg_type == 14) {
+            misc = "[分享] ";
+            misc.append(r.last_msg.content.at("desc"));
+        } else if (r.last_msg.content.contains("title")) {
             misc = r.last_msg.content.at("title");
         }
         this->talker->setUserInfo(r.account_info.pic_url + ImageHelper::face_ext, r.account_info.name, misc);
