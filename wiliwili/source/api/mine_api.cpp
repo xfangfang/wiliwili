@@ -146,7 +146,6 @@ void BilibiliClient::update_inbox_ack(const std::string& talker_id,
                                  int session_type,
                                  const std::string& ack_seqno,
                                  const std::string& csrf,
-                                 const std::function<void(Cookies)>& callback,
                                  const ErrorCallback& error) {
     HTTP::getResultAsync<Cookies>(Api::ChatUpdateAct, {
         {"talker_id", talker_id},
@@ -154,7 +153,7 @@ void BilibiliClient::update_inbox_ack(const std::string& talker_id,
         {"ack_seqno", ack_seqno},
         {"csrf", csrf},
         {"mobi_app", "web"},
-    }, callback, error);
+    }, nullptr, error);
 }
 
 void BilibiliClient::fetch_inbox_msgs(const std::string& talker_id, size_t size,

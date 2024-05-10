@@ -48,6 +48,5 @@ void InboxMsgRequest::sendMsg(const std::string& text) {
 
 void InboxMsgRequest::updateAck(int session_type) {
     BILI::update_inbox_ack(
-        std::to_string(this->talkerId), session_type, std::to_string(this->msgSeq), ProgramConfig::instance().getCSRF(),
-        [this](...) {}, [this](BILI_ERR) {});
+        std::to_string(this->talkerId), session_type, std::to_string(this->msgSeq), ProgramConfig::instance().getCSRF());
 }

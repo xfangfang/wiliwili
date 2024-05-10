@@ -75,7 +75,7 @@ void MainActivity::onContentAvailable() {
     });
     this->settingBtn->addGestureRecognizer(new brls::TapGestureRecognizer(this->settingBtn));
 
-    this->inboxBtn->registerClickAction([this](brls::View* view) -> bool {
+    this->inboxBtn->registerClickAction([](brls::View* view) -> bool {
         if (DialogHelper::checkLogin()) Intent::openInbox();
         return true;
     });

@@ -155,8 +155,7 @@ public:
                                  int session_type = 1,
                                  const std::string& ack_seqno = "",
                                  const std::string& csrf = "",
-                                 const std::function<void(Cookies)>& callback = nullptr,
-                                 const ErrorCallback& error                   = nullptr);
+                                 const ErrorCallback& error = nullptr);
 
     static void send_inbox_msg(const std::string& sender_id,
                                const std::string& receiver_id,
