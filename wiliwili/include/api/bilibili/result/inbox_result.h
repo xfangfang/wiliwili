@@ -6,7 +6,7 @@ namespace bilibili {
 
 class UserCardResult {
 public:
-    unsigned int mid;
+    uint64_t mid;
     std::string name;
     std::string face;
     int level;
@@ -15,7 +15,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserCardResult, mid, name, face, level);
 
 class MsgFeedUser {
 public:
-    unsigned int mid;
+    uint64_t mid;
     std::string nickname;
     std::string avatar;
     bool follow;

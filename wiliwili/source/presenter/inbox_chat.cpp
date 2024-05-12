@@ -16,19 +16,35 @@ void InboxChatRequest::requestData(bool refresh) {
             std::vector<std::string> uids;
             for (auto& s : result.session_list) {
                 if (s.account_info.name.empty()) {
-                    uids.push_back(std::to_string(s.talker_id));
+                    auto it = user_map.find(s.talker_id);
+                    if (it == user_map.end()) {
+                        uids.push_back(std::to_string(s.talker_id));
+                    }
                 }
             }
-            uids.push_back(ProgramConfig::instance().getUserID());
             this->last_time = wiliwili::unix_time() * 1000000;
+
+            // 不需要请求头像
+            if (uids.empty()) {
+                auto list = std::move(result.session_list);
+                for (auto& s : list) {
+                    auto it = user_map.find(s.talker_id);
+                    if (it != user_map.end()) {
+                        s.account_info.name    = it->second.name;
+                        s.account_info.pic_url = it->second.face;
+                    }
+                }
+                this->onChatList(list, refresh);
+                UNSET_REQUEST
+                return;
+            }
 
             BILI::get_user_cards(
                 uids,
                 [this, result, refresh](const bilibili::UserCardListResult& users) {
-                    InboxUserMap user_map;
                     for (auto& u : users) user_map[u.mid] = u;
 
-                    auto list = result.session_list;
+                    auto list = std::move(result.session_list);
                     for (auto& s : list) {
                         auto it = user_map.find(s.talker_id);
                         if (it != user_map.end()) {

@@ -7,7 +7,7 @@
 #include "bilibili/result/inbox_result.h"
 #include "presenter.h"
 
-typedef std::unordered_map<unsigned int, bilibili::UserCardResult> InboxUserMap;
+typedef std::unordered_map<uint64_t, bilibili::UserCardResult> InboxUserMap;
 
 class InboxChatRequest : public Presenter {
 public:
@@ -19,4 +19,5 @@ public:
 
 protected:
     time_t last_time = 0;
+    InboxUserMap user_map;
 };
