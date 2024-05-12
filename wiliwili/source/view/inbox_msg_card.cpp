@@ -22,6 +22,8 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
         this->mine->setVisibility(brls::Visibility::VISIBLE);
     }
 
+    this->msgTime->setText(wiliwili::sec2FullDate(r.timestamp));
+
     // 分享消息
     if (r.msg_type == 7) {
         if (r.content.contains("title")) {
@@ -123,4 +125,8 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
 
 void InboxMsgCard::setAvatar(const std::string& face) {
     ImageHelper::with(this->talker)->load(face + ImageHelper::face_ext);
+}
+
+void InboxMsgCard::setTimeVisible(bool visible) {
+    this->msgTime->setVisibility(visible ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
 }

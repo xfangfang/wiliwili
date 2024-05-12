@@ -16,6 +16,8 @@ public:
 
     void setAvatar(const std::string& face);
 
+    void setTimeVisible(bool visible);
+
 private:
     BRLS_BIND(TextBox, textBox, "msg/content");
     BRLS_BIND(brls::Box, msgBox, "msg/content_box");
@@ -25,4 +27,5 @@ private:
     BRLS_BIND(brls::Image, shareThumb, "msg/share/thumb");
     BRLS_BIND(brls::Image, talker, "avatar/talker");
     BRLS_BIND(brls::Image, mine, "avatar/mine");
+    BRLS_BIND(brls::Label, msgTime, "msg/time");
 };

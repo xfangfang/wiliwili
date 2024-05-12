@@ -55,6 +55,8 @@ public:
 
         auto* item = (InboxMsgCard*)recycler->dequeueReusableCell("Cell");
         item->setCard(r, this->emotes, this->talkerId);
+
+        item->setTimeVisible(index == 0 || this->list[index - 1].timestamp + 300 < r.timestamp);
         return item;
     }
 
