@@ -160,6 +160,7 @@ void InboxChat::onMsgList(const bilibili::InboxMessageResultWrapper& result, boo
             datasource = new DataSourceMsgList(result, this->talkerId);
             recyclingGrid->setDefaultCellFocus(datasource->getItemCount() - 1);
             recyclingGrid->setDataSource(datasource);
+            brls::sync([this]() { recyclingGrid->selectRowAt(recyclingGrid->getDefaultCellFocus(), true); });
         }
     });
 }
