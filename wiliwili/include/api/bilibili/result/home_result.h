@@ -26,6 +26,15 @@ inline void to_json(nlohmann::json& nlohmann_json_j, const VideoSimpleStateResul
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, view, danmaku));
 }
 
+// 动态视频状态
+class VideoSimpleStateResultV2 {
+public:
+    std::string play{};
+    std::string like{};
+    std::string danmaku{};
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoSimpleStateResultV2, play, like, danmaku);
+
 class RecommendReasonResult {
 public:
     std::string content = "";

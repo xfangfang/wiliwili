@@ -13,13 +13,22 @@ SVGImage::SVGImage() {
     // 交给缓存自动处理纹理的删除
     this->setFreeTexture(false);
 
+    this->registerFloatXMLAttribute("width", [this](float value) { this->setWidth(value); });
+    this->registerFloatXMLAttribute("height", [this](float value) { this->setHeight(value); });
+    this->registerAutoXMLAttribute("width", [] { brls::fatal("SVGImage: width cannot be auto."); });
+    this->registerAutoXMLAttribute("height", [] { brls::fatal("SVGImage: height cannot be auto."); });
+    this->registerPercentageXMLAttribute("width",
+                                         [](float value) { brls::fatal("SVGImage: width cannot be percentage."); });
+    this->registerPercentageXMLAttribute("height",
+                                         [](float value) { brls::fatal("SVGImage: height cannot be percentage."); });
+
     // 改变窗口大小时自动更新纹理
     subscription = brls::Application::getWindowSizeChangedEvent()->subscribe([this]() {
         if (!filePath.empty()) {
-            brls::Visibility v = getVisibility();
-            this->setVisibility(brls::Visibility::VISIBLE);
+            // 重新生成纹理时，如果svg组件本身是被隐藏的，通过 getWidth() 和 getHeight() 获取到的值是 0，无法生成正确的尺寸
+            // 之前的做法是临时将组件显示出来，生成纹理后再隐藏，但对于Box中的svg组件，若组件本身是非隐藏的，但Box是隐藏的，同样无法获取尺寸
+            // 目前的做法是直接使用设置尺寸时的 _width 和 _height 作为尺寸，缺点是svg组件只能使用固定的尺寸，无法自适应
             setImageFromSVGFile(filePath);
-            this->setVisibility(v);
         }
     });
 }
@@ -85,8 +94,8 @@ void SVGImage::setImageFromSVGString(const std::string& value) {
 void SVGImage::updateBitmap() {
     if (!this->document) return;
 
-    float width  = this->getWidth() * brls::Application::windowScale;
-    float height = this->getHeight() * brls::Application::windowScale;
+    float width  = this->_width * brls::Application::windowScale;
+    float height = this->_height * brls::Application::windowScale;
     auto bitmap  = this->document->renderToBitmap(width, height);
     bitmap.convertToRGBA();
     NVGcontext* vg = brls::Application::getNVGContext();
@@ -117,9 +126,34 @@ void SVGImage::draw(NVGcontext* vg, float x, float y, float width, float height,
     this->paint.xform[5] = -cy;
 
     nvgBeginPath(vg);
-    nvgRoundedRect(vg, -cx, -cy, width, height, getCornerRadius());
+    if (this->getCornerRadius() > 0.0f)
+        nvgRoundedRect(vg, -cx, -cy, width, height, getCornerRadius());
+    else
+        nvgRect(vg, -cx, -cy, width, height);
     nvgFillPaint(vg, a(this->paint));
     nvgFill(vg);
 
     nvgRestore(vg);
+}
+
+void SVGImage::setWidth(float width) {
+    _width = width;
+    brls::View::setWidth(width);
+}
+
+void SVGImage::setHeight(float height) {
+    _height = height;
+    brls::View::setHeight(height);
+}
+
+void SVGImage::setDimensions(float width, float height) {
+    _width  = width;
+    _height = height;
+    brls::View::setDimensions(width, height);
+}
+
+void SVGImage::setSize(brls::Size size) {
+    _width  = size.width;
+    _height = size.height;
+    brls::View::setSize(size);
 }

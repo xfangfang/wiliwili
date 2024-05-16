@@ -1,0 +1,89 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        justifyContent="center"
+        hideClickAnimation="true"
+        id="player/cancel"
+        backgroundColor="@theme/brls/backdrop"
+        alignItems="center">
+
+    <brls:Box
+            id="action/box"
+            positionType="absolute"
+            positionTop="20"
+            positionLeft="0"
+            paddingTop="4"
+            justifyContent="center"
+            width="18%">
+        <brls:Box
+            cornerRadius="30"
+            height="60"
+            justifyContent="center"
+            alignItems="center"
+            paddingLeft="10"
+            paddingRight="10"
+            backgroundColor="@theme/brls/background">
+                <SVGImage
+                        focusable="true"
+                        id="action/svg/like"
+                        margin="8"
+                        width="48"
+                        height="48"
+                        cornerRadius="48"
+                        highlightCornerRadius="48"
+                        SVG="@res/svg/bpx-svg-sprite-liked.svg"/>
+
+                <SVGImage
+                        focusable="true"
+                        id="action/svg/open"
+                        margin="8"
+                        width="48"
+                        height="48"
+                        cornerRadius="48"
+                        highlightCornerRadius="48"
+                        visibility="gone"
+                        SVG="@res/svg/play-circle-video.svg"/>
+
+                <SVGImage
+                        focusable="true"
+                        id="action/svg/gallery"
+                        margin="8"
+                        width="48"
+                        height="48"
+                        cornerRadius="48"
+                        highlightCornerRadius="48"
+                        visibility="gone"
+                        SVG="@res/svg/bpx-svg-sprite-fullpage.svg"/>
+        </brls:Box>
+    </brls:Box>
+    <brls:Box
+            height="100%"
+            id="box/background">
+
+        <brls:ScrollingFrame
+                id="action/scroll"
+                height="auto"
+                focusable="true"
+                grow="1.0">
+
+            <brls:Box
+                    axis="column"
+                    padding="24"
+                    grow="1.0">
+                <DynamicArticleView
+                        id="action/article"
+                        focusable="false"
+                        hideClickAnimation="true"/>
+            </brls:Box>
+
+        </brls:ScrollingFrame>
+    </brls:Box>
+
+    <ButtonClose
+            id="button/close"
+            positionType="absolute"
+            textColor="#FFFFFF"
+            positionTop="10"
+            positionRight="10"/>
+
+</brls:Box>

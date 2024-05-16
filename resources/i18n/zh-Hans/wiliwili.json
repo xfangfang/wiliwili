@@ -48,6 +48,7 @@
         "limited_fps": "最高帧数限制",
         "limited_fps_vsync": "垂直同步",
         "fullscreen": "全屏显示",
+        "always_on_top": "窗口置顶",
         "tv_search": "电视风格搜索页",
         "clear_history": "清空搜索记录",
         "clear_season": "清空番剧自定义设置",
@@ -208,6 +209,11 @@
     "cinema": {
       "tab": "影视"
     }
+  },
+  "dynamic": {
+    "detail": "动态详情",
+    "video": "视频",
+    "article": "综合"
   },
   "search": {
     "tv": {
@@ -419,7 +425,7 @@
       }
     },
     "single_comment": {
-      "detail": "详情",
+      "detail": "评论详情",
       "hint": "发一条友善的评论",
       "related": "相关回复共{}条",
       "end": "没有更多评论",

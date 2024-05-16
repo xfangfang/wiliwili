@@ -5,6 +5,7 @@
 #include <utility>
 #include <borealis/views/applet_frame.hpp>
 #include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
 
 #include "fragment/player_single_comment.hpp"
 #include "view/video_comment.hpp"
@@ -17,6 +18,7 @@
 #include "utils/number_helper.hpp"
 #include "utils/string_helper.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/gesture_helper.hpp"
 #include "presenter/comment_related.hpp"
 #include "bilibili.h"
 
@@ -51,11 +53,14 @@ public:
 
 /// DataSourceCommentList
 
-class DataSourceSingleCommentList : public RecyclingGridDataSource, public CommentRequest {
+class DataSourceSingleCommentList : public RecyclingGridDataSource, public CommentAction {
 public:
-    DataSourceSingleCommentList(bilibili::VideoCommentListResult result, brls::Event<bool>* likeState,
-                                brls::Event<size_t>* likeNum, brls::Event<size_t>* replyNum, brls::Event<>* deleteReply)
+    DataSourceSingleCommentList(bilibili::VideoCommentListResult result, int type, CommentUiType uiType,
+                                brls::Event<bool>* likeState, brls::Event<size_t>* likeNum,
+                                brls::Event<size_t>* replyNum, brls::Event<>* deleteReply)
         : dataList(std::move(result)),
+          commentType(type),
+          uiType(uiType),
           likeState(likeState),
           likeNum(likeNum),
           replyNum(replyNum),
@@ -100,7 +105,7 @@ public:
         auto* item = dynamic_cast<VideoComment*>(recycler->getGridItemByIndex(index));
         if (!item) return;
 
-        auto* view = new PlayerCommentAction();
+        auto* view = new PlayerCommentAction(uiType);
         view->setActionData(dataList[index], item->getY());
         if (user_mid == dataList[index].member.mid) view->showDelete();
         auto container = new brls::AppletFrame(view);
@@ -122,7 +127,7 @@ public:
                 likeNum->fire(itemData.like);
             }
 
-            this->commentLike(itemData.oid, itemData.rpid, itemData.action);
+            this->commentLike(std::to_string(itemData.oid), itemData.rpid, itemData.action, commentType);
         });
 
         view->replyClickEvent.subscribe([this, index, recycler]() {
@@ -138,7 +143,7 @@ public:
                         text = fmt::format("回复 @{} :{}", itemData.member.uname, text);
                     }
 
-                    this->commentReply(text, itemData.oid, itemData.rpid, itemData.root,
+                    this->commentReply(text, std::to_string(itemData.oid), itemData.rpid, itemData.root, commentType,
                                        [this, recycler](const bilibili::VideoCommentAddResult& result) {
                                            this->dataList.insert(dataList.begin() + 2, result.reply);
                                            recycler->reloadData();
@@ -152,7 +157,7 @@ public:
         view->deleteClickEvent.subscribe([this, recycler, index]() {
             DialogHelper::showCancelableDialog("wiliwili/player/single_comment/delete"_i18n, [this, recycler, index]() {
                 auto& itemData = dataList[index];
-                this->commentDelete(itemData.oid, itemData.rpid);
+                this->commentDelete(std::to_string(itemData.oid), itemData.rpid, commentType);
 
                 if (index == 0) {
                     // 删除一整层
@@ -206,6 +211,8 @@ public:
 
 private:
     bilibili::VideoCommentListResult dataList;
+    int commentType;
+    CommentUiType uiType;
     brls::Event<bool>* likeState;
     brls::Event<size_t>* likeNum;
     brls::Event<size_t>* replyNum;
@@ -215,8 +222,12 @@ private:
 
 /// PlayerSingleComment
 
-PlayerSingleComment::PlayerSingleComment() {
-    this->inflateFromXMLRes("xml/fragment/player_single_comment.xml");
+PlayerSingleComment::PlayerSingleComment(CommentUiType type) : uiType(type) {
+    if (type == COMMENT_UI_TYPE_DYNAMIC) {
+        this->inflateFromXMLRes("xml/fragment/player_single_comment_dynamic.xml");
+    } else {
+        this->inflateFromXMLRes("xml/fragment/player_single_comment.xml");
+    }
     brls::Logger::debug("Fragment PlayerSingleComment: create");
 
     this->recyclingGrid->registerCell("Cell", []() { return VideoComment::create(); });
@@ -247,16 +258,17 @@ PlayerSingleComment::PlayerSingleComment() {
                          [this](brls::View* view) {
                              brls::Application::giveFocus(this->closeBtn);
                              this->recyclingGrid->forceRequestNextPage();
-                             this->setCommentData(this->root, NAN);
+                             this->setCommentData(this->root, NAN, this->commentType);
                              return true;
                          });
 }
 
-void PlayerSingleComment::setCommentData(const bilibili::VideoCommentResult& result, float y) {
+void PlayerSingleComment::setCommentData(const bilibili::VideoCommentResult& result, float y, int type) {
     GA("single_comment", {{"id", std::to_string(result.rpid)}})
     GA("single_comment", {{"comment_id", std::to_string(result.rpid)}})
 
-    this->root = result;
+    this->root        = result;
+    this->commentType = type;
     // 将楼主的root id设置为评论id，方便点击时一视同仁地判断
     this->root.root     = root.rpid;
     this->cursor.next   = 0;
@@ -267,8 +279,8 @@ void PlayerSingleComment::setCommentData(const bilibili::VideoCommentResult& res
     r.rpid   = 0;
     r.rcount = root.rcount;
     bilibili::VideoCommentListResult defaultData{root, r};
-    recyclingGrid->setDataSource(
-        new DataSourceSingleCommentList(defaultData, &likeStateEvent, &likeNumEvent, &replyNumEvent, &deleteEvent));
+    recyclingGrid->setDataSource(new DataSourceSingleCommentList(defaultData, commentType, uiType, &likeStateEvent,
+                                                                 &likeNumEvent, &replyNumEvent, &deleteEvent));
 
     this->showStartAnimation(y);
 }
@@ -320,11 +332,11 @@ void PlayerSingleComment::dismiss(std::function<void(void)> cb) { this->showDism
 
 void PlayerSingleComment::requestData() {
     if (cursor.is_end) return;
-    brls::Logger::debug("请求评论: root:{} page:{}", root.rpid, cursor.next);
+    brls::Logger::debug("请求评论: oid: {} rpid:{} type:{} page:{}", root.oid, root.rpid, cursor.next, commentType);
     // request comments
     ASYNC_RETAIN
     BILI::get_comment_detail(
-        ProgramConfig::instance().getCSRF(), root.oid, root.rpid, cursor.next,
+        ProgramConfig::instance().getCSRF(), std::to_string(root.oid), root.rpid, cursor.next, commentType,
         [ASYNC_TOKEN](bilibili::VideoSingleCommentDetail result) {
             brls::sync([ASYNC_TOKEN, result]() mutable {
                 ASYNC_RELEASE
@@ -382,8 +394,12 @@ brls::View* PlayerSingleComment::getDefaultFocus() { return this->recyclingGrid;
 
 /// PlayerCommentAction
 
-PlayerCommentAction::PlayerCommentAction() {
-    this->inflateFromXMLRes("xml/fragment/player_comment_action.xml");
+PlayerCommentAction::PlayerCommentAction(CommentUiType type) {
+    if (type == COMMENT_UI_TYPE_DYNAMIC) {
+        this->inflateFromXMLRes("xml/fragment/player_comment_action_dynamic.xml");
+    } else {
+        this->inflateFromXMLRes("xml/fragment/player_comment_action.xml");
+    }
 
     this->comment->setMaxRows(SIZE_T_MAX);
 

@@ -4,70 +4,47 @@
 
 #pragma once
 
-#include <borealis/core/thread.hpp>
-
-#include "bilibili.h"
-#include "bilibili/result/home_live_result.h"
 #include "presenter/presenter.h"
-#include "utils/config_helper.hpp"
-#include "presenter/video_detail.hpp"
 #include "bilibili/result/video_detail_result.h"
+
+class CommentAction : public Presenter {
+public:
+    virtual void onError(const std::string& error);
+
+    void commentLike(const std::string& oid, int64_t rpid, int action, int type);
+
+    void commentReply(const std::string& text, const std::string& oid, int64_t rpid, int64_t root, int type,
+                      std::function<void(const bilibili::VideoCommentAddResult&)> cb = nullptr);
+
+    void commentDelete(const std::string& oid, int64_t rpid, int type);
+};
 
 class CommentRequest : public Presenter {
 public:
-    virtual void onError(const std::string& error) { DialogHelper::showDialog(error); }
+    virtual void onCommentInfo(const bilibili::VideoCommentResultWrapper& result) {}
+    virtual void onRequestCommentError(const std::string& error) {}
 
-    void commentLike(size_t oid, int64_t rpid, int action) {
-        ASYNC_RETAIN
-        BILI::be_agree_comment(
-            ProgramConfig::instance().getCSRF(), oid, rpid, action,
-            [ASYNC_TOKEN, oid, rpid, action]() {
-                ASYNC_RELEASE
-                brls::Logger::debug("Comment action success: {} {} {}", oid, rpid, action);
-            },
-            [ASYNC_TOKEN, oid, rpid, action](BILI_ERR) {
-                brls::Logger::error("Comment action error: {} {} {}", oid, rpid, action);
-                brls::sync([ASYNC_TOKEN, error]() {
-                    ASYNC_RELEASE
-                    this->onError(error);
-                });
-            });
-    }
+    /**
+     * 获取评论
+     * @param next -1 自动加载下一页；0 加载首页
+     * @param mode -1 按上次使用的顺序；2 按时间排序；3 按热度排序
+     * @param type 评论类型，1 视频评论；11 图片动态评论；17 文字动态评论
+     */
+    void requestVideoComment(const std::string& oid, int next = -1, int mode = -1, int type = 1);
 
-    void commentReply(const std::string& text, size_t oid, int64_t rpid, int64_t root,
-                      std::function<void(const bilibili::VideoCommentAddResult&)> cb = nullptr) {
-        ASYNC_RETAIN
-        BILI::add_comment(
-            ProgramConfig::instance().getCSRF(), text, oid, rpid, root,
-            [ASYNC_TOKEN, cb](const bilibili::VideoCommentAddResult& result) {
-                brls::sync([ASYNC_TOKEN, result, cb]() {
-                    ASYNC_RELEASE
-                    cb(result);
-                });
-            },
-            [ASYNC_TOKEN](BILI_ERR) {
-                brls::Logger::error("Comment action error: {}", error);
-                brls::sync([ASYNC_TOKEN, error]() {
-                    ASYNC_RELEASE
-                    this->onError(error);
-                });
-            });
-    }
+    int getVideoCommentMode() const;
 
-    void commentDelete(size_t oid, int64_t rpid) {
-        ASYNC_RETAIN
-        BILI::delete_comment(
-            ProgramConfig::instance().getCSRF(), oid, rpid,
-            [ASYNC_TOKEN, oid, rpid]() {
-                ASYNC_RELEASE
-                brls::Logger::debug("Comment delete success: {} {}", oid, rpid);
-            },
-            [ASYNC_TOKEN, oid, rpid](BILI_ERR) {
-                brls::Logger::error("Comment action error: {} {}", oid, rpid);
-                brls::sync([ASYNC_TOKEN, error]() {
-                    ASYNC_RELEASE
-                    this->onError(error);
-                });
-            });
-    }
+    void setVideoCommentMode(int mode);
+
+protected:
+    int commentRequestIndex = 0;
+    int commentMode         = 3;
+    bool end                = false;
+};
+
+class DynamicAction: public Presenter {
+public:
+    virtual void onError(const std::string& error);
+
+    void dynamicLike(const std::string& id, bool action);
 };

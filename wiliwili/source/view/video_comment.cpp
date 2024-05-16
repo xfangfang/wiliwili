@@ -275,8 +275,15 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
     // 设置富文本
     this->commentContent->setRichText(d);
 
+    // 设置用户信息
     this->userInfo->setUserInfo(data.member.avatar + ImageHelper::face_ext, data.member.uname, subtitle);
+    if (data.member.vip.nickname_color.empty()) {
+        this->userInfo->setMainTextColor(brls::Application::getTheme().getColor("brls/text"));
+    } else {
+        this->userInfo->getLabelName()->applyXMLAttribute("textColor", data.member.vip.nickname_color);
+    }
 
+    // 设置用户等级
     int lv = data.member.level_info.current_level;
     if (lv < 0 || lv > 6) {
         this->userLevel->setVisibility(brls::Visibility::GONE);
@@ -291,6 +298,7 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
         }
     }
 
+    // 设置点赞状态
     if (data.action) {
         this->svgLike->setImageFromSVGRes("svg/comment-agree-active.svg");
     } else {

@@ -41,10 +41,9 @@
             <brls:Label
                     id="video/card/label/duration"
                     positionType="absolute"
-                    positionRight="0"
+                    positionRight="4"
                     textColor="#FFFFFF"
-                    fontSize="16"
-                    text="更新至..."/>
+                    fontSize="16"/>
         </brls:Box>
 
     </brls:Box>

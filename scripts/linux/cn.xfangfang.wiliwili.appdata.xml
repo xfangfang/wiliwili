@@ -13,36 +13,36 @@
     </content_rating>
     <description>
         <p>wiliwili has an experience that is very close to the official PC client</p>
-        <p xml:lang="zh-cn">wiliwili 拥有非常接近官方PC客户端的B站浏览体验</p>
+        <p xml:lang="zh_CN">wiliwili 拥有非常接近官方PC客户端的B站浏览体验</p>
         <p>Simultaneously supports touch screen, mouse, keyboard, and controller control</p>
-        <p xml:lang="zh-cn">同时支持触屏、鼠标、键盘 与 手柄操控</p>
+        <p xml:lang="zh_CN">同时支持触屏、鼠标、键盘 与 手柄操控</p>
         <p>Whether it's a computer or a gaming handheld, you can get a brand new user experience</p>
-        <p xml:lang="zh-cn">无论是电脑还是游戏掌机都能获得全新的使用体验</p>
+        <p xml:lang="zh_CN">无论是电脑还是游戏掌机都能获得全新的使用体验</p>
         <p>Features:</p>
-        <p xml:lang="zh-cn">特点:</p>
+        <p xml:lang="zh_CN">特点:</p>
         <ul>
             <li>Multilingual: Simplified Chinese, Traditional Chinese, English...</li>
-            <li xml:lang="zh-cn">多语言：简、繁、日、韩、英 ...</li>
+            <li xml:lang="zh_CN">多语言：简、繁、日、韩、英 ...</li>
             <li>Theme: Light / Dark</li>
-            <li xml:lang="zh-cn">主题色：拥有深浅两色主题，跟随系统自动切换</li>
+            <li xml:lang="zh_CN">主题色：拥有深浅两色主题，跟随系统自动切换</li>
             <li>Player: Video, Bangumi, Film and TV show</li>
-            <li xml:lang="zh-cn">播放页：视频 番剧 电影 纪录片 综艺，支持弹幕与评论</li>
+            <li xml:lang="zh_CN">播放页：视频 番剧 电影 纪录片 综艺，支持弹幕与评论</li>
             <li>Filter: Quickly find the movie and bangumi</li>
-            <li xml:lang="zh-cn">筛选页：快速找到想看的影视内容</li>
+            <li xml:lang="zh_CN">筛选页：快速找到想看的影视内容</li>
             <li>Search: TV style, Videos and Bangumi...</li>
-            <li xml:lang="zh-cn">搜索页：热搜 视频 番剧 影视</li>
+            <li xml:lang="zh_CN">搜索页：热搜 视频 番剧 影视</li>
             <li>Activity: Recently updated video of the following uploader</li>
-            <li xml:lang="zh-cn">动态页：关注的UP主最近视频动态</li>
+            <li xml:lang="zh_CN">动态页：关注的UP主最近视频动态</li>
             <li>Live: Support watching the following uploader and other system recommendations</li>
-            <li xml:lang="zh-cn">直播页：关注的主播与其他系统推荐</li>
+            <li xml:lang="zh_CN">直播页：关注的主播与其他系统推荐</li>
             <li>Personal Page: Scan Code Login, History, Favourites ...</li>
-            <li xml:lang="zh-cn">个人页：扫码登录 历史记录 个人收藏 我的追番 我的追剧</li>
+            <li xml:lang="zh_CN">个人页：扫码登录 历史记录 个人收藏 我的追番 我的追剧</li>
             <li>Flatpak: wiliwili config directory is ~/.var/app/cn.xfangfang.wiliwili/config/wiliwili</li>
-            <li xml:lang="zh-cn">Flatpak版的wiliwili的配置目录在~/.var/app/cn.xfangfang.wiliwili/config/wiliwili</li>
+            <li xml:lang="zh_CN">Flatpak版的wiliwili的配置目录在~/.var/app/cn.xfangfang.wiliwili/config/wiliwili</li>
         </ul>
     </description>
     <releases>
-        <release date="2024-01-12" version="1.3.0">
+        <release date="2024-05-01" version="1.4.0">
             <description>
                 <p>
                     Please See Official Changelog at github.com/xfangfang/wiliwili/releases

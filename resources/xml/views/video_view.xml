@@ -320,6 +320,26 @@
                                 highlightCornerRadius="8"/>
                     </brls:Box>
                     <brls:Box
+                            hideClickAnimation="true"
+                            marginLeft="10"
+                            marginRight="10"
+                            visibility="gone"
+                            alignItems="center"
+                            justifyContent="center"
+                            height="60">
+                        <brls:Label
+                                id="show/episode"
+                                textColor="#FFFFFF"
+                                focusable="true"
+                                focusUp="video/osd/lock/box"
+                                focusDown="show/episode"
+                                horizontalAlign="center"
+                                visibility="gone"
+                                text="@i18n/wiliwili/player/p"
+                                hideHighlightBackground="true"
+                                highlightCornerRadius="8" />
+                    </brls:Box>
+                    <brls:Box
                             id="video/osd/fullscreen"
                             hideClickAnimation="true"
                             alignItems="center"

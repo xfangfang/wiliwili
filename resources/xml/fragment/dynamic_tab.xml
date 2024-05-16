@@ -15,12 +15,19 @@
             lineColor="@theme/color/line"
             lineRight="1"
             id="dynamic/up/recyclingGrid"/>
-
-    <brls:Box
-            paddingTop="20"
+    <AutoTabFrame
+            id="dynamic/tab/frame"
+            demandMode="false"
             paddingBottom="8"
-            wireframe="false"
-            grow="1">
+            grow="1"
+            defaultTab="0"
+            tabHeight="70"
+            tabItemActiveTextColor="@theme/color/bilibili"
+            disableNavigationRight="true"
+            sidebarPosition="top">
+
+        <Tab label="@i18n/wiliwili/dynamic/video"
+             fontSize="22">
             <RecyclingGrid
                     paddingLeft="20"
                     paddingRight="20"
@@ -30,5 +37,19 @@
                     spanCount="@style/wiliwili/grid/span/3"
                     wireframe="false"
                     id="dynamic/videoList"/>
-    </brls:Box>
+        </Tab>
+        <Tab label="@i18n/wiliwili/dynamic/article"
+             fontSize="22">
+            <RecyclingGrid
+                    paddingLeft="18%"
+                    paddingRight="18%"
+                    grow="1"
+                    preFetchLine="2"
+                    spanCount="1"
+                    flowMode="true"
+                    itemHeight="1000"
+                    wireframe="false"
+                    id="dynamic/articleList"/>
+        </Tab>
+    </AutoTabFrame>
 </brls:Box>

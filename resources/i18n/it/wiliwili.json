@@ -36,6 +36,10 @@
         "proxy": "Proxy",
         "proxy_hint": "example: http://127.0.0.1:7890"
       },
+      "ui": {
+        "header": "UI",
+        "tv_osd": "TV style OSD control"
+      },
       "others": {
         "header": "Altri",
         "vibration": "Vibrazione del Gamepad",
@@ -44,6 +48,7 @@
         "limited_fps": "Limite massimo frame",
         "limited_fps_vsync": "Sincronizzazione Verticale",
         "fullscreen": "Schermo intero",
+        "always_on_top": "Always on top",
         "tv_search": "Pagina di ricerca stile TV",
         "clear_history": "Clear search history",
         "clear_season": "Clear bangumi custom settings",
@@ -205,6 +210,11 @@
       "tab": "Cinema"
     }
   },
+  "dynamic": {
+    "detail": "Activity detail",
+    "video": "Video",
+    "article": "Activity"
+  },
   "search": {
     "tv": {
       "hint": "Support keywords and their initial letters",
@@ -216,6 +226,13 @@
       "history_clear": "Clear all",
       "history_delete": "Delete",
       "suggest": "Suggest"
+    },
+    "order": {
+      "all": "All",
+      "click": "Click",
+      "pubdate": "PublishDate",
+      "dm": "Danmaku",
+      "stow": "Favorite"
     },
     "tab": "Search",
     "t0": "History",
@@ -276,6 +293,7 @@
     "recommend": "Recommend",
     "uploaded": "Others",
     "qr": "Scan QR code to watch/share",
+    "clipboard": "Copied to clipboard",
     "comment": "Comment",
     "current": " people are watching",
     "share": "Share",
@@ -343,6 +361,8 @@
       },
       "aspect": {
         "header": "Video aspect",
+        "crop": "Crop",
+        "stretch": "Stretch",
         "auto": "Auto"
       },
       "shader": {

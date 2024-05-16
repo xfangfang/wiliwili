@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 #include "user_result.h"
 #include "mine_result.h"
 
@@ -112,34 +112,12 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentControl
     }
 }
 
-class LevelInfo {
-public:
-    LevelInfo() { current_level = 0; }
-    int current_level;
-};
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelInfo, current_level);
-
-class CommentUserResult {
-public:
-    CommentUserResult() {
-        is_uploader      = false;
-        is_senior_member = 0;
-    }
-
-    std::string mid, uname, avatar;
-    int is_senior_member;
-    LevelInfo level_info{};
-    bool is_uploader;
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CommentUserResult, mid, uname, avatar, is_senior_member, level_info);
-
 class VideoCommentResult {
 public:
     size_t ctime;
     int64_t rpid, parent, root;
     size_t oid;
-    CommentUserResult member;
+    UserCommentResult member;
     VideoCommentContent content;
     std::vector<VideoCommentResult> replies;
     VideoCommentControl reply_control;
@@ -179,22 +157,30 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentCursor&
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, mode, next, is_end, is_begin, prev));
 }
 
+class VideoCommentUpper {
+public:
+    int64_t mid;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentUpper& nlohmann_json_t) {
+    NLOHMANN_JSON_FROM(mid);
+}
+
 class VideoCommentResultWrapper {
 public:
     VideoCommentCursor cursor;
     VideoCommentListResult replies;
     VideoCommentListResult top_replies;
+    VideoCommentUpper upper;
     size_t requestIndex = 0;  // 自定义数据，请求的评论页
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentResultWrapper& nlohmann_json_t) {
-    if (!nlohmann_json_j.at("top_replies").is_null()) {
-        nlohmann_json_j.at("top_replies").get_to(nlohmann_json_t.top_replies);
-    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, top_replies, replies, cursor, upper));
+    // 标记是否是置顶评论
     for (auto& i : nlohmann_json_t.top_replies) i.top = true;
-    if (!nlohmann_json_j.at("replies").is_null()) {
-        nlohmann_json_j.at("replies").get_to(nlohmann_json_t.replies);
-    }
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, cursor));
+    // 标记是否是up主评论
+    std::string video_uploader = std::to_string(nlohmann_json_t.upper.mid);
+    for (auto& i : nlohmann_json_t.top_replies) i.member.is_uploader = i.member.mid == video_uploader;
+    for (auto& i : nlohmann_json_t.replies) i.member.is_uploader = i.member.mid == video_uploader;
 }
 
 class VideoSingleCommentDetail {

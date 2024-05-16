@@ -1,0 +1,72 @@
+<brls:Box
+        id="dynamic/video_box"
+        axis="column">
+
+    <brls:Image
+            id="video/card/picture"
+            scalingType="fill"
+            height="auto"
+            width="100%"
+            aspectRatio="1.78"
+            cornerRadius="8"
+            image="@res/pictures/video-card-bg.png"/>
+
+    <brls:Box
+            positionType="absolute"
+            positionLeft="0"
+            positionTop="0"
+            background="vertical_linear"
+            backgroundStartColor="#000000CC"
+            backgroundEndColor="#00000000"
+            backgroundTopLeftRadius="8"
+            backgroundTopRightRadius="8"
+            width="100%"
+            padding="@style/wiliwili/dynamic/video/card/padding">
+        <brls:Label
+                id="dynamic/title"
+                textColor="#FFFFFF"
+                singleLine="true"
+                fontSize="16"/>
+    </brls:Box>
+
+    <brls:Box
+            positionBottom="0"
+            positionType="absolute"
+            background="vertical_linear"
+            backgroundBottomLeftRadius="8"
+            backgroundBottomRightRadius="8"
+            padding="@style/wiliwili/dynamic/video/card/padding"
+            width="100%"
+            alignItems="center">
+        <SVGImage
+                width="18"
+                height="18"
+                marginTop="2"
+                SVG="@res/svg/widget-video-play-count.svg"/>
+        <brls:Label
+                marginLeft="4"
+                marginRight="4"
+                textColor="#FFFFFF"
+                id="video/card/label/count"
+                fontSize="16"
+                text=""/>
+        <SVGImage
+                width="18"
+                height="18"
+                marginTop="2"
+                SVG="@res/svg/widget-video-danmaku.svg"/>
+        <brls:Label
+                marginLeft="4"
+                id="video/card/label/danmaku"
+                textColor="#FFFFFF"
+                fontSize="16"
+                text=""/>
+        <brls:Label
+                id="video/card/label/duration"
+                positionType="absolute"
+                positionRight="@style/wiliwili/dynamic/video/card/padding"
+                textColor="#FFFFFF"
+                fontSize="16"/>
+    </brls:Box>
+
+</brls:Box>

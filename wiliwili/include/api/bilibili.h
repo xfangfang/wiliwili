@@ -17,7 +17,15 @@ class LivePayLink;                // 大航海专属直播付费链接
 class LiveFullAreaResultWrapper;  // 直播分区列表
 class LiveSecondResultWrapper;    // 直播二级分区推荐
 class SearchResult;
-class DynamicVideoListResultWrapper;  // 动态 全部关注的视频列表
+template <typename Item>
+class DynamicListResultWrapper;                                                          // 动态页列表基类
+class DynamicVideoResult;                                                                // 一条视频动态
+class DynamicArticleResult;                                                              // 一条图文动态
+typedef std::vector<DynamicVideoResult> DynamicVideoListResult;                          // 视频动态列表
+typedef std::vector<DynamicArticleResult> DynamicArticleListResult;                      // 图文动态列表
+typedef DynamicListResultWrapper<DynamicVideoListResult> DynamicVideoListResultWrapper;  // 动态 全部关注的视频列表
+typedef DynamicListResultWrapper<DynamicArticleListResult>
+    DynamicArticleListResultWrapper;  // 动态 全部或指定UP主图文列表
 class DynamicUpListResultWrapper;     // 动态 最近更新的UP主列表
 class UserDynamicVideoResultWrapper;  // 动态 单个up主视频列表
 class PGCIndexResultWrapper;
@@ -354,20 +362,27 @@ public:
     static void get_pgc_all_filter(const std::function<void(PGCIndexFilters)>& callback = nullptr,
                                    const ErrorCallback& error                           = nullptr);
 
-    /// 视频页 获取评论
-    /// 3: 热门评论、2：最新评论 1：评论
-    static void get_comment(int aid, int next, int mode = 3,
+    /// 获取评论
+    /// @mode: 3: 热门评论、2：最新评论 1：评论
+    /// @type: 1: 视频 11: 图片动态 17: 文字动态 ...
+    static void get_comment(const std::string& oid, int next, int mode = 3, int type = 1,
                             const std::function<void(VideoCommentResultWrapper)>& callback = nullptr,
                             const ErrorCallback& error                                     = nullptr);
 
-    /// 获取单条视频的相关回复
-    static void get_comment_detail(const std::string& access_key, size_t oid, int64_t rpid, size_t next = 0,
+    /// 获取单条评论详情
+    static void get_comment_detail(const std::string& access_key, const std::string& oid, int64_t rpid, size_t next = 0,
+                                   int type                                                      = 1,
                                    const std::function<void(VideoSingleCommentDetail)>& callback = nullptr,
                                    const ErrorCallback& error                                    = nullptr);
 
     /// 点赞评论
-    static void be_agree_comment(const std::string& access_key, size_t oid, int64_t rpid, bool is_like,
-                                 const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr);
+    static void be_agree_comment(const std::string& access_key, const std::string& oid, int64_t rpid, bool is_like,
+                                 int type = 1, const std::function<void()>& callback = nullptr,
+                                 const ErrorCallback& error = nullptr);
+    /// 点赞动态
+    static void be_agree_dynamic(const std::string& access_key, const std::string& id, bool is_like,
+                                 const std::function<void()>& callback = nullptr,
+                                 const ErrorCallback& error = nullptr);
 
     /**
      * 回复评论
@@ -379,12 +394,13 @@ public:
      * @param callback
      * @param error
      */
-    static void add_comment(const std::string& access_key, const std::string& message, size_t oid, int64_t parent = 0,
-                            int64_t root = 0, const std::function<void(VideoCommentAddResult)>& callback = nullptr,
-                            const ErrorCallback& error = nullptr);
+    static void add_comment(const std::string& access_key, const std::string& message, const std::string& oid,
+                            int64_t parent = 0, int64_t root = 0, int type = 1,
+                            const std::function<void(VideoCommentAddResult)>& callback = nullptr,
+                            const ErrorCallback& error                                 = nullptr);
 
     /// 删除评论
-    static void delete_comment(const std::string& access_key, size_t oid, int64_t rpid,
+    static void delete_comment(const std::string& access_key, const std::string& oid, int64_t rpid, int type = 1,
                                const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr);
 
     /// 视频页 获取单个视频播放人数
@@ -508,10 +524,15 @@ public:
                                       const std::function<void(SearchSuggestList)>& callback = nullptr,
                                       const ErrorCallback& error                             = nullptr);
 
-    /// 动态页 获取全部关注用户的最近动态
+    /// 动态页 获取全部关注用户的最近动态 视频
     static void dynamic_video(const unsigned int page, const std::string& offset = "",
                               const std::function<void(DynamicVideoListResultWrapper)>& callback = nullptr,
                               const ErrorCallback& error                                         = nullptr);
+
+    /// 动态页 获取全部关注用户的最近动态 图文
+    static void dynamic_article(const unsigned int page, const std::string& offset = "", const int64_t mid = 0,
+                                const std::function<void(DynamicArticleListResultWrapper)>& callback = nullptr,
+                                const ErrorCallback& error                                           = nullptr);
 
     /// 动态页 获取有最近动态的关注用户列表
     static void dynamic_up_list(const std::function<void(DynamicUpListResultWrapper)>& callback = nullptr,

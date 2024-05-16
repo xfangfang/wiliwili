@@ -315,13 +315,12 @@ make -C cmake-build-switch wiliwili.nro -j$(nproc)
 
 ### 交叉编译 PSV 可执行文件
 
-参考 `.github/workflows/build.yaml` 使用 docker 来编译。  
-请参考：[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv)
+使用本地环境来编译请参考 `.github/workflows/build.yaml` 。  
+额外参考：[borealis 示例](https://github.com/xfangfang/borealis#building-the-demo-for-psv)
 和 [wiliwili_vita 编译指南](https://gist.github.com/xfangfang/305da139721ad4e96d7a9d9a1a550a9d)
 
 <details>
-
-在 Apple Silicon 上编译，推荐使用 [OrbStack](https://orbstack.dev) 代替 Docker Desktop，因为前者支持 Rosetta 运行 x86_64 的
+同样可以更方便地使用 docker 进行编译, 在 Apple Silicon 上编译，推荐使用 [OrbStack](https://orbstack.dev) 代替 Docker Desktop，因为前者支持 Rosetta 运行 x86_64 的
 Docker 镜像。
 
 ```shell

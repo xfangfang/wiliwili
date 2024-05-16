@@ -1,0 +1,29 @@
+<brls:Box
+        wireframe="false"
+        axis="column"
+        width="auto"
+        height="auto">
+    <RecyclingGrid
+            marginTop="40"
+            paddingLeft="18%"
+            paddingRight="18%"
+            grow="1"
+            preFetchLine="2"
+            spanCount="1"
+            flowMode="true"
+            itemHeight="1000"
+            wireframe="false"
+            id="dynamic/detail/grid"/>
+
+    <ButtonClose
+            positionType="absolute"
+            positionTop="10"
+            positionRight="10"/>
+
+    <brls:Label
+            positionType="absolute"
+            fontSize="24"
+            positionTop="20"
+            positionLeft="20"
+            text="@i18n/wiliwili/dynamic/detail"/>
+</brls:Box>

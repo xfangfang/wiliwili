@@ -65,6 +65,7 @@ private:
     BRLS_BIND(brls::BooleanCell, cellTvSearch, "cell/tvSearch");
     BRLS_BIND(brls::BooleanCell, cellTvOSD, "cell/tvOSD");
     BRLS_BIND(brls::BooleanCell, cellFullscreen, "cell/fullscreen");
+    BRLS_BIND(brls::BooleanCell, cellAlwaysOnTop, "cell/alwaysontop");
     BRLS_BIND(brls::BooleanCell, cellVibration, "cell/gamepadVibration");
     BRLS_BIND(brls::Label, labelAboutVersion, "setting/about/version");
 };

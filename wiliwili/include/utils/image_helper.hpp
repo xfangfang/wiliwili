@@ -71,6 +71,17 @@ public:
     inline static std::string note_raw_ext    = "@!web-comment-note.webp";
 #endif
 #else
+#ifdef __PSV__
+    inline static std::string h_ext           = "@224w_126h_1c.jpg";
+    inline static std::string v_ext           = "@156w_210h_1c.jpg";
+    inline static std::string face_ext        = "@48w_48h_1c_1s.jpg";
+    inline static std::string face_large_ext  = "@60w_60h_1c_1s.jpg";
+    inline static std::string emoji_size1_ext = "@24w_24h.jpg";
+    inline static std::string emoji_size2_ext = "@36w_36h.jpg";
+    inline static std::string note_ext        = "@180w_180h_85q_!note-comment-multiple.jpg";
+    inline static std::string note_custom_ext = "@{}w_{}h_85q_!note-comment-multiple.jpg";
+    inline static std::string note_raw_ext    = "@300h.jpg";
+#else
     inline static std::string h_ext           = "@672w_378h_1c.jpg";
     inline static std::string v_ext           = "@312w_420h_1c.jpg";
     inline static std::string face_ext        = "@96w_96h_1c_1s.jpg";
@@ -80,6 +91,7 @@ public:
     inline static std::string note_ext        = "@540w_540h_85q_!note-comment-multiple.jpg";
     inline static std::string note_custom_ext = "@{}w_{}h_85q_!note-comment-multiple.jpg";
     inline static std::string note_raw_ext    = "@!web-comment-note.jpg";
+#endif
 #endif
 
     /// 图片请求线程数
@@ -94,7 +106,7 @@ protected:
     void clean();
 
 private:
-    bool isCancel;
+    bool isCancel{};
     brls::Image* imageView;
     std::string imageUrl;
     Pool::iterator currentIter;

@@ -190,9 +190,10 @@ const std::string SearchHots = _apiBase + "/x/web-interface/search/square";
 /// 动态页API
 /// ===
 const std::string DynamicVideo     = _apiBase + "/x/polymer/web-dynamic/desktop/v1/feed/video";
+const std::string DynamicArticle   = _apiBase + "/x/polymer/web-dynamic/desktop/v1/feed/all";
 const std::string DynamicUpList    = _vcBase + "/dynamic_svr/v1/dynamic_svr/w_dyn_uplist";
 const std::string DynamicUpListV2  = _apiBase + "/x/polymer/web-dynamic/v1/uplist";
-
+const std::string DynamicLike      = _vcBase + "/dynamic_like/v1/dynamic_like/thumb";
 const std::string UserDynamicVideo = _apiBase + "/x/space/arc/list";
 
 /// ===

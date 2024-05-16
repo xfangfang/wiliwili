@@ -14,6 +14,7 @@
 #include "view/danmaku_core.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/string_helper.hpp"
+#include "utils/number_helper.hpp"
 #include "bilibili.h"
 
 // include ntohl / ntohll
@@ -156,15 +157,41 @@ DanmakuItem::DanmakuItem(std::string content, const char *attributes) : msg(std:
         }
     }
 
-    // 设置弹幕内容 (根据需要做简繁转换)
+    // 调整弹幕内容
+    if (msg.size() > 1 && msg[0] == '[' && msg[msg.size() - 1] == ']') {
+        // 检查是否是彩蛋弹幕: [ohh] [前方高能]
+        if (pystring::startswith(msg, "[前方高能")) {
+            image = DanmakuImageType::DANMAKU_IMAGE_HIGHLIGHT;
+        } else if (pystring::startswith(wiliwili::toUpper(msg, 4), "[OHH")) {
+            image = DanmakuImageType::DANMAKU_IMAGE_OHH;
+        }
+    } else {
+        // 根据需要做简繁转换
 #ifdef OPENCC
-    static bool ZH_T =
-        brls::Application::getLocale() == brls::LOCALE_ZH_HANT || brls::Application::getLocale() == brls::LOCALE_ZH_TW;
-    if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
+        static bool ZH_T = brls::Application::getLocale() == brls::LOCALE_ZH_HANT ||
+                           brls::Application::getLocale() == brls::LOCALE_ZH_TW;
+        if (ZH_T && brls::Label::OPENCC_ON) msg = brls::Label::STConverter(msg);
 #endif
+    }
 }
 
 void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha, bool multiLine) const {
+    if (image != DanmakuImageType::DANMAKU_IMAGE_NONE) {
+        // 绘制图片弹幕
+        float width    = DanmakuCore::DANMAKU_STYLE_FONTSIZE * 3;
+        float height   = DanmakuCore::DANMAKU_STYLE_FONTSIZE;
+        float newAlpha = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.01f * alpha;
+        nvgBeginPath(vg);
+        auto paint =
+            nvgImagePattern(vg, x, y, width, height, 0,
+                            image == DanmakuImageType::DANMAKU_IMAGE_OHH ? DanmakuCore::DANMAKU_IMAGE_OHH
+                                                                         : DanmakuCore::DANMAKU_IMAGE_HIGHLIGHT,
+                            newAlpha);
+        nvgRect(vg, x, y, width, height);
+        nvgFillPaint(vg, paint);
+        nvgFill(vg);
+        return;
+    }
     float blur   = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::DANMAKU_FONT_SHADOW;
     float dilate = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::DANMAKU_FONT_STROKE;
     float dx, dy;
@@ -207,11 +234,31 @@ DanmakuCore::DanmakuCore() {
         }
     });
 
+    NVGcontext *vg = brls::Application::getNVGContext();
+#ifdef USE_LIBROMFS
+    auto image1             = romfs::get("pictures/danmaku_ohh.png");
+    DANMAKU_IMAGE_OHH       = nvgCreateImageMem(vg, 0, (unsigned char *)image1.data(), image1.size());
+    auto image2             = romfs::get("pictures/danmaku_highlight.png");
+    DANMAKU_IMAGE_HIGHLIGHT = nvgCreateImageMem(vg, 0, (unsigned char *)image2.data(), image2.size());
+#else
+    DANMAKU_IMAGE_OHH       = nvgCreateImage(vg, BRLS_ASSET("pictures/danmaku_ohh.png"), 0);
+    DANMAKU_IMAGE_HIGHLIGHT = nvgCreateImage(vg, BRLS_ASSET("pictures/danmaku_highlight.png"), 0);
+#endif
+
     // 退出前清空遮罩纹理
     brls::Application::getExitDoneEvent()->subscribe([this]() {
+        NVGcontext *vg = brls::Application::getNVGContext();
         if (maskTex != 0) {
-            nvgDeleteImage(brls::Application::getNVGContext(), maskTex);
+            nvgDeleteImage(vg, maskTex);
             maskTex = 0;
+        }
+        if (DANMAKU_IMAGE_OHH != 0) {
+            nvgDeleteImage(vg, DANMAKU_IMAGE_OHH);
+            DANMAKU_IMAGE_OHH = 0;
+        }
+        if (DANMAKU_IMAGE_HIGHLIGHT != 0) {
+            nvgDeleteImage(vg, DANMAKU_IMAGE_HIGHLIGHT);
+            DANMAKU_IMAGE_HIGHLIGHT = 0;
         }
     });
 }
@@ -227,10 +274,12 @@ void DanmakuCore::reset() {
     this->danmakuLoaded = false;
     danmakuIndex        = 0;
     maskIndex           = 0;
+    maskLastIndex       = SIZE_T_MAX;
+    maskWidth        = 0;
+    maskHeight       = 0;
     maskSliceIndex      = 0;
     videoSpeed          = MPVCore::instance().getSpeed();
     lineHeight          = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
-    lineNumCurrent      = 0;
     maskData.clear();
     if (maskTex != 0) {
         nvgDeleteImage(brls::Application::getNVGContext(), maskTex);
@@ -245,6 +294,9 @@ void DanmakuCore::loadDanmakuData(const std::vector<DanmakuItem> &data) {
     if (!data.empty()) danmakuLoaded = true;
     std::sort(danmakuData.begin(), danmakuData.end());
     danmakuMutex.unlock();
+
+    // 更新显示总行数等信息
+    this->refresh();
 
     // 通过mpv来通知弹幕加载完成
     APP_E->fire("DANMAKU_LOADED", nullptr);
@@ -301,6 +353,9 @@ void DanmakuCore::refresh() {
     // 将遮罩序号设为0
     maskSliceIndex = 0;
     maskIndex      = 0;
+    maskLastIndex  = SIZE_T_MAX;
+    maskWidth   = 0;
+    maskHeight  = 0;
 
     // 重置弹幕控制显示的信息
     for (auto &i : danmakuData) {
@@ -316,8 +371,7 @@ void DanmakuCore::refresh() {
     }
 
     // 重新设置行高
-    lineHeight     = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
-    lineNumCurrent = 0;
+    lineHeight = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
 
     // 更新弹幕透明度
     for (auto &d : danmakuData) {
@@ -374,6 +428,122 @@ std::vector<DanmakuItem> DanmakuCore::getDanmakuData() {
     return data;
 }
 
+void DanmakuCore::drawMask(NVGcontext *vg, float x, float y, float width, float height) {
+#if defined(BOREALIS_USE_OPENGL) || defined(BOREALIS_USE_D3D11)
+    if (!DANMAKU_SMART_MASK || !maskData.isLoaded()) return;
+    double playbackTime = MPVCore::instance().playback_time;
+    /// 1. 先根据时间选择分片
+    while (maskSliceIndex < maskData.sliceData.size() - 1) {
+        auto &slice = maskData.sliceData[maskSliceIndex + 1];
+        if (slice.time > playbackTime * 1000) break;
+        maskSliceIndex++;
+        maskIndex     = 0;
+        maskLastIndex = SIZE_T_MAX;
+        maskWidth  = 0;
+        maskHeight = 0;
+    }
+
+    /// 2. 在分片内选择对应时间的svg
+    if (maskSliceIndex >= maskData.sliceData.size()) return;
+    auto &slice = maskData.getSlice(maskSliceIndex);
+    if (!slice.isLoaded()) return;
+    while (maskIndex < slice.svgData.size() - 1) {
+        auto &svg = slice.svgData[maskIndex + 1];
+        if (svg.showTime > playbackTime * 1000) break;
+        maskIndex++;
+    }
+
+    /// 3. 从 svg 生成遮罩纹理
+    if (maskIndex >= slice.svgData.size()) return;
+    if (maskLastIndex != maskIndex) {
+        maskLastIndex = maskIndex;
+        // 生成新的纹理
+        auto &svg = slice.svgData[maskIndex];
+        // 给图片添加一圈边框（避免图片边沿为透明时自动扩展了透明色导致非视频区域无法显示弹幕）
+        // 注：返回的 svg 底部固定留有 2像素 透明，不是很清楚具体作用，这里选择绘制一个2像素宽的空心矩形来覆盖
+        const std::string border =
+            R"xml(<rect x="0" y="0" width="100%" height="100%" fill="none" stroke="#000" stroke-width="2"/></svg>)xml";
+        auto maskDocument =
+            lunasvg::Document::loadFromData(pystring::slice(svg.svg, 0, pystring::rindex(svg.svg, "</svg>")) + border);
+        if (maskDocument == nullptr) return;
+        auto bitmap = maskDocument->renderToBitmap(maskDocument->width(), maskDocument->height());
+        maskWidth   = bitmap.width();
+        maskHeight  = bitmap.height();
+#ifdef BOREALIS_USE_D3D11
+        // 使用 dx11 的拷贝交换
+        const static int imageFlags = NVG_IMAGE_STREAMING | NVG_IMAGE_COPY_SWAP | MASK_IMG_FLAG;
+#else
+        const static int imageFlags = MASK_IMG_FLAG;
+#endif
+        if (maskTex != 0) {
+            nvgUpdateImage(vg, maskTex, bitmap.data());
+        } else {
+            maskTex = nvgCreateImageRGBA(vg, (int)maskWidth, (int)maskHeight, imageFlags, bitmap.data());
+        }
+    }
+    if (maskTex == 0) return;
+
+    /// 根据视频设置调整遮罩尺寸
+    // 手动设置了视频比例
+    if (MPVCore::instance().video_aspect > 0) {
+        maskWidth = maskHeight * MPVCore::instance().video_aspect;
+    }
+    // 镜像视频
+    if (MPVCore::VIDEO_MIRROR) {
+        nvgSave(vg);
+        nvgTranslate(vg, width + x + x, 0);
+        nvgScale(vg, -1, 1);
+    }
+    nvgBeginPath(vg);
+    float drawHeight = height, drawWidth = width;
+    float drawX = x, drawY = y;
+    if (MPVCore::instance().video_aspect == -2) {
+        // 拉伸全屏
+    } else if (MPVCore::instance().video_aspect == -3) {
+        // 裁剪填充
+        if (maskWidth * height > maskHeight * width) {
+            drawWidth = maskWidth * height / maskHeight;
+            drawX     = x + (width - drawWidth) / 2;
+        } else {
+            drawHeight = maskHeight * width / maskWidth;
+            drawY      = y + (height - drawHeight) / 2;
+        }
+    } else {
+        // 自由比例
+        if (maskWidth * height > maskHeight * width) {
+            drawHeight = maskHeight * width / maskWidth;
+            drawY      = y + (height - drawHeight) / 2;
+        } else {
+            drawWidth = maskWidth * height / maskHeight;
+            drawX     = x + (width - drawWidth) / 2;
+        }
+    }
+
+    /// 遮罩绘制
+    auto paint = nvgImagePattern(vg, drawX, drawY, drawWidth, drawHeight, 0, maskTex, 1.0f);
+    nvgRect(vg, x, y, width, height);
+    nvgFillPaint(vg, paint);
+#if defined(DEBUG_MASK)
+    nvgFill(vg);
+#else
+    nvgStencil(vg);
+#endif
+
+    // 镜像视频恢复
+    if (MPVCore::VIDEO_MIRROR) nvgRestore(vg);
+#endif
+}
+
+void DanmakuCore::clearMask(NVGcontext *vg, float x, float y, float width, float height) {
+#if !defined(DEBUG_MASK) && (defined(BOREALIS_USE_OPENGL) || defined(BOREALIS_USE_D3D11))
+    if (maskTex > 0) {
+        nvgBeginPath(vg);
+        nvgRect(vg, x, y, width, height);
+        nvgStencilClear(vg);
+    }
+#endif
+}
+
 void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float height, float alpha) {
     if (!DanmakuCore::DANMAKU_ON) return;
     if (!this->danmakuLoaded) return;
@@ -389,99 +559,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float heig
     nvgIntersectScissor(vg, x, y, width, height);
 
     // 设置遮罩
-#if defined(BOREALIS_USE_OPENGL) || defined(BOREALIS_USE_D3D11)
-    if (DANMAKU_SMART_MASK && maskData.isLoaded()) {
-        // 先根据时间选择分片
-        while (maskSliceIndex < maskData.sliceData.size() - 1) {
-            auto &slice = maskData.sliceData[maskSliceIndex + 1];
-            if (slice.time > playbackTime * 1000) break;
-            maskSliceIndex++;
-            maskIndex = 0;
-        }
-
-        // 在分片内选择对应时间的svg
-        if (maskSliceIndex >= maskData.sliceData.size()) goto skip_mask;
-        auto &slice = maskData.getSlice(maskSliceIndex);
-        if (!slice.isLoaded()) goto skip_mask;
-        while (maskIndex < slice.svgData.size() - 1) {
-            auto &svg = slice.svgData[maskIndex + 1];
-            if (svg.showTime > playbackTime * 1000) break;
-            maskIndex++;
-        }
-
-        // 设置 svg
-        if (maskIndex >= slice.svgData.size()) goto skip_mask;
-        auto &svg = slice.svgData[maskIndex];
-        // 给图片添加一圈边框（避免图片边沿为透明时自动扩展了透明色导致非视频区域无法显示弹幕）
-        // 注：返回的 svg 底部固定留有 2像素 透明，不是很清楚具体作用，这里选择绘制一个2像素宽的空心矩形来覆盖
-        const std::string border =
-            R"xml(<rect x="0" y="0" width="100%" height="100%" fill="none" stroke="#000" stroke-width="2"/></svg>)xml";
-        auto maskDocument =
-            lunasvg::Document::loadFromData(pystring::slice(svg.svg, 0, pystring::rindex(svg.svg, "</svg>")) + border);
-        if (maskDocument == nullptr) goto skip_mask;
-        auto bitmap         = maskDocument->renderToBitmap(maskDocument->width(), maskDocument->height());
-        uint32_t maskWidth  = bitmap.width();
-        uint32_t maskHeight = bitmap.height();
-#ifdef BOREALIS_USE_D3D11
-        // 使用 dx11 的拷贝交换
-        const static int imageFlags = NVG_IMAGE_STREAMING | NVG_IMAGE_COPY_SWAP | MASK_IMG_FLAG;
-#else
-        const static int imageFlags = MASK_IMG_FLAG;
-#endif
-        if (maskTex != 0) {
-            nvgUpdateImage(vg, maskTex, bitmap.data());
-        } else {
-            maskTex = nvgCreateImageRGBA(vg, (int)maskWidth, (int)maskHeight, imageFlags, bitmap.data());
-        }
-
-        // 设置遮罩
-
-        // 手动设置了视频比例
-        if (MPVCore::instance().video_aspect > 0) {
-            maskWidth = maskHeight * MPVCore::instance().video_aspect;
-        }
-        // 镜像视频
-        if (MPVCore::VIDEO_MIRROR) {
-            nvgSave(vg);
-            nvgTranslate(vg, width + x + x, 0);
-            nvgScale(vg, -1, 1);
-        }
-        nvgBeginPath(vg);
-        float drawHeight = height, drawWidth = width;
-        float drawX = x, drawY = y;
-        if (MPVCore::instance().video_aspect == -2) {
-            // 拉伸全屏
-        } else if (MPVCore::instance().video_aspect == -3) {
-            // 裁剪填充
-            if (maskWidth * height > maskHeight * width) {
-                drawWidth = maskWidth * height / maskHeight;
-                drawX     = x + (width - drawWidth) / 2;
-            } else {
-                drawHeight = maskHeight * width / maskWidth;
-                drawY      = y + (height - drawHeight) / 2;
-            }
-        } else {
-            // 自由比例
-            if (maskWidth * height > maskHeight * width) {
-                drawHeight = maskHeight * width / maskWidth;
-                drawY      = y + (height - drawHeight) / 2;
-            } else {
-                drawWidth = maskWidth * height / maskHeight;
-                drawX     = x + (width - drawWidth) / 2;
-            }
-        }
-        auto paint = nvgImagePattern(vg, drawX, drawY, drawWidth, drawHeight, 0, maskTex, alpha);
-        nvgRect(vg, x, y, width, height);
-        nvgFillPaint(vg, paint);
-#if defined(DEBUG_MASK)
-        nvgFill(vg);
-#else
-        nvgStencil(vg);
-#endif
-        if (MPVCore::VIDEO_MIRROR) nvgRestore(vg);
-    }
-#endif /* BOREALIS_USE_OPENGL */
-skip_mask:
+    drawMask(vg, x, y, width, height);
 
     // 设置基础字体
     nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
@@ -493,10 +571,9 @@ skip_mask:
         nvgFontQuality(vg, 0.01f * DANMAKU_RENDER_QUALITY);
     }
 
-    int LINES = lineNumCurrent;
-    if (LINES == 0) {
-        LINES = height / lineHeight * DANMAKU_STYLE_AREA * 0.01;
-    }
+    // 实际弹幕显示行数 （小于等于总行数且受弹幕显示区域限制）
+    int LINES = height / lineHeight * DANMAKU_STYLE_AREA * 0.01f;
+    if (LINES > lineNum) LINES = lineNum;
 
     //取出需要的弹幕
     float bounds[4];
@@ -664,9 +741,13 @@ skip_mask:
             }
 
             /// 处理即将要显示的弹幕
-            nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
-            nvgTextBounds(vg, 0, 0, i.msg.c_str(), nullptr, bounds);
-            i.length  = bounds[2] - bounds[0];
+            if (i.image != DanmakuImageType::DANMAKU_IMAGE_NONE) {
+                i.length = DANMAKU_STYLE_FONTSIZE * 3;
+            } else {
+                nvgFontSize(vg, DANMAKU_STYLE_FONTSIZE * i.fontSize);
+                nvgTextBounds(vg, 0, 0, i.msg.c_str(), nullptr, bounds);
+                i.length = bounds[2] - bounds[0];
+            }
             i.speed   = (width + i.length) / SECOND;
             i.showing = true;
             for (int k = 0; k < LINES; k++) {
@@ -709,13 +790,7 @@ skip_mask:
     }
 
     // 清空遮罩
-#if !defined(DEBUG_MASK) && (defined(BOREALIS_USE_OPENGL) || defined(BOREALIS_USE_D3D11))
-    if (maskTex > 0) {
-        nvgBeginPath(vg);
-        nvgRect(vg, x, y, width, height);
-        nvgStencilClear(vg);
-    }
-#endif
+    clearMask(vg, x, y, width, height);
     nvgRestore(vg);
 }
 

@@ -48,6 +48,7 @@
         "limited_fps": "最高幀數限制",
         "limited_fps_vsync": "垂直同步",
         "fullscreen": "全荧幕顯示",
+        "always_on_top": "窗口置頂",
         "tv_search": "電視風格搜尋頁",
         "clear_history": "清空搜尋記錄",
         "clear_season": "清空番劇自定義設定",
@@ -208,6 +209,11 @@
     "cinema": {
       "tab": "影視"
     }
+  },
+  "dynamic": {
+    "detail": "動態詳情",
+    "video": "影片",
+    "article": "綜合"
   },
   "search": {
     "tv": {
@@ -419,7 +425,7 @@
       }
     },
     "single_comment": {
-      "detail": "詳情",
+      "detail": "評論詳情",
       "hint": "發一條友善的評論",
       "related": "總共{}個答覆",
       "end": "沒有更多的評論",

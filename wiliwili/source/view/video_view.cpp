@@ -338,7 +338,7 @@ VideoView::VideoView() {
         }
 
         // 展示倍速列表
-        auto* drop = BaseDropdown::text(
+        BaseDropdown::text(
             "wiliwili/player/speed"_i18n, conf.optionList,
             [conf](int selected) {
                 // 设置播放器倍速
@@ -350,9 +350,6 @@ VideoView::VideoView() {
                 }
             },
             selectedIndex);
-
-        // 手动将焦点赋给菜单页面
-        brls::sync([drop]() { brls::Application::giveFocus(drop); });
 
         return true;
     });
@@ -382,8 +379,6 @@ VideoView::VideoView() {
     this->btnDanmakuSettingIcon->getParent()->registerClickAction([](...) {
         auto setting = new PlayerDanmakuSetting();
         brls::Application::pushActivity(new brls::Activity(setting));
-        // 手动将焦点赋给设置页面
-        brls::sync([setting]() { brls::Application::giveFocus(setting); });
         GA("open_danmaku_setting")
         return true;
     });
@@ -416,8 +411,6 @@ VideoView::VideoView() {
             setting->hideSkipOpeningCreditsSetting();
         }
         brls::Application::pushActivity(new brls::Activity(setting));
-        // 手动将焦点赋给设置页面
-        brls::sync([setting]() { brls::Application::giveFocus(setting); });
         GA("open_player_setting")
         return true;
     });
@@ -473,9 +466,6 @@ VideoView::VideoView() {
             return true;
         });
         brls::Application::pushActivity(new brls::Activity(frame));
-
-        // 手动将焦点赋给音量组件
-        brls::sync([container]() { brls::Application::giveFocus(container); });
         return true;
     });
     this->btnVolumeIcon->getParent()->addGestureRecognizer(
@@ -491,8 +481,6 @@ VideoView::VideoView() {
         auto dlna = new PlayerDlnaSearch();
         brls::Application::pushActivity(new brls::Activity(dlna));
 
-        // 手动将焦点赋给设置页面
-        brls::sync([dlna]() { brls::Application::giveFocus(dlna); });
         GA("open_player_cast")
         return true;
     });
@@ -570,6 +558,8 @@ VideoView::VideoView() {
             this->showHint((const char*)data);
         } else if (event == VideoView::CLIP_INFO) {
             osdSlider->addClipPoint(*(float*)data);
+        } else if (event == VideoView::HIGHLIGHT_INFO) {
+            this->setHighlightProgress(*(VideoHighlightData*)data);
         } else if (event == VideoView::REPLAY) {
             // 显示重播按钮
             showReplay = true;
@@ -780,11 +770,11 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
 }
 
 void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y, float width, float alpha) {
-    if (highlight_data.size() <= 1) return;
+    if (highlightData.data.size() <= 1) return;
     nvgBeginPath(vg);
     nvgFillColor(vg, nvgRGBAf(1.0f, 1.0f, 1.0f, 0.5f * alpha));
     float baseY  = y;
-    float dX     = width / ((float)highlight_data.size() - 1);
+    float dX     = width / ((float)highlightData.data.size() - 1);
     float halfDx = dX / 2;
     float pointX = x, lastX = x;
     float lastY = baseY;
@@ -792,8 +782,8 @@ void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y, float wi
     lastY -= 12;
     nvgLineTo(vg, lastX, lastY);
 
-    for (size_t i = 1; i < highlight_data.size(); i++) {
-        float item = highlight_data[i];
+    for (size_t i = 1; i < highlightData.data.size(); i++) {
+        float item = highlightData.data[i];
         pointX += dX;
         float pointY = baseY - 12 - item * 48;
         float cx     = lastX + halfDx;
@@ -1136,9 +1126,8 @@ void VideoView::setProgress(float value) {
 
 float VideoView::getProgress() { return this->osdSlider->getProgress(); }
 
-void VideoView::setHighlightProgress(int sec, const std::vector<float>& data) {
-    highlight_step_sec = sec;
-    highlight_data     = data;
+void VideoView::setHighlightProgress(const VideoHighlightData& data) {
+    this->highlightData = data;
 }
 
 void VideoView::showHint(const std::string& value) {
@@ -1205,7 +1194,7 @@ void VideoView::setFullScreen(bool fs) {
         video->setLastPlayedPosition(lastPlayedPosition);
         video->osdSlider->setClipPoint(osdSlider->getClipPoint());
         video->refreshToggleIcon();
-        video->setHighlightProgress(highlight_step_sec, highlight_data);
+        video->setHighlightProgress(highlightData);
         if (video->isLiveMode) video->setLiveMode();
         video->setCustomToggleAction(customToggleAction);
         DanmakuCore::instance().refresh();
@@ -1213,13 +1202,17 @@ void VideoView::setFullScreen(bool fs) {
         if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
             video->hideLoading();
         }
+        if (this->seasonAction != nullptr) {
+            brls::View *view = video->showEpisode->getParent();
+            view->registerClickAction(this->seasonAction);
+            view->addGestureRecognizer(new brls::TapGestureRecognizer(view));
+            view->setVisibility(brls::Visibility::VISIBLE);
+            video->showEpisode->setVisibility(brls::Visibility::VISIBLE);
+        }
         container->addView(video);
         auto activity = new brls::Activity(container);
         brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
         registerFullscreen(activity);
-
-        // 手动将焦点 赋给新的video组件
-        brls::sync([video]() { brls::Application::giveFocus(video); });
     } else {
         ASYNC_RETAIN
         brls::sync([ASYNC_TOKEN]() {
@@ -1256,6 +1249,7 @@ void VideoView::setFullScreen(bool fs) {
                     video->osdSlider->setClipPoint(osdSlider->getClipPoint());
                     video->setBangumiCustomSetting(this->bangumiTitle, this->bangumiSeasonId);
                     video->refreshToggleIcon();
+                    video->setHighlightProgress(highlightData);
                     video->refreshDanmakuIcon();
                     video->setQuality(this->getQuality());
                     video->videoSpeed->setText(this->videoSpeed->getFullText());
@@ -1272,6 +1266,10 @@ void VideoView::setFullScreen(bool fs) {
             brls::Application::popActivity(brls::TransitionAnimation::NONE);
         });
     }
+}
+
+void VideoView::setSeasonAction(brls::ActionListener action) {
+    this->seasonAction = action;
 }
 
 brls::View* VideoView::getDefaultFocus() {

@@ -36,6 +36,10 @@
         "proxy": "プロキシ",
         "proxy_hint": "例：http://127.0.0.1:7890"
       },
+      "ui": {
+        "header": "UI",
+        "tv_osd": "TV style OSD control"
+      },
       "others": {
         "header": "すぬ他",
         "vibration": "ゲームパッドぬ振動",
@@ -44,6 +48,7 @@
         "limited_fps": "さいだいフレームすーいるゆいぎん",
         "limited_fps_vsync": "しーさるちょくちゃーき",
         "fullscreen": "フルスクリーン",
+        "always_on_top": "Always on top",
         "tv_search": "テレビスタイルぬ検索ページ",
         "clear_history": "検索履歴を削除",
         "clear_season": "番組のカスタム設定を消去",
@@ -205,6 +210,11 @@
       "tab": "シネマ"
     }
   },
+  "dynamic": {
+    "detail": "Activity detail",
+    "video": "Video",
+    "article": "Activity"
+  },
   "search": {
     "tv": {
       "hint": "キーワードとぅ最初ぬ文字サポート",
@@ -216,6 +226,13 @@
       "history_clear": "まじり消去",
       "history_delete": "削除",
       "suggest": "提案"
+    },
+    "order": {
+      "all": "All",
+      "click": "Click",
+      "pubdate": "PublishDate",
+      "dm": "Danmaku",
+      "stow": "Favorite"
     },
     "tab": "検索",
     "t0": "履歴",
@@ -276,6 +293,7 @@
     "recommend": "うすすみ",
     "uploaded": "すぬ他",
     "qr": "QRコード読み取てぃ視聴/共有",
+    "clipboard": "Copied to clipboard",
     "comment": "コメント",
     "current": " むるがんーちょーん",
     "share": "シェア",
@@ -331,19 +349,21 @@
         "skip_hint1": "次の動画からオープニング クレジットを自動的にスキップします",
         "skip_hint2": "次の動画からオープニングクレジットをスキップをオフにする",
         "skip_hint3": "次の動画からカスタムオープニングクレジットを使用",
-        "skip_hint4": "Disable custom opening credits from next video",
+        "skip_hint4": "次のビデオからカスタムオープニングクレジットを無効にする",
         "wiki": "シェーダーぬ仕組み学ぶんがー、wikiんかいアクセスしみそーれー"
       },
       "season": {
-        "aspect": "Custom video aspect",
-        "clip": "Custom opening credits",
-        "clip_start": "Intro length",
-        "clip_end": "Outro length",
-        "unit": "Unit: seconds"
+        "aspect": "カスタムビデオアスペクト",
+        "clip": "カスタムオープニングクレジット",
+        "clip_start": "イントロの長さ",
+        "clip_end": "アウトロの長さ",
+        "unit": "単位：秒"
       },
       "aspect": {
-        "header": "Video aspect",
-        "auto": "Auto"
+        "header": "ビデオアスペクト比",
+        "crop": "Crop",
+        "stretch": "Stretch",
+        "auto": "自動"
       },
       "shader": {
         "header": "シェーダー"
@@ -367,26 +387,26 @@
         "hint": "じょーとぅーやるくとぅコメントさびら"
       },
       "performance": {
-        "header": "Performance",
-        "render": "Rendering quality"
+        "header": "パフォーマンス",
+        "render": "レンダリングの品質"
       },
       "filter": {
         "header": "弾幕フィルター",
-        "mask": "Smart mask",
+        "mask": "スマートマスク",
         "top": "トップ",
         "scroll": "スクロール",
         "bottom": "しちゃ",
         "color": "カラー",
-        "advanced": "Advanced",
+        "advanced": "高度",
         "level": "フィルターレベル",
         "level_n": "レベル {}"
       },
       "style": {
         "header": "弾幕ぬスタイル",
-        "font": "Stroke Style",
-        "font_stroke": "Stroke",
-        "font_incline": "Incline",
-        "font_shadow": "Shadow",
+        "font": "ストロークスタイル",
+        "font_stroke": "ストローク",
+        "font_incline": "インクライン",
+        "font_shadow": "シャドウ",
         "font_pure": "Pure",
         "area": "表示範囲",
         "area_1_4": "1/4 スクリーン",
@@ -413,7 +433,7 @@
     }
   },
   "dialog": {
-    "not_supported": "Not Supported",
+    "not_supported": "サポートされていません",
     "quit_hint": "アプリ終了そーいびーん..."
   }
 }

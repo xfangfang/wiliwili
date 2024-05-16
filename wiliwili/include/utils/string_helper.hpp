@@ -23,4 +23,6 @@ inline std::string format(fmt::string_view fmt, Args &&...args) {
     return fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
 }
 
+std::string toUpper( const std::string & str, std::string::size_type length );
+
 };  // namespace wiliwili

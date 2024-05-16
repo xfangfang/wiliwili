@@ -14,9 +14,6 @@
 #include <queue>
 #include <condition_variable>
 #include <string>
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
 
 namespace bilibili {
 void BilibiliClient::get_live_danmaku_info(int roomid, const std::function<void(LiveDanmakuinfo)> &callback,
@@ -45,21 +42,12 @@ static void add_msg(std::string &&a) {
     cv.notify_one();
 }
 
-LiveDanmaku::LiveDanmaku() {
-#ifdef _WIN32
-    WSADATA wsaData;
-    int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (result != 0) {
-        printf("WSAStartup failed with error: %d\n", result);
-    }
-#endif
-}
+LiveDanmaku::LiveDanmaku() {}
 
 LiveDanmaku::~LiveDanmaku() {
     disconnect();
-#ifdef _WIN32
-    WSACleanup();
-#endif
+    std::lock_guard<std::mutex> lock(msg_q_mutex);
+    while (!msg_q.empty()) msg_q.pop();
 }
 
 void LiveDanmaku::connect(int room_id, int64_t uid, const bilibili::LiveDanmakuinfo &info) {
@@ -132,8 +120,7 @@ void LiveDanmaku::disconnect() {
     connected.store(false, std::memory_order_release);
 
     // Wakeup the mainloop
-    if (mgr && nc)
-        mg_wakeup(this->mgr, this->nc->id, nullptr, 0);
+    if (mgr && nc) mg_wakeup(this->mgr, this->nc->id, nullptr, 0);
 
     // Stop Mongoose event loop thread
     if (mongoose_thread.joinable()) {

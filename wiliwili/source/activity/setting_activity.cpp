@@ -353,8 +353,16 @@ void SettingActivity::onContentAvailable() {
                              // 设置当前状态
                              brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
                          });
+
+    cellAlwaysOnTop->init("wiliwili/setting/app/others/always_on_top"_i18n, conf.getBoolOption(SettingItem::ALWAYS_ON_TOP),
+                         [](bool value) {
+                             ProgramConfig::instance().setSettingItem(SettingItem::ALWAYS_ON_TOP, value);
+                             // 设置当前状态
+                             brls::Application::getPlatform()->setWindowAlwaysOnTop(value);
+                         });
 #else
     cellFullscreen->setVisibility(brls::Visibility::GONE);
+    cellAlwaysOnTop->setVisibility(brls::Visibility::GONE);
 #endif
 
     /// App theme
@@ -550,7 +558,7 @@ void SettingActivity::onContentAvailable() {
 
     selectorInmemory->init("wiliwili/setting/app/playback/in_memory_cache"_i18n,
 #ifdef __PSV__
-                           {"0MB (" + "hints/off"_i18n + ")", "5MB", "10MB"},
+                           {"0MB (" + "hints/off"_i18n + ")", "1MB", "5MB", "10MB"},
 #else
         {"0MB (" + "hints/off"_i18n + ")", "10MB", "20MB", "50MB", "100MB"},
 #endif

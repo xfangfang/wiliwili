@@ -28,22 +28,20 @@
             <SVGImage
                     width="18"
                     height="18"
-                    marginTop="2"
+                    marginTop="-1"
                     SVG="@res/svg/widget-people.svg"/>
             <brls:Label
                     marginLeft="4"
                     marginRight="4"
                     textColor="#FFFFFF"
                     id="video/card/label/count"
-                    fontSize="16"
-                    text=""/>
+                    fontSize="16"/>
             <brls:Label
                     id="video/card/label/duration"
                     positionType="absolute"
-                    positionRight="0"
+                    positionRight="10"
                     textColor="#FFFFFF"
-                    fontSize="16"
-                    text=""/>
+                    fontSize="16"/>
         </brls:Box>
 
     </brls:Box>

@@ -440,6 +440,10 @@ void PGCIndexActivity::parseParam(const std::string& url) {
             brls::Logger::debug("PGCIndexActivity url: {}/{}", d[0], d[1]);
             this->requestParam[d[0]] = d[1];
         }
+        // 不设置排序方式(order)时，默认以综合排序进行请求
+        if (this->requestParam.count("order") == 0) {
+            this->originParam += "&order=8";
+        }
     } catch (...) {
         brls::Logger::error("Cannot decode url: {}", url);
     }

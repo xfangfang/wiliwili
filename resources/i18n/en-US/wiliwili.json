@@ -48,6 +48,7 @@
         "limited_fps": "Maximum frame limit",
         "limited_fps_vsync": "Vertical Synchronization",
         "fullscreen": "Fullscreen",
+        "always_on_top": "Always on top",
         "tv_search": "TV style search page",
         "clear_history": "Clear search history",
         "clear_season": "Clear bangumi custom settings",
@@ -208,6 +209,11 @@
     "cinema": {
       "tab": "Cinema"
     }
+  },
+  "dynamic": {
+    "detail": "Activity detail",
+    "video": "Video",
+    "article": "Activity"
   },
   "search": {
     "tv": {

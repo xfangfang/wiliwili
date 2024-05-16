@@ -32,13 +32,14 @@ const std::string secondaryDNSStr = "1.1.1.1";
 #endif
 
 typedef std::map<std::string, std::string> Cookie;
-constexpr uint32_t MINIMUM_WINDOW_WIDTH  = 640;
-constexpr uint32_t MINIMUM_WINDOW_HEIGHT = 360;
+constexpr uint32_t MINIMUM_WINDOW_WIDTH  = 480;
+constexpr uint32_t MINIMUM_WINDOW_HEIGHT = 270;
 
 enum class SettingItem {
     HIDE_BOTTOM_BAR,
     HIDE_FPS,
     FULLSCREEN,
+    ALWAYS_ON_TOP,
     APP_THEME,      // 深浅主题色
     APP_LANG,       // 应用语言
     APP_RESOURCES,  // 自定义界面布局

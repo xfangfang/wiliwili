@@ -67,7 +67,7 @@ bool APPVersion::needUpdate(std::string latestVersion) {
     std::vector<std::string> v;
     pystring::split(latestVersion, v, ".");
     if (v.size() < 3) {
-        brls::Logger::error("Cannot parse version info");
+        brls::Logger::error("Cannot parse version info: {}", latestVersion);
         return false;
     }
     if (atoi(v[0].c_str()) > major) return true;
@@ -84,8 +84,16 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
         cpr::GetCallback(
             [showUpToDateDialog](cpr::Response r) {
                 try {
+                    if (r.status_code != 200 || r.text.empty()) {
+                        brls::Logger::error("Cannot check update: {} {}", r.status_code, r.text);
+                        return;
+                    }
                     nlohmann::json res = nlohmann::json::parse(r.text);
                     auto info          = res.get<ReleaseNote>();
+                    if (info.tag_name.empty()) {
+                        brls::Logger::error("Cannot parse update info, tag_name is empty");
+                        return;
+                    }
                     if (!APPVersion::instance().needUpdate(info.tag_name)) {
                         brls::Logger::info("App is up to date");
                         if (showUpToDateDialog) {
