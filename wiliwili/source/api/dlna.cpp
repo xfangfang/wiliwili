@@ -65,8 +65,8 @@ static void fn(struct mg_connection* c, int ev, void* ev_data) {
             // Iterate over request headers
             for (i = 0; i < max && hm.headers[i].name.len > 0; i++) {
                 struct mg_str *k = &hm.headers[i].name, *v = &hm.headers[i].value;
-                if (mg_vcasecmp(k, "LOCATION") == 0) {
-                    UpnpDlna::rendererList.insert(std::string{v->ptr}.substr(0, v->len));
+                if (mg_strcasecmp(*k, mg_str("LOCATION")) == 0) {
+                    UpnpDlna::rendererList.insert(std::string{v->buf}.substr(0, v->len));
                 }
             }
         }

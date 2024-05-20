@@ -193,7 +193,7 @@ static void mongoose_event_handler(struct mg_connection *nc, int ev, void *ev_da
     } else if (ev == MG_EV_WS_MSG) {
         MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         struct mg_ws_message *wm = (struct mg_ws_message *)ev_data;
-        add_msg(std::string(wm->data.ptr, wm->data.len));
+        add_msg(std::string(wm->data.buf, wm->data.len));
     } else if (ev == MG_EV_CLOSE) {
         MG_DEBUG(("%p %s", nc->fd, (char *)ev_data));
         liveDanmaku->ms_ev_ok.store(false, std::memory_order_release);
