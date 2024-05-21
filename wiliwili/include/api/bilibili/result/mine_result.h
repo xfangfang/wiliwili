@@ -149,7 +149,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, UserDynamicCount& n
 
 class UserRelationStat {
 public:
-    unsigned int mid, following, black, follower;
+    uint64_t mid, following, black, follower;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserRelationStat, mid, following, black, follower);
 

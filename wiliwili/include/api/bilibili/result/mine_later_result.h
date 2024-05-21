@@ -11,7 +11,7 @@ namespace bilibili {
 class Up {
 public:
     std::string name;
-    int mid;
+    uint64_t mid;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Up, name, mid);
 
