@@ -41,17 +41,17 @@
                                                 id="inbox/chatList" />
                                 </Tab>
 
-                                <Tab label="@i18n/wiliwili/inbox/feed/reply"
+                                <Tab label="@i18n/wiliwili/inbox/tab/reply"
                                         fontSize="22">
                                         <InboxFeed mode="reply" />
                                 </Tab>
 
-                                <Tab label="@i18n/wiliwili/inbox/feed/at"
+                                <Tab label="@i18n/wiliwili/inbox/tab/at"
                                         fontSize="22">
                                         <InboxFeed mode="at" />
                                 </Tab>
 
-                                <Tab label="@i18n/wiliwili/inbox/feed/like"
+                                <Tab label="@i18n/wiliwili/inbox/tab/like"
                                         fontSize="22">
                                         <InboxFeed mode="like" />
                                 </Tab>

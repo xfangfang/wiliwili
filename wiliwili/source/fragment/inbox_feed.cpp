@@ -6,6 +6,7 @@
 #include "view/text_box.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/string_helper.hpp"
 
 using namespace brls::literals;
 
@@ -20,25 +21,28 @@ public:
 
     void setAuther(const bilibili::FeedLikeResult& r) {
         std::vector<std::string> users;
+        std::string t = brls::getStr("wiliwili/inbox/type/" + r.item.type);
         for (auto& s : r.users) users.push_back(s.nickname);
         ImageHelper::with(this->avatar)->load(r.users.front().avatar + ImageHelper::face_ext);
         this->labelAuthor->setText(pystring::join(",", users));
         this->labelTime->setText(wiliwili::sec2date(r.like_time));
-        this->labelMisc->setText(brls::getStr("wiliwili/inbox/like/" + r.item.type));
+        this->labelMisc->setText(wiliwili::format("wiliwili/inbox/like"_i18n, t));
     }
 
     void setAuther(const bilibili::FeedAtResult& r) {
+        std::string t = brls::getStr("wiliwili/inbox/type/" + r.item.type);
         ImageHelper::with(this->avatar)->load(r.user.avatar + ImageHelper::face_ext);
         this->labelAuthor->setText(r.user.nickname);
         this->labelTime->setText(wiliwili::sec2date(r.at_time));
-        this->labelMisc->setText(brls::getStr("wiliwili/inbox/at/" + r.item.type));
+        this->labelMisc->setText(wiliwili::format("wiliwili/inbox/at"_i18n, t));
     }
 
     void setAuther(const bilibili::FeedReplyResult& r) {
+        std::string t = brls::getStr("wiliwili/inbox/type/" + r.item.type);
         ImageHelper::with(this->avatar)->load(r.user.avatar + ImageHelper::face_ext);
         this->labelAuthor->setText(r.user.nickname);
         this->labelTime->setText(wiliwili::sec2date(r.reply_time));
-        this->labelMisc->setText(brls::getStr("wiliwili/inbox/reply/" + r.item.type));
+        this->labelMisc->setText(wiliwili::format("wiliwili/inbox/reply"_i18n, t));
     }
 
     void prepareForReuse() override {

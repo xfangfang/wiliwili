@@ -251,26 +251,21 @@
       "hint": "发个消息聊聊呗 ~",
       "unknown": "暂不支持该消息"
     },
-    "feed": {
+    "tab": {
       "like": "收到的赞",
       "at": "@我的",
       "reply": "回复我的"
     },
-    "like": {
-      "video": "赞了我的视频",
-      "reply": "赞了我的评论",
-      "article": "赞了我的文章"
+    "type": {
+      "video": "视频",
+      "reply": "评论",
+      "article": "文章",
+      "dynamic": "动态",
+      "album": "专辑"
     },
-    "at": {
-      "video": "在视频中@了我",
-      "reply": "在评论中@了我",
-      "article": "在文章中@了我"
-    },
-    "reply": {
-      "video": "对我的视频发表了评论",
-      "reply": "回复我的评论",
-      "article": "对我的文章发表了评论"
-    }
+    "like": "赞了我的{}",
+    "at": "在{}中@了我",
+    "reply": "回复了我的{}"
   },
   "mine": {
     "login": {

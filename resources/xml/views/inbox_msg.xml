@@ -6,7 +6,7 @@
                 id="msg/time"
                 fontSize="16"
                 singleLine="true"
-                marginBottom="4"
+                marginBottom="8"
                 horizontalAlign="center"
                 textColor="@theme/font/grey" />
 
