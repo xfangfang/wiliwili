@@ -86,10 +86,10 @@ public:
     std::string title;
     unsigned int video_review;
     std::string author;
-    unsigned int mid;
+    uint64_t mid;
     unsigned int created;
     std::string length;
-    unsigned int aid;
+    uint64_t aid;
     std::string bvid;
     bool is_charging_arc; // 充电专属视频
 };

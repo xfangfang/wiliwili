@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 #include "user_result.h"
 
 namespace bilibili {
@@ -56,9 +56,9 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, RecommendReasonResu
 
 class RecommendVideoResult {
 public:
-    int id;
+    uint64_t id;
     std::string bvid;
-    int cid;
+    uint64_t cid;
     std::string pic   = "";
     std::string title = "";
     int duration;

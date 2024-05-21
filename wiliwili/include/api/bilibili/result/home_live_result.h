@@ -93,7 +93,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, LivePlayUrlInfo& nl
 class LiveRoomPlayInfo {
 public:
     int room_id;
-    int64_t uid;
+    uint64_t uid;
     int live_status;
     size_t live_time;
     LivePlayUrlInfo playurl_info;

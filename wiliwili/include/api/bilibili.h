@@ -142,7 +142,7 @@ public:
      * @param callback
      * @param error
      */
-    static void get_my_collection_list(int64_t mid, int index = 1, int num = 20, int type = 1,
+    static void get_my_collection_list(uint64_t mid, int index = 1, int num = 20, int type = 1,
                                        const std::function<void(CollectionListResultWrapper)>& callback = nullptr,
                                        const ErrorCallback& error                                       = nullptr);
 
@@ -177,31 +177,31 @@ public:
                                const ErrorCallback& error                                    = nullptr);
 
     /// get user's upload videos
-    static void get_user_videos(int64_t mid, int pn, int ps,
+    static void get_user_videos(uint64_t mid, int pn, int ps,
                                 const std::function<void(UserUploadedVideoResultWrapper)>& callback = nullptr,
                                 const ErrorCallback& error                                          = nullptr);
 
     /// get user's dynamic videos
-    static void get_user_videos2(int64_t mid, int pn, int ps,
+    static void get_user_videos2(uint64_t mid, int pn, int ps,
                                  const std::function<void(UserDynamicVideoResultWrapper)>& callback = nullptr,
                                  const ErrorCallback& error                                         = nullptr);
 
     /// get season detail by seasonID
-    static void get_season_detail(int seasonID, int epID = 0,
+    static void get_season_detail(uint64_t seasonID, uint64_t epID = 0,
                                   const std::function<void(SeasonResultWrapper)>& callback = nullptr,
                                   const ErrorCallback& error                               = nullptr);
 
     /// 获取番剧相关推荐
-    static void get_season_recommend(size_t seasonID,
+    static void get_season_recommend(uint64_t seasonID,
                                      const std::function<void(SeasonRecommendWrapper)>& callback = nullptr,
                                      const ErrorCallback& error                                  = nullptr);
 
     /// 获取番剧的播放进度
-    static void get_season_status(size_t seasonID, const std::function<void(SeasonStatusResult)>& callback,
+    static void get_season_status(uint64_t seasonID, const std::function<void(SeasonStatusResult)>& callback,
                                   const ErrorCallback& error);
 
     /// get video detail by aid
-    static void get_video_detail(int aid, const std::function<void(VideoDetailResult)>& callback = nullptr,
+    static void get_video_detail(uint64_t aid, const std::function<void(VideoDetailResult)>& callback = nullptr,
                                  const ErrorCallback& error = nullptr);
 
     /// get video detail by bvid
@@ -214,10 +214,10 @@ public:
                                      const ErrorCallback& error                                = nullptr);
 
     /// 获取分P详情 （主要内容为cc字幕）
-    static void get_page_detail(int aid, int cid, const std::function<void(VideoPageResult)>& callback = nullptr,
+    static void get_page_detail(uint64_t aid, uint64_t cid, const std::function<void(VideoPageResult)>& callback = nullptr,
                                 const ErrorCallback& error = nullptr);
 
-    static void get_page_detail(const std::string& bvid, int cid,
+    static void get_page_detail(const std::string& bvid, uint64_t cid,
                                 const std::function<void(VideoPageResult)>& callback = nullptr,
                                 const ErrorCallback& error                           = nullptr);
 
@@ -227,7 +227,7 @@ public:
                             const ErrorCallback& error                       = nullptr);
 
     /// get video pagelist by aid
-    static void get_video_pagelist(int aid, const std::function<void(VideoDetailPageListResult)>& callback = nullptr,
+    static void get_video_pagelist(uint64_t aid, const std::function<void(VideoDetailPageListResult)>& callback = nullptr,
                                    const ErrorCallback& error = nullptr);
 
     /// get video pagelist by bvid
@@ -236,7 +236,7 @@ public:
                                    const ErrorCallback& error                                     = nullptr);
 
     /// get video url by aid & cid
-    static void get_video_url(int aid, int cid, int qn = 64,
+    static void get_video_url(uint64_t aid, uint64_t cid, int qn = 64,
                               const std::function<void(VideoUrlResult)>& callback = nullptr,
                               const ErrorCallback& error                          = nullptr);
 
@@ -245,17 +245,17 @@ public:
      * @param oid aid 或 epic
      * @param type 如果传入的普通视频的 aid 则为 1；如果是番剧类的 epid 则为 2
      */
-    static void get_video_url_cast(int oid, int cid, int type, int qn = 64, const std::string& csrf = "",
+    static void get_video_url_cast(uint64_t oid, uint64_t cid, int type, int qn = 64, const std::string& csrf = "",
                                    const std::function<void(VideoUrlResult)>& callback = nullptr,
                                    const ErrorCallback& error                          = nullptr);
 
     /// get video url by bvid & cid
-    static void get_video_url(const std::string& bvid, int cid, int qn = 64,
+    static void get_video_url(const std::string& bvid, uint64_t cid, int qn = 64,
                               const std::function<void(VideoUrlResult)>& callback = nullptr,
                               const ErrorCallback& error                          = nullptr);
 
     /// get season video url by cid
-    static void get_season_url(int cid, int qn = 64, const std::function<void(VideoUrlResult)>& callback = nullptr,
+    static void get_season_url(uint64_t cid, int qn = 64, const std::function<void(VideoUrlResult)>& callback = nullptr,
                                const ErrorCallback& error = nullptr);
 
     /// get live video url by roomid
@@ -404,10 +404,10 @@ public:
                                const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr);
 
     /// 视频页 获取单个视频播放人数
-    static void get_video_online(int aid, int cid, const std::function<void(VideoOnlineTotal)>& callback = nullptr,
+    static void get_video_online(uint64_t aid, uint64_t cid, const std::function<void(VideoOnlineTotal)>& callback = nullptr,
                                  const ErrorCallback& error = nullptr);
 
-    static void get_video_online(const std::string& bvid, int cid,
+    static void get_video_online(const std::string& bvid, uint64_t cid,
                                  const std::function<void(VideoOnlineTotal)>& callback = nullptr,
                                  const ErrorCallback& error                            = nullptr);
 
@@ -416,11 +416,11 @@ public:
                                    const std::function<void(VideoRelation)>& callback = nullptr,
                                    const ErrorCallback& error                         = nullptr);
 
-    static void get_video_relation(size_t epid, const std::function<void(VideoEpisodeRelation)>& callback = nullptr,
+    static void get_video_relation(uint64_t epid, const std::function<void(VideoEpisodeRelation)>& callback = nullptr,
                                    const ErrorCallback& error = nullptr);
 
     /// 视频页 获取弹幕的xml文件
-    static void get_danmaku(unsigned int cid, const std::function<void(std::string)>& callback = nullptr,
+    static void get_danmaku(uint64_t cid, const std::function<void(std::string)>& callback = nullptr,
                             const ErrorCallback& error = nullptr);
 
     /// 视频页 获取字幕
@@ -428,14 +428,14 @@ public:
                              const ErrorCallback& error = nullptr);
 
     /// 视频页 获取高能进度条
-    static void get_highlight_progress(unsigned int cid,
+    static void get_highlight_progress(uint64_t cid,
                                        const std::function<void(VideoHighlightProgress)>& callback = nullptr,
                                        const ErrorCallback& error                                  = nullptr);
 
     /// 视频页 上报历史记录
-    static void report_history(const std::string& mid, const std::string& access_key, unsigned int aid,
-                               unsigned int cid, int type = 3, unsigned int progress = 0, unsigned int duration = 0,
-                               unsigned int sid = 0, unsigned int epid = 0,
+    static void report_history(const std::string& mid, const std::string& access_key, uint64_t aid,
+                               uint64_t cid, int type = 3, unsigned int progress = 0, unsigned int duration = 0,
+                               uint64_t sid = 0, uint64_t epid = 0,
                                const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr);
 
     /// 直播页 上报观看记录
@@ -443,11 +443,11 @@ public:
                                     const ErrorCallback& error = nullptr);
 
     /// 点赞
-    static void be_agree(const std::string& access_key, int aid, bool is_like,
+    static void be_agree(const std::string& access_key, uint64_t aid, bool is_like,
                          const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr);
 
     /// 投币
-    static void add_coin(const std::string& access_key, int aid, unsigned int coin_number, bool is_like,
+    static void add_coin(const std::string& access_key, uint64_t aid, unsigned int coin_number, bool is_like,
                          const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr);
 
     /// 投币经验值
@@ -458,7 +458,7 @@ public:
                           const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr);
 
     /// 追剧或取消追剧
-    static void follow_season(const std::string& access_key, size_t season, bool follow = true,
+    static void follow_season(const std::string& access_key, uint64_t season, bool follow = true,
                               const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr);
 
     /**
@@ -471,7 +471,7 @@ public:
      * @param callback 若成功 进行回调
      * @param error 若失败返回失败原因
      */
-    static void add_resource(const std::string& access_key, int rid, int type, const std::string& add_ids,
+    static void add_resource(const std::string& access_key, uint64_t rid, int type, const std::string& add_ids,
                              const std::string& del_ids, const std::function<void()>& callback = nullptr,
                              const ErrorCallback& error = nullptr);
 
@@ -504,12 +504,12 @@ public:
      * @param error
      */
     static void get_collection_list_all(
-        int rid, int type, std::string mid,
+        uint64_t rid, int type, const std::string& mid,
         const std::function<void(SimpleCollectionListResultWrapper)>& callback = nullptr,
         const ErrorCallback& error                                             = nullptr);
 
     /// 三连
-    static void triple_like(const std::string& access_key, int aid, const std::function<void()>& callback = nullptr,
+    static void triple_like(const std::string& access_key, uint64_t aid, const std::function<void()>& callback = nullptr,
                             const ErrorCallback& error = nullptr);
 
     /// 搜索页 获取搜索视频内容
@@ -530,7 +530,7 @@ public:
                               const ErrorCallback& error                                         = nullptr);
 
     /// 动态页 获取全部关注用户的最近动态 图文
-    static void dynamic_article(const unsigned int page, const std::string& offset = "", const int64_t mid = 0,
+    static void dynamic_article(const unsigned int page, const std::string& offset = "", uint64_t mid = 0,
                                 const std::function<void(DynamicArticleListResultWrapper)>& callback = nullptr,
                                 const ErrorCallback& error                                           = nullptr);
 

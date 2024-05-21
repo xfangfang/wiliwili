@@ -53,7 +53,7 @@ public:
 
     void hideSkipOpeningCreditsSetting();
 
-    void setBangumiCustomSetting(const std::string& title, unsigned int seasonId);
+    void setBangumiCustomSetting(const std::string& title, uint64_t seasonId);
 
 private:
     BRLS_BIND(ButtonClose, closebtn, "button/close");
@@ -98,7 +98,7 @@ private:
     BRLS_BIND(brls::InputNumericCell, btnClipStart, "setting/video/custom/clip/start");
     BRLS_BIND(brls::InputNumericCell, btnClipEnd, "setting/video/custom/clip/end");
 
-    unsigned int seasonId{};
+    uint64_t seasonId{};
 
     // 更新倒计时
     void updateCountdown(size_t now);

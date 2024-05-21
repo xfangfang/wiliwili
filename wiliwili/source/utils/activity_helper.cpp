@@ -19,19 +19,19 @@
 
 #include "presenter/video_detail.hpp"
 
-void Intent::openBV(const std::string& bvid, int cid, int progress) {
+void Intent::openBV(const std::string& bvid, uint64_t cid, int progress) {
     auto activity = new PlayerActivity(bvid, cid, progress);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);
 }
 
-void Intent::openSeasonBySeasonId(int seasonId, int progress) {
+void Intent::openSeasonBySeasonId(uint64_t seasonId, int progress) {
     auto activity = new PlayerSeasonActivity(seasonId, PGC_ID_TYPE::SEASON_ID, progress);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);
 }
 
-void Intent::openSeasonByEpId(int epId, int progress) {
+void Intent::openSeasonByEpId(uint64_t epId, int progress) {
     auto activity = new PlayerSeasonActivity(epId, PGC_ID_TYPE::EP_ID, progress);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);

@@ -32,9 +32,9 @@ public:
     void requestUserDynamicVideoList(int64_t mid, int pn = 0, int ps = 30);
 
 protected:
-    int64_t currentUser       = 0;
+    uint64_t currentUser       = 0;
     unsigned int currentVideoPage = 1, currentArticlePage = 1;
     std::string currentVideoOffset, currentArticleOffset;
 
-    void requestVideoData(unsigned int page, const std::string& offset, int64_t mid);
+    void requestVideoData(unsigned int page, const std::string& offset, uint64_t mid);
 };

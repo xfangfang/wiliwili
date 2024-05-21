@@ -147,7 +147,7 @@ void BilibiliClient::getWatchLater(const std::function<void(WatchLaterListWrappe
 //    const std::function<void(WatchLaterList)>& callback = nullptr,
 //    const ErrorCallback& error = nullptr);
 
-void BilibiliClient::get_my_collection_list(const int64_t mid, int index, int num, int type,
+void BilibiliClient::get_my_collection_list(uint64_t mid, int index, int num, int type,
                                             const std::function<void(CollectionListResultWrapper)>& callback,
                                             const ErrorCallback& error) {
     BilibiliClient::get_my_collection_list(std::to_string(mid), index, num, type, callback, error);
@@ -171,7 +171,7 @@ void BilibiliClient::get_my_collection_list(const std::string& mid, int index, i
         error);
 }
 
-void BilibiliClient::get_collection_list_all(int rid, int type, std::string mid,
+void BilibiliClient::get_collection_list_all(uint64_t rid, int type, const std::string& mid,
                                              const std::function<void(SimpleCollectionListResultWrapper)>& callback,
                                              const ErrorCallback& error) {
     HTTP::getResultAsync<SimpleCollectionListResultWrapper>(
@@ -223,7 +223,7 @@ void BilibiliClient::get_my_bangumi(const std::string& mid, size_t type, size_t 
 }
 
 /// get user's upload videos
-void BilibiliClient::get_user_videos(const int64_t mid, int pn, int ps,
+void BilibiliClient::get_user_videos(uint64_t mid, int pn, int ps,
                                      const std::function<void(UserUploadedVideoResultWrapper)>& callback,
                                      const ErrorCallback& error) {
     HTTP::getResultAsync<UserUploadedVideoResultWrapper>(Api::UserUploadedVideo,
@@ -235,7 +235,7 @@ void BilibiliClient::get_user_videos(const int64_t mid, int pn, int ps,
                                                          callback, error);
 }
 
-void BilibiliClient::get_user_videos2(const int64_t mid, int pn, int ps,
+void BilibiliClient::get_user_videos2(uint64_t mid, int pn, int ps,
                                       const std::function<void(UserDynamicVideoResultWrapper)>& callback,
                                       const ErrorCallback& error) {
     HTTP::getResultAsync<UserDynamicVideoResultWrapper>(Api::UserDynamicVideo,

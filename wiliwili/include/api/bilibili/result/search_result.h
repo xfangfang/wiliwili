@@ -37,9 +37,9 @@ public:
     // 搜索的类型：video/media_bangumi/media_ft 视频/影视/番剧
     std::string type;
 
-    unsigned int aid;
+    uint64_t aid;
     std::string bvid;
-    unsigned int season_id;
+    uint64_t season_id;
 
     std::string title;  // 部分带xml标识关键词
     std::string subtitle;

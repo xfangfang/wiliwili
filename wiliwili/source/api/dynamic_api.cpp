@@ -24,7 +24,7 @@ void BilibiliClient::dynamic_video(const unsigned int page, const std::string& o
         error);
 }
 
-void BilibiliClient::dynamic_article(const unsigned int page, const std::string& offset, const int64_t mid,
+void BilibiliClient::dynamic_article(const unsigned int page, const std::string& offset, uint64_t mid,
                                      const std::function<void(DynamicArticleListResultWrapper)>& callback,
                                      const ErrorCallback& error) {
     HTTP::getResultAsync<DynamicArticleListResultWrapper>(

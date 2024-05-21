@@ -451,7 +451,7 @@ void PlayerSetting::hideHighlightLineCells() { btnHighlight->setVisibility(brls:
 
 void PlayerSetting::hideSkipOpeningCreditsSetting() { btnSkip->setVisibility(brls::Visibility::GONE); }
 
-void PlayerSetting::setBangumiCustomSetting(const std::string& title, unsigned int id) {
+void PlayerSetting::setBangumiCustomSetting(const std::string& title, uint64_t id) {
     if (id == 0) return;
     seasonId = id;
 
