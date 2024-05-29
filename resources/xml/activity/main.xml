@@ -50,6 +50,7 @@
                 focusable="true"
                 highlightCornerRadius="50"
                 cornerRadius="50"
+                marginBottom="10"
                 wireframe="false">
                 <SVGImage
                         width="48"

@@ -64,10 +64,10 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {}
 
-    void appendData(const bilibili::InboxMessageResultWrapper& result) {
-        bool skip = false;
+    bool appendData(const bilibili::InboxMessageResultWrapper& result) {
+        bool skip_all = true;
         for (const auto& i : result.messages) {
-            skip = false;
+            bool skip = false;
             for (const auto& j : this->list) {
                 if (j.msg_seqno == i.msg_seqno) {
                     skip = true;
@@ -76,12 +76,14 @@ public:
             }
             if (!skip) {
                 this->list.push_back(i);
+                skip_all = false;
             }
         }
 
         for (auto& e : result.e_infos) {
             this->emotes[e.text] = std::make_shared<bilibili::InboxEmote>(e);
         }
+        return skip_all;
     }
 
     void clearData() override { this->list.clear(); }
@@ -112,9 +114,11 @@ InboxChat::InboxChat(const bilibili::InboxChatResult& r, std::function<void()> c
     recyclingGrid->registerCell("Notice", []() { return new InboxNoticeCard(); });
     recyclingGrid->onNextPage([this, r]() { this->requestData(false, r.session_type); });
     recyclingGrid->setRefreshAction([this]() { this->recyclingGrid->forceRequestNextPage(); });
+    // 避免聊天框和底部刷新按钮重叠
+    recyclingGrid->setPaddingBottom(80);
 
     this->registerAction("wiliwili/home/common/refresh"_i18n, brls::BUTTON_X, [this](brls::View* view) {
-        this->recyclingGrid->forceRequestNextPage();
+        this->recyclingGrid->refresh();
         return true;
     });
 
@@ -152,9 +156,11 @@ void InboxChat::onMsgList(const bilibili::InboxMessageResultWrapper& result, boo
         auto* datasource = dynamic_cast<DataSourceMsgList*>(recyclingGrid->getDataSource());
         if (datasource && !refresh) {
             if (!result.messages.empty()) {
-                datasource->appendData(result);
-                recyclingGrid->notifyDataChanged();
-                recyclingGrid->selectRowAt(datasource->getItemCount() - 1, true);
+                if(!datasource->appendData(result)){
+                    // 只在有内容更新时才调整位置
+                    recyclingGrid->notifyDataChanged();
+                    recyclingGrid->selectRowAt(datasource->getItemCount() - 1, true);
+                }
             }
         } else {
             datasource = new DataSourceMsgList(result, this->talkerId);
