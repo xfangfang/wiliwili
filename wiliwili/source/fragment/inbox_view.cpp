@@ -133,9 +133,13 @@ InboxView::InboxView() {
         true);
 
     recyclingGrid->registerCell("Cell", []() { return new ChatUserCard(); });
-    recyclingGrid->setRefreshAction([this]() { this->requestData(true); });
-    recyclingGrid->registerAction("wiliwili/home/common/refresh"_i18n, brls::BUTTON_X, [this](brls::View* view) {
+    recyclingGrid->setRefreshAction([this]() {
+        brls::Application::giveFocus(tabFrame->getSidebar());
+        this->recyclingGrid->showSkeleton();
         this->requestData(true);
+    });
+    recyclingGrid->registerAction("wiliwili/home/common/refresh"_i18n, brls::BUTTON_X, [this](brls::View* view) {
+        this->recyclingGrid->refresh();
         return true;
     });
 
