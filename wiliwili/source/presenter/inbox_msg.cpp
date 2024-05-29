@@ -10,9 +10,11 @@ void InboxMsgRequest::onError(const std::string& error) {}
 
 void InboxMsgRequest::requestData(bool refresh, int session_type, size_t size) {
     CHECK_AND_SET_REQUEST
+    ASYNC_RETAIN
     BILI::fetch_inbox_msgs(
         std::to_string(this->talkerId), size, session_type, refresh ? "" : std::to_string(this->msgSeq),
-        [this, refresh, session_type](const bilibili::InboxMessageResultWrapper& result) {
+        [ASYNC_TOKEN, refresh, session_type](const bilibili::InboxMessageResultWrapper& result) {
+            ASYNC_RELEASE
             this->onMsgList(result, refresh);
             if (this->msgSeq != result.max_seqno) {
                 this->msgSeq = result.max_seqno;
@@ -20,7 +22,8 @@ void InboxMsgRequest::requestData(bool refresh, int session_type, size_t size) {
             }
             UNSET_REQUEST
         },
-        [this](BILI_ERR) {
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
             this->onError(error);
             UNSET_REQUEST
         });
@@ -32,15 +35,18 @@ void InboxMsgRequest::setMsgSeq(uint64_t seq) { this->msgSeq = seq; }
 
 void InboxMsgRequest::sendMsg(const std::string& text) {
     CHECK_AND_SET_REQUEST
+    ASYNC_RETAIN
     std::string csrf       = ProgramConfig::instance().getCSRF();
     nlohmann::json content = {{"content", text}};
     BILI::send_inbox_msg(
         ProgramConfig::instance().getUserID(), std::to_string(this->talkerId), content.dump(), csrf,
-        [this](const bilibili::InboxSendResult& result) {
+        [ASYNC_TOKEN](const bilibili::InboxSendResult& result) {
+            ASYNC_RELEASE
             this->onSendMsg(result);
             UNSET_REQUEST
         },
-        [this](BILI_ERR) {
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
             this->onError(error);
             UNSET_REQUEST
         });
