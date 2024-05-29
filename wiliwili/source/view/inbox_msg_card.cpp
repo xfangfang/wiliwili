@@ -112,6 +112,7 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
 #else
             std::string custom = wiliwili::format(ImageHelper::note_custom_ext, (int)width, (int)height);
 #endif
+            textBox->setLineHeight(1.0f);
             d.push_back(std::make_shared<RichTextImage>(pic + custom, width, height));
             break;
         }
