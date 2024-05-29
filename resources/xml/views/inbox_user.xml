@@ -23,7 +23,7 @@
 
         <brls:Label
                 id="inbox/lastTime"
-                width="80"
+                minWidth="50"
                 height="auto"
                 fontSize="16"
                 horizontalAlign="right"
