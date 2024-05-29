@@ -74,5 +74,9 @@
                         scalingType="fill"
                         image="@res/pictures/video-card-bg.png"
                         cornerRadius="4" />
+                <TextBox
+                        id="feed/card/title"
+                        fontSize="16"
+                        maxRows="3"/>
         </brls:Box>
 </brls:Box>

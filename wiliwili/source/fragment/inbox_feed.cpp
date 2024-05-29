@@ -16,11 +16,19 @@ public:
 
     void setItem(const bilibili::MsgFeedItem& item) {
         this->textBox->setText(item.source_content);
-        ImageHelper::with(this->picture)->load(item.image + ImageHelper::v_ext);
+        if (item.image.empty()) {
+            this->picture->setVisibility(brls::Visibility::GONE);
+            this->title->setVisibility(brls::Visibility::VISIBLE);
+            this->title->setText(item.title);
+        } else {
+            this->picture->setVisibility(brls::Visibility::VISIBLE);
+            this->title->setVisibility(brls::Visibility::GONE);
+            ImageHelper::with(this->picture)->load(item.image + ImageHelper::v_ext);
+        }
     }
 
     void setAuther(const bilibili::FeedLikeResult& r) {
-        std::vector<std::string> users;
+        std::vector<std::string> users(r.users.size());
         std::string t = brls::getStr("wiliwili/inbox/type/" + r.item.type);
         for (auto& s : r.users) users.push_back(s.nickname);
         ImageHelper::with(this->avatar)->load(r.users.front().avatar + ImageHelper::face_ext);
@@ -61,6 +69,7 @@ private:
     BRLS_BIND(brls::Label, labelMisc, "feed/label/misc");
     BRLS_BIND(brls::Label, labelTime, "feed/time");
     BRLS_BIND(TextBox, textBox, "feed/content");
+    BRLS_BIND(TextBox, title, "feed/card/title");
     BRLS_BIND(brls::Image, picture, "feed/card/picture");
 };
 
