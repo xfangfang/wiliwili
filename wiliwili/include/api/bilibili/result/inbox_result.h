@@ -94,8 +94,9 @@ public:
     std::vector<MsgFeedUser> users;
     MsgFeedItem item;
     time_t like_time;
+    size_t counts;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(FeedLikeResult, id, users, item, like_time);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(FeedLikeResult, id, users, item, like_time, counts);
 
 typedef std::vector<FeedLikeResult> FeedLikeListResult;
 

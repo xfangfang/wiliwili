@@ -263,6 +263,7 @@
       "dynamic": "activity",
       "album": "activity"
     },
+    "more": "and {} people liked my {}",
     "like": "liked my {}",
     "at": "@me at {}",
     "reply": "replied to my {}"

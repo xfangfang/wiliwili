@@ -45,6 +45,7 @@
                                 marginTop="4"
                                 verticalAlign="top"
                                 wireframe="false"
+                                shrink="0"
                                 textColor="@theme/font/grey" />
                 </brls:Box>
 

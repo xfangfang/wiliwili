@@ -28,13 +28,20 @@ public:
     }
 
     void setAuther(const bilibili::FeedLikeResult& r) {
-        std::vector<std::string> users(r.users.size());
+        std::vector<std::string> users(2);
         std::string t = brls::getStr("wiliwili/inbox/type/" + r.item.type);
-        for (auto& s : r.users) users.push_back(s.nickname);
+        std::string suffix;
+        if (r.users.size() > 2) {
+            suffix = wiliwili::format("wiliwili/inbox/more"_i18n, r.counts, t);
+        } else {
+            suffix = wiliwili::format("wiliwili/inbox/like"_i18n, t);
+        }
+        for (size_t i = 0; i < r.users.size() && i < 2; i++) {
+            users[i] = r.users[i].nickname;
+        }
         ImageHelper::with(this->avatar)->load(r.users.front().avatar + ImageHelper::face_ext);
-        this->labelAuthor->setText(pystring::join(",", users));
+        this->labelAuthor->setText(pystring::join("、", users) + " " + suffix);
         this->labelTime->setText(wiliwili::sec2date(r.like_time));
-        this->labelMisc->setText(wiliwili::format("wiliwili/inbox/like"_i18n, t));
     }
 
     void setAuther(const bilibili::FeedAtResult& r) {
