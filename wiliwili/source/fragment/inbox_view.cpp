@@ -153,20 +153,16 @@ bool InboxView::isTranslucent() { return true; }
 brls::View* InboxView::getDefaultFocus() { return this->tabFrame->getDefaultFocus(); }
 
 void InboxView::onChatList(const bilibili::InboxChatListResult& result, bool refresh) {
-    brls::Threading::sync([this, result, refresh]() {
-        auto* datasource = dynamic_cast<DataSourceChatList*>(recyclingGrid->getDataSource());
-        if (datasource && !refresh) {
-            if (!result.empty()) {
-                datasource->appendData(result);
-                recyclingGrid->notifyDataChanged();
-            }
-        } else {
-            auto dataSource = new DataSourceChatList(result);
-            recyclingGrid->setDataSource(dataSource);
+    auto* datasource = dynamic_cast<DataSourceChatList*>(recyclingGrid->getDataSource());
+    if (datasource && !refresh) {
+        if (!result.empty()) {
+            datasource->appendData(result);
+            recyclingGrid->notifyDataChanged();
         }
-    });
+    } else {
+        auto dataSource = new DataSourceChatList(result);
+        recyclingGrid->setDataSource(dataSource);
+    }
 }
 
-void InboxView::onError(const std::string& error) {
-    brls::Threading::sync([this, error]() { this->recyclingGrid->setError(error); });
-}
+void InboxView::onError(const std::string& error) { this->recyclingGrid->setError(error); }

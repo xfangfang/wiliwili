@@ -1,3 +1,5 @@
+#include <borealis/core/thread.hpp>
+
 #include "bilibili.h"
 #include "presenter/inbox_feed.hpp"
 
@@ -11,45 +13,60 @@ void InboxFeedRequest::onError(const std::string& error) {}
 
 void InboxFeedRequest::requestData(MsgFeedMode mode, bool refresh) {
     switch (mode) {
-        case MsgFeedMode::REPLY:
-            CHECK_AND_SET_REQUEST
+        case MsgFeedMode::REPLY: {
+            ASYNC_RETAIN
             BILI::msg_feed_reply(
                 this->cursor,
-                [this](const bilibili::FeedReplyResultWrapper& result) {
-                    this->onFeedReplyList(result);
-                    UNSET_REQUEST
+                [ASYNC_TOKEN](const bilibili::FeedReplyResultWrapper& result) {
+                    brls::sync([ASYNC_TOKEN, result]() {
+                        ASYNC_RELEASE
+                        this->onFeedReplyList(result);
+                    });
                 },
-                [this](BILI_ERR) {
-                    this->onError(error);
-                    UNSET_REQUEST
+                [ASYNC_TOKEN](BILI_ERR) {
+                    brls::sync([ASYNC_TOKEN, error]() {
+                        ASYNC_RELEASE
+                        this->onError(error);
+                    });
                 });
             break;
-        case MsgFeedMode::AT:
-            CHECK_AND_SET_REQUEST
+        }
+        case MsgFeedMode::AT: {
+            ASYNC_RETAIN
             BILI::msg_feed_at(
                 this->cursor,
-                [this](const bilibili::FeedAtResultWrapper& result) {
-                    this->onFeedAtList(result);
-                    UNSET_REQUEST
+                [ASYNC_TOKEN](const bilibili::FeedAtResultWrapper& result) {
+                    brls::sync([ASYNC_TOKEN, result]() {
+                        ASYNC_RELEASE
+                        this->onFeedAtList(result);
+                    });
                 },
-                [this](BILI_ERR) {
-                    this->onError(error);
-                    UNSET_REQUEST
+                [ASYNC_TOKEN](BILI_ERR) {
+                    brls::sync([ASYNC_TOKEN, error]() {
+                        ASYNC_RELEASE
+                        this->onError(error);
+                    });
                 });
             break;
-        case MsgFeedMode::LIKE:
-            CHECK_AND_SET_REQUEST
+        }
+        case MsgFeedMode::LIKE: {
+            ASYNC_RETAIN
             BILI::msg_feed_like(
                 this->cursor,
-                [this](const bilibili::FeedLikeResultWrapper& result) {
-                    this->onFeedLikeList(result);
-                    UNSET_REQUEST
+                [ASYNC_TOKEN](const bilibili::FeedLikeResultWrapper& result) {
+                    brls::sync([ASYNC_TOKEN, result]() {
+                        ASYNC_RELEASE
+                        this->onFeedLikeList(result);
+                    });
                 },
-                [this](BILI_ERR) {
-                    this->onError(error);
-                    UNSET_REQUEST
+                [ASYNC_TOKEN](BILI_ERR) {
+                    brls::sync([ASYNC_TOKEN, error]() {
+                        ASYNC_RELEASE
+                        this->onError(error);
+                    });
                 });
             break;
+        }
         default:;
     }
 }

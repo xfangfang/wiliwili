@@ -131,28 +131,22 @@ void InboxFeed::onCreate() { this->requestData(feedMode, true); }
 void InboxFeed::setMode(MsgFeedMode mode) { this->feedMode = mode; }
 
 void InboxFeed::onFeedReplyList(const bilibili::FeedReplyResultWrapper& result) {
-    brls::Threading::sync([this, result]() {
-        auto dataSource = new DataSourceFeedList(result.items);
-        recyclingGrid->setDataSource(dataSource);
-    });
+    auto dataSource = new DataSourceFeedList(result.items);
+    recyclingGrid->setDataSource(dataSource);
 }
 
 void InboxFeed::onFeedAtList(const bilibili::FeedAtResultWrapper& result) {
-    brls::Threading::sync([this, result]() {
-        auto dataSource = new DataSourceFeedList(result.items);
-        recyclingGrid->setDataSource(dataSource);
-    });
+    auto dataSource = new DataSourceFeedList(result.items);
+    recyclingGrid->setDataSource(dataSource);
 }
 
 void InboxFeed::onFeedLikeList(const bilibili::FeedLikeResultWrapper& result) {
-    brls::Threading::sync([this, result]() {
-        auto dataSource = new DataSourceFeedList(result.total.items);
-        recyclingGrid->setDataSource(dataSource);
-    });
+    auto dataSource = new DataSourceFeedList(result.total.items);
+    recyclingGrid->setDataSource(dataSource);
 }
 
 void InboxFeed::onError(const std::string& error) {
-    brls::Threading::sync([this, error]() { this->recyclingGrid->setError(error); });
+    this->recyclingGrid->setError(error);
 }
 
 brls::View* InboxFeed::create() { return new InboxFeed(); }
