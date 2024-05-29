@@ -31,7 +31,7 @@
 
             <Tab label=""
                  fontSize="18"
-                 focusDown="main/setting"
+                 focusDown="main/inbox"
                  icon="@res/svg/ico-mine.svg"
                  iconActivate="@res/svg/ico-mine-activate.svg">
                 <MineTab/>
@@ -52,7 +52,6 @@
                 cornerRadius="50"
                 wireframe="false">
                 <SVGImage
-                        focusable="true"
                         width="48"
                         height="48"
                         SVG="@res/svg/ico-inbox.svg"/>
@@ -65,7 +64,6 @@
                     cornerRadius="50"
                     wireframe="false">
                 <SVGImage
-                        focusable="true"
                         width="48"
                         height="48"
                         SVG="@res/svg/ico-setting.svg"/>

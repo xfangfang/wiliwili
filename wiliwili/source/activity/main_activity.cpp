@@ -57,7 +57,7 @@ void MainActivity::onContentAvailable() {
         }
     });
 
-    this->settingBtn->setCustomNavigation([this](brls::FocusDirection direction) {
+    this->inboxBtn->setCustomNavigation([this](brls::FocusDirection direction) {
         if (tabFrame->getSideBarPosition() == AutoTabBarPosition::LEFT) {
             if (direction == brls::FocusDirection::RIGHT) {
                 return (brls::View*)this->tabFrame->getActiveTab();
@@ -69,6 +69,22 @@ void MainActivity::onContentAvailable() {
                 return (brls::View*)this->tabFrame->getActiveTab();
             } else if (direction == brls::FocusDirection::LEFT) {
                 return (brls::View*)this->tabFrame->getSidebar();
+            }
+        }
+        return (brls::View*)nullptr;
+    });
+    this->settingBtn->setCustomNavigation([this](brls::FocusDirection direction) {
+        if (tabFrame->getSideBarPosition() == AutoTabBarPosition::LEFT) {
+            if (direction == brls::FocusDirection::RIGHT) {
+                return (brls::View*)this->tabFrame->getActiveTab();
+            } else if (direction == brls::FocusDirection::UP) {
+                return (brls::View*)this->inboxBtn;
+            }
+        } else if (tabFrame->getSideBarPosition() == AutoTabBarPosition::TOP) {
+            if (direction == brls::FocusDirection::DOWN) {
+                return (brls::View*)this->tabFrame->getActiveTab();
+            } else if (direction == brls::FocusDirection::LEFT) {
+                return (brls::View*)this->inboxBtn;
             }
         }
         return (brls::View*)nullptr;
