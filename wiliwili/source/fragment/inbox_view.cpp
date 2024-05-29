@@ -67,8 +67,7 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         auto& r    = this->list[index];
-        auto* view = new InboxChat(r, [recycler, index]() {
-            recycler->setDefaultCellFocus(index);
+        auto* view = new InboxChat(r, [recycler]() {
             recycler->refresh();
         });
         recycler->present(view);

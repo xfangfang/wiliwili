@@ -235,6 +235,7 @@ float TextBox::cutRichTextLines(float width) {
     // 重新扫描一遍，根据图片高度调整行高
     float height = fontSize * lineHeight;
     float bias   = 0;
+    bool firstLine = true;
     for (auto& i : lineContent) {
         // 获取最大行高
         float maxLineHeight = height;
@@ -244,10 +245,17 @@ float TextBox::cutRichTextLines(float width) {
                 maxLineHeight = maxf(maxLineHeight, t->height + t->t_margin);
             }
         }
-        bias += maxLineHeight - height;
+
+        if (firstLine && maxLineHeight != height) {
+            // 第一行无法向上借用空间
+            bias += maxLineHeight - fontSize;
+        } else {
+            bias += maxLineHeight - height;
+        }
         for (auto& j : i) {
             j->y += bias;
         }
+        firstLine = false;
     }
 
     float pxBottomSpace = fontSize * (lineHeight - 1);

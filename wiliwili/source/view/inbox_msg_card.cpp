@@ -1,5 +1,6 @@
 #include "view/inbox_msg_card.hpp"
 #include "view/text_box.hpp"
+#include "utils/string_helper.hpp"
 
 using namespace brls::literals;
 
@@ -101,7 +102,17 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
                 height = height * 400.f / width;
                 width  = 400.f;
             }
-            d.push_back(std::make_shared<RichTextImage>(pic, width, height));
+            if (height > 400.f) {
+                width  = width * 400.f / height;
+                height = 400.f;
+            }
+#ifdef __PSV__
+            std::string custom =
+                wiliwili::format(ImageHelper::note_custom_ext, (int)(width * 0.5f), (int)(height * 0.5f));
+#else
+            std::string custom = wiliwili::format(ImageHelper::note_custom_ext, (int)width, (int)height);
+#endif
+            d.push_back(std::make_shared<RichTextImage>(pic + custom, width, height));
             break;
         }
         case 10: {  // 系统消息
