@@ -271,6 +271,11 @@ void RecyclingGrid::reloadData() {
 
     renderedFrame            = brls::Rect();
     renderedFrame.size.width = getWidth();
+    if (renderedFrame.size.width != renderedFrame.size.width) {
+        // 当列表在展示骨架屏后被隐藏，这时获取到 width 的值为 NAN
+        // 使用历史宽度值避免后续计算错误
+        renderedFrame.size.width = oldWidth;
+    }
 
     setContentOffsetY(0, false);
     if (dataSource == nullptr) return;
@@ -422,6 +427,9 @@ void RecyclingGrid::itemsRecyclingLoop() {
                              getHeightByCellIndex(visibleMax, visibleMax - preFetchLine * spanCount) <=
                          visibleFrame.getMaxY()))
             break;
+        if (visibleMax == 0) {
+            break;
+        }
 
         float cellHeight = estimatedRowHeight;
         if (isFlowMode) cellHeight = cellHeightCache[visibleMax];

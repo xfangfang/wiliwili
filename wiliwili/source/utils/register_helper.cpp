@@ -19,6 +19,7 @@
 #include "fragment/mine_collection.hpp"
 #include "fragment/mine_collection_video_list.hpp"
 #include "fragment/mine_bangumi.hpp"
+#include "fragment/inbox_feed.hpp"
 #include "fragment/search_tab.hpp"
 #include "fragment/search_order.hpp"
 #include "fragment/search_video.hpp"
@@ -97,6 +98,7 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("MineCollection", MineCollection::create);
     brls::Application::registerXMLView("MineCollectionVideoList", MineCollectionVideoList::create);
     brls::Application::registerXMLView("MineBangumi", MineBangumi::create);
+    brls::Application::registerXMLView("InboxFeed", InboxFeed::create);
     brls::Application::registerXMLView("SearchTab", SearchTab::create);
     brls::Application::registerXMLView("SearchOrder", SearchOrder::create);
     brls::Application::registerXMLView("SearchVideo", SearchVideo::create);

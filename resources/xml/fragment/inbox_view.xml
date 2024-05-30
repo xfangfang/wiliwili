@@ -1,0 +1,68 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        justifyContent="flexEnd"
+        backgroundColor="@theme/brls/backdrop">
+
+        <brls:Box
+                id="player/cancel"
+                height="100%"
+                hideClickAnimation="true"
+                grow="1" />
+
+        <brls:AppletFrame
+                width="600"
+                height="100%"
+                headerHidden="true"
+                footerHidden="true"
+                backgroundColor="@theme/brls/background">
+                <brls:Box>
+                        <AutoTabFrame
+                                id="inbox/tab/frame"
+                                defaultTab="0"
+                                tabHeight="70"
+                                grow="1"
+                                tabItemActiveTextColor="@theme/color/bilibili"
+                                disableNavigationRight="true"
+                                sidebarPosition="top">
+
+                                <Tab label="@i18n/wiliwili/inbox/chat/tab"
+                                        fontSize="22">
+
+                                        <RecyclingGrid
+                                                grow="1"
+                                                paddingTop="10"
+                                                preFetchLine="2"
+                                                spanCount="1"
+                                                itemHeight="60"
+                                                paddingLeft="15"
+                                                paddingRight="15"
+                                                wireframe="false"
+                                                id="inbox/chatList" />
+                                </Tab>
+
+                                <Tab label="@i18n/wiliwili/inbox/tab/reply"
+                                        fontSize="22">
+                                        <InboxFeed mode="reply" />
+                                </Tab>
+
+                                <Tab label="@i18n/wiliwili/inbox/tab/at"
+                                        fontSize="22">
+                                        <InboxFeed mode="at" />
+                                </Tab>
+
+                                <Tab label="@i18n/wiliwili/inbox/tab/like"
+                                        fontSize="22">
+                                        <InboxFeed mode="like" />
+                                </Tab>
+                        </AutoTabFrame>
+
+                        <ButtonClose
+                                id="inbox/close"
+                                focusable="true"
+                                positionType="absolute"
+                                positionTop="10"
+                                positionRight="10" />
+                </brls:Box>
+        </brls:AppletFrame>
+</brls:Box>
