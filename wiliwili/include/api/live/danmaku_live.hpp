@@ -24,9 +24,9 @@ class LiveDanmaku {
 public:
     int room_id;
     int uid;
-    void connect(int room_id, int64_t uid, const bilibili::LiveDanmakuinfo &info);
+    void connect(int room_id, uint64_t uid, const bilibili::LiveDanmakuinfo &info);
     void disconnect();
-    void send_join_request(int room_id, int64_t uid);
+    void send_join_request(int room_id, uint64_t uid);
 
     void send_heartbeat();
     void send_text_message(const std::string &message);

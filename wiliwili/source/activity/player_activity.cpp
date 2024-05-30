@@ -98,7 +98,7 @@ public:
 
 /// PlayerActivity
 
-PlayerActivity::PlayerActivity(const std::string& bvid, unsigned int cid, int progress) {
+PlayerActivity::PlayerActivity(const std::string& bvid, uint64_t cid, int progress) {
     videoDetailResult.bvid = bvid;
     videoDetailPage.cid    = cid;
     this->setProgress(progress);

@@ -21,7 +21,7 @@ class SimpleCollectionList {
 public:
     int64_t id;
     int64_t fid;
-    int64_t mid;
+    uint64_t mid;
     unsigned int attr;
     std::string title;
     unsigned int fav_state;

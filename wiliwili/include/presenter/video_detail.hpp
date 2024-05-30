@@ -45,16 +45,16 @@ public:
     void requestData(const bilibili::VideoDetailResult& video);
 
     /// 请求番剧数据
-    void requestData(size_t id, PGC_ID_TYPE type = PGC_ID_TYPE::SEASON_ID);
+    void requestData(uint64_t id, PGC_ID_TYPE type = PGC_ID_TYPE::SEASON_ID);
 
     /// 获取番剧信息
-    void requestSeasonInfo(size_t seasonID, size_t epID = 0);
+    void requestSeasonInfo(uint64_t seasonID, uint64_t epID = 0);
 
     /// 获取番剧相关推荐
-    void requestSeasonRecommend(size_t seasonID);
+    void requestSeasonRecommend(uint64_t seasonID);
 
     /// 获取番剧播放进度，追剧情况
-    void requestSeasonStatue(size_t seasonID);
+    void requestSeasonStatue(uint64_t seasonID);
 
     /// 获取视频信息：标题、作者、简介、分P等
     void requestVideoInfo(const std::string& bvid);
@@ -63,16 +63,16 @@ public:
      * 获取视频地址
      * @param requestHistoryInfo 是否获取历史播放进度
      */
-    void requestVideoUrl(std::string bvid, int cid, bool requestHistoryInfo = true);
+    void requestVideoUrl(const std::string& bvid, uint64_t cid, bool requestHistoryInfo = true);
 
     /**
      * 获取番剧地址
      * @param requestHistoryInfo 是否获取历史播放进度
      */
-    void requestSeasonVideoUrl(const std::string& bvid, int cid, bool requestHistoryInfo = true);
+    void requestSeasonVideoUrl(const std::string& bvid, uint64_t cid, bool requestHistoryInfo = true);
 
     /// 获取投屏地址
-    void requestCastVideoUrl(int oid, int cid, int type);
+    void requestCastVideoUrl(uint64_t oid, uint64_t cid, int type);
 
     int getQualityIndex();
 
@@ -80,28 +80,28 @@ public:
     void changeEpisode(const bilibili::SeasonEpisodeResult& i);
 
     /// 获取Up主的其他视频: pn 为0 自动获取下一页
-    void requestUploadedVideos(int64_t mid, int pn = 0, int ps = 10);
+    void requestUploadedVideos(uint64_t mid, int pn = 0, int ps = 10);
 
     /// 获取单个视频播放人数
-    void requestVideoOnline(const std::string& bvid, int cid);
+    void requestVideoOnline(const std::string& bvid, uint64_t cid);
 
     /// 获取视频的 点赞、投币、收藏情况
     void requestVideoRelationInfo(const std::string& bvid);
 
     /// 获取番剧分集的 点赞、投币、收藏情况
-    void requestVideoRelationInfo(size_t epid);
+    void requestVideoRelationInfo(uint64_t epid);
 
     /// 获取视频弹幕
-    void requestVideoDanmaku(int cid);
+    void requestVideoDanmaku(uint64_t cid);
 
     /// 获取视频高能进度条
-    void requestHighlightProgress(int cid);
+    void requestHighlightProgress(uint64_t cid);
 
     /// 获取视频分P详情
-    void requestVideoPageDetail(const std::string& bvid, int cid, bool requestHistoryInfo = true);
+    void requestVideoPageDetail(const std::string& bvid, uint64_t cid, bool requestHistoryInfo = true);
 
     /// 上报播放进度
-    void reportHistory(unsigned int aid, unsigned int cid, unsigned int progress = 0, unsigned int duration = 0,
+    void reportHistory(uint64_t aid, uint64_t cid, unsigned int progress = 0, unsigned int duration = 0,
                        int type = 3);
     inline static bool REPORT_HISTORY = true;
 
@@ -109,10 +109,10 @@ public:
     int getCoinTolerate();
 
     /// 投币
-    void addCoin(int aid, int num, bool like);
+    void addCoin(uint64_t aid, int num, bool like);
 
     /// 点赞
-    void beAgree(int aid);
+    void beAgree(uint64_t aid);
 
     /**
      * 收藏视频
@@ -122,11 +122,11 @@ public:
      * @param del 移除的收藏夹
      * @param isFavorite 在添加或移除过后是否处于收藏状态
      */
-    void addResource(int rid, int type = 2, bool isFavorite = true, std::string add = "1", std::string del = "");
+    void addResource(uint64_t rid, int type = 2, bool isFavorite = true, std::string add = "1", std::string del = "");
 
     void followUp(const std::string& mid, bool follow);
 
-    void followSeason(size_t season, bool follow);
+    void followSeason(uint64_t season, bool follow);
 
     static inline int defaultQuality = 116;
 

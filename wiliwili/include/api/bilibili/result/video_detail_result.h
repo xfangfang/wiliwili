@@ -159,7 +159,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentCursor&
 
 class VideoCommentUpper {
 public:
-    int64_t mid;
+    uint64_t mid;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentUpper& nlohmann_json_t) {
     NLOHMANN_JSON_FROM(mid);
@@ -187,7 +187,7 @@ class VideoSingleCommentDetail {
 public:
     VideoCommentCursor cursor;
     VideoCommentResult root;
-    int64_t upper;
+    uint64_t upper;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j, VideoSingleCommentDetail& nlohmann_json_t) {
     if (nlohmann_json_j.contains("upper") && !nlohmann_json_j.at("upper").is_null()) {
@@ -214,7 +214,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentAddResu
 
 class VideoDetailPage {
 public:
-    int cid = 0;
+    uint64_t cid = 0;
     size_t page;        // 分p的序号
     int duration;       // 视频长度，单位秒
     int progress = -1;  // 视频初始化的播放时间，用于加载历史记录
@@ -226,7 +226,7 @@ typedef std::vector<VideoDetailPage> VideoDetailPageListResult;
 
 class VideoDetailStat {
 public:
-    unsigned int aid;
+    uint64_t aid;
     int view;
     int danmaku;
     int favorite;
@@ -253,14 +253,15 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeasonState, view);
 
 class UGCSeasonEpisodePage {
 public:
-    int cid, duration, page;
+    uint64_t cid;
+    int duration, page;
     std::string part;  // 原视频标题
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeasonEpisodePage, cid, duration, part, page);
 
 class UGCSeasonEpisode {
 public:
-    int season_id = 0, section_id = 0, id = 0, aid = 0, cid = 0;
+    uint64_t season_id = 0, section_id = 0, id = 0, aid = 0, cid = 0;
     int index = -1;
     std::string bvid, title;  // 合集视频标题
     UGCSeasonEpisodePage page;
@@ -269,7 +270,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeasonEpisode, season_id, section_id, id, 
 
 class UGCSeasonSection {
 public:
-    int season_id;
+    uint64_t season_id;
     int id;  // section id
     std::string title;
     int type;
@@ -288,7 +289,7 @@ inline void to_json(nlohmann::json& nlohmann_json_j, const UGCSeasonSection& nlo
 class UGCSeason {
 public:
     int id;
-    int64_t mid;
+    uint64_t mid;
     std::string title, cover, intro;
     UGCSeasonState stat;
     bool is_pay_season;
@@ -310,7 +311,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UGCSeason, sections, id, mid, title, cover, i
 class VideoDetailResult {
 public:
     std::string bvid;
-    int aid;
+    uint64_t aid;
     int videos;         // 视频数量
     int tid;            //分类ID
     int tname;          //分类名称
@@ -575,7 +576,7 @@ class VideoPageResult {
 public:
     int online_count;
     int64_t last_play_time;
-    int last_play_cid;
+    uint64_t last_play_cid;
     VideoPageSubtitleList subtitles;
     std::string mask_url;
 };
@@ -672,7 +673,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoOnlineTotal, total);
 
 class Video {
 public:
-    int aid;
+    uint64_t aid;
     std::string bvid;
 
     Video() = default;

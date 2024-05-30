@@ -87,10 +87,10 @@ public:
     std::string title;
     unsigned int video_review;
     std::string author;
-    unsigned int mid;
+    uint64_t mid;
     unsigned int created;
     std::string length;
-    unsigned int aid;
+    uint64_t aid;
     std::string bvid;
     bool is_charging_arc; // 充电专属视频
 };
@@ -150,7 +150,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, UserDynamicCount& n
 
 class UserRelationStat {
 public:
-    unsigned int mid, following, black, follower;
+    uint64_t mid, following, black, follower;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserRelationStat, mid, following, black, follower);
 

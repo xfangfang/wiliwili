@@ -384,7 +384,7 @@ void PlayerSeasonActivity::onSeasonRecommend(const bilibili::SeasonRecommendWrap
     });
 }
 
-void PlayerSeasonActivity::playSeason(size_t season_id) {
+void PlayerSeasonActivity::playSeason(uint64_t season_id) {
     //上报历史记录
     this->reportCurrentProgress(MPVCore::instance().video_progress, MPVCore::instance().duration);
 

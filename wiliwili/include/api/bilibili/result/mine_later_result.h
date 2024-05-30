@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 
 namespace bilibili {
 
 class Up {
 public:
     std::string name;
-    int mid;
+    uint64_t mid;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Up, name, mid);
 
@@ -27,10 +27,10 @@ public:
     Up owner;
     int duration;  // video length in seconds
     std::string title;
-    int aid;
+    uint64_t aid;
     Stat stat;
     std::string bvid;
-    int cid;
+    uint64_t cid;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WatchLaterItem, aid, pic, title, duration, owner, stat, bvid, cid);
 

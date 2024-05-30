@@ -24,7 +24,7 @@
 
 class DataSourceCommentList : public RecyclingGridDataSource, public CommentAction {
 public:
-    DataSourceCommentList(bilibili::VideoCommentListResult result, size_t aid, int mode, std::function<void(void)> cb)
+    DataSourceCommentList(bilibili::VideoCommentListResult result, uint64_t aid, int mode, std::function<void(void)> cb)
         : dataList(std::move(result)), aid(aid), commentMode(mode), switchModeCallback(cb) {}
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         if (index == 0) {
@@ -128,7 +128,7 @@ public:
 
 private:
     bilibili::VideoCommentListResult dataList;
-    size_t aid;
+    uint64_t aid;
     int commentMode                              = 3;  // 2: 按时间；3: 按热度
     std::function<void(void)> switchModeCallback = nullptr;
 };
@@ -363,7 +363,7 @@ void BasePlayerActivity::setCommonData() {
     video->hideOSDLockButton();
 }
 
-void BasePlayerActivity::showCollectionDialog(int64_t id, int videoType) {
+void BasePlayerActivity::showCollectionDialog(uint64_t id, int videoType) {
     if (!DialogHelper::checkLogin()) return;
     auto playerCollection = new PlayerCollection(id, videoType);
     auto dialog           = new brls::Dialog(playerCollection);
@@ -383,7 +383,7 @@ void BasePlayerActivity::showCollectionDialog(int64_t id, int videoType) {
     dialog->open();
 }
 
-void BasePlayerActivity::showCoinDialog(size_t aid) {
+void BasePlayerActivity::showCoinDialog(uint64_t aid) {
     if (!DialogHelper::checkLogin()) return;
 
     if (std::to_string(videoDetailResult.owner.mid) == ProgramConfig::instance().getUserID()) {

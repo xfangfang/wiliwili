@@ -51,10 +51,10 @@ public:
     void setRelationButton(bool liked, bool coin, bool favorite);
 
     // 展示收藏列表对话框
-    void showCollectionDialog(int64_t id, int videoType);
+    void showCollectionDialog(uint64_t id, int videoType);
 
     // 展示投币对话框
-    void showCoinDialog(size_t aid);
+    void showCoinDialog(uint64_t aid);
 
     // 设置清晰度
     void setVideoQuality();
@@ -141,7 +141,7 @@ private:
 
 class PlayerActivity : public BasePlayerActivity {
 public:
-    PlayerActivity(const std::string& bvid, unsigned int cid = 0, int progress = -1);
+    PlayerActivity(const std::string& bvid, uint64_t cid = 0, int progress = -1);
 
     void setProgress(int p) override;
     int getProgress() override;
@@ -202,7 +202,7 @@ public:
     void onCastPlayUrl(const bilibili::VideoUrlResult& result) override;
 
     // 正在播放的情况下切换到新的番剧
-    void playSeason(size_t season_id);
+    void playSeason(uint64_t season_id);
 
     size_t getAid() override;
 

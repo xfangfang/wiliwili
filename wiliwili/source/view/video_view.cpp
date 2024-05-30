@@ -1140,7 +1140,7 @@ void VideoView::showHint(const std::string& value) {
 
 void VideoView::clearHint() { this->hintBox->setVisibility(brls::Visibility::GONE); }
 
-void VideoView::setBangumiCustomSetting(const std::string& title, unsigned int seasonId) {
+void VideoView::setBangumiCustomSetting(const std::string& title, uint64_t seasonId) {
     this->bangumiTitle    = title;
     this->bangumiSeasonId = seasonId;
 }

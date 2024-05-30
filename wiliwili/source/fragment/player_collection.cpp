@@ -41,7 +41,7 @@ public:
         for (auto& i : data) {
             brls::Logger::debug("{} {} {}", i.title, i.id, i.fav_state);
         }
-        for (size_t i = 0; i < data.size(); i++) selectionData.emplace_back(data[i].fav_state);
+        for (auto & i : data) selectionData.emplace_back(i.fav_state);
     }
 
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
@@ -60,7 +60,7 @@ public:
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         currentIndex             = index;
         selectionData[index]     = !selectionData[index];
-        CollectionListCell* item = dynamic_cast<CollectionListCell*>(recycler->getGridItemByIndex(index));
+        auto* item = dynamic_cast<CollectionListCell*>(recycler->getGridItemByIndex(index));
         if (!item) return;
 
         item->setSelected(selectionData[index]);
@@ -110,7 +110,7 @@ private:
     }
 };
 
-PlayerCollection::PlayerCollection(int rid, int type) {
+PlayerCollection::PlayerCollection(uint64_t rid, int type) {
     this->inflateFromXMLRes("xml/fragment/player_collection.xml");
     brls::Logger::debug("Fragment PlayerCollection: create");
     this->recyclingGrid->showSkeleton();
@@ -121,19 +121,19 @@ PlayerCollection::PlayerCollection(int rid, int type) {
 PlayerCollection::~PlayerCollection() { brls::Logger::debug("Fragment PlayerCollection: delete"); }
 
 std::string PlayerCollection::getAddCollectionList() {
-    CollectionDataSourceList* dataSource = dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
+    auto* dataSource = dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
     if (!dataSource) return "";
     return dataSource->getAddCollectionList();
 }
 
 std::string PlayerCollection::getDeleteCollectionList() {
-    CollectionDataSourceList* dataSource = dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
+    auto* dataSource = dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
     if (!dataSource) return "";
     return dataSource->getDeleteCollectionList();
 }
 
 bool PlayerCollection::isFavorite() {
-    CollectionDataSourceList* dataSource = dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
+    auto* dataSource = dynamic_cast<CollectionDataSourceList*>(recyclingGrid->getDataSource());
     if (!dataSource) return false;
     return dataSource->isFavorite();
 }
@@ -142,7 +142,7 @@ void PlayerCollection::onCollectionList(const bilibili::SimpleCollectionListResu
     recyclingGrid->setDataSource(new CollectionDataSourceList(result.list));
 }
 
-void PlayerCollection::getCollectionList(int rid, int type) {
+void PlayerCollection::getCollectionList(uint64_t rid, int type) {
     std::string mid = ProgramConfig::instance().getUserID();
 
     ASYNC_RETAIN

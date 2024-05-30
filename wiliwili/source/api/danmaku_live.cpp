@@ -50,7 +50,7 @@ LiveDanmaku::~LiveDanmaku() {
     while (!msg_q.empty()) msg_q.pop();
 }
 
-void LiveDanmaku::connect(int room_id, int64_t uid, const bilibili::LiveDanmakuinfo &info) {
+void LiveDanmaku::connect(int room_id, uint64_t uid, const bilibili::LiveDanmakuinfo &info) {
     if (connected.load(std::memory_order_acquire)) {
         return;
     }
@@ -141,7 +141,7 @@ bool LiveDanmaku::is_connected() { return connected.load(std::memory_order_acqui
 
 bool LiveDanmaku::is_evOK() { return ms_ev_ok.load(std::memory_order_acquire); }
 
-void LiveDanmaku::send_join_request(const int room_id, const int64_t uid) {
+void LiveDanmaku::send_join_request(const int room_id, const uint64_t uid) {
     json join_request            = {{"uid", uid},
                                     {"roomid", room_id},
                                     {"protover", 2},

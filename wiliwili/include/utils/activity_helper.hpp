@@ -8,9 +8,9 @@
 class Intent {
 public:
     // 开启各类视频
-    static void openBV(const std::string& bvid, int cid = 0, int progress = -1);
-    static void openSeasonBySeasonId(int seasonId, int progress = -1);
-    static void openSeasonByEpId(int epId, int progress = -1);
+    static void openBV(const std::string& bvid, uint64_t cid = 0, int progress = -1);
+    static void openSeasonBySeasonId(uint64_t seasonId, int progress = -1);
+    static void openSeasonByEpId(uint64_t epId, int progress = -1);
     static void openLive(int id, const std::string& name = "", const std::string& views = "");
 
     /// 开启收藏夹

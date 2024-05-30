@@ -38,7 +38,7 @@ void DynamicVideoRequest::requestData(bool refresh, DynamicRequestMode mode) {
     }
 }
 
-void DynamicVideoRequest::requestVideoData(unsigned int page, const std::string &offset, int64_t mid) {
+void DynamicVideoRequest::requestVideoData(unsigned int page, const std::string &offset, uint64_t mid) {
     if (mid == 0) {
         this->requestDynamicVideoList(page, offset);
     } else {
