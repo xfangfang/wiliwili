@@ -16,11 +16,11 @@ enum class MsgFeedMode
 
 class InboxFeedRequest : public Presenter {
 public:
-    virtual void onFeedReplyList(const bilibili::FeedReplyResultWrapper& result);
+    virtual void onFeedReplyList(const bilibili::FeedReplyResultWrapper& result, bool refresh);
 
-    virtual void onFeedAtList(const bilibili::FeedAtResultWrapper& result);
+    virtual void onFeedAtList(const bilibili::FeedAtResultWrapper& result, bool refresh);
 
-    virtual void onFeedLikeList(const bilibili::FeedLikeResultWrapper& result);
+    virtual void onFeedLikeList(const bilibili::FeedLikeResultWrapper& result, bool refresh);
 
     virtual void onError(const std::string& error);
 

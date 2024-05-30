@@ -103,6 +103,12 @@ public:
         }
     }
 
+    void appendData(const std::vector<T>& result) {
+        for (const auto& i : result) {
+            this->list.push_back(i);
+        }
+    }
+
     void clearData() override { this->list.clear(); }
 
 private:
@@ -122,27 +128,62 @@ InboxFeed::InboxFeed() {
 
     // 消息列表
     recyclingGrid->registerCell("Cell", []() { return new FeedCard(); });
+
+    recyclingGrid->onNextPage([this](){
+        this->requestData(feedMode, false);
+    });
+
+    recyclingGrid->setRefreshAction([this](){
+        this->recyclingGrid->estimatedRowHeight = 100;
+        this->recyclingGrid->showSkeleton();
+        this->requestData(feedMode, true);
+        brls::Application::giveFocus(this->getTabBar());
+    });
 }
 
 InboxFeed::~InboxFeed() { brls::Logger::debug("Fragment InboxFeed: delete"); }
 
-void InboxFeed::onCreate() { this->requestData(feedMode, true); }
+void InboxFeed::onCreate() {
+    this->requestData(feedMode, true);
+    this->registerTabAction("", brls::ControllerButton::BUTTON_X ,[this](brls::View* view) {
+        this->recyclingGrid->refresh();
+        return true;
+    }, true);
+}
 
 void InboxFeed::setMode(MsgFeedMode mode) { this->feedMode = mode; }
 
-void InboxFeed::onFeedReplyList(const bilibili::FeedReplyResultWrapper& result) {
-    auto dataSource = new DataSourceFeedList(result.items);
-    recyclingGrid->setDataSource(dataSource);
+void InboxFeed::onFeedReplyList(const bilibili::FeedReplyResultWrapper& result, bool refresh) {
+    this->recyclingGrid->estimatedRowHeight = 500;
+    auto dataSource = dynamic_cast<DataSourceFeedList<bilibili::FeedReplyResult>*>(recyclingGrid->getDataSource());
+    if (dataSource && !refresh) {
+        dataSource->appendData(result.items);
+        recyclingGrid->notifyDataChanged();
+    } else {
+        recyclingGrid->setDataSource(new DataSourceFeedList(result.items));
+    }
 }
 
-void InboxFeed::onFeedAtList(const bilibili::FeedAtResultWrapper& result) {
-    auto dataSource = new DataSourceFeedList(result.items);
-    recyclingGrid->setDataSource(dataSource);
+void InboxFeed::onFeedAtList(const bilibili::FeedAtResultWrapper& result, bool refresh) {
+    this->recyclingGrid->estimatedRowHeight = 500;
+    auto dataSource = dynamic_cast<DataSourceFeedList<bilibili::FeedAtResult>*>(recyclingGrid->getDataSource());
+    if (dataSource && !refresh) {
+        dataSource->appendData(result.items);
+        recyclingGrid->notifyDataChanged();
+    } else {
+        recyclingGrid->setDataSource(new DataSourceFeedList(result.items));
+    }
 }
 
-void InboxFeed::onFeedLikeList(const bilibili::FeedLikeResultWrapper& result) {
-    auto dataSource = new DataSourceFeedList(result.total.items);
-    recyclingGrid->setDataSource(dataSource);
+void InboxFeed::onFeedLikeList(const bilibili::FeedLikeResultWrapper& result, bool refresh) {
+    this->recyclingGrid->estimatedRowHeight = 500;
+    auto dataSource = dynamic_cast<DataSourceFeedList<bilibili::FeedLikeResult>*>(recyclingGrid->getDataSource());
+    if (dataSource && !refresh) {
+        dataSource->appendData(result.total.items);
+        recyclingGrid->notifyDataChanged();
+    } else {
+        recyclingGrid->setDataSource(new DataSourceFeedList(result.total.items));
+    }
 }
 
 void InboxFeed::onError(const std::string& error) {

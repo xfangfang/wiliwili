@@ -10,7 +10,7 @@
                 flowMode="true"
                 paddingLeft="15"
                 paddingRight="15"
-                itemHeight="500"
+                itemHeight="100"
                 wireframe="false"
                 id="inbox/feedList" />
 </brls:Box>

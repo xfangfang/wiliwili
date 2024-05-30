@@ -17,11 +17,11 @@ public:
 
     void setMode(MsgFeedMode mode);
 
-    void onFeedReplyList(const bilibili::FeedReplyResultWrapper& result) override;
+    void onFeedReplyList(const bilibili::FeedReplyResultWrapper& result, bool refresh) override;
 
-    void onFeedAtList(const bilibili::FeedAtResultWrapper& result) override;
+    void onFeedAtList(const bilibili::FeedAtResultWrapper& result, bool refresh) override;
 
-    void onFeedLikeList(const bilibili::FeedLikeResultWrapper& result) override;
+    void onFeedLikeList(const bilibili::FeedLikeResultWrapper& result, bool refresh) override;
 
     void onError(const std::string& error) override;
 
