@@ -96,10 +96,18 @@ public:
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
         auto& r = this->list[index];
-        if (r.item.type == "video" || r.item.type == "reply") {
+        size_t pos = r.item.uri.find_last_of('/');
+        if (pos <= 0) return;
+        if (r.item.uri.compare(0, 18, "https://t.bilibili") == 0) {
+            // 解析动态id
+            std::string t = r.item.uri.substr(pos + 1);
+            Intent::openActivity(t);
+            return;
+        } else if (r.item.type == "video" || r.item.type == "reply") {
             // 解析BV号
-            size_t pos = r.item.uri.find_last_of('/');
-            if (pos > 0) Intent::openBV(r.item.uri.substr(pos + 1));
+            std::string bv = r.item.uri.substr(pos + 1);
+            if (bv.compare(0, 2, "BV") == 0)
+                Intent::openBV(bv);
         }
     }
 

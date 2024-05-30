@@ -203,6 +203,7 @@ const std::string DynamicUpList    = _vcBase + "/dynamic_svr/v1/dynamic_svr/w_dy
 const std::string DynamicUpListV2  = _apiBase + "/x/polymer/web-dynamic/v1/uplist";
 const std::string DynamicLike      = _vcBase + "/dynamic_like/v1/dynamic_like/thumb";
 const std::string UserDynamicVideo = _apiBase + "/x/space/arc/list";
+const std::string DynamicDetail    = _apiBase + "/x/polymer/web-dynamic/desktop/v1/detail";
 
 /// ===
 /// 设置页API

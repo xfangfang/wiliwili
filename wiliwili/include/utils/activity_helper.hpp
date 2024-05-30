@@ -43,6 +43,9 @@ public:
     // 开启 DLNA
     static void openDLNA();
 
+    // 开启动态
+    static void openActivity(const std::string& id);
+
     static void _registerFullscreen(brls::Activity* activity);
 };
 

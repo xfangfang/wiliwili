@@ -13,6 +13,7 @@
 #include "activity/main_activity.hpp"
 #include "activity/gallery_activity.hpp"
 #include "activity/dlna_activity.hpp"
+#include "activity/dynamic_activity.hpp"
 #include "fragment/mine_collection_video_list.hpp"
 #include "fragment/inbox_view.hpp"
 #include "utils/activity_helper.hpp"
@@ -98,6 +99,12 @@ void Intent::openGallery(const std::vector<std::string>& data) {
 
 void Intent::openDLNA() {
     auto activity = new DLNAActivity();
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
+}
+
+void Intent::openActivity(const std::string& id) {
+    auto activity = new DynamicActivity(id);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);
 }
