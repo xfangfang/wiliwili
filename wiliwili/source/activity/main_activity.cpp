@@ -18,6 +18,7 @@
 
 #include "activity/main_activity.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/dialog_helper.hpp"
 #include "view/custom_button.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/svg_image.hpp"
@@ -56,7 +57,7 @@ void MainActivity::onContentAvailable() {
         }
     });
 
-    this->settingBtn->setCustomNavigation([this](brls::FocusDirection direction) {
+    this->inboxBtn->setCustomNavigation([this](brls::FocusDirection direction) {
         if (tabFrame->getSideBarPosition() == AutoTabBarPosition::LEFT) {
             if (direction == brls::FocusDirection::RIGHT) {
                 return (brls::View*)this->tabFrame->getActiveTab();
@@ -72,5 +73,37 @@ void MainActivity::onContentAvailable() {
         }
         return (brls::View*)nullptr;
     });
-    this->settingBtn->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->settingBtn));
+    this->settingBtn->setCustomNavigation([this](brls::FocusDirection direction) {
+        if (tabFrame->getSideBarPosition() == AutoTabBarPosition::LEFT) {
+            if (direction == brls::FocusDirection::RIGHT) {
+                return (brls::View*)this->tabFrame->getActiveTab();
+            } else if (direction == brls::FocusDirection::UP) {
+                return (brls::View*)this->inboxBtn;
+            }
+        } else if (tabFrame->getSideBarPosition() == AutoTabBarPosition::TOP) {
+            if (direction == brls::FocusDirection::DOWN) {
+                return (brls::View*)this->tabFrame->getActiveTab();
+            } else if (direction == brls::FocusDirection::LEFT) {
+                return (brls::View*)this->inboxBtn;
+            }
+        }
+        return (brls::View*)nullptr;
+    });
+    this->settingBtn->addGestureRecognizer(new brls::TapGestureRecognizer(this->settingBtn));
+
+    this->inboxBtn->registerClickAction([](brls::View* view) -> bool {
+        if (DialogHelper::checkLogin()) Intent::openInbox();
+        return true;
+    });
+
+    this->inboxBtn->getFocusEvent()->subscribe([this](bool value) {
+        SVGImage* image = dynamic_cast<SVGImage*>(this->inboxBtn->getChildren()[0]);
+        if (!image) return;
+        if (value) {
+            image->setImageFromSVGRes("svg/ico-inbox-activate.svg");
+        } else {
+            image->setImageFromSVGRes("svg/ico-inbox.svg");
+        }
+    });
+    this->inboxBtn->addGestureRecognizer(new brls::TapGestureRecognizer(this->inboxBtn));
 }

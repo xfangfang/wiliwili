@@ -245,6 +245,29 @@
     "all": "All activities",
     "refresh": "Refresh list"
   },
+  "inbox": {
+    "chat": {
+      "tab": "Chat List",
+      "hint": "Send a message to start chatting ~",
+      "unknown": "The message type is currently not supported"
+    },
+    "tab": {
+      "like": "Likes",
+      "at": "@me",
+      "reply": "Replies"
+    },
+    "type": {
+      "video": "video",
+      "reply": "comment",
+      "article": "article",
+      "dynamic": "activity",
+      "album": "activity"
+    },
+    "more": "and {} people liked my {}",
+    "like": "liked my {}",
+    "at": "@me at {}",
+    "reply": "replied to my {}"
+  },
   "mine": {
     "login": {
       "check": "Checking login info...",

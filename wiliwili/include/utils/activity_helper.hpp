@@ -28,6 +28,9 @@ public:
     // 开启应用设置
     static void openSetting();
 
+    // 开启消息盒子
+    static void openInbox();
+
     // switch 应用开启教程
     static void openHint();
 
@@ -39,6 +42,9 @@ public:
 
     // 开启 DLNA
     static void openDLNA();
+
+    // 开启动态
+    static void openActivity(const std::string& id);
 
     static void _registerFullscreen(brls::Activity* activity);
 };

@@ -6,6 +6,7 @@
 
 #include "nlohmann/json.hpp"
 #include "bilibili/result/dynamic_video.h"
+#include "bilibili/result/inbox_result.h"
 
 namespace bilibili {
 

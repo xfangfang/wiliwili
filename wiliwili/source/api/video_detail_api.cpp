@@ -37,7 +37,7 @@ void BilibiliClient::get_page_detail(const std::string& bvid, uint64_t cid,
                                           error);
 }
 
-void BilibiliClient::get_webmask(const std::string& url, uint64_t rangeStart, uint64_t rangeEnd,
+void BilibiliClient::get_webmask(const std::string& url, int64_t rangeStart, int64_t rangeEnd,
                                  const std::function<void(std::string)>& callback, const ErrorCallback& error) {
     std::optional<std::int64_t> start, end;
     if (rangeStart != -1) start = rangeStart;

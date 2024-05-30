@@ -57,4 +57,12 @@ void BilibiliClient::be_agree_dynamic(const std::string& access_key, const std::
     HTTP::postResultAsync(Api::DynamicLike, {}, payload, callback, error);
 }
 
+void BilibiliClient::get_dynamic_detail(const std::string& id,
+                                        const std::function<void(DynamicArticleResultWrapper)>& callback,
+                                        const ErrorCallback& error) {
+    HTTP::getResultAsync<DynamicArticleResultWrapper>(
+        Api::DynamicDetail, {{"id", id}}, [callback](const DynamicArticleResultWrapper& wrapper) { callback(wrapper); },
+        error);
+}
+
 }  // namespace bilibili
