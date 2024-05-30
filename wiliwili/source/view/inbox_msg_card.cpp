@@ -122,7 +122,9 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
             std::string title = r.content.at("title");
             std::string text  = r.content.at("text");
             d.push_back(std::make_shared<RichTextSpan>(title, titleColor));
-            d.push_back(std::make_shared<RichTextBreak>());
+            // todo: 仔细研究一下开头的 \n 到底在什么情况下有效果
+            if (!text.empty() && text[0] != '\n')
+                d.push_back(std::make_shared<RichTextBreak>());
             d.push_back(std::make_shared<RichTextSpan>(text, textColor));
             break;
         }
