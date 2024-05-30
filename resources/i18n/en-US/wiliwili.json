@@ -261,6 +261,7 @@
       "reply": "comment",
       "article": "article",
       "dynamic": "activity",
+      "danmu": "danmaku",
       "album": "activity"
     },
     "more": "and {} people liked my {}",
