@@ -43,8 +43,8 @@ modules:
       - -Dmanpage-build=disabled
     sources:
       - type: archive
-        url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.37.0.tar.gz
-        sha256: 1d2d4adbaf048a2fa6ee134575032c4b2dad9a7efafd5b3e69b88db935afaddf
+        url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.38.0.tar.gz
+        sha256: 86d9ef40b6058732f67b46d0bbda24a074fae860b3eaae05bab3145041303066
         x-checker-data:
           type: anitya
           project-id: 5348
@@ -72,8 +72,8 @@ modules:
           - PREFIX=/app
         sources:
           - type: archive
-            url: https://github.com/FFmpeg/nv-codec-headers/archive/refs/tags/n12.1.14.0.tar.gz
-            sha256: 2fefaa227d2a3b4170797796425a59d1dd2ed5fd231db9b4244468ba327acd0b
+            url: https://github.com/FFmpeg/nv-codec-headers/archive/refs/tags/n12.2.72.0.tar.gz
+            sha256: dbeaec433d93b850714760282f1d0992b1254fc3b5a6cb7d76fc1340a1e47563
             x-checker-data:
               type: anitya
               project-id: 223796
@@ -85,8 +85,8 @@ modules:
           - --disable-static
         sources:
           - type: archive
-            url: https://github.com/libass/libass/releases/download/0.17.1/libass-0.17.1.tar.gz
-            sha256: d653be97198a0543c69111122173c41a99e0b91426f9e17f06a858982c2fb03d
+            url: https://github.com/libass/libass/releases/download/0.17.2/libass-0.17.2.tar.gz
+            sha256: a9afb52bf76a2569263fe2038896774c991b35c0968342a03be708e56ea60c3b
             x-checker-data:
               type: anitya
               project-id: 1560
@@ -117,8 +117,8 @@ modules:
         sources:
           - type: git
             url: https://github.com/haasn/libplacebo.git
-            commit: 2805a0d01c029084ab36bf5d0e3c8742012a0b27
-            tag: v6.338.1
+            commit: 64c1954570f1cd57f8570a57e51fb0249b57bb90
+            tag: v6.338.2
             x-checker-data:
               type: git
               tag-pattern: ^v([\d.]+)$
@@ -152,8 +152,8 @@ modules:
             url: https://github.com/FFmpeg/FFmpeg.git
             mirror-urls:
               - https://git.ffmpeg.org/ffmpeg.git
-            commit: e38092ef9395d7049f871ef4d5411eb410e283e0
-            tag: n6.1.1
+            commit: af25a4bfd2503caf3ee485b27b99b620302f5718
+            tag: n7.0.1
             x-checker-data:
               type: git
               tag-pattern: ^n([\d.]{3,7})$
