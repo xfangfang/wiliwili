@@ -29,14 +29,15 @@ typedef brls::Event<std::string> UpdateSearchEvent;
 
 class DataSourceSearchVideoList : public RecyclingGridDataSource {
 public:
-    DataSourceSearchVideoList(bilibili::VideoItemSearchListResult result) : list(std::move(result)) {}
+    explicit DataSourceSearchVideoList(bilibili::VideoItemSearchListResult result) : list(std::move(result)) {}
 
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::VideoItemSearchResult& r = this->list[index];
-        item->setCard(r.cover + ImageHelper::h_ext, r.title, r.subtitle, r.pubdate, r.play, r.danmaku, "");
+        item->setCard(r.cover + ImageHelper::h_ext, r.title, r.subtitle, r.pubdate, r.play, r.danmaku,
+                      wiliwili::uglyString2Time(r.rightBottomBadge));
         return item;
     }
 
