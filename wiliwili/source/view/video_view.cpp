@@ -787,7 +787,12 @@ void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y, float wi
         pointX += dX;
         float pointY = baseY - 12 - item * 48;
         float cx     = lastX + halfDx;
+#ifdef __PS4__
+        if (fabs(lastY - pointY) < 10) {
+            // 尽量画直线，减小 ps4 GPU 崩溃的可能
+#else
         if (fabs(lastY - pointY) < 3) {
+#endif
             // 相差太小，直接绘制直线
             nvgLineTo(vg, pointX, pointY);
         } else {
