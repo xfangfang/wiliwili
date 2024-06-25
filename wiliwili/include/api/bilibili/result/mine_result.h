@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 #include "bilibili/result/dynamic_video.h"
 #include "bilibili/result/inbox_result.h"
 
@@ -137,16 +137,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDynamicVideoResultWrapper, page, archives
 
 class UserDynamicCount {
 public:
-    std::map<std::string, unsigned int> data;
+    size_t dyn_num;
 };
-inline void from_json(const nlohmann::json& nlohmann_json_j, UserDynamicCount& nlohmann_json_t) {
-    if (!nlohmann_json_j.contains("items") || !nlohmann_json_j.at("items").is_array()) return;
-
-    for (auto i : nlohmann_json_j.at("items")) {
-        if (i.contains("uid") && i.contains("num"))
-            nlohmann_json_t.data[std::to_string(i.at("uid").get<unsigned int>())] = i.at("num").get<unsigned int>();
-    }
-}
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserDynamicCount, dyn_num);
 
 class UserRelationStat {
 public:

@@ -602,7 +602,7 @@ void SettingActivity::onContentAvailable() {
             ProgramConfig::instance().setSettingItem(SettingItem::HTTP_PROXY, httpProxy);
             ProgramConfig::instance().setProxy(httpProxy);
         },
-        "http://127.0.0.1:7890", "wiliwili/setting/app/network/proxy_hint"_i18n);
+        "http://127.0.0.1:7890", "wiliwili/setting/app/network/proxy_hint"_i18n, 64);
 
 /// Hardware decode
 #ifdef PS4

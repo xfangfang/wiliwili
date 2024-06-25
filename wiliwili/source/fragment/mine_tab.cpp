@@ -170,8 +170,7 @@ void MineTab::onUserDynamicStat(const bilibili::UserDynamicCount& result) {
     ASYNC_RETAIN
     brls::sync([ASYNC_TOKEN, result]() {
         ASYNC_RELEASE
-        std::string mid = ProgramConfig::instance().getUserID();
-        if (result.data.count(mid) != 0) this->labelDynamic->setText(wiliwili::num2w(result.data.at(mid)));
+        this->labelDynamic->setText(wiliwili::num2w(result.dyn_num));
     });
 }
 

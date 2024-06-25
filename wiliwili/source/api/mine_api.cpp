@@ -123,7 +123,7 @@ void BilibiliClient::get_user_relation(const std::string& mid, const std::functi
 void BilibiliClient::get_user_dynamic_count(const std::string& mid,
                                             const std::function<void(UserDynamicCount)>& callback,
                                             const ErrorCallback& error) {
-    HTTP::getResultAsync<UserDynamicCount>(Api::UserDynamicStat, {{"uids", mid}}, callback, error);
+    HTTP::getResultAsync<UserDynamicCount>(Api::UserDynamicStat, {{"uid_str", mid}}, callback, error);
 }
 
 void BilibiliClient::get_user_cards(const std::vector<std::string>& uids,
