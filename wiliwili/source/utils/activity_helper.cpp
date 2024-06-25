@@ -55,6 +55,7 @@ void Intent::openCollection(const std::string& mid, const std::string& type) {
 }
 
 void Intent::openSearch(const std::string& key) {
+    if (key.empty()) return;
     auto activity = new SearchActivity(key);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);
