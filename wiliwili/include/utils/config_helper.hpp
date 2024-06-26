@@ -39,7 +39,11 @@ enum class SettingItem {
     HIDE_BOTTOM_BAR,
     HIDE_FPS,
     FULLSCREEN,
-    ALWAYS_ON_TOP,
+    MINIMUM_WINDOW_WIDTH,  // 窗口最小宽度
+    MINIMUM_WINDOW_HEIGHT, // 窗口最小高度
+    ON_TOP_WINDOW_WIDTH,    // 窗口置顶设置为自动时，低于此宽度的窗口自动置顶
+    ON_TOP_WINDOW_HEIGHT,   // 窗口置顶设置为自动时，低于此高度的窗口自动置顶
+    ON_TOP_MODE,  // 窗口置顶模式
     APP_THEME,      // 深浅主题色
     APP_LANG,       // 应用语言
     APP_RESOURCES,  // 自定义界面布局
@@ -258,6 +262,11 @@ public:
     void setSeasonCustomSetting(const SeasonCustomSetting& setting);
 
     void toggleFullscreen();
+
+    /**
+     * 检查是否需要置顶窗口
+     */
+    void checkOnTop();
 
     std::vector<CustomTheme> customThemes;
     Cookie cookie = {{"DedeUserID", "0"}};

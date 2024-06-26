@@ -109,7 +109,6 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     // release 下默认全屏
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
 #endif
-    {SettingItem::ALWAYS_ON_TOP, {"always_on_top"}},
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_HIGHLIGHT_BAR, {"player_highlight_bar", {}, {}, 0}},
@@ -218,6 +217,11 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_SATURATION, {"player_saturation", {}, {}, 0}},
     {SettingItem::PLAYER_HUE, {"player_hue", {}, {}, 0}},
     {SettingItem::PLAYER_GAMMA, {"player_gamma", {}, {}, 0}},
+    {SettingItem::MINIMUM_WINDOW_WIDTH, {"minimum_window_width", {"480"}, {480}, 0}},
+    {SettingItem::MINIMUM_WINDOW_HEIGHT, {"minimum_window_height", {"270"}, {270}, 0}},
+    {SettingItem::ON_TOP_WINDOW_WIDTH, {"on_top_window_width", {"480"}, {480}, 0}},
+    {SettingItem::ON_TOP_WINDOW_HEIGHT, {"on_top_window_height", {"270"}, {270}, 0}},
+    {SettingItem::ON_TOP_MODE, {"on_top_mode", {"off", "always", "auto"}, {0, 1, 2}, 0}},
 };
 
 ProgramConfig::ProgramConfig() = default;
@@ -348,6 +352,11 @@ void ProgramConfig::loadHomeWindowState() {
     sscanf(homeWindowStateData.c_str(), "%d,%ux%u,%dx%d", &monitor, &hWidth, &hHeight, &hXPos, &hYPos);
 
     if (hWidth == 0 || hHeight == 0) return;
+
+    int minWidth  = getIntOption(SettingItem::MINIMUM_WINDOW_WIDTH);
+    int minHeight = getIntOption(SettingItem::MINIMUM_WINDOW_HEIGHT);
+    if (hWidth < minWidth) hWidth = minWidth;
+    if (hHeight < minHeight) hHeight = minHeight;
 
     VideoContext::sizeH        = hHeight;
     VideoContext::sizeW        = hWidth;
@@ -620,10 +629,10 @@ void ProgramConfig::load() {
         // 设置窗口最小尺寸
 #ifdef IOS
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
-        brls::Application::getPlatform()->setWindowSizeLimits(MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT, 0, 0);
-        if (getBoolOption(SettingItem::ALWAYS_ON_TOP)) {
-            brls::Application::getPlatform()->setWindowAlwaysOnTop(true);
-        }
+        int minWidth  = getIntOption(SettingItem::MINIMUM_WINDOW_WIDTH);
+        int minHeight = getIntOption(SettingItem::MINIMUM_WINDOW_HEIGHT);
+        brls::Application::getPlatform()->setWindowSizeLimits(minWidth, minHeight, 0, 0);
+        checkOnTop();
 #endif
     });
 
@@ -713,9 +722,38 @@ void ProgramConfig::save() {
     brls::Logger::info("Write config to: {}", path);
 }
 
+void ProgramConfig::checkOnTop() {
+    switch (getIntOption(SettingItem::ON_TOP_MODE)) {
+        case 0:
+            // 关闭
+            brls::Application::getPlatform()->setWindowAlwaysOnTop(false);
+            return;
+        case 1:
+            // 开启
+            brls::Application::getPlatform()->setWindowAlwaysOnTop(true);
+            return;
+        case 2: {
+            // 自动模式，根据窗口大小判断是否需要切换到置顶模式
+            double factor = brls::Application::getPlatform()->getVideoContext()->getScaleFactor();
+            int minWidth =
+                ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_WIDTH) * factor + 0.1;
+            int minHeight =
+                ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_HEIGHT) * factor + 0.1;
+            bool onTop = brls::Application::windowWidth <= minWidth || brls::Application::windowHeight <= minHeight;
+            brls::Application::getPlatform()->setWindowAlwaysOnTop(onTop);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void ProgramConfig::init() {
     brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
     wiliwili::initCrashDump();
+
+    // 在窗口大小改变时检查是否需要切换到置顶模式
+    brls::Application::getWindowSizeChangedEvent()->subscribe([]() { ProgramConfig::instance().checkOnTop(); });
 
     // Set min_threads and max_threads of http thread pool
     curl_global_init(CURL_GLOBAL_DEFAULT);

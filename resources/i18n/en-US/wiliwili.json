@@ -49,6 +49,7 @@
         "limited_fps_vsync": "Vertical Synchronization",
         "fullscreen": "Fullscreen",
         "always_on_top": "Always on top",
+        "always_on_top_hint": "Auto: Automatically set the window to the top when the window size is small",
         "tv_search": "TV style search page",
         "clear_history": "Clear search history",
         "clear_season": "Clear bangumi custom settings",

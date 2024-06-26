@@ -49,6 +49,7 @@
         "limited_fps_vsync": "垂直同步",
         "fullscreen": "全屏显示",
         "always_on_top": "窗口置顶",
+        "always_on_top_hint": "自动: 当窗口尺寸较小时自动开启置顶",
         "tv_search": "电视风格搜索页",
         "clear_history": "清空搜索记录",
         "clear_season": "清空番剧自定义设置",

@@ -354,12 +354,33 @@ void SettingActivity::onContentAvailable() {
                              brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
                          });
 
-    cellAlwaysOnTop->init("wiliwili/setting/app/others/always_on_top"_i18n, conf.getBoolOption(SettingItem::ALWAYS_ON_TOP),
-                         [](bool value) {
-                             ProgramConfig::instance().setSettingItem(SettingItem::ALWAYS_ON_TOP, value);
-                             // 设置当前状态
-                             brls::Application::getPlatform()->setWindowAlwaysOnTop(value);
-                         });
+    auto setOnTopCell = [this](bool enabled){
+        if (enabled) {
+            cellOnTopMode->setDetailTextColor(brls::Application::getTheme()["brls/list/listItem_value_color"]);
+        } else {
+            cellOnTopMode->setDetailTextColor(brls::Application::getTheme()["brls/text_disabled"]);
+        }
+    };
+    setOnTopCell(conf.getIntOptionIndex(SettingItem::ON_TOP_MODE) != 0);
+    int onTopModeIndex = conf.getIntOption(SettingItem::ON_TOP_MODE);
+    cellOnTopMode->setText("wiliwili/setting/app/others/always_on_top"_i18n);
+    std::vector<std::string> onTopOptionList = {"hints/off"_i18n, "hints/on"_i18n,
+                                                "wiliwili/player/setting/aspect/auto"_i18n};
+    cellOnTopMode->setDetailText(onTopOptionList[onTopModeIndex]);
+    cellOnTopMode->registerClickAction([this, onTopOptionList, setOnTopCell](brls::View* view) {
+        BaseDropdown::text(
+            "wiliwili/setting/app/others/always_on_top"_i18n, onTopOptionList,
+            [this, onTopOptionList, setOnTopCell](int data) {
+                cellOnTopMode->setDetailText(onTopOptionList[data]);
+                ProgramConfig::instance().setSettingItem(SettingItem::ON_TOP_MODE, data);
+                ProgramConfig::instance().checkOnTop();
+                setOnTopCell(data != 0);
+            },
+            ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_MODE),
+            "wiliwili/setting/app/others/always_on_top_hint"_i18n);
+        return true;
+    });
+
 #else
     cellFullscreen->setVisibility(brls::Visibility::GONE);
     cellAlwaysOnTop->setVisibility(brls::Visibility::GONE);
