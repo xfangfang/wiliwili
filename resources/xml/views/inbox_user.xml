@@ -26,6 +26,7 @@
                 minWidth="50"
                 height="auto"
                 fontSize="16"
+                shrink="0"
                 horizontalAlign="right"
                 wireframe="false"
                 textColor="@theme/font/grey" />
