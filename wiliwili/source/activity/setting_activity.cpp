@@ -383,7 +383,7 @@ void SettingActivity::onContentAvailable() {
 
 #else
     cellFullscreen->setVisibility(brls::Visibility::GONE);
-    cellAlwaysOnTop->setVisibility(brls::Visibility::GONE);
+    cellOnTopMode->setVisibility(brls::Visibility::GONE);
 #endif
 
     /// App theme

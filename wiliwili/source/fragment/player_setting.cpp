@@ -299,7 +299,7 @@ void PlayerSetting::setupCommonSetting() {
 
 #else
     btnFullscreen->setVisibility(brls::Visibility::GONE);
-    btnAlwaysOnTop->setVisibility(brls::Visibility::GONE);
+    btnOnTopMode->setVisibility(brls::Visibility::GONE);
 #endif
 
     btnEqualizerReset->registerClickAction([this](View* view) {
