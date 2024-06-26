@@ -151,6 +151,9 @@ static GLuint linkProgram(GLuint s1, GLuint s2) {
 #elif defined(BOREALIS_USE_D3D11)
 #include <borealis/platforms/driver/d3d11.hpp>
 extern std::unique_ptr<brls::D3D11Context> D3D11_CONTEXT;
+#elif defined(USE_GL2)
+#undef glBindFramebuffer
+#define glBindFramebuffer(a, b) void()
 #endif
 
 static inline void check_error(int status) {
