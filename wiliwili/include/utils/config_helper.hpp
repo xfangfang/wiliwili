@@ -13,19 +13,6 @@
 #include "borealis/core/singleton.hpp"
 #include "borealis/core/logger.hpp"
 
-#ifdef USE_BOOST_FILESYSTEM
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
-#elif __has_include(<filesystem>)
-#include <filesystem>
-namespace fs = std::filesystem;
-#elif __has_include("experimental/filesystem")
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-#elif !defined(USE_LIBROMFS)
-#error "Failed to include <filesystem> header!"
-#endif
-
 #ifdef PS4
 const std::string primaryDNSStr   = "223.5.5.5";
 const std::string secondaryDNSStr = "1.1.1.1";
