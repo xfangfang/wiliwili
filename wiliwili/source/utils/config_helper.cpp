@@ -11,6 +11,7 @@
 
 #include <borealis/core/application.hpp>
 #include <borealis/core/cache_helper.hpp>
+#include <cpr/filesystem.h>
 
 #include "bilibili.h"
 #include "utils/number_helper.hpp"
@@ -709,7 +710,7 @@ void ProgramConfig::save() {
     const std::string path = this->getConfigDir() + "/wiliwili_config.json";
     // fs is defined in cpr/cpr.h
 #ifndef IOS
-    fs::create_directories(this->getConfigDir());
+    cpr::fs::create_directories(this->getConfigDir());
 #endif
     nlohmann::json content(*this);
     std::ofstream writeFile(path);
@@ -918,17 +919,17 @@ void ProgramConfig::exit(char* argv[]) {
 void ProgramConfig::loadCustomThemes() {
     customThemes.clear();
     std::string directoryPath = getConfigDir() + "/theme";
-    if (!fs::exists(directoryPath)) return;
+    if (!cpr::fs::exists(directoryPath)) return;
 
-    for (const auto& entry : fs::directory_iterator(getConfigDir() + "/theme")) {
+    for (const auto& entry : cpr::fs::directory_iterator(getConfigDir() + "/theme")) {
 #if USE_BOOST_FILESYSTEM
-        if (!fs::is_directory(entry)) continue;
+        if (!cpr::fs::is_directory(entry)) continue;
 #else
         if (!entry.is_directory()) continue;
 #endif
         std::string subDirectory = entry.path().string();
         std::string jsonFilePath = subDirectory + "/resources_meta.json";
-        if (!fs::exists(jsonFilePath)) continue;
+        if (!cpr::fs::exists(jsonFilePath)) continue;
 
         std::ifstream readFile(jsonFilePath);
         if (readFile) {

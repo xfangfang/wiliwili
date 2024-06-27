@@ -8,6 +8,7 @@
 #include <borealis/core/util.hpp>
 #include <utility>
 #include <pystring.h>
+#include <cpr/filesystem.h>
 #include "utils/config_helper.hpp"
 #include "utils/shader_helper.hpp"
 #include "view/mpv_core.hpp"
@@ -156,7 +157,7 @@ void ShaderHelper::save() {
     const std::string path = ProgramConfig::instance().getConfigDir() + "/pack.json";
     // fs is defined in cpr/cpr.h
 #ifndef IOS
-    fs::create_directories(ProgramConfig::instance().getConfigDir());
+    cpr::fs::create_directories(ProgramConfig::instance().getConfigDir());
 #endif
     nlohmann::json content(pack);
     std::ofstream writeFile(path);
