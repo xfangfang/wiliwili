@@ -2,15 +2,15 @@
 set -e
 
 files=(libass.9.dylib
-       libavcodec.60.31.102.dylib
-       libavdevice.60.3.100.dylib
-       libavfilter.9.12.100.dylib
-       libavformat.60.16.100.dylib
-       libavutil.58.29.100.dylib
+       libavcodec.61.3.100.dylib
+       libavdevice.61.1.100.dylib
+       libavfilter.10.1.100.dylib
+       libavformat.61.1.100.dylib
+       libavutil.59.8.100.dylib
        libboost_atomic-mt.dylib
        libboost_filesystem-mt.dylib
        libcrypto.3.dylib
-       libdav1d.6.dylib
+       libdav1d.7.dylib
        libfontconfig.1.dylib
        libfreetype.6.dylib
        libfribidi.0.dylib
@@ -19,22 +19,27 @@ files=(libass.9.dylib
        libgnutls.30.dylib
        libgraphite2.3.2.1.dylib
        libharfbuzz.0.dylib
-       libhogweed.6.8.dylib
+       libhogweed.6.9.dylib
        libidn2.0.dylib
        libintl.8.dylib
+       libjpeg.8.3.2.dylib
+       liblcms2.2.dylib
        libmpv.2.dylib
-       libnettle.8.8.dylib
+       libnettle.8.9.dylib
        libp11-kit.0.dylib
        libpcre2-8.0.dylib
+       libplacebo.338.dylib
        libpng16.16.dylib
-       libsharpyuv.0.0.1.dylib
+       libshaderc_shared.1.dylib
+       libsharpyuv.0.1.0.dylib
        libssl.3.dylib
-       libswresample.4.12.100.dylib
-       libswscale.7.5.100.dylib
+       libswresample.5.1.100.dylib
+       libswscale.8.1.100.dylib
        libtasn1.6.dylib
-       libunibreak.5.dylib
+       libunibreak.6.dylib
        libunistring.5.dylib
-       libwebp.7.1.8.dylib)
+       libvulkan.1.3.280.dylib
+       libwebp.7.1.9.dylib)
 
 rm -rf ./universal
 mkdir -p ./universal
@@ -57,12 +62,16 @@ for file in "${files[@]}"; do
   ((i++))
 done
 
-output_name="macos_dylib_ffmpeg61_mpv36"
+cp -r ./arm64/cmake ./universal/
+
+output_name="macos_dylib_ffmpeg7_mpv38"
 arch_list=("arm64" "x86_64" "universal")
 for i in "${arch_list[@]}";
 do
   echo "$i";
+  mv "${i}" lib
   package_name="${output_name}_${i}.tar.gz"
   rm -rf "$package_name"
-  tar -czvf "$package_name" "${i}"
+  tar -czvf "$package_name" lib include
+  mv lib "${i}"
 done

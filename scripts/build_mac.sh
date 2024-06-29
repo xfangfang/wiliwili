@@ -45,7 +45,8 @@ else
     bundle_deps="-b"
   else
     echo "bundle deps: $2"
-    cp -r "$2" "${APP_PATH}"/Contents/MacOS/lib
+    mkdir -p "${APP_PATH}"/Contents/MacOS/lib
+    cp "$2"/*.dylib "${APP_PATH}"/Contents/MacOS/lib
   fi
   dylibbundler -cd ${bundle_deps} -x "${APP_PATH}"/Contents/MacOS/wiliwili \
     -d "${APP_PATH}"/Contents/MacOS/lib/ -p @executable_path/lib/
