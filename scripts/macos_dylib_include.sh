@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.." || exit
 rm -rf include
 mkdir -p include
 
-boost_item=("filesystem" "system" "config" "assert" "type_traits" "mpl" "preprocessor" "static_assert" "core" "detail" "io" "functional" "container_hash" "smart_ptr")
+boost_item=("filesystem" "system" "config" "assert" "iterator" "type_traits" "mpl" "preprocessor" "static_assert" "core" "detail" "io" "functional" "container_hash" "smart_ptr")
 for item in "${boost_item[@]}"
 do
    url="https://github.com/boostorg/$item/archive/refs/tags/boost-$boost_version.zip"

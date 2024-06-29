@@ -62,6 +62,8 @@ for file in "${files[@]}"; do
   ((i++))
 done
 
+cp -r ./arm64/cmake ./universal/
+
 output_name="macos_dylib_ffmpeg7_mpv38"
 arch_list=("arm64" "x86_64" "universal")
 for i in "${arch_list[@]}";
