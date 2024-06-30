@@ -8,6 +8,8 @@
             width="auto"
             height="auto"
             axis="column"
+            hideHighlightBackground="true"
+            hideHighlightBorder="true"
             wireframe="false"
             paddingLeft="60"
             paddingRight="60"

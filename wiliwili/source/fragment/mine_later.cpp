@@ -19,7 +19,7 @@ public:
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
         bilibili::WatchLaterItem& r      = this->list[index];
-        item->setCard(r.pic, r.title, r.owner.name, 0, r.stat.view, r.stat.danmaku, r.duration);  //todo
+        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name, 0, r.stat.view, r.stat.danmaku, r.duration);  //todo
         return item;
     }
 

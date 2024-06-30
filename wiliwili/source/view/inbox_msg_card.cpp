@@ -33,7 +33,7 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
         }
         if (r.content.contains("thumb")) {
             std::string thumb = r.content.at("thumb");
-            ImageHelper::with(this->shareThumb)->load(thumb);
+            ImageHelper::with(this->shareThumb)->load(thumb + ImageHelper::h_ext);
         }
         if (r.content.contains("author")) {
             std::string author = r.content.at("author");

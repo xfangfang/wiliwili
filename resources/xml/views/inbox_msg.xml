@@ -66,6 +66,7 @@
                         <brls:Image
                                 id="msg/share/thumb"
                                 height="200"
+                                cornerRadius="4"
                                 image="@res/pictures/video-card-bg.png"
                                 scalingType="fill" />
 
