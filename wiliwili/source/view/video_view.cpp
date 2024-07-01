@@ -584,6 +584,7 @@ void VideoView::requestVolume(int volume, int delay) {
     volume_iter = brls::delay(delay, [ASYNC_TOKEN]() {
         ASYNC_RELEASE
         this->hideCenterHint();
+        ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_VOLUME, MPVCore::VIDEO_VOLUME);
         this->volume_iter = 0;
     });
 }
