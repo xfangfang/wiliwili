@@ -11,6 +11,7 @@
 
 #include <borealis/core/application.hpp>
 #include <borealis/core/cache_helper.hpp>
+#include <borealis/core/touch/pan_gesture.hpp>
 #include <cpr/filesystem.h>
 
 #include "bilibili.h"
@@ -223,6 +224,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::ON_TOP_WINDOW_WIDTH, {"on_top_window_width", {"480"}, {480}, 0}},
     {SettingItem::ON_TOP_WINDOW_HEIGHT, {"on_top_window_height", {"270"}, {270}, 0}},
     {SettingItem::ON_TOP_MODE, {"on_top_mode", {"off", "always", "auto"}, {0, 1, 2}, 0}},
+    {SettingItem::SCROLL_SPEED, {"scroll_speed", {}, {}, 0}},
 };
 
 ProgramConfig::ProgramConfig() = default;
@@ -557,6 +559,15 @@ void ProgramConfig::load() {
 
     // 是否使用低质量解码
     MPVCore::LOW_QUALITY = getBoolOption(SettingItem::PLAYER_LOW_QUALITY);
+
+    // 初始化滑动速度
+#ifdef _WIN32
+    int scrollSpeed = getSettingItem(SettingItem::SCROLL_SPEED, 150);
+#else
+    int scrollSpeed = getSettingItem(SettingItem::SCROLL_SPEED, 100);
+#endif
+    brls::PanGestureRecognizer::panFactor = scrollSpeed * 0.01f;
+
 
     // 初始化i18n
     std::set<std::string> i18nData{
