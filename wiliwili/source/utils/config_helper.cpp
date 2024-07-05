@@ -406,8 +406,14 @@ void ProgramConfig::load() {
     // 默认加载环境变量
     const char* http_proxy  = getenv("http_proxy");
     const char* https_proxy = getenv("https_proxy");
-    if (http_proxy) this->httpProxy = http_proxy;
-    if (https_proxy) this->httpsProxy = https_proxy;
+    if (http_proxy) {
+        this->httpProxy = http_proxy;
+        brls::Logger::info("Load http proxy from env: {}", this->httpProxy);
+    }
+    if (https_proxy) {
+        this->httpsProxy = https_proxy;
+        brls::Logger::info("Load https proxy from env: {}", this->httpsProxy);
+    }
     // 如果设置开启了自定义代理，则读取配置文件中的代理设置
     if (getBoolOption(SettingItem::HTTP_PROXY_STATUS)) {
         this->httpProxy  = getSettingItem(SettingItem::HTTP_PROXY, this->httpProxy);
