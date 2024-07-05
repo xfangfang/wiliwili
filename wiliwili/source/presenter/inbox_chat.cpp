@@ -48,7 +48,9 @@ void InboxChatRequest::requestData(bool refresh) {
                 [ASYNC_TOKEN, result, refresh](const bilibili::UserCardListResult& users) {
                     for (auto& u : users) user_map[u.mid] = u;
 
-                    auto list = std::move(result.session_list);
+                    std::vector<bilibili::InboxChatResult> list;
+                    std::copy_if(result.session_list.begin(), result.session_list.end(), std::back_inserter(list),
+                                 [](auto i){ return i.session_type == 1;});
                     for (auto& s : list) {
                         auto it = user_map.find(s.talker_id);
                         if (it != user_map.end()) {
