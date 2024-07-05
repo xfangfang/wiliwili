@@ -298,11 +298,10 @@ docker run --rm -v $(pwd):/data devkitpro/devkita64:20240202 \
 sudo dkp-pacman -S switch-glfw switch-libwebp switch-cmake switch-curl devkitA64
 
 # 3. 安装自定义依赖
-# devkitpro提供的部分依赖版本过低, 提供的 ffmpeg 无法播放网络视频
+# devkitpro提供的提供的 ffmpeg/mpv 无法播放网络视频
 # 手动编译方法请参考：scripts/README.md
 base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 sudo dkp-pacman -U \
-    $base_url/switch-libass-0.17.1-1-any.pkg.tar.zst \
     $base_url/switch-ffmpeg-6.1-5-any.pkg.tar.zst \
     $base_url/switch-libmpv-0.36.0-2-any.pkg.tar.zst
 

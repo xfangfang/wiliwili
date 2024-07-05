@@ -325,7 +325,6 @@ jobs:
                 -DMPV_NO_FB=ON \
                 -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build == 'true' && 'OFF' || 'ON' }} \
                 -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
-                -DUSE_SYSTEM_CPR=ON && \
                 make -C cmake-build-ps4 -j$(nproc)"
 
       - name: Upload dist
