@@ -3,6 +3,7 @@
 //
 
 #include "bilibili.h"
+#include "bilibili/api.h"
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/search_result.h"
 

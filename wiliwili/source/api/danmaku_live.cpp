@@ -4,6 +4,7 @@
 
 #include "live/danmaku_live.hpp"
 #include "bilibili.h"
+#include "bilibili/api.h"
 #include "bilibili/result/live_danmaku_result.h"
 #include "bilibili/util/http.hpp"
 #include "live/ws_utils.hpp"

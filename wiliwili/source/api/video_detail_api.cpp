@@ -2,6 +2,7 @@
 #include <utility>
 
 #include "bilibili.h"
+#include "bilibili/api.h"
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/video_detail_result.h"
 #include "bilibili/result/home_live_result.h"

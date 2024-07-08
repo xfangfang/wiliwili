@@ -4,7 +4,6 @@
 #include <map>
 #include <vector>
 #include <future>
-#include "bilibili/api.h"
 
 namespace bilibili {
 

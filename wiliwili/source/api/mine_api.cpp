@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
 #include "bilibili.h"
+#include "bilibili/api.h"
 #include "bilibili/util/md5.hpp"
 #include "curl/curl.h"
 #include "bilibili/util/http.hpp"
