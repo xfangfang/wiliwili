@@ -350,7 +350,7 @@ void VideoDetail::requestCastVideoUrl(uint64_t oid, uint64_t cid, int type) {
             brls::Logger::error("{}", error);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
-                APP_E->fire("CAST_URL_ERROR", nullptr);
+                APP_E->fire("CAST_URL_ERROR", error.empty() ? nullptr : (void*)error.c_str());
             });
         });
 }
@@ -569,8 +569,7 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, uint64_t cid, 
 }
 
 /// 上报历史记录
-void VideoDetail::reportHistory(uint64_t aid, uint64_t cid, unsigned int progress, unsigned int duration,
-                                int type) {
+void VideoDetail::reportHistory(uint64_t aid, uint64_t cid, unsigned int progress, unsigned int duration, int type) {
     if (!REPORT_HISTORY) return;
     if (aid == 0 || cid == 0) return;
     brls::Logger::debug("reportHistory: aid{} cid{} progress{} duration{}", aid, cid, progress, duration);

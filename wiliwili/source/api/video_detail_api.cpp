@@ -93,22 +93,21 @@ void BilibiliClient::get_video_url(uint64_t aid, uint64_t cid, int qn, const std
 void BilibiliClient::get_video_url_cast(uint64_t oid, uint64_t cid, int type, int qn, const std::string& csrf,
                                         const std::function<void(VideoUrlResult)>& callback,
                                         const ErrorCallback& error) {
+    //todo: csrf 不是 mobile_access_key，导致无法获取大会员或付费视频链接
     HTTP::getResultAsync<VideoUrlResult>(Api::PlayUrlCast,
-                                         {{"build", "105001"},
+                                         {{"access_key", csrf},
                                           {"is_proj", "1"},
-                                          {"device_type", "1"},
-                                          {"protocol", "1"},
+                                          {"actionKey", "appkey"},
+                                          {"device_type", "0"},
+                                          {"protocol", "0"},
                                           {"mobile_access_key", csrf},
-                                          {"mobi_app", "android_tv_yst"},
-                                          {"platform", "android"},
+                                          {"platform", "ios"},
                                           {"playurl_type", std::to_string(type)},
                                           {"object_id", std::to_string(oid)},
                                           {"cid", std::to_string(cid)},
                                           {"qn", std::to_string(qn)},
-                                          {"fourk", "1"},
-                                          {"fnval", "128"},
-                                          {"fnver", "0"}},
-                                         callback, error);
+                                          {"fourk", "1"}},
+                                         callback, error, true);
 }
 
 void BilibiliClient::get_comment(const std::string& oid, int next, int mode, int type,
