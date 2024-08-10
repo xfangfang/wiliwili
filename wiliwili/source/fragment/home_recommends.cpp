@@ -25,14 +25,25 @@ public:
         RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::RecommendVideoResult& r = this->recommendList[index];
-        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name, r.pubdate, r.stat.view, r.stat.danmaku,
-                      r.duration, r.rcmd_reason.content);
+        if (r.isAd) {
+            item->setCard(r.business_info.pic + ImageHelper::h_ext, r.business_info.title, r.business_info.adver_name,
+                          "", "", "", r.business_info.business_mark);
+        } else {
+            item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name, r.pubdate, r.stat.view, r.stat.danmaku,
+                          r.duration, r.rcmd_reason.content);
+        }
         return item;
     }
 
     size_t getItemCount() override { return recommendList.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override { Intent::openBV(recommendList[index].bvid); }
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
+        if (recommendList[index].isAd) {
+            brls::Application::getPlatform()->openBrowser(recommendList[index].business_info.url);
+        } else {
+            Intent::openBV(recommendList[index].bvid);
+        }
+    }
 
     void appendData(const bilibili::RecommendVideoListResult& data) {
         //todo: 研究一下多线程条件下的问题
