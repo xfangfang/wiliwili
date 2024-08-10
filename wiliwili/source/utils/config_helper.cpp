@@ -225,6 +225,9 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::ON_TOP_WINDOW_HEIGHT, {"on_top_window_height", {"270"}, {270}, 0}},
     {SettingItem::ON_TOP_MODE, {"on_top_mode", {"off", "always", "auto"}, {0, 1, 2}, 0}},
     {SettingItem::SCROLL_SPEED, {"scroll_speed", {}, {}, 0}},
+
+/// Custom
+    {SettingItem::UP_FILTER, {"up_filter", {}, {}, 0}},
 };
 
 ProgramConfig::ProgramConfig() = default;
@@ -659,6 +662,9 @@ void ProgramConfig::load() {
     // 窗口将要关闭时, 保存窗口状态配置
     brls::Application::getExitEvent()->subscribe([this]() { saveHomeWindowState(); });
 #endif
+
+    // 加载屏蔽的up主
+    ProgramConfig::instance().upFilter = getSettingItem(SettingItem::UP_FILTER, std::unordered_set<uint64_t>{});
 
     // 检查不欢迎名单
     wiliwili::checkBanList();

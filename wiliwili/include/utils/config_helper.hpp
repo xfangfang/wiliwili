@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <unordered_set>
 #include <nlohmann/json.hpp>
 #include "analytics.h"
 #include "borealis/core/singleton.hpp"
@@ -91,6 +92,7 @@ enum class SettingItem {
     HTTP_PROXY,
     HTTP_PROXY_STATUS,
     TLS_VERIFY,
+    UP_FILTER,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -266,6 +268,7 @@ public:
     SeasonCustomSetting seasonCustom;
     std::string httpProxy;
     std::string httpsProxy;
+    std::unordered_set<uint64_t> upFilter; // 此列表中的up主在推荐页面将不显示
 
     static std::unordered_map<SettingItem, ProgramOption> SETTING_MAP;
 };

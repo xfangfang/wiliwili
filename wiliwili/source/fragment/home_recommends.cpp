@@ -9,6 +9,7 @@
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/config_helper.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
 
@@ -93,7 +94,20 @@ void HomeRecommends::onCreate() {
                             });
 }
 
-void HomeRecommends::onRecommendVideoList(const bilibili::RecommendVideoListResultWrapper& result) {
+void HomeRecommends::onRecommendVideoList(const bilibili::RecommendVideoListResultWrapper& originalResult) {
+    // 过滤up主
+    bilibili::RecommendVideoListResultWrapper result;
+    result.requestIndex = originalResult.requestIndex;
+    result.item.resize(originalResult.item.size());
+    if (ProgramConfig::instance().upFilter.empty()) {
+        std::copy(originalResult.item.begin(), originalResult.item.end(), result.item.begin());
+    } else {
+        auto it = std::copy_if(
+            originalResult.item.begin(), originalResult.item.end(), result.item.begin(),
+            [](const bilibili::RecommendVideoResult& r) { return !ProgramConfig::instance().upFilter.count(r.owner.mid); });
+        result.item.resize(std::distance(result.item.begin(), it));
+    }
+
     brls::Threading::sync([this, result]() {
         auto* datasource = dynamic_cast<DataSourceRecommendVideoList*>(recyclingGrid->getDataSource());
         if (datasource && result.requestIndex != 1) {
