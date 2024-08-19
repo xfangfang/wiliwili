@@ -4,6 +4,7 @@
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include "bilibili.h"
 #include "bilibili/api.h"
 #include "bilibili/util/md5.hpp"
