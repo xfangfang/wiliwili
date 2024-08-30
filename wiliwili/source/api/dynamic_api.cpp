@@ -3,6 +3,7 @@
 //
 
 #include "bilibili.h"
+#include "bilibili/api.h"
 #include "bilibili/result/dynamic_video.h"
 #include "bilibili/util/http.hpp"
 
@@ -24,7 +25,7 @@ void BilibiliClient::dynamic_video(const unsigned int page, const std::string& o
         error);
 }
 
-void BilibiliClient::dynamic_article(const unsigned int page, const std::string& offset, const int64_t mid,
+void BilibiliClient::dynamic_article(const unsigned int page, const std::string& offset, uint64_t mid,
                                      const std::function<void(DynamicArticleListResultWrapper)>& callback,
                                      const ErrorCallback& error) {
     HTTP::getResultAsync<DynamicArticleListResultWrapper>(
@@ -55,6 +56,14 @@ void BilibiliClient::be_agree_dynamic(const std::string& access_key, const std::
         {"csrf", access_key},
     };
     HTTP::postResultAsync(Api::DynamicLike, {}, payload, callback, error);
+}
+
+void BilibiliClient::get_dynamic_detail(const std::string& id,
+                                        const std::function<void(DynamicArticleResultWrapper)>& callback,
+                                        const ErrorCallback& error) {
+    HTTP::getResultAsync<DynamicArticleResultWrapper>(
+        Api::DynamicDetail, {{"id", id}}, [callback](const DynamicArticleResultWrapper& wrapper) { callback(wrapper); },
+        error);
 }
 
 }  // namespace bilibili

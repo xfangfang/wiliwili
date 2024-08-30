@@ -1,0 +1,83 @@
+<brls:Box
+        wireframe="false"
+        highlightCornerRadius="8"
+        cornerRadius="8"
+        backgroundColor="@theme/color/grey_1"
+        padding="15"
+        width="auto"
+        height="auto">
+
+        <brls:Box
+                wireframe="false"
+                marginRight="30">
+                <brls:Image
+                        id="feed/avatar"
+                        width="60"
+                        aspectRatio="1"
+                        scalingType="fit"
+                        borderThickness="4"
+                        borderColor="@theme/color/grey_1"
+                        cornerRadius="100"
+                        image="@res/pictures/default_avatar.png" />
+        </brls:Box>
+
+        <brls:Box
+                id="feed/content_box"
+                axis="column"
+                marginRight="30"
+                grow="1">
+                <brls:Box>
+                        <brls:Label
+                                id="feed/label/author"
+                                width="auto"
+                                height="auto"
+                                wireframe="false"
+                                grow="1"
+                                fontSize="20"
+                                marginBottom="4"
+                                verticalAlign="bottom" />
+
+                        <brls:Label
+                                id="feed/label/misc"
+                                width="auto"
+                                height="auto"
+                                fontSize="16"
+                                marginTop="4"
+                                verticalAlign="top"
+                                wireframe="false"
+                                shrink="0"
+                                textColor="@theme/font/grey" />
+                </brls:Box>
+
+                <TextBox
+                        id="feed/content"
+                        lineHeight="1.5"
+                        marginTop="10"
+                        grow="1"
+                        maxRows="4"
+                        showMore="true" />
+
+                <brls:Label
+                        fontSize="16"
+                        id="feed/time"
+                        marginTop="10"
+                        wireframe="false"
+                        textColor="@theme/font/grey" />
+
+        </brls:Box>
+
+        <brls:Box
+                id="feed/card/pic_box"
+                height="80"
+                width="80">
+                <brls:Image
+                        id="feed/card/picture"
+                        scalingType="fill"
+                        image="@res/pictures/video-card-bg.png"
+                        cornerRadius="4" />
+                <TextBox
+                        id="feed/card/title"
+                        fontSize="16"
+                        maxRows="3"/>
+        </brls:Box>
+</brls:Box>

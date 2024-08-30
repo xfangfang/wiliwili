@@ -48,8 +48,8 @@ public:
                            const ErrorCallback& error                                = nullptr) {
         cpr::PostCallback(
             [callback, error](const cpr::Response& r) {
-                if (r.status_code == 0) {
-                    ERROR_MSG("No network connection", -1);
+                if (r.error) {
+                    ERROR_MSG(r.error.message, -1);
                     return;
                 } else if (r.status_code != 200) {
                     ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
@@ -66,8 +66,8 @@ public:
                           const ErrorCallback& error                                = nullptr) {
         cpr::GetCallback(
             [callback, error](const cpr::Response& r) {
-                if (r.status_code == 0) {
-                    ERROR_MSG("No network connection", -1);
+                if (r.error) {
+                    ERROR_MSG(r.error.message, -1);
                     return;
                 } else if (r.status_code != 200) {
                     ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
@@ -99,7 +99,7 @@ public:
                     nlohmann::json res = nlohmann::json::parse(r.text);
                     int code           = res.at("code").get<int>();
                     if (code == 0) {
-                        if (res.contains("data") && res.at("data").is_object()) {
+                        if (res.contains("data") && (res.at("data").is_object() || res.at("data").is_array())) {
                             CALLBACK(res.at("data").get<ReturnType>());
                         } else if (res.contains("result") && res.at("result").is_object()) {
                             CALLBACK(res.at("result").get<ReturnType>());
@@ -116,10 +116,10 @@ public:
                         ERROR_MSG("Param error", -1);
                     }
                 } catch (const std::exception& e) {
-                    if (r.status_code == 200) {
+                    if (r.error) {
+                        ERROR_MSG(r.error.message, -1);
+                    } else if (r.status_code == 200) {
                         ERROR_MSG("Api error. \n" + std::string{e.what()}, 200);
-                    } else if (r.status_code == 0) {
-                        ERROR_MSG("No network connection", -1);
                     } else {
                         ERROR_MSG("Network error. \nStatus code: " + std::to_string(r.status_code), r.status_code);
                     }

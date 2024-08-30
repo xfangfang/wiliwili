@@ -9,6 +9,7 @@
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/config_helper.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
 
@@ -25,14 +26,25 @@ public:
         RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::RecommendVideoResult& r = this->recommendList[index];
-        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name, r.pubdate, r.stat.view, r.stat.danmaku,
-                      r.duration, r.rcmd_reason.content);
+        if (r.isAd) {
+            item->setCard(r.business_info.pic + ImageHelper::h_ext, r.business_info.title, r.business_info.adver_name,
+                          "", "", "", r.business_info.business_mark);
+        } else {
+            item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name, r.pubdate, r.stat.view, r.stat.danmaku,
+                          r.duration, r.rcmd_reason.content);
+        }
         return item;
     }
 
     size_t getItemCount() override { return recommendList.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override { Intent::openBV(recommendList[index].bvid); }
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
+        if (recommendList[index].isAd) {
+            brls::Application::getPlatform()->openBrowser(recommendList[index].business_info.url);
+        } else {
+            Intent::openBV(recommendList[index].bvid);
+        }
+    }
 
     void appendData(const bilibili::RecommendVideoListResult& data) {
         //todo: 研究一下多线程条件下的问题
@@ -82,7 +94,20 @@ void HomeRecommends::onCreate() {
                             });
 }
 
-void HomeRecommends::onRecommendVideoList(const bilibili::RecommendVideoListResultWrapper& result) {
+void HomeRecommends::onRecommendVideoList(const bilibili::RecommendVideoListResultWrapper& originalResult) {
+    // 过滤up主
+    bilibili::RecommendVideoListResultWrapper result;
+    result.requestIndex = originalResult.requestIndex;
+    result.item.resize(originalResult.item.size());
+    if (ProgramConfig::instance().upFilter.empty()) {
+        std::copy(originalResult.item.begin(), originalResult.item.end(), result.item.begin());
+    } else {
+        auto it = std::copy_if(
+            originalResult.item.begin(), originalResult.item.end(), result.item.begin(),
+            [](const bilibili::RecommendVideoResult& r) { return !ProgramConfig::instance().upFilter.count(r.owner.mid); });
+        result.item.resize(std::distance(result.item.begin(), it));
+    }
+
     brls::Threading::sync([this, result]() {
         auto* datasource = dynamic_cast<DataSourceRecommendVideoList*>(recyclingGrid->getDataSource());
         if (datasource && result.requestIndex != 1) {

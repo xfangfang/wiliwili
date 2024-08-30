@@ -15,7 +15,7 @@ class DynamicVideoRequest : public Presenter {
 public:
     virtual void onDynamicVideoList(const bilibili::DynamicVideoListResult& result, unsigned int index);
 
-    virtual void onDynamicArticleList(const bilibili::DynamicArticleListResult &result, unsigned int index);
+    virtual void onDynamicArticleList(const bilibili::DynamicArticleListResult& result, unsigned int index);
 
     virtual void onVideoError(const std::string& error);
 
@@ -32,9 +32,18 @@ public:
     void requestUserDynamicVideoList(int64_t mid, int pn = 0, int ps = 30);
 
 protected:
-    int64_t currentUser       = 0;
+    uint64_t currentUser          = 0;
     unsigned int currentVideoPage = 1, currentArticlePage = 1;
     std::string currentVideoOffset, currentArticleOffset;
 
-    void requestVideoData(unsigned int page, const std::string& offset, int64_t mid);
+    void requestVideoData(unsigned int page, const std::string& offset, uint64_t mid);
+};
+
+class DynamicArticleRequest : public Presenter {
+public:
+    virtual void onDynamicArticle(const bilibili::DynamicArticleResult& result);
+
+    virtual void onError(const std::string& error);
+
+    void requestDynamicArticle(const std::string& id);
 };

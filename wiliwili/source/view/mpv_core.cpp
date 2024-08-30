@@ -151,6 +151,9 @@ static GLuint linkProgram(GLuint s1, GLuint s2) {
 #elif defined(BOREALIS_USE_D3D11)
 #include <borealis/platforms/driver/d3d11.hpp>
 extern std::unique_ptr<brls::D3D11Context> D3D11_CONTEXT;
+#elif defined(USE_GL2)
+#undef glBindFramebuffer
+#define glBindFramebuffer(a, b) void()
 #endif
 
 static inline void check_error(int status) {
@@ -299,6 +302,7 @@ void MPVCore::init() {
     mpvSetOptionString(mpv, "hr-seek", "yes");
     mpvSetOptionString(mpv, "reset-on-next-file", "speed,pause");
     mpvSetOptionString(mpv, "vo", "libmpv");
+    mpvSetOptionString(mpv, "pulse-latency-hacks", "no");
 
     mpvSetOption(mpv, "brightness", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_BRIGHTNESS);
     mpvSetOption(mpv, "contrast", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_CONTRAST);

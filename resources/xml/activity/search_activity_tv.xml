@@ -11,6 +11,7 @@
                 width="400">
             <brls:Box
                     focusable="true"
+                    focusDown="tv/search/search"
                     alignItems="center"
                     marginLeft="10"
                     width="310">

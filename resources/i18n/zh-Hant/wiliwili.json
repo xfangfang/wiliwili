@@ -49,6 +49,7 @@
         "limited_fps_vsync": "垂直同步",
         "fullscreen": "全荧幕顯示",
         "always_on_top": "窗口置頂",
+        "always_on_top_hint": "自動: 當窗口尺寸較小時自動開啟置頂",
         "tv_search": "電視風格搜尋頁",
         "clear_history": "清空搜尋記錄",
         "clear_season": "清空番劇自定義設定",
@@ -244,6 +245,30 @@
   "activity": {
     "all": "全部動態",
     "refresh": "重新整理列表"
+  },
+  "inbox": {
+    "chat": {
+      "tab": "聊天列表",
+      "hint": "發個消息聊聊唄 ~",
+      "unknown": "暫不支持該消息"
+    },
+    "tab": {
+      "like": "收到的贊",
+      "at": "@我的",
+      "reply": "回復我的"
+    },
+    "type": {
+      "video": "視頻",
+      "reply": "評論",
+      "article": "文章",
+      "dynamic": "動態",
+      "danmu": "彈幕",
+      "album": "動態"
+    },
+    "more": "等 {} 人贊了我的{}",
+    "like": "贊了我的{}",
+    "at": "在{}中@了我",
+    "reply": "回復我的{}"
   },
   "mine": {
     "login": {

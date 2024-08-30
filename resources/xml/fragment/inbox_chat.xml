@@ -1,0 +1,63 @@
+<brls:Box
+        wireframe="false"
+        axis="column"
+        height="auto"
+        width="auto">
+
+        <brls:Box>
+                <ButtonClose
+                        id="inbox/back"
+                        focusable="true"
+                        positionType="absolute"
+                        positionTop="10"
+                        positionRight="10" />
+
+                <brls:Label
+                        marginTop="20"
+                        marginBottom="15"
+                        marginLeft="30"
+                        id="inbox/talker" />
+        </brls:Box>
+
+        <RecyclingGrid
+                grow="1"
+                preFetchLine="2"
+                spanCount="1"
+                flowMode="true"
+                itemHeight="1000"
+                paddingLeft="15"
+                paddingRight="20"
+                wireframe="false"
+                id="inbox/msgList" />
+
+        <brls:Box
+                width="100%"
+                backgroundColor="@theme/color/grey_1">
+            <CustomButton
+                    focusable="true"
+                    highlightCornerRadius="10"
+                    hideHighlightBackground="true"
+                    backgroundColor="@theme/brls/background"
+                    grow="1"
+                    marginLeft="20"
+                    marginRight="20"
+                    marginTop="15"
+                    marginBottom="15"
+                    height="35"
+                    paddingLeft="10"
+                    id="inbox/reply/hint"
+                    cornerRadius="8">
+                    <brls:Label
+                            fontSize="16"
+                            textColor="@theme/font/grey"
+                            text="@i18n/wiliwili/inbox/chat/hint" />
+                    <HintLabel
+                            height="35"
+                            positionType="absolute"
+                            positionRight="15"
+                            fontSize="16"
+                            textColor="@theme/font/grey"
+                            text="y" />
+            </CustomButton>
+        </brls:Box>
+</brls:Box>

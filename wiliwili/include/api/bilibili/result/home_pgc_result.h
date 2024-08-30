@@ -15,7 +15,7 @@ public:
     std::string title;
     std::string desc;
     std::string cover;
-    int season_id;
+    uint64_t season_id;
     std::string bottom_left_badge;   // pic link 不是所有都包含此项
     std::string bottom_right_badge;  // text
     std::string badge_info;          // pic link
@@ -82,7 +82,7 @@ public:
     std::string title;
     std::string cover;
     int season_type;
-    int season_id;
+    uint64_t season_id;
     int is_finish;
     int media_id;
     std::string order;       // eg: 800万追番

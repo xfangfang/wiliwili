@@ -10,7 +10,7 @@ namespace bilibili {
 
 class UserSimpleResult {
 public:
-    int64_t mid = 0;
+    uint64_t mid = 0;
     std::string name;
     std::string face;
 };
@@ -18,7 +18,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserSimpleResult, mid, name, face);
 
 class UserResult {
 public:
-    int64_t mid   = -1;
+    uint64_t mid   = -1;
     int level     = 0;
     int following = 0;
     int follower  = 0;
@@ -32,7 +32,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserResult, mid, level, following, follower, 
 
 class SeasonUserResult {
 public:
-    int64_t mid            = 0;
+    uint64_t mid            = 0;
     unsigned int follower  = 0;
     unsigned int is_follow = 0;
     std::string uname;
@@ -49,7 +49,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserCommentVip, nickname_color);
 
 class UserDynamicResult {
 public:
-    int64_t mid = 0;
+    uint64_t mid = 0;
     std::string name;
     std::string face;
     UserCommentVip vip;

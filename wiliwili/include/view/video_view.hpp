@@ -161,7 +161,7 @@ public:
     void setCustomToggleAction(std::function<void()> action);
 
     /// 番剧自定义菜单信息
-    void setBangumiCustomSetting(const std::string& title, unsigned int seasonId);
+    void setBangumiCustomSetting(const std::string& title, uint64_t seasonId);
 
     void setTitle(const std::string& title);
 

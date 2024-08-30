@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 #include "user_result.h"
 #include "home_result.h"
 
@@ -19,7 +19,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankPGCConfig, index_show);
 class HotsRankPGCVideoResult {
 public:
     int rank;
-    int season_id;
+    uint64_t season_id;
     std::string ss_horizontal_cover;  //横版封面
     std::string cover;                //竖版封面
     std::string title;
@@ -40,9 +40,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HotsRankPGCVideoListResultWrapper, note, list
 
 class HotsRankVideoResult {
 public:
-    int aid;
+    uint64_t aid;
     std::string bvid;
-    int cid;
+    uint64_t cid;
     std::string pic;
     std::string title;
     int duration;

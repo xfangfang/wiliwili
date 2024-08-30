@@ -3,12 +3,16 @@
 //
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 #include "bilibili.h"
+#include "bilibili/api.h"
 #include "bilibili/util/md5.hpp"
 #include "curl/curl.h"
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/home_result.h"
 #include "bilibili/result/setting.h"
+#include "bilibili/result/inbox_result.h"
 #include "bilibili/result/mine_collection_result.h"
 #include "bilibili/result/mine_bangumi_result.h"
 #include "bilibili/result/mine_result.h"
@@ -121,7 +125,103 @@ void BilibiliClient::get_user_relation(const std::string& mid, const std::functi
 void BilibiliClient::get_user_dynamic_count(const std::string& mid,
                                             const std::function<void(UserDynamicCount)>& callback,
                                             const ErrorCallback& error) {
-    HTTP::getResultAsync<UserDynamicCount>(Api::UserDynamicStat, {{"uids", mid}}, callback, error);
+    HTTP::getResultAsync<UserDynamicCount>(Api::UserDynamicStat, {{"uid_str", mid}}, callback, error);
+}
+
+void BilibiliClient::get_user_cards(const std::vector<std::string>& uids,
+                                    const std::function<void(UserCardListResult)>& callback,
+                                    const ErrorCallback& error) {
+    std::string mid = fmt::format("{}", fmt::join(uids, ","));
+    HTTP::getResultAsync<UserCardListResult>(Api::UserCards, {{"uids", mid}}, callback, error);
+}
+
+void BilibiliClient::new_inbox_sessions(time_t begin_ts,
+                        const std::function<void(InboxChatResultWrapper)>& callback,
+                        const ErrorCallback& error) {
+    HTTP::getResultAsync<InboxChatResultWrapper>(Api::ChatSessions, {
+        {"begin_ts", std::to_string(begin_ts)},
+        {"mobi_app", "web"},
+    }, callback, error);
+}
+
+void BilibiliClient::update_inbox_ack(const std::string& talker_id,
+                                 int session_type,
+                                 const std::string& ack_seqno,
+                                 const std::string& csrf,
+                                 const ErrorCallback& error) {
+    HTTP::getResultAsync<Cookies>(Api::ChatUpdateAct, {
+        {"talker_id", talker_id},
+        {"session_type", std::to_string(session_type)},
+        {"ack_seqno", ack_seqno},
+        {"csrf", csrf},
+        {"mobi_app", "web"},
+    }, nullptr, error);
+}
+
+void BilibiliClient::fetch_inbox_msgs(const std::string& talker_id, size_t size,
+                                  int session_type,
+                                  const std::string& begin_seqno,
+                                  const std::function<void(InboxMessageResultWrapper)>& callback,
+                                  const ErrorCallback& error) {
+    HTTP::getResultAsync<InboxMessageResultWrapper>(Api::ChatFetchMsgs, {
+        {"sender_device_id", "1"},
+        {"talker_id", talker_id},
+        {"session_type", std::to_string(session_type)},
+        {"begin_seqno", begin_seqno},
+        {"size", std::to_string(size)},
+        {"mobi_app", "web"},
+    }, callback, error);              
+}
+
+void BilibiliClient::send_inbox_msg(const std::string& sender_id,
+                               const std::string& receiver_id,
+                               const std::string& message,
+                               const std::string& csrf,
+                               const std::function<void(InboxSendResult)>& callback,
+                               const ErrorCallback& error) {
+    cpr::Payload payload = {
+        {"msg[msg_type]", "1"},
+        {"msg[content]", message},
+        {"msg[sender_uid]", sender_id},
+        {"msg[receiver_id]", receiver_id},
+        {"msg[receiver_type]", "1"},
+        {"msg[msg_status]", "0"},
+        {"msg[timestamp]", std::to_string(wiliwili::unix_time())},
+        {"msg[dev_id]", "0"},
+        {"msg[new_face_version]", "1"},
+        {"csrf", csrf},
+    };
+    HTTP::postResultAsync<InboxSendResult>(Api::ChatSendMsg, {
+        {"w_sender_uid", sender_id},
+        {"w_receiver_id", receiver_id},
+    }, payload, callback, error);
+}
+
+void BilibiliClient::msg_feed_reply(const MsgFeedCursor& cursor,
+                                    const std::function<void(FeedReplyResultWrapper)>& callback,
+                                    const ErrorCallback& error) {
+    HTTP::getResultAsync<FeedReplyResultWrapper>(Api::MsgFeedReply,
+                                                    {{"id", std::to_string(cursor.id)},
+                                                     {"reply_time", std::to_string(cursor.time)}},
+                                                    callback, error);
+}
+
+void BilibiliClient::msg_feed_at(const MsgFeedCursor& cursor,
+                                    const std::function<void(FeedAtResultWrapper)>& callback,
+                                    const ErrorCallback& error) {
+    HTTP::getResultAsync<FeedAtResultWrapper>(Api::MsgFeedAt,
+                                                    {{"id", std::to_string(cursor.id)},
+                                                     {"at_time", std::to_string(cursor.time)}},
+                                                    callback, error);
+}
+
+void BilibiliClient::msg_feed_like(const MsgFeedCursor& cursor,
+                                    const std::function<void(FeedLikeResultWrapper)>& callback,
+                                    const ErrorCallback& error) {
+    HTTP::getResultAsync<FeedLikeResultWrapper>(Api::MsgFeedLike,
+                                                    {{"id", std::to_string(cursor.id)},
+                                                     {"like_time", std::to_string(cursor.time)}},
+                                                    callback, error);
 }
 
 /// get person history videos
@@ -147,7 +247,7 @@ void BilibiliClient::getWatchLater(const std::function<void(WatchLaterListWrappe
 //    const std::function<void(WatchLaterList)>& callback = nullptr,
 //    const ErrorCallback& error = nullptr);
 
-void BilibiliClient::get_my_collection_list(const int64_t mid, int index, int num, int type,
+void BilibiliClient::get_my_collection_list(uint64_t mid, int index, int num, int type,
                                             const std::function<void(CollectionListResultWrapper)>& callback,
                                             const ErrorCallback& error) {
     BilibiliClient::get_my_collection_list(std::to_string(mid), index, num, type, callback, error);
@@ -171,7 +271,7 @@ void BilibiliClient::get_my_collection_list(const std::string& mid, int index, i
         error);
 }
 
-void BilibiliClient::get_collection_list_all(int rid, int type, std::string mid,
+void BilibiliClient::get_collection_list_all(uint64_t rid, int type, const std::string& mid,
                                              const std::function<void(SimpleCollectionListResultWrapper)>& callback,
                                              const ErrorCallback& error) {
     HTTP::getResultAsync<SimpleCollectionListResultWrapper>(
@@ -223,7 +323,7 @@ void BilibiliClient::get_my_bangumi(const std::string& mid, size_t type, size_t 
 }
 
 /// get user's upload videos
-void BilibiliClient::get_user_videos(const int64_t mid, int pn, int ps,
+void BilibiliClient::get_user_videos(uint64_t mid, int pn, int ps,
                                      const std::function<void(UserUploadedVideoResultWrapper)>& callback,
                                      const ErrorCallback& error) {
     HTTP::getResultAsync<UserUploadedVideoResultWrapper>(Api::UserUploadedVideo,
@@ -235,7 +335,7 @@ void BilibiliClient::get_user_videos(const int64_t mid, int pn, int ps,
                                                          callback, error);
 }
 
-void BilibiliClient::get_user_videos2(const int64_t mid, int pn, int ps,
+void BilibiliClient::get_user_videos2(uint64_t mid, int pn, int ps,
                                       const std::function<void(UserDynamicVideoResultWrapper)>& callback,
                                       const ErrorCallback& error) {
     HTTP::getResultAsync<UserDynamicVideoResultWrapper>(Api::UserDynamicVideo,

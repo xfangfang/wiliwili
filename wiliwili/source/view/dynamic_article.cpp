@@ -4,6 +4,7 @@
 
 #include <borealis/views/applet_frame.hpp>
 #include <borealis/core/touch/tap_gesture.hpp>
+#include <borealis/core/thread.hpp>
 #include <utility>
 
 #include "view/dynamic_article.hpp"
@@ -100,8 +101,8 @@ public:
         this->article->setLiked(state.like.like_state);
         this->backgroundBox->setWidth(width + 48);
         this->live.room_id = 0;
-        this->video.epid = 0;
-        this->video.bvid = "";
+        this->video.epid   = 0;
+        this->video.bvid   = "";
 
         for (auto& module : data.modules) {
             auto moduleType = (bilibili::DynamicArticleModuleType)module.data.index();
@@ -388,80 +389,94 @@ private:
     std::function<void(void)> switchModeCallback = nullptr;
 };
 
-class DynamicArticleDetail : public brls::Box, public CommentRequest {
-public:
-    explicit DynamicArticleDetail(const bilibili::DynamicArticleResult& data,
-                                  const bilibili::DynamicArticleModuleState& state)
-        : data(data), state(state) {
-        this->inflateFromXMLRes("xml/fragment/dynamic_detail.xml");
+void DynamicArticleDetail::initList(const bilibili::DynamicArticleResult& result,
+                                const bilibili::DynamicArticleModuleState& moduleState) {
+    data = result;
+    state = moduleState;
+    this->recyclingGrid->registerCell("Cell", []() { return DynamicArticleView::create(); });
+    this->recyclingGrid->registerCell("Reply", []() { return VideoCommentReply::create(); });
+    this->recyclingGrid->registerCell("Sort", []() { return VideoCommentSort::create(); });
+    this->recyclingGrid->registerCell("Hint", []() { return GridHintView::create(); });
+    this->recyclingGrid->registerCell("Comment", []() { return VideoComment::create(); });
 
-        this->recyclingGrid->registerCell("Cell", []() { return DynamicArticleView::create(); });
+    this->recyclingGrid->registerAction("wiliwili/home/common/switch"_i18n, brls::ControllerButton::BUTTON_X,
+                                        [this](brls::View* view) -> bool {
+                                            this->toggleCommentMode();
+                                            return true;
+                                        });
+    this->recyclingGrid->setDataSource(new DataSourceDynamicDetailList(data, state, &likeStateEvent, &likeNumEvent,
+                                                                       this->getVideoCommentMode(),
+                                                                       [this]() { this->toggleCommentMode(); }));
+    this->recyclingGrid->onNextPage([this]() {
+        this->requestVideoComment(this->state.comment.comment_id, -1, -1, this->state.comment.comment_type);
+    });
+}
 
-        this->recyclingGrid->registerCell("Reply", []() { return VideoCommentReply::create(); });
+DynamicArticleDetail::DynamicArticleDetail(const std::string& id) {
+    this->inflateFromXMLRes("xml/fragment/dynamic_detail.xml");
+    requestDynamicArticle(id);
+    this->buttonClose->setFocusable(true);
+    this->buttonClose->registerClickAction([](...){
+        brls::Application::popActivity(brls::TransitionAnimation::NONE);
+        return true;
+    });
+    brls::Application::giveFocus(this->buttonClose);
+}
 
-        this->recyclingGrid->registerCell("Sort", []() { return VideoCommentSort::create(); });
+DynamicArticleDetail::DynamicArticleDetail(const bilibili::DynamicArticleResult& data,
+                                           const bilibili::DynamicArticleModuleState& state) {
+    this->inflateFromXMLRes("xml/fragment/dynamic_detail.xml");
+    initList(data, state);
+}
 
-        this->recyclingGrid->registerCell("Hint", []() { return GridHintView::create(); });
-
-        this->recyclingGrid->registerCell("Comment", []() { return VideoComment::create(); });
-
-        this->recyclingGrid->setDataSource(new DataSourceDynamicDetailList(data, state, &likeStateEvent, &likeNumEvent,
-                                                                           this->getVideoCommentMode(),
-                                                                           [this]() { this->toggleCommentMode(); }));
-
-        this->recyclingGrid->registerAction("wiliwili/home/common/switch"_i18n, brls::ControllerButton::BUTTON_X,
-                                            [this](brls::View* view) -> bool {
-                                                this->toggleCommentMode();
-                                                return true;
-                                            });
-
-        this->recyclingGrid->onNextPage([this]() {
-            this->requestVideoComment(this->state.comment.comment_id, -1, -1, this->state.comment.comment_type);
-        });
+void DynamicArticleDetail::onDynamicArticle(const bilibili::DynamicArticleResult& result) {
+    for (auto& j : result.modules) {
+        if ((bilibili::DynamicArticleModuleType)j.data.index() != bilibili::DynamicArticleModuleType::MODULE_TYPE_STAT)
+            continue;
+        auto* dataState = std::get_if<bilibili::DynamicArticleModuleState>(&j.data);
+        if (!dataState) break;
+        state = *dataState;
+        break;
     }
-
-    void onCommentInfo(const bilibili::VideoCommentResultWrapper& result) override {
-        auto* datasource = dynamic_cast<DataSourceDynamicDetailList*>(recyclingGrid->getDataSource());
-        if (!datasource) return;
-        if (result.requestIndex == 0) {
-            // 第一页评论
-            //整合置顶评论
-            std::vector<bilibili::VideoCommentResult> comments(result.top_replies);
-            comments.insert(comments.end(), result.replies.begin(), result.replies.end());
-            datasource->appendData(comments);
-        } else {
-            // 第N页评论
-            if (!result.replies.empty()) {
-                datasource->appendData(result.replies);
-            }
-        }
-        if (result.cursor.is_end) {
-            bilibili::VideoCommentResult bottom;
-            bottom.rpid = 1;
-            datasource->appendData({bottom});
-        }
-        recyclingGrid->notifyDataChanged();
-    }
-
-    void toggleCommentMode() {
-        // 更新请求模式
-        int newMode = this->getVideoCommentMode() == 3 ? 2 : 3;
-        this->setVideoCommentMode(newMode);
-        // 清空评论列表
-        this->recyclingGrid->setDataSource(new DataSourceDynamicDetailList(
-            data, state, &likeStateEvent, &likeNumEvent, newMode, [this]() { this->toggleCommentMode(); }));
-        // 焦点切换到动态
+    initList(result, state);
+    this->buttonClose->setFocusable(false);
+    if (brls::Application::getCurrentFocus() == this->buttonClose)
         brls::Application::giveFocus(this->recyclingGrid);
+}
+
+void DynamicArticleDetail::onCommentInfo(const bilibili::VideoCommentResultWrapper& result) {
+    auto* datasource = dynamic_cast<DataSourceDynamicDetailList*>(recyclingGrid->getDataSource());
+    if (!datasource) return;
+    if (result.requestIndex == 0) {
+        // 第一页评论
+        //整合置顶评论
+        std::vector<bilibili::VideoCommentResult> comments(result.top_replies);
+        comments.insert(comments.end(), result.replies.begin(), result.replies.end());
+        datasource->appendData(comments);
+    } else {
+        // 第N页评论
+        if (!result.replies.empty()) {
+            datasource->appendData(result.replies);
+        }
     }
+    if (result.cursor.is_end) {
+        bilibili::VideoCommentResult bottom;
+        bottom.rpid = 1;
+        datasource->appendData({bottom});
+    }
+    recyclingGrid->notifyDataChanged();
+}
 
-    brls::Event<bool> likeStateEvent;
-    brls::Event<size_t> likeNumEvent;
-
-private:
-    BRLS_BIND(RecyclingGrid, recyclingGrid, "dynamic/detail/grid");
-    bilibili::DynamicArticleResult data;
-    bilibili::DynamicArticleModuleState state;
-};
+void DynamicArticleDetail::toggleCommentMode() {
+    // 更新请求模式
+    int newMode = this->getVideoCommentMode() == 3 ? 2 : 3;
+    this->setVideoCommentMode(newMode);
+    // 清空评论列表
+    this->recyclingGrid->setDataSource(new DataSourceDynamicDetailList(
+        data, state, &likeStateEvent, &likeNumEvent, newMode, [this]() { this->toggleCommentMode(); }));
+    // 焦点切换到动态
+    brls::Application::giveFocus(this->recyclingGrid);
+}
 
 DynamicArticleView::DynamicArticleView() {
     this->inflateFromXMLRes("xml/views/dynamic_card.xml");

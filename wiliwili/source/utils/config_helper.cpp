@@ -11,6 +11,8 @@
 
 #include <borealis/core/application.hpp>
 #include <borealis/core/cache_helper.hpp>
+#include <borealis/core/touch/pan_gesture.hpp>
+#include <cpr/filesystem.h>
 
 #include "bilibili.h"
 #include "utils/number_helper.hpp"
@@ -109,7 +111,6 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     // release 下默认全屏
     {SettingItem::FULLSCREEN, {"fullscreen", {}, {}, 1}},
 #endif
-    {SettingItem::ALWAYS_ON_TOP, {"always_on_top"}},
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_HIGHLIGHT_BAR, {"player_highlight_bar", {}, {}, 0}},
@@ -218,6 +219,15 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_SATURATION, {"player_saturation", {}, {}, 0}},
     {SettingItem::PLAYER_HUE, {"player_hue", {}, {}, 0}},
     {SettingItem::PLAYER_GAMMA, {"player_gamma", {}, {}, 0}},
+    {SettingItem::MINIMUM_WINDOW_WIDTH, {"minimum_window_width", {"480"}, {480}, 0}},
+    {SettingItem::MINIMUM_WINDOW_HEIGHT, {"minimum_window_height", {"270"}, {270}, 0}},
+    {SettingItem::ON_TOP_WINDOW_WIDTH, {"on_top_window_width", {"480"}, {480}, 0}},
+    {SettingItem::ON_TOP_WINDOW_HEIGHT, {"on_top_window_height", {"270"}, {270}, 0}},
+    {SettingItem::ON_TOP_MODE, {"on_top_mode", {"off", "always", "auto"}, {0, 1, 2}, 0}},
+    {SettingItem::SCROLL_SPEED, {"scroll_speed", {}, {}, 0}},
+
+/// Custom
+    {SettingItem::UP_FILTER, {"up_filter", {}, {}, 0}},
 };
 
 ProgramConfig::ProgramConfig() = default;
@@ -349,6 +359,11 @@ void ProgramConfig::loadHomeWindowState() {
 
     if (hWidth == 0 || hHeight == 0) return;
 
+    int minWidth  = getIntOption(SettingItem::MINIMUM_WINDOW_WIDTH);
+    int minHeight = getIntOption(SettingItem::MINIMUM_WINDOW_HEIGHT);
+    if (hWidth < minWidth) hWidth = minWidth;
+    if (hHeight < minHeight) hHeight = minHeight;
+
     VideoContext::sizeH        = hHeight;
     VideoContext::sizeW        = hWidth;
     VideoContext::posX         = (float)hXPos;
@@ -394,8 +409,14 @@ void ProgramConfig::load() {
     // 默认加载环境变量
     const char* http_proxy  = getenv("http_proxy");
     const char* https_proxy = getenv("https_proxy");
-    if (http_proxy) this->httpProxy = http_proxy;
-    if (https_proxy) this->httpsProxy = https_proxy;
+    if (http_proxy) {
+        this->httpProxy = http_proxy;
+        brls::Logger::info("Load http proxy from env: {}", this->httpProxy);
+    }
+    if (https_proxy) {
+        this->httpsProxy = https_proxy;
+        brls::Logger::info("Load https proxy from env: {}", this->httpsProxy);
+    }
     // 如果设置开启了自定义代理，则读取配置文件中的代理设置
     if (getBoolOption(SettingItem::HTTP_PROXY_STATUS)) {
         this->httpProxy  = getSettingItem(SettingItem::HTTP_PROXY, this->httpProxy);
@@ -548,6 +569,15 @@ void ProgramConfig::load() {
     // 是否使用低质量解码
     MPVCore::LOW_QUALITY = getBoolOption(SettingItem::PLAYER_LOW_QUALITY);
 
+    // 初始化滑动速度
+#ifdef _WIN32
+    int scrollSpeed = getSettingItem(SettingItem::SCROLL_SPEED, 150);
+#else
+    int scrollSpeed = getSettingItem(SettingItem::SCROLL_SPEED, 100);
+#endif
+    brls::PanGestureRecognizer::panFactor = scrollSpeed * 0.01f;
+
+
     // 初始化i18n
     std::set<std::string> i18nData{
         brls::LOCALE_AUTO,    brls::LOCALE_EN_US,   brls::LOCALE_JA, brls::LOCALE_RYU,
@@ -620,10 +650,10 @@ void ProgramConfig::load() {
         // 设置窗口最小尺寸
 #ifdef IOS
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
-        brls::Application::getPlatform()->setWindowSizeLimits(MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT, 0, 0);
-        if (getBoolOption(SettingItem::ALWAYS_ON_TOP)) {
-            brls::Application::getPlatform()->setWindowAlwaysOnTop(true);
-        }
+        int minWidth  = getIntOption(SettingItem::MINIMUM_WINDOW_WIDTH);
+        int minHeight = getIntOption(SettingItem::MINIMUM_WINDOW_HEIGHT);
+        brls::Application::getPlatform()->setWindowSizeLimits(minWidth, minHeight, 0, 0);
+        checkOnTop();
 #endif
     });
 
@@ -632,6 +662,9 @@ void ProgramConfig::load() {
     // 窗口将要关闭时, 保存窗口状态配置
     brls::Application::getExitEvent()->subscribe([this]() { saveHomeWindowState(); });
 #endif
+
+    // 加载屏蔽的up主
+    ProgramConfig::instance().upFilter = getSettingItem(SettingItem::UP_FILTER, std::unordered_set<uint64_t>{});
 
     // 检查不欢迎名单
     wiliwili::checkBanList();
@@ -700,7 +733,7 @@ void ProgramConfig::save() {
     const std::string path = this->getConfigDir() + "/wiliwili_config.json";
     // fs is defined in cpr/cpr.h
 #ifndef IOS
-    fs::create_directories(this->getConfigDir());
+    cpr::fs::create_directories(this->getConfigDir());
 #endif
     nlohmann::json content(*this);
     std::ofstream writeFile(path);
@@ -713,9 +746,38 @@ void ProgramConfig::save() {
     brls::Logger::info("Write config to: {}", path);
 }
 
+void ProgramConfig::checkOnTop() {
+    switch (getIntOption(SettingItem::ON_TOP_MODE)) {
+        case 0:
+            // 关闭
+            brls::Application::getPlatform()->setWindowAlwaysOnTop(false);
+            return;
+        case 1:
+            // 开启
+            brls::Application::getPlatform()->setWindowAlwaysOnTop(true);
+            return;
+        case 2: {
+            // 自动模式，根据窗口大小判断是否需要切换到置顶模式
+            double factor = brls::Application::getPlatform()->getVideoContext()->getScaleFactor();
+            int minWidth =
+                ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_WIDTH) * factor + 0.1;
+            int minHeight =
+                ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_HEIGHT) * factor + 0.1;
+            bool onTop = brls::Application::windowWidth <= minWidth || brls::Application::windowHeight <= minHeight;
+            brls::Application::getPlatform()->setWindowAlwaysOnTop(onTop);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void ProgramConfig::init() {
     brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
     wiliwili::initCrashDump();
+
+    // 在窗口大小改变时检查是否需要切换到置顶模式
+    brls::Application::getWindowSizeChangedEvent()->subscribe([]() { ProgramConfig::instance().checkOnTop(); });
 
     // Set min_threads and max_threads of http thread pool
     curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -880,17 +942,17 @@ void ProgramConfig::exit(char* argv[]) {
 void ProgramConfig::loadCustomThemes() {
     customThemes.clear();
     std::string directoryPath = getConfigDir() + "/theme";
-    if (!fs::exists(directoryPath)) return;
+    if (!cpr::fs::exists(directoryPath)) return;
 
-    for (const auto& entry : fs::directory_iterator(getConfigDir() + "/theme")) {
+    for (const auto& entry : cpr::fs::directory_iterator(getConfigDir() + "/theme")) {
 #if USE_BOOST_FILESYSTEM
-        if (!fs::is_directory(entry)) continue;
+        if (!cpr::fs::is_directory(entry)) continue;
 #else
         if (!entry.is_directory()) continue;
 #endif
         std::string subDirectory = entry.path().string();
         std::string jsonFilePath = subDirectory + "/resources_meta.json";
-        if (!fs::exists(jsonFilePath)) continue;
+        if (!cpr::fs::exists(jsonFilePath)) continue;
 
         std::ifstream readFile(jsonFilePath);
         if (readFile) {

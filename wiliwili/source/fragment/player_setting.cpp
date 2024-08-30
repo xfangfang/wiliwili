@@ -161,7 +161,7 @@ void PlayerSetting::setupCommonSetting() {
                                            "wiliwili/setting/app/playback/auto_no"_i18n};
     btnPlayStrategy->setDetailText(showStrategy ? optionList[strategyIndex] : " ");
     btnPlayStrategy->registerClickAction([this, optionList, showStrategy](View* view) {
-        auto d = BaseDropdown::text(
+        BaseDropdown::text(
             "wiliwili/setting/app/playback/play_strategy"_i18n, optionList,
             [this, optionList, showStrategy](int data) {
                 if (showStrategy) btnPlayStrategy->setDetailText(optionList[data]);
@@ -169,23 +169,8 @@ void PlayerSetting::setupCommonSetting() {
                 ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_STRATEGY, data);
                 GA("player_setting", {{"strategy", optionList[data]}});
             },
-            ProgramConfig::instance().getIntOption(SettingItem::PLAYER_STRATEGY));
-
-        // bottom hint
-        auto box = new brls::Box();
-        box->setMargins(20, 10, 10, 30);
-        box->setAlignItems(brls::AlignItems::CENTER);
-        auto icon = new SVGImage();
-        icon->setDimensions(12, 13);
-        icon->setMarginRight(10);
-        icon->setImageFromSVGRes("svg/ico-sprite-info.svg");
-        auto hint = new brls::Label();
-        hint->setFontSize(18);
-        hint->setTextColor(brls::Application::getTheme().getColor("font/grey"));
-        hint->setText("wiliwili/setting/app/playback/auto_hint"_i18n);
-        box->addView(icon);
-        box->addView(hint);
-        d->getContentView()->addView(box);
+            ProgramConfig::instance().getIntOption(SettingItem::PLAYER_STRATEGY),
+            "wiliwili/setting/app/playback/auto_hint"_i18n);
         return true;
     });
 
@@ -284,16 +269,37 @@ void PlayerSetting::setupCommonSetting() {
                             GA("player_setting", {{"fullscreen", value ? "true" : "false"}});
                         });
 
-    btnAlwaysOnTop->init("wiliwili/setting/app/others/always_on_top"_i18n,
-                         conf.getBoolOption(SettingItem::ALWAYS_ON_TOP), [](bool value) {
-                             ProgramConfig::instance().setSettingItem(SettingItem::ALWAYS_ON_TOP, value);
-                             // 设置当前状态
-                             brls::Application::getPlatform()->setWindowAlwaysOnTop(value);
-                             GA("player_setting", {{"always_on_top", value ? "true" : "false"}});
-                         });
+    auto setOnTopCell = [this](bool enabled) {
+        if (enabled) {
+            btnOnTopMode->setDetailTextColor(brls::Application::getTheme()["brls/list/listItem_value_color"]);
+        } else {
+            btnOnTopMode->setDetailTextColor(brls::Application::getTheme()["brls/text_disabled"]);
+        }
+    };
+    setOnTopCell(conf.getIntOptionIndex(SettingItem::ON_TOP_MODE) != 0);
+    int onTopModeIndex = conf.getIntOption(SettingItem::ON_TOP_MODE);
+    btnOnTopMode->setText("wiliwili/setting/app/others/always_on_top"_i18n);
+    std::vector<std::string> onTopOptionList = {"hints/off"_i18n, "hints/on"_i18n,
+                                                "wiliwili/player/setting/aspect/auto"_i18n};
+    btnOnTopMode->setDetailText(onTopOptionList[onTopModeIndex]);
+    btnOnTopMode->registerClickAction([this, onTopOptionList, setOnTopCell](brls::View* view) {
+        BaseDropdown::text(
+            "wiliwili/setting/app/others/always_on_top"_i18n, onTopOptionList,
+            [this, onTopOptionList, setOnTopCell](int data) {
+                btnOnTopMode->setDetailText(onTopOptionList[data]);
+                ProgramConfig::instance().setSettingItem(SettingItem::ON_TOP_MODE, data);
+                ProgramConfig::instance().checkOnTop();
+                setOnTopCell(data != 0);
+                GA("player_setting", {{"on_top_mode", data}});
+            },
+            ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_MODE),
+            "wiliwili/setting/app/others/always_on_top_hint"_i18n);
+        return true;
+    });
+
 #else
     btnFullscreen->setVisibility(brls::Visibility::GONE);
-    btnAlwaysOnTop->setVisibility(brls::Visibility::GONE);
+    btnOnTopMode->setVisibility(brls::Visibility::GONE);
 #endif
 
     btnEqualizerReset->registerClickAction([this](View* view) {
@@ -451,7 +457,7 @@ void PlayerSetting::hideHighlightLineCells() { btnHighlight->setVisibility(brls:
 
 void PlayerSetting::hideSkipOpeningCreditsSetting() { btnSkip->setVisibility(brls::Visibility::GONE); }
 
-void PlayerSetting::setBangumiCustomSetting(const std::string& title, unsigned int id) {
+void PlayerSetting::setBangumiCustomSetting(const std::string& title, uint64_t id) {
     if (id == 0) return;
     seasonId = id;
 

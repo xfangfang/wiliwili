@@ -38,6 +38,10 @@ std::string getRandomHex(int length, bool lowerCase = true);
 //4180 => 01:09:40
 std::string sec2Time(size_t t);
 
+// 我不知道为什么B站要返回一个字符串来显示视频的长度，然后在前端把这个字符串转换成更好看的时间，这真的很蠢
+// 120:12 => 02:00:12
+std::string uglyString2Time(const std::string& str);
+
 // 100 => 0:01:40
 // 4180 => 1:09:40
 std::string sec2TimeDLNA(size_t t);

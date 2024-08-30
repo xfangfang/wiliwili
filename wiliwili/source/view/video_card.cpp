@@ -31,13 +31,13 @@ RecyclingGridItemVideoCard::~RecyclingGridItemVideoCard() {
     ImageHelper::clear(this->picture);
 }
 
-void RecyclingGridItemVideoCard::setRCMDReason(std::string reason) {
+void RecyclingGridItemVideoCard::setRCMDReason(const std::string& reason) {
     this->boxRCMD->setVisibility(brls::Visibility::VISIBLE);
     this->labelRCMD->setText(reason);
     this->boxPic->setHeightPercentage(54.8);
 }
 
-void RecyclingGridItemVideoCard::setAchievement(std::string explain) {
+void RecyclingGridItemVideoCard::setAchievement(const std::string& explain) {
     this->boxAchievement->setVisibility(brls::Visibility::VISIBLE);
     this->labelAchievement->setText(explain);
     this->boxPic->setHeightPercentage(54.8);
@@ -45,8 +45,9 @@ void RecyclingGridItemVideoCard::setAchievement(std::string explain) {
 
 RecyclingGridItemVideoCard* RecyclingGridItemVideoCard::create() { return new RecyclingGridItemVideoCard(); }
 
-void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title, std::string username, int pubdate,
-                                         int view_count, int danmaku, int duration, std::string extra) {
+void RecyclingGridItemVideoCard::setCard(const std::string& pic, const std::string& title, const std::string& username,
+                                         int pubdate, int view_count, int danmaku, int duration,
+                                         const std::string& extra) {
     if (pubdate)
         this->labelUsername->setText(username + "·" + wiliwili::sec2date(pubdate));
     else
@@ -73,8 +74,9 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title, std
     }
 }
 
-void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title, std::string username, int pubdate,
-                                         int view_count, int danmaku, std::string rightBottomBadge, std::string extra) {
+void RecyclingGridItemVideoCard::setCard(const std::string& pic, const std::string& title, const std::string& username,
+                                         int pubdate, int view_count, int danmaku, const std::string& rightBottomBadge,
+                                         const std::string& extra) {
     if (pubdate)
         this->labelUsername->setText(username + "·" + wiliwili::sec2date(pubdate));
     else
@@ -86,6 +88,52 @@ void RecyclingGridItemVideoCard::setCard(std::string pic, std::string title, std
     this->labelCount->setText(wiliwili::num2w(view_count));
     this->labelDanmaku->setText(wiliwili::num2w(danmaku));
     this->labelDuration->setText(rightBottomBadge);
+
+    if (extra.empty()) {
+        this->svgUp->setVisibility(brls::Visibility::VISIBLE);
+        this->boxHint->setVisibility(brls::Visibility::GONE);
+    } else {
+        this->svgUp->setVisibility(brls::Visibility::GONE);
+        this->boxHint->setVisibility(brls::Visibility::VISIBLE);
+        this->labelHint->setText(extra);
+    }
+}
+
+void RecyclingGridItemVideoCard::setCard(const std::string& pic, const std::string& title, const std::string& username,
+                                         const std::string& viewCount, const std::string& danmakuCount,
+                                         const std::string& rightBottomBadge, const std::string& extra) {
+    this->labelUsername->setText(username);
+    this->labelTitle->setIsWrapping(true);
+    this->labelTitle->setText(title);
+    ImageHelper::with(this->picture)->load(pic);
+    this->labelDuration->setText(rightBottomBadge);
+
+    if (viewCount.empty()) {
+        this->svgView->setVisibility(brls::Visibility::GONE);
+        this->labelCount->setVisibility(brls::Visibility::GONE);
+    } else {
+        this->svgView->setVisibility(brls::Visibility::VISIBLE);
+        this->labelCount->setVisibility(brls::Visibility::VISIBLE);
+        this->labelCount->setText(viewCount);
+    }
+
+    if (danmakuCount.empty()) {
+        this->svgDanmaku->setVisibility(brls::Visibility::GONE);
+        this->labelDanmaku->setVisibility(brls::Visibility::GONE);
+    } else {
+        this->svgDanmaku->setVisibility(brls::Visibility::VISIBLE);
+        this->labelDanmaku->setVisibility(brls::Visibility::VISIBLE);
+        this->labelDanmaku->setText(danmakuCount);
+    }
+
+    if (extra.empty()) {
+        this->svgUp->setVisibility(brls::Visibility::VISIBLE);
+        this->boxHint->setVisibility(brls::Visibility::GONE);
+    } else {
+        this->svgUp->setVisibility(brls::Visibility::GONE);
+        this->boxHint->setVisibility(brls::Visibility::VISIBLE);
+        this->labelHint->setText(extra);
+    }
 }
 
 /// 排行榜视频封面
@@ -419,7 +467,7 @@ void RecyclingGridItemRelatedVideoCard::setCard(std::string pic, std::string tit
 }
 
 void RecyclingGridItemRelatedVideoCard::setCharging(bool value) {
-    boxCharging-> setVisibility(value ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
+    boxCharging->setVisibility(value ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
 }
 
 /// 相关番剧卡片

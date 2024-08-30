@@ -584,6 +584,7 @@ void VideoView::requestVolume(int volume, int delay) {
     volume_iter = brls::delay(delay, [ASYNC_TOKEN]() {
         ASYNC_RELEASE
         this->hideCenterHint();
+        ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_VOLUME, MPVCore::VIDEO_VOLUME);
         this->volume_iter = 0;
     });
 }
@@ -787,7 +788,12 @@ void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y, float wi
         pointX += dX;
         float pointY = baseY - 12 - item * 48;
         float cx     = lastX + halfDx;
+#ifdef __PS4__
+        if (fabs(lastY - pointY) < 10) {
+            // 尽量画直线，减小 ps4 GPU 崩溃的可能
+#else
         if (fabs(lastY - pointY) < 3) {
+#endif
             // 相差太小，直接绘制直线
             nvgLineTo(vg, pointX, pointY);
         } else {
@@ -1140,7 +1146,7 @@ void VideoView::showHint(const std::string& value) {
 
 void VideoView::clearHint() { this->hintBox->setVisibility(brls::Visibility::GONE); }
 
-void VideoView::setBangumiCustomSetting(const std::string& title, unsigned int seasonId) {
+void VideoView::setBangumiCustomSetting(const std::string& title, uint64_t seasonId) {
     this->bangumiTitle    = title;
     this->bangumiSeasonId = seasonId;
 }

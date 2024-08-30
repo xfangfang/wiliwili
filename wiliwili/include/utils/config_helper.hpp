@@ -8,23 +8,11 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <unordered_set>
 #include <nlohmann/json.hpp>
 #include "analytics.h"
 #include "borealis/core/singleton.hpp"
 #include "borealis/core/logger.hpp"
-
-#ifdef USE_BOOST_FILESYSTEM
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
-#elif __has_include(<filesystem>)
-#include <filesystem>
-namespace fs = std::filesystem;
-#elif __has_include("experimental/filesystem")
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-#elif !defined(USE_LIBROMFS)
-#error "Failed to include <filesystem> header!"
-#endif
 
 #ifdef PS4
 const std::string primaryDNSStr   = "223.5.5.5";
@@ -39,11 +27,16 @@ enum class SettingItem {
     HIDE_BOTTOM_BAR,
     HIDE_FPS,
     FULLSCREEN,
-    ALWAYS_ON_TOP,
+    MINIMUM_WINDOW_WIDTH,  // 窗口最小宽度
+    MINIMUM_WINDOW_HEIGHT, // 窗口最小高度
+    ON_TOP_WINDOW_WIDTH,    // 窗口置顶设置为自动时，低于此宽度的窗口自动置顶
+    ON_TOP_WINDOW_HEIGHT,   // 窗口置顶设置为自动时，低于此高度的窗口自动置顶
+    ON_TOP_MODE,  // 窗口置顶模式
     APP_THEME,      // 深浅主题色
     APP_LANG,       // 应用语言
     APP_RESOURCES,  // 自定义界面布局
     APP_UI_SCALE,   // 界面缩放
+    SCROLL_SPEED,   // 列表滑动速度
     HISTORY_REPORT,
     PLAYER_STRATEGY,
     PLAYER_BOTTOM_BAR,
@@ -99,6 +92,7 @@ enum class SettingItem {
     HTTP_PROXY,
     HTTP_PROXY_STATUS,
     TLS_VERIFY,
+    UP_FILTER,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -259,6 +253,11 @@ public:
 
     void toggleFullscreen();
 
+    /**
+     * 检查是否需要置顶窗口
+     */
+    void checkOnTop();
+
     std::vector<CustomTheme> customThemes;
     Cookie cookie = {{"DedeUserID", "0"}};
     std::string refreshToken;
@@ -269,6 +268,7 @@ public:
     SeasonCustomSetting seasonCustom;
     std::string httpProxy;
     std::string httpsProxy;
+    std::unordered_set<uint64_t> upFilter; // 此列表中的up主在推荐页面将不显示
 
     static std::unordered_map<SettingItem, ProgramOption> SETTING_MAP;
 };

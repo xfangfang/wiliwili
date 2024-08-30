@@ -3,6 +3,7 @@
 //
 
 #include <borealis/core/i18n.hpp>
+#include <borealis/core/thread.hpp>
 
 #include "bilibili.h"
 #include "bilibili/result/mine_result.h"
@@ -37,7 +38,7 @@ void DynamicVideoRequest::requestData(bool refresh, DynamicRequestMode mode) {
     }
 }
 
-void DynamicVideoRequest::requestVideoData(unsigned int page, const std::string &offset, int64_t mid) {
+void DynamicVideoRequest::requestVideoData(unsigned int page, const std::string &offset, uint64_t mid) {
     if (mid == 0) {
         this->requestDynamicVideoList(page, offset);
     } else {
@@ -104,5 +105,27 @@ void DynamicVideoRequest::requestUserDynamicVideoList(int64_t mid, int pn, int p
         },
         [this](BILI_ERR) {
             this->onVideoError(error);
+        });
+}
+
+void DynamicArticleRequest::onDynamicArticle(const bilibili::DynamicArticleResult& result) {}
+
+void DynamicArticleRequest::onError(const std::string& error) {}
+
+void DynamicArticleRequest::requestDynamicArticle(const std::string& id) {
+    ASYNC_RETAIN
+    BILI::get_dynamic_detail(
+        id,
+        [ASYNC_TOKEN](const bilibili::DynamicArticleResultWrapper& result) {
+            brls::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                this->onDynamicArticle(result.item);
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError(error);
+            });
         });
 }

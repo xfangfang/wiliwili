@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 
 namespace bilibili {
 
@@ -19,9 +19,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HistoryVideoListCursor, max, view_at, busines
 
 class HistoryVideoData {
 public:
-    int oid;
-    int epid;
-    int cid;
+    uint64_t oid;
+    uint64_t epid;
+    uint64_t cid;
     std::string bvid;
     std::string business;
     int dt;  // device type: 4: 平板  1： 手机  2：电脑

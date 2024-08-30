@@ -49,6 +49,7 @@
         "limited_fps_vsync": "Vertical Synchronization",
         "fullscreen": "Fullscreen",
         "always_on_top": "Always on top",
+        "always_on_top_hint": "Auto: Automatically set the window to the top when the window size is small",
         "tv_search": "TV style search page",
         "clear_history": "Clear search history",
         "clear_season": "Clear bangumi custom settings",
@@ -244,6 +245,30 @@
   "activity": {
     "all": "All activities",
     "refresh": "Refresh list"
+  },
+  "inbox": {
+    "chat": {
+      "tab": "Chat List",
+      "hint": "Send a message to start chatting ~",
+      "unknown": "The message type is currently not supported"
+    },
+    "tab": {
+      "like": "Likes",
+      "at": "@me",
+      "reply": "Replies"
+    },
+    "type": {
+      "video": "video",
+      "reply": "comment",
+      "article": "article",
+      "dynamic": "activity",
+      "danmu": "danmaku",
+      "album": "activity"
+    },
+    "more": "and {} people liked my {}",
+    "like": "liked my {}",
+    "at": "@me at {}",
+    "reply": "replied to my {}"
   },
   "mine": {
     "login": {

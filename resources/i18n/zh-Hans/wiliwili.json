@@ -49,6 +49,7 @@
         "limited_fps_vsync": "垂直同步",
         "fullscreen": "全屏显示",
         "always_on_top": "窗口置顶",
+        "always_on_top_hint": "自动: 当窗口尺寸较小时自动开启置顶",
         "tv_search": "电视风格搜索页",
         "clear_history": "清空搜索记录",
         "clear_season": "清空番剧自定义设置",
@@ -244,6 +245,30 @@
   "activity": {
     "all": "全部动态",
     "refresh": "刷新列表"
+  },
+  "inbox": {
+    "chat": {
+      "tab": "聊天列表",
+      "hint": "发个消息聊聊呗 ~",
+      "unknown": "暂不支持该消息"
+    },
+    "tab": {
+      "like": "收到的赞",
+      "at": "@我的",
+      "reply": "回复我的"
+    },
+    "type": {
+      "video": "视频",
+      "reply": "评论",
+      "article": "文章",
+      "dynamic": "动态",
+      "danmu": "弹幕",
+      "album": "动态"
+    },
+    "more": "等 {} 人赞了我的{}",
+    "like": "赞了我的{}",
+    "at": "在{}中@了我",
+    "reply": "回复了我的{}"
   },
   "mine": {
     "login": {

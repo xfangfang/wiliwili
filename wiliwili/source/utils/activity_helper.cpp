@@ -13,25 +13,27 @@
 #include "activity/main_activity.hpp"
 #include "activity/gallery_activity.hpp"
 #include "activity/dlna_activity.hpp"
+#include "activity/dynamic_activity.hpp"
 #include "fragment/mine_collection_video_list.hpp"
+#include "fragment/inbox_view.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/config_helper.hpp"
 
 #include "presenter/video_detail.hpp"
 
-void Intent::openBV(const std::string& bvid, int cid, int progress) {
+void Intent::openBV(const std::string& bvid, uint64_t cid, int progress) {
     auto activity = new PlayerActivity(bvid, cid, progress);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);
 }
 
-void Intent::openSeasonBySeasonId(int seasonId, int progress) {
+void Intent::openSeasonBySeasonId(uint64_t seasonId, int progress) {
     auto activity = new PlayerSeasonActivity(seasonId, PGC_ID_TYPE::SEASON_ID, progress);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);
 }
 
-void Intent::openSeasonByEpId(int epId, int progress) {
+void Intent::openSeasonByEpId(uint64_t epId, int progress) {
     auto activity = new PlayerSeasonActivity(epId, PGC_ID_TYPE::EP_ID, progress);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);
@@ -53,6 +55,7 @@ void Intent::openCollection(const std::string& mid, const std::string& type) {
 }
 
 void Intent::openSearch(const std::string& key) {
+    if (key.empty()) return;
     auto activity = new SearchActivity(key);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);
@@ -76,6 +79,11 @@ void Intent::openSetting() {
     registerFullscreen(activity);
 }
 
+void Intent::openInbox() {
+    auto inbox = new InboxView();
+    brls::Application::pushActivity(new brls::Activity(inbox));
+}
+
 void Intent::openHint() { brls::Application::pushActivity(new HintActivity()); }
 
 void Intent::openMain() {
@@ -92,6 +100,12 @@ void Intent::openGallery(const std::vector<std::string>& data) {
 
 void Intent::openDLNA() {
     auto activity = new DLNAActivity();
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+    registerFullscreen(activity);
+}
+
+void Intent::openActivity(const std::string& id) {
+    auto activity = new DynamicActivity(id);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
     registerFullscreen(activity);
 }

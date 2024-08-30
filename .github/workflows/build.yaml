@@ -156,7 +156,7 @@ jobs:
             ${MINGW_PACKAGE_PREFIX}-gcc \
             ${MINGW_PACKAGE_PREFIX}-ninja unzip
 
-          curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.36.0-4-any.pkg.tar.zst
+          curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.36.0-6-any.pkg.tar.zst
           pacman -U --noconfirm *.pkg.tar.zst
 
           curl -LO https://github.com/rainers/cv2pdb/releases/download/v0.52/cv2pdb-0.52.zip
@@ -166,15 +166,16 @@ jobs:
         shell: powershell
         run: |
           $vcvarsall_path = vswhere.exe -latest -products * -find "VC\Auxiliary\Build\vcvarsall.bat"
-          cmd.exe /c "call ""$vcvarsall_path"" x86_amd64 && editbin /LARGEADDRESSAWARE C:\msys64\mingw32\lib\gcc\i686-w64-mingw32\13.2.0\cc1plus.exe"
+          $cc1_path = Get-ChildItem -Path "C:\msys64\mingw32\lib\gcc" -Filter cc1plus.exe -Recurse -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }
+          cmd.exe /c "call ""$vcvarsall_path"" x86_amd64 && editbin /LARGEADDRESSAWARE $cc1_path"
       - name: Update gamepad db
         run: |
           BRLS_GLFW=library/borealis/library/lib/extern/glfw
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake ${BRLS_GLFW}/src/mappings.h.in ${BRLS_GLFW}/src/mappings.h
       - name: Build dependency
         run: |
-          curl -sL https://github.com/webmproject/libwebp/archive/v1.3.2.tar.gz | tar zxf - -C /tmp
-          cd /tmp/libwebp-1.3.2
+          curl -sL https://github.com/webmproject/libwebp/archive/v1.4.0.tar.gz | tar zxf - -C /tmp
+          cd /tmp/libwebp-1.4.0
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
@@ -191,17 +192,33 @@ jobs:
             -DWEBP_BUILD_EXTRAS=OFF
           cmake --build build
           cmake --install build
+
+          curl -sL https://curl.se/download/curl-8.7.1.tar.xz | tar Jxf - -C /tmp
+          cd /tmp/curl-8.7.1
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DHTTP_ONLY=ON \
+            -DCURL_USE_SCHANNEL=ON \
+            -DCURL_DISABLE_PROGRESS_METER=ON \
+            -DBUILD_CURL_EXE=OFF \
+            -DBUILD_TESTING=OFF \
+            -DBUILD_LIBCURL_DOCS=OFF \
+            -DUSE_LIBIDN2=OFF \
+            -DUSE_WIN32_IDN=ON \
+            -DCURL_USE_LIBSSH2=OFF \
+            -DCURL_USE_LIBPSL=OFF \
+            -DZLIB_USE_STATIC_LIBS=ON
+          cmake --build build
+          cmake --install build
       - name: Build
         run: |
           cmake -B build -G Ninja ${{ matrix.cmake }} \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DPLATFORM_DESKTOP=ON \
             -DWIN32_TERMINAL=OFF \
-            -DCURL_DISABLE_PROGRESS_METER=ON \
-            -DUSE_LIBIDN2=OFF \
-            -DUSE_WIN32_IDN=ON \
-            -DCURL_USE_LIBSSH2=OFF \
-            -DCURL_USE_LIBPSL=OFF \
+            -DUSE_SYSTEM_CURL=ON \
             -DUSE_LIBROMFS=ON \
             -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build == 'true' && 'OFF' || 'ON' }} \
             -DCMAKE_UNITY_BUILD_BATCH_SIZE=20 \
@@ -307,8 +324,7 @@ jobs:
                 -DCMAKE_BUILD_TYPE=Release \
                 -DMPV_NO_FB=ON \
                 -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build == 'true' && 'OFF' || 'ON' }} \
-                -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
-                -DUSE_SYSTEM_CPR=ON && \
+                -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 && \
                 make -C cmake-build-ps4 -j$(nproc)"
 
       - name: Upload dist
@@ -341,8 +357,7 @@ jobs:
       - name: install deps
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         run: |
-          brew install create-dmg dylibbundler boost
-          brew list webp boost
+          brew install create-dmg dylibbundler
           brew tap xfangfang/wiliwili
           brew install -v mpv-wiliwili
 

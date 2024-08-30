@@ -1,0 +1,34 @@
+<brls:Box
+        wireframe="false"
+        highlightCornerRadius="8"
+        cornerRadius="8"
+        alignItems="center"
+        paddingLeft="15"
+        paddingRight="20"
+        width="auto"
+        height="auto">
+
+        <brls:Rectangle
+            id="badge"
+            width="8"
+            height="8"
+            cornerRadius="8"
+            visibility="invisible"
+            color="@theme/color/tip/red"/>
+
+        <UserInfoView
+                height="100%"
+                grow="1"
+                id="chat/talker" />
+
+        <brls:Label
+                id="inbox/lastTime"
+                minWidth="50"
+                height="auto"
+                fontSize="16"
+                shrink="0"
+                horizontalAlign="right"
+                wireframe="false"
+                textColor="@theme/font/grey" />
+
+</brls:Box>

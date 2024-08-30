@@ -67,7 +67,7 @@ class DynamicArticleModuleArchive {
 public:
     std::string aid, bvid, cover, title, duration_text;
     std::string desc;     // 可能为 null
-    unsigned int epid{};  // 可能为 null
+    uint64_t epid{};  // 可能为 null
     int type{};           // 1: UGC
     VideoSimpleStateResultV2 stat;
 };
@@ -99,7 +99,7 @@ public:
     int room_id{};
     std::string title;
     //    int area_id{}, parent_area_id{};
-    //    int64_t uid{};
+    //    uint64_t uid{};
     //    int live_status{}, online{};
     ShowInfo watched_show;
 };
@@ -280,5 +280,13 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicArticleModul
 DynamicArticleModuleResult_DELC;
 
 DynamicArticleResult_DELC;
+
+class DynamicArticleResultWrapper {
+public:
+    DynamicArticleResult item;
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j, DynamicArticleResultWrapper& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, item));
+}
 
 };  // namespace bilibili

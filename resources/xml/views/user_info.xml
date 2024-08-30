@@ -38,7 +38,9 @@
                 grow="1"
                 fontSize="20"
                 marginBottom="4"
-                verticalAlign="bottom"/>
+                verticalAlign="center"
+                singleLine="true"
+                shrink="0"/>
 
         <brls:Label
                 id="userinfo/label/misc"
@@ -47,7 +49,9 @@
                 fontSize="16"
                 grow="1"
                 marginTop="4"
-                verticalAlign="top"
+                verticalAlign="center"
+                singleLine="true"
+                shrink="0"
                 wireframe="false"
                 textColor="@theme/font/grey"/>
 

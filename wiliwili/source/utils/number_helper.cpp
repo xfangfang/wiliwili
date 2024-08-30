@@ -96,6 +96,19 @@ std::string wiliwili::sec2Time(size_t t) {
     return wiliwili::pre0(hour, 2) + ":" + wiliwili::pre0(minute, 2) + ":" + wiliwili::pre0(sec, 2);
 }
 
+std::string wiliwili::uglyString2Time(const std::string& str) {
+    if(str.empty()) return "";
+    auto res = pystring::split(str, ":");
+    if (res.size() != 2) return str;
+    try {
+        int min = std::stoi(res[0]);
+        int sec = std::stoi(res[1]);
+        return wiliwili::sec2Time(min * 60 + sec);
+    } catch (...) {
+        return str;
+    }
+}
+
 std::string wiliwili::sec2TimeDLNA(size_t t) {
     size_t hour   = t / 3600;
     size_t minute = t / 60 % 60;

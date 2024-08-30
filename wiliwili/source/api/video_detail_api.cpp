@@ -2,6 +2,7 @@
 #include <utility>
 
 #include "bilibili.h"
+#include "bilibili/api.h"
 #include "bilibili/util/http.hpp"
 #include "bilibili/result/video_detail_result.h"
 #include "bilibili/result/home_live_result.h"
@@ -14,7 +15,7 @@ void BilibiliClient::get_video_detail(const std::string& bvid, const std::functi
     HTTP::getResultAsync<VideoDetailResult>(Api::Detail, {{"bvid", bvid}}, callback, error);
 }
 
-void BilibiliClient::get_video_detail(int aid, const std::function<void(VideoDetailResult)>& callback,
+void BilibiliClient::get_video_detail(uint64_t aid, const std::function<void(VideoDetailResult)>& callback,
                                       const ErrorCallback& error) {
     HTTP::getResultAsync<VideoDetailResult>(Api::Detail, {{"aid", std::to_string(aid)}}, callback, error);
 }
@@ -25,19 +26,19 @@ void BilibiliClient::get_video_detail_all(const std::string& bvid,
     HTTP::getResultAsync<VideoDetailAllResult>(Api::DetailAll, {{"bvid", bvid}}, callback, error);
 }
 
-void BilibiliClient::get_page_detail(int aid, int cid, const std::function<void(VideoPageResult)>& callback,
+void BilibiliClient::get_page_detail(uint64_t aid, uint64_t cid, const std::function<void(VideoPageResult)>& callback,
                                      const ErrorCallback& error) {
     HTTP::getResultAsync<VideoPageResult>(Api::PageDetail, {{"aid", std::to_string(aid)}, {"cid", std::to_string(cid)}},
                                           callback, error);
 }
 
-void BilibiliClient::get_page_detail(const std::string& bvid, int cid,
+void BilibiliClient::get_page_detail(const std::string& bvid, uint64_t cid,
                                      const std::function<void(VideoPageResult)>& callback, const ErrorCallback& error) {
     HTTP::getResultAsync<VideoPageResult>(Api::PageDetail, {{"bvid", bvid}, {"cid", std::to_string(cid)}}, callback,
                                           error);
 }
 
-void BilibiliClient::get_webmask(const std::string& url, uint64_t rangeStart, uint64_t rangeEnd,
+void BilibiliClient::get_webmask(const std::string& url, int64_t rangeStart, int64_t rangeEnd,
                                  const std::function<void(std::string)>& callback, const ErrorCallback& error) {
     std::optional<std::int64_t> start, end;
     if (rangeStart != -1) start = rangeStart;
@@ -60,12 +61,12 @@ void BilibiliClient::get_video_pagelist(const std::string& bvid,
     HTTP::getResultAsync<VideoDetailPageListResult>(Api::PlayPageList, {{"bvid", std::string(bvid)}}, callback, error);
 }
 
-void BilibiliClient::get_video_pagelist(int aid, const std::function<void(VideoDetailPageListResult)>& callback,
+void BilibiliClient::get_video_pagelist(uint64_t aid, const std::function<void(VideoDetailPageListResult)>& callback,
                                         const ErrorCallback& error) {
     HTTP::getResultAsync<VideoDetailPageListResult>(Api::PlayPageList, {{"aid", std::to_string(aid)}}, callback, error);
 }
 
-void BilibiliClient::get_video_url(const std::string& bvid, int cid, int qn,
+void BilibiliClient::get_video_url(const std::string& bvid, uint64_t cid, int qn,
                                    const std::function<void(VideoUrlResult)>& callback, const ErrorCallback& error) {
     HTTP::getResultAsync<VideoUrlResult>(Api::PlayInformation,
                                          {{"bvid", std::string(bvid)},
@@ -77,7 +78,7 @@ void BilibiliClient::get_video_url(const std::string& bvid, int cid, int qn,
                                          callback, error);
 }
 
-void BilibiliClient::get_video_url(int aid, int cid, int qn, const std::function<void(VideoUrlResult)>& callback,
+void BilibiliClient::get_video_url(uint64_t aid, uint64_t cid, int qn, const std::function<void(VideoUrlResult)>& callback,
                                    const ErrorCallback& error) {
     HTTP::getResultAsync<VideoUrlResult>(Api::PlayInformation,
                                          {{"aid", std::to_string(aid)},
@@ -89,25 +90,24 @@ void BilibiliClient::get_video_url(int aid, int cid, int qn, const std::function
                                          callback, error);
 }
 
-void BilibiliClient::get_video_url_cast(int oid, int cid, int type, int qn, const std::string& csrf,
+void BilibiliClient::get_video_url_cast(uint64_t oid, uint64_t cid, int type, int qn, const std::string& csrf,
                                         const std::function<void(VideoUrlResult)>& callback,
                                         const ErrorCallback& error) {
+    //todo: csrf 不是 mobile_access_key，导致无法获取大会员或付费视频链接
     HTTP::getResultAsync<VideoUrlResult>(Api::PlayUrlCast,
-                                         {{"build", "105001"},
+                                         {{"access_key", csrf},
                                           {"is_proj", "1"},
-                                          {"device_type", "1"},
-                                          {"protocol", "1"},
+                                          {"actionKey", "appkey"},
+                                          {"device_type", "0"},
+                                          {"protocol", "0"},
                                           {"mobile_access_key", csrf},
-                                          {"mobi_app", "android_tv_yst"},
-                                          {"platform", "android"},
+                                          {"platform", "ios"},
                                           {"playurl_type", std::to_string(type)},
                                           {"object_id", std::to_string(oid)},
                                           {"cid", std::to_string(cid)},
                                           {"qn", std::to_string(qn)},
-                                          {"fourk", "1"},
-                                          {"fnval", "128"},
-                                          {"fnver", "0"}},
-                                         callback, error);
+                                          {"fourk", "1"}},
+                                         callback, error, true);
 }
 
 void BilibiliClient::get_comment(const std::string& oid, int next, int mode, int type,
@@ -140,7 +140,7 @@ void BilibiliClient::get_comment_detail(const std::string& access_key, const std
                                                    callback, error);
 }
 
-void BilibiliClient::get_season_detail(int seasonID, int epID, const std::function<void(SeasonResultWrapper)>& callback,
+void BilibiliClient::get_season_detail(uint64_t seasonID, uint64_t epID, const std::function<void(SeasonResultWrapper)>& callback,
                                        const ErrorCallback& error) {
     cpr::Parameters params;
     if (epID == 0) {
@@ -152,13 +152,13 @@ void BilibiliClient::get_season_detail(int seasonID, int epID, const std::functi
     HTTP::getResultAsync<SeasonResultWrapper>(Api::SeasonDetail, params, callback, error);
 }
 
-void BilibiliClient::get_season_recommend(size_t seasonID, const std::function<void(SeasonRecommendWrapper)>& callback,
+void BilibiliClient::get_season_recommend(uint64_t seasonID, const std::function<void(SeasonRecommendWrapper)>& callback,
                                           const ErrorCallback& error) {
     HTTP::getResultAsync<SeasonRecommendWrapper>(Api::SeasonRCMD, {{"season_id", std::to_string(seasonID)}}, callback,
                                                  error);
 }
 
-void BilibiliClient::get_season_status(size_t seasonID, const std::function<void(SeasonStatusResult)>& callback,
+void BilibiliClient::get_season_status(uint64_t seasonID, const std::function<void(SeasonStatusResult)>& callback,
                                        const ErrorCallback& error) {
     HTTP::getResultAsync<SeasonStatusResult>(Api::SeasonStatus,
                                              cpr::Parameters{{"season_id", std::to_string(seasonID)},
@@ -166,7 +166,7 @@ void BilibiliClient::get_season_status(size_t seasonID, const std::function<void
                                              callback, error);
 }
 
-void BilibiliClient::get_season_url(int cid, int qn, const std::function<void(VideoUrlResult)>& callback,
+void BilibiliClient::get_season_url(uint64_t cid, int qn, const std::function<void(VideoUrlResult)>& callback,
                                     const ErrorCallback& error) {
     HTTP::getResultAsync<VideoUrlResult>(
         Api::SeasonUrl,
@@ -221,7 +221,7 @@ void BilibiliClient::get_live_pay_link(int roomid, const std::function<void(Live
 }
 
 /// 视频页 获取单个视频播放人数
-void BilibiliClient::get_video_online(int aid, int cid, const std::function<void(VideoOnlineTotal)>& callback,
+void BilibiliClient::get_video_online(uint64_t aid, uint64_t cid, const std::function<void(VideoOnlineTotal)>& callback,
                                       const ErrorCallback& error) {
     HTTP::getResultAsync<VideoOnlineTotal>(Api::OnlineViewerCount,
                                            {
@@ -231,7 +231,7 @@ void BilibiliClient::get_video_online(int aid, int cid, const std::function<void
                                            callback, error);
 }
 
-void BilibiliClient::get_video_online(const std::string& bvid, int cid,
+void BilibiliClient::get_video_online(const std::string& bvid, uint64_t cid,
                                       const std::function<void(VideoOnlineTotal)>& callback,
                                       const ErrorCallback& error) {
     HTTP::getResultAsync<VideoOnlineTotal>(Api::OnlineViewerCount,
@@ -249,13 +249,13 @@ void BilibiliClient::get_video_relation(const std::string& bvid, const std::func
 }
 
 /// 视频页 获取番剧点赞/收藏/投币情况
-void BilibiliClient::get_video_relation(size_t epid, const std::function<void(VideoEpisodeRelation)>& callback,
+void BilibiliClient::get_video_relation(uint64_t epid, const std::function<void(VideoEpisodeRelation)>& callback,
                                         const ErrorCallback& error) {
     HTTP::getResultAsync<VideoEpisodeRelation>(Api::VideoEpisodeRelation, {{"ep_id", std::to_string(epid)}}, callback,
                                                error);
 }
 
-void BilibiliClient::get_danmaku(unsigned int cid, const std::function<void(std::string)>& callback,
+void BilibiliClient::get_danmaku(uint64_t cid, const std::function<void(std::string)>& callback,
                                  const ErrorCallback& error) {
     cpr::GetCallback<>(
         [callback, error](const cpr::Response& r) {
@@ -271,7 +271,7 @@ void BilibiliClient::get_danmaku(unsigned int cid, const std::function<void(std:
         cpr::Parameters({{"oid", std::to_string(cid)}}), HTTP::COOKIES, cpr::Timeout{HTTP::TIMEOUT});
 }
 
-void BilibiliClient::get_highlight_progress(unsigned int cid,
+void BilibiliClient::get_highlight_progress(uint64_t cid,
                                             const std::function<void(VideoHighlightProgress)>& callback,
                                             const ErrorCallback& error) {
     cpr::GetCallback<>(
@@ -314,9 +314,9 @@ void BilibiliClient::get_subtitle(const std::string& link, const std::function<v
 }
 
 /// 视频页 上报历史记录
-void BilibiliClient::report_history(const std::string& mid, const std::string& access_key, unsigned int aid,
-                                    unsigned int cid, int type, unsigned int progress, unsigned int duration,
-                                    unsigned int sid, unsigned int epid, const std::function<void()>& callback,
+void BilibiliClient::report_history(const std::string& mid, const std::string& access_key, uint64_t aid,
+                                    uint64_t cid, int type, unsigned int progress, unsigned int duration,
+                                    uint64_t sid, uint64_t epid, const std::function<void()>& callback,
                                     const ErrorCallback& error) {
     cpr::Payload payload = {
         {"mid", mid},
@@ -350,7 +350,7 @@ void BilibiliClient::report_live_history(int room_id, const std::string& csrf, c
     HTTP::postResultAsync(Api::LiveReport, {}, payload, callback, error);
 }
 
-void BilibiliClient::be_agree(const std::string& access_key, int aid, bool is_like,
+void BilibiliClient::be_agree(const std::string& access_key, uint64_t aid, bool is_like,
                               const std::function<void()>& callback, const ErrorCallback& error) {
     cpr::Payload payload = {
         {"aid", std::to_string(aid)},
@@ -422,7 +422,7 @@ void BilibiliClient::add_comment(const std::string& access_key, const std::strin
         error);
 }
 
-void BilibiliClient::add_coin(const std::string& access_key, int aid, unsigned int coin_number, bool is_like,
+void BilibiliClient::add_coin(const std::string& access_key, uint64_t aid, unsigned int coin_number, bool is_like,
                               const std::function<void()>& callback, const ErrorCallback& error) {
     cpr::Payload payload = {
         {"aid", std::to_string(aid)},
@@ -431,7 +431,6 @@ void BilibiliClient::add_coin(const std::string& access_key, int aid, unsigned i
         {"csrf", access_key},
     };
 
-    printf("[add coin] aid: %d; coin: %d; select_like: %d;\n", aid, coin_number, is_like);
     HTTP::postResultAsync(Api::CoinWeb, {}, payload, callback, error);
 }
 
@@ -439,7 +438,7 @@ void BilibiliClient::get_coin_exp(const std::function<void(int)>& callback, cons
     HTTP::getResultAsync<int>(Api::CoinExp, {}, callback, error);
 }
 
-void BilibiliClient::add_resource(const std::string& access_key, int rid, int type, const std::string& add_ids,
+void BilibiliClient::add_resource(const std::string& access_key, uint64_t rid, int type, const std::string& add_ids,
                                   const std::string& del_ids, const std::function<void()>& callback,
                                   const ErrorCallback& error) {
     cpr::Payload payload = {
@@ -449,7 +448,7 @@ void BilibiliClient::add_resource(const std::string& access_key, int rid, int ty
     HTTP::postResultAsync(Api::CollectionVideoListSave, {}, payload, callback, error);
 }
 
-void BilibiliClient::triple_like(const std::string& access_key, int aid, const std::function<void()>& callback,
+void BilibiliClient::triple_like(const std::string& access_key, uint64_t aid, const std::function<void()>& callback,
                                  const ErrorCallback& error) {
     cpr::Payload payload = {
         {"aid", std::to_string(aid)},
@@ -468,7 +467,7 @@ void BilibiliClient::follow_up(const std::string& access_key, const std::string&
     HTTP::postResultAsync(Api::Follow, {}, payload, callback, error);
 }
 
-void BilibiliClient::follow_season(const std::string& access_key, size_t season, bool follow,
+void BilibiliClient::follow_season(const std::string& access_key, uint64_t season, bool follow,
                                    const std::function<void()>& callback, const ErrorCallback& error) {
     cpr::Payload payload = {
         {"season_id", std::to_string(season)},

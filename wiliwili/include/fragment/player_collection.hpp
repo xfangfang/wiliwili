@@ -28,7 +28,7 @@ class RecyclingGrid;
 
 class PlayerCollection : public brls::Box {
 public:
-    PlayerCollection(int rid, int type);
+    PlayerCollection(uint64_t rid, int type);
 
     ~PlayerCollection() override;
 
@@ -41,7 +41,7 @@ public:
     void onCollectionList(const bilibili::SimpleCollectionListResultWrapper& result);
 
     /// 获取收藏列表
-    void getCollectionList(int rid, int type);
+    void getCollectionList(uint64_t rid, int type);
 
 private:
     BRLS_BIND(RecyclingGrid, recyclingGrid, "player/collection/recyclingGrid");

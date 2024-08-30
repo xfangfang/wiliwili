@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 #include "user_result.h"
 
 namespace bilibili {
@@ -37,8 +37,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VideoSimpleStateResultV2, play, like, danmaku
 
 class RecommendReasonResult {
 public:
-    std::string content = "";
-    int reason_type;
+    std::string content;
+    int reason_type{};
     // 3: 点赞多
     // 1: 关注
     // 0: 无 ？
@@ -54,23 +54,44 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, RecommendReasonResu
     }
 }
 
+class BusinessInfo {
+public:
+    std::string title; // 广告标题
+    std::string url; // 广告链接
+    std::string pic; // 广告封面
+    std::string adver_name; // 广告主
+    std::string business_mark; // 广告标记，通常来说是 "广告" 二字
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j, BusinessInfo& nlohmann_json_t) {
+    if (nlohmann_json_j.contains("business_mark") && !nlohmann_json_j.at("business_mark").is_null()) {
+        nlohmann_json_j.at("business_mark").at("text").get_to(nlohmann_json_t.business_mark);
+    }
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, title, url, pic, adver_name));
+}
+
 class RecommendVideoResult {
 public:
-    int id;
+    uint64_t id{};
     std::string bvid;
-    int cid;
-    std::string pic   = "";
-    std::string title = "";
-    int duration;
-    int pubdate;
+    uint64_t cid{};
+    std::string pic;
+    std::string title;
+    int duration{};
+    int pubdate{};
     UserSimpleResult owner;
     VideoSimpleStateResult stat;
-    int is_followed;
+    int is_followed{};
     RecommendReasonResult rcmd_reason;
+    BusinessInfo business_info; // 广告
+    bool isAd{}; // 自定义变量，是否是广告
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j, RecommendVideoResult& nlohmann_json_t) {
     if (nlohmann_json_j.contains("rcmd_reason") && !nlohmann_json_j.at("rcmd_reason").is_null()) {
         nlohmann_json_j.at("rcmd_reason").get_to(nlohmann_json_t.rcmd_reason);
+    }
+    if (nlohmann_json_j.contains("business_info") && !nlohmann_json_j.at("business_info").is_null()) {
+        nlohmann_json_j.at("business_info").get_to(nlohmann_json_t.business_info);
+        nlohmann_json_t.isAd = true;
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, id, bvid, cid, pic, title, duration, pubdate, owner,
                                              stat, is_followed));

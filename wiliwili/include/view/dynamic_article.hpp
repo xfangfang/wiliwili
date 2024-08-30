@@ -7,13 +7,42 @@
 #include <borealis/core/bind.hpp>
 
 #include "view/recycling_grid.hpp"
+#include "view/button_close.hpp"
 #include "bilibili/result/dynamic_article.h"
+#include "presenter/dynamic_video.hpp"
 #include "presenter/comment_related.hpp"
 
 class UserInfoView;
 class TextBox;
 class DynamicVideoCardView;
 class SVGImage;
+
+class DynamicArticleDetail : public brls::Box, public CommentRequest, public DynamicArticleRequest {
+public:
+    DynamicArticleDetail(const bilibili::DynamicArticleResult& data,
+                         const bilibili::DynamicArticleModuleState& state);
+
+    explicit DynamicArticleDetail(const std::string& id);
+
+    void initList(const bilibili::DynamicArticleResult& data,
+              const bilibili::DynamicArticleModuleState& state);
+
+    void onCommentInfo(const bilibili::VideoCommentResultWrapper& result) override;
+
+    void onDynamicArticle(const bilibili::DynamicArticleResult& result) override;
+
+    void toggleCommentMode();
+
+    brls::Event<bool> likeStateEvent;
+    brls::Event<size_t> likeNumEvent;
+
+private:
+    BRLS_BIND(RecyclingGrid, recyclingGrid, "dynamic/detail/grid");
+    BRLS_BIND(ButtonClose, buttonClose, "button/close");
+    bilibili::DynamicArticleResult data;
+    bilibili::DynamicArticleModuleState state;
+};
+
 
 class DynamicArticleView : public RecyclingGridItem {
 public:

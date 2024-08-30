@@ -15,7 +15,7 @@
 	url = https://github.com/sammycage/lunasvg.git
 [submodule "library/cpr"]
 	path = library/cpr
-	url = https://github.com/libcpr/cpr.git
+	url = https://github.com/xfangfang/cpr.git
 [submodule "library/mongoose"]
 	path = library/mongoose
 	url = https://github.com/xfangfang/mongoose.git

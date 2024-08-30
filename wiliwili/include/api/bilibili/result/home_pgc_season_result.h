@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 #include "bilibili/result/user_result.h"
 
 namespace bilibili {
@@ -38,9 +38,9 @@ public:
     SeasonEpisodeResult() = default;
     SeasonEpisodeResult(std::string title) : title(title) { id = 0; }
     size_t index;
-    unsigned int aid;
-    unsigned int cid;
-    unsigned int id;  //ep id
+    uint64_t aid;
+    uint64_t cid;
+    uint64_t id;  //ep id
     std::string bvid;
     unsigned int duration;
     std::string title;
@@ -134,7 +134,7 @@ public:
 
     EpisodesBadge badge_info;
     std::string season_title, cover, subtitle;
-    size_t season_id;
+    uint64_t season_id;
     SeasonSeriesItemStat stat;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j, SeasonSeriesItem& nlohmann_json_t) {
@@ -174,7 +174,7 @@ public:
     std::string cover, title, subtitle;
     float score;
     SeasonRecommendItemStat stat;
-    size_t season_id;
+    uint64_t season_id;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j, SeasonRecommendItem& nlohmann_json_t) {
     if (nlohmann_json_j.contains("new_ep")) {
@@ -205,7 +205,7 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, SeasonRecommendWrap
 
 class SeasonResultWrapper {
 public:
-    unsigned int season_id;
+    uint64_t season_id;
     std::string cover;
     std::string season_title;
     std::string season_desc;

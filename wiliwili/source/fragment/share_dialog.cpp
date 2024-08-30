@@ -95,5 +95,11 @@ void ShareDialog::open(const std::string& link, const std::string& title, const 
 ShareDialog::~ShareDialog() { brls::Logger::debug("Fragment ShareDialog: delete"); }
 
 void ShareDialog::showHint() {
-    this->boxHint->show([this]() { brls::delay(500, [this]() { this->boxHint->hide([]() {}); }); });
+    ASYNC_RETAIN
+    this->boxHint->show([ASYNC_TOKEN]() {
+        brls::delay(500, [ASYNC_TOKEN]() {
+            ASYNC_RELEASE
+            this->boxHint->hide([]() {});
+        });
+    });
 }

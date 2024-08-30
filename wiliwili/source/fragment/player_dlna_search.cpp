@@ -164,7 +164,7 @@ PlayerDlnaSearch::PlayerDlnaSearch() {
         } else if (event == "CAST_URL_ERROR") {
             waitingUrl.store(false);
             brls::Application::popActivity(brls::TransitionAnimation::NONE);
-            DialogHelper::showDialog("wiliwili/player/cast/err_url"_i18n);
+            DialogHelper::showDialog(data == nullptr ? "wiliwili/player/cast/err_url"_i18n : std::string{(char*)data});
             if (currentCell) currentCell->title->setText(currentRenderer.friendlyName);
         }
     });

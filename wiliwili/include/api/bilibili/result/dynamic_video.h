@@ -13,7 +13,7 @@ namespace bilibili {
 
 class DynamicVideoResult {
 public:
-    int aid = 0;
+    uint64_t aid = 0;
     std::string bvid;
     std::string pic;
     std::string title;
@@ -66,7 +66,7 @@ public:
     bool has_update;
     std::string face;
     std::string uname;
-    int64_t mid;
+    uint64_t mid;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicUpResult, has_update, face, uname, mid);
 

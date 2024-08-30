@@ -82,7 +82,7 @@ add_definitions(-DFONS_HASH_LUT_SIZE=4096)
 project(wiliwili)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "4")
-set(VERSION_REVISION "0")
+set(VERSION_REVISION "1")
 if (NOT VERSION_BUILD)
     set(VERSION_BUILD "0")
 endif ()
@@ -90,7 +90,7 @@ set(PROJECT_AUTHOR "xfangfang")
 set(PACKAGE_NAME cn.xfangfang.wiliwili)
 set(VITA_TITLEID "WILIWILI0")
 set(PSN_TITLE_ID "WILI00000")
-set(VITA_VERSION "01.40")
+set(VITA_VERSION "01.41")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}")
@@ -100,7 +100,11 @@ find_package(Threads REQUIRED)
 list(APPEND APP_PLATFORM_LIB ${CMAKE_THREAD_LIBS_INIT})
 
 # Find libmpv and libwebp
-if (PLATFORM_DESKTOP)
+if (MAC_DOWNLOAD_DYLIB)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macos.cmake)
+    list(APPEND CMAKE_MODULE_PATH
+            ${CMAKE_BINARY_DIR}/deps/lib/cmake)
+elseif (PLATFORM_DESKTOP)
     find_package(MPV REQUIRED)
     message(STATUS "Found libmpv: ${MPV_VERSION} ${MPV_INCLUDE_DIR} ${MPV_LIBRARY}")
     list(APPEND APP_PLATFORM_INCLUDE ${MPV_INCLUDE_DIR})
@@ -218,10 +222,8 @@ if (PLATFORM_DESKTOP)
 
     if (APPLE)
         if (MAC_DOWNLOAD_DYLIB)
-            # Download macos dylib dependencies if require
-            include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macos.cmake)
             set(bundle_args1 "-nb")
-            set(bundle_args2 "${MACOS_DYLIB_DIR}")
+            set(bundle_args2 "${CMAKE_BINARY_DIR}/deps/lib")
         else ()
             # Use system provided dylib
             set(bundle_args1 "-b")
@@ -229,7 +231,7 @@ if (PLATFORM_DESKTOP)
         endif ()
         add_custom_target(
             ${PROJECT_NAME}.app
-            COMMAND "bash" "${CMAKE_BINARY_DIR}/../scripts/build_mac.sh" "${bundle_args1}" "${bundle_args2}" "${APP_VERSION}"
+            COMMAND "bash" "${CMAKE_SOURCE_DIR}/scripts/build_mac.sh" "${bundle_args1}" "${bundle_args2}" "${APP_VERSION}"
         )
         add_dependencies(${PROJECT_NAME}.app ${PROJECT_NAME})
     elseif (UNIX AND INSTALL)
