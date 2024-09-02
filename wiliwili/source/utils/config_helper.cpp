@@ -7,6 +7,9 @@
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
 #include <unistd.h>
 #include <borealis/platforms/desktop/desktop_platform.hpp>
+#if defined(_WIN32)
+#include <shlobj.h>
+#endif
 #endif
 
 #include <borealis/core/application.hpp>
@@ -904,7 +907,11 @@ std::string ProgramConfig::getConfigDir() {
     return config + "/wiliwili";
 #endif
 #ifdef _WIN32
-    return std::string(getenv("LOCALAPPDATA")) + "\\xfangfang\\wiliwili";
+    WCHAR wpath[MAX_PATH];
+    std::vector<char> lpath(MAX_PATH);
+    SHGetSpecialFolderPathW(0, wpath, CSIDL_LOCAL_APPDATA, false);
+    WideCharToMultiByte(CP_UTF8, 0, wpath, std::wcslen(wpath), lpath.data(), lpath.size(), nullptr, nullptr);
+    return std::string(lpath.data()) + "\\xfangfang\\wiliwili";
 #endif
 #endif /* _DEBUG */
 #endif /* __SWITCH__ */
