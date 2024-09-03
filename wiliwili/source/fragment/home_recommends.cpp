@@ -53,6 +53,10 @@ public:
         bool skip = false;
         for (const auto& i : data) {
             skip = false;
+            if (i.isAd) {
+                brls::Logger::debug("skipping ads");
+                skip = true;
+            }
             for (const auto& j : this->recommendList) {
                 if (j.cid == i.cid) {
                     skip = true;
