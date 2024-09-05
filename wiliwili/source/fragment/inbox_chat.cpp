@@ -148,7 +148,7 @@ bool InboxChat::toggleSend() {
 }
 
 void InboxChat::onError(const std::string& error) {
-    brls::Threading::sync([this, error]() { this->recyclingGrid->setError(error); });
+    this->recyclingGrid->setError(error);
 }
 
 void InboxChat::onMsgList(const bilibili::InboxMessageResultWrapper& result, bool refresh) {
@@ -166,11 +166,11 @@ void InboxChat::onMsgList(const bilibili::InboxMessageResultWrapper& result, boo
             datasource = new DataSourceMsgList(result, this->talkerId);
             recyclingGrid->setDefaultCellFocus(datasource->getItemCount() - 1);
             recyclingGrid->setDataSource(datasource);
-            brls::sync([this]() { recyclingGrid->selectRowAt(recyclingGrid->getDefaultCellFocus(), true); });
+            recyclingGrid->selectRowAt(recyclingGrid->getDefaultCellFocus(), true);
         }
     });
 }
 
 void InboxChat::onSendMsg(const bilibili::InboxSendResult& result) {
-    brls::Threading::sync([this]() { this->recyclingGrid->forceRequestNextPage(); });
+    this->recyclingGrid->forceRequestNextPage();
 }

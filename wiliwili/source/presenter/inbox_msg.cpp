@@ -1,6 +1,7 @@
 #include "bilibili.h"
 #include "presenter/inbox_msg.hpp"
 #include "utils/config_helper.hpp"
+#include <borealis/core/thread.hpp>
 
 void InboxMsgRequest::onMsgList(const bilibili::InboxMessageResultWrapper& result, bool refresh) {}
 
@@ -14,18 +15,23 @@ void InboxMsgRequest::requestData(bool refresh, int session_type, size_t size) {
     BILI::fetch_inbox_msgs(
         std::to_string(this->talkerId), size, session_type, refresh ? "" : std::to_string(this->msgSeq),
         [ASYNC_TOKEN, refresh, session_type](const bilibili::InboxMessageResultWrapper& result) {
-            ASYNC_RELEASE
-            this->onMsgList(result, refresh);
-            if (this->msgSeq != result.max_seqno) {
-                this->msgSeq = result.max_seqno;
-                this->updateAck(session_type);
-            }
-            UNSET_REQUEST
+            brls::sync([ASYNC_TOKEN, refresh, session_type, result](){
+                ASYNC_RELEASE
+                this->onMsgList(result, refresh);
+                if (this->msgSeq != result.max_seqno) {
+                    this->msgSeq = result.max_seqno;
+                    this->updateAck(session_type);
+                }
+                UNSET_REQUEST
+            });
+
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
-            this->onError(error);
-            UNSET_REQUEST
+            brls::sync([ASYNC_TOKEN, error](){
+                ASYNC_RELEASE
+                this->onError(error);
+                UNSET_REQUEST
+            });
         });
 }
 
@@ -41,14 +47,18 @@ void InboxMsgRequest::sendMsg(const std::string& text) {
     BILI::send_inbox_msg(
         ProgramConfig::instance().getUserID(), std::to_string(this->talkerId), content.dump(), csrf,
         [ASYNC_TOKEN](const bilibili::InboxSendResult& result) {
-            ASYNC_RELEASE
-            this->onSendMsg(result);
-            UNSET_REQUEST
+            brls::sync([ASYNC_TOKEN, result](){
+                ASYNC_RELEASE
+                this->onSendMsg(result);
+                UNSET_REQUEST
+            });
         },
         [ASYNC_TOKEN](BILI_ERR) {
-            ASYNC_RELEASE
-            this->onError(error);
-            UNSET_REQUEST
+            brls::sync([ASYNC_TOKEN, error](){
+                ASYNC_RELEASE
+                this->onError(error);
+                UNSET_REQUEST
+            });
         });
 }
 
