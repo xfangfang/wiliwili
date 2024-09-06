@@ -112,7 +112,9 @@
         "dlna_waiting": "Waiting for DLNA casting...",
         "dlna_quit": "Exit the DLNA casting?",
         "up2date": "App is up to date",
+        "checking_update": "Checking for updates...",
         "release": "Check for updates",
+        "config_dir": "Config directory",
         "config": "Open config directory"
       }
     },

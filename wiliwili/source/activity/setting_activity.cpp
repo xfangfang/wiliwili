@@ -189,20 +189,31 @@ void SettingActivity::onContentAvailable() {
         return true;
     });
 
-#if !defined(__SWITCH__) && !defined(IOS) && !defined(__PSV__) && !defined(PS4)
-    btnOpenConfig->registerClickAction([](...) -> bool {
-        auto* p = (brls::DesktopPlatform*)brls::Application::getPlatform();
-        p->openBrowser(ProgramConfig::instance().getConfigDir());
-        return true;
-    });
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
+    btnOpenConfig->title->setText("wiliwili/setting/tools/others/config_dir"_i18n);
+#endif
 #ifdef __linux__
     if (brls::isSteamDeck()) {
-        btnOpenConfig->setVisibility(brls::Visibility::GONE);
+        btnOpenConfig->title->setText("wiliwili/setting/tools/others/config_dir"_i18n);
     }
 #endif
+    btnOpenConfig->registerClickAction([](...) -> bool {
+        auto configPath = ProgramConfig::instance().getConfigDir();
+        brls::Application::notify("wiliwili/setting/tools/others/config_dir"_i18n + ": " + configPath);
+#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4)
+#ifdef __linux__
+        if (!brls::isSteamDeck())
 #else
-    btnOpenConfig->setVisibility(brls::Visibility::GONE);
+        {
+            auto* p = (brls::DesktopPlatform*)brls::Application::getPlatform();
+            p->openBrowser(configPath);
+        }
 #endif
+#endif
+        return true;
+    });
+
+
     btnTutorialFont->registerClickAction([](...) -> bool {
         auto dialog =
             new brls::Dialog((brls::Box*)brls::View::createFromXMLResource("fragment/settings_tutorial_font.xml"));
@@ -241,7 +252,7 @@ void SettingActivity::onContentAvailable() {
     btnReleaseChecker->title->setText("wiliwili/setting/tools/others/release"_i18n + " (" + "hints/current"_i18n +
                                       ": " + version + ")");
     btnReleaseChecker->registerClickAction([](...) -> bool {
-        // todo: 弹出一个提示提醒用户正在检查更新
+        brls::Application::notify("wiliwili/setting/tools/others/checking_update"_i18n);
         APPVersion::instance().checkUpdate(0, true);
         return true;
     });

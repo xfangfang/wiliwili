@@ -14,6 +14,8 @@
 #include "view/qr_image.hpp"
 #include "view/button_close.hpp"
 
+using namespace brls::literals;
+
 ShareBox::ShareBox() {
     this->inflateFromXMLRes("xml/fragment/share_box.xml");
     this->registerStringXMLAttribute("title", [this](const std::string& value) { this->title->setText(value); });
@@ -80,9 +82,6 @@ void ShareDialog::open(const std::string& link, const std::string& title, const 
                     "url={}&type=3&count=1&appkey=2841902482&title={}&pic={}&language=zh_cn",
                     cpr::util::urlEncode(link), cpr::util::urlEncode(title + "#哔哩哔哩动画#"), cpr::util::urlEncode(pic)));
 
-    this->boxHint->hide([]() {}, false, 0);
-    this->boxHint->setVisibility(brls::Visibility::VISIBLE);
-
     this->dynamic->setLink(link);
     this->dynamic->getEvent()->subscribe([this]() { this->showHint(); });
     this->wechat->setLink(link);
@@ -95,11 +94,5 @@ void ShareDialog::open(const std::string& link, const std::string& title, const 
 ShareDialog::~ShareDialog() { brls::Logger::debug("Fragment ShareDialog: delete"); }
 
 void ShareDialog::showHint() {
-    ASYNC_RETAIN
-    this->boxHint->show([ASYNC_TOKEN]() {
-        brls::delay(500, [ASYNC_TOKEN]() {
-            ASYNC_RELEASE
-            this->boxHint->hide([]() {});
-        });
-    });
+    brls::Application::notify("wiliwili/player/clipboard"_i18n);
 }

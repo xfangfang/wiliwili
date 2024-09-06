@@ -112,7 +112,9 @@
         "dlna_waiting": "等待 DLNA 投屏中...",
         "dlna_quit": "确定要退出投屏?",
         "up2date": "应用已经是最新版",
+        "checking_update": "正在检查更新...",
         "release": "检查更新",
+        "config_dir": "配置目录",
         "config": "打开配置目录"
       }
     },

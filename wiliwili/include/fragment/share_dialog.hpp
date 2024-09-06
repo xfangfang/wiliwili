@@ -46,7 +46,6 @@ public:
 private:
     BRLS_BIND(QRImage, qrcode, "share/qrcode");
     BRLS_BIND(brls::Box, boxShare, "share/box");
-    BRLS_BIND(brls::Box, boxHint, "share/hint/box");
     BRLS_BIND(ShareBox, qq, "share/box/qq");
     BRLS_BIND(ShareBox, qzone, "share/box/qzone");
     BRLS_BIND(ShareBox, tieba, "share/box/tieba");

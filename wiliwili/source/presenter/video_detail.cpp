@@ -615,7 +615,8 @@ void VideoDetail::beAgree(uint64_t aid) {
         [ASYNC_TOKEN](BILI_ERR) {
             // 请求失败 恢复默认状态
             brls::Logger::error("{}", error);
-            brls::sync([ASYNC_TOKEN]() {
+            brls::sync([ASYNC_TOKEN, error]() {
+                brls::Application::notify(error);
                 ASYNC_RELEASE
                 this->onVideoRelationInfo(videoRelation);
             });
@@ -648,6 +649,7 @@ void VideoDetail::addCoin(uint64_t aid, int num, bool like) {
             // 请求失败 恢复默认状态
             brls::Logger::error("{}", error);
             brls::sync([ASYNC_TOKEN, error]() {
+                brls::Application::notify(error);
                 ASYNC_RELEASE
                 // 投币达到上限
                 if (pystring::count(error, "34005")) videoRelation.coin = 2;
@@ -679,7 +681,8 @@ void VideoDetail::addResource(uint64_t aid, int type, bool isFavorite, std::stri
         [ASYNC_TOKEN](BILI_ERR) {
             // 请求失败 恢复默认状态
             brls::Logger::error("{}", error);
-            brls::sync([ASYNC_TOKEN]() {
+            brls::sync([ASYNC_TOKEN, error]() {
+                brls::Application::notify(error);
                 ASYNC_RELEASE
                 this->onVideoRelationInfo(videoRelation);
             });

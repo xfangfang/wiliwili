@@ -77,12 +77,16 @@ bool APPVersion::needUpdate(std::string latestVersion) {
 }
 
 void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
+    static bool checking_update = false;
+    if (checking_update) return;
+    checking_update = true;
     brls::Threading::delay(delay, [showUpToDateDialog]() {
         std::string url =
             ProgramConfig::instance().getSettingItem(SettingItem::CUSTOM_UPDATE_API, APPVersion::RELEASE_API);
 
         cpr::GetCallback(
             [showUpToDateDialog](cpr::Response r) {
+                checking_update = false;
                 try {
                     if (r.status_code != 200 || r.text.empty()) {
                         brls::Logger::error("Cannot check update: {} {}", r.status_code, r.text);
@@ -98,7 +102,7 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
                         brls::Logger::info("App is up to date");
                         if (showUpToDateDialog) {
                             brls::sync(
-                                []() { DialogHelper::showDialog("wiliwili/setting/tools/others/up2date"_i18n); });
+                                []() { brls::Application::notify("wiliwili/setting/tools/others/up2date"_i18n); });
                         }
                         return;
                     }

@@ -89,20 +89,4 @@
 
     </brls:Box>
 
-    <brls:Box
-        cornerRadius="4"
-        backgroundColor="@theme/brls/backdrop"
-        positionBottom="150"
-        positionLeft="300"
-        positionType="absolute"
-        justifyContent="center"
-        alignItems="center"
-        visibility="gone"
-        id="share/hint/box">
-        <brls:Label
-            margin="10"
-            textColor="#FFFFFF"
-            text="@i18n/wiliwili/player/clipboard" />
-    </brls:Box>
-
 </brls:Box>
