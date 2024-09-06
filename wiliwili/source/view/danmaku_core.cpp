@@ -328,7 +328,7 @@ void DanmakuCore::loadMaskData(const std::string &url) {
             BILI::get_webmask(
                 url, 16, 16 * maskData.length + 15,
                 [this](const std::string &text) {
-                    if (text.size() != 16 * maskData.length) {
+                    if (text.size() != (size_t)(16 * maskData.length)) {
                         brls::Logger::error("解析数据头2失败: {} != {}", text.size(), 16 * maskData.length);
                         return;
                     }
@@ -572,7 +572,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float heig
     }
 
     // 实际弹幕显示行数 （小于等于总行数且受弹幕显示区域限制）
-    int LINES = height / lineHeight * DANMAKU_STYLE_AREA * 0.01f;
+    size_t LINES = height / lineHeight * DANMAKU_STYLE_AREA * 0.01f;
     if (LINES > lineNum) LINES = lineNum;
 
     //取出需要的弹幕
@@ -750,7 +750,7 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float heig
             }
             i.speed   = (width + i.length) / SECOND;
             i.showing = true;
-            for (int k = 0; k < LINES; k++) {
+            for (size_t k = 0; k < LINES; k++) {
                 if (i.type == 4) {
                     //底部
                     if (i.time < centerLines[LINES - k - 1]) continue;
@@ -810,14 +810,14 @@ void WebMask::parseHeader2(const std::string &text) {
 
     sliceList.reserve(length);
     uint64_t time, offset, currentOffset = 0;
-    for (size_t i = 0; i < length; i++) {
+    for (int32_t i = 0; i < length; i++) {
         std::memcpy(&time, text.data() + currentOffset, sizeof(uint64_t));
         std::memcpy(&offset, text.data() + currentOffset + 8, sizeof(uint64_t));
         time   = ntohll(time);
         offset = ntohll(offset);
         sliceList.emplace_back(time, offset, 0);
         if (i != 0) sliceList[i - 1].offsetEnd = offset;
-        if (i == length - 1) sliceList[i].offsetEnd = -1;
+        if (i == length - 1) sliceList[i].offsetEnd = 0xFFFFFFFFFFFFFFFF;
         currentOffset += 16;
     }
 
@@ -868,7 +868,7 @@ const MaskSlice &WebMask::getSlice(size_t index) {
                 // 解压分片数据
                 std::string data;
                 try {
-                    if (slice.offsetEnd == -1) slice.offsetEnd = text.size() + offset;
+                    if (slice.offsetEnd == 0xFFFFFFFFFFFFFFFF) slice.offsetEnd = text.size() + offset;
                     data = wiliwili::decompressGzipData(
                         text.substr(slice.offsetStart - offset, slice.offsetEnd - slice.offsetStart));
                 } catch (const std::runtime_error &e) {

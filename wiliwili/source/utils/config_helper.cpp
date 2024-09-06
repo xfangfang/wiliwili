@@ -362,8 +362,8 @@ void ProgramConfig::loadHomeWindowState() {
 
     if (hWidth == 0 || hHeight == 0) return;
 
-    int minWidth  = getIntOption(SettingItem::MINIMUM_WINDOW_WIDTH);
-    int minHeight = getIntOption(SettingItem::MINIMUM_WINDOW_HEIGHT);
+    uint32_t minWidth  = getIntOption(SettingItem::MINIMUM_WINDOW_WIDTH);
+    uint32_t minHeight = getIntOption(SettingItem::MINIMUM_WINDOW_HEIGHT);
     if (hWidth < minWidth) hWidth = minWidth;
     if (hHeight < minHeight) hHeight = minHeight;
 
@@ -762,9 +762,9 @@ void ProgramConfig::checkOnTop() {
         case 2: {
             // 自动模式，根据窗口大小判断是否需要切换到置顶模式
             double factor = brls::Application::getPlatform()->getVideoContext()->getScaleFactor();
-            int minWidth =
+            uint32_t minWidth =
                 ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_WIDTH) * factor + 0.1;
-            int minHeight =
+            uint32_t minHeight =
                 ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_HEIGHT) * factor + 0.1;
             bool onTop = brls::Application::windowWidth <= minWidth || brls::Application::windowHeight <= minHeight;
             brls::Application::getPlatform()->setWindowAlwaysOnTop(onTop);

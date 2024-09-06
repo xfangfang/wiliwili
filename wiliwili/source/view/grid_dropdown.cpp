@@ -93,7 +93,7 @@ void TextDataSourceDropdown::clearData() { this->data.clear(); }
 
 /// BaseDropdown
 
-BaseDropdown::BaseDropdown(const std::string& title, ValueSelectedEvent::Callback cb, int selected)
+BaseDropdown::BaseDropdown(const std::string& title, ValueSelectedEvent::Callback cb, size_t selected)
     : cb(std::move(cb)), selected(selected) {
     this->inflateFromXMLRes("xml/views/grid_dropdown.xml");
     this->title->setText(title);
@@ -110,8 +110,8 @@ BaseDropdown::BaseDropdown(const std::string& title, ValueSelectedEvent::Callbac
 RecyclingGrid* BaseDropdown::getRecyclingList() { return recycler; }
 
 void BaseDropdown::setDataSource(DataSourceDropdown* dataSource) {
-    // 当设置的选中项为 -1 时，表示不选中任何项，但是焦点位于第一项
-    recycler->setDefaultCellFocus(selected == -1 ? 0 : selected);
+    // 当设置的选中项为 0xFFFFFFFF (-1) 时，表示不选中任何项，但是焦点位于第一项
+    recycler->setDefaultCellFocus(selected == 0xFFFFFFFF ? 0 : selected);
     recycler->setDataSource(dataSource);
 
     brls::Style style = brls::Application::getStyle();
@@ -142,7 +142,7 @@ size_t BaseDropdown::getSelected() const { return this->selected; }
 ValueSelectedEvent::Callback BaseDropdown::getSelectCallback() { return this->cb; }
 
 BaseDropdown* BaseDropdown::text(const std::string& title, const std::vector<std::string>& values,
-                                 ValueSelectedEvent::Callback cb, int selected, const std::string& hint) {
+                                 ValueSelectedEvent::Callback cb, size_t selected, const std::string& hint) {
     auto* dropdown = new BaseDropdown(title, std::move(cb), selected);
     dropdown->getRecyclingList()->registerCell("Cell", []() {
         auto* cell = new GridRadioCell();

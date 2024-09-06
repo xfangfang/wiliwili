@@ -116,7 +116,7 @@ private:
  */
 class BaseDropdown : public EmptyDropdown {
 public:
-    BaseDropdown(const std::string& title, ValueSelectedEvent::Callback cb, int selected = 0);
+    BaseDropdown(const std::string& title, ValueSelectedEvent::Callback cb, size_t selected = 0);
 
     RecyclingGrid* getRecyclingList();
 
@@ -131,7 +131,7 @@ public:
     ValueSelectedEvent::Callback getSelectCallback();
 
     static BaseDropdown* text(const std::string& title, const std::vector<std::string>& values,
-                              ValueSelectedEvent::Callback cb, int selected = 0, const std::string& hint = "");
+                              ValueSelectedEvent::Callback cb, size_t selected = 0, const std::string& hint = "");
 
 protected:
     BRLS_BIND(RecyclingGrid, recycler, "grid_dropdown/recycler");
