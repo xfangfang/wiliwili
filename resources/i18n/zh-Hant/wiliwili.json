@@ -230,6 +230,10 @@
       "history_delete": "删除",
       "suggest": "猜你想搜"
     },
+    "history": {
+      "clear": "清空歷史記錄",
+      "clear_hint": "確認清空歷史記錄？"
+    },
     "order": {
       "all": "綜合排序",
       "click": "最多播放",

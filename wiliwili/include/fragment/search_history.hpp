@@ -27,5 +27,6 @@ public:
 
 private:
     UpdateSearchEvent *updateSearchEvent = nullptr;
+    brls::Event<> clearSearchEvent;
     BRLS_BIND(RecyclingGrid, recyclingGrid, "search/history/recyclingGrid");
 };

@@ -230,6 +230,10 @@
       "history_delete": "Delete",
       "suggest": "Suggest"
     },
+    "history": {
+      "clear": "Delete search history",
+      "clear_hint": "Your search history will be permanently deleted from this device"
+    },
     "order": {
       "all": "All",
       "click": "Click",
