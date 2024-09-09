@@ -7,9 +7,6 @@
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
 #include <unistd.h>
 #include <borealis/platforms/desktop/desktop_platform.hpp>
-#if defined(_WIN32)
-#include <shlobj.h>
-#endif
 #endif
 
 #include <borealis/core/application.hpp>
@@ -48,6 +45,7 @@ extern in_addr_t secondary_dns;
 
 #ifdef _WIN32
 #include <winsock2.h>
+#include <shlobj.h>
 #endif
 
 #ifndef PATH_MAX

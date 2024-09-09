@@ -21,6 +21,10 @@
 #include "bilibili/result/search_result.h"
 #include "analytics.h"
 
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#include <clip/clip.h>
+#endif
+
 using namespace brls::literals;
 
 typedef brls::Event<char> KeyboardEvent;
@@ -164,6 +168,16 @@ void TVSearchActivity::onContentAvailable() {
         return true;
     });
     inputLabel->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->inputLabel->getParent()));
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    inputLabel->getParent()->registerAction("hints/paste"_i18n, brls::BUTTON_B, [this](brls::View* view) {
+        std::string text;
+        if (clip::get_text(text)) {
+            this->setCurrentSearch(text);
+            this->updateInputLabel();
+        }
+        return true;
+    });
+#endif
 
     KeyboardData keyboard;
     for (int i = 'A'; i <= 'Z'; i++) {
