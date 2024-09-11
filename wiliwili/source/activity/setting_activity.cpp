@@ -203,12 +203,11 @@ void SettingActivity::onContentAvailable() {
 #if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4)
 #ifdef __linux__
         if (!brls::isSteamDeck())
-#else
+#endif
         {
             auto* p = (brls::DesktopPlatform*)brls::Application::getPlatform();
             p->openBrowser(configPath);
         }
-#endif
 #endif
         return true;
     });
