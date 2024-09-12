@@ -7,6 +7,7 @@
 #include "view/text_box.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/image_helper.hpp"
+#include <pystring.h>
 
 using namespace brls::literals;
 
@@ -45,67 +46,68 @@ void RecyclingGridItemVideoCard::setAchievement(const std::string& explain) {
 
 RecyclingGridItemVideoCard* RecyclingGridItemVideoCard::create() { return new RecyclingGridItemVideoCard(); }
 
-void RecyclingGridItemVideoCard::setCard(const std::string& pic, const std::string& title, const std::string& username,
-                                         int pubdate, int view_count, int danmaku, int duration,
-                                         const std::string& extra) {
-    if (pubdate)
-        this->labelUsername->setText(username + "·" + wiliwili::sec2date(pubdate));
-    else
-        this->labelUsername->setText(username);
+void RecyclingGridItemVideoCard::cacheForReuse() {
+    //准备回收该项
+    ImageHelper::clear(this->picture);
+    ImageHelper::clear(this->pictureHint);
+}
 
-    this->labelTitle->setIsWrapping(true);
-    this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
-    this->labelCount->setText(wiliwili::num2w(view_count));
-    this->labelDanmaku->setText(wiliwili::num2w(danmaku));
-
-    if (duration)
-        this->labelDuration->setText(wiliwili::sec2Time(duration));
-    else
-        this->labelDuration->setText("");
-
+void RecyclingGridItemVideoCard::setExtraInfo(const std::string& extra, float width, float height){
     if (extra.empty()) {
         this->svgUp->setVisibility(brls::Visibility::VISIBLE);
         this->boxHint->setVisibility(brls::Visibility::GONE);
+        this->pictureHint->setVisibility(brls::Visibility::GONE);
+    } else if (pystring::startswith(extra, "http")) {
+        this->svgUp->setVisibility(brls::Visibility::GONE);
+        this->boxHint->setVisibility(brls::Visibility::GONE);
+        this->pictureHint->setVisibility(brls::Visibility::VISIBLE);
+        this->pictureHint->setDimensions(width, height);
+        ImageHelper::with(this->pictureHint)->load(extra);
     } else {
         this->svgUp->setVisibility(brls::Visibility::GONE);
         this->boxHint->setVisibility(brls::Visibility::VISIBLE);
         this->labelHint->setText(extra);
+        this->pictureHint->setVisibility(brls::Visibility::GONE);
     }
+}
+
+void RecyclingGridItemVideoCard::setBasicInfo(const std::string& title, const std::string& pic, const std::string& username) {
+    this->labelTitle->setIsWrapping(true);
+    this->labelTitle->setText(title);
+
+    this->labelUsername->setText(username);
+
+    ImageHelper::with(this->picture)->load(pic);
+}
+
+void RecyclingGridItemVideoCard::setCard(const std::string& pic, const std::string& title, const std::string& username,
+                                         int pubdate, int view_count, int danmaku, int duration,
+                                         const std::string& extra) {
+    std::string rightBottomBadge;
+    if (duration)
+        rightBottomBadge = wiliwili::sec2Time(duration);
+
+    this->setCard(pic, title, username, pubdate, view_count, danmaku, rightBottomBadge, extra);
 }
 
 void RecyclingGridItemVideoCard::setCard(const std::string& pic, const std::string& title, const std::string& username,
                                          int pubdate, int view_count, int danmaku, const std::string& rightBottomBadge,
                                          const std::string& extra) {
+    std::string author;
     if (pubdate)
-        this->labelUsername->setText(username + "·" + wiliwili::sec2date(pubdate));
+        author = username + "·" + wiliwili::sec2date(pubdate);
     else
-        this->labelUsername->setText(username);
+        author = username;
 
-    this->labelTitle->setIsWrapping(true);
-    this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
-    this->labelCount->setText(wiliwili::num2w(view_count));
-    this->labelDanmaku->setText(wiliwili::num2w(danmaku));
-    this->labelDuration->setText(rightBottomBadge);
-
-    if (extra.empty()) {
-        this->svgUp->setVisibility(brls::Visibility::VISIBLE);
-        this->boxHint->setVisibility(brls::Visibility::GONE);
-    } else {
-        this->svgUp->setVisibility(brls::Visibility::GONE);
-        this->boxHint->setVisibility(brls::Visibility::VISIBLE);
-        this->labelHint->setText(extra);
-    }
+    this->setCard(pic, title, author, wiliwili::num2w(view_count), wiliwili::num2w(danmaku), rightBottomBadge, extra);
 }
 
 void RecyclingGridItemVideoCard::setCard(const std::string& pic, const std::string& title, const std::string& username,
                                          const std::string& viewCount, const std::string& danmakuCount,
                                          const std::string& rightBottomBadge, const std::string& extra) {
-    this->labelUsername->setText(username);
-    this->labelTitle->setIsWrapping(true);
-    this->labelTitle->setText(title);
-    ImageHelper::with(this->picture)->load(pic);
+    this->setBasicInfo(title, pic, username);
+    this->setExtraInfo(extra);
+
     this->labelDuration->setText(rightBottomBadge);
 
     if (viewCount.empty()) {
@@ -124,15 +126,6 @@ void RecyclingGridItemVideoCard::setCard(const std::string& pic, const std::stri
         this->svgDanmaku->setVisibility(brls::Visibility::VISIBLE);
         this->labelDanmaku->setVisibility(brls::Visibility::VISIBLE);
         this->labelDanmaku->setText(danmakuCount);
-    }
-
-    if (extra.empty()) {
-        this->svgUp->setVisibility(brls::Visibility::VISIBLE);
-        this->boxHint->setVisibility(brls::Visibility::GONE);
-    } else {
-        this->svgUp->setVisibility(brls::Visibility::GONE);
-        this->boxHint->setVisibility(brls::Visibility::VISIBLE);
-        this->labelHint->setText(extra);
     }
 }
 

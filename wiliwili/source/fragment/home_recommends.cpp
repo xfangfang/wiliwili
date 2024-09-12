@@ -26,9 +26,19 @@ public:
         RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::RecommendVideoResult& r = this->recommendList[index];
-        if (r.isAd) {
-            item->setCard(r.business_info.pic + ImageHelper::h_ext, r.business_info.title, r.business_info.adver_name,
-                          "", "", "", r.business_info.business_mark);
+        if (r.business_info.is_ad) {
+            auto& card = r.business_info.archive;
+            auto& info = r.business_info;
+            auto& mark = r.business_info.business_mark;
+            if (r.business_info.is_ad_video) {
+                // 推广视频
+                item->setCard(card.pic + ImageHelper::h_ext, info.title, card.owner.name, card.pubdate, card.stat.view,
+                              card.stat.danmaku, card.duration);
+                item->setExtraInfo(mark.img_url, (float)mark.img_width * 0.375f, (float)mark.img_height * 0.375f);
+            } else {
+                // 广告网页
+                item->setCard(info.pic + ImageHelper::h_ext, info.title, info.adver_name, "", "", "", mark.text);
+            }
         } else {
             item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name, r.pubdate, r.stat.view, r.stat.danmaku,
                           r.duration, r.rcmd_reason.content);
@@ -39,8 +49,12 @@ public:
     size_t getItemCount() override { return recommendList.size(); }
 
     void onItemSelected(RecyclingGrid* recycler, size_t index) override {
-        if (recommendList[index].isAd) {
-            brls::Application::getPlatform()->openBrowser(recommendList[index].business_info.url);
+        if (recommendList[index].business_info.is_ad) {
+            if (recommendList[index].business_info.is_ad_video) {
+                Intent::openBV(recommendList[index].business_info.archive.bvid);
+            } else {
+                brls::Application::getPlatform()->openBrowser(recommendList[index].business_info.url);
+            }
         } else {
             Intent::openBV(recommendList[index].bvid);
         }
@@ -102,9 +116,10 @@ void HomeRecommends::onRecommendVideoList(const bilibili::RecommendVideoListResu
     if (ProgramConfig::instance().upFilter.empty()) {
         std::copy(originalResult.item.begin(), originalResult.item.end(), result.item.begin());
     } else {
-        auto it = std::copy_if(
-            originalResult.item.begin(), originalResult.item.end(), result.item.begin(),
-            [](const bilibili::RecommendVideoResult& r) { return !ProgramConfig::instance().upFilter.count(r.owner.mid); });
+        auto it = std::copy_if(originalResult.item.begin(), originalResult.item.end(), result.item.begin(),
+                               [](const bilibili::RecommendVideoResult& r) {
+                                   return !ProgramConfig::instance().upFilter.count(r.owner.mid);
+                               });
         result.item.resize(std::distance(result.item.begin(), it));
     }
 

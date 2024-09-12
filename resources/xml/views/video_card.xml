@@ -91,6 +91,10 @@
                         horizontalAlign="center"
                         textColor="@theme/font/yellow_1"/>
             </brls:Box>
+            <brls:Image
+                    id="video/card/picture/hint"
+                    height="18"
+                    width="18"/>
             <SVGImage
                     id="video/svg/up"
                     height="14"
