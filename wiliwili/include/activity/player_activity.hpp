@@ -137,6 +137,9 @@ protected:
 private:
     bool activityShown = false;
     std::chrono::system_clock::time_point videoDeadline{};
+
+    // 重新选择当前清晰度的播放链接播放
+    void updateVideoLink();
 };
 
 class PlayerActivity : public BasePlayerActivity {

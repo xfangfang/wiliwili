@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <nlohmann/json.hpp>
 #include <borealis/core/singleton.hpp>
+#include <borealis/core/application.hpp>
 #include <borealis/core/util.hpp>
 #include <utility>
 #include <pystring.h>
@@ -20,6 +21,7 @@ std::string ShaderProfile::getShaderString() {
     std::string separator = ":";
 #endif
     std::vector<std::string> res;
+    res.reserve(shaders.size());
     for (auto& s : shaders) {
         res.emplace_back("~~/shaders/" + s);
     }
@@ -33,14 +35,15 @@ void ShaderHelper::setShaderPack(const ShaderPack& data) { this->pack = data; }
 ShaderPack ShaderHelper::getShaderPack() { return this->pack; }
 
 void ShaderHelper::setShader(size_t index, bool showHint) {
-    MPVCore::instance().setShader(getProfileNameByIndex(index), getProfileByIndex(index), showHint);
+    MPVCore::instance().setShader(getProfileNameByIndex(index), getProfileShaderByIndex(index),
+                                  getByProfileSettingByIndex(index), showHint);
 }
 
 void ShaderHelper::clearShader(bool showHint) { MPVCore::instance().clearShader(showHint); }
 
 void ShaderHelper::setProfile(size_t sid, size_t profileIndex) {
     if (!isAvailable()) return;
-    if (profileIndex < 0 || profileIndex >= pack.profiles.size()) return;
+    if (profileIndex >= pack.profiles.size()) return;
     for (auto& anime : pack.animeList) {
         if (anime.anime == sid) {
             // 修改已有配置
@@ -92,14 +95,20 @@ std::string ShaderHelper::getProfileByName(const std::string& name) {
 
 std::string ShaderHelper::getProfileNameByIndex(size_t index) {
     if (!isAvailable()) return "";
-    if (index < 0 || index >= pack.profiles.size()) return "";
+    if (index >= pack.profiles.size()) return "";
     return pack.profiles[index].name;
 }
 
-std::string ShaderHelper::getProfileByIndex(size_t index) {
+std::string ShaderHelper::getProfileShaderByIndex(size_t index) {
     if (!isAvailable()) return "";
-    if (index < 0 || index >= pack.profiles.size()) return "";
+    if (index >= pack.profiles.size()) return "";
     return pack.profiles[index].getShaderString();
+}
+
+std::vector<std::vector<std::string>> ShaderHelper::getByProfileSettingByIndex(size_t index) {
+    if (!isAvailable()) return {};
+    if (index >= pack.profiles.size()) return {};
+    return pack.profiles[index].settings;
 }
 
 size_t ShaderHelper::getProfileIndexBySeason(size_t sid) {
@@ -146,6 +155,7 @@ void ShaderHelper::load() {
             this->setShaderPack(content.get<ShaderPack>());
         } catch (const std::exception& e) {
             brls::Logger::error("ShaderHelper::load: {}", e.what());
+            brls::Application::notify("Load custom shader pack failed\n" + std::string(e.what()));
         }
         brls::Logger::info("Load custom shader pack from: {}", path);
     } else {

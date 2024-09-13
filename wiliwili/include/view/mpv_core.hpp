@@ -224,6 +224,8 @@ public:
      */
     void setAspect(const std::string &value);
 
+    void setMirror(bool value);
+
     /**
      * 设置视频亮度
      * @param value [-100, 100]
@@ -288,7 +290,15 @@ public:
 
     void reset();
 
-    void setShader(const std::string &profile, const std::string &shaders, bool showHint = true);
+    /**
+     * 设置着色器配置
+     * @param profile 配置名
+     * @param shaders 着色器文件
+     * @param settings mpv 配置
+     * @param reset 在设置前是否需要重置
+     */
+    void setShader(const std::string &profile, const std::string &shaders,
+                   const std::vector<std::vector<std::string>> &settings, bool reset = true);
 
     void clearShader(bool showHint = true);
 
@@ -300,16 +310,10 @@ public:
             return;
         }
         std::vector<std::string> commands = {fmt::format("{}", std::forward<Args>(args))...};
-
-        std::vector<const char *> res;
-        res.reserve(commands.size() + 1);
-        for (auto &i : commands) {
-            res.emplace_back(i.c_str());
-        }
-        res.emplace_back(nullptr);
-
-        mpvCommandAsync(mpv, 0, res.data());
+        _command_async(commands);
     }
+
+    void _command_async(const std::vector<std::string>& commands);
 
     // core states
     int64_t duration       = 0;  // second
@@ -330,6 +334,7 @@ public:
     std::string filepath;
     std::string currentShaderProfile;  // 当前着色器脚本名
     std::string currentShader;         // 当前着色器脚本
+    std::vector<std::vector<std::string>> currentSetting; // 当前着色器脚本附加的mpv配置
 
     double video_brightness = 0;
     double video_contrast   = 0;
@@ -347,7 +352,7 @@ public:
     inline static bool TERMINAL = false;
 
     // 硬件解码
-    inline static bool HARDWARE_DEC               = false;
+    inline static bool HARDWARE_DEC = false;
 
     // 硬解方式
 #ifdef __SWITCH__

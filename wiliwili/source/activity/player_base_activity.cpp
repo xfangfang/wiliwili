@@ -253,10 +253,13 @@ void BasePlayerActivity::setCommonData() {
                          });
 
     // 暂停
-    this->registerAction("toggle", brls::ControllerButton::BUTTON_SPACE, [this](...) -> bool {
-        this->video->togglePlay();
-        return true;
-    }, true);
+    this->registerAction(
+        "toggle", brls::ControllerButton::BUTTON_SPACE,
+        [this](...) -> bool {
+            this->video->togglePlay();
+            return true;
+        },
+        true);
 
     this->btnQR->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnQR->getParent()));
 
@@ -345,6 +348,9 @@ void BasePlayerActivity::setCommonData() {
                     }
                 }
                 break;
+            case MpvEventEnum::RESTART:
+                this->updateVideoLink();
+                break;
             default:
                 break;
         }
@@ -405,6 +411,26 @@ void BasePlayerActivity::showCoinDialog(uint64_t aid) {
     dialog->open();
 }
 
+void BasePlayerActivity::updateVideoLink() {
+    // 设置视频加载后跳转的时间
+    setProgress(MPVCore::instance().video_progress);
+
+    // dash
+    if (!this->videoUrlResult.dash.video.empty()) {
+        // dash格式的视频无需重复请求视频链接，这里简单的设置清晰度即可
+        videoUrlResult.quality = BasePlayerActivity::defaultQuality;
+        this->onVideoPlayUrl(videoUrlResult);
+        return;
+    }
+
+    // flv
+    if (dynamic_cast<PlayerSeasonActivity*>(this)) {
+        this->requestSeasonVideoUrl(episodeResult.bvid, episodeResult.cid);
+    } else {
+        this->requestVideoUrl(videoDetailResult.bvid, videoDetailPage.cid);
+    }
+}
+
 void BasePlayerActivity::setVideoQuality() {
     if (this->videoUrlResult.accept_description.empty()) return;
 
@@ -421,24 +447,7 @@ void BasePlayerActivity::setVideoQuality() {
                 return;
             }
 
-            // 设置视频加载后跳转的时间
-            setProgress(MPVCore::instance().video_progress);
-
-            // dash
-            if (!this->videoUrlResult.dash.video.empty()) {
-                // dash格式的视频无需重复请求视频链接，这里简单的设置清晰度即可
-                videoUrlResult.quality = BasePlayerActivity::defaultQuality;
-                this->onVideoPlayUrl(videoUrlResult);
-                return;
-            }
-
-            // flv
-            auto self = dynamic_cast<PlayerSeasonActivity*>(this);
-            if (self) {
-                this->requestSeasonVideoUrl(episodeResult.bvid, episodeResult.cid);
-            } else {
-                this->requestVideoUrl(videoDetailResult.bvid, videoDetailPage.cid);
-            }
+            this->updateVideoLink();
         },
         getQualityIndex());
     auto* recycler = dropdown->getRecyclingList();

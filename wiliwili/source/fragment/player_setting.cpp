@@ -192,8 +192,7 @@ void PlayerSetting::setupCommonSetting() {
 
     /// Player mirror
     btnMirror->init("wiliwili/player/setting/common/mirror"_i18n, MPVCore::VIDEO_MIRROR, [](bool value) {
-        MPVCore::VIDEO_MIRROR = !MPVCore::VIDEO_MIRROR;
-        MPVCore::instance().command_async("set", "vf", MPVCore::VIDEO_MIRROR ? "hflip" : "");
+        MPVCore::instance().setMirror(!MPVCore::VIDEO_MIRROR);
         GA("player_setting", {{"mirror", value ? "true" : "false"}});
 
         // 如果正在使用硬解，那么将硬解更新为 auto-copy，避免直接硬解因为不经过 cpu 处理导致镜像翻转无效

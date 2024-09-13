@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <pystring.h>
 #include <nlohmann/json.hpp>
 #include <borealis/core/singleton.hpp>
 
@@ -13,12 +14,13 @@ class ShaderProfile {
 public:
     std::string name;
     std::vector<std::string> shaders;
+    std::vector<std::vector<std::string>> settings;
 
     std::string getShaderString();
 };
 
 inline void to_json(nlohmann::json& nlohmann_json_j, const ShaderProfile& nlohmann_json_t) {
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, name, shaders));
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, name, shaders, settings));
 }
 
 inline void from_json(const nlohmann::json& nlohmann_json_j, ShaderProfile& nlohmann_json_t) {
@@ -29,6 +31,24 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, ShaderProfile& nloh
     if (nlohmann_json_j.contains("shaders")) {
         auto& shaders = nlohmann_json_j.at("shaders");
         if (shaders.is_array()) shaders.get_to(nlohmann_json_t.shaders);
+    }
+    if (nlohmann_json_j.contains("settings")) {
+        auto& settings = nlohmann_json_j.at("settings");
+        if (settings.is_array()) settings.get_to(nlohmann_json_t.settings);
+        for (auto& setting : nlohmann_json_t.settings) {
+            if (setting.empty()) continue;
+            // 检查是否包含操作指令
+            const std::vector<std::string> mainOptions = {"set", "run", "change-list"};
+            bool hasMainOption                         = false;
+            for (auto& option : mainOptions) {
+                if (pystring::endswith(setting[0], option)) {
+                    hasMainOption = true;
+                    break;
+                }
+            }
+            // 如果没有指明操作方式，则默认为 set
+            if (!hasMainOption) setting.insert(setting.begin(), "set");
+        }
     }
 }
 
@@ -133,11 +153,18 @@ public:
     std::string getProfileNameByIndex(size_t index);
 
     /**
-     * 通过配置索引获取 profile 字符串
+     * 通过配置索引获取 profile shader
      * @param index
      * @return
      */
-    std::string getProfileByIndex(size_t index);
+    std::string getProfileShaderByIndex(size_t index);
+
+    /**
+     * 通过配置索引获取 profile settings
+     * @param index
+     * @return
+     */
+    std::vector<std::vector<std::string>> getByProfileSettingByIndex(size_t index);
 
     /**
      * 通过剧集 id 获取配置索引
