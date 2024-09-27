@@ -1,27 +1,22 @@
 pkgname=curl
-pkgver=7.85.0
-pkgrel=1
+pkgver=8.9.1
+pkgrel=2
 url="https://curl.se/"
-source=(
-    "https://github.com/curl/curl/releases/download/curl-7_85_0/curl-7.85.0.tar.gz"
-    "fix_curlformoption.patch"
-)
-sha256sums=('78a06f918bd5fde3c4573ef4f9806f56372b32ec1829c9ec474799eeee641c27' SKIP)
-depends=('mbedtls')
+source=("https://github.com/curl/curl/releases/download/curl-8_9_1/curl-8.9.1.tar.gz")
+sha256sums=('291124a007ee5111997825940b3876b3048f7d31e73e9caa681b80fe48b2dcd5')
+depends=('mbedtls' 'zlib')
 
 prepare() {
   cd curl-${pkgver}
-  echo $prefix
-  rm -rf build
-  patch --strip=1 --input=${srcdir}/fix_curlformoption.patch # fix CURLformoption
 }
 
 build() {
   cd curl-${pkgver}
   mkdir build && cd build
   cmake .. -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake -DCMAKE_INSTALL_PREFIX=$prefix -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_CURL_EXE=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DENABLE_IPV6=Off -DCURL_DISABLE_SOCKETPAIR=On -DHAVE_FCNTL_O_NONBLOCK=Off \
-    -DCURL_USE_MBEDTLS=On -DCURL_USE_OPENSSL=Off -DENABLE_THREADED_RESOLVER=Off
+    -DBUILD_CURL_EXE=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DENABLE_IPV6=OFF -DCURL_DISABLE_SOCKETPAIR=ON \
+    -DHAVE_FCNTL_O_NONBLOCK=OFF -DENABLE_THREADED_RESOLVER=OFF -DBUILD_LIBCURL_DOCS=OFF -DBUILD_MISC_DOCS=OFF \
+    -DENABLE_CURL_MANUAL=OFF -DCURL_USE_MBEDTLS=ON -DCURL_USE_OPENSSL=OFF -DCURL_CA_BUNDLE="vs0:data/external/cert/CA_LIST.cer"
   make -j$(nproc)
 }
 
