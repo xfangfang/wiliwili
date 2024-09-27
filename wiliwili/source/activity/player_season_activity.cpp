@@ -417,7 +417,7 @@ void PlayerSeasonActivity::playSeason(uint64_t season_id) {
     this->requestData(season_id, PGC_ID_TYPE::SEASON_ID);
 }
 
-size_t PlayerSeasonActivity::getAid() { return episodeResult.aid; }
+uint64_t PlayerSeasonActivity::getAid() { return episodeResult.aid; }
 
 void PlayerSeasonActivity::requestCastUrl() { this->requestCastVideoUrl(episodeResult.id, episodeResult.cid, 2); }
 

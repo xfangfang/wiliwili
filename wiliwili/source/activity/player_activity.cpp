@@ -541,7 +541,7 @@ void PlayerActivity::onIndexChangeToNext() {
     }
 }
 
-size_t PlayerActivity::getAid() { return videoDetailResult.aid; }
+uint64_t PlayerActivity::getAid() { return videoDetailResult.aid; }
 
 PlayerActivity::~PlayerActivity() {
     brls::Logger::debug("del PlayerActivity");

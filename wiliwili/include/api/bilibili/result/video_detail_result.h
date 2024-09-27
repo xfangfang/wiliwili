@@ -115,8 +115,8 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, VideoCommentControl
 class VideoCommentResult {
 public:
     size_t ctime;
-    int64_t rpid, parent, root;
-    size_t oid;
+    uint64_t rpid, parent, root;
+    uint64_t oid;
     UserCommentResult member;
     VideoCommentContent content;
     std::vector<VideoCommentResult> replies;
