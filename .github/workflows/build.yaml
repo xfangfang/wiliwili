@@ -512,7 +512,7 @@ jobs:
           key: SDL-vita-pvr-3.9
 
       - name: Download PVR_PSP2 (GLES)
-        if: ${{ !steps.restore-pvr-cache.outputs.cache-hit }}
+        if: ${{ steps.restore-pvr-cache.outputs.cache-hit == 'false' }}
         run: |
           pvr_psp2_version=3.9
           
@@ -546,7 +546,7 @@ jobs:
           rm -rf /tmp/PSVita_Release
 
       - uses: actions/cache/save@v4
-        if: ${{ !steps.restore-pvr-cache.outputs.cache-hit }}
+        if: ${{ steps.restore-pvr-cache.outputs.cache-hit == 'false' }}
         with:
           path: /vita/dependencies
           key: SDL-vita-pvr-3.9
@@ -568,7 +568,7 @@ jobs:
         run: vdpm mbedtls libass harfbuzz fribidi freetype libpng libwebp
 
       - name: Build Dependencies
-        if: ${{ !steps.restore-common-deps-cache.outputs.cache-hit }}
+        if: ${{ steps.restore-common-deps-cache.outputs.cache-hit == 'false' }}
         run: |
           mkdir -p /vita/common_deps
           apk add patch
@@ -590,7 +590,7 @@ jobs:
           ls -lah /vita/common_deps/
 
       - uses: actions/cache/save@v4
-        if: ${{ !steps.restore-common-deps-cache.outputs.cache-hit }}
+        if: ${{ steps.restore-common-deps-cache.outputs.cache-hit == 'false' }}
         with:
           path: /vita/common_deps
           key: Dep-vita-${{ hashFiles('**/VITABUILD') }}
