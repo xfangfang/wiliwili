@@ -229,7 +229,7 @@ private:
 class DataSourceDynamicDetailList : public RecyclingGridDataSource, public CommentAction, public DynamicAction {
 public:
     DataSourceDynamicDetailList(const bilibili::DynamicArticleResult& data, bilibili::DynamicArticleModuleState state,
-                                brls::Event<bool>* likeState, brls::Event<size_t>* likeNum, int mode,
+                                brls::Event<size_t>* likeState, brls::Event<size_t>* likeNum, int mode,
                                 std::function<void(void)> cb)
         : data(data),
           state(std::move(state)),
@@ -340,7 +340,7 @@ public:
         container->setInFadeAnimation(true);
         brls::Application::pushActivity(new brls::Activity(container));
 
-        view->likeStateEvent.subscribe([this, item, index](bool value) {
+        view->likeStateEvent.subscribe([this, item, index](size_t value) {
             auto& itemData  = dataList[index - 3];
             itemData.action = value;
             item->setLiked(value);
@@ -382,7 +382,7 @@ public:
 private:
     const bilibili::DynamicArticleResult& data;  // 动态原始数据
     bilibili::DynamicArticleModuleState state;  // 动态赞评转数据，为方便修改，不使用 data 内的数据
-    brls::Event<bool>* likeState;
+    brls::Event<size_t>* likeState;
     brls::Event<size_t>* likeNum;
     bilibili::VideoCommentListResult dataList;
     int commentMode                              = 3;  // 2: 按时间；3: 按热度
@@ -764,7 +764,7 @@ void DynamicArticleView::openDetail() {
         this->state.like.count = num;
     });
 
-    detail->likeStateEvent.subscribe([this](bool value) {
+    detail->likeStateEvent.subscribe([this](size_t value) {
         this->setLiked(value);
         this->state.like.like_state = value;
     });

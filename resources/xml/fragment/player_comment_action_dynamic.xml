@@ -43,6 +43,16 @@
 
             <SVGImage
                     focusable="true"
+                    id="comment/action/svg/dislike"
+                    margin="8"
+                    width="48"
+                    height="48"
+                    cornerRadius="48"
+                    highlightCornerRadius="48"
+                    SVG="@res/svg/bpx-svg-sprite-disliked.svg"/>
+
+            <SVGImage
+                    focusable="true"
                     id="comment/action/svg/like"
                     margin="8"
                     width="48"

@@ -11,12 +11,14 @@ class CommentAction : public Presenter {
 public:
     virtual void onError(const std::string& error);
 
-    void commentLike(const std::string& oid, int64_t rpid, int action, int type);
+    void commentLike(const std::string& oid, uint64_t rpid, bool action, int type);
 
-    void commentReply(const std::string& text, const std::string& oid, int64_t rpid, int64_t root, int type,
-                      std::function<void(const bilibili::VideoCommentAddResult&)> cb = nullptr);
+    void commentDislike(const std::string& oid, uint64_t rpid, bool action, int type);
 
-    void commentDelete(const std::string& oid, int64_t rpid, int type);
+    void commentReply(const std::string& text, const std::string& oid, uint64_t rpid, uint64_t root, int type,
+                      const std::function<void(const bilibili::VideoCommentAddResult&)>& cb = nullptr);
+
+    void commentDelete(const std::string& oid, uint64_t rpid, int type);
 };
 
 class CommentRequest : public Presenter {
@@ -42,7 +44,7 @@ protected:
     bool end                = false;
 };
 
-class DynamicAction: public Presenter {
+class DynamicAction : public Presenter {
 public:
     virtual void onError(const std::string& error);
 

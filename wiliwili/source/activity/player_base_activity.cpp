@@ -87,7 +87,7 @@ public:
         container->setInFadeAnimation(true);
         brls::Application::pushActivity(new brls::Activity(container));
 
-        view->likeStateEvent.subscribe([this, item, index](bool value) {
+        view->likeStateEvent.subscribe([this, item, index](size_t value) {
             auto& itemData  = dataList[index - 2];
             itemData.action = value;
             item->setLiked(value);

@@ -54,10 +54,10 @@ public:
 
 class CommentElementUser : public CommentElement {
 public:
-    CommentElementUser(const std::string& name, int64_t id)
+    CommentElementUser(const std::string& name, uint64_t id)
         : CommentElement("@" + name + " ", CommentElementType::USER), name(name), id(id) {}
     std::string name;
-    int64_t id;
+    uint64_t id;
 };
 
 class CommentElementTopic : public CommentElement {
@@ -299,12 +299,8 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
     }
 
     // 设置点赞状态
-    if (data.action) {
-        this->svgLike->setImageFromSVGRes("svg/comment-agree-active.svg");
-    } else {
-        this->svgLike->setImageFromSVGRes("svg/comment-agree-grey.svg");
-    }
-
+    // action, 0: 未点赞, 1: 已点赞, 2: 已点踩
+    this->setLiked(data.action);
     this->setLikeNum(data.like);
     this->setReplyNum(data.rcount);
 }
@@ -321,12 +317,17 @@ void VideoComment::setLikeNum(size_t num) {
     this->labelLike->setText(wiliwili::num2w(num));
 }
 
-void VideoComment::setLiked(bool liked) {
-    this->comment_data.action = liked;
-    if (liked) {
+void VideoComment::setLiked(size_t action) {
+    this->comment_data.action = action;
+    if (action == 1) {
         this->svgLike->setImageFromSVGRes("svg/comment-agree-active.svg");
+        this->svgDislike->setImageFromSVGRes("svg/comment-disagree-grey.svg");
+    } else if (action == 2) {
+        this->svgLike->setImageFromSVGRes("svg/comment-agree-grey.svg");
+        this->svgDislike->setImageFromSVGRes("svg/comment-disagree-active.svg");
     } else {
         this->svgLike->setImageFromSVGRes("svg/comment-agree-grey.svg");
+        this->svgDislike->setImageFromSVGRes("svg/comment-disagree-grey.svg");
     }
 }
 

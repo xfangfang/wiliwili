@@ -210,7 +210,7 @@ public:
      * @param error
      */
     static void get_collection_video_list(
-        int64_t id, int index = 1, int num = 20, int type = 1,
+        uint64_t id, int index = 1, int num = 20, int type = 1,
         const std::function<void(CollectionVideoListResultWrapper)>& callback = nullptr,
         const ErrorCallback& error                                            = nullptr);
 
@@ -419,15 +419,21 @@ public:
                             const ErrorCallback& error                                     = nullptr);
 
     /// 获取单条评论详情
-    static void get_comment_detail(const std::string& access_key, const std::string& oid, int64_t rpid, size_t next = 0,
+    static void get_comment_detail(const std::string& access_key, const std::string& oid, uint64_t rpid, size_t next = 0,
                                    int type                                                      = 1,
                                    const std::function<void(VideoSingleCommentDetail)>& callback = nullptr,
                                    const ErrorCallback& error                                    = nullptr);
 
     /// 点赞评论
-    static void be_agree_comment(const std::string& access_key, const std::string& oid, int64_t rpid, bool is_like,
+    static void be_agree_comment(const std::string& access_key, const std::string& oid, uint64_t rpid, bool is_like,
                                  int type = 1, const std::function<void()>& callback = nullptr,
                                  const ErrorCallback& error = nullptr);
+
+    /// 点踩评论
+    static void be_disagree_comment(const std::string& access_key, const std::string& oid, uint64_t rpid, bool is_dislike,
+                                 int type = 1, const std::function<void()>& callback = nullptr,
+                                 const ErrorCallback& error = nullptr);
+
     /// 点赞动态
     static void be_agree_dynamic(const std::string& access_key, const std::string& id, bool is_like,
                                  const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr);
@@ -443,12 +449,12 @@ public:
      * @param error
      */
     static void add_comment(const std::string& access_key, const std::string& message, const std::string& oid,
-                            int64_t parent = 0, int64_t root = 0, int type = 1,
+                            uint64_t parent = 0, uint64_t root = 0, int type = 1,
                             const std::function<void(VideoCommentAddResult)>& callback = nullptr,
                             const ErrorCallback& error                                 = nullptr);
 
     /// 删除评论
-    static void delete_comment(const std::string& access_key, const std::string& oid, int64_t rpid, int type = 1,
+    static void delete_comment(const std::string& access_key, const std::string& oid, uint64_t rpid, int type = 1,
                                const std::function<void()>& callback = nullptr, const ErrorCallback& error = nullptr);
 
     /// 视频页 获取单个视频播放人数

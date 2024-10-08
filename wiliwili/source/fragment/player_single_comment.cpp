@@ -56,7 +56,7 @@ public:
 class DataSourceSingleCommentList : public RecyclingGridDataSource, public CommentAction {
 public:
     DataSourceSingleCommentList(bilibili::VideoCommentListResult result, int type, CommentUiType uiType,
-                                brls::Event<bool>* likeState, brls::Event<size_t>* likeNum,
+                                brls::Event<size_t>* likeState, brls::Event<size_t>* likeNum,
                                 brls::Event<size_t>* replyNum, brls::Event<>* deleteReply)
         : dataList(std::move(result)),
           commentType(type),
@@ -114,10 +114,19 @@ public:
         container->setInFadeAnimation(true);
         brls::Application::pushActivity(new brls::Activity(container));
 
-        view->likeClickEvent.subscribe([this, item, index]() {
+        view->likeClickEvent.subscribe([this, item, index](size_t action) {
             auto& itemData  = dataList[index];
-            itemData.action = !itemData.action;
-            itemData.like += itemData.action ? 1 : -1;
+            // 点赞/取消点赞 或 点踩/取消点踩
+            bool isLike = action == 1 || (action == 0 & itemData.action == 1);
+            if (action == 1) {
+                // 最新状态变为点赞，点赞数 +1
+                itemData.like++;
+            } else if (itemData.action == 1) {
+                // 最新状态由点赞转为 取消或点踩，点赞数 -1
+                itemData.like--;
+            }
+
+            itemData.action = action;
             item->setLiked(itemData.action);
             item->setLikeNum(itemData.like);
 
@@ -127,7 +136,11 @@ public:
                 likeNum->fire(itemData.like);
             }
 
-            this->commentLike(std::to_string(itemData.oid), itemData.rpid, itemData.action, commentType);
+            if (isLike) {
+                this->commentLike(std::to_string(itemData.oid), itemData.rpid, itemData.action, commentType);
+            } else {
+                this->commentDislike(std::to_string(itemData.oid), itemData.rpid, itemData.action, commentType);
+            }
         });
 
         view->replyClickEvent.subscribe([this, index, recycler]() {
@@ -213,7 +226,7 @@ private:
     bilibili::VideoCommentListResult dataList;
     int commentType;
     CommentUiType uiType;
-    brls::Event<bool>* likeState;
+    brls::Event<size_t>* likeState;
     brls::Event<size_t>* likeNum;
     brls::Event<size_t>* replyNum;
     brls::Event<>* deleteReply;
@@ -396,7 +409,11 @@ brls::View* PlayerSingleComment::getDefaultFocus() { return this->recyclingGrid;
 
 PlayerCommentAction::PlayerCommentAction(CommentUiType type) {
     if (type == COMMENT_UI_TYPE_DYNAMIC) {
-        this->inflateFromXMLRes("xml/fragment/player_comment_action_dynamic.xml");
+        if (brls::Application::ORIGINAL_WINDOW_HEIGHT < 720) {
+            this->inflateFromXMLRes("xml/fragment/player_comment_action_dynamic_sm.xml");
+        } else {
+            this->inflateFromXMLRes("xml/fragment/player_comment_action_dynamic.xml");
+        }
     } else {
         this->inflateFromXMLRes("xml/fragment/player_comment_action.xml");
     }
@@ -405,7 +422,12 @@ PlayerCommentAction::PlayerCommentAction(CommentUiType type) {
 
     this->svgLike->registerClickAction([this](...) {
         this->dismiss();
-        this->likeClickEvent.fire();
+        this->likeClickEvent.fire(this->comment->getData().action == 1 ? 0 : 1);
+        return true;
+    });
+    this->svgDisLike->registerClickAction([this](...) {
+        this->dismiss();
+        this->likeClickEvent.fire(this->comment->getData().action == 2 ? 0 : 2);
         return true;
     });
     this->svgReply->registerClickAction([this](...) {
@@ -441,6 +463,7 @@ PlayerCommentAction::PlayerCommentAction(CommentUiType type) {
     });
 
     this->svgLike->addGestureRecognizer(new brls::TapGestureRecognizer(this->svgLike));
+    this->svgDisLike->addGestureRecognizer(new brls::TapGestureRecognizer(this->svgDisLike));
     this->svgReply->addGestureRecognizer(new brls::TapGestureRecognizer(this->svgReply));
     this->svgDelete->addGestureRecognizer(new brls::TapGestureRecognizer(this->svgDelete));
     this->svgGallery->addGestureRecognizer(new brls::TapGestureRecognizer(this->svgGallery));

@@ -142,6 +142,8 @@ const std::string Comment = _apiBase + "/x/v2/reply/main";
 const std::string CommentDetail = _apiBase + "/x/v2/reply/detail";
 /// 点赞评论
 const std::string CommentLike = _apiBase + "/x/v2/reply/action";
+/// 点踩评论
+const std::string CommentDisLike = _apiBase + "/x/v2/reply/hate";
 /// 发布评论
 const std::string CommentAdd = _apiBase + "/x/v2/reply/add";
 /// 删除评论

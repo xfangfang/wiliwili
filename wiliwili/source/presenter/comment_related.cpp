@@ -3,6 +3,7 @@
 //
 
 #include <borealis/core/thread.hpp>
+#include <borealis/core/application.hpp>
 #include <utility>
 
 #include "bilibili.h"
@@ -12,18 +13,18 @@
 
 /// CommentAction
 
-void CommentAction::onError(const std::string& error) { DialogHelper::showDialog(error); }
+void CommentAction::onError(const std::string& error) { brls::Application::notify(error); }
 
-void CommentAction::commentLike(const std::string& oid, int64_t rpid, int action, int type) {
+void CommentAction::commentLike(const std::string& oid, uint64_t rpid, bool action, int type) {
     ASYNC_RETAIN
     BILI::be_agree_comment(
         ProgramConfig::instance().getCSRF(), oid, rpid, action, type,
         [ASYNC_TOKEN, oid, rpid, action]() {
             ASYNC_RELEASE
-            brls::Logger::debug("Comment action success: {} {} {}", oid, rpid, action);
+            brls::Logger::debug("Comment like success: {} {} {}", oid, rpid, action);
         },
         [ASYNC_TOKEN, oid, rpid, action](BILI_ERR) {
-            brls::Logger::error("Comment action error: {} {} {}", oid, rpid, action);
+            brls::Logger::error("Comment like error: {} {} {}", oid, rpid, action);
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
                 this->onError(error);
@@ -31,8 +32,25 @@ void CommentAction::commentLike(const std::string& oid, int64_t rpid, int action
         });
 }
 
-void CommentAction::commentReply(const std::string& text, const std::string& oid, int64_t rpid, int64_t root, int type,
-                                 std::function<void(const bilibili::VideoCommentAddResult&)> cb) {
+void CommentAction::commentDislike(const std::string& oid, uint64_t rpid, bool action, int type) {
+    ASYNC_RETAIN
+    BILI::be_disagree_comment(
+        ProgramConfig::instance().getCSRF(), oid, rpid, action, type,
+        [ASYNC_TOKEN, oid, rpid, action]() {
+            ASYNC_RELEASE
+            brls::Logger::debug("Comment dislike success: {} {} {}", oid, rpid, action);
+        },
+        [ASYNC_TOKEN, oid, rpid, action](BILI_ERR) {
+            brls::Logger::error("Comment dislike error: {} {} {}", oid, rpid, action);
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                this->onError(error);
+            });
+        });
+}
+
+void CommentAction::commentReply(const std::string& text, const std::string& oid, uint64_t rpid, uint64_t root, int type,
+                                 const std::function<void(const bilibili::VideoCommentAddResult&)>& cb) {
     ASYNC_RETAIN
     BILI::add_comment(
         ProgramConfig::instance().getCSRF(), text, oid, rpid, root, type,
@@ -51,7 +69,7 @@ void CommentAction::commentReply(const std::string& text, const std::string& oid
         });
 }
 
-void CommentAction::commentDelete(const std::string& oid, int64_t rpid, int type) {
+void CommentAction::commentDelete(const std::string& oid, uint64_t rpid, int type) {
     ASYNC_RETAIN
     BILI::delete_comment(
         ProgramConfig::instance().getCSRF(), oid, rpid, type,

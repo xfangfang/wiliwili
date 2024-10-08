@@ -52,10 +52,16 @@
         <brls:Label
                 id="comment/label/like"
                 marginLeft="4"
-                marginRight="10"
+                marginRight="30"
                 textColor="@theme/font/grey"
                 fontSize="16"
                 text="29"/>
+        <SVGImage
+                id="comment/svg/dislike"
+                width="24"
+                height="24"
+                marginRight="30"
+                SVG="@res/svg/comment-disagree-grey.svg"/>
         <SVGImage
                 id="comment/svg/reply"
                 width="24"

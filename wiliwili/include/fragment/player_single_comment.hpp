@@ -44,7 +44,7 @@ public:
 
     void showDismissAnimation();
 
-    brls::Event<bool> likeStateEvent;
+    brls::Event<size_t> likeStateEvent;
     brls::Event<size_t> likeNumEvent;
     brls::Event<size_t> replyNumEvent;
     brls::Event<> deleteEvent;
@@ -76,7 +76,8 @@ public:
 
     void dismiss(std::function<void(void)> cb = nullptr) override;
 
-    brls::Event<> likeClickEvent, replyClickEvent, deleteClickEvent;
+    brls::Event<> replyClickEvent, deleteClickEvent;
+    brls::Event<size_t> likeClickEvent;
 
     void showStartAnimation();
 
@@ -85,6 +86,7 @@ public:
 private:
     BRLS_BIND(SVGImage, svgReply, "comment/action/svg/reply");
     BRLS_BIND(SVGImage, svgLike, "comment/action/svg/like");
+    BRLS_BIND(SVGImage, svgDisLike, "comment/action/svg/dislike");
     BRLS_BIND(SVGImage, svgDelete, "comment/action/svg/delete");
     BRLS_BIND(SVGImage, svgGallery, "comment/action/svg/gallery");
     BRLS_BIND(brls::Box, actionBox, "comment/action/box");

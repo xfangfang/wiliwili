@@ -33,7 +33,7 @@ public:
 
     void toggleCommentMode();
 
-    brls::Event<bool> likeStateEvent;
+    brls::Event<size_t> likeStateEvent;
     brls::Event<size_t> likeNumEvent;
 
 private:

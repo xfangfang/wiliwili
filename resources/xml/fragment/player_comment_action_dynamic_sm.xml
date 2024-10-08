@@ -1,0 +1,125 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        justifyContent="center"
+        hideClickAnimation="true"
+        id="player/cancel"
+        alignItems="center">
+
+    <brls:Box
+            id="comment/action/box"
+            positionType="absolute"
+            positionTop="60"
+            positionLeft="0"
+            justifyContent="center"
+            width="20%">
+        <brls:Box
+                axis="column"
+                cornerRadius="30"
+                backgroundColor="@theme/brls/background">
+            <brls:Box
+                    height="60"
+                    justifyContent="flexStart"
+                    alignItems="center">
+
+                <SVGImage
+                        focusable="true"
+                        id="comment/action/svg/dislike"
+                        margin="8"
+                        width="48"
+                        height="48"
+                        cornerRadius="48"
+                        highlightCornerRadius="48"
+                        SVG="@res/svg/bpx-svg-sprite-disliked.svg"/>
+
+                <SVGImage
+                        focusable="true"
+                        id="comment/action/svg/like"
+                        margin="8"
+                        width="48"
+                        height="48"
+                        cornerRadius="48"
+                        highlightCornerRadius="48"
+                        SVG="@res/svg/bpx-svg-sprite-liked.svg"/>
+
+                <SVGImage
+                        focusable="true"
+                        id="comment/action/svg/gallery"
+                        margin="8"
+                        width="48"
+                        height="48"
+                        cornerRadius="48"
+                        highlightCornerRadius="48"
+                        visibility="gone"
+                        SVG="@res/svg/bpx-svg-sprite-fullpage.svg"/>
+            </brls:Box>
+            <brls:Box
+                    height="60"
+                    justifyContent="flexStart"
+                    alignItems="center">
+
+                <SVGImage
+                        focusable="true"
+                        id="comment/action/svg/delete"
+                        margin="8"
+                        width="48"
+                        height="48"
+                        cornerRadius="48"
+                        highlightCornerRadius="48"
+                        visibility="gone"
+                        SVG="@res/svg/bpx-svg-sprite-delete.svg"/>
+
+                <SVGImage
+                        focusable="true"
+                        id="comment/action/svg/reply"
+                        margin="8"
+                        width="48"
+                        height="48"
+                        cornerRadius="48"
+                        highlightCornerRadius="48"
+                        SVG="@res/svg/bpx-svg-sprite-reply.svg"/>
+            </brls:Box>
+        </brls:Box>
+
+    </brls:Box>
+
+    <brls:Box
+            width="60%"
+            height="100%"
+            id="box/background"
+            backgroundColor="@theme/brls/background">
+        <brls:Label
+                fontSize="24"
+                text="@i18n/wiliwili/player/single_comment/detail"
+                positionType="absolute"
+                positionTop="20"
+                positionLeft="20"/>
+
+        <brls:ScrollingFrame
+                width="60%"
+                height="auto"
+                focusable="true"
+                marginTop="60"
+                grow="1.0">
+
+            <brls:Box
+                    axis="column"
+                    paddingLeft="20"
+                    paddingRight="30"
+                    grow="1.0">
+                <VideoComment
+                        id="comment/action/comment"
+                        focusable="false"
+                        hideClickAnimation="true"/>
+            </brls:Box>
+
+        </brls:ScrollingFrame>
+    </brls:Box>
+
+    <ButtonClose
+            id="button/close"
+            positionType="absolute"
+            positionTop="10"
+            positionRight="10"/>
+
+</brls:Box>

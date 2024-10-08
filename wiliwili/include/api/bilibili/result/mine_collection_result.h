@@ -19,8 +19,8 @@ namespace bilibili {
 
 class SimpleCollectionList {
 public:
-    int64_t id;
-    int64_t fid;
+    uint64_t id;
+    uint64_t fid;
     uint64_t mid;
     unsigned int attr;
     std::string title;
@@ -41,8 +41,8 @@ typedef std::vector<SimpleCollectionList> SimpleCollectionListResult;
 
 class CollectionResult {
 public:
-    int64_t id  = 0;
-    int64_t fid = 0;
+    uint64_t id  = 0;
+    uint64_t fid = 0;
     int type    = SUBSCRIPTION_TYPE_2;  // 视频列表的类型, 11: 收藏夹 21: 合集
     std::string cover;
     std::string title;
