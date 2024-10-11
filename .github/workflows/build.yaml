@@ -156,7 +156,7 @@ jobs:
             ${MINGW_PACKAGE_PREFIX}-gcc \
             ${MINGW_PACKAGE_PREFIX}-ninja unzip
 
-          curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.36.0-6-any.pkg.tar.zst
+          curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.39.0-4-any.pkg.tar.zst
           pacman -U --noconfirm *.pkg.tar.zst
 
           curl -LO https://github.com/rainers/cv2pdb/releases/download/v0.52/cv2pdb-0.52.zip
@@ -512,7 +512,7 @@ jobs:
           key: SDL-vita-pvr-3.9
 
       - name: Download PVR_PSP2 (GLES)
-        if: ${{ steps.restore-pvr-cache.outputs.cache-hit == 'false' }}
+        if: ${{ !steps.restore-pvr-cache.outputs.cache-hit }}
         run: |
           pvr_psp2_version=3.9
           
@@ -546,7 +546,7 @@ jobs:
           rm -rf /tmp/PSVita_Release
 
       - uses: actions/cache/save@v4
-        if: ${{ steps.restore-pvr-cache.outputs.cache-hit == 'false' }}
+        if: ${{ !steps.restore-pvr-cache.outputs.cache-hit }}
         with:
           path: /vita/dependencies
           key: SDL-vita-pvr-3.9
@@ -568,7 +568,7 @@ jobs:
         run: vdpm mbedtls libass harfbuzz fribidi freetype libpng libwebp
 
       - name: Build Dependencies
-        if: ${{ steps.restore-common-deps-cache.outputs.cache-hit == 'false' }}
+        if: ${{ !steps.restore-common-deps-cache.outputs.cache-hit }}
         run: |
           mkdir -p /vita/common_deps
           apk add patch
@@ -590,7 +590,7 @@ jobs:
           ls -lah /vita/common_deps/
 
       - uses: actions/cache/save@v4
-        if: ${{ steps.restore-common-deps-cache.outputs.cache-hit == 'false' }}
+        if: ${{ !steps.restore-common-deps-cache.outputs.cache-hit }}
         with:
           path: /vita/common_deps
           key: Dep-vita-${{ hashFiles('**/VITABUILD') }}
