@@ -9,7 +9,7 @@
  Licensed under the GPL-3.0 license
 */
 
-// Uncomment this to disable google analytics
+// Uncomment this line to disable Google Analytics
 //#define NO_GA
 
 #include <borealis.hpp>
@@ -63,10 +63,10 @@ int main(int argc, char* argv[]) {
         // Uncomment these lines to debug activities
         //        Intent::openBV("BV1Da411Y7U4");  // 弹幕防遮挡 (横屏)
         //        Intent::openBV("BV1iN4y1m7J3");  // 弹幕防遮挡 (竖屏)
-        //        Intent::openBV("BV1kT4y1s7od"); // 高级弹幕 测试0
-        //        Intent::openBV("BV1eN4y147bC"); // 高级弹幕 测试1
-        //        Intent::openBV("BV16x411D7NK"); // 高级弹幕 测试2
-        //        Intent::openBV("BV1uW411e7gt"); // bas 弹幕 (Bilibili Animation Script)
+        //        Intent::openBV("BV1kT4y1s7od");  // 高级弹幕 测试0
+        //        Intent::openBV("BV1eN4y147bC");  // 高级弹幕 测试1
+        //        Intent::openBV("BV16x411D7NK");  // 高级弹幕 测试2
+        //        Intent::openBV("BV1uW411e7gt");  // bas 弹幕 (Bilibili Animation Script)
         //        Intent::openBV("BV1zb4y1j7vz");  // flv 模式报错：HTTP 424
         //        Intent::openBV("BV1jL41167ZG");  // 充电视频
         //        Intent::openBV("BV1dx411c7Av");  // flv拼接视频
@@ -76,6 +76,7 @@ int main(int argc, char* argv[]) {
         //        Intent::openBV("BV1sK411s7zq");  // 多P视频测试
         //        Intent::openBV("BV1Cg411j76F");  // 多字幕测试
         //        Intent::openBV("BV1A44y1u7PF");  // 测试FFMPEG在switch上的bug（加载时间过长）
+        //        Intent::openBV("BV1eD4y1b7Jv");  // 测试 MPV 在switch上的bug（长时间播放崩溃）
         //        Intent::openBV("BV1U3411c7Qx");  // 测试长标题
         //        Intent::openBV("BV1fG411W7Px");  // 测试弹幕
         //        Intent::openSeasonByEpId(323434);// 测试电影

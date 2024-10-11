@@ -5,7 +5,7 @@
 pkgbasename=libmpv
 pkgname=switch-${pkgbasename}
 pkgver=0.36.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Command line video player (library only)'
 arch=('any')
 url='https://mpv.io/'
@@ -17,7 +17,7 @@ sha256sums=(
   'SKIP'
 )
 makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
-depends=('switch-ffmpeg' 'deko3d' 'libuam')
+depends=('switch-ffmpeg' 'deko3d' 'libuam' 'switch-liblua51')
 groups=('switch-portlibs')
 
 prepare() {
@@ -40,7 +40,7 @@ build() {
   LIBDIR=${PORTLIBS_PREFIX}/lib TARGET=aarch64-none-elf ./waf configure \
     --prefix="${PORTLIBS_PREFIX}" --disable-libmpv-shared \
     --enable-libmpv-static --disable-cplayer --disable-sdl2 \
-    --disable-gl --disable-plain-gl \
+    --disable-gl --disable-plain-gl --enable-lua \
     --enable-deko3d --enable-hos-audio \
     --disable-iconv --disable-jpeg --disable-libavdevice --disable-debug-build
   sed -i 's/#define HAVE_POSIX 1/#define HAVE_POSIX 0/' build/config.h

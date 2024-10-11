@@ -5,9 +5,9 @@
 # Contributor: jakibaki <jakibaki live com>
 
 pkgname=switch-ffmpeg
-pkgver=6.1
-commit=ff3429991ec1bac1d1b71215402e3d195162e125
-pkgrel=5
+pkgver=7.1
+commit=e1094ac45d3bc7942043e72a23b6ab30faaddb8a
+pkgrel=1
 pkgdesc='ffmpeg port (for Nintendo Switch homebrew development)'
 arch=('any')
 url='https://ffmpeg.org/'

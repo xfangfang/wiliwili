@@ -298,7 +298,7 @@ jobs:
 
       - name: Build Nro
         run: |
-          docker run --rm -v $(pwd):/data devkitpro/devkita64:20240224 bash -c "/data/scripts/build_switch${{ matrix.shuffix }}.sh"
+          docker run --rm -v $(pwd):/data devkitpro/devkita64:20240916 bash -c "/data/scripts/build_switch${{ matrix.shuffix }}.sh"
 
       - name: Upload dist
         uses: actions/upload-artifact@v4
@@ -341,7 +341,7 @@ jobs:
 
   build-macos:
     needs: [ version ]
-    runs-on: macos-12
+    runs-on: macos-13
     strategy:
       matrix:
         arch: [ IntelChip, AppleSilicon, Universal ]
@@ -419,7 +419,7 @@ jobs:
     needs: [ version ]
     runs-on: ubuntu-latest
     container:
-      image: bilelmoussaoui/flatpak-github-actions:freedesktop-22.08
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-24.08
       options: --privileged
     strategy:
       matrix:

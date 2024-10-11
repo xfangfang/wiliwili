@@ -20,7 +20,7 @@ cmake_dependent_option(MAC_Universal "Support x86_64;arm64 at the same time" OFF
 cmake_dependent_option(MAC_DOWNLOAD_DYLIB "Using precompiled dylib instead of system provided" OFF "APPLE;NOT PLATFORM_IOS" OFF)
 
 # Linux
-# Using CMAKE_INSTALL_PREFIX specifies the location where the application is installed.
+# Using CMAKE_INSTALL_PREFIX to specify the location where the application is installed.
 cmake_dependent_option(INSTALL "Install to system path" OFF "UNIX;NOT APPLE" OFF)
 
 # For Developer

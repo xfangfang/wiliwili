@@ -88,11 +88,23 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
             [showUpToDateDialog](cpr::Response r) {
                 checking_update = false;
                 try {
-                    if (r.status_code != 200 || r.text.empty()) {
-                        brls::Logger::error("Cannot check update: {} {}", r.status_code, r.text);
+                    if (showUpToDateDialog && r.status_code == 403) {
+                        // GitHub api limited
+                        if (const nlohmann::json res = nlohmann::json::parse(r.text); res.contains("message")) {
+                            auto msg = res.at("message").get<std::string>();
+                            brls::sync([msg]() { brls::Application::notify(msg); });
+                        }
                         return;
                     }
-                    nlohmann::json res = nlohmann::json::parse(r.text);
+                    if (r.status_code != 200 || r.text.empty()) {
+                        brls::Logger::error("Cannot check update: {} {}", r.status_code, r.reason);
+                        if (showUpToDateDialog) {
+                            auto msg = r.reason;
+                            brls::sync([msg]() { brls::Application::notify(msg); });
+                        }
+                        return;
+                    }
+                    const nlohmann::json res = nlohmann::json::parse(r.text);
                     auto info          = res.get<ReleaseNote>();
                     if (info.tag_name.empty()) {
                         brls::Logger::error("Cannot parse update info, tag_name is empty");

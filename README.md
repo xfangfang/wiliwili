@@ -235,7 +235,7 @@ make -C build wiliwili -j$(sysctl -n hw.ncpu)
 
 ```shell
 # Ubuntu: install dependencies
-sudo apt install libcurl4-openssl-dev libmpv-dev libwebp-dev
+sudo apt install libssl-dev libmpv-dev libwebp-dev
 
 cmake -B build -DPLATFORM_DESKTOP=ON
 make -C build wiliwili -j$(nproc)
@@ -302,8 +302,8 @@ sudo dkp-pacman -S switch-glfw switch-libwebp switch-cmake switch-curl devkitA64
 # 手动编译方法请参考：scripts/README.md
 base_url="https://github.com/xfangfang/wiliwili/releases/download/v0.1.0"
 sudo dkp-pacman -U \
-    $base_url/switch-ffmpeg-6.1-5-any.pkg.tar.zst \
-    $base_url/switch-libmpv-0.36.0-2-any.pkg.tar.zst
+    $base_url/switch-ffmpeg-7.1-1-any.pkg.tar.zst \
+    $base_url/switch-libmpv-0.36.0-3-any.pkg.tar.zst
 
 # 4. build
 cmake -B cmake-build-switch -DPLATFORM_SWITCH=ON

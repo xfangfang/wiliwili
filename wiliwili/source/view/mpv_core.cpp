@@ -338,6 +338,8 @@ void MPVCore::init() {
 #if defined(__SWITCH__)
     mpvSetOptionString(mpv, "vd-lavc-dr", "no");
     mpvSetOptionString(mpv, "vd-lavc-threads", "4");
+    // This should fix random crash, but I don't know why.
+    mpvSetOptionString(mpv, "opengl-glfinish", "yes");
 #elif defined(PS4)
     mpvSetOptionString(mpv, "vd-lavc-threads", "6");
 #elif defined(__PSV__)

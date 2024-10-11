@@ -1,6 +1,6 @@
 app-id: cn.xfangfang.wiliwili
 runtime: org.freedesktop.Platform
-runtime-version: '23.08'
+runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
 command: wiliwili
 finish-args:
@@ -43,8 +43,8 @@ modules:
       - -Dmanpage-build=disabled
     sources:
       - type: archive
-        url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.38.0.tar.gz
-        sha256: 86d9ef40b6058732f67b46d0bbda24a074fae860b3eaae05bab3145041303066
+        url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.39.0.tar.gz
+        sha256: 2ca92437affb62c2b559b4419ea4785c70d023590500e8a52e95ea3ab4554683
         x-checker-data:
           type: anitya
           project-id: 5348
@@ -63,6 +63,30 @@ modules:
               project-id: 17166
               stable-only: true
               url-template: https://xorg.freedesktop.org/archive/individual/lib/libXpresent-$version.tar.xz
+
+      - name: luajit
+        no-autogen: true
+        cleanup:
+          - /bin
+          - /include
+          - /lib/pkgconfig
+          - /share/man
+        sources:
+          - type: git
+            url: https://github.com/LuaJIT/LuaJIT.git
+            mirror-urls:
+              - https://luajit.org/git/luajit.git
+            disable-shallow-clone: true
+            commit: 97813fb924edf822455f91a5fbbdfdb349e5984f
+            x-checker-data:
+              type: json
+              url: https://api.github.com/repos/LuaJIT/LuaJIT/commits
+              commit-query: first( .[].sha )
+              version-query: first( .[].sha )
+              timestamp-query: first( .[].commit.committer.date )
+          - type: shell
+            commands:
+              - sed -i 's|/usr/local|/app|' ./Makefile
 
       - name: nv-codec-headers
         cleanup:
@@ -152,8 +176,8 @@ modules:
             url: https://github.com/FFmpeg/FFmpeg.git
             mirror-urls:
               - https://git.ffmpeg.org/ffmpeg.git
-            commit: af25a4bfd2503caf3ee485b27b99b620302f5718
-            tag: n7.0.1
+            commit: b08d7969c550a804a59511c7b83f2dd8cc0499b8
+            tag: n7.1
             x-checker-data:
               type: git
               tag-pattern: ^n([\d.]{3,7})$

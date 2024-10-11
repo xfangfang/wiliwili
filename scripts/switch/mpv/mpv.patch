@@ -1,3 +1,19 @@
+diff --git a/audio/decode/ad_spdif.c b/audio/decode/ad_spdif.c
+index decd97206d..e57843413f 100644
+--- a/audio/decode/ad_spdif.c
++++ b/audio/decode/ad_spdif.c
+@@ -53,7 +53,11 @@ struct spdifContext {
+     struct mp_decoder public;
+ };
+ 
++#if LIBAVCODEC_VERSION_MAJOR < 61
+ static int write_packet(void *p, uint8_t *buf, int buf_size)
++#else
++static int write_packet(void *p, const uint8_t *buf, int buf_size)
++#endif
+ {
+     struct spdifContext *ctx = p;
+ 
 diff --git a/audio/out/ao.c b/audio/out/ao.c
 index a5aa3a9402..6dd0ba6eb2 100644
 --- a/audio/out/ao.c
@@ -319,6 +335,149 @@ index 0000000000..42d3793b91
 +    },
 +    .options_prefix   = "ao-hos",
 +};
+diff --git a/filters/f_lavfi.c b/filters/f_lavfi.c
+index 597cf91fc0..8bd96486ca 100644
+--- a/filters/f_lavfi.c
++++ b/filters/f_lavfi.c
+@@ -1024,7 +1024,11 @@ static const char *get_avopt_type_name(enum AVOptionType type)
+     case AV_OPT_TYPE_VIDEO_RATE:        return "fps";
+     case AV_OPT_TYPE_DURATION:          return "duration";
+     case AV_OPT_TYPE_COLOR:             return "color";
++#if LIBAVUTIL_VERSION_MAJOR < 59
+     case AV_OPT_TYPE_CHANNEL_LAYOUT:    return "channellayout";
++#else
++    case AV_OPT_TYPE_CHLAYOUT:          return "ch_layout";
++#endif
+     case AV_OPT_TYPE_BOOL:              return "bool";
+     case AV_OPT_TYPE_CONST: // fallthrough
+     default:
+diff --git a/filters/f_swresample.c b/filters/f_swresample.c
+index fb1ef05194..09148b5f88 100644
+--- a/filters/f_swresample.c
++++ b/filters/f_swresample.c
+@@ -23,6 +23,7 @@
+ #include <libswresample/swresample.h>
+ 
+ #include "audio/aframe.h"
++#include "audio/chmap_avchannel.h"
+ #include "audio/fmt-conversion.h"
+ #include "audio/format.h"
+ #include "common/common.h"
+@@ -269,14 +270,28 @@ static bool configure_lavrr(struct priv *p, bool verbose)
+ 
+     out_ch_layout = fudge_layout_conversion(p, in_ch_layout, out_ch_layout);
+ 
++#if HAVE_AV_CHANNEL_LAYOUT
+     // Real conversion; output is input to avrctx_out.
++    AVChannelLayout in_layout, out_layout;
++    mp_chmap_to_av_layout(&in_layout, &in_lavc);
++    mp_chmap_to_av_layout(&out_layout, &out_lavc);
++    av_opt_set_chlayout(p->avrctx, "in_chlayout",  &in_layout, 0);
++    av_opt_set_chlayout(p->avrctx, "out_chlayout", &out_layout, 0);
++#else
+     av_opt_set_int(p->avrctx, "in_channel_layout",  in_ch_layout, 0);
+     av_opt_set_int(p->avrctx, "out_channel_layout", out_ch_layout, 0);
++#endif
+     av_opt_set_int(p->avrctx, "in_sample_rate",     p->in_rate, 0);
+     av_opt_set_int(p->avrctx, "out_sample_rate",    p->out_rate, 0);
+     av_opt_set_int(p->avrctx, "in_sample_fmt",      in_samplefmt, 0);
+     av_opt_set_int(p->avrctx, "out_sample_fmt",     out_samplefmtp, 0);
+ 
++#if HAVE_AV_CHANNEL_LAYOUT
++    AVChannelLayout fake_layout;
++    av_channel_layout_default(&fake_layout, map_out.num);
++    av_opt_set_chlayout(p->avrctx_out, "in_chlayout", &fake_layout, 0);
++    av_opt_set_chlayout(p->avrctx_out, "out_chlayout", &fake_layout, 0);
++#else
+     // Just needs the correct number of channels for deplanarization.
+     struct mp_chmap fake_chmap;
+     mp_chmap_set_unknown(&fake_chmap, map_out.num);
+@@ -285,6 +300,7 @@ static bool configure_lavrr(struct priv *p, bool verbose)
+         goto error;
+     av_opt_set_int(p->avrctx_out, "in_channel_layout",  fake_out_ch_layout, 0);
+     av_opt_set_int(p->avrctx_out, "out_channel_layout", fake_out_ch_layout, 0);
++#endif
+ 
+     av_opt_set_int(p->avrctx_out, "in_sample_fmt",      out_samplefmtp, 0);
+     av_opt_set_int(p->avrctx_out, "out_sample_fmt",     out_samplefmt, 0);
+diff --git a/meson.build b/meson.build
+index f9fe4e7263..2fcaa509da 100644
+--- a/meson.build
++++ b/meson.build
+@@ -292,13 +292,16 @@ if cc.get_id() == 'clang'
+     flags += clang_flags
+ endif
+ 
++libnx = cc.find_library('nx', required: get_option('hos'))
++hos = libnx.found()
+ darwin = host_machine.system() == 'darwin'
+ win32 = host_machine.system() == 'cygwin' or host_machine.system() == 'windows'
+-posix = not win32
++posix = not win32 and not hos
+ 
+ features += {'darwin': darwin}
+ features += {'posix': posix}
+ features += {'dos-paths': win32, 'win32': win32}
++features += {'hos': hos}
+ 
+ mswin_flags = ['-D_WIN32_WINNT=0x0602', '-DUNICODE', '-DCOBJMACROS',
+                '-DINITGUID', '-U__STRICT_ANSI__']
+@@ -424,6 +427,19 @@ if posix and not darwin
+                      'osdep/timer-linux.c')
+ endif
+ 
++if hos
++    dependencies += libnx
++    sources += files('osdep/path-unix.c',
++                     'osdep/timer-linux.c',
++                     'osdep/subprocess-dummy.c',
++                     'osdep/terminal-dummy.c',
++                     'osdep/main-fn-unix.c',
++                     'osdep/language-posix.c',
++                     'input/ipc-dummy.c',
++                     'osdep/polldev.c',
++                     'sub/filter_regex.c')
++endif
++
+ cd_devices = {
+     'windows': 'D:',
+     'cygwin': 'D:',
+@@ -855,6 +871,15 @@ if features['sdl2-audio']
+     sources += files('audio/out/ao_sdl.c')
+ endif
+ 
++hos_audio = get_option('hos-audio').require(
++    features['hos'],
++    error_message: 'hos was not found!',
++)
++features += {'hos-audio': hos_audio.allowed()}
++if features['hos-audio']
++    sources += files('audio/out/ao_hos.c')
++endif
++
+ sndio = dependency('sndio', required: get_option('sndio'))
+ features += {'sndio': sndio.found()}
+ if features['sndio']
+diff --git a/meson_options.txt b/meson_options.txt
+index 5f2d31df3d..a334aabec8 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -38,6 +38,7 @@ option('vector', type: 'feature', value: 'auto', description: 'GCC vector instru
+ option('win32-internal-pthreads', type: 'feature', value: 'auto', description: 'internal pthread wrapper for win32 (Vista+)')
+ option('zimg', type: 'feature', value: 'auto', description: 'libzimg support (high quality software scaler)')
+ option('zlib', type: 'feature', value: 'auto', description: 'zlib')
++option('hos', type: 'feature', value: 'auto', description: 'HOS')
+ 
+ # audio output features
+ option('alsa', type: 'feature', value: 'auto', description: 'ALSA audio output')
+@@ -52,6 +53,7 @@ option('pulse', type: 'feature', value: 'auto', description: 'PulseAudio audio o
+ option('sdl2-audio', type: 'feature', value: 'auto', description: 'SDL2 audio output')
+ option('sndio', type: 'feature', value: 'auto', description: 'sndio audio output')
+ option('wasapi', type: 'feature', value: 'auto', description: 'WASAPI audio output')
++option('hos-audio', type: 'feature', value: 'auto', description: 'HOS audio output')
+ 
+ # video output features
+ option('caca', type: 'feature', value: 'auto', description: 'CACA')
 diff --git a/osdep/io.c b/osdep/io.c
 index 8cd6dede85..a1933888dd 100644
 --- a/osdep/io.c
@@ -341,6 +500,22 @@ index 8cd6dede85..a1933888dd 100644
  int mp_make_wakeup_pipe(int pipes[2])
  {
      return mp_make_cloexec_pipe(pipes);
+diff --git a/osdep/io.h b/osdep/io.h
+index 905558c284..ad96866b23 100644
+--- a/osdep/io.h
++++ b/osdep/io.h
+@@ -208,6 +208,11 @@ locale_t newlocale(int, const char *, locale_t);
+ locale_t uselocale(locale_t);
+ void freelocale(locale_t);
+ 
++#elif defined(__SWITCH__)
++
++#include "switch/sys/mman.h"
++#include <sys/unistd.h>
++
+ #else /* __MINGW32__ */
+ 
+ #include <sys/mman.h>
 diff --git a/osdep/switch/sys/mman.h b/osdep/switch/sys/mman.h
 new file mode 100644
 index 0000000000..f37f1719e1
@@ -374,75 +549,29 @@ index 8e299918ce..c7b08f5273 100644
  
  #include "common/common.h"
  #include "common/msg.h"
-diff --git a/wscript b/wscript
-index 82f65b4afa..f177daf41b 100644
---- a/wscript
-+++ b/wscript
-@@ -419,6 +419,10 @@ iconv support use --disable-iconv.",
-         'name': 'rubberband-3',
-         'desc': 'new engine support for librubberband',
-         'func': check_pkg_config('rubberband >= 3.0.0'),
-+    }, {
-+        'name': '--hos',
-+        'desc': 'Horizon OS',
-+        'func': check_statement(['switch.h'], ''),
-     }, {
-         'name': 'zimg-st428',
-         'desc': 'ZIMG support for ZIMG_TRANSFER_ST428',
-@@ -509,6 +513,11 @@ audio_output_features = [
-         'desc': 'WASAPI audio output',
-         'deps': 'os-win32 || os-cygwin',
-         'func': check_cc(fragment=load_fragment('wasapi.c')),
-+    }, {
-+        'name': '--hos-audio',
-+        'desc': 'Audren audio output',
-+        'deps': 'hos',
-+        'func': check_true,
-     }
- ]
+diff --git a/video/mp_image.c b/video/mp_image.c
+index 40678d10bd..eaed5dd9c8 100644
+--- a/video/mp_image.c
++++ b/video/mp_image.c
+@@ -176,7 +176,7 @@ static bool mp_image_alloc_planes(struct mp_image *mpi)
+         return false;
  
-diff --git a/wscript_build.py b/wscript_build.py
-index a470808ae5..ae9d689677 100644
---- a/wscript_build.py
-+++ b/wscript_build.py
-@@ -234,32 +234,22 @@ def build(ctx):
+     // Note: mp_image_pool assumes this creates only 1 AVBufferRef.
+-    mpi->bufs[0] = av_buffer_alloc(size + align);
++    mpi->bufs[0] = av_buffer_aligned_alloc(size + align, 0x100); // Aligmnent required for plane offsets
+     if (!mpi->bufs[0])
+         return false;
  
-     if ctx.dependency_satisfied('cplayer'):
-         main_fn_c = ctx.pick_first_matching_dep([
--            ( "osdep/main-fn-cocoa.c",               "cocoa" ),
-             ( "osdep/main-fn-unix.c",                "posix" ),
--            ( "osdep/main-fn-win.c",                 "win32-desktop" ),
-         ])
+diff --git a/video/mp_image.h b/video/mp_image.h
+index 98dd666412..376e269356 100644
+--- a/video/mp_image.h
++++ b/video/mp_image.h
+@@ -32,7 +32,7 @@
+ // libraries except libavcodec don't really know what alignment they want.
+ // Things will randomly crash or get slower if the alignment is not satisfied.
+ // Whatever. This value should be pretty safe with current CPU architectures.
+-#define MP_IMAGE_BYTE_ALIGN 64
++#define MP_IMAGE_BYTE_ALIGN 256 // VIC alignement
  
-     getch2_c = ctx.pick_first_matching_dep([
--        ( "osdep/terminal-unix.c",               "posix" ),
--        ( "osdep/terminal-win.c",                "win32-desktop" ),
-         ( "osdep/terminal-dummy.c" ),
-     ])
- 
-     timer_c = ctx.pick_first_matching_dep([
--        ( "osdep/timer-win2.c",                  "os-win32" ),
--        ( "osdep/timer-darwin.c",                "os-darwin" ),
-         ( "osdep/timer-linux.c",                 "posix" ),
-     ])
- 
-     ipc_c = ctx.pick_first_matching_dep([
--        ( "input/ipc-unix.c",                    "posix" ),
--        ( "input/ipc-win.c",                     "win32-desktop" ),
-         ( "input/ipc-dummy.c" ),
-     ])
- 
-     subprocess_c = ctx.pick_first_matching_dep([
--        ( "osdep/subprocess-posix.c",            "posix" ),
--        ( "osdep/subprocess-win.c",              "win32-desktop" ),
-         ( "osdep/subprocess-dummy.c" ),
-     ])
- 
-@@ -309,6 +299,7 @@ def build(ctx):
-         ( "audio/out/ao_wasapi.c",               "wasapi" ),
-         ( "audio/out/ao_wasapi_changenotify.c",  "wasapi" ),
-         ( "audio/out/ao_wasapi_utils.c",         "wasapi" ),
-+        ( "audio/out/ao_hos.c",                  "hos-audio" ),
-         ( "audio/out/buffer.c" ),
- 
-         ## Core
+ #define MP_IMGFIELD_TOP_FIRST 0x02
+ #define MP_IMGFIELD_REPEAT_FIRST 0x04

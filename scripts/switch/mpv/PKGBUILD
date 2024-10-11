@@ -5,47 +5,48 @@
 pkgbasename=libmpv
 pkgname=switch-${pkgbasename}
 pkgver=0.36.0
-pkgrel=2
+pkgrel=3
 pkgdesc='Command line video player (library only)'
 arch=('any')
 url='https://mpv.io/'
 license=('GPL')
 options=(!strip libtool staticlibs)
-source=("${pkgbasename}-${pkgver}.tar.gz::https://github.com/mpv-player/mpv/archive/v${pkgver}.tar.gz" "mpv.patch" "mp_image.patch")
+source=("${pkgbasename}-${pkgver}.tar.gz::https://github.com/mpv-player/mpv/archive/v${pkgver}.tar.gz" "mpv.patch")
 sha256sums=(
   'SKIP'
   'SKIP'
-  'SKIP'
 )
-makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
-depends=('switch-ffmpeg' 'switch-mesa')
+makedepends=('switch-pkg-config' 'dkp-toolchain-vars' 'dkp-meson-scripts')
+depends=('switch-ffmpeg' 'switch-mesa' 'switch-liblua51')
 groups=('switch-portlibs')
 
 prepare() {
   cd mpv-$pkgver
+  rm -rf build
   rm -rf audio/out/ao_hos.c
   rm -rf osdep/switch/sys/mman.h
   patch -Np1 -i "$srcdir/mpv.patch"
-  patch -Np1 -i "$srcdir/mp_image.patch"
 }
 
 build() {
   cd mpv-$pkgver
 
   source /opt/devkitpro/switchvars.sh
-
-  ./bootstrap.py
-  export CFLAGS="$CFLAGS -D_POSIX_VERSION=200809L -DNDEBUG -I`pwd`/osdep/switch"
-  LIBDIR=${PORTLIBS_PREFIX}/lib TARGET=aarch64-none-elf ./waf configure \
-    --prefix="${PORTLIBS_PREFIX}" --disable-libmpv-shared \
-    --enable-libmpv-static --disable-cplayer --disable-sdl2 --enable-hos-audio \
-    --disable-iconv --disable-jpeg --disable-libavdevice --disable-debug-build
-  sed -i 's/#define HAVE_POSIX 1/#define HAVE_POSIX 0/' build/config.h
-  ./waf build
+  /opt/devkitpro/meson-cross.sh switch crossfile.txt build\
+        -Dlua=enabled \
+        -Dhos=enabled \
+        -Dhos-audio=enabled \
+        -Diconv=disabled \
+        -Djpeg=disabled \
+        -Dlibavdevice=disabled \
+        -Dmanpage-build=disabled \
+        -Dsdl2=disabled \
+        -Dlibmpv=true \
+        -Dcplayer=false
+  meson compile -C build
 }
 
 package() {
   cd mpv-$pkgver
-
-  ./waf install --destdir=$pkgdir
+  DESTDIR=$pkgdir meson install -C build
 }
