@@ -45,6 +45,7 @@ jobs:
       DIST_PS4: ${{ steps.info.outputs.DIST_PS4 }}
       DIST_DMG_PREFIX: ${{ steps.info.outputs.DIST_DMG_PREFIX }}
       DIST_INTEL_DMG: ${{ steps.info.outputs.DIST_INTEL_DMG }}
+      DIST_INTEL_OLD_DMG: ${{ steps.info.outputs.DIST_INTEL_OLD_DMG }}
       DIST_ARM_DMG: ${{ steps.info.outputs.DIST_ARM_DMG }}
       DIST_UNIVERSAL_DMG: ${{ steps.info.outputs.DIST_UNIVERSAL_DMG }}
       DIST_FLATPAK_X86_64: ${{ steps.info.outputs.DIST_FLATPAK_X86_64 }}
@@ -77,6 +78,7 @@ jobs:
           echo "DIST_PS4=wiliwili-PS4-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_DMG_PREFIX=wiliwili-macOS" >> $GITHUB_OUTPUT
           echo "DIST_INTEL_DMG=wiliwili-macOS-IntelChip-${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_INTEL_OLD_DMG=wiliwili-macOS-IntelChip_10.11-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_ARM_DMG=wiliwili-macOS-AppleSilicon-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_UNIVERSAL_DMG=wiliwili-macOS-Universal-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_FLATPAK_X86_64=wiliwili-Linux-${VERSION}-x86_64" >> $GITHUB_OUTPUT
@@ -341,10 +343,14 @@ jobs:
 
   build-macos:
     needs: [ version ]
-    runs-on: macos-13
+    runs-on: macos-14
     strategy:
       matrix:
-        arch: [ IntelChip, AppleSilicon, Universal ]
+        include:
+          - { arch: IntelChip, name: IntelChip }
+          - { arch: IntelChipOld, name: IntelChip_10.11 }
+          - { arch: AppleSilicon, name: AppleSilicon }
+          - { arch: Universal, name: Universal }
       # Don't fail the whole workflow if one architecture fails
       fail-fast: false
     steps:
@@ -385,15 +391,14 @@ jobs:
             -DMAC_${{ matrix.arch }}=ON \
             -DMAC_DOWNLOAD_DYLIB=ON \
             -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build == 'true' && 'OFF' || 'ON' }} \
-            -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
-            -DCURL_USE_LIBPSL=OFF
+            -DCMAKE_UNITY_BUILD_BATCH_SIZE=16
           make -C build wiliwili.app -j$(sysctl -n hw.ncpu)
 
       - name: Name
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         id: name
         run: |
-          echo "DMG=${{ needs.version.outputs.DIST_DMG_PREFIX }}-${{ matrix.arch }}-${{ needs.version.outputs.version }}"  >> $GITHUB_OUTPUT
+          echo "DMG=${{ needs.version.outputs.DIST_DMG_PREFIX }}-${{ matrix.name }}-${{ needs.version.outputs.version }}"  >> $GITHUB_OUTPUT
 
       - name: Bundle
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')

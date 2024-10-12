@@ -14,7 +14,8 @@ cmake_dependent_option(BUILTIN_NSP "Built in NSP forwarder" OFF "PLATFORM_SWITCH
 # macOS
 # These four options are only for macOS app bundling usage.
 # Do not use it until you know what you are doing.
-cmake_dependent_option(MAC_IntelChip "Build for x86_64 (10.11)" OFF "APPLE;NOT PLATFORM_IOS" OFF)
+cmake_dependent_option(MAC_IntelChip_Old "Build for x86_64 (10.11)" OFF "APPLE;NOT PLATFORM_IOS" OFF)
+cmake_dependent_option(MAC_IntelChip "Build for x86_64 (10.15)" OFF "APPLE;NOT PLATFORM_IOS" OFF)
 cmake_dependent_option(MAC_AppleSilicon "Build for arm64 (11.0)" OFF "APPLE;NOT PLATFORM_IOS" OFF)
 cmake_dependent_option(MAC_Universal "Support x86_64;arm64 at the same time" OFF "APPLE;NOT PLATFORM_IOS" OFF)
 cmake_dependent_option(MAC_DOWNLOAD_DYLIB "Using precompiled dylib instead of system provided" OFF "APPLE;NOT PLATFORM_IOS" OFF)
