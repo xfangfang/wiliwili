@@ -315,6 +315,18 @@ void MPVCore::init() {
         brls::Logger::info("lavc: skip loop filter and set fast decode");
         mpvSetOptionString(mpv, "vd-lavc-skiploopfilter", "all");
         mpvSetOptionString(mpv, "vd-lavc-fast", "yes");
+        if (mpvClientApiVersion() >= MPV_MAKE_VERSION(2, 2)) {
+            mpvSetOptionString(mpv, "profile", "fast");
+        } else {
+            mpvSetOptionString(mpv, "scale", "bilinear");
+            mpvSetOptionString(mpv, "dscale", "bilinear");
+            mpvSetOptionString(mpv, "dither", "no");
+            mpvSetOptionString(mpv, "correct-downscaling", "no");
+            mpvSetOptionString(mpv, "linear-downscaling", "no");
+            mpvSetOptionString(mpv, "sigmoid-upscaling", "no");
+            mpvSetOptionString(mpv, "hdr-compute-peak", "no");
+            mpvSetOptionString(mpv, "allow-delayed-peak-detect", "yes");
+        }
     }
 
     if (MPVCore::INMEMORY_CACHE) {
