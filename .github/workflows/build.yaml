@@ -348,7 +348,7 @@ jobs:
       matrix:
         include:
           - { arch: IntelChip, name: IntelChip }
-          - { arch: IntelChipOld, name: IntelChip_10.11 }
+          - { arch: IntelChip_Old, name: IntelChip_10.11 }
           - { arch: AppleSilicon, name: AppleSilicon }
           - { arch: Universal, name: Universal }
       # Don't fail the whole workflow if one architecture fails
