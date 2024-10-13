@@ -31,8 +31,13 @@ class IndexItem : public brls::Box {
 public:
     IndexItem() {
         content = new brls::Label();
+        if (brls::Application::ORIGINAL_WINDOW_HEIGHT < 720) {
+            content->setFontSize(16);
+            this->setHeight(28);
+        } else {
+            this->setHeight(36);
+        }
         this->setHideHighlightBackground(true);
-        this->setHeight(36);
         this->setHighlightCornerRadius(6);
         this->setMargins(2, 6, 2, 6);
         this->setCornerRadius(4);
@@ -79,7 +84,11 @@ class IndexRow : public brls::Box {
 public:
     IndexRow(bilibili::PGCIndexFilter data) : data(data) {
         YGNodeStyleSetFlexWrap(this->ygNode, YGWrap::YGWrapWrap);
-        this->setMargins(6, 0, 6, 0);
+        if (brls::Application::ORIGINAL_WINDOW_HEIGHT < 720) {
+            this->setMargins(2, 0, 2, 0);
+        } else {
+            this->setMargins(6, 0, 6, 0);
+        }
         this->key = data.field;
         for (size_t i = 0; i < data.values.size(); i++) {
             auto item = new IndexItem();

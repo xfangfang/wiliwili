@@ -191,49 +191,46 @@ void BilibiliClient::get_pgc_filter(const std::string& index_type,
 /// 主页 追番/影视 获取全部分类
 void BilibiliClient::get_pgc_all_filter(const std::function<void(PGCIndexFilters)>& callback,
                                         const ErrorCallback& error) {
-    PGCIndexFilters res;
-    BilibiliClient::get_pgc_filter(
-        "1",
-        [callback, error, res](auto wrapper) mutable {
-            wrapper.index_name = "追番";
-            res["1"]           = wrapper;
-            BilibiliClient::get_pgc_filter(
-                "2",
-                [callback, error, res](auto wrapper) mutable {
-                    wrapper.index_name = "电影";
-                    res["2"]           = wrapper;
-                    BilibiliClient::get_pgc_filter(
-                        "5",
-                        [callback, error, res](auto wrapper) mutable {
-                            wrapper.index_name = "电视剧";
-                            res["5"]           = wrapper;
-                            BilibiliClient::get_pgc_filter(
-                                "3",
-                                [callback, error, res](auto wrapper) mutable {
-                                    wrapper.index_name = "纪录片";
-                                    res["3"]           = wrapper;
-                                    BilibiliClient::get_pgc_filter(
-                                        "7",
-                                        [callback, error, res](auto wrapper) mutable {
-                                            wrapper.index_name = "综艺";
-                                            res["7"]           = wrapper;
-                                            BilibiliClient::get_pgc_filter(
-                                                "102",
-                                                [callback, res](auto wrapper) mutable {
-                                                    wrapper.index_name = "影视综合";
-                                                    res["102"]         = wrapper;
-                                                    callback(res);
-                                                },
-                                                error);
-                                        },
-                                        error);
-                                },
-                                error);
-                        },
-                        error);
+    cpr::async([callback, error]() {
+        std::vector<std::string> index_types = {"1", "2", "5", "3", "7", "102"};
+        std::vector<std::string> index_names = {"追番", "电影", "电视剧", "纪录片", "综艺", "影视综合"};
+        cpr::MultiPerform multiperform;
+        for (auto& i : index_types) {
+            std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
+            session->SetUrl(Api::PGCIndexFilter);
+            session->SetParameters({{"type", "2"}, {"index_type", i}});
+            session->SetHeader(HTTP::HEADERS);
+            session->SetVerifySsl(HTTP::VERIFY);
+            session->SetProxies(HTTP::PROXIES);
+            session->SetTimeout(HTTP::TIMEOUT);
+            session->SetCookies(HTTP::COOKIES);
+            session->SetHttpVersion(cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS});
+            multiperform.AddSession(session);
+        }
+
+        std::vector<cpr::Response> responses = multiperform.Get();
+        PGCIndexFilters res;
+        for (size_t i = 0; i < responses.size(); i++) {
+            auto& r = responses[i];
+            if (r.error) {
+                ERROR_MSG(r.error.message, -1);
+                return;
+            } else if (r.status_code != 200) {
+                ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
+                return;
+            }
+            int ret = HTTP::parseJson<PGCIndexFilterWrapper>(
+                r,
+                [&res, &index_types, &index_names, i, callback](auto wrapper) {
+                    wrapper.index_name  = index_names[i];
+                    res[index_types[i]] = wrapper;
                 },
                 error);
-        },
-        error);
+            if (ret != 0) {
+                return;
+            }
+        }
+        callback(res);
+    });
 }
 }  // namespace bilibili

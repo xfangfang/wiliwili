@@ -51,8 +51,7 @@ void BilibiliClient::get_webmask(const std::string& url, int64_t rangeStart, int
                 ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
             }
         },
-        cpr::Range{start, end}, HTTP::VERIFY, HTTP::PROXIES, cpr::Url{url}, HTTP::HEADERS, HTTP::COOKIES,
-        cpr::Timeout{HTTP::TIMEOUT});
+        cpr::Range{start, end}, cpr::Url{url}, CPR_HTTP_BASE);
 }
 
 void BilibiliClient::get_video_pagelist(const std::string& bvid,
@@ -267,8 +266,7 @@ void BilibiliClient::get_danmaku(uint64_t cid, const std::function<void(std::str
                 printf("ERROR: %s\n", e.what());
             }
         },
-        HTTP::VERIFY, HTTP::PROXIES, cpr::Url{Api::VideoDanmaku}, HTTP::HEADERS,
-        cpr::Parameters({{"oid", std::to_string(cid)}}), HTTP::COOKIES, cpr::Timeout{HTTP::TIMEOUT});
+        cpr::Url{Api::VideoDanmaku}, cpr::Parameters({{"oid", std::to_string(cid)}}), CPR_HTTP_BASE);
 }
 
 void BilibiliClient::get_highlight_progress(uint64_t cid,
@@ -287,8 +285,7 @@ void BilibiliClient::get_highlight_progress(uint64_t cid,
                 ERROR_MSG(e.what(), -1);
             }
         },
-        HTTP::VERIFY, HTTP::PROXIES, cpr::Url{Api::VideoHighlight}, HTTP::HEADERS,
-        cpr::Parameters({{"cid", std::to_string(cid)}}), HTTP::COOKIES, cpr::Timeout{HTTP::TIMEOUT});
+        cpr::Url{Api::VideoHighlight}, cpr::Parameters({{"cid", std::to_string(cid)}}), CPR_HTTP_BASE);
 }
 
 void BilibiliClient::get_subtitle(const std::string& link, const std::function<void(SubtitleData)>& callback,
@@ -309,8 +306,7 @@ void BilibiliClient::get_subtitle(const std::string& link, const std::function<v
                 printf("ERROR: %s\n", e.what());
             }
         },
-        HTTP::VERIFY, HTTP::PROXIES, cpr::Url{url}, HTTP::HEADERS, cpr::Parameters({}), HTTP::COOKIES,
-        cpr::Timeout{HTTP::TIMEOUT});
+        cpr::Url{url}, cpr::Parameters({}), CPR_HTTP_BASE);
 }
 
 /// 视频页 上报历史记录
