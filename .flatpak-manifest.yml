@@ -36,7 +36,7 @@ modules:
     buildsystem: meson
     config-opts:
       - -Dlibmpv=true
-      - -Dlua=disabled
+      - -Dlua=enabled
       - -Ddebug=false
       - -Dbuild-date=false
       - -Dcplayer=false
@@ -191,7 +191,7 @@ modules:
       - -DGLFW_BUILD_WAYLAND=ON
       - -DGLFW_BUILD_X11=ON
       - -DUSE_SYSTEM_CURL=ON
-      - -USE_GLES2=OFF
+      - -DUSE_GLES2=OFF
       - -DBRLS_UNITY_BUILD=ON
       - -DCMAKE_UNITY_BUILD_BATCH_SIZE=16
     builddir: true

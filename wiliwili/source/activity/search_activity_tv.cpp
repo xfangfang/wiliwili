@@ -221,7 +221,7 @@ void TVSearchActivity::onContentAvailable() {
 
     // 强制设置搜索历史的 TabBar 为输入栏
     // 在清空历史时，会尝试将焦点切换到对应的 TabBar，这时在 TV 搜索页就能刚好将焦点切换到输入栏
-    searchHistory->setTabBar((AutoSidebarItem*) inputLabel.getView()->getParent());
+    searchHistory->setTabBar(reinterpret_cast<AutoSidebarItem*>(inputLabel.getView()->getParent()));
 }
 
 TVSearchActivity::~TVSearchActivity() { brls::Logger::debug("TVSearchActivity: delete"); }
