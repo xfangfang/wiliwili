@@ -64,7 +64,7 @@ void Analytics::send() {
     cpr::PostCallback(
         [](const cpr::Response& r) {
             if (r.status_code != 204) {
-                brls::Logger::error("report event error: {}", r.status_code);
+                brls::Logger::error("report event error: {} {}", r.status_code, r.error.message);
             }
         },
         cpr::Parameters{

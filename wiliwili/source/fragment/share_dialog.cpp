@@ -6,10 +6,6 @@
 #include <borealis/views/dialog.hpp>
 #include <cpr/cpr.h>
 
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
-#include <clip/clip.h>
-#endif
-
 #include "fragment/share_dialog.hpp"
 #include "view/qr_image.hpp"
 #include "view/button_close.hpp"
@@ -26,7 +22,7 @@ ShareBox::ShareBox() {
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     this->registerClickAction([this](...) {
         if (this->action == "clipboard") {
-            clip::set_text(this->link);
+            brls::Application::getPlatform()->pasteToClipboard(this->link);
             this->eventClipboard.fire();
         } else {
             brls::Application::getPlatform()->openBrowser(this->link);

@@ -97,7 +97,7 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
                         return;
                     }
                     if (r.status_code != 200 || r.text.empty()) {
-                        brls::Logger::error("Cannot check update: {} {}", r.status_code, r.reason);
+                        brls::Logger::error("Cannot check update: {} {}", r.status_code, r.error.message);
                         if (showUpToDateDialog) {
                             auto msg = r.reason;
                             brls::sync([msg]() { brls::Application::notify(msg); });

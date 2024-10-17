@@ -13,7 +13,7 @@
 #define MAX_DELTA_MOVEMENT 24
 
 // Time in ms to recognize long press
-#define LONG_TIME_MS 200  // 200ms
+#define LONG_TIME_MS 250  // 250ms
 #define LONG_TIME_US (LONG_TIME_MS * 1000)
 
 OsdGestureRecognizer::OsdGestureRecognizer(const OsdGestureEvent::Callback& respond) {

@@ -81,14 +81,6 @@ set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 add_subdirectory(lunasvg EXCLUDE_FROM_ALL)
 
-# add dacap
-if (PLATFORM_DESKTOP)
-    set(CLIP_EXAMPLES OFF)
-    set(CLIP_TESTS OFF)
-    add_subdirectory(clip EXCLUDE_FROM_ALL)
-    target_include_directories(clip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-endif ()
-
 # add mongoose
 if (USE_SYSTEM_MONGOOSE)
     find_library(MONGOOSE_LIBRARY NAMES mongoose REQUIRED)
