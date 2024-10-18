@@ -99,6 +99,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DANMAKU_STYLE_FONT, {"danmaku_style_font", {"stroke", "incline", "shadow", "pure"}, {}, 0}},
 
     /// bool
+    {SettingItem::APP_SWAP_ABXY, {"app_swap_abxy", {}, {}, 0}},
     {SettingItem::GAMEPAD_VIBRATION, {"gamepad_vibration", {}, {}, 1}},
 #if defined(IOS) || defined(__PSV__)
     {SettingItem::HIDE_BOTTOM_BAR, {"hide_bottom_bar", {}, {}, 1}},
@@ -118,11 +119,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_HIGHLIGHT_BAR, {"player_highlight_bar", {}, {}, 0}},
     {SettingItem::PLAYER_SKIP_OPENING_CREDITS, {"player_skip_opening_credits", {}, {}, 1}},
-#if defined(__PSV__) || defined(PS4) || defined(__SWITCH__)
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
-#else
-    {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 0}},
-#endif
 #if defined(IOS) || defined(__PSV__) || defined(__SWITCH__)
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 1}},
 #else
@@ -617,6 +614,13 @@ void ProgramConfig::load() {
 
     // 初始化一些在创建窗口之后才能初始化的内容
     brls::Application::getWindowCreationDoneEvent()->subscribe([this]() {
+        // 是否交换按键
+        if (getBoolOption(SettingItem::APP_SWAP_ABXY)) {
+            // 对于 PSV/PS4 来说，初始化时会加载系统设置，可能在那时已经交换过按键
+            // 所以这里需要读取 isSwapInputKeys 的值，而不是直接设置为 true
+            brls::Application::setSwapInputKeys(!brls::Application::isSwapInputKeys());
+        }
+
         // 初始化弹幕字体
         std::string danmakuFont = getConfigDir() + "/danmaku.ttf";
         // 只在应用模式下加载自定义字体 减少switch上的内存占用
@@ -829,7 +833,11 @@ void ProgramConfig::init() {
         } else if (icon == "ps") {
             brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
         } else {
-            brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_keyboard.ttf");
+            if (getBoolOption(SettingItem::APP_SWAP_ABXY)) {
+                brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_keyboard_swap.ttf");
+            } else {
+                brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_keyboard.ttf");
+            }
         }
 #endif
     }

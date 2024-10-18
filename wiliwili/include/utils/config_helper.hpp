@@ -36,6 +36,7 @@ enum class SettingItem {
     APP_LANG,       // 应用语言
     APP_RESOURCES,  // 自定义界面布局
     APP_UI_SCALE,   // 界面缩放
+    APP_SWAP_ABXY,  // A-B 交换 和 X-Y 交换
     SCROLL_SPEED,   // 列表滑动速度
     HISTORY_REPORT,
     PLAYER_STRATEGY,
