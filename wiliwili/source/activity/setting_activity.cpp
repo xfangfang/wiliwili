@@ -364,7 +364,7 @@ void SettingActivity::onContentAvailable() {
                              brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
                          });
 
-    auto setOnTopCell = [this](bool enabled){
+    auto setOnTopCell = [this](bool enabled) {
         if (enabled) {
             cellOnTopMode->setDetailTextColor(brls::Application::getTheme()["brls/list/listItem_value_color"]);
         } else {
@@ -480,6 +480,13 @@ void SettingActivity::onContentAvailable() {
 #else
     selectorKeymap->setVisibility(brls::Visibility::GONE);
 #endif
+
+    /// Swap ABXY
+    btnKeymapSwap->init("wiliwili/setting/app/others/keymap/swap"_i18n, conf.getBoolOption(SettingItem::APP_SWAP_ABXY),
+                        [](bool data) {
+                            ProgramConfig::instance().setSettingItem(SettingItem::APP_SWAP_ABXY, data);
+                            brls::Application::setSwapInputKeys(data);
+                        });
 
     /// App language
     static int langIndex = conf.getStringOptionIndex(SettingItem::APP_LANG);
@@ -647,6 +654,13 @@ void SettingActivity::onContentAvailable() {
                        MPVCore::instance().restart();
                    });
 #endif
+
+    /// Auto Play when open video detail page
+    btnAutoPlay->init("wiliwili/setting/app/playback/auto_play"_i18n, conf.getBoolOption(SettingItem::PLAYER_AUTO_PLAY),
+                      [](bool value) {
+                          ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_AUTO_PLAY, value);
+                          MPVCore::AUTO_PLAY = value;
+                      });
 
     /// Decode quality
     btnQuality->init("wiliwili/setting/app/playback/low_quality"_i18n,

@@ -467,6 +467,7 @@ void MPVCore::init() {
             sleepTime = std::chrono::system_clock::now();
             pause();
             // do not automatically play video
+            autoPlay = AUTO_PLAY;
             AUTO_PLAY = false;
         }
     });
@@ -847,6 +848,14 @@ void MPVCore::eventMainLoop() {
                 mpvCoreEvent.fire(MpvEventEnum::UPDATE_PROGRESS);
                 // 移除其他备用链接
                 command_async("playlist-clear");
+
+                if (AUTO_PLAY) {
+                    mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);
+                    this->resume();
+                } else {
+                    mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
+                    this->pause();
+                }
                 break;
             case MPV_EVENT_START_FILE:
                 // event 6: 开始加载文件
@@ -862,13 +871,6 @@ void MPVCore::eventMainLoop() {
                 brls::Logger::info("========> MPV_EVENT_PLAYBACK_RESTART");
                 video_stopped = false;
                 mpvCoreEvent.fire(MpvEventEnum::LOADING_END);
-                if (AUTO_PLAY) {
-                    mpvCoreEvent.fire(MpvEventEnum::MPV_RESUME);
-                    this->resume();
-                } else {
-                    mpvCoreEvent.fire(MpvEventEnum::MPV_PAUSE);
-                    this->pause();
-                }
                 break;
             case MPV_EVENT_END_FILE: {
                 // event 7: 文件播放结束

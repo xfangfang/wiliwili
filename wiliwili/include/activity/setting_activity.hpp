@@ -51,9 +51,11 @@ private:
     BRLS_BIND(BiliSelectorCell, selectorTexture, "setting/image/texture");
     BRLS_BIND(BiliSelectorCell, selectorThreads, "setting/image/threads");
     BRLS_BIND(BiliSelectorCell, selectorKeymap, "setting/keymap");
+    BRLS_BIND(brls::BooleanCell, btnKeymapSwap, "setting/keymap_swap");
     BRLS_BIND(brls::BooleanCell, btnOpencc, "setting/opencc");
     BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/quality");
     BRLS_BIND(brls::BooleanCell, btnHWDEC, "setting/video/hwdec");
+    BRLS_BIND(brls::BooleanCell, btnAutoPlay, "setting/video/auto_play");
     BRLS_BIND(BiliSelectorCell, selectorInmemory, "setting/video/inmemory");
     BRLS_BIND(BiliSelectorCell, selectorFormat, "setting/video/format");
     BRLS_BIND(BiliSelectorCell, selectorCodec, "setting/video/codec");

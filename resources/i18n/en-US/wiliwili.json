@@ -13,6 +13,7 @@
         "low_quality": "Low quality decoding (with less CPU usage)",
         "in_memory_cache": "Inmemory cache",
         "hwdec": "Hardware decode",
+        "auto_play": "Auto-play on video detail page",
         "exit_fullscreen": "Exit full screen at the end of playback",
         "play_strategy": "Play strategy",
         "auto_play_next_part": "Automatically playing next part",
@@ -83,6 +84,7 @@
         "opencc": "Automatically convert Simplified Chinese (restart required)",
         "keymap": {
           "header": "Keymap style",
+          "swap": "Swap AB/XY",
           "xbox": "Xbox",
           "ps": "PlayStation",
           "keyboard": "Keyboard"

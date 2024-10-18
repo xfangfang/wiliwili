@@ -39,6 +39,7 @@ enum class SettingItem {
     APP_SWAP_ABXY,  // A-B 交换 和 X-Y 交换
     SCROLL_SPEED,   // 列表滑动速度
     HISTORY_REPORT,
+    PLAYER_AUTO_PLAY, // 进入详情页自动播放
     PLAYER_STRATEGY,
     PLAYER_BOTTOM_BAR,
     PLAYER_HIGHLIGHT_BAR,

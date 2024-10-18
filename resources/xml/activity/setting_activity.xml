@@ -49,6 +49,9 @@
                             <brls:BooleanCell
                                     id="setting/video/hwdec"/>
 
+                            <brls:BooleanCell
+                                    id="setting/video/auto_play"/>
+
                             <SelectorCell
                                     id="setting/video/inmemory"/>
 
@@ -132,6 +135,9 @@
 
                             <SelectorCell
                                     id="setting/keymap"/>
+
+                            <brls:BooleanCell
+                                    id="setting/keymap_swap"/>
 
                             <SelectorCell
                                     id="setting/ui/theme"/>

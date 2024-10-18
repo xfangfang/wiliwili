@@ -13,6 +13,7 @@
         "low_quality": "低畫質解碼（以畫質為代價換取更低的功耗）",
         "in_memory_cache": "解码緩存",
         "hwdec": "硬體解碼",
+        "auto_play": "影片詳細頁直接播放",
         "exit_fullscreen": "播放結束時自動退出全屏",
         "play_strategy": "播放方式",
         "auto_play_next_part": "自動播放分集",
@@ -83,6 +84,7 @@
         "opencc": "自動轉換簡體中文 (需要重啓)",
         "keymap": {
           "header": "鍵位風格 (需要重啟)",
+          "swap": "鍵位交換",
           "xbox": "Xbox",
           "ps": "PlayStation",
           "keyboard": "鍵盤"
