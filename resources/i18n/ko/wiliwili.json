@@ -49,6 +49,7 @@
         "limited_fps_vsync": "수직 동기화",
         "fullscreen": "전체화면",
         "always_on_top": "항상 상단",
+        "always_on_top_hint": "자동: 창 크기가 작을 경우 창을 자동으로 맨 위로 설정",
         "tv_search": "TV 스타일 검색 페이지",
         "clear_history": "검색 기록 지우기",
         "clear_season": "반구미 커스텀 설정 지우기",
@@ -244,6 +245,30 @@
   "activity": {
     "all": "전체 활성화",
     "refresh": "목록 새로 고침"
+  },
+  "inbox": {
+    "chat": {
+      "tab": "채팅 목록",
+      "hint": "메시지를 보내서 채팅을 시작하세요 ~",
+      "unknown": "현재 해당 메시지 유형은 지원되지 않음"
+    },
+    "tab": {
+      "like": "좋아요",
+      "at": "@나",
+      "reply": "답변"
+    },
+    "type": {
+      "video": "동영상",
+      "reply": "덧글",
+      "article": "글",
+      "dynamic": "활성",
+      "danmu": "탄막",
+      "album": "활성"
+    },
+    "more": "그리고 {} 명이 내 {} 을 좋아함",
+    "like": "내 {} 을 좋아함",
+    "at": "@나 {} 에",
+    "reply": "내 {} 에 답변하였음"
   },
   "mine": {
     "login": {
