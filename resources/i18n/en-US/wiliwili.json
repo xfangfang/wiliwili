@@ -8,6 +8,7 @@
       "tab": "App",
       "playback": {
         "header": "Playback",
+        "player": "Player",
         "report": "Upload history playback record",
         "player_bar": "Always show progress bar",
         "low_quality": "Low quality decoding (with less CPU usage)",
@@ -22,6 +23,7 @@
         "auto_no": "Pause video after playing",
         "auto_hint": "\"Automatically playing recommend video\" will automatically play recommended videos after the episode is played.",
         "sleep": "Timing Off",
+        "format": "Format",
         "video_codec": "Video Codec",
         "audio_quality": "Audio Quality",
         "video_format": "Video format"
@@ -39,6 +41,9 @@
       },
       "ui": {
         "header": "UI",
+        "window": "Window",
+        "bottom_bar": "Bottom bar",
+        "ui_style": "UI style",
         "tv_osd": "TV style OSD control"
       },
       "others": {
@@ -46,6 +51,8 @@
         "vibration": "Gamepad vibration",
         "hide_bottom": "Hide the hint bar below",
         "hide_fps": "Hide FPS",
+        "show_bottom": "Show bottom bar",
+        "show_fps": "Show FPS",
         "limited_fps": "Maximum frame limit",
         "limited_fps_vsync": "Vertical Synchronization",
         "fullscreen": "Fullscreen",

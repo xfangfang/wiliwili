@@ -1,6 +1,5 @@
 <brls:AppletFrame
         iconInterpolation="linear"
-        backgroundColor="@theme/brls/background"
         headerHidden="true"
         footerHidden="false">
 
@@ -12,10 +11,13 @@
                 tabItemActiveTextColor="@theme/color/bilibili"
                 defaultTab="0"
                 demandMode="false"
-                sidebarWidth="200"
+                sidebarWidth="240"
                 sidebarPosition="left">
 
-            <Tab label="@i18n/wiliwili/setting/app/tab"
+            <Tab label="@i18n/wiliwili/setting/app/playback/header"
+                 style="inline"
+                 icon="@res/svg/setting_play.svg"
+                 iconActivate="@res/svg/setting_play_active.svg"
                  fontSize="22">
                 <brls:ScrollingFrame
                         width="auto"
@@ -35,7 +37,7 @@
                         <brls:Header
                                 width="auto"
                                 height="auto"
-                                title="@i18n/wiliwili/setting/app/playback/header"
+                                title="@i18n/wiliwili/setting/app/playback/player"
                                 marginBottom="0px"/>
                         <brls:Box
                                 width="100%"
@@ -49,11 +51,20 @@
                             <brls:BooleanCell
                                     id="setting/video/hwdec"/>
 
-                            <brls:BooleanCell
-                                    id="setting/video/auto_play"/>
-
                             <SelectorCell
                                     id="setting/video/inmemory"/>
+
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/app/playback/format"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
 
                             <SelectorCell
                                     id="setting/video/format"/>
@@ -65,6 +76,160 @@
                                     id="setting/audio/quality"/>
 
                         </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/app/others/header"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
+
+                            <brls:BooleanCell
+                                    id="setting/video/auto_play"/>
+
+                        </brls:Box>
+                    </brls:Box>
+                </brls:ScrollingFrame>
+            </Tab>
+
+            <Tab label="@i18n/wiliwili/setting/app/ui/header"
+                 style="inline"
+                 icon="@res/svg/setting_ui.svg"
+                 iconActivate="@res/svg/setting_ui_active.svg"
+                 fontSize="22">
+                <brls:ScrollingFrame
+                        width="auto"
+                        height="auto"
+                        marginTop="10"
+                        grow="1.0">
+
+                    <brls:Box
+                            width="auto"
+                            height="auto"
+                            axis="column"
+                            alignItems="stretch"
+                            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+                            paddingRight="@style/brls/tab_frame/content_padding_sides"
+                            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+                            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/app/ui/window"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
+
+                            <brls:BooleanCell
+                                    id="cell/fullscreen"/>
+
+                            <SelectorCell
+                                    id="cell/onTopMode"/>
+
+                            <SelectorCell
+                                    id="setting/fps"/>
+
+                            <SelectorCell
+                                    id="setting/ui/theme"/>
+
+                            <SelectorCell
+                                    id="setting/custom/theme"/>
+
+                            <SelectorCell
+                                    id="setting/ui/scale"/>
+
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/app/ui/bottom_bar"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
+
+                            <brls:BooleanCell
+                                    id="cell/showBottomBar"/>
+
+                            <brls:BooleanCell
+                                    id="cell/showFPS"/>
+
+                            <SelectorCell
+                                    id="setting/keymap"/>
+
+                            <brls:BooleanCell
+                                    id="setting/keymap_swap"/>
+
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/app/ui/ui_style"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
+
+                            <brls:BooleanCell
+                                    id="cell/tvSearch"/>
+
+                            <brls:BooleanCell
+                                    id="cell/tvOSD"/>
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
+                                title="@i18n/wiliwili/setting/app/others/header"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="0px">
+
+                            <brls:BooleanCell
+                                    id="cell/gamepadVibration"/>
+
+                            <brls:BooleanCell
+                                    id="setting/opencc"/>
+
+                            <SelectorCell
+                                    id="setting/language"/>
+                        </brls:Box>
+                    </brls:Box>
+                </brls:ScrollingFrame>
+            </Tab>
+
+            <Tab label="@i18n/wiliwili/setting/app/others/header"
+                 style="inline"
+                 icon="@res/svg/setting_others.svg"
+                 iconActivate="@res/svg/setting_others_active.svg"
+                 fontSize="22">
+                <brls:ScrollingFrame
+                        width="auto"
+                        height="auto"
+                        marginTop="10"
+                        grow="1.0">
+
+                    <brls:Box
+                            width="auto"
+                            height="auto"
+                            axis="column"
+                            alignItems="stretch"
+                            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+                            paddingRight="@style/brls/tab_frame/content_padding_sides"
+                            paddingTop="@style/brls/tab_frame/content_padding_top_bottom"
+                            paddingBottom="@style/brls/tab_frame/content_padding_top_bottom">
                         <brls:Header
                                 width="auto"
                                 height="auto"
@@ -104,78 +269,14 @@
                                     id="setting/network/input"/>
 
                         </brls:Box>
-                        <brls:Header
-                                width="auto"
-                                height="auto"
-                                title="@i18n/wiliwili/setting/app/ui/header"
-                                marginBottom="0px"/>
-                        <brls:Box
-                                width="100%"
-                                height="auto"
-                                axis="column"
-                                marginBottom="30px">
-
-                            <brls:BooleanCell
-                                    id="cell/hideBottomBar"/>
-
-                            <brls:BooleanCell
-                                    id="cell/hideFPS"/>
-
-                            <brls:BooleanCell
-                                    id="cell/tvSearch"/>
-
-                            <brls:BooleanCell
-                                    id="cell/tvOSD"/>
-
-                            <SelectorCell
-                                    id="setting/custom/theme"/>
-
-                            <SelectorCell
-                                    id="setting/ui/scale"/>
-
-                            <SelectorCell
-                                    id="setting/keymap"/>
-
-                            <brls:BooleanCell
-                                    id="setting/keymap_swap"/>
-
-                            <SelectorCell
-                                    id="setting/ui/theme"/>
-                        </brls:Box>
-                        <brls:Header
-                                width="auto"
-                                height="auto"
-                                title="@i18n/wiliwili/setting/app/others/header"
-                                marginBottom="0px"/>
-                        <brls:Box
-                                width="100%"
-                                height="auto"
-                                axis="column"
-                                marginBottom="0px">
-
-                            <brls:BooleanCell
-                                    id="cell/fullscreen"/>
-
-                            <SelectorCell
-                                    id="cell/onTopMode"/>
-
-                            <brls:BooleanCell
-                                    id="cell/gamepadVibration"/>
-
-                            <SelectorCell
-                                    id="setting/fps"/>
-
-                            <brls:BooleanCell
-                                    id="setting/opencc"/>
-
-                            <SelectorCell
-                                    id="setting/language"/>
-                        </brls:Box>
                     </brls:Box>
                 </brls:ScrollingFrame>
             </Tab>
 
             <Tab label="@i18n/wiliwili/setting/tools/tab"
+                 style="inline"
+                 icon="@res/svg/setting_tools.svg"
+                 iconActivate="@res/svg/setting_tools_active.svg"
                  fontSize="22">
                 <brls:ScrollingFrame
                         width="auto"
@@ -279,6 +380,9 @@
             </Tab>
 
             <Tab label="@i18n/wiliwili/setting/about/tab"
+                 style="inline"
+                 icon="@res/svg/setting_about.svg"
+                 iconActivate="@res/svg/setting_about_active.svg"
                  fontSize="22">
                 <brls:ScrollingFrame
                         width="auto"
@@ -290,6 +394,9 @@
             </Tab>
 
             <Tab label="@i18n/wiliwili/setting/opensource/tab"
+                 style="inline"
+                 icon="@res/svg/setting_github.svg"
+                 iconActivate="@res/svg/setting_github_active.svg"
                  fontSize="22">
                 <brls:ScrollingFrame
                         width="auto"

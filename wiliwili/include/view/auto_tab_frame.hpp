@@ -33,7 +33,7 @@ typedef std::function<brls::View*(void)> TabViewCreator;
 
 enum class AutoTabBarPosition { TOP, LEFT, RIGHT };
 
-enum class AutoTabBarStyle { ACCENT, PLAIN, NONE };
+enum class AutoTabBarStyle { ACCENT, PLAIN, INLINE, NONE };
 
 class AutoSidebarItemGroup;
 class AttachedView;

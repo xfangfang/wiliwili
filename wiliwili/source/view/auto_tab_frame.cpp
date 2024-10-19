@@ -681,6 +681,63 @@ const std::string autoSidebarItemPlainXML = R"xml(
     </brls:Box>
 )xml";
 
+const std::string autoSidebarItemInlineXML = R"xml(
+<brls:Box
+    wireframe="false"
+    width="auto"
+    height="auto"
+    direction="rightToLeft"
+    focusable="true" >
+
+    <brls:Box
+        wireframe="false"
+        grow="1.0"
+        width="auto"
+        height="auto"
+        alignItems="center"
+        justifyContent="flexEnd"
+        axis="row"
+        marginLeft="@style/brls/sidebar/item_accent_margin_sides"
+        marginTop="@style/brls/sidebar/item_accent_margin_top_bottom"
+        marginBottom="@style/brls/sidebar/item_accent_margin_top_bottom"
+        marginRight="@style/brls/sidebar/item_accent_margin_sides"
+        id="autoSidebar/item_label_box">
+
+        <brls:Label
+            visibility="gone"
+            id="autoSidebar/subtitle_label"/>
+
+        <brls:Label
+            wireframe="false"
+            id="autoSidebar/item_label"
+            width="auto"
+            height="auto"
+            fontSize="22"
+            marginLeft="12"
+            singleLine="true"/>
+
+        <SVGImage
+            wireframe="false"
+            id="autoSidebar/item_icon"
+            shrink="0"
+            width="34"
+            height="34"/>
+
+    </brls:Box>
+
+    <brls:Rectangle
+        id="autoSidebar/item_accent"
+        width="@style/brls/sidebar/item_accent_rect_width"
+        height="auto"
+        visibility="invisible"
+        marginTop="@style/brls/sidebar/item_accent_margin_top_bottom"
+        marginBottom="@style/brls/sidebar/item_accent_margin_top_bottom"
+        marginLeft="@style/brls/sidebar/item_accent_margin_sides"
+        marginRight="@style/brls/sidebar/item_accent_margin_sides" />
+
+</brls:Box>
+)xml";
+
 AutoSidebarItem::AutoSidebarItem() : Box(brls::Axis::ROW) {
     this->registerStringXMLAttribute("label", [this](std::string value) {
         this->label->setText(value);
@@ -704,6 +761,7 @@ AutoSidebarItem::AutoSidebarItem() : Box(brls::Axis::ROW) {
                                      {
                                          {"accent", AutoTabBarStyle::ACCENT},
                                          {"plain", AutoTabBarStyle::PLAIN},
+                                         {"inline", AutoTabBarStyle::INLINE},
                                      });
 
     this->setFocusSound(brls::SOUND_FOCUS_SIDEBAR);
@@ -749,6 +807,9 @@ void AutoSidebarItem::setTabStyle(AutoTabBarStyle style) {
         case AutoTabBarStyle::PLAIN:
             this->inflateFromXMLString(autoSidebarItemPlainXML);
             break;
+        case AutoTabBarStyle::INLINE:
+            this->inflateFromXMLString(autoSidebarItemInlineXML);
+            break;
         default:
             this->inflateFromXMLString(autoSidebarItemXML);
     }
@@ -761,7 +822,7 @@ void AutoSidebarItem::setActive(bool active) {
 
     if (active) {
         this->activeEvent.fire(this);
-        if (this->tabStyle == AutoTabBarStyle::ACCENT)
+        if (this->tabStyle == AutoTabBarStyle::ACCENT || this->tabStyle == AutoTabBarStyle::INLINE )
             this->accent->setVisibility(brls::Visibility::VISIBLE);
         else if (this->tabStyle == AutoTabBarStyle::PLAIN) {
             this->setBackgroundColor(this->tabItemActiveBackgroundColor);
@@ -776,7 +837,7 @@ void AutoSidebarItem::setActive(bool active) {
                 this->icon->setImageFromSVGFile(this->iconDefault);
         }
     } else {
-        if (this->tabStyle == AutoTabBarStyle::ACCENT)
+        if (this->tabStyle == AutoTabBarStyle::ACCENT || this->tabStyle == AutoTabBarStyle::INLINE)
             this->accent->setVisibility(brls::Visibility::INVISIBLE);
         else if (this->tabStyle == AutoTabBarStyle::PLAIN) {
             this->setBackgroundColor(this->tabItemBackgroundColor);

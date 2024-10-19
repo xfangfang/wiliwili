@@ -688,8 +688,10 @@ void ProgramConfig::load() {
                         auto activityStack  = brls::Application::getActivitiesStack();
                         brls::Activity* top = activityStack[activityStack.size() - 1];
                         VideoView* video    = dynamic_cast<VideoView*>(top->getContentView()->getView("video"));
-                        if (!video) break;
-                        video->togglePlay();
+                        if (video) {
+                            video->togglePlay();
+                        }
+                        break;
                     }
                     default:
                         break;

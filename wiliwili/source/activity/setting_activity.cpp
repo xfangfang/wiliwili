@@ -212,7 +212,6 @@ void SettingActivity::onContentAvailable() {
         return true;
     });
 
-
     btnTutorialFont->registerClickAction([](...) -> bool {
         auto dialog =
             new brls::Dialog((brls::Box*)brls::View::createFromXMLResource("fragment/settings_tutorial_font.xml"));
@@ -258,19 +257,19 @@ void SettingActivity::onContentAvailable() {
 
     labelAboutVersion->setText(version
 #if defined(BOREALIS_USE_DEKO3D)
-                                + " (deko3d)"
+                               + " (deko3d)"
 #elif defined(BOREALIS_USE_OPENGL)
 #if defined(USE_GL2)
-                                + " (OpenGL2)"
+                               + " (OpenGL2)"
 #elif defined(USE_GLES2)
-                                + " (OpenGL ES2)"
+                               + " (OpenGL ES2)"
 #elif defined(USE_GLES3)
-                                + " (OpenGL ES3)"
+                               + " (OpenGL ES3)"
 #else
-                                + " (OpenGL)"
+                               + " (OpenGL)"
 #endif
 #elif defined(BOREALIS_USE_D3D11)
-                                + " (D3D11)"
+                               + " (D3D11)"
 #endif
     );
     labelOpensource->setText(OPENSOURCE);
@@ -291,8 +290,9 @@ void SettingActivity::onContentAvailable() {
     auto& conf = ProgramConfig::instance();
 
     /// Hide bottom bar
-    cellHideBar->init("wiliwili/setting/app/others/hide_bottom"_i18n, conf.getBoolOption(SettingItem::HIDE_BOTTOM_BAR),
-                      [this](bool value) {
+    cellShowBar->init("wiliwili/setting/app/others/show_bottom"_i18n, !conf.getBoolOption(SettingItem::HIDE_BOTTOM_BAR),
+                      [](bool value) {
+                          value = !value;
                           ProgramConfig::instance().setSettingItem(SettingItem::HIDE_BOTTOM_BAR, value);
                           // 更新设置
                           brls::AppletFrame::HIDE_BOTTOM_BAR = value;
@@ -304,19 +304,13 @@ void SettingActivity::onContentAvailable() {
                               if (!frame) continue;
                               frame->setFooterVisibility(value ? brls::Visibility::GONE : brls::Visibility::VISIBLE);
                           }
-
-                          if (value) {
-                              ProgramConfig::instance().setSettingItem(SettingItem::HIDE_FPS, true);
-                              brls::Application::setFPSStatus(false);
-                          }
-                          this->cellHideFPS->setOn(true);
                       });
 
     /// Hide FPS
-    cellHideFPS->init("wiliwili/setting/app/others/hide_fps"_i18n, conf.getBoolOption(SettingItem::HIDE_FPS),
+    cellShowFPS->init("wiliwili/setting/app/others/show_fps"_i18n, !conf.getBoolOption(SettingItem::HIDE_FPS),
                       [](bool value) {
-                          ProgramConfig::instance().setSettingItem(SettingItem::HIDE_FPS, value);
-                          brls::Application::setFPSStatus(!value);
+                          ProgramConfig::instance().setSettingItem(SettingItem::HIDE_FPS, !value);
+                          brls::Application::setFPSStatus(value);
                       });
 
     /// Limited FPS
@@ -482,11 +476,11 @@ void SettingActivity::onContentAvailable() {
 #endif
 
     /// Swap ABXY
-    btnKeymapSwap->init("wiliwili/setting/app/others/keymap/swap"_i18n, conf.getBoolOption(SettingItem::APP_SWAP_ABXY),
-                        [](bool data) {
-                            ProgramConfig::instance().setSettingItem(SettingItem::APP_SWAP_ABXY, data);
-                            brls::Application::setSwapInputKeys(data);
-                        });
+    btnKeymapSwap->init(
+        "wiliwili/setting/app/others/keymap/swap"_i18n, conf.getBoolOption(SettingItem::APP_SWAP_ABXY), [](bool data) {
+            ProgramConfig::instance().setSettingItem(SettingItem::APP_SWAP_ABXY, data);
+            DialogHelper::quitApp();
+        });
 
     /// App language
     static int langIndex = conf.getStringOptionIndex(SettingItem::APP_LANG);
