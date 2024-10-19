@@ -242,7 +242,8 @@
     {
       "type": "debug_flags",
       "value": {
-        "allow_debug": true,
+        "allow_debug": false,
+        "force_debug_prod": false,
         "force_debug": true
       }
     },
