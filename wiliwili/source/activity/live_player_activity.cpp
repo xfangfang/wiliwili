@@ -213,15 +213,6 @@ void LiveActivity::onContentAvailable() {
         }
     });
 
-    // 暂停
-    this->registerAction(
-        "toggle", brls::ControllerButton::BUTTON_SPACE,
-        [this](...) -> bool {
-            this->video->togglePlay();
-            return true;
-        },
-        true);
-
     // 调整清晰度
     this->registerAction("wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
                          [this](brls::View* view) -> bool {

@@ -19,7 +19,7 @@
                 axis="column">
 
             <VideoView
-                    id="video/detail/video"
+                    id="video"
                     focusable="true"
                     focusDown="video_detail_info_box"
                     grow="1"

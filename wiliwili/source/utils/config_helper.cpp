@@ -15,6 +15,7 @@
 #include <borealis/core/application.hpp>
 #include <borealis/core/cache_helper.hpp>
 #include <borealis/core/touch/pan_gesture.hpp>
+#include <borealis/views/edit_text_dialog.hpp>
 #include <cpr/filesystem.h>
 
 #include "bilibili.h"
@@ -227,7 +228,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::ON_TOP_MODE, {"on_top_mode", {"off", "always", "auto"}, {0, 1, 2}, 0}},
     {SettingItem::SCROLL_SPEED, {"scroll_speed", {}, {}, 0}},
 
-/// Custom
+    /// Custom
     {SettingItem::UP_FILTER, {"up_filter", {}, {}, 0}},
 };
 
@@ -578,7 +579,6 @@ void ProgramConfig::load() {
 #endif
     brls::PanGestureRecognizer::panFactor = scrollSpeed * 0.01f;
 
-
     // 初始化i18n
     std::set<std::string> i18nData{
         brls::LOCALE_AUTO,    brls::LOCALE_EN_US,   brls::LOCALE_JA, brls::LOCALE_RYU,
@@ -663,6 +663,38 @@ void ProgramConfig::load() {
         brls::Application::getPlatform()->setWindowSizeLimits(minWidth, minHeight, 0, 0);
         checkOnTop();
 #endif
+
+        // Init keyboard shortcut
+        brls::Application::getPlatform()->getInputManager()->getKeyboardKeyStateChanged()->subscribe(
+            [](brls::KeyState state) {
+                if (!state.pressed) return;
+                switch (state.key) {
+#ifndef __APPLE__
+                    case brls::BRLS_KBD_KEY_F11:
+                        ProgramConfig::instance().toggleFullscreen();
+                        break;
+#endif
+                    case brls::BRLS_KBD_KEY_F: {
+                        // 在编辑框弹出时不触发
+                        auto activityStack  = brls::Application::getActivitiesStack();
+                        brls::Activity* top = activityStack[activityStack.size() - 1];
+                        if(!dynamic_cast<brls::EditTextDialog*>(top->getContentView())){
+                            ProgramConfig::instance().toggleFullscreen();
+                        }
+                        break;
+                    }
+                    case brls::BRLS_KBD_KEY_SPACE: {
+                        // 只在顶部的 Activity 中存在播放器组件时触发
+                        auto activityStack  = brls::Application::getActivitiesStack();
+                        brls::Activity* top = activityStack[activityStack.size() - 1];
+                        VideoView* video    = dynamic_cast<VideoView*>(top->getContentView()->getView("video"));
+                        if (!video) break;
+                        video->togglePlay();
+                    }
+                    default:
+                        break;
+                }
+            });
     });
 
 #ifdef IOS
@@ -766,9 +798,8 @@ void ProgramConfig::checkOnTop() {
             return;
         case 2: {
             // 自动模式，根据窗口大小判断是否需要切换到置顶模式
-            double factor = brls::Application::getPlatform()->getVideoContext()->getScaleFactor();
-            uint32_t minWidth =
-                ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_WIDTH) * factor + 0.1;
+            double factor     = brls::Application::getPlatform()->getVideoContext()->getScaleFactor();
+            uint32_t minWidth = ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_WIDTH) * factor + 0.1;
             uint32_t minHeight =
                 ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_HEIGHT) * factor + 0.1;
             bool onTop = brls::Application::windowWidth <= minWidth || brls::Application::windowHeight <= minHeight;

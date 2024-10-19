@@ -105,7 +105,7 @@ public:
     inline static bool PLAYER_SKIP_OPENING_CREDITS = true;
 
 protected:
-    BRLS_BIND(VideoView, video, "video/detail/video");
+    BRLS_BIND(VideoView, video, "video");
     BRLS_BIND(brls::AppletFrame, appletFrame, "video/detail/frame");
     BRLS_BIND(UserInfoView, videoUserInfo, "video_author");
     BRLS_BIND(brls::Box, videoTitleBox, "video/title/box");

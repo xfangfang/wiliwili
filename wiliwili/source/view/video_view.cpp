@@ -138,16 +138,6 @@ VideoView::VideoView() {
         },
         true, true);
 
-    // 暂停
-    this->registerAction(
-        "toggle", brls::ControllerButton::BUTTON_SPACE,
-        [this](...) -> bool {
-            CHECK_OSD(true);
-            this->togglePlay();
-            return true;
-        },
-        true);
-
     this->registerAction(
         "volumeDown", brls::ControllerButton::BUTTON_NAV_DOWN,
         [this](brls::View* view) -> bool {
@@ -1242,7 +1232,7 @@ void VideoView::setFullScreen(bool fs) {
             for (size_t i = activityStack.size() - 2; i != 0; i--) {
                 auto* last = dynamic_cast<BasePlayerActivity*>(activityStack[i]);
                 if (!last) continue;
-                auto* video = dynamic_cast<VideoView*>(last->getView("video/detail/video"));
+                auto* video = dynamic_cast<VideoView*>(last->getView("video"));
                 if (video) {
                     video->setProgress(this->getProgress());
                     video->showOSD(this->osd_state != OSDState::ALWAYS_ON);
