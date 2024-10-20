@@ -3,7 +3,7 @@
         headerHidden="true"
         footerHidden="false">
 
-    <brls:Box>
+    <brls:Box backgroundColor="@theme/brls/background">
         <AutoTabFrame
                 id="setting/tabFrame"
                 grow="1"
