@@ -179,13 +179,14 @@ void Register::initCustomStyle() {
         brls::getStyle().addMetric("wiliwili/comment/level/x", 30);
         brls::getStyle().addMetric("wiliwili/margin/20", 10);
         brls::getStyle().addMetric("wiliwili/about/qr", 150);
-        brls::getStyle().addMetric("wiliwili/about/speech/width", 380);
+        brls::getStyle().addMetric("wiliwili/about/speech/width", 420);
         brls::getStyle().addMetric("wiliwili/about/speech/header", 495);
         brls::getStyle().addMetric("wiliwili/tab_frame/content_padding_top_bottom", 20);
         brls::getStyle().addMetric("wiliwili/mine/num", 18);
         brls::getStyle().addMetric("wiliwili/mine/type", 12);
         brls::getStyle().addMetric("wiliwili/setting/about/bottom", 0);
         brls::getStyle().addMetric("wiliwili/dynamic/video/card/padding", 10);
+        brls::getStyle().addMetric("brls/tab_frame/content_padding_sides", 30);
     } else {
         switch (brls::Application::ORIGINAL_WINDOW_HEIGHT) {
             case 1080:

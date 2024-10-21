@@ -11,8 +11,8 @@
             hideHighlightBackground="true"
             hideHighlightBorder="true"
             wireframe="false"
-            paddingLeft="60"
-            paddingRight="60"
+            paddingLeft="@style/brls/tab_frame/content_padding_sides"
+            paddingRight="@style/brls/tab_frame/content_padding_sides"
             paddingTop="@style/wiliwili/tab_frame/content_padding_top_bottom"
             paddingBottom="@style/wiliwili/tab_frame/content_padding_top_bottom">
 
