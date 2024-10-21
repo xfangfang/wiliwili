@@ -169,6 +169,49 @@ index e4e5652875..10a05494e1 100644
      &sd_filter_regex,
  #endif
  #if HAVE_JAVASCRIPT
+diff --git a/video/out/opengl/utils.c b/video/out/opengl/utils.c
+index a551ce4299..ca33de88c3 100644
+--- a/video/out/opengl/utils.c
++++ b/video/out/opengl/utils.c
+@@ -79,29 +79,20 @@ void gl_upload_tex(GL *gl, GLenum target, GLenum format, GLenum type,
+                    const void *dataptr, int stride,
+                    int x, int y, int w, int h)
+ {
+-    int bpp = gl_bytes_per_pixel(format, type);
+     const uint8_t *data = dataptr;
+-    int y_max = y + h;
+-    if (w <= 0 || h <= 0 || !bpp)
++    if (w <= 0 || h <= 0)
+         return;
+     assert(stride > 0);
+-    gl->PixelStorei(GL_UNPACK_ALIGNMENT, get_alignment(stride));
+-    int slice = h;
+-    if (gl->mpgl_caps & MPGL_CAP_ROW_LENGTH) {
+-        // this is not always correct, but should work for MPlayer
+-        gl->PixelStorei(GL_UNPACK_ROW_LENGTH, stride / bpp);
++    if (stride != w) {
++        gl->PixelStorei(GL_UNPACK_ALIGNMENT, get_alignment(w));
++        uint8_t *tail = data + w;
++        for (int i = 1; i < h; i++, tail += w) {
++            memmove(tail, data + i * stride, w);
++        }
+     } else {
+-        if (stride != bpp * w)
+-            slice = 1; // very inefficient, but at least it works
+-    }
+-    for (; y + slice <= y_max; y += slice) {
+-        gl->TexSubImage2D(target, 0, x, y, w, slice, format, type, data);
+-        data += stride * slice;
++        gl->PixelStorei(GL_UNPACK_ALIGNMENT, get_alignment(stride));
+     }
+-    if (y < y_max)
+-        gl->TexSubImage2D(target, 0, x, y, w, y_max - y, format, type, data);
+-    if (gl->mpgl_caps & MPGL_CAP_ROW_LENGTH)
+-        gl->PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
++    gl->TexImage2D(target, 0, format, w, h, 0, format, type, data);
+     gl->PixelStorei(GL_UNPACK_ALIGNMENT, 4);
+ }
+ 
 diff --git a/video/out/vo.c b/video/out/vo.c
 index c53cec36a1..4765dc4867 100644
 --- a/video/out/vo.c

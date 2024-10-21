@@ -472,7 +472,7 @@ void ProgramConfig::load() {
     // 初始化视频清晰度
     VideoDetail::defaultQuality = getSettingItem(SettingItem::VIDEO_QUALITY,
 #ifdef __PSV__
-                                                 16);
+                                                 32);
 #else
                                                  116);
 #endif
