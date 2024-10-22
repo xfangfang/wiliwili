@@ -610,6 +610,7 @@ jobs:
             -DUSE_SYSTEM_CURL=ON \
             -DUSE_SYSTEM_SDL2=ON \
             -DMPV_NO_FB=ON \
+            -DSIMPLE_HIGHLIGHT=ON \
             -DCMAKE_BUILD_TYPE=Release \
             -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build == 'true' && 'OFF' || 'ON' }} \
             -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \

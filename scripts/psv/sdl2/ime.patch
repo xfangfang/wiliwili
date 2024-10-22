@@ -1,5 +1,5 @@
 diff --git a/src/video/vita/SDL_vitavideo.c b/src/video/vita/SDL_vitavideo.c
-index 9e823996e..d5c11e6a1 100644
+index 9e823996e..6a15b84e6 100644
 --- a/src/video/vita/SDL_vitavideo.c
 +++ b/src/video/vita/SDL_vitavideo.c
 @@ -400,10 +400,10 @@ SDL_bool VITA_HasScreenKeyboardSupport(_THIS)
@@ -15,7 +15,7 @@ index 9e823996e..d5c11e6a1 100644
          if (!(src[i] & 0xFF80)) {
              *(dst++) = src[i] & 0xFF;
          } else if (!(src[i] & 0xF800)) {
-@@ -425,44 +425,90 @@ static void utf16_to_utf8(const uint16_t *src, uint8_t *dst)
+@@ -425,36 +425,75 @@ static void utf16_to_utf8(const uint16_t *src, uint8_t *dst)
      *dst = '\0';
  }
  
@@ -81,11 +81,11 @@ index 9e823996e..d5c11e6a1 100644
 +
 +        // Update text
 +        if (e->param.text.editLengthChange < 0) {
-+            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_DELETE);
++            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_BACKSPACE);
 +        } else if (e->param.text.editLengthChange > 0) {
 +            _utf16_to_utf8(&e->param.text.str[e->param.text.editIndex], utf8_buffer, e->param.text.editLengthChange);
 +            SDL_SendKeyboardText((const char *)utf8_buffer);
-         }
++        }
 +
 +        // Update preedit text
 +        if (e->param.text.preeditLength == 0) {
@@ -94,8 +94,8 @@ index 9e823996e..d5c11e6a1 100644
 +        } else {
 +            _utf16_to_utf8(&e->param.text.str[e->param.text.preeditIndex], utf8_buffer, e->param.text.preeditLength);
 +            SDL_SendEditingText((const char *)utf8_buffer, 0, SDL_strlen((const char *)utf8_buffer));
-+        }
-+        break;
+         }
+         break;
 +    case SCE_IME_EVENT_UPDATE_CARET:
 +        if (e->param.caretIndex < caret_index) {
 +            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_LEFT);
@@ -103,15 +103,11 @@ index 9e823996e..d5c11e6a1 100644
 +            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_RIGHT);
 +        }
 +        caret_index = e->param.caretIndex;
-         break;
++        break;
      case SCE_IME_EVENT_PRESS_ENTER:
          SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_RETURN);
      case SCE_IME_EVENT_PRESS_CLOSE:
-         sceImeClose();
-         videodata->ime_active = SDL_FALSE;
-+        vita_ime_init_text = NULL;
-+        vita_ime_max_text = 32;
-+        vita_ime_type = 0;
+@@ -463,6 +502,10 @@ void VITA_ImeEventHandler(void *arg, const SceImeEventData *e)
          break;
      }
  }
@@ -122,7 +118,7 @@ index 9e823996e..d5c11e6a1 100644
  #endif
  
  void VITA_ShowScreenKeyboard(_THIS, SDL_Window *window)
-@@ -478,16 +524,22 @@ void VITA_ShowScreenKeyboard(_THIS, SDL_Window *window)
+@@ -478,16 +521,22 @@ void VITA_ShowScreenKeyboard(_THIS, SDL_Window *window)
      sceImeParamInit(&param);
  
      SDL_memset(libime_out, 0, ((SCE_IME_MAX_PREEDIT_LENGTH + SCE_IME_MAX_TEXT_LENGTH + 1) * sizeof(SceWChar16)));
@@ -150,7 +146,7 @@ index 9e823996e..d5c11e6a1 100644
      param.arg = videodata;
      param.work = libime_work;
  
-@@ -544,6 +596,13 @@ void VITA_HideScreenKeyboard(_THIS, SDL_Window *window)
+@@ -544,6 +593,10 @@ void VITA_HideScreenKeyboard(_THIS, SDL_Window *window)
      }
  
      videodata->ime_active = SDL_FALSE;
@@ -158,9 +154,6 @@ index 9e823996e..d5c11e6a1 100644
 +    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
 +    videodata->ime_active = SDL_FALSE;
 +    sceImeClose();
-+    vita_ime_init_text = NULL;
-+    vita_ime_max_text = 32;
-+    vita_ime_type = 0;
  #endif
  }
  

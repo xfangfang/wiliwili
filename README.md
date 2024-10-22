@@ -78,7 +78,7 @@ hbmenu 自行选择路径。
 
 下载 `wiliwili-PSVita.vpk` 安装即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 
-目前只推荐观看 360P 分辨率使用，不过仍有相当大的提升空间，如果你愿意为此贡献欢迎开一个 PR 讨论了解更多。
+开启硬解后可以流畅播放 480P 视频，仍有相当大的提升空间，如果你愿意为此贡献欢迎开一个 PR 讨论了解更多。
 
 ### PS4
 
