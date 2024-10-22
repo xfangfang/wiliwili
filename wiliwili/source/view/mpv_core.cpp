@@ -451,11 +451,9 @@ void MPVCore::init() {
     focusSubscription = brls::Application::getWindowFocusChangedEvent()->subscribe([this](bool focus) {
         static bool playing = false;
         static std::chrono::system_clock::time_point sleepTime{};
-        // save current AUTO_PLAY value to autoPlay
-        static bool autoPlay = AUTO_PLAY;
         if (focus) {
             // restore AUTO_PLAY
-            AUTO_PLAY = autoPlay;
+            AUTO_PLAY = ProgramConfig::instance().getBoolOption(SettingItem::PLAYER_AUTO_PLAY);
             // application is on top
             auto timeNow = std::chrono::system_clock::now();
             if (playing && timeNow < (sleepTime + std::chrono::seconds(120))) {
@@ -467,7 +465,6 @@ void MPVCore::init() {
             sleepTime = std::chrono::system_clock::now();
             pause();
             // do not automatically play video
-            autoPlay = AUTO_PLAY;
             AUTO_PLAY = false;
         }
     });

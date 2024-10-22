@@ -882,6 +882,7 @@ void VideoView::togglePlay() {
     if (this->mpvCore->isPaused()) {
         if (showReplay) {
             this->mpvCore->seek(0);
+            this->mpvCore->resume();
         } else {
             this->mpvCore->resume();
         }
