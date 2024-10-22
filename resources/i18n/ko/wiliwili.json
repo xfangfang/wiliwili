@@ -8,11 +8,13 @@
       "tab": "앱",
       "playback": {
         "header": "재생",
+        "player": "플레이어",
         "report": "이력 재생 기록 업로드",
         "player_bar": "진행 표시줄 항상 표시",
         "low_quality": "낮은 품질의 디코딩(CPU 사용량이 적음)",
         "in_memory_cache": "메모리 캐시",
         "hwdec": "하드웨어 디코드",
+        "auto_play": "비디오 세부 정보 페이지에서 자동 재생",
         "exit_fullscreen": "재생 종료 시 전체 화면 종료",
         "play_strategy": "재생 방법",
         "auto_play_next_part": "자동으로 다음 동영상 재생",
@@ -21,6 +23,7 @@
         "auto_no": "재생 후 비디오 일시 정지",
         "auto_hint": "'추천 영상 자동 재생'은 에피소드 재생 후 추천 영상을 자동으로 재생합니다.",
         "sleep": "타이밍 끄기",
+        "format": "형식",
         "video_codec": "비디오 코덱",
         "audio_quality": "오디오 품질",
         "video_format": "비디오 형식"
@@ -38,6 +41,9 @@
       },
       "ui": {
         "header": "사용자 인터페이스",
+        "window": "윈도우",
+        "bottom_bar": "하단바",
+        "ui_style": "UI 스타일",
         "tv_osd": "TV 스타일 OSD 제어"
       },
       "others": {
@@ -45,6 +51,8 @@
         "vibration": "게임패드 진동",
         "hide_bottom": "아래 힌트 바 숨기기",
         "hide_fps": "FPS 숨김",
+        "show_bottom": "하단바 표시",
+        "show_fps": "FPS 표시",
         "limited_fps": "최대 프레임 제한",
         "limited_fps_vsync": "수직 동기화",
         "fullscreen": "전체화면",
@@ -83,6 +91,7 @@
         "opencc": "중국어 간체 자동 변환 (재시작 필요)",
         "keymap": {
           "header": "키맵 스타일",
+          "swap": "AB/XY 바꾸기",
           "xbox": "Xbox",
           "ps": "PlayStation",
           "keyboard": "키보드"
@@ -112,8 +121,10 @@
         "dlna_waiting": "DLNA 캐스팅을 기다리는 중...",
         "dlna_quit": "DLNA 캐스팅을 종료하겠습니까?",
         "up2date": "앱이 최신 상태임",
+        "checking_update": "업데이트를 확인하는 중...",
         "release": "업데이트 확인",
-        "config": "구성 디렉토리 열기"
+        "config_dir": "구성 디렉터리",
+        "config": "구성 디렉터리 열기"
       }
     },
     "about": {
@@ -134,9 +145,9 @@
       "error_q2": "무작위 오류로 종료",
       "error_a2": "1. Fat32 형식 메모리 카드 사용\n2. 대기 및 시스템 펌웨어가 최신 상태인지 확인\n3. 개발자의 수리를 기다리는 중",
       "font_q1": "커스텀 글꼴 또는 키맵 아이콘을 설정하는 방법",
-      "font_a1": "1. 원하는 글꼴이나 아이콘 글꼴을 다운로드\n2. 글꼴 이름을 다음으로 변경: font.ttf; 아이콘 이름 바꾸기: icon.ttf\n3. 글꼴 파일을 config 디렉토리에 넣기\n4. 응용 프로그램을 다시 시작",
+      "font_a1": "1. 원하는 글꼴이나 아이콘 글꼴을 다운로드\n2. 글꼴 이름을 다음으로 변경: font.ttf; 아이콘 이름 바꾸기: icon.ttf\n3. 글꼴 파일을 config 디렉터리에 넣기\n4. 응용 프로그램을 다시 시작",
       "font_q2": "자주 묻는 질문들",
-      "font_a2": "1. wiliwili는 대체 글꼴로 내장 글꼴을 사용하여 맞춤 글꼴 표시를 우선\n2. \"설정 - 도구 - 기타\"는 config 디렉토리를 빠르게 열 수 있는 메뉴 항목을 제공\n3. Linux에서 wiliwili는 xdg-open을 사용하여 디렉토리를 엽니다. 구성 디렉토리를 제대로 열 수 없는 경우 이 도구 설치를 고려할 수 있음"
+      "font_a2": "1. wiliwili는 대체 글꼴로 내장 글꼴을 사용하여 맞춤 글꼴 표시를 우선\n2. \"설정 - 도구 - 기타\"는 구성 디렉터리를 빠르게 열 수 있는 메뉴 항목을 제공\n3. Linux에서 wiliwili는 xdg-open을 사용하여 디렉터리를 엽니다. 구성 디렉터리를 제대로 열 수 없는 경우 이 도구 설치를 고려할 수 있음"
     },
     "hot_keys": {
       "common_header": "공통",
@@ -227,6 +238,10 @@
       "history_clear": "모두 지움",
       "history_delete": "삭제",
       "suggest": "제안"
+    },
+    "history": {
+      "clear": "검색 기록 삭제",
+      "clear_hint": "검색 기록은 이 장치에서 영구적으로 삭제됨"
     },
     "order": {
       "all": "모두",
