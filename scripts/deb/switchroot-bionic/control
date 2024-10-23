@@ -1,7 +1,7 @@
 Section: video
 Priority: optional
 Maintainer: xfangfang <xfangfang@126.com>
-Version: 1.4.1-1
+Version: 1.5.0-1
 Homepage: https://xfangfang.github.io/wiliwili/
 Vcs-Git: https://github.com/xfangfang/wiliwili.git
 Package: wiliwili
