@@ -475,7 +475,7 @@ jobs:
         with:
           platforms: arm64
 
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
+      - uses: xfangfang/flatpak-github-actions/flatpak-builder@master
         if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         with:
           bundle: ${{ steps.dep.outputs.FLATPAK_NAME }}
@@ -488,7 +488,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         with:
-          name: wiliwili-Linux-${{ needs.version.outputs.version }}-${{ matrix.driver }}
+          name: wiliwili-Linux-${{ needs.version.outputs.version }}-${{ matrix.arch }}
           path: ${{ steps.dep.outputs.FLATPAK_NAME }}
           if-no-files-found: error
 
