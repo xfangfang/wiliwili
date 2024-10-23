@@ -94,13 +94,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
 
-      - name: Rename Flatpak
-        if: github.event.inputs.release == 'true' && !cancelled()
-        run: |
-          tree
-          mv ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak \
-            ${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}/${{ needs.version.outputs.DIST_FLATPAK_X86_64 }}.flatpak
-
       - name: Package exe
         if: github.event.inputs.release == 'true' && !cancelled()
         run: |
@@ -300,7 +293,7 @@ jobs:
 
       - name: Build Nro
         run: |
-          docker run --rm -v $(pwd):/data devkitpro/devkita64:20240916 bash -c "/data/scripts/build_switch${{ matrix.shuffix }}.sh"
+          docker run --rm -v $(pwd):/data devkitpro/devkita64:20241022 bash -c "/data/scripts/build_switch${{ matrix.shuffix }}.sh"
 
       - name: Upload dist
         uses: actions/upload-artifact@v4
@@ -490,6 +483,14 @@ jobs:
           cache-key: flatpak-builder-${{ matrix.driver }}-${{ hashFiles('.flatpak-manifest.yml') }}
           verbose: true
           arch: ${{ matrix.arch }}
+          upload-artifact: false
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
+        with:
+          name: wiliwili-Linux-${{ needs.version.outputs.version }}-${{ matrix.driver }}
+          path: ${{ steps.dep.outputs.FLATPAK_NAME }}
+          if-no-files-found: error
 
   build-vita:
     needs: [ version ]

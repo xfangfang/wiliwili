@@ -15,8 +15,6 @@ PKGS=(
     "switch-libmpv_deko3d-0.36.0-2-any.pkg.tar.zst"
     "switch-nspmini-48d4fc2-1-any.pkg.tar.xz"
     "hacBrewPack-3.05-1-any.pkg.tar.zst"
-    # Remove this line after the next devkitpro/devkita64 docker image release
-    "switch-tools-1.13.0-1-x86_64.pkg.tar.zst"
 )
 for PKG in "${PKGS[@]}"; do
     [ -f "${PKG}" ] || curl -LO ${BASE_URL}${PKG}
