@@ -110,7 +110,11 @@ inline void from_json(const nlohmann::json &nlohmann_json_j, VideoItemSearchResu
 
     nlohmann_json_t.title = pystring::replace(nlohmann_json_t.title, "<em class=\"keyword\">", "");
     nlohmann_json_t.title = pystring::replace(nlohmann_json_t.title, "</em>", "");
+    nlohmann_json_t.title = pystring::replace(nlohmann_json_t.title, "&amp;", "&");
+    nlohmann_json_t.title = pystring::replace(nlohmann_json_t.title, "&lt;", "<");
+    nlohmann_json_t.title = pystring::replace(nlohmann_json_t.title, "&gt;", ">");
     nlohmann_json_t.title = pystring::replace(nlohmann_json_t.title, "&quot;", "\"");
+    nlohmann_json_t.title = pystring::replace(nlohmann_json_t.title, "&nbsp;", " ");
 }
 
 typedef std::vector<VideoItemSearchResult> VideoItemSearchListResult;
