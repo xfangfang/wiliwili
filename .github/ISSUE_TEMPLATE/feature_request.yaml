@@ -1,0 +1,20 @@
+name: Feature request
+description: Suggest an idea for this project
+labels: [ feature ]
+body:
+  - type: textarea
+    attributes:
+      label: 您的功能请求是否与问题相关？请描述
+      description: 对问题的清晰而简洁的描述
+  - type: textarea
+    attributes:
+      label: 描述您想要的解决方案
+      description: 简洁的描述
+  - type: textarea
+    attributes:
+      label: 描述您考虑过的替代方案
+      description: 简洁的描述
+  - type: textarea
+    attributes:
+      label: 其他补充
+      description: 在此处添加有关功能请求的任何其他信息或屏幕截图。

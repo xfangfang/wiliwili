@@ -1,0 +1,29 @@
+name: Bug report
+description: Create a report to help us improve
+labels: [ bug ]
+body:
+  - type: textarea
+    attributes:
+      label: 描述你遇到的问题
+      description: 简洁有效的说明。
+  - type: textarea
+    attributes:
+      label:  如何重现问题
+      description:  把你遇到的问题的发生步骤替换掉下面的内容
+      value: |
+        1. 打开页面 ...
+        2. 点击 ....
+        3. 滑动到 ....
+        4. 出错的位置
+  - type: textarea
+    attributes:
+      label: 截图
+      description: 如有必要，可以截图说明
+  - type: input
+    attributes:
+      label: 固件/操作系统版本
+      description: 例如 16.0.3|AMS 1.5.4|S
+  - type: textarea
+    attributes:
+      label: 期待修复的效果
+      description: 简单描述。
