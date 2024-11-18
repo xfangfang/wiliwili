@@ -368,6 +368,9 @@ public:
     // 此变量为真时，加载结束后自动播放视频
     inline static bool AUTO_PLAY = true;
 
+    // 此变量为真时，在后台播放时不暂停播放
+    inline static bool BACKGROUND_PLAY = false;
+
     // 若值大于0 则当前时间大于 CLOSE_TIME 时，自动暂停播放
     inline static size_t CLOSE_TIME = 0;
 

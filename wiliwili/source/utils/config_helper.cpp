@@ -118,6 +118,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::HISTORY_REPORT, {"history_report", {}, {}, 1}},
     {SettingItem::PLAYER_AUTO_PLAY, {"player_auto_play", {}, {}, 1}},
+    {SettingItem::PLAYER_BACKGROUND_PLAY, {"player_background_play", {}, {}, 0}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_HIGHLIGHT_BAR, {"player_highlight_bar", {}, {}, 0}},
     {SettingItem::PLAYER_SKIP_OPENING_CREDITS, {"player_skip_opening_credits", {}, {}, 1}},
@@ -483,6 +484,9 @@ void ProgramConfig::load() {
 
     // 加载完成后自动播放
     MPVCore::AUTO_PLAY = getBoolOption(SettingItem::PLAYER_AUTO_PLAY);
+
+    // 在后台播放时不暂停
+    MPVCore::BACKGROUND_PLAY = getBoolOption(SettingItem::PLAYER_BACKGROUND_PLAY);
 
     // 初始化默认的倍速设定
     MPVCore::VIDEO_SPEED = getIntOption(SettingItem::PLAYER_DEFAULT_SPEED);

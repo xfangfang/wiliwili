@@ -656,6 +656,13 @@ void SettingActivity::onContentAvailable() {
                           MPVCore::AUTO_PLAY = value;
                       });
 
+    /// Do not pause when playing in the background
+    btnBackgroundPlay->init("wiliwili/setting/app/playback/background_play"_i18n,
+                     conf.getBoolOption(SettingItem::PLAYER_BACKGROUND_PLAY), [](bool value) {
+                         ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_BACKGROUND_PLAY, value);
+                         MPVCore::BACKGROUND_PLAY = value;
+                     });
+
     /// Decode quality
     btnQuality->init("wiliwili/setting/app/playback/low_quality"_i18n,
                      conf.getBoolOption(SettingItem::PLAYER_LOW_QUALITY), [](bool value) {

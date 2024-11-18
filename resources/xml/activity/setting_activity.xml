@@ -90,6 +90,9 @@
                             <brls:BooleanCell
                                     id="setting/video/auto_play"/>
 
+                            <brls:BooleanCell
+                                    id="setting/video/background_play"/>
+
                         </brls:Box>
                     </brls:Box>
                 </brls:ScrollingFrame>

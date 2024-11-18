@@ -463,9 +463,13 @@ void MPVCore::init() {
             // application is sleep, save the current state
             playing   = isPlaying();
             sleepTime = std::chrono::system_clock::now();
-            pause();
-            // do not automatically play video
-            AUTO_PLAY = false;
+            // determine behavior based on background play settings
+            BACKGROUND_PLAY = ProgramConfig::instance().getBoolOption(SettingItem::PLAYER_BACKGROUND_PLAY);
+            if (!BACKGROUND_PLAY) {
+                pause();
+                // do not automatically play video
+                AUTO_PLAY = false;
+            }
         }
     });
 
