@@ -1,0 +1,15 @@
+name: Publish to WinGet
+
+on:
+  release:
+    types: released
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: vedantmgoyal9/winget-releaser@main
+        with:
+          token: ${{ secrets.WINGET_TOKEN }}
+          identifier: xfangfang.Wiliwili
+          installers-regex: '^^wiliwili-Windows-[a-zA-Z0-9_]*.zip$'
