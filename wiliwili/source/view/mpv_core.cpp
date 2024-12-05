@@ -293,6 +293,7 @@ void MPVCore::init() {
     mpvSetOptionString(mpv, "config", "yes");
     mpvSetOptionString(mpv, "config-dir", ProgramConfig::instance().getConfigDir().c_str());
     mpvSetOptionString(mpv, "ytdl", "no");
+    mpvSetOptionString(mpv, "cache-on-disk", "no");
     mpvSetOptionString(mpv, "audio-channels", "stereo");
     mpvSetOptionString(mpv, "idle", "yes");
     mpvSetOptionString(mpv, "loop-file", "no");
