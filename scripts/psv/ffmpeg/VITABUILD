@@ -1,13 +1,14 @@
 pkgname=ffmpeg
-pkgver=7900d3684acc8e5e98fd39cbb12cb7ab73e6d4a5
-pkgrel=2
+pkgver=3736b0c78da9553b2098dbb0ade0a2e0ddd1753f
+pkgrel=3
 url="https://ffmpeg.org/"
-source=("${pkgname}-${pkgver}.tar.gz::https://github.com/fish47/FFmpeg-vita/archive/${pkgver}.tar.gz")
-sha256sums=('SKIP')
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/fish47/FFmpeg-vita/archive/${pkgver}.tar.gz" "optimize.patch")
+sha256sums=('SKIP' 'SKIP')
 depends=('mbedtls')
 
 prepare() {
   cd FFmpeg-vita-$pkgver
+  patch --strip=1 --input=${srcdir}/optimize.patch
 }
 
 build() {
@@ -15,6 +16,13 @@ build() {
   ./configure --prefix=$VITASDK/arm-vita-eabi \
         --enable-vita \
         --target-os=vita \
+        --enable-cross-compile \
+        --disable-runtime-cpudetect \
+        --disable-armv5te \
+        --cross-prefix=$VITASDK/bin/arm-vita-eabi- \
+        --extra-cflags=" -Wl,-q -O2 -ftree-vectorize -fomit-frame-pointer -ffast-math -D_BSD_SOURCE" \
+        --extra-cxxflags=" -Wl,-q -O2 -ftree-vectorize -fomit-frame-pointer -ffast-math -fno-rtti -fno-exceptions -std=gnu++11 -D_BSD_SOURCE" \
+        --extra-ldflags=" -L$VITASDK/lib " \
         --disable-shared \
         --enable-static \
         --disable-programs \

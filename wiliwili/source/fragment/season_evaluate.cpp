@@ -46,15 +46,6 @@ SeasonEvaluate::SeasonEvaluate() {
 
         return true;
     });
-
-#ifdef __PSV__
-    btnDouban->getParent()->setVisibility(brls::Visibility::GONE);
-    btnZhihu->setFocusable(false);
-    btnBaidu->setFocusable(false);
-    btnBing->setFocusable(false);
-    btnDouban->setFocusable(false);
-    btnClose->setFocusable(true);
-#endif
 }
 
 void SeasonEvaluate::setKeyword(const std::string& value) { this->keyword = value; }

@@ -298,7 +298,7 @@ jobs:
       - name: Upload dist
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ needs.version.outputs.DIST_NRO }}${{ matrix.shuffix }}
+          name: ${{ needs.version.outputs.DIST_NRO }}-${{ matrix.driver }}
           path: "cmake-build-switch/wiliwili.nro"
 
   build-ps4:
@@ -496,143 +496,42 @@ jobs:
     needs: [ version ]
     name: build-psv
     runs-on: ubuntu-latest
-    container:
-      image: vitasdk/vitasdk:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { driver: gxm,   docker: latest-gxm, cmake: "-DUSE_GXM=ON -DUSE_VITA_SHARK=OFF" }
+          - { driver: gles2, docker: latest,     cmake: "-DUSE_SYSTEM_SDL2=ON -DMPV_NO_FB=ON" }
 
     steps:
-      - name: Install build requirements
-        run: |
-          apk update
-          apk add cmake ninja meson pkgconf bash git zstd tar
-          git config --global --add safe.directory $(pwd)
-
       - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
-      - uses: actions/cache/restore@v4
-        id: restore-pvr-cache
-        with:
-          path: /vita/dependencies
-          key: SDL-vita-pvr-3.9
-
-      - name: Download PVR_PSP2 (GLES)
-        if: ${{ !steps.restore-pvr-cache.outputs.cache-hit }}
+      - name: Build wiliwili
         run: |
-          pvr_psp2_version=3.9
-          
-          mkdir -p /vita/dependencies/include
-          mkdir -p /vita/dependencies/lib
-          mkdir -p /vita/dependencies/suprx
-          
-          # Configure PVR_PSP2 headers
-          wget https://github.com/GrapheneCt/PVR_PSP2/archive/refs/tags/v$pvr_psp2_version.zip -P/tmp
-          unzip /tmp/v$pvr_psp2_version.zip -d/tmp
-          cp -r /tmp/PVR_PSP2-$pvr_psp2_version/include/* /vita/dependencies/include
-          rm /tmp/v$pvr_psp2_version.zip
-          
-          # include guard of PVR_PSP2's khrplatform.h does not match the usual one
-          sed -i -e s/__drvkhrplatform_h_/__khrplatform_h_/ /vita/dependencies/include/KHR/khrplatform.h
-          
-          # Configure PVR_PSP2 stub libraries
-          wget https://github.com/GrapheneCt/PVR_PSP2/releases/download/v$pvr_psp2_version/vitasdk_stubs.zip -P/tmp
-          unzip /tmp/vitasdk_stubs.zip -d/tmp/pvr_psp2_stubs
-          find /tmp/pvr_psp2_stubs -type f -name "*.a" -exec cp {} /vita/dependencies/lib \;
-          rm /tmp/vitasdk_stubs.zip
-          rm -rf /tmp/pvr_psp2_stubs
-          
-          # Configure PVR_PSP2 *.suprx
-          wget https://github.com/GrapheneCt/PVR_PSP2/releases/download/v$pvr_psp2_version/PSVita_Release.zip -P/tmp
-          unzip /tmp/PSVita_Release.zip -d/tmp/PSVita_Release
-          rm /tmp/PSVita_Release/libGLESv1_CM.suprx
-          rm /tmp/PSVita_Release/libpvr2d.suprx
-          mv /tmp/PSVita_Release/*.suprx /vita/dependencies/suprx/
-          rm -rf /tmp/PSVita_Release.zip
-          rm -rf /tmp/PSVita_Release
-
-      - uses: actions/cache/save@v4
-        if: ${{ !steps.restore-pvr-cache.outputs.cache-hit }}
-        with:
-          path: /vita/dependencies
-          key: SDL-vita-pvr-3.9
-
-      - name: Copy PVR_PSP2 (GLES) to vita toolchain dir
-        run: |
-          cp -rv /vita/dependencies/* ${VITASDK}/arm-vita-eabi
-          mv /vita/dependencies/suprx/*.suprx scripts/psv/module/ 
-          ls -lah ${VITASDK}/arm-vita-eabi
-          ls -lah scripts/psv/module/
-
-      - uses: actions/cache/restore@v4
-        id: restore-common-deps-cache
-        with:
-          path: /vita/common_deps
-          key: Dep-vita-${{ hashFiles('**/VITABUILD') }}
-
-      - name: Install VDPM Dependencies
-        run: vdpm mbedtls libass harfbuzz fribidi freetype libpng libwebp
-
-      - name: Build Dependencies
-        if: ${{ !steps.restore-common-deps-cache.outputs.cache-hit }}
-        run: |
-          mkdir -p /vita/common_deps
-          apk add patch
-          adduser --gecos '' --disabled-password builder
-          echo 'builder ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/builder
-          chown -R builder:builder $(pwd)/scripts/psv
-          su - builder -c "cd $(pwd)/scripts/psv/ffmpeg && vita-makepkg"
-          su - builder -c "cd $(pwd)/scripts/psv/curl && vita-makepkg"
-          su - builder -c "cd $(pwd)/scripts/psv/sdl2 && vita-makepkg"
-          vdpm $(pwd)/scripts/psv/ffmpeg/*-arm.tar.xz
-          vdpm $(pwd)/scripts/psv/sdl2/*-arm.tar.xz
-          touch /tmp/vdpm_install_ffmpeg
-          touch /tmp/vdpm_install_sdl2
-          su - builder -c "cd $(pwd)/scripts/psv/mpv && vita-makepkg"
-          mv $(pwd)/scripts/psv/curl/*-arm.tar.xz /vita/common_deps/
-          mv $(pwd)/scripts/psv/sdl2/*-arm.tar.xz /vita/common_deps/
-          mv $(pwd)/scripts/psv/ffmpeg/*-arm.tar.xz /vita/common_deps/
-          mv $(pwd)/scripts/psv/mpv/*-arm.tar.xz /vita/common_deps/
-          ls -lah /vita/common_deps/
-
-      - uses: actions/cache/save@v4
-        if: ${{ !steps.restore-common-deps-cache.outputs.cache-hit }}
-        with:
-          path: /vita/common_deps
-          key: Dep-vita-${{ hashFiles('**/VITABUILD') }}
-
-      - name: Install Dependencies
-        run: vdpm /vita/common_deps/*-arm.tar.xz
-
-      - name: Bulid wiliwili
-        run: |
-          cmake -S . -B build -G Ninja \
-            -DPLATFORM_PSV=ON \
-            -DUSE_SYSTEM_CURL=ON \
-            -DUSE_SYSTEM_SDL2=ON \
-            -DMPV_NO_FB=ON \
-            -DSIMPLE_HIGHLIGHT=ON \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build == 'true' && 'OFF' || 'ON' }} \
-            -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
-            -DCMAKE_CXX_FLAGS="-Wno-error=pedantic -Wno-psabi"
-          cmake --build build --verbose
-          mv build/wiliwili.self build/eboot.bin
+          docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_psv_builder:${{ matrix.docker }} \
+            "cmake -B build -G Ninja -DPLATFORM_PSV=ON -DUSE_SYSTEM_CURL=ON -DCMAKE_UNITY_BUILD_BATCH_SIZE=16 \
+               -DBRLS_UNITY_BUILD=${{ github.event.inputs.disable_unity_build == 'true' && 'OFF' || 'ON' }} \
+               -DCMAKE_BUILD_TYPE=Release -DSIMPLE_HIGHLIGHT=ON ${{ matrix.cmake }} && \
+             cmake --build build && \
+             mv build/wiliwili.self build/eboot.bin"
 
       - name: Upload vpk
         uses: actions/upload-artifact@v4
         with:
-          name: wiliwili-PSVita-${{ needs.version.outputs.VERSION }}
+          name: wiliwili-PSVita-${{ needs.version.outputs.VERSION }}-${{ matrix.driver }}
           path: build/wiliwili.vpk
 
       - name: Upload eboot
         uses: actions/upload-artifact@v4
         with:
-          name: psv_dev_eboot.bin
+          name: psv_dev_eboot_${{ matrix.driver }}.bin
           path: build/eboot.bin
 
       - name: Upload elf
         uses: actions/upload-artifact@v4
         with:
-          name: psv_dev_elf
+          name: psv_dev_elf_${{ matrix.driver }}
           path: build/wiliwili

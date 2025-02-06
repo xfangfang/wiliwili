@@ -53,7 +53,11 @@ std::string APPVersion::getPlatform() {
     return "NX";
 #endif
 #elif defined(__PSV__)
+#ifdef BOREALIS_USE_GXM
+    return "PSVita-GXM";
+#else
     return "PSVita";
+#endif
 #else
     return "Unknown";
 #endif

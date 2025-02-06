@@ -19,6 +19,9 @@
 #include <mpv/render_dk3d.h>
 #elif defined(BOREALIS_USE_D3D11)
 #include <mpv/render_dxgi.h>
+#elif defined(BOREALIS_USE_GXM)
+#include <mpv/render_gxm.h>
+#include <nanovg_gxm_utils.h>
 #elif defined(BOREALIS_USE_OPENGL)
 #include <mpv/render_gl.h>
 #if defined(__PSV__) || defined(PS4)
@@ -313,7 +316,7 @@ public:
         _command_async(commands);
     }
 
-    void _command_async(const std::vector<std::string>& commands);
+    void _command_async(const std::vector<std::string> &commands);
 
     // core states
     int64_t duration       = 0;  // second
@@ -332,9 +335,9 @@ public:
     int mpv_error_code     = 0;
     std::string hwCurrent;
     std::string filepath;
-    std::string currentShaderProfile;  // 当前着色器脚本名
-    std::string currentShader;         // 当前着色器脚本
-    std::vector<std::vector<std::string>> currentSetting; // 当前着色器脚本附加的mpv配置
+    std::string currentShaderProfile;                      // 当前着色器脚本名
+    std::string currentShader;                             // 当前着色器脚本
+    std::vector<std::vector<std::string>> currentSetting;  // 当前着色器脚本附加的mpv配置
 
     double video_brightness = 0;
     double video_contrast   = 0;
@@ -418,6 +421,23 @@ private:
     };
 #elif defined(BOREALIS_USE_D3D11)
     mpv_render_param mpv_params[1] = {
+        {MPV_RENDER_PARAM_INVALID, nullptr},
+    };
+#elif defined(BOREALIS_USE_GXM)
+    int nvg_image       = 0;
+    bool redraw         = false;
+    mpv_gxm_fbo mpv_fbo = {
+        .render_target = nullptr,
+        .color_surface = nullptr,
+        .depth_stencil_surface = nullptr,
+        .w = DISPLAY_WIDTH,
+        .h = DISPLAY_HEIGHT,
+        .format = SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_RGBA,
+    };
+    int flip_y{1};
+    mpv_render_param mpv_params[3] = {
+        {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
+        {MPV_RENDER_PARAM_GXM_FBO, &mpv_fbo},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(MPV_NO_FB)

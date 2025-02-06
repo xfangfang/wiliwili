@@ -1,0 +1,2341 @@
+diff --git a/audio/out/ao.c b/audio/out/ao.c
+index a5aa3a9402..139cae2790 100644
+--- a/audio/out/ao.c
++++ b/audio/out/ao.c
+@@ -53,6 +53,7 @@ extern const struct ao_driver audio_out_wasapi;
+ extern const struct ao_driver audio_out_pcm;
+ extern const struct ao_driver audio_out_lavc;
+ extern const struct ao_driver audio_out_sdl;
++extern const struct ao_driver audio_out_vita;
+ 
+ static const struct ao_driver * const audio_out_drivers[] = {
+ // native:
+@@ -79,6 +80,9 @@ static const struct ao_driver * const audio_out_drivers[] = {
+ #endif
+ #if HAVE_OSS_AUDIO
+     &audio_out_oss,
++#endif
++#if HAVE_GXM
++    &audio_out_vita,
+ #endif
+     // wrappers:
+ #if HAVE_JACK
+diff --git a/audio/out/ao_vita.c b/audio/out/ao_vita.c
+new file mode 100644
+index 0000000000..5a509ab9a4
+--- /dev/null
++++ b/audio/out/ao_vita.c
+@@ -0,0 +1,227 @@
++// Taken from: https://github.com/fish47/mpv-vita/blob/vita/audio/out/ao_vita.c
++
++#include "internal.h"
++#include "audio/format.h"
++#include "osdep/timer.h"
++
++#include <psp2/audioout.h>
++#include <malloc.h>
++
++#define FRAME_COUNT             2
++#define FRAME_ALIGN             64
++#define FRAME_WAIT_RESERVED     (50 * 1000LL)
++
++#define BUFFER_SAMPLE_COUNT     1024
++
++#define FLAG_PAUSED             (1)
++#define FLAG_TERMINATED         (1 << 1)
++
++#define INIT_FIELD_BASE         (1)
++#define INIT_FIELD_THREAD       (1 << 2)
++#define INIT_FIELD_DRIVER       (1 << 3)
++
++struct priv {
++    pthread_mutex_t lock;
++    pthread_cond_t wakeup;
++    pthread_t play_thread;
++    void *audio_ctx;
++    void *frame_base;
++    int init_fields;
++    int run_flags;
++};
++
++static int get_audio_port(void *port) {
++    return (int) port;
++}
++
++static bool audio_init(void **ctx, int samples, int freq, int channels) {
++    SceAudioOutPortType type = (freq < 48000)
++                               ? SCE_AUDIO_OUT_PORT_TYPE_BGM
++                               : SCE_AUDIO_OUT_PORT_TYPE_MAIN;
++    SceAudioOutMode mode = (channels == 1)
++                           ? SCE_AUDIO_OUT_MODE_MONO
++                           : SCE_AUDIO_OUT_MODE_STEREO;
++
++    int port = sceAudioOutOpenPort(type, samples, freq, mode);
++    if (port < 0)
++        return false;
++
++    int vols[2] = {SCE_AUDIO_OUT_MAX_VOL, SCE_AUDIO_OUT_MAX_VOL};
++    SceAudioOutChannelFlag flags = SCE_AUDIO_VOLUME_FLAG_L_CH | SCE_AUDIO_VOLUME_FLAG_R_CH;
++    sceAudioOutSetVolume(port, flags, vols);
++
++    *ctx = (void*) port;
++    return true;
++}
++
++static void audio_uninit(void **ctx) {
++    sceAudioOutReleasePort(get_audio_port(*ctx));
++}
++
++static int audio_output(void *ctx, void *buff) {
++    sceAudioOutOutput(get_audio_port(ctx), buff);
++    return 0;
++}
++
++static const int supported_samplerates[] = {
++        8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
++};
++
++static int choose_samplerate(int samplerate)
++{
++    for (int i = 0; i < MP_ARRAY_SIZE(supported_samplerates); ++i) {
++        int sr = supported_samplerates[i];
++        if (sr >= samplerate)
++            return sr;
++    }
++
++    int max_idx = MP_ARRAY_SIZE(supported_samplerates) - 1;
++    return supported_samplerates[max_idx];
++}
++
++static void set_thread_state(struct ao *ao, int flag_bit, bool set)
++{
++    struct priv *priv = ao->priv;
++    pthread_mutex_lock(&priv->lock);
++    int *flags = &priv->run_flags;
++    *flags = set ? (*flags | flag_bit) : (*flags & ~flag_bit);
++    pthread_cond_broadcast(&priv->wakeup);
++    pthread_mutex_unlock(&priv->lock);
++}
++
++static size_t calculate_frame_size(struct ao *ao)
++{
++    // s16 is 2 bytes per sample
++    size_t result = BUFFER_SAMPLE_COUNT;
++    result *= 2;
++    result *= ao->channels.num;
++    return result;
++}
++
++static void *thread_run(void *arg)
++{
++    struct ao *ao = arg;
++    struct priv *priv = ao->priv;
++
++    bool has_data = false;
++    void *done_frame = NULL;
++    void *next_frame = NULL;
++
++    pthread_mutex_lock(&priv->lock);
++    while (true) {
++        if (priv->run_flags & FLAG_TERMINATED) {
++            break;
++        } else if (priv->run_flags & FLAG_PAUSED) {
++            has_data = false;
++            pthread_cond_wait(&priv->wakeup, &priv->lock);
++        } else {
++            pthread_mutex_unlock(&priv->lock);
++
++            // enqueue decoded frame data, it may be blocked if queue is full
++            int pending_samples = 0;
++            if (has_data) {
++                pending_samples = audio_output(priv->audio_ctx, done_frame);
++            } else {
++                done_frame = priv->frame_base;
++                next_frame = ((uint8_t*) priv->frame_base) + calculate_frame_size(ao);
++            }
++
++            // when will next read frame data will be played completely
++            int64_t current_time = mp_time_us();
++            int64_t next_samples = BUFFER_SAMPLE_COUNT;
++            int64_t output_samples = has_data ? BUFFER_SAMPLE_COUNT : 0;
++            int64_t all_samples = output_samples + next_samples + pending_samples;
++            int64_t samples_delay = 1000000LL * all_samples / ao->samplerate;
++            int64_t end_time = current_time + samples_delay;
++
++            // decode next frame data
++            has_data = true;
++            ao_read_data(ao, &next_frame, BUFFER_SAMPLE_COUNT, end_time);
++            MPSWAP(void*, done_frame, next_frame);
++
++            pthread_mutex_lock(&priv->lock);
++        }
++    }
++    pthread_mutex_unlock(&priv->lock);
++    return NULL;
++}
++
++static void uninit(struct ao *ao)
++{
++    struct priv *priv = ao->priv;
++    if (priv->init_fields & INIT_FIELD_THREAD) {
++        set_thread_state(ao, FLAG_TERMINATED, true);
++        pthread_join(priv->play_thread, NULL);
++    }
++
++    if (priv->init_fields & INIT_FIELD_BASE) {
++        pthread_mutex_destroy(&priv->lock);
++        pthread_cond_destroy(&priv->wakeup);
++    }
++
++    if (priv->init_fields & INIT_FIELD_DRIVER)
++        audio_uninit(&priv->audio_ctx);
++
++    if (priv->frame_base)
++        free(priv->frame_base);
++
++    memset(priv, 0, sizeof(struct priv));
++}
++
++static int init(struct ao *ao)
++{
++    // conform to hardware/API restrictions
++    ao->format = AF_FORMAT_S16;
++    ao->samplerate = choose_samplerate(ao->samplerate);
++    if (ao->channels.num > 2)
++        mp_chmap_from_channels(&ao->channels, 2);
++
++    struct priv *priv = ao->priv;
++    memset(priv, 0, sizeof(struct priv));
++
++    pthread_mutex_init(&priv->lock, NULL);
++    pthread_cond_init(&priv->wakeup, NULL);
++    set_thread_state(ao, FLAG_PAUSED, true);
++    priv->init_fields |= INIT_FIELD_BASE;
++
++    if (!audio_init(&priv->audio_ctx, BUFFER_SAMPLE_COUNT, ao->samplerate, ao->channels.num))
++        goto error;
++    priv->init_fields |= INIT_FIELD_DRIVER;
++
++    if (pthread_create(&priv->play_thread, NULL, thread_run, ao))
++        goto error;
++    priv->init_fields |= INIT_FIELD_THREAD;
++
++    size_t frame_size = calculate_frame_size(ao);
++    priv->frame_base = memalign(FRAME_ALIGN, frame_size * FRAME_COUNT);
++    memset(priv->frame_base, 0, frame_size * FRAME_COUNT);
++
++    // ensure buffer capacity to avoid underrun on audio thread
++    ao->device_buffer = BUFFER_SAMPLE_COUNT * 2;
++
++    return 1;
++
++    error:
++    uninit(ao);
++    return -1;
++}
++
++static void reset(struct ao *ao)
++{
++    set_thread_state(ao, FLAG_PAUSED, true);
++}
++
++static void start(struct ao *ao)
++{
++    set_thread_state(ao, FLAG_PAUSED, false);
++}
++
++const struct ao_driver audio_out_vita = {
++        .description = "Vita Audio",
++        .name = "vita",
++        .init = init,
++        .uninit = uninit,
++        .reset = reset,
++        .start = start,
++        .priv_size = sizeof(struct priv),
++};
+diff --git a/common/msg.c b/common/msg.c
+index 8e5ad26a11..4b3839c0a7 100644
+--- a/common/msg.c
++++ b/common/msg.c
+@@ -43,6 +43,21 @@
+ #include "msg.h"
+ #include "msg_control.h"
+ 
++#if defined(HAVE_GXM)
++#include <psp2/kernel/clib.h>
++static void _fprintf(char* fmt, ...) {
++    static char _buf[0x100];
++    va_list a;
++    va_start(a, fmt);
++    vsnprintf(_buf, sizeof(_buf), fmt, a);
++    sceClibPrintf("%s", _buf);
++    va_end(a);
++}
++
++#define fprintf(file, ...) _fprintf(__VA_ARGS__)
++#define fopen(...) 0
++#endif
++
+ // log buffer size (lines) for terminal level and logfile level
+ #define TERM_BUF 100
+ #define FILE_BUF 100
+diff --git a/crossfile.txt b/crossfile.txt
+new file mode 100644
+index 0000000000..5cdf2f1b8b
+--- /dev/null
++++ b/crossfile.txt
+@@ -0,0 +1,15 @@
++[built-in options]
++buildtype = 'release'
++default_library = 'static'
++wrap_mode = 'nodownload'
++[binaries]
++c = 'arm-vita-eabi-gcc'
++cpp = 'arm-vita-eabi-g++'
++ar = 'arm-vita-eabi-ar'
++strip = 'arm-vita-eabi-strip'
++pkg-config = 'arm-vita-eabi-pkg-config'
++[host_machine]
++system = 'psvita'
++cpu_family = 'arm'
++cpu = 'armv7a'
++endian = 'little'
+diff --git a/etc/sce_sys/livearea/contents/template.xml b/etc/sce_sys/livearea/contents/template.xml
+new file mode 100644
+index 0000000000..a4d43f0130
+--- /dev/null
++++ b/etc/sce_sys/livearea/contents/template.xml
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="utf-8"?>
++
++<livearea style="a1" format-ver="01.00" content-rev="1">
++	<livearea-background>
++		<image>bg.png</image>
++	</livearea-background>
++	
++	<gate>
++		<startup-image>startup.png</startup-image>
++	</gate>
++</livearea>
+diff --git a/libmpv/render.h b/libmpv/render.h
+index 29f9b91e96..2b62539841 100644
+--- a/libmpv/render.h
++++ b/libmpv/render.h
+@@ -421,6 +421,17 @@ typedef enum mpv_render_param_type {
+      * See MPV_RENDER_PARAM_SW_STRIDE for alignment requirements.
+      */
+     MPV_RENDER_PARAM_SW_POINTER = 20,
++    /**
++     * Required parameters for initializing the gxm renderer. Valid for
++     * mpv_render_context_create().
++     * Type: mpv_gxm_init_params*
++     */
++    MPV_RENDER_PARAM_GXM_INIT_PARAMS = 21,
++    /**
++     * Describes a gxm render target. Valid for mpv_render_context_render().
++     * Type: SceGxmTexture*
++     */
++    MPV_RENDER_PARAM_GXM_FBO = 22,
+ } mpv_render_param_type;
+ 
+ /**
+@@ -467,6 +478,8 @@ typedef struct mpv_render_param {
+ #define MPV_RENDER_API_TYPE_OPENGL "opengl"
+ // See section "Software renderer"
+ #define MPV_RENDER_API_TYPE_SW "sw"
++// See render_gxm.h
++#define MPV_RENDER_API_TYPE_GXM "gxm"
+ 
+ /**
+  * Flags used in mpv_render_frame_info.flags. Each value represents a bit in it.
+diff --git a/libmpv/render_gxm.h b/libmpv/render_gxm.h
+new file mode 100644
+index 0000000000..d1fc3f7eca
+--- /dev/null
++++ b/libmpv/render_gxm.h
+@@ -0,0 +1,76 @@
++/* Copyright (C) 2018 the mpv developers
++ *
++ * Permission to use, copy, modify, and/or distribute this software for any
++ * purpose with or without fee is hereby granted, provided that the above
++ * copyright notice and this permission notice appear in all copies.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++ */
++
++#ifndef MPV_CLIENT_API_RENDER_GL_H_
++#define MPV_CLIENT_API_RENDER_GL_H_
++
++#include <psp2/gxm.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/**
++ * For initializing the mpv deko3d state via MPV_RENDER_PARAM_DEKO3D_INIT_PARAMS.
++ */
++typedef struct mpv_gxm_init_params {
++    /**
++     * The gxm context and shader patcher that will be used in subsequent operation.
++     */
++    SceGxmContext *context;
++    SceGxmShaderPatcher *shader_patcher;
++    /**
++     * Fragment Uniform buffer index.
++     * sceGxmSetFragmentUniformBuffer(...) will use this index to set the fragment uniform buffer.
++     * If you set `-Dvitashark=disabled` when building libmpv, buffer_index will be fixed to 0
++     * Please make sure it does not conflict with other parts of your application
++     */
++    int buffer_index;
++    /**
++     * multisample mode of mpv shader.
++     * This should set to the same value as the one used in other parts of your application
++     */
++    SceGxmMultisampleMode msaa;
++} mpv_gxm_init_params;
++
++/**
++ * For MPV_RENDER_PARAM_GXM_FBO.
++ */
++typedef struct mpv_gxm_fbo {
++    /**
++     * Set the framebuffer to render to.
++     * if any object is NULL, the default framebuffer will be used.
++     * When using the default framebuffer, make sure mpv_render_context_render(...) runs between sceGxmBeginScene and sceGxmEndScene
++     * When using a custom framebuffer, make sure mpv_render_context_render(...) runs outside sceGxmBeginScene and sceGxmEndScene
++     */
++    SceGxmRenderTarget *render_target;
++    SceGxmColorSurface *color_surface;
++    SceGxmDepthStencilSurface *depth_stencil_surface;
++    /**
++     * Valid dimensions. This must refer to the size of the framebuffer. This
++     * must always be set.
++     */
++    int w, h;
++    /**
++     * Underlying texture internal format. This must always be set.
++     */
++    SceGxmTextureFormat format;
++} mpv_gxm_fbo;
++
++#ifdef __cplusplus
++}
++#endif // __cplusplus
++
++#endif
+\ No newline at end of file
+diff --git a/meson.build b/meson.build
+index f9fe4e7263..cbd2a1a2f8 100644
+--- a/meson.build
++++ b/meson.build
+@@ -292,9 +292,10 @@ if cc.get_id() == 'clang'
+     flags += clang_flags
+ endif
+ 
++psvita = host_machine.system() == 'psvita'
+ darwin = host_machine.system() == 'darwin'
+ win32 = host_machine.system() == 'cygwin' or host_machine.system() == 'windows'
+-posix = not win32
++posix = not win32 and not psvita
+ 
+ features += {'darwin': darwin}
+ features += {'posix': posix}
+@@ -311,6 +312,36 @@ if host_machine.system() == 'cygwin'
+     flags += [mswin_flags, '-mwin32']
+ endif
+ 
++if psvita
++    dependencies += cc.find_library('SceAudio_stub')
++    link_flags += ['-Wl,-q', '-Wl,-z,nocopyreloc']
++    features += {'vitashark': get_option('vitashark').allowed()}
++    if (features['vitashark'])
++        dependencies += [cc.find_library('vitashark'),
++                         cc.find_library('SceShaccCgExt'),
++                         cc.find_library('taihen_stub'),
++                         cc.find_library('SceShaccCg_stub')]
++    endif
++    if get_option('cplayer')
++        sources += files('osdep/main-fn-vita.c')
++        link_flags += ['-lvita2d',
++                       '-lSceCommonDialog_stub',
++                       '-lSceAppMgr_stub',
++                       '-lSceGxm_stub',
++                       '-lSceDisplay_stub',
++                       '-lSceCtrl_stub']
++    endif
++    features += {'gxm': get_option('gxm').allowed()}
++    sources += files('osdep/terminal-dummy.c',
++                     'osdep/path-unix.c',
++                     'osdep/timer-linux.c',
++                     'osdep/language-posix.c',
++                     'audio/out/ao_vita.c',
++                     'video/out/gxm/libmpv_gxm.c',
++                     'video/out/gxm/ra_gxm.c',
++    )
++endif
++
+ noexecstack = false
+ if cc.has_link_argument('-Wl,-z,noexecstack')
+     link_flags += '-Wl,-z,noexecstack'
+@@ -332,7 +363,7 @@ endif
+ features += {'ta-leak-report': get_option('ta-leak-report')}
+ 
+ libdl = dependency('dl', required: false)
+-features += {'libdl': libdl.found()}
++features += {'libdl': libdl.found() and not psvita}
+ if features['libdl']
+     dependencies += libdl
+ endif
+@@ -398,6 +429,10 @@ if features['cocoa']
+                      'video/out/cocoa/window.m')
+ endif
+ 
++if psvita
++    includedir += include_directories('osdep/vita/include')
++endif
++
+ if posix
+     path_source = files('osdep/path-unix.c')
+     subprocess_source = files('osdep/subprocess-posix.c')
+@@ -1713,7 +1748,7 @@ major = client_h_define.split('|')[0].split('<<')[0].strip('() ')
+ minor = client_h_define.split('|')[1].strip('() ')
+ client_api_version = major + '.' + minor + '.0'
+ 
+-libmpv = library('mpv', sources, dependencies: dependencies, gnu_symbol_visibility: 'hidden',
++libmpv = library('mpv', sources, pic: false, dependencies: dependencies, gnu_symbol_visibility: 'hidden',
+                  version: client_api_version, include_directories: includedir,
+                  install: get_option('libmpv'), build_by_default: get_option('libmpv'))
+ 
+@@ -1723,7 +1758,7 @@ if get_option('libmpv')
+     pkg.generate(libmpv, version: client_api_version,
+                  description: 'mpv media player client library')
+ 
+-    headers = ['libmpv/client.h', 'libmpv/render.h',
++    headers = ['libmpv/client.h', 'libmpv/render.h', 'libmpv/render_gxm.h',
+                'libmpv/render_gl.h', 'libmpv/stream_cb.h']
+     install_headers(headers, subdir: 'mpv')
+ endif
+@@ -1758,6 +1793,50 @@ if get_option('cplayer')
+ 
+     mpv = executable('mpv', objects: libmpv.extract_all_objects(recursive: true), dependencies: dependencies,
+                      win_subsystem: 'windows,6.0', include_directories: includedir, install: true)
++
++    create_vita_self = custom_target('create_vita_self',
++                  input: mpv,
++                  output: 'mpv.self',
++                  command: [
++                      'vita-elf-create', 'mpv', 'mpv.velf',
++                      '&&',
++                      'vita-make-fself', '-c', 'mpv.velf', 'mpv.self'
++                  ],
++                  depends: mpv,
++                  build_by_default: false
++    )
++
++    send_eboot = custom_target('send_eboot',
++                  input: create_vita_self,
++                  output: 'mpv.self.send',
++                  command: [
++                      'curl', '-T', 'mpv.self', 'ftp://192.168.1.140:1337/ux0:/app/MPV000000/eboot.bin',
++                  ],
++                  depends: create_vita_self,
++                  build_by_default: false
++    )
++
++    create_vita_vpk = custom_target('create_vita_vpk',
++                  input: create_vita_self,
++                  output: 'mpv.vpk',
++                  command: [
++                      'vita-mksfoex', '-d', 'ATTRIBUTE2=12', '-s', 'APP_VER=01.00', '-s', 'TITLE_ID=MPV000000', 'mpv', 'mpv.vpk_param.sfo',
++                      '&&',
++                      'vita-pack-vpk', '-a', '../etc/sce_sys=sce_sys', '-s', 'mpv.vpk_param.sfo', '-b', 'mpv.self', 'mpv.vpk'
++                  ],
++                  depends: create_vita_self,
++                  build_by_default: false
++    )
++
++    send_vpk = custom_target('send_vpk',
++                  input: create_vita_self,
++                  output: 'mpv.vpk.send',
++                  command: [
++                      'curl', '-T', 'mpv.vpk', 'ftp://192.168.1.140:1337/ux0:/',
++                  ],
++                  depends: create_vita_vpk,
++                  build_by_default: false
++    )
+ endif
+ 
+ if get_option('tests')
+diff --git a/meson_options.txt b/meson_options.txt
+index 5f2d31df3d..b273859dac 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -106,6 +106,8 @@ option('ios-gl', type: 'feature', value: 'auto', description: 'iOS OpenGL ES har
+ option('rpi-mmal', type: 'feature', value: 'auto', description: 'Raspberry Pi MMAL hwaccel')
+ option('videotoolbox-gl', type: 'feature', value: 'auto', description: 'Videotoolbox with OpenGL')
+ option('vulkan-interop', type: 'feature', value: 'auto', description: 'Vulkan graphics interop')
++option('gxm', type: 'feature', value: 'auto', description: 'gxm context support')
++option('vitashark', type: 'feature', value: 'auto', description: 'runtime shader compiling')
+ 
+ # macOS features
+ option('macos-10-11-features', type: 'feature', value: 'auto', description: 'macOS 10.11 SDK Features')
+diff --git a/options/options.c b/options/options.c
+index 86e5a7b724..6a1b611cb3 100644
+--- a/options/options.c
++++ b/options/options.c
+@@ -1022,6 +1022,9 @@ static const struct MPOpts mp_default_opts = {
+     .default_max_pts_correction = -1,
+     .initial_audio_sync = true,
+     .frame_dropping = 1,
++#if HAVE_GXM
++    .video_latency_hacks = true,
++#endif
+     .term_osd = 2,
+     .term_osd_bar_chars = "[-+-]",
+     .consolecontrols = true,
+diff --git a/osdep/main-fn-vita.c b/osdep/main-fn-vita.c
+new file mode 100644
+index 0000000000..ed1ccd4398
+--- /dev/null
++++ b/osdep/main-fn-vita.c
+@@ -0,0 +1,174 @@
++#include <libmpv/client.h>
++#include <libmpv/render_gxm.h>
++#include <libmpv/render.h>
++#include <stdbool.h>
++#include <stdlib.h>
++#include <string.h>
++#include <vita2d.h>
++#include <psp2/ctrl.h>
++#include <psp2/kernel/clib.h>
++
++#include "config.h"
++
++#if HAVE_VITASHARK
++#include <vitashark.h>
++#endif
++
++#define printf sceClibPrintf
++
++unsigned int _pthread_stack_default_user = 2 * 1024 * 1024;
++
++static int redraw = 0;
++
++static void mpv_render_update(void *cb_ctx) {
++    redraw = 1;
++}
++
++int main(int argc, char *argv[]) {
++    printf("==== START ====\n");
++
++#if HAVE_VITASHARK
++    if (shark_init(NULL) < 0) {
++        sceClibPrintf("vitashark: failed to initialize\n");
++        return EXIT_FAILURE;
++    }
++#endif
++
++    SceCtrlData pad, old_pad;
++    unsigned int pressed;
++    vita2d_init();
++    vita2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
++
++    mpv_handle *mpv = mpv_create();
++    if (!mpv) {
++        printf("failed to create mpv context\n");
++        return EXIT_FAILURE;
++    }
++
++    printf("Initialize mpv render context\n");
++    mpv_gxm_init_params gxm_params = {
++            .context = vita2d_get_context(),
++            .shader_patcher = vita2d_get_shader_patcher(),
++            .buffer_index = 0,
++            .msaa = SCE_GXM_MULTISAMPLE_NONE,
++    };
++
++    mpv_render_param params[] = {
++            {MPV_RENDER_PARAM_API_TYPE,        (void *) MPV_RENDER_API_TYPE_GXM},
++            {MPV_RENDER_PARAM_GXM_INIT_PARAMS, &gxm_params},
++            {0}
++    };
++    mpv_render_context *mpv_context;
++    if (mpv_render_context_create(&mpv_context, mpv, params) < 0) {
++        printf("failed to create mpv render context\n");
++        return EXIT_FAILURE;
++    }
++    printf("Set update callback\n");
++    mpv_render_context_set_update_callback(mpv_context, mpv_render_update, NULL);
++
++    printf("Set mpv options\n");
++    mpv_set_option_string(mpv, "terminal", "yes");
++    mpv_set_option_string(mpv, "msg-level", "all=debug");
++    mpv_set_option_string(mpv, "vd-lavc-threads", "4");
++    mpv_set_option_string(mpv, "fbo-format", "rgba8");
++    mpv_set_option_string(mpv, "hwdec", "auto");
++
++    // Put font file to ux0:/data/fonts/ to test libass
++    mpv_set_option_string(mpv, "osd-fonts-dir", "ux0:/data/fonts");
++    mpv_set_option_string(mpv, "osd-font", "Open Sans");
++    mpv_set_option_string(mpv, "osd-msg1", "libass text");
++
++
++    printf("Initialize mpv\n");
++    if (mpv_initialize(mpv) < 0) {
++        printf("failed to initialize mpv\n");
++        return EXIT_FAILURE;
++    }
++    {
++        const char *cmd[] = {"set", "background", "#FFFF00", NULL};
++        mpv_command(mpv, cmd);
++    }
++
++    int texture_width = 960;
++    int texture_height = 544;
++    vita2d_texture *img = vita2d_create_empty_texture_rendertarget(texture_width, texture_height, SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR);
++
++    int flip_y = 1;
++    mpv_gxm_fbo fbo = {
++            .render_target = img->gxm_rtgt,
++            .color_surface = &img->gxm_sfc,
++            .depth_stencil_surface = &img->gxm_sfd,
++            .w = texture_width,
++            .h = texture_height,
++            .format = SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_RGBA,
++    };
++    mpv_render_param mpv_params[3] = {
++            {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
++            {MPV_RENDER_PARAM_GXM_FBO, &fbo},
++            {MPV_RENDER_PARAM_INVALID, NULL},
++    };
++
++    {
++        const char *cmd[] = {"loadfile", "file://ux0:/test.mp4", "replace", NULL};
++//        const char *cmd[] = {"loadfile", "file://ux0:/sintel_trailer-720p.mp4", NULL};
++        mpv_command(mpv, cmd);
++    }
++
++    memset(&pad, 0, sizeof(pad));
++    memset(&old_pad, 0, sizeof(old_pad));
++    for (;;) {
++        sceCtrlPeekBufferPositive(0, &pad, 1);
++        pressed = pad.buttons & ~old_pad.buttons;
++        old_pad = pad;
++
++        if (pressed & SCE_CTRL_START)
++            break;
++
++        if (pressed & SCE_CTRL_CIRCLE) {
++            static bool changed = true;
++            const char *cmd[] = {"set", "pause", changed ? "yes" : "no", NULL};
++            mpv_command(mpv, cmd);
++            changed = !changed;
++        }
++
++        if (pressed & SCE_CTRL_TRIANGLE) {
++            static bool changed = true;
++            const char *cmd[] = {"set", "video-margin-ratio-right", changed ? "0.5" : "0.0", NULL};
++            mpv_command(mpv, cmd);
++            changed = !changed;
++        }
++
++        if (pressed & SCE_CTRL_SQUARE) {
++            static bool changed = true;
++            const char *cmd[] = {"set", "gamma", changed ? "100" : "0", NULL};
++            mpv_command(mpv, cmd);
++            changed = !changed;
++        }
++
++        vita2d_start_drawing();
++        vita2d_clear_screen();
++
++        vita2d_draw_texture(img, 0, 0);
++
++        vita2d_end_drawing();
++        vita2d_swap_buffers();
++
++        if (redraw && mpv_render_context_update(mpv_context) & MPV_RENDER_UPDATE_FRAME) {
++            redraw = 0;
++            mpv_render_context_render(mpv_context, mpv_params);
++            mpv_render_context_report_swap(mpv_context);
++        }
++    }
++
++    mpv_command_string(mpv, "quit");
++    mpv_render_context_free(mpv_context);
++    mpv_terminate_destroy(mpv);
++    vita2d_fini();
++    vita2d_free_texture(img);
++
++#if HAVE_VITASHARK
++    // Clean up vitashark as we don't need it anymore
++    shark_end();
++#endif
++    return 0;
++}
+diff --git a/osdep/vita/include/sys/mman.h b/osdep/vita/include/sys/mman.h
+new file mode 100644
+index 0000000000..365bed89a7
+--- /dev/null
++++ b/osdep/vita/include/sys/mman.h
+@@ -0,0 +1,16 @@
++#ifndef _MEMMAP_H_
++#define _MEMMAP_H_
++
++#include <stdio.h>
++#include <stdint.h>
++#include <stdlib.h>
++
++#define PROT_READ       0x1
++#define PROT_WRITE      0x2
++#define MAP_SHARED      0x01
++#define MAP_FAILED      ((void *) -1)
++
++#define mmap(a, b, c, d, e, f) malloc(b)
++#define munmap(a, b) free(a)
++
++#endif
+\ No newline at end of file
+diff --git a/video/out/gpu/libmpv_gpu.c b/video/out/gpu/libmpv_gpu.c
+index aae1d18eed..a6566558b0 100644
+--- a/video/out/gpu/libmpv_gpu.c
++++ b/video/out/gpu/libmpv_gpu.c
+@@ -8,6 +8,9 @@
+ static const struct libmpv_gpu_context_fns *context_backends[] = {
+ #if HAVE_GL
+     &libmpv_gpu_context_gl,
++#endif
++#if HAVE_GXM
++    &libmpv_gpu_context_gxm,
+ #endif
+     NULL
+ };
+@@ -185,6 +188,7 @@ static int render(struct render_backend *ctx, mpv_render_param *params,
+                                              &(int){0});
+ 
+     struct ra_fbo target = {.tex = tex, .flip = flip};
++    if (p->context->fns->start_frame) p->context->fns->start_frame(p->context);
+     gl_video_render_frame(p->renderer, frame, target, RENDER_FRAME_DEF);
+     p->context->fns->done_frame(p->context, frame->display_synced);
+ 
+diff --git a/video/out/gpu/libmpv_gpu.h b/video/out/gpu/libmpv_gpu.h
+index 497dcc3f69..3be9407ef7 100644
+--- a/video/out/gpu/libmpv_gpu.h
++++ b/video/out/gpu/libmpv_gpu.h
+@@ -35,6 +35,10 @@ struct libmpv_gpu_context_fns {
+     void (*done_frame)(struct libmpv_gpu_context *ctx, bool ds);
+     // Free all data in ctx->priv.
+     void (*destroy)(struct libmpv_gpu_context *ctx);
++    void (*start_frame)(struct libmpv_gpu_context *ctx);
+ };
+ 
+ extern const struct libmpv_gpu_context_fns libmpv_gpu_context_gl;
++#if HAVE_GXM
++extern const struct libmpv_gpu_context_fns libmpv_gpu_context_gxm;
++#endif
+diff --git a/video/out/gpu/osd.c b/video/out/gpu/osd.c
+index 91505a987d..37847eb486 100644
+--- a/video/out/gpu/osd.c
++++ b/video/out/gpu/osd.c
+@@ -43,8 +43,8 @@ struct vertex {
+ 
+ static const struct ra_renderpass_input vertex_vao[] = {
+     {"position",  RA_VARTYPE_FLOAT,      2, 1, offsetof(struct vertex, position)},
+-    {"texcoord" , RA_VARTYPE_FLOAT,      2, 1, offsetof(struct vertex, texcoord)},
+-    {"ass_color", RA_VARTYPE_BYTE_UNORM, 4, 1, offsetof(struct vertex, ass_color)},
++    {"texcoord" , RA_VARTYPE_FLOAT,      2, 1, offsetof(struct vertex, texcoord), 0, "TEXCOORD0"},
++    {"ass_color", RA_VARTYPE_BYTE_UNORM, 4, 1, offsetof(struct vertex, ass_color), 0, "COLOR0"},
+ };
+ 
+ struct mpgl_osd_part {
+diff --git a/video/out/gpu/ra.h b/video/out/gpu/ra.h
+index 5f229f8bd6..6ceb04612e 100644
+--- a/video/out/gpu/ra.h
++++ b/video/out/gpu/ra.h
+@@ -11,6 +11,8 @@ struct ra {
+     int glsl_version;       // GLSL version (e.g. 300 => 3.0)
+     bool glsl_es;           // use ES dialect
+     bool glsl_vulkan;       // use vulkan dialect
++    bool glsl_gxm;          // use gxm dialect
++    int gxm_buffer_index;   // buffer index for gxm
+ 
+     struct mp_log *log;
+ 
+@@ -254,6 +256,7 @@ struct ra_renderpass_input {
+     // Bindings must be unique within each namespace, as specified by
+     // desc_namespace()
+     int binding;
++    const char* semantic;
+ };
+ 
+ // Represents the layout requirements of an input value
+diff --git a/video/out/gpu/shader_cache.c b/video/out/gpu/shader_cache.c
+index 3e051730fd..d56913c362 100644
+--- a/video/out/gpu/shader_cache.c
++++ b/video/out/gpu/shader_cache.c
+@@ -128,8 +128,10 @@ void gl_sc_reset(struct gl_shader_cache *sc)
+     sc->prelude_text.len = 0;
+     sc->header_text.len = 0;
+     sc->text.len = 0;
+-    for (int n = 0; n < sc->num_uniforms; n++)
++    for (int n = 0; n < sc->num_uniforms; n++) {
+         talloc_free((void *)sc->uniforms[n].input.name);
++        talloc_free((void *)sc->uniforms[n].input.semantic);
++    }
+     sc->num_uniforms = 0;
+     sc->ubo_binding = 0;
+     sc->ubo_size = 0;
+@@ -240,8 +242,10 @@ static struct sc_uniform *find_uniform(struct gl_shader_cache *sc,
+         struct sc_uniform *u = &sc->uniforms[n];
+         if (strcmp(u->input.name, name) == 0) {
+             const char *allocname = u->input.name;
++            const char *allocsem  = u->input.semantic;
+             *u = new;
+             u->input.name = allocname;
++            u->input.semantic = allocsem;
+             return u;
+         }
+     }
+@@ -329,6 +333,7 @@ void gl_sc_uniform_texture(struct gl_shader_cache *sc, char *name,
+     u->input.type = RA_VARTYPE_TEX;
+     u->glsl_type = glsl_type;
+     u->input.binding = gl_sc_next_binding(sc, u->input.type);
++    u->input.semantic = talloc_asprintf(NULL, "TEXUNIT%d", u->input.binding);
+     u->v.tex = tex;
+ }
+ 
+@@ -713,7 +718,13 @@ static void add_uniforms(struct gl_shader_cache *sc, bstr *dst)
+             // after program creation).
+             if (sc->ra->glsl_vulkan)
+                 ADD(dst, "layout(binding=%d) ", u->input.binding);
+-            ADD(dst, "uniform %s %s;\n", u->glsl_type, u->input.name);
++            if (u->input.semantic) {
++                ADD(dst, "uniform %s %s : %s;\n", u->glsl_type, u->input.name, u->input.semantic);
++            } else if (sc->ra->glsl_gxm) {
++                ADD(dst, "uniform %s %s : BUFFER[%d];\n", u->glsl_type, u->input.name, sc->ubo_binding);
++            } else {
++                ADD(dst, "uniform %s %s;\n", u->glsl_type, u->input.name);
++            }
+             break;
+         case RA_VARTYPE_BUF_RO:
+             ADD(dst, "layout(std140, binding=%d) uniform %s { %s };\n",
+@@ -768,8 +779,11 @@ static void gl_sc_generate(struct gl_shader_cache *sc,
+     assert(!sc->needs_reset);
+     sc->needs_reset = true;
+ 
++    // Using ubo_binding as uniform buffer index for GXM
++    if (sc->ra->glsl_gxm)
++        sc->ubo_binding = sc->ra->gxm_buffer_index;
+     // If using a UBO, pick a binding (needed for shader generation)
+-    if (sc->ubo_size)
++    else if (sc->ubo_size)
+         sc->ubo_binding = gl_sc_next_binding(sc, RA_VARTYPE_BUF_RO);
+ 
+     for (int n = 0; n < MP_ARRAY_SIZE(sc->tmp); n++)
+@@ -777,7 +791,11 @@ static void gl_sc_generate(struct gl_shader_cache *sc,
+ 
+     // set up shader text (header + uniforms + body)
+     bstr *header = &sc->tmp[0];
+-    ADD(header, "#version %d%s\n", glsl_version, glsl_es >= 300 ? " es" : "");
++    if (sc->ra->glsl_gxm) {
++        ADD(header, "#pragma pack_matrix (column_major)\n");
++    } else {
++        ADD(header, "#version %d%s\n", glsl_version, glsl_es >= 300 ? " es" : "");
++    }
+     if (type == RA_RENDERPASS_TYPE_COMPUTE) {
+         // This extension cannot be enabled in fragment shader. Enable it as
+         // an exception for compute shader.
+@@ -797,7 +815,17 @@ static void gl_sc_generate(struct gl_shader_cache *sc,
+             ADD(header, "precision mediump sampler3D;\n");
+     }
+ 
+-    if (glsl_version >= 130) {
++    if (sc->ra->glsl_gxm) {
++        ADD(header, "#define mix lerp\n");
++        ADD(header, "#define fract frac\n");
++        ADD(header, "#define texture tex2D\n");
++        ADD(header, "#define vec4 float4\n");
++        ADD(header, "#define vec3 float3\n");
++        ADD(header, "#define vec2 float2\n");
++        ADD(header, "#define mat4 float4x4\n");
++        ADD(header, "#define mat3 float3x3\n");
++        ADD(header, "#define mat2 float2x2\n");
++    } else if (glsl_version >= 130) {
+         ADD(header, "#define tex1D texture\n");
+         ADD(header, "#define tex3D texture\n");
+     } else {
+@@ -834,12 +862,15 @@ static void gl_sc_generate(struct gl_shader_cache *sc,
+                 // setting raster pos. requires setting gl_Position magic variable
+                 assert(e->dim_v == 2 && e->type == RA_VARTYPE_FLOAT);
+                 ADD(vert_head, "%s%s vec2 vertex_position;\n", loc, vert_in);
++                if (sc->ra->glsl_gxm)
++                    ADD(vert_head, "%s vec4 gl_Position : POSITION;\n", vert_out);
+                 ADD(vert_body, "gl_Position = vec4(vertex_position, 1.0, 1.0);\n");
+             } else {
+-                ADD(vert_head, "%s%s %s vertex_%s;\n", loc, vert_in, glsl_type, e->name);
+-                ADD(vert_head, "%s%s %s %s;\n", loc, vert_out, glsl_type, e->name);
++                char * sematic = e->semantic ? mp_tprintf(32, " : %s", e->semantic) : "";
++                ADD(vert_head, "%s%s %s vertex_%s%s;\n", loc, vert_in, glsl_type, e->name, sematic);
++                ADD(vert_head, "%s%s %s %s%s;\n", loc, vert_out, glsl_type, e->name, sematic);
+                 ADD(vert_body, "%s = vertex_%s;\n", e->name, e->name);
+-                ADD(frag_vaos, "%s%s %s %s;\n", loc, frag_in, glsl_type, e->name);
++                ADD(frag_vaos, "%s%s %s %s%s;\n", loc, frag_in, glsl_type, e->name, sematic);
+             }
+         }
+         ADD(vert_body, "}\n");
+@@ -849,7 +880,7 @@ static void gl_sc_generate(struct gl_shader_cache *sc,
+         // fragment shader; still requires adding used uniforms and VAO elements
+         frag = &sc->tmp[4];
+         ADD_BSTR(frag, *header);
+-        if (glsl_version >= 130) {
++        if (glsl_version >= 130 && !sc->ra->glsl_gxm) {
+             ADD(frag, "%sout vec4 out_color;\n",
+                 sc->ra->glsl_vulkan ? "layout(location=0) " : "");
+         }
+@@ -859,7 +890,7 @@ static void gl_sc_generate(struct gl_shader_cache *sc,
+         ADD_BSTR(frag, sc->prelude_text);
+         ADD_BSTR(frag, sc->header_text);
+ 
+-        ADD(frag, "void main() {\n");
++        ADD(frag, "void main(%s) {\n", sc->ra->glsl_gxm ? "out vec4 out_color : COLOR0" : "");
+         // we require _all_ frag shaders to write to a "vec4 color"
+         ADD(frag, "vec4 color = vec4(0.0, 0.0, 0.0, 1.0);\n");
+         ADD_BSTR(frag, sc->text);
+diff --git a/video/out/gpu/video.c b/video/out/gpu/video.c
+index 4233f14336..f630cd16a1 100644
+--- a/video/out/gpu/video.c
++++ b/video/out/gpu/video.c
+@@ -1249,6 +1249,7 @@ static struct mp_pass_perf render_pass_quad(struct gl_video *p,
+             .dim_v = 2,
+             .dim_m = 1,
+             .offset = p->vao_len * sizeof(struct vertex_pt),
++            .semantic = p->ra->glsl_gxm ? talloc_asprintf(p, "TEXCOORD%d", p->vao_len - 1) : NULL,
+         });
+     }
+ 
+@@ -1276,11 +1277,21 @@ static struct mp_pass_perf render_pass_quad(struct gl_video *p,
+             struct gl_transform tr = s->transform;
+             float tx = (n / 2) * s->w;
+             float ty = (n % 2) * s->h;
++            int tex_width = s->tex->params.w;
++            int tex_height = s->tex->params.h;
++
++            if (p->ra->glsl_gxm) {
++                int aligned_width = MP_ALIGN_UP(s->tex->params.w, 8);
++                // Add 1 extra pixel to avoid float precision issues
++                if (aligned_width != s->tex->params.w)
++                    tex_width = aligned_width + 1;
++            }
++
+             gl_transform_vec(tr, &tx, &ty);
+             bool rect = s->tex->params.non_normalized;
+             // vec2 texcoordN in idx N+1
+-            vs[i + 1].x = tx / (rect ? 1 : s->tex->params.w);
+-            vs[i + 1].y = ty / (rect ? 1 : s->tex->params.h);
++            vs[i + 1].x = tx / (rect ? 1 : tex_width);
++            vs[i + 1].y = ty / (rect ? 1 : tex_height);
+         }
+     }
+ 
+@@ -2359,7 +2370,7 @@ static void pass_convert_yuv(struct gl_video *p)
+     gl_sc_uniform_mat3(sc, "colormatrix", true, &m.m[0][0]);
+     gl_sc_uniform_vec3(sc, "colormatrix_c", m.c);
+ 
+-    GLSL(color.rgb = mat3(colormatrix) * color.rgb + colormatrix_c;)
++    GLSL(color.rgb = mul(colormatrix, color.rgb) + colormatrix_c;)
+ 
+     if (cparams.color.space == MP_CSP_XYZ) {
+         pass_delinearize(p->sc, p->image_params.color.gamma);
+diff --git a/video/out/gpu/video_shaders.c b/video/out/gpu/video_shaders.c
+index 049151bd24..14a06e8c8f 100644
+--- a/video/out/gpu/video_shaders.c
++++ b/video/out/gpu/video_shaders.c
+@@ -892,7 +892,7 @@ void pass_color_map(struct gl_shader_cache *sc, bool is_linear,
+         float m[3][3] = {{0}};
+         mp_get_cms_matrix(csp_src, csp_dst, MP_INTENT_RELATIVE_COLORIMETRIC, m);
+         gl_sc_uniform_mat3(sc, "cms_matrix", true, &m[0][0]);
+-        GLSL(color.rgb = cms_matrix * color.rgb;)
++        GLSL(color.rgb = mul(cms_matrix, color.rgb);)
+ 
+         if (!opts->gamut_mode || opts->gamut_mode == GAMUT_DESATURATE) {
+             GLSL(float cmin = min(min(color.r, color.g), color.b);)
+diff --git a/video/out/gxm/libmpv_gxm.c b/video/out/gxm/libmpv_gxm.c
+new file mode 100644
+index 0000000000..c5ec5a2d60
+--- /dev/null
++++ b/video/out/gxm/libmpv_gxm.c
+@@ -0,0 +1,130 @@
++#include "common/msg.h"
++#include "video/out/gpu/context.h"
++#include "video/out/gpu/libmpv_gpu.h"
++#include "video/out/gxm/ra_gxm.h"
++#include "libmpv/render_gxm.h"
++
++struct priv {
++    SceGxmContext *context;
++    SceGxmShaderPatcher *shader_patcher;
++    struct ra_ctx *ra_ctx;
++    struct ra_tex *cur_fbo;
++};
++
++struct gxm_fbo_priv {
++    SceGxmRenderTarget *render_target;
++    SceGxmColorSurface *color_surface;
++    SceGxmDepthStencilSurface *depth_stencil_surface;
++};
++
++static int init(struct libmpv_gpu_context *ctx, mpv_render_param *params)
++{
++    MP_VERBOSE(ctx, "Creating libmpv gxm context\n");
++
++    struct priv *p = ctx->priv = talloc_zero(NULL, struct priv);
++
++    mpv_gxm_init_params *init_params =
++            get_mpv_render_param(params, MPV_RENDER_PARAM_GXM_INIT_PARAMS, NULL);
++    if (!init_params)
++        return MPV_ERROR_INVALID_PARAMETER;
++
++    p->context = init_params->context;
++    p->shader_patcher = init_params->shader_patcher;
++#ifndef HAVE_VITASHARK
++    init_params->buffer_index = 0;
++#endif
++
++    // initialize a blank ra_ctx to reuse ra_gl_ctx
++    p->ra_ctx = talloc_zero(p, struct ra_ctx);
++    p->ra_ctx->log = ctx->log;
++    p->ra_ctx->global = ctx->global;
++
++    p->ra_ctx->ra = ra_gxm_create(ctx->log, p->context, p->shader_patcher, init_params->buffer_index, init_params->msaa);
++    if (!p->ra_ctx->ra)
++        return MPV_ERROR_UNSUPPORTED;
++
++    p->cur_fbo = talloc_zero(p, struct ra_tex);
++    p->cur_fbo->priv = talloc_zero(p, struct gxm_fbo_priv);
++
++    ctx->ra_ctx = p->ra_ctx;
++    return 0;
++}
++
++static int wrap_fbo(struct libmpv_gpu_context *ctx, mpv_render_param *params, struct ra_tex **out)
++{
++    struct priv *p = ctx->priv;
++    struct ra *ra = p->ra_ctx->ra;
++    struct gxm_fbo_priv *fbo_priv = p->cur_fbo->priv;
++    struct ra_format *fmt = NULL;
++
++    mpv_gxm_fbo *fbo = get_mpv_render_param(params, MPV_RENDER_PARAM_GXM_FBO, NULL);
++    if (!fbo)
++        return MPV_ERROR_INVALID_PARAMETER;
++
++    for (int n = 0; n < ra->num_formats; n++) {
++        const struct gxm_format *gf = ra->formats[n]->priv;
++        if (gf->format == fbo->format) {
++            fmt = ra->formats[n];
++            break;
++        }
++    }
++
++    p->cur_fbo->params = (struct ra_tex_params) {
++            .dimensions = 2,
++            .w          = fbo->w,
++            .h          = fbo->h,
++            .d          = 1,
++            .format     = fmt,
++            .render_dst = true,
++            // TODO: blit_src and blit_dst
++    };
++    fbo_priv->color_surface = fbo->color_surface;
++    fbo_priv->render_target = fbo->render_target;
++    fbo_priv->depth_stencil_surface = fbo->depth_stencil_surface;
++
++    *out = p->cur_fbo;
++    return 0;
++}
++
++static void __attribute__((__optimize__("no-optimize-sibling-calls"))) start_frame(struct libmpv_gpu_context *ctx)
++{
++    struct priv *p = ctx->priv;
++    struct gxm_fbo_priv *fbo = p->cur_fbo->priv;
++    if (!fbo->render_target || !fbo->color_surface || !fbo->depth_stencil_surface)
++        return;
++    sceGxmBeginScene(p->context,
++                    0,
++                    fbo->render_target,
++                    NULL,
++                    NULL,
++                    NULL,
++                    fbo->color_surface,
++                    fbo->depth_stencil_surface);
++}
++
++static void __attribute__((__optimize__("no-optimize-sibling-calls"))) done_frame(struct libmpv_gpu_context *ctx, bool ds)
++{
++    struct priv *p = ctx->priv;
++    struct gxm_fbo_priv *fbo = p->cur_fbo->priv;
++    if (!fbo->render_target || !fbo->color_surface || !fbo->depth_stencil_surface)
++        return;
++    sceGxmEndScene(p->context, NULL, NULL);
++}
++
++static void destroy(struct libmpv_gpu_context *ctx)
++{
++    MP_VERBOSE(ctx, "Destroying libmpv gxm context\n");
++
++    struct ra_ctx *ra_ctx = ctx->ra_ctx;
++    if (ra_ctx->ra)
++        ra_ctx->ra->fns->destroy(ra_ctx->ra);
++}
++
++const struct libmpv_gpu_context_fns libmpv_gpu_context_gxm = {
++        .api_name    = MPV_RENDER_API_TYPE_GXM,
++        .init        = init,
++        .wrap_fbo    = wrap_fbo,
++        .done_frame  = done_frame,
++        .destroy     = destroy,
++        .start_frame = start_frame,
++};
+\ No newline at end of file
+diff --git a/video/out/gxm/ra_gxm.c b/video/out/gxm/ra_gxm.c
+new file mode 100644
+index 0000000000..e36e8f899b
+--- /dev/null
++++ b/video/out/gxm/ra_gxm.c
+@@ -0,0 +1,1010 @@
++#include "common/msg.h"
++#include "osdep/io.h"
++#include "osdep/subprocess.h"
++#include "video/out/gpu/utils.h"
++#include "video/out/gxm/ra_gxm.h"
++
++#include <libavutil/mem.h>
++#include <libavutil/sha.h>
++#include <psp2/gxm.h>
++#include <psp2/kernel/sysmem.h>
++#if HAVE_VITASHARK
++#include <vitashark.h>
++#endif
++
++int __attribute__((weak)) psv_mpv_dump_shaders = false;
++
++const struct gxm_format gxm_formats[] = {
++    {"r8",      1, 1, {8},              SCE_GXM_TEXTURE_FORMAT_U8_000R,           RA_CTYPE_UNORM, true, true, true,  true},
++    {"rg8",     2, 2, {8,  8},          SCE_GXM_TEXTURE_FORMAT_U8U8_GRGR,         RA_CTYPE_UNORM, true, true, true,  true},
++    {"rgba8",   4, 4, {8,  8,  8,  8},  SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_RGBA,     RA_CTYPE_UNORM, true, true, true,  true},
++    {"r16",     1, 2, {16},             SCE_GXM_TEXTURE_FORMAT_U16_000R,          RA_CTYPE_UNORM, true, true, true,  true},
++    {"rg16",    2, 4, {16, 16},         SCE_GXM_TEXTURE_FORMAT_U16U16_GRGR,       RA_CTYPE_UNORM, true, true, true,  true},
++    {"rgba16",  4, 8, {16, 16, 16, 16}, SCE_GXM_TEXTURE_FORMAT_U16U16U16U16_RGBA, RA_CTYPE_UNORM, true, true, true,  true},
++    {"r32ui",   1, 4, {32},             SCE_GXM_TEXTURE_FORMAT_S32_000R,          RA_CTYPE_UINT,  true, false,true,  true},
++    {"r16f",    1, 2, {16},             SCE_GXM_TEXTURE_FORMAT_F16_000R,          RA_CTYPE_FLOAT, true, true, true,  true},
++    {"rg16f",   2, 4, {16, 16},         SCE_GXM_TEXTURE_FORMAT_F16F16_GRGR,       RA_CTYPE_FLOAT, true, true, true,  true},
++    {"rgba16f", 4, 8, {16, 16, 16, 16}, SCE_GXM_TEXTURE_FORMAT_F16F16F16F16_RGBA, RA_CTYPE_FLOAT, true, true, true,  true},
++    {"r32f",    1, 4, {32},             SCE_GXM_TEXTURE_FORMAT_F32_000R,          RA_CTYPE_FLOAT, true, true, true,  true},
++    {"rg32f",   2, 8, {32, 32},         SCE_GXM_TEXTURE_FORMAT_F32F32_GRGR,       RA_CTYPE_FLOAT, true, true, true,  true},
++    {"bgra8",   4, 4, {8,  8,  8,  8},  SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_BGRA,     RA_CTYPE_UNORM, true, true, true,  false},
++    {"bgrx8",   3, 4, {8,  8,  8},      SCE_GXM_TEXTURE_FORMAT_U8U8U8X8_BGR1,     RA_CTYPE_UNORM, true, true, false, false},
++};
++
++static void *gxm_alloc(SceKernelMemBlockType type, SceGxmMemoryAttribFlags gpu_attrib, size_t size, SceUID *uid) {
++    SceUID memuid;
++    void *addr;
++
++    if (type == SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW)
++        size = MP_ALIGN_UP(size, 256 * 1024);
++    else
++        size = MP_ALIGN_UP(size, 4 * 1024);
++
++    memuid = sceKernelAllocMemBlock("gpumem", type, size, NULL);
++    if (memuid < 0)
++        return NULL;
++
++    if (sceKernelGetMemBlockBase(memuid, &addr) < 0)
++        return NULL;
++
++    if (sceGxmMapMemory(addr, size, gpu_attrib) < 0) {
++        sceKernelFreeMemBlock(memuid);
++        return NULL;
++    }
++
++    if (uid)
++        *uid = memuid;
++
++    return addr;
++}
++
++static void gxm_free(SceUID uid) {
++    void *addr;
++
++    if (uid == 0)
++        return;
++
++    if (sceKernelGetMemBlockBase(uid, &addr) < 0)
++        return;
++
++    sceGxmUnmapMemory(addr);
++
++    sceKernelFreeMemBlock(uid);
++}
++
++static int mpv_get_shader_hash(const char *prog, char *out) {
++    uint8_t hash[32];
++    struct AVSHA *sha = av_sha_alloc();
++    av_sha_init(sha, 256);
++    av_sha_update(sha, prog, strlen(prog));
++    av_sha_final(sha, hash);
++    av_free(sha);
++
++    for (int n = 0; n < 32; n++) {
++        snprintf(out + n * 2, 65 - n * 2, "%02X", hash[n]);
++    }
++
++    return 0;
++}
++
++#if HAVE_VITASHARK
++static void dumpShader(const char *source, const char *type, const SceGxmProgram *program, uint32_t size) {
++    char path[256];
++    char sha[65];
++
++    int need_comma = 0;
++    char *buf = (char *) malloc(0x5000);
++    memset(buf, 0, 0x5000);
++    memcpy(buf, program, size);
++
++    mpv_get_shader_hash(source, sha);
++
++    snprintf(path, sizeof(path), "ux0:data/mpv_%s_%s.c", type, sha);
++    FILE *fp = fopen(path, "w");
++    if (fp) {
++        fprintf(fp, "static const unsigned char %s%sShader[%i] = {", sha, type, size);
++        for (uint32_t i = 0; i < size; ++i) {
++            if (need_comma)
++                fprintf(fp, ", ");
++            else
++                need_comma = 1;
++            if ((i % 11) == 0)
++                fprintf(fp, "\n\t");
++            fprintf(fp, "0x%.2x", buf[i] & 0xff);
++        }
++        fprintf(fp, "\n};\n\n");
++        fclose(fp);
++    }
++    free(buf);
++}
++
++static int gxm_create_shader(GxmShaderProgram *shader, SceGxmShaderPatcher *shader_patcher, const char *vshader, const char *fshader) {
++    if (vshader != NULL) {
++        uint32_t size = strlen(vshader);
++        SceGxmProgram *p = shark_compile_shader(vshader, &size, SHARK_VERTEX_SHADER);
++        if (!p) {
++            shark_clear_output();
++            return 0;
++        }
++        shader->vert_gxp = (SceGxmProgram *) malloc(size);
++        sceClibMemcpy((void *) shader->vert_gxp, (void *) p, size);
++        shark_clear_output();
++        sceGxmShaderPatcherRegisterProgram(shader_patcher, shader->vert_gxp, &shader->vert_id);
++        sceGxmProgramCheck(shader->vert_gxp);
++
++        if (psv_mpv_dump_shaders)
++            dumpShader(vshader, "Vert", shader->vert_gxp, size);
++    }
++
++    if (fshader != NULL) {
++        uint32_t size = strlen(fshader);
++        SceGxmProgram *p = shark_compile_shader(fshader, &size, SHARK_FRAGMENT_SHADER);
++        if (!p) {
++            shark_clear_output();
++            return 0;
++        }
++        shader->frag_gxp = (SceGxmProgram *) malloc(size);
++        sceClibMemcpy((void *) shader->frag_gxp, (void *) p, size);
++        shark_clear_output();
++        sceGxmShaderPatcherRegisterProgram(shader_patcher, shader->frag_gxp, &shader->frag_id);
++        sceGxmProgramCheck(shader->frag_gxp);
++
++        if (psv_mpv_dump_shaders)
++            dumpShader(fshader, "Frag", shader->frag_gxp, size);
++    }
++    return 1;
++}
++#else
++struct ShaderBinary {
++    const char *sha;
++    const unsigned char *data;
++};
++
++static SceGxmProgram *mpv_get_shader(const char *source) {
++    static const unsigned char default_frag_shader_with_user_gamma[660] = {
++        0x47, 0x58, 0x50, 0x00, 0x01, 0x05, 0x00, 0x03, 0x94, 0x02, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x08,
++        0x18, 0x00, 0x02, 0x00, 0x00, 0x00, 0x11, 0x01, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x9c, 0x01, 0x00, 0x00,
++        0x70, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x01, 0x00, 0x13, 0x00, 0x00, 0x00, 0xdc, 0x00,
++        0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x98, 0x00, 0x00, 0x00, 0xcc,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x4c, 0x01, 0x00, 0x00, 0x90, 0x3a,
++        0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x01, 0x00, 0x00, 0x01,
++        0x00, 0x00, 0x00, 0x40, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x30, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x28, 0x01, 0x00,
++        0x00, 0x01, 0x00, 0x00, 0x00, 0x20, 0x01, 0x00, 0x00, 0x9c, 0x01,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x01, 0x04, 0x03, 0x00, 0x03, 0x00, 0x04, 0x00, 0x00, 0x00,
++        0x02, 0xf1, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0xc0, 0x00, 0x00,
++        0x00, 0x30, 0x00, 0x00, 0x00, 0x01, 0xf1, 0x00, 0x00, 0x01, 0x00,
++        0x00, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00, 0x00,
++        0xf9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0x00, 0x00, 0x00,
++        0x30, 0x00, 0x00, 0x00, 0x00, 0x04, 0x20, 0xa0, 0x84, 0x20, 0x83,
++        0xe8, 0x00, 0x00, 0x80, 0xa0, 0x84, 0x20, 0x83, 0xe8, 0x00, 0x02,
++        0xe0, 0xa0, 0x84, 0x20, 0x83, 0xe8, 0x00, 0x06, 0x40, 0xa1, 0x84,
++        0x20, 0x83, 0xe8, 0x00, 0x08, 0xa0, 0xa1, 0x84, 0x00, 0xa3, 0xe8,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0xf9, 0x00, 0x00, 0x00,
++        0x00, 0x40, 0x01, 0x04, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x07, 0x44, 0xfa, 0x00, 0x00, 0x00, 0x00, 0x40,
++        0x09, 0x00, 0xf8, 0xc2, 0x80, 0x28, 0xef, 0x84, 0x0b, 0xc0, 0x08,
++        0x06, 0x82, 0xa1, 0xff, 0x9c, 0x0d, 0xc0, 0x40, 0x04, 0x00, 0x11,
++        0x9f, 0x80, 0x8b, 0xb1, 0x18, 0x03, 0xc0, 0xa2, 0xff, 0x9c, 0x0d,
++        0xc0, 0x40, 0x00, 0x00, 0x11, 0x9f, 0x80, 0x8b, 0xb1, 0x18, 0x05,
++        0x01, 0x1d, 0xcf, 0x84, 0x8b, 0xa1, 0x18, 0x01, 0x5f, 0x04, 0x1f,
++        0x84, 0x1b, 0xa5, 0x08, 0x00, 0x6f, 0x04, 0x1f, 0x84, 0x0b, 0xa5,
++        0x08, 0x01, 0x3e, 0x00, 0x00, 0x02, 0x0c, 0x80, 0x30, 0x02, 0x3e,
++        0x00, 0x00, 0x0a, 0x04, 0x80, 0x30, 0x01, 0x3e, 0x20, 0x00, 0x12,
++        0x0c, 0x80, 0x30, 0x06, 0x00, 0x04, 0xbf, 0x84, 0x1b, 0xa4, 0x08,
++        0x01, 0x3e, 0x00, 0x00, 0x02, 0x0e, 0x80, 0x30, 0x02, 0x3e, 0x00,
++        0x00, 0x0a, 0x06, 0x80, 0x30, 0x01, 0x3e, 0x20, 0x00, 0x12, 0x0e,
++        0x80, 0x30, 0x01, 0x00, 0x04, 0x9f, 0x84, 0x17, 0xc5, 0x08, 0x00,
++        0xbc, 0x19, 0x20, 0x7e, 0x0d, 0x81, 0x40, 0x13, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0xfc, 0xff, 0xff,
++        0xff, 0x90, 0x00, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x03, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x01,
++        0x03, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00,
++        0x8a, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00,
++        0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x94, 0x00,
++        0x00, 0x00, 0xd8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x75,
++        0x00, 0x00, 0x00, 0x02, 0x04, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x6e, 0x00, 0x00, 0x00, 0x02, 0x04, 0x01,
++        0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x67, 0x00,
++        0x00, 0x00, 0x02, 0x04, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02,
++        0x00, 0x00, 0x00, 0x01, 0x03, 0x01, 0x03, 0x01, 0x03, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x63, 0x6f, 0x6c, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x72,
++        0x69, 0x78, 0x00, 0x63, 0x6f, 0x6c, 0x6f, 0x72, 0x6d, 0x61, 0x74,
++        0x72, 0x69, 0x78, 0x5f, 0x63, 0x00, 0x75, 0x73, 0x65, 0x72, 0x5f,
++        0x67, 0x61, 0x6d, 0x6d, 0x61, 0x00, 0x74, 0x65, 0x78, 0x74, 0x75,
++        0x72, 0x65, 0x30, 0x00, 0x74, 0x65, 0x78, 0x74, 0x75, 0x72, 0x65,
++        0x31, 0x00, 0x74, 0x65, 0x78, 0x74, 0x75, 0x72, 0x65, 0x32, 0x00
++    };
++
++    static const unsigned char default_frag_shader[556] = {
++	    0x47, 0x58, 0x50, 0x00, 0x01, 0x05, 0x00, 0x03, 0x29, 0x02, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x08,
++	    0x18, 0x00, 0x02, 0x00, 0x00, 0x00, 0x11, 0x01, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x4c, 0x01, 0x00, 0x00,
++	    0x70, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x01, 0x00, 0x0a, 0x00, 0x00, 0x00, 0xd4, 0x00,
++	    0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x98, 0x00, 0x00, 0x00, 0xc4,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0xfc, 0x00, 0x00, 0x00, 0x90, 0x3a,
++	    0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x00, 0x00, 0x00, 0x01,
++	    0x00, 0x00, 0x00, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xd8, 0x00, 0x00,
++	    0x00, 0x01, 0x00, 0x00, 0x00, 0xd0, 0x00, 0x00, 0x00, 0x3c, 0x01,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x01, 0x04, 0x03, 0x00, 0x03, 0x00, 0x04, 0x00, 0x00, 0x00,
++	    0x02, 0xf1, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0xc0, 0x00, 0x00,
++	    0x00, 0x30, 0x00, 0x00, 0x00, 0x01, 0xf1, 0x00, 0x00, 0x01, 0x00,
++	    0x00, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00, 0x00,
++	    0xf9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0x00, 0x00, 0x00,
++	    0x30, 0x00, 0x00, 0x00, 0x00, 0x04, 0x20, 0xa0, 0x84, 0x20, 0x83,
++	    0xe8, 0x00, 0x00, 0x80, 0xa0, 0x84, 0x20, 0x83, 0xe8, 0x00, 0x02,
++	    0xe0, 0xa0, 0x84, 0x20, 0x83, 0xe8, 0x00, 0x06, 0x40, 0xa1, 0x84,
++	    0x20, 0x83, 0xe8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0xf9,
++	    0x00, 0x00, 0x00, 0x00, 0x40, 0x01, 0x04, 0xf8, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x44, 0xfa, 0x00, 0x00,
++	    0x00, 0x00, 0x40, 0x09, 0x00, 0xf8, 0xc2, 0x80, 0x28, 0xef, 0x84,
++	    0x0b, 0xc0, 0x08, 0x06, 0x82, 0xa1, 0xff, 0x9c, 0x0d, 0xc0, 0x40,
++	    0x04, 0x00, 0x11, 0x9f, 0x80, 0x8b, 0xb1, 0x18, 0x03, 0xc0, 0xa2,
++	    0xff, 0x9c, 0x0d, 0xc0, 0x40, 0x00, 0x00, 0x11, 0x9f, 0x80, 0x8b,
++	    0xb1, 0x18, 0x0c, 0x85, 0xa1, 0xff, 0x9c, 0x0d, 0xc0, 0x40, 0x3d,
++	    0x1f, 0x04, 0x0f, 0x84, 0xf7, 0xc0, 0x08, 0x00, 0xbc, 0x19, 0x20,
++	    0x7e, 0x0d, 0x81, 0x40, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0xfc, 0xff, 0xff, 0xff, 0x80, 0x00,
++	    0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x7c, 0x00, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00,
++	    0x01, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x94, 0x00, 0x00, 0x00, 0xd8, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x6a, 0x00, 0x00, 0x00, 0x02, 0x04, 0x01, 0x00, 0x01,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63, 0x00, 0x00, 0x00,
++	    0x02, 0x04, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
++	    0x00, 0x5c, 0x00, 0x00, 0x00, 0x02, 0x04, 0x01, 0x00, 0x01, 0x00,
++	    0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x03, 0x01, 0x03, 0x01,
++	    0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x63, 0x6f, 0x6c, 0x6f, 0x72, 0x6d,
++	    0x61, 0x74, 0x72, 0x69, 0x78, 0x00, 0x63, 0x6f, 0x6c, 0x6f, 0x72,
++	    0x6d, 0x61, 0x74, 0x72, 0x69, 0x78, 0x5f, 0x63, 0x00, 0x74, 0x65,
++	    0x78, 0x74, 0x75, 0x72, 0x65, 0x30, 0x00, 0x74, 0x65, 0x78, 0x74,
++	    0x75, 0x72, 0x65, 0x31, 0x00, 0x74, 0x65, 0x78, 0x74, 0x75, 0x72,
++	    0x65, 0x32, 0x00, 0x00, 0x00, 0x00
++    };
++
++    static const unsigned char default_vert_shader[372] = {
++	    0x47, 0x58, 0x50, 0x00, 0x01, 0x05, 0x00, 0x03, 0x73, 0x01, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00,
++	    0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0xc8, 0x00, 0x00, 0x00,
++	    0x70, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x80, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x74, 0x00, 0x00, 0x00, 0x70,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x88, 0x00, 0x00, 0x00, 0x90, 0x3a,
++	    0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7c, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x6c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x64, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x5c, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x33, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x0a,
++	    0x49, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07,
++	    0x44, 0xfa, 0x01, 0x02, 0x01, 0x01, 0x00, 0x00, 0x10, 0xfa, 0x80,
++	    0x00, 0x08, 0x83, 0x21, 0x25, 0x80, 0x38, 0x01, 0x00, 0x04, 0x90,
++	    0x85, 0x11, 0xa5, 0x08, 0x01, 0x80, 0x56, 0x90, 0x81, 0x11, 0x83,
++	    0x08, 0x00, 0x00, 0x20, 0xa0, 0x00, 0x50, 0x27, 0xfb, 0x40, 0x00,
++	    0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x04, 0x0e, 0x00,
++	    0x01, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x41, 0x00, 0x00,
++	    0x00, 0x00, 0x04, 0x0e, 0x01, 0x01, 0x00, 0x00, 0x00, 0x08, 0x00,
++	    0x00, 0x00, 0x42, 0x00, 0x00, 0x00, 0x00, 0x04, 0x0e, 0x02, 0x01,
++	    0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x76, 0x65, 0x72, 0x74,
++	    0x65, 0x78, 0x5f, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e,
++	    0x00, 0x76, 0x65, 0x72, 0x74, 0x65, 0x78, 0x5f, 0x74, 0x65, 0x78,
++	    0x63, 0x6f, 0x6f, 0x72, 0x64, 0x30, 0x00, 0x76, 0x65, 0x72, 0x74,
++	    0x65, 0x78, 0x5f, 0x74, 0x65, 0x78, 0x63, 0x6f, 0x6f, 0x72, 0x64,
++	    0x31, 0x00, 0x76, 0x65, 0x72, 0x74, 0x65, 0x78, 0x5f, 0x74, 0x65,
++	    0x78, 0x63, 0x6f, 0x6f, 0x72, 0x64, 0x32, 0x00, 0x00
++    };
++
++    static const unsigned char osd_frag_shader[292] = {
++        0x47, 0x58, 0x50, 0x00, 0x01, 0x05, 0x00, 0x03, 0x23, 0x01, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x18,
++        0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xc4, 0x00, 0x00, 0x00,
++        0x70, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x01, 0x00, 0x05, 0x00, 0x00, 0x00, 0x84, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78, 0x00, 0x00, 0x00, 0x74,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x84, 0x00, 0x00, 0x00, 0x90, 0x3a,
++        0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x68, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x58, 0x00, 0x00, 0x00, 0x64, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x01, 0x04, 0x01, 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00,
++        0x00, 0xa9, 0xd0, 0x0e, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x00, 0x00,
++        0x00, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x07, 0x44, 0xfa, 0x00, 0x00, 0x00, 0x00, 0x40,
++        0x09, 0x00, 0xf8, 0x02, 0x80, 0x99, 0xaf, 0xbc, 0x0d, 0xc0, 0x40,
++        0x80, 0x00, 0xf4, 0x81, 0x00, 0x05, 0x80, 0x38, 0x7c, 0x8f, 0x36,
++        0x00, 0x8a, 0x47, 0x80, 0x10, 0x30, 0x00, 0x00, 0x00, 0x02, 0x04,
++        0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
++        0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6f, 0x73,
++        0x64, 0x74, 0x65, 0x78, 0x00, 0x00
++    };
++
++    static const unsigned char osd_vert_shader[348] = {
++	    0x47, 0x58, 0x50, 0x00, 0x01, 0x05, 0x00, 0x03, 0x59, 0x01, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00,
++	    0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0xd0, 0x00, 0x00, 0x00,
++	    0x70, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x00, 0x00, 0x80, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x74, 0x00, 0x00, 0x00, 0x70,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x90, 0x00, 0x00, 0x00, 0x90, 0x3a,
++	    0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x84, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x7c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6c, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x33, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x0a,
++	    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07,
++	    0x44, 0xfa, 0x01, 0x0e, 0x01, 0x01, 0x02, 0x00, 0x10, 0xfa, 0x80,
++	    0x00, 0x08, 0x83, 0x21, 0x25, 0x80, 0x38, 0x01, 0x01, 0x01, 0x01,
++	    0x00, 0x00, 0x10, 0xfa, 0x01, 0x00, 0x04, 0x90, 0x85, 0x11, 0xa5,
++	    0x08, 0x01, 0x80, 0x56, 0x90, 0x81, 0x11, 0x83, 0x08, 0x00, 0x00,
++	    0x20, 0xa0, 0x00, 0x50, 0x27, 0xfb, 0x30, 0x00, 0x00, 0x00, 0x00,
++	    0x04, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	    0x30, 0x00, 0x00, 0x00, 0x00, 0x04, 0x0e, 0x00, 0x01, 0x00, 0x00,
++	    0x00, 0x04, 0x00, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00, 0x00, 0x04,
++	    0x06, 0x00, 0x01, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x76,
++	    0x65, 0x72, 0x74, 0x65, 0x78, 0x5f, 0x70, 0x6f, 0x73, 0x69, 0x74,
++	    0x69, 0x6f, 0x6e, 0x00, 0x76, 0x65, 0x72, 0x74, 0x65, 0x78, 0x5f,
++	    0x74, 0x65, 0x78, 0x63, 0x6f, 0x6f, 0x72, 0x64, 0x00, 0x76, 0x65,
++	    0x72, 0x74, 0x65, 0x78, 0x5f, 0x61, 0x73, 0x73, 0x5f, 0x63, 0x6f,
++	    0x6c, 0x6f, 0x72, 0x00, 0x00, 0x00, 0x00
++    };
++
++    static const unsigned char clear_vert_shader[252] = {
++        0x47, 0x58, 0x50, 0x00, 0x01, 0x05, 0x00, 0x03, 0xf9, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00,
++        0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xb8, 0x00, 0x00, 0x00,
++        0x70, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x80, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x74, 0x00, 0x00, 0x00, 0x70,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x78, 0x00, 0x00, 0x00, 0x90, 0x3a,
++        0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6c, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x5c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x54, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x4c, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x04,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07,
++        0x44, 0xfa, 0x01, 0x00, 0x04, 0x90, 0x85, 0x11, 0xa5, 0x08, 0x01,
++        0x80, 0x56, 0x90, 0x81, 0x11, 0x83, 0x08, 0x00, 0x00, 0x20, 0xa0,
++        0x00, 0x50, 0x27, 0xfb, 0x10, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00,
++        0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x6f,
++        0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00
++    };
++
++    static const unsigned char clear_frag_shader[228] = {
++        0x47, 0x58, 0x50, 0x00, 0x01, 0x05, 0x00, 0x03, 0xe2, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
++        0x18, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xa4, 0x00, 0x00, 0x00,
++        0x70, 0x00, 0x00, 0x00, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x74, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x68, 0x00, 0x00, 0x00, 0x64,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x04, 0x00, 0x00, 0x00, 0x5c, 0x00, 0x00, 0x00, 0x90, 0x3a,
++        0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00,
++        0x00, 0x01, 0x00, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x00, 0x01, 0x04, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x44,
++        0xfa, 0x02, 0x80, 0x19, 0xf0, 0x7e, 0x0d, 0x80, 0x40, 0x0e, 0x00,
++        0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x00, 0x01,
++        0xe4, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++        0x63, 0x6f, 0x6c, 0x6f, 0x72, 0x00, 0x00, 0x00
++    };
++
++    static struct ShaderBinary shaders_list[] = {
++        {"0EE8D1AE0AE179C02B2372CEAAA330C021317011D06C6E73108E6DB3A3E309CE", clear_frag_shader},
++        {"95886918248D9F48355D927B41713FDFF8B050244A2E40C3286CA498D533C843", clear_vert_shader},
++        {"CF8FDF60F73F9078E522B537B4E34750D6D1E091652DC3B5EF6171897300C698", default_frag_shader},
++        {"BAE766589C86E7D1AA3A7551963F891AAD40B457AD40161C80190CCFD8F04FCB", default_vert_shader},
++        {"7C3E5E88B0B58AEB0D5DEB6FCD962ED89F5FA1A64A3DBACDB33040DF288D36F0", osd_frag_shader},
++        {"D904B9CF40B42526D823C9339B8AB903F295903AA5FDDA6A1E74926100CC8DB3", osd_vert_shader},
++        {"2E7FB81D207712616E37351CDD63B3AACC518CE320D7AC50B363F7A4B4B61398", default_frag_shader_with_user_gamma},
++    };
++
++    char sha[65];
++    mpv_get_shader_hash(source, sha);
++    for(int i = 0; i < MP_ARRAY_SIZE(shaders_list); i++) {
++        if(strcmp(sha, shaders_list[i].sha) == 0) {
++            return (SceGxmProgram *)shaders_list[i].data;
++        }
++    }
++
++    return NULL;
++}
++
++static int gxm_create_shader(GxmShaderProgram *shader, SceGxmShaderPatcher *shader_patcher, const char *vshader, const char *fshader) {
++    if (vshader != NULL) {
++        shader->vert_gxp = mpv_get_shader(vshader);
++        if (!shader->vert_gxp)
++            return 0;
++        sceGxmShaderPatcherRegisterProgram(shader_patcher, shader->vert_gxp, &shader->vert_id);
++        sceGxmProgramCheck(shader->vert_gxp);
++    }
++
++    if (fshader != NULL) {
++        shader->frag_gxp = mpv_get_shader(fshader);
++        if (!shader->frag_gxp)
++            return 0;
++        sceGxmShaderPatcherRegisterProgram(shader_patcher, shader->frag_gxp, &shader->frag_id);
++        sceGxmProgramCheck(shader->frag_gxp);
++    }
++    return 1;
++}
++#endif
++
++static void gxm_delete_shader(GxmShaderProgram *prog, SceGxmShaderPatcher *shader_patcher) {
++    if (shader_patcher == NULL)
++        return;
++
++    if (prog->vert)
++        sceGxmShaderPatcherReleaseVertexProgram(shader_patcher, prog->vert);
++    if (prog->frag)
++        sceGxmShaderPatcherReleaseFragmentProgram(shader_patcher, prog->frag);
++
++    if (prog->vert_id)
++        sceGxmShaderPatcherUnregisterProgram(shader_patcher, prog->vert_id);
++    if (prog->frag_id)
++        sceGxmShaderPatcherUnregisterProgram(shader_patcher, prog->frag_id);
++
++#if HAVE_VITASHARK
++    if (prog->vert_gxp)
++        free(prog->vert_gxp);
++    if (prog->frag_gxp)
++        free(prog->frag_gxp);
++#endif
++}
++
++struct gxm_vao {
++    SceUID uid;
++    float *buffer;
++    int stride;     // size of each element (interleaved elements are assumed)
++    const struct ra_renderpass_input *entries;
++    int num_entries;
++};
++
++struct ra_renderpass_gxm {
++    GxmShaderProgram prog;
++    SceUID vertices_uid;
++    float *vertices;
++    const SceGxmProgramParameter **uniform_loc;
++    int num_uniform_loc;
++
++    float *uniform_buffer;
++    SceUID uniform_uid;
++};
++
++
++static void gxm_tex_destroy(struct ra *ra, struct ra_tex *tex) {
++    if (!tex)
++        return;
++    talloc_free(tex);
++}
++
++static struct ra_tex *gxm_tex_create(struct ra *ra,
++                                 const struct ra_tex_params *params) {
++    if (params->downloadable)
++        return NULL;
++
++    int ret;
++    struct ra_tex *tex = talloc_zero(NULL, struct ra_tex);
++    if (!tex) {
++        goto error;
++    }
++
++    assert(params->format != NULL);
++    const struct gxm_format *fmt = params->format->priv;
++    int aligned_width = MP_ALIGN_UP(params->w, 8);
++    int tex_size = aligned_width * params->h * fmt->bytes;
++    const unsigned char * data = params->initial_data;
++    tex->params = *params;
++    tex->params.initial_data = NULL;
++
++    struct ra_tex_gxm *tex_gxm = tex->priv = talloc_zero(tex, struct ra_tex_gxm);
++    if (!tex_gxm) {
++        goto error;
++    }
++
++    tex_gxm->tex_data = (uint8_t *) gxm_alloc(SCE_KERNEL_MEMBLOCK_TYPE_USER_RW_UNCACHE,
++                                                  SCE_GXM_MEMORY_ATTRIB_RW,
++                                                  tex_size,
++                                                  &tex_gxm->data_UID);
++    if (tex_gxm->tex_data == NULL) {
++        goto error;
++    }
++
++    if (data == NULL) {
++        memset(tex_gxm->tex_data, 0, tex_size);
++    } else {
++        for (int i = 0; i < params->h; i++) {
++            memcpy(tex_gxm->tex_data + i * aligned_width, data + i * params->w * fmt->bytes, params->w * fmt->bytes);
++        }
++    }
++
++    ret = sceGxmTextureInitLinear(&tex_gxm->gxm_tex, tex_gxm->tex_data, fmt->format,
++                                  aligned_width, params->h, 0);
++    if (ret < 0) {
++        gxm_free(tex_gxm->data_UID);
++        tex_gxm->data_UID = 0;
++        goto error;
++    }
++
++    SceGxmTextureFilter filter = params->src_linear ? SCE_GXM_TEXTURE_FILTER_LINEAR : SCE_GXM_TEXTURE_FILTER_POINT;
++    sceGxmTextureSetMinFilter(&tex_gxm->gxm_tex, filter);
++    sceGxmTextureSetMagFilter(&tex_gxm->gxm_tex, filter);
++
++    SceGxmTextureAddrMode wrap = params->src_repeat ? SCE_GXM_TEXTURE_ADDR_REPEAT : SCE_GXM_TEXTURE_ADDR_CLAMP;
++    sceGxmTextureSetUAddrMode(&tex_gxm->gxm_tex, wrap);
++    sceGxmTextureSetVAddrMode(&tex_gxm->gxm_tex, wrap);
++
++    tex_gxm->format = fmt->format;
++    tex_gxm->bpp = fmt->bytes;
++    tex_gxm->stride = aligned_width;
++    return tex;
++    error:
++    gxm_tex_destroy(ra, tex);
++    return NULL;
++}
++
++
++static bool gxm_tex_upload(struct ra *ra, const struct ra_tex_upload_params *params) {
++    struct ra_tex *tex = params->tex;
++    struct ra_tex_gxm *tex_gxm = tex->priv;
++    const void *src = params->src;
++    assert(tex->params.host_mutable);
++    if (!src)
++        return false;
++
++    switch (tex->params.dimensions) {
++        case 2: {
++            struct mp_rect rc = {0, 0, tex->params.w, tex->params.h};
++            if (params->rc)
++                rc = *params->rc;
++            for (int i = 0; i < rc.y1 - rc.y0; i++) {
++                int h_offset  = rc.x0 * tex_gxm->bpp;
++                int texture_start = (i + rc.y0) * tex_gxm->stride + h_offset;
++                int src_start = (i + rc.y0) * params->stride + h_offset;
++                memcpy(tex_gxm->tex_data + texture_start, (uint8_t *)src + src_start, (rc.x1 - rc.x0) * tex_gxm->bpp);
++            }
++            break;
++        }
++        default:
++            MP_ASSERT_UNREACHABLE();
++    }
++
++    return true;
++}
++
++static bool gxm_tex_download(struct ra *ra, struct ra_tex_download_params *params) {
++    return false;
++}
++
++static void gxm_buf_destroy(struct ra *ra, struct ra_buf *buf) {
++    MP_ASSERT_UNREACHABLE();
++}
++
++static struct ra_buf *gxm_buf_create(struct ra *ra,
++                                 const struct ra_buf_params *params) {
++    MP_ASSERT_UNREACHABLE();
++    return NULL;
++}
++
++
++static void gxm_buf_update(struct ra *ra, struct ra_buf *buf, ptrdiff_t offset,
++                       const void *data, size_t size) {
++    MP_ASSERT_UNREACHABLE();
++}
++
++
++static void gxm_clear(struct ra *ra, struct ra_tex *tex, float color[4],
++                  struct mp_rect *rc) {
++    struct ra_gxm *gxm = ra->priv;
++    sceGxmSetVertexProgram(gxm->context, gxm->clearProg.vert);
++    sceGxmSetFragmentProgram(gxm->context, gxm->clearProg.frag);
++
++    sceGxmSetVertexStream(gxm->context, 0, gxm->clearVertices);
++
++    void *buffer;
++    sceGxmReserveFragmentDefaultUniformBuffer(gxm->context, &buffer);
++    sceGxmSetUniformDataF(buffer, gxm->clearParam, 0, 4, color);
++
++    sceGxmSetRegionClip(gxm->context, SCE_GXM_REGION_CLIP_OUTSIDE, rc->x0, rc->y0, rc->x1, rc->y1);
++    sceGxmDraw(gxm->context,
++               SCE_GXM_PRIMITIVE_TRIANGLES,
++               SCE_GXM_INDEX_FORMAT_U16,
++               gxm->linearIndices,
++               3);
++}
++
++
++static void gxm_blit(struct ra *ra, struct ra_tex *dst, struct ra_tex *src,
++                 struct mp_rect *dst_rc_ptr, struct mp_rect *src_rc_ptr) {
++    assert(src->params.blit_src);
++    assert(dst->params.blit_dst);
++
++}
++
++static int gxm_desc_namespace(struct ra *ra, enum ra_vartype type) {
++    return type;
++}
++
++static void gxm_renderpass_destroy(struct ra *ra, struct ra_renderpass *pass) {
++    if (!pass)
++        return;
++    struct ra_renderpass_gxm *pass_p = pass->priv;
++    struct ra_gxm *gxm = ra->priv;
++
++    sceGxmFinish(gxm->context);
++    gxm_free(pass_p->vertices_uid);
++    gxm_free(pass_p->uniform_uid);
++    gxm_delete_shader(&pass_p->prog, gxm->shader_patcher);
++    talloc_free(pass);
++}
++
++static SceGxmBlendFactor map_ra_blend(enum ra_blend blend)
++{
++    switch (blend) {
++        case RA_BLEND_ZERO:                return SCE_GXM_BLEND_FACTOR_ZERO;
++        case RA_BLEND_ONE:                 return SCE_GXM_BLEND_FACTOR_ONE;
++        case RA_BLEND_SRC_ALPHA:           return SCE_GXM_BLEND_FACTOR_SRC_ALPHA;
++        case RA_BLEND_ONE_MINUS_SRC_ALPHA: return SCE_GXM_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
++    }
++    MP_ASSERT_UNREACHABLE();
++}
++
++static SceGxmAttributeFormat map_vertex_type(enum ra_vartype type) {
++    switch (type) {
++        case RA_VARTYPE_FLOAT:
++            return SCE_GXM_ATTRIBUTE_FORMAT_F32;
++        case RA_VARTYPE_BYTE_UNORM:
++            return SCE_GXM_ATTRIBUTE_FORMAT_U8N;
++        default:
++            MP_ASSERT_UNREACHABLE();
++    }
++}
++
++static struct ra_renderpass *gxm_renderpass_create(struct ra *ra,
++                                               const struct ra_renderpass_params *params) {
++    struct ra_gxm *gxm = ra->priv;
++    struct ra_renderpass *pass = talloc_zero(NULL, struct ra_renderpass);
++    pass->params = *ra_renderpass_params_copy(pass, params);
++    pass->params.cached_program = (bstr) {0};
++    struct ra_renderpass_gxm *p = pass->priv = talloc_zero(pass, struct ra_renderpass_gxm);
++
++//    sceClibPrintf("frag: %s\n\n", params->frag_shader);
++//    sceClibPrintf("vert: %s\n\n", params->vertex_shader);
++//    sceClibPrintf("comp: %p\n\n", params->compute_shader);
++
++    if (params->type == RA_RENDERPASS_TYPE_COMPUTE) {
++        MP_ASSERT_UNREACHABLE();
++    }
++
++    gxm_create_shader(&p->prog, gxm->shader_patcher, params->vertex_shader, params->frag_shader);
++    if (p->prog.vert_gxp == NULL || p->prog.frag_gxp == NULL) {
++        talloc_free(pass);
++        return NULL;
++    }
++
++    SceGxmVertexAttribute *vertex_attribute = talloc_array(NULL, SceGxmVertexAttribute,
++                                                                 pass->params.num_vertex_attribs);
++    for (int i = 0; i < pass->params.num_vertex_attribs; i++) {
++        struct ra_renderpass_input *inp = &pass->params.vertex_attribs[i];
++        const SceGxmProgramParameter *param = sceGxmProgramFindParameterByName(p->prog.vert_gxp, inp->name);
++
++        vertex_attribute[i].streamIndex = 0;
++        vertex_attribute[i].offset = inp->offset;
++        vertex_attribute[i].format = map_vertex_type(inp->type);
++        vertex_attribute[i].componentCount = inp->dim_m * inp->dim_v;
++        vertex_attribute[i].regIndex = sceGxmProgramParameterGetResourceIndex(param);
++    }
++
++    //todo: 根据实际顶点数设置大小
++    p->vertices = (float *) gxm_alloc(
++            SCE_KERNEL_MEMBLOCK_TYPE_USER_RW_UNCACHE,
++            SCE_GXM_MEMORY_ATTRIB_READ,
++            pass->params.vertex_stride * MAX_VERTEX_POINTS,
++            &p->vertices_uid);
++
++    SceGxmVertexStream vertex_stream[1];
++    vertex_stream[0].stride = pass->params.vertex_stride;
++    vertex_stream[0].indexSource = SCE_GXM_INDEX_SOURCE_INDEX_16BIT;
++
++    SceGxmBlendInfo *blendInfo = NULL, _blendInfo;;
++
++    if (params->enable_blend) {
++        _blendInfo.colorMask = SCE_GXM_COLOR_MASK_ALL;
++        _blendInfo.colorFunc = SCE_GXM_BLEND_FUNC_ADD;
++        _blendInfo.alphaFunc = SCE_GXM_BLEND_FUNC_ADD;
++        _blendInfo.colorSrc = map_ra_blend(params->blend_src_rgb);
++        _blendInfo.colorDst = map_ra_blend(params->blend_dst_rgb);
++        _blendInfo.alphaSrc = map_ra_blend(params->blend_src_alpha);
++        _blendInfo.alphaDst = map_ra_blend(params->blend_dst_alpha);
++        blendInfo = &_blendInfo;
++    }
++
++    sceGxmShaderPatcherCreateVertexProgram(
++            gxm->shader_patcher, p->prog.vert_id,
++            vertex_attribute, pass->params.num_vertex_attribs,
++            vertex_stream, sizeof(vertex_stream) / sizeof(SceGxmVertexStream),
++            &p->prog.vert);
++
++    sceGxmShaderPatcherCreateFragmentProgram(
++            gxm->shader_patcher, p->prog.frag_id,
++            SCE_GXM_OUTPUT_REGISTER_FORMAT_UCHAR4, gxm->msaa,
++            blendInfo, p->prog.vert_gxp,
++            &p->prog.frag);
++
++    talloc_free(vertex_attribute);
++
++    int uniform_size = 0;
++    for (int n = 0; n < pass->params.num_inputs; n++) {
++        const SceGxmProgramParameter *loc = sceGxmProgramFindParameterByName(p->prog.frag_gxp, params->inputs[n].name);
++        MP_TARRAY_APPEND(p, p->uniform_loc, p->num_uniform_loc, loc);
++        if (pass->params.inputs[n].type == RA_VARTYPE_INT || pass->params.inputs[n].type == RA_VARTYPE_FLOAT) {
++            uniform_size += MP_ALIGN_UP(pass->params.inputs[n].dim_m * pass->params.inputs[n].dim_v, 4);
++        }
++    }
++
++    p->uniform_buffer = (float *) gxm_alloc(
++            SCE_KERNEL_MEMBLOCK_TYPE_USER_RW_UNCACHE,
++            SCE_GXM_MEMORY_ATTRIB_READ,
++            sizeof(float) * uniform_size,
++            &p->uniform_uid);
++    sceGxmSetFragmentUniformBuffer(gxm->context, gxm->buffer_index, p->uniform_buffer);
++
++    return pass;
++}
++
++static void gxm_renderpass_run(struct ra *ra,
++                           const struct ra_renderpass_run_params *params) {
++    struct ra_gxm *gxm = ra->priv;
++    struct ra_renderpass *pass = params->pass;
++    enum ra_renderpass_type type = pass->params.type;
++    struct ra_renderpass_gxm *p = pass->priv;
++
++    assert(type != RA_RENDERPASS_TYPE_COMPUTE);
++
++    sceGxmSetVertexProgram(gxm->context, p->prog.vert);
++    sceGxmSetFragmentProgram(gxm->context, p->prog.frag);
++    memcpy(p->vertices, params->vertex_data, pass->params.vertex_stride * params->vertex_count);
++    sceGxmSetVertexStream(gxm->context, 0, p->vertices);
++    sceGxmSetFragmentUniformBuffer(gxm->context, gxm->buffer_index, p->uniform_buffer);
++
++    for (int n = 0; n < params->num_values; n++) {
++        struct ra_renderpass_input_val *val = &params->values[n];
++        struct ra_renderpass_input *input = &pass->params.inputs[val->index];
++        const SceGxmProgramParameter *loc = p->uniform_loc[val->index];
++
++        switch (input->type) {
++            case RA_VARTYPE_INT:
++            //todo 检查int值的作用
++            case RA_VARTYPE_FLOAT: {
++                if (!loc)
++                    break;
++                float *f = val->data;
++                sceGxmSetUniformDataF(p->uniform_buffer, loc, 0, input->dim_v * input->dim_m, f);
++                break;
++            }
++            case RA_VARTYPE_TEX: {
++                struct ra_tex *tex = *(struct ra_tex **) val->data;
++                struct ra_tex_gxm *tex_gxm = tex->priv;
++                assert(tex->params.render_src);
++                sceGxmSetFragmentTexture(gxm->context, input->binding, &tex_gxm->gxm_tex);
++                break;
++            }
++            case RA_VARTYPE_IMG_W:
++            case RA_VARTYPE_BUF_RO:
++            case RA_VARTYPE_BUF_RW:
++            default:
++                MP_ASSERT_UNREACHABLE();
++        }
++    }
++
++    sceGxmDraw(gxm->context, SCE_GXM_PRIMITIVE_TRIANGLES, SCE_GXM_INDEX_FORMAT_U16, gxm->linearIndices,
++               params->vertex_count);
++}
++
++static void gxm_timer_destroy(struct ra *ra, ra_timer *ratimer) {
++    if (!ratimer)
++        return;
++    struct gxm_timer *timer = ratimer;
++    talloc_free(timer);
++}
++
++static ra_timer *gxm_timer_create(struct ra *ra) {
++    return NULL;
++}
++
++static void gxm_timer_start(struct ra *ra, ra_timer *ratimer) {
++}
++
++static uint64_t gxm_timer_stop(struct ra *ra, ra_timer *ratimer) {
++    return 0;
++}
++
++
++static void gxm_debug_marker(struct ra *ra, const char *msg) {
++}
++
++static void gxm_destroy(struct ra *ra) {
++    struct ra_gxm *gxm = ra->priv;
++    sceGxmFinish(gxm->context);
++    gxm_free(gxm->linearIndicesUid);
++    gxm_free(gxm->clearVerticesUid);
++    gxm_delete_shader(&gxm->clearProg, gxm->shader_patcher);
++
++    talloc_free(ra);
++}
++
++static struct ra_fns ra_fns_gxm = {
++        .destroy            = gxm_destroy,
++        .tex_create         = gxm_tex_create,
++        .tex_destroy        = gxm_tex_destroy,
++        .tex_upload         = gxm_tex_upload,
++        .tex_download       = gxm_tex_download,
++        .buf_create         = gxm_buf_create,
++        .buf_destroy        = gxm_buf_destroy,
++        .buf_update         = gxm_buf_update,
++        .clear              = gxm_clear,
++        .blit               = gxm_blit,
++        .uniform_layout     = std140_layout,
++        .desc_namespace     = gxm_desc_namespace,
++        .renderpass_create  = gxm_renderpass_create,
++        .renderpass_destroy = gxm_renderpass_destroy,
++        .renderpass_run     = gxm_renderpass_run,
++        .timer_create       = gxm_timer_create,
++        .timer_destroy      = gxm_timer_destroy,
++        .timer_start        = gxm_timer_start,
++        .timer_stop         = gxm_timer_stop,
++        .debug_marker       = gxm_debug_marker,
++};
++
++
++struct ra * ra_gxm_create(struct mp_log *log, SceGxmContext *context, SceGxmShaderPatcher *shader_patcher,
++                          int buffer_index, SceGxmMultisampleMode msaa) {
++    struct ra *ra = talloc_zero(NULL, struct ra);
++    ra->log = log;
++    ra->fns = &ra_fns_gxm;
++
++    ra->glsl_version = 200;
++    ra->glsl_gxm = true;
++    ra->gxm_buffer_index = buffer_index;
++
++    ra->caps = RA_CAP_DIRECT_UPLOAD | RA_CAP_GLOBAL_UNIFORM;
++
++    struct ra_gxm *p = ra->priv = talloc_zero(ra, struct ra_gxm);
++    p->context = context;
++    p->shader_patcher = shader_patcher;
++    p->buffer_index = buffer_index;
++    p->msaa = msaa;
++
++    ra->max_texture_wh = 1920;
++
++    for (int i = 0; i < MP_ARRAY_SIZE(gxm_formats); ++i) {
++        const struct gxm_format *gxmfmt = &gxm_formats[i];
++
++        struct ra_format *fmt = talloc_zero(ra, struct ra_format);
++        *fmt = (struct ra_format) {
++                .name           = gxmfmt->name,
++                .priv           = (void *) gxmfmt,
++                .ctype          = gxmfmt->ctype,
++                .ordered        = gxmfmt->ordered,
++                .num_components = gxmfmt->components,
++                .pixel_size     = gxmfmt->bytes,
++                .linear_filter  = gxmfmt->linear_filter,
++                .renderable     = gxmfmt->renderable,
++                .storable       = gxmfmt->storable,
++        };
++
++        for (int j = 0; j < gxmfmt->components; j++)
++            fmt->component_size[j] = fmt->component_depth[j] = gxmfmt->bits[j];
++
++        fmt->glsl_format = ra_fmt_glsl_format(fmt);
++
++        MP_TARRAY_APPEND(ra, ra->formats, ra->num_formats, fmt);
++    }
++
++    // Create shared linear index buffer
++    p->linearIndices = (unsigned short *) gxm_alloc(
++        SCE_KERNEL_MEMBLOCK_TYPE_USER_RW_UNCACHE,
++        SCE_GXM_MEMORY_ATTRIB_READ,
++        MAX_VERTEX_POINTS * sizeof(unsigned short),
++        &p->linearIndicesUid);
++
++    for (uint32_t i = 0; i < MAX_VERTEX_POINTS; ++i) {
++        p->linearIndices[i] = i;
++    }
++
++    // Create clear shader
++    static const char *clearVertShader = "float4 main(float2 position) : POSITION\n"
++                                         "{\n"
++                                         "	return float4(position, 1.f, 1.f);\n"
++                                         "}\n";
++
++    static const char *clearFragShader = "__nativecolor __regformat unsigned char4 main(uniform float4 color) : COLOR\n"
++                                         "{\n"
++                                         "	return unsigned char4(color * 255);\n"
++                                         "}\n";
++
++    gxm_create_shader(&p->clearProg, p->shader_patcher, clearVertShader,clearFragShader);
++
++    p->clearVertices = (struct mp_gxm_clear_vertex *) gxm_alloc(
++            SCE_KERNEL_MEMBLOCK_TYPE_USER_RW_UNCACHE,
++            SCE_GXM_MEMORY_ATTRIB_READ,
++            3 * sizeof(struct mp_gxm_clear_vertex),
++            &p->clearVerticesUid);
++    p->clearVertices[0] = (struct mp_gxm_clear_vertex) {-1.0f, -1.0f};
++    p->clearVertices[1] = (struct mp_gxm_clear_vertex) {3.0f, -1.0f};
++    p->clearVertices[2] = (struct mp_gxm_clear_vertex) {-1.0f, 3.0f};
++    p->clearParam = sceGxmProgramFindParameterByName(p->clearProg.frag_gxp, "color");
++
++    const SceGxmProgramParameter *clear_position_param = sceGxmProgramFindParameterByName(
++            p->clearProg.vert_gxp,
++            "position");
++    SceGxmVertexAttribute clear_vertex_attribute;
++    clear_vertex_attribute.streamIndex = 0;
++    clear_vertex_attribute.offset = 0;
++    clear_vertex_attribute.format = SCE_GXM_ATTRIBUTE_FORMAT_F32;
++    clear_vertex_attribute.componentCount = 2;
++    clear_vertex_attribute.regIndex = sceGxmProgramParameterGetResourceIndex(clear_position_param);
++
++    SceGxmVertexStream clear_vertex_stream;
++    clear_vertex_stream.stride = sizeof(struct mp_gxm_clear_vertex);
++    clear_vertex_stream.indexSource = SCE_GXM_INDEX_SOURCE_INDEX_16BIT;
++
++    sceGxmShaderPatcherCreateVertexProgram(
++            p->shader_patcher, p->clearProg.vert_id,
++            &clear_vertex_attribute, 1,
++            &clear_vertex_stream, 1,
++            &p->clearProg.vert);
++
++    sceGxmShaderPatcherCreateFragmentProgram(
++            p->shader_patcher, p->clearProg.frag_id,
++            SCE_GXM_OUTPUT_REGISTER_FORMAT_UCHAR4, SCE_GXM_MULTISAMPLE_NONE,
++            NULL, p->clearProg.vert_gxp,
++            &p->clearProg.frag);
++    return ra;
++}
++
++
++bool ra_is_gxm(struct ra *ra) {
++    return ra->fns == &ra_fns_gxm;
++}
+diff --git a/video/out/gxm/ra_gxm.h b/video/out/gxm/ra_gxm.h
+new file mode 100644
+index 0000000000..d024945b7b
+--- /dev/null
++++ b/video/out/gxm/ra_gxm.h
+@@ -0,0 +1,71 @@
++#pragma once
++
++#include <stdbool.h>
++#include <psp2/gxm.h>
++
++#include "video/out/gpu/ra.h"
++#include "video/out/gpu/spirv.h"
++
++#define MAX_VERTEX_POINTS 48
++
++typedef struct GxmShaderProgram {
++    SceGxmShaderPatcherId vert_id;
++    SceGxmShaderPatcherId frag_id;
++
++    SceGxmVertexProgram *vert;
++    SceGxmFragmentProgram *frag;
++
++    SceGxmProgram *vert_gxp;
++    SceGxmProgram *frag_gxp;
++} GxmShaderProgram;
++
++struct mp_gxm_clear_vertex {
++    float x, y;
++};
++
++struct ra_gxm {
++    SceGxmContext *context;
++    SceGxmShaderPatcher *shader_patcher;
++
++    // clear shader
++    GxmShaderProgram clearProg;
++    const SceGxmProgramParameter *clearParam;
++    SceUID clearVerticesUid;
++    struct mp_gxm_clear_vertex *clearVertices;
++
++    // shared linear indices
++    SceUID linearIndicesUid;
++    unsigned short *linearIndices;
++
++    // uniform buffer index
++    int buffer_index;
++
++    // Application multisample mode
++    SceGxmMultisampleMode msaa;
++};
++
++struct ra_tex_gxm {
++    SceGxmTexture gxm_tex;
++    uint8_t *tex_data;
++    SceUID data_UID;
++    SceGxmTextureFormat format;
++    int bpp;
++    int stride;
++};
++
++struct gxm_format {
++    const char *name;
++    int components;
++    int bytes;
++    int bits[4];
++    SceGxmTextureFormat format;
++    enum ra_ctype ctype;
++    bool renderable, linear_filter, storable, ordered;
++};
++
++// Create an RA instance.
++struct ra *ra_gxm_create(struct mp_log *log, SceGxmContext *context, SceGxmShaderPatcher *shader_patcher,
++                         int buffer_index, SceGxmMultisampleMode msaa);
++
++// True if the RA instance was created with ra_gxm_create()
++bool ra_is_gxm(struct ra *ra);
+diff --git a/video/out/opengl/utils.c b/video/out/opengl/utils.c
+index a551ce4299..ca33de88c3 100644
+--- a/video/out/opengl/utils.c
++++ b/video/out/opengl/utils.c
+@@ -79,29 +79,20 @@ void gl_upload_tex(GL *gl, GLenum target, GLenum format, GLenum type,
+                    const void *dataptr, int stride,
+                    int x, int y, int w, int h)
+ {
+-    int bpp = gl_bytes_per_pixel(format, type);
+     const uint8_t *data = dataptr;
+-    int y_max = y + h;
+-    if (w <= 0 || h <= 0 || !bpp)
++    if (w <= 0 || h <= 0)
+         return;
+     assert(stride > 0);
+-    gl->PixelStorei(GL_UNPACK_ALIGNMENT, get_alignment(stride));
+-    int slice = h;
+-    if (gl->mpgl_caps & MPGL_CAP_ROW_LENGTH) {
+-        // this is not always correct, but should work for MPlayer
+-        gl->PixelStorei(GL_UNPACK_ROW_LENGTH, stride / bpp);
++    if (stride != w) {
++        gl->PixelStorei(GL_UNPACK_ALIGNMENT, get_alignment(w));
++        uint8_t *tail = data + w;
++        for (int i = 1; i < h; i++, tail += w) {
++            memmove(tail, data + i * stride, w);
++        }
+     } else {
+-        if (stride != bpp * w)
+-            slice = 1; // very inefficient, but at least it works
+-    }
+-    for (; y + slice <= y_max; y += slice) {
+-        gl->TexSubImage2D(target, 0, x, y, w, slice, format, type, data);
+-        data += stride * slice;
++        gl->PixelStorei(GL_UNPACK_ALIGNMENT, get_alignment(stride));
+     }
+-    if (y < y_max)
+-        gl->TexSubImage2D(target, 0, x, y, w, y_max - y, format, type, data);
+-    if (gl->mpgl_caps & MPGL_CAP_ROW_LENGTH)
+-        gl->PixelStorei(GL_UNPACK_ROW_LENGTH, 0);
++    gl->TexImage2D(target, 0, format, w, h, 0, format, type, data);
+     gl->PixelStorei(GL_UNPACK_ALIGNMENT, 4);
+ }
+ 

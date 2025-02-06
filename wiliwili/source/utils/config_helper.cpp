@@ -48,6 +48,18 @@ extern in_addr_t secondary_dns;
 }
 #endif
 
+#ifdef __PSV__
+#include <psp2/kernel/cpu.h>
+#include <psp2/kernel/threadmgr/thread.h>
+#include <psp2/vshbridge.h>
+extern "C"
+{
+unsigned int _newlib_heap_size_user      = 220 * 1024 * 1024;
+unsigned int sceLibcHeapSize             = 24 * 1024 * 1024;
+unsigned int _pthread_stack_default_user = 2 * 1024 * 1024;
+}
+#endif
+
 #ifdef _WIN32
 #include <winsock2.h>
 #endif
@@ -558,7 +570,7 @@ void ProgramConfig::load() {
     VideoView::HIGHLIGHT_PROGRESS_BAR = getBoolOption(SettingItem::PLAYER_HIGHLIGHT_BAR);
 
     // 初始化是否使用硬件加速
-#ifdef __PSV__
+#if defined(__PSV__) && defined(BOREALIS_USE_OPENGL)
     MPVCore::HARDWARE_DEC = true;
 #else
     MPVCore::HARDWARE_DEC = getBoolOption(SettingItem::PLAYER_HWDEC);
@@ -839,6 +851,14 @@ void ProgramConfig::init() {
 #endif
 #if defined(_MSC_VER)
 #elif defined(__PSV__)
+    int search_unk[2];
+    if(_vshKernelSearchModuleByName("CapUnlocker", search_unk) >= 0) {
+        brls::sync([]() {
+            brls::Application::notify("CapUnlocker found");
+        });
+        sceKernelChangeThreadPriority(SCE_KERNEL_THREAD_ID_SELF, 64);
+        sceKernelChangeThreadCpuAffinityMask(SCE_KERNEL_THREAD_ID_SELF, SCE_KERNEL_CPU_MASK_SYSTEM);
+    }
 #elif defined(PS4)
     if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0) brls::Logger::error("cannot load net module");
     primary_dns                     = inet_addr(primaryDNSStr.c_str());

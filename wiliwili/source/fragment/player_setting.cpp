@@ -59,8 +59,8 @@ brls::View* PlayerSetting::getDefaultFocus() { return this->settings->getDefault
 
 void PlayerSetting::setupCustomShaders() {
     // TODO Fix: shaders cannot work with deko3d and ps4
-#if !defined(_DEBUG) && (defined(BOREALIS_USE_DEKO3D) || defined(PS4))
-    // hide shader setting: deko3d and ps4
+#if !defined(_DEBUG) && (defined(BOREALIS_USE_DEKO3D) || defined(PS4) || defined(__PSV__))
+    // hide shader setting: deko3d, psv and ps4
     auto* cell = new brls::RadioCell();
     cell->title->setText("wiliwili/dialog/not_supported"_i18n);
     shaderBox->addView(cell);

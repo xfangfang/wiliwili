@@ -1,0 +1,37 @@
+pkgname=mpv
+pkgver=0.36.0
+pkgrel=3
+url="https://mpv.io/"
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/mpv-player/mpv/archive/v${pkgver}.tar.gz" "gxm.patch")
+sha256sums=('SKIP' 'SKIP')
+depends=('libass' 'ffmpeg')
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch --strip=1 --input=${srcdir}/gxm.patch
+}
+
+build() {
+  cd $pkgname-$pkgver
+  meson setup build --prefix=$prefix --cross-file crossfile.txt  \
+      --default-library static \
+      -Diconv=disabled \
+      -Dlua=disabled  \
+      -Djpeg=disabled \
+      -Dopensles=disabled \
+      -Dlibavdevice=disabled \
+      -Dmanpage-build=disabled \
+      -Dhtml-build=disabled \
+      -Dsdl2=disabled \
+      -Dlibmpv=true \
+      -Dgxm=enabled \
+      -Dvitashark=disabled \
+      -Dcplayer=false
+
+  meson compile -C build
+}
+
+package () {
+  cd $pkgname-$pkgver
+  DESTDIR=$pkgdir meson install -C build
+}

@@ -1,0 +1,31 @@
+diff --git a/libavcodec/vitadec_video.c b/libavcodec/vitadec_video.c
+index 8e0b6348c5..6a391be944 100644
+--- a/libavcodec/vitadec_video.c
++++ b/libavcodec/vitadec_video.c
+@@ -270,7 +270,7 @@ fail:
+     return false;
+ }
+
+-static void do_mem_free(VitaDecodeBufferFreeParams *p)
++static void __attribute__((optimize("no-optimize-sibling-calls"))) do_mem_free(VitaDecodeBufferFreeParams *p)
+ {
+     sceKernelFreeMemBlock(*p->mb);
+ }
+@@ -285,7 +285,7 @@ static bool do_unmap_open(VitaDecodeBufferAllocParams *p)
+     return true;
+ }
+
+-static void do_unmap_close(VitaDecodeBufferFreeParams *p)
++static void __attribute__((optimize("no-optimize-sibling-calls"))) do_unmap_close(VitaDecodeBufferFreeParams *p)
+ {
+     sceCodecEngineCloseUnmapMemBlock(*p->mb);
+ }
+@@ -302,7 +302,7 @@ static bool do_vaddr_alloc(VitaDecodeBufferAllocParams *p)
+     return true;
+ }
+
+-static void do_vaddr_free(VitaDecodeBufferFreeParams *p)
++static void __attribute__((optimize("no-optimize-sibling-calls"))) do_vaddr_free(VitaDecodeBufferFreeParams *p)
+ {
+     SceUID *unmap = p->ref;
+     SceUIntVAddr *vaddr = p->ptr;
