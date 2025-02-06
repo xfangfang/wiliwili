@@ -36,7 +36,7 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
 
     auto& conf = ProgramConfig::instance();
 
-#if defined(BOREALIS_USE_D3D11) || defined(BOREALIS_USE_OPENGL) && !defined(__PSV__)
+#ifdef DRAW_DANMAKU_MASK
     this->cellMask->init("wiliwili/player/danmaku/filter/mask"_i18n, DanmakuCore::DANMAKU_SMART_MASK, [](bool data) {
         DanmakuCore::DANMAKU_SMART_MASK = data;
         DanmakuCore::save();

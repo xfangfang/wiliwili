@@ -15,6 +15,10 @@
 
 #include "utils/event_helper.hpp"
 
+#if defined(BOREALIS_USE_D3D11) || defined(BOREALIS_USE_OPENGL) && !defined(__PSV__) || defined(BOREALIS_USE_GXM)
+#define DRAW_DANMAKU_MASK
+#endif
+
 // 每个分片内的svg数据，一般 1/30 s 一帧
 class MaskSvg {
 public:

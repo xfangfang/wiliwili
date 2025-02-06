@@ -429,7 +429,7 @@ std::vector<DanmakuItem> DanmakuCore::getDanmakuData() {
 }
 
 void DanmakuCore::drawMask(NVGcontext *vg, float x, float y, float width, float height) {
-#if defined(BOREALIS_USE_OPENGL) || defined(BOREALIS_USE_D3D11)
+#ifdef DRAW_DANMAKU_MASK
     if (!DANMAKU_SMART_MASK || !maskData.isLoaded()) return;
     double playbackTime = MPVCore::instance().playback_time;
     /// 1. 先根据时间选择分片
@@ -533,7 +533,8 @@ void DanmakuCore::drawMask(NVGcontext *vg, float x, float y, float width, float 
 }
 
 void DanmakuCore::clearMask(NVGcontext *vg, float x, float y, float width, float height) {
-#if !defined(DEBUG_MASK) && (defined(BOREALIS_USE_OPENGL) || defined(BOREALIS_USE_D3D11))
+#if !defined(DEBUG_MASK) && defined(DRAW_DANMAKU_MASK)
+    if (!DANMAKU_SMART_MASK || !maskData.isLoaded()) return;
     if (maskTex > 0) {
         nvgBeginPath(vg);
         nvgRect(vg, x, y, width, height);

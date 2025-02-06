@@ -521,7 +521,7 @@ void VideoDetail::requestVideoPageDetail(const std::string& bvid, uint64_t cid, 
     BILI::get_page_detail(
         bvid, cid,
         [ASYNC_TOKEN, requestVideoHistory](const bilibili::VideoPageResult& result) {
-#if defined(BOREALIS_USE_D3D11) || defined(BOREALIS_USE_OPENGL) && !defined(__PSV__)
+#ifdef DRAW_DANMAKU_MASK
             if (!result.mask_url.empty()) {
                 brls::Logger::debug("获取防遮挡数据: {}", result.mask_url);
                 DanmakuCore::instance().loadMaskData(result.mask_url);
