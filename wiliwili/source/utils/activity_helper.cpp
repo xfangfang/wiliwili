@@ -21,6 +21,33 @@
 
 #include "presenter/video_detail.hpp"
 
+void Intent::openAV(const std::string& avid, uint64_t cid, int progress) {
+    // av to bv
+    // Based on https://github.com/bolanxian/metadata-fetcher/blob/master/src/utils/bv-encode.ts
+    constexpr int BASE = 58;
+    constexpr int64_t MAX = 1LL << 51;
+    constexpr int64_t XOR = 0x1552356C4CDB;
+    const std::string table = "FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf";
+    int64_t tmp = std::stoll(avid, nullptr, 10);
+    if (tmp < 0 || tmp >= MAX)
+        return;
+    tmp = (tmp | MAX) ^ XOR;
+    std::string x = "0000000000";
+    int i = 0;
+    while (i < x.length()) {
+        x[i++] = table[tmp % BASE];
+        tmp /= BASE;
+    }
+    if (tmp > 0)
+        return;
+    std::string bvid = "BV1000000000";
+    const int map[] = {2, 4, 6, 5, 7, 3, 8, 1, 0};
+    for (size_t j = 0; j < 9; j++) {
+        bvid[j + 3] = x[map[j]];
+    }
+    openBV(bvid, cid, progress);
+}
+
 void Intent::openBV(const std::string& bvid, uint64_t cid, int progress) {
     auto activity = new PlayerActivity(bvid, cid, progress);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);

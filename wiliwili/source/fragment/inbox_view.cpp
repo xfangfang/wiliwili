@@ -71,6 +71,7 @@ public:
             recycler->refresh();
         });
         recycler->present(view);
+        view->setWidth(600);
     }
 
     void appendData(const bilibili::InboxChatListResult& data) {}

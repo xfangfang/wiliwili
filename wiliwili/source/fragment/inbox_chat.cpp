@@ -3,6 +3,9 @@
 #include <algorithm>
 
 #include "fragment/inbox_chat.hpp"
+
+#include <utils/activity_helper.hpp>
+
 #include "view/inbox_msg_card.hpp"
 #include "view/custom_button.hpp"
 #include "utils/number_helper.hpp"
@@ -62,7 +65,20 @@ public:
 
     size_t getItemCount() override { return list.size(); }
 
-    void onItemSelected(RecyclingGrid* recycler, size_t index) override {}
+    void onItemSelected(RecyclingGrid* recycler, size_t index) override {
+        auto & r = this->list[index];
+        int source{};
+        if (r.content.at("source").is_number_integer())
+            source = r.content.at("source").get<int>();
+        if (r.msg_type == 7 && source == 5) {
+            // UGC video
+            std::string avid;
+            if (r.content.at("id").is_string())
+                avid = r.content.at("id").get<std::string>();
+            if (!avid.empty())
+                Intent::openAV(avid);
+        }
+    }
 
     bool appendData(const bilibili::InboxMessageResultWrapper& result) {
         bool skip_all = true;
