@@ -23,13 +23,8 @@ public:
         RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::HotsHistoryVideoResult& r = this->videoList[index];
-        std::string h_ext = ImageHelper::h_ext;
-        if (pystring::endswith(r.pic, ".gif")) {
-            // gif 图片暂时按照 jpg 来解析
-            h_ext = pystring::replace(h_ext, ".webp", ".jpg");
-        }
-        item->setCard(r.pic + h_ext, r.title, r.owner.name, r.pubdate, r.stat.view, r.stat.danmaku,
-                      r.duration);
+        item->setCard(ImageHelper::parseGifImageUrl(r.pic, ImageHelper::h_ext), r.title, r.owner.name,
+                      r.pubdate, r.stat.view, r.stat.danmaku, r.duration);
         item->setAchievement(r.achievement);
         return item;
     }

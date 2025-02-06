@@ -232,11 +232,14 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
     // 笔记图片
     if (!data.content.pictures.empty()) d.emplace_back(std::make_shared<RichTextSpan>("\n\n", textColor));
 
-    static constexpr float size    = 108;
-    static constexpr float maxSize = 324;
+    static constexpr float smallSize = 68;
+    static constexpr float bigSize   = 108;
+
     if (data.content.pictures.size() == 1) {
         // 只有一张图片时，按图片的比例显示
+        float maxSize = brls::Application::ORIGINAL_WINDOW_WIDTH < 1280 ? smallSize * 3 : bigSize * 3;
         auto& picture = data.content.pictures[0];
+        float size = bigSize;
         float w = size, h = size;
         if (picture.img_height == 0 || picture.img_width == 0) {
         } else if (picture.img_height > picture.img_width) {
@@ -247,23 +250,14 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
             if (w > maxSize) w = maxSize;
         }
 
-        const std::string custom_ext_jpg = "@{}w_{}h_85q_!note-comment-multiple.jpg";
-        std::string custom_ext           = ImageHelper::note_custom_ext;
-        if (picture.img_src.size() > 4 && picture.img_src.substr(picture.img_src.size() - 4, 4) == ".gif") {
-            // gif 图片暂时按照 jpg 来解析
-            custom_ext = custom_ext_jpg;
-        }
-        auto item = std::make_shared<RichTextImage>(picture.img_src + wiliwili::format(custom_ext,
-#ifdef __PSV__
-                                                                                       (int)(w * 0.5), (int)(h * 0.5)),
-#else
-                                                                                       (int)(w * 5), (int)(h * 5)),
-#endif
-                                                    w, h);
+        auto item = std::make_shared<RichTextImage>(
+            ImageHelper::parseNoteImageUrl(picture.img_src, w * ImageHelper::note_small, h * ImageHelper::note_small),
+            w, h);
         item->t_margin = 8;
         d.emplace_back(item);
     } else {
         // 多张图片显示为正方形缩略图
+        float size = brls::Application::ORIGINAL_WINDOW_WIDTH < 1280 ? smallSize : bigSize;
         for (auto& picture : data.content.pictures) {
             auto item      = std::make_shared<RichTextImage>(picture.img_src + ImageHelper::note_ext, size, size);
             item->r_margin = 8;

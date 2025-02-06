@@ -106,14 +106,11 @@ void InboxMsgCard::setCard(const bilibili::InboxMessageResult& r, const IEMap& m
                 width  = width * 400.f / height;
                 height = 400.f;
             }
-#ifdef __PSV__
-            std::string custom =
-                wiliwili::format(ImageHelper::note_custom_ext, (int)(width * 0.5f), (int)(height * 0.5f));
-#else
-            std::string custom = wiliwili::format(ImageHelper::note_custom_ext, (int)width, (int)height);
-#endif
+
             textBox->setLineHeight(1.0f);
-            d.push_back(std::make_shared<RichTextImage>(pic + custom, width, height));
+            d.push_back(std::make_shared<RichTextImage>(
+                ImageHelper::parseNoteImageUrl(pic, width * ImageHelper::note_small, height * ImageHelper::note_small),
+                width, height, 8));
             break;
         }
         case 10: {  // 系统消息

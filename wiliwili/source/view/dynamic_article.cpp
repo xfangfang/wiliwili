@@ -76,19 +76,9 @@ public:
     }
 
     void setGalleryData(const bilibili::DynamicArticleModuleDraw* imageData) {
-#ifdef __PSV__
-        const std::string note_raw_ext = "@300h.jpg";
-#else
-        const std::string note_raw_ext = "@!web-comment-note.jpg";
-#endif
         this->svgGallery->setVisibility(brls::Visibility::VISIBLE);
         for (auto& i : imageData->items) {
-            std::string raw_ext = ImageHelper::note_raw_ext;
-            if (i.src.size() > 4 && i.src.substr(i.src.size() - 4, 4) == ".gif") {
-                // gif 图片暂时按照 jpg 来解析
-                raw_ext = note_raw_ext;
-            }
-            this->images.emplace_back(i.src + raw_ext);
+            this->images.emplace_back(ImageHelper::parseGifImageUrl(i.src, ImageHelper::note_raw_ext));
         }
     }
 

@@ -446,18 +446,8 @@ PlayerCommentAction::PlayerCommentAction(CommentUiType type) {
     });
     this->svgGallery->registerClickAction([this](...) {
         std::vector<std::string> data;
-#ifdef __PSV__
-        const std::string note_raw_ext = "@300h.jpg";
-#else
-        const std::string note_raw_ext = "@!web-comment-note.jpg";
-#endif
         for (auto& i : this->comment->getData().content.pictures) {
-            std::string raw_ext = ImageHelper::note_raw_ext;
-            if (i.img_src.size() > 4 && i.img_src.substr(i.img_src.size() - 4, 4) == ".gif") {
-                // gif 图片暂时按照 jpg 来解析
-                raw_ext = note_raw_ext;
-            }
-            data.emplace_back(i.img_src + raw_ext);
+            data.emplace_back(ImageHelper::parseGifImageUrl(i.img_src, ImageHelper::note_raw_ext));
         }
         Intent::openGallery(data);
         return true;
