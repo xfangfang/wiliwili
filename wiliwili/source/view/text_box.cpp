@@ -30,8 +30,8 @@ inline static std::shared_ptr<RichTextComponent> genRichTextSpan(const std::stri
 }
 
 inline static std::shared_ptr<RichTextComponent> genRichTextImage(const std::string& url, float width, float height,
-                                                                  float x, float y) {
-    auto item = std::make_shared<RichTextImage>(url, width, height, true);
+                                                                  float x, float y, float radius) {
+    auto item = std::make_shared<RichTextImage>(url, width, height, radius, true);
     item->setPosition(x, y);
     return item;
 }
@@ -219,7 +219,7 @@ float TextBox::cutRichTextLines(float width) {
                 ly += fontSize * lineHeight;
             }
             auto item =
-                genRichTextImage(t->url, t->width, t->height, lx + t->l_margin, ly - t->height + fontSize + t->v_align);
+                genRichTextImage(t->url, t->width, t->height, lx + t->l_margin, ly - t->height + fontSize + t->v_align, t->radius);
             item->t_margin = t->t_margin;
             tempData.emplace_back(item);
             lx += t->width + t->l_margin + t->r_margin;
@@ -343,12 +343,12 @@ bool TextBox::isShowMoreText() const { return this->showMoreText; }
 
 /// RichTextImage
 
-RichTextImage::RichTextImage(std::string url, float width, float height, bool autoLoad)
-    : RichTextComponent(RichTextType::Image), url(std::move(url)), width(width), height(height) {
+RichTextImage::RichTextImage(std::string url, float width, float height, float radius, bool autoLoad)
+    : RichTextComponent(RichTextType::Image), url(std::move(url)), width(width), height(height), radius(radius) {
     image = new brls::Image();
     image->setWidth(width);
     image->setHeight(height);
-    image->setCornerRadius(4);
+    image->setCornerRadius(radius);
     image->setScalingType(brls::ImageScalingType::FIT);
 
     if (autoLoad) ImageHelper::with(image)->load(this->url);

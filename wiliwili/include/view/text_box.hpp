@@ -47,13 +47,13 @@ public:
 /// 富文本 图片组件
 class RichTextImage : public RichTextComponent {
 public:
-    RichTextImage(std::string url, float width, float height, bool autoLoad = false);
+    RichTextImage(std::string url, float width, float height, float radius = 4, bool autoLoad = false);
 
     ~RichTextImage();
 
     std::string url;
     brls::Image* image;
-    float width, height;
+    float width, height, radius;
 };
 
 /// 富文本 换行组件
