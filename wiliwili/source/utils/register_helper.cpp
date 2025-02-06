@@ -168,6 +168,7 @@ void Register::initCustomTheme() {
 void Register::initCustomStyle() {
     // Add custom values to the style
     brls::getStyle().addMetric("brls/animations/highlight", 200);
+    brls::getStyle().addMetric("wiliwili/window/width", brls::Application::ORIGINAL_WINDOW_WIDTH);
 
     if (brls::Application::ORIGINAL_WINDOW_HEIGHT == 544) {
         brls::getStyle().addMetric("wiliwili/grid/span/5", 4);

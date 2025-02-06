@@ -1,5 +1,5 @@
 <brls:Box
-        width="1280"
+        width="@style/wiliwili/window/width"
         height="auto"
         axis="column">
 

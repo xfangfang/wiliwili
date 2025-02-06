@@ -23,8 +23,11 @@
                 positionTop="-8"
                 positionLeft="5%"
                 width="90%"
-                backgroundColor="#C0C0C0"
-                cornerRadius="8"
+                background="vertical_linear"
+                backgroundStartColor="#C0C0C0"
+                backgroundEndColor="#C0C0C0"
+                backgroundTopLeftRadius="8"
+                backgroundTopRightRadius="8"
                 height="16">
         </brls:Box>
         <brls:Image
