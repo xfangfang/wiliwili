@@ -69,20 +69,36 @@ unsigned int _pthread_stack_default_user = 2 * 1024 * 1024;
 #endif
 
 #ifdef __PSV__
-#define WILI_VIDEO_QUALITY_DEFAULT 32
+#ifdef BOREALIS_USE_GXM
+// 720P
+#define WILI_VIDEO_QUALITY_DEFAULT 64
 #define WILI_VIDEO_QUALITY_LANDSCAPE_MAX 64
+// 480P
 #define WILI_VIDEO_QUALITY_PORTRAIT_MAX 32
+#else
+#define WILI_VIDEO_QUALITY_DEFAULT 32
+#define WILI_VIDEO_QUALITY_LANDSCAPE_MAX 32
+#define WILI_VIDEO_QUALITY_PORTRAIT_MAX 32
+#endif
 #define WILI_WINDOW_WIDTH_DEFAULT 960
 #define WILI_WINDOW_HEIGHT_DEFAULT 544
+// 默认 UI 缩放 (0 为 960x544)
 #define WILI_UI_SCALE_DEFAULT 0
+// 默认音频质量 (2 为 低, PSV 的喇叭质量差，音质高低无区别，设置成低可以减少流量)
 #define WILI_AUDIO_QUALITY_DEFAULT 2
 #else
+// 默认清晰度 (116 为 1080P@60)
 #define WILI_VIDEO_QUALITY_DEFAULT 116
+// 横屏视频最高清晰度 (127 为 8K, 128 即无限制)
 #define WILI_VIDEO_QUALITY_LANDSCAPE_MAX 128
+// 竖屏视频最高清晰度
 #define WILI_VIDEO_QUALITY_PORTRAIT_MAX 128
+// 默认窗口大小 (不配置 ui 缩放时的窗口大小)
 #define WILI_WINDOW_WIDTH_DEFAULT 1280
 #define WILI_WINDOW_HEIGHT_DEFAULT 720
+// 默认 UI 缩放 (1 为 1280x720)
 #define WILI_UI_SCALE_DEFAULT 1
+// 默认音频质量 (0 为 高)
 #define WILI_AUDIO_QUALITY_DEFAULT 0
 #endif
 
@@ -918,8 +934,8 @@ void ProgramConfig::init() {
             brls::Logger::info("======== write cookies to disk");
             ProgramConfig::instance().setCookie(newCookie);
             ProgramConfig::instance().setRefreshToken(token);
-            // 用户登录后，将默认清晰度设置为 1080P 60FPS
-            VideoDetail::defaultQuality = 116;
+            // 用户重新登录后，恢复默认清晰度设置
+            VideoDetail::defaultQuality = WILI_VIDEO_QUALITY_DEFAULT;
         },
 #ifdef __PSV__
         10000,

@@ -29,7 +29,12 @@ public:
 
     std::string getQualityDescription(int qn);
 
+#ifdef __PSV__
+    // 720P
+    static inline int defaultQuality = 150;
+#else
     static inline int defaultQuality = 0;
+#endif
     bilibili::LiveRoomPlayInfo liveRoomPlayInfo{};
     bilibili::LiveStreamFormatCodec liveUrl{};
     std::unordered_map<int, std::string> qualityDescriptionMap{};

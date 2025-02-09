@@ -429,6 +429,11 @@ void BasePlayerActivity::setVideoQuality() {
         "wiliwili/player/quality"_i18n,
         [this](int selected) {
             int code                           = this->videoUrlResult.accept_quality[selected];
+#ifdef __PSV__
+            if (code > 64) {
+                code = 64;
+            }
+#endif
             BasePlayerActivity::defaultQuality = code;
             ProgramConfig::instance().setSettingItem(SettingItem::VIDEO_QUALITY, code);
 
