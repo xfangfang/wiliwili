@@ -1,0 +1,2007 @@
+diff --git a/.github/README.md b/.github/README.md
+new file mode 120000
+index 0000000000..219101821f
+--- /dev/null
++++ b/.github/README.md
+@@ -0,0 +1 @@
++../README-vita.md
+\ No newline at end of file
+diff --git a/README-vita.md b/README-vita.md
+new file mode 100644
+index 0000000000..95f2393496
+--- /dev/null
++++ b/README-vita.md
+@@ -0,0 +1,175 @@
++FFmpeg-vita
++=============
++
++A simple FFmpeg port for PS Vita, creating compatible decoders implemented by SCE hardware-accelerated codec APIs.
++
++
++## New configure options
++
++* `--enable-vita` enables vita hardware decoders, which should be selected explicitly in the decoder list.
++
++* `--target-os=vita` setups everything needed for vita builds, like cross-compiling and flags.
++
++
++## New hardware decoders
++
++* `aac_vita` supports common sample rates and channels.
++
++* `mp3_vita` supports common sample rates and channels.
++
++* `h264_vita` supports resolutions up to 1080P and various output formats listed below.
++
++
++
++## H264 direct rendering
++
++To create VRAM-backed frame, a custom buffer allocator is necessary.
++```c
++struct dr_format_spec {
++    enum AVPixelFormat ff_format;
++    SceGxmTextureFormat sce_format;
++    uint32_t alignment_pitch;
++};
++
++static const struct dr_format_spec dr_format_spec_list[] = {
++    { AV_PIX_FMT_RGBA, SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR, 16 },
++    { AV_PIX_FMT_BGR565LE, SCE_GXM_TEXTURE_FORMAT_U5U6U5_BGR, 16 },
++    { AV_PIX_FMT_BGR555LE, SCE_GXM_TEXTURE_FORMAT_U1U5U5U5_ABGR, 16 },
++    { AV_PIX_FMT_YUV420P, SCE_GXM_TEXTURE_FORMAT_YUV420P3_CSC0, 32 },
++    { AV_PIX_FMT_NV12, SCE_GXM_TEXTURE_FORMAT_YVU420P2_CSC0, 16 },
++};
++
++static const struct dr_format_spec *get_dr_format_spec(enum AVPixelFormat fmt)
++{
++    for (int i = 0; i < FF_ARRAY_ELEMS(dr_format_spec_list); i++) {
++        if (dr_format_spec_list[i].ff_format == fmt)
++            return &dr_format_spec_list[i];
++    }
++    return NULL;
++}
++
++static void vram_free(void *opaque, uint8_t *data)
++{
++    SceUID mb = (intptr_t) opaque;
++    sceKernelFreeMemBlock(mb);
++}
++
++static bool vram_alloc(int *size, SceUID *mb, void **ptr)
++{
++    *size = FFALIGN(*size, 256 * 1024);
++    SceUID m = sceKernelAllocMemBlock("gpu_mem",
++                                      SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW,
++                                      *size, NULL);
++    if (m < 0)
++        return false;
++
++    void *p = NULL;
++    if (sceKernelGetMemBlockBase(m, &p) != 0)
++        return false;
++
++    *mb = m;
++    *ptr = p;
++    return true;
++}
++
++static int get_buffer2_direct(AVCodecContext *avctx, AVFrame *pic, int flags)
++{
++    const struct dr_format_spec *spec = get_dr_format_spec(pic->format);
++    if (!spec)
++        return AVERROR_UNKNOWN;
++    
++    // conform to the memory layout of the decoder output
++    int width = FFMAX(FFALIGN(pic->width, 16), 64);
++    int height = FFMAX(FFALIGN(pic->height, 16), 64);
++    int pitch = FFALIGN(width, spec->alignment_pitch);
++    
++    // for simplicity's sake I do not use memory pool, which is more efficient
++    SceUID mb = 0;
++    void *vram = NULL;
++    int size = av_image_get_buffer_size(pic->format, pitch, height, 1);
++    if (!vram_alloc(&size, &mb, &vram))
++        return AVERROR_UNKNOWN;
++
++    pic->buf[0] = av_buffer_create(vram, size, vram_free, (void*) mb, 0);
++    av_image_fill_arrays(pic->data, pic->linesize, vram, pic->format, pitch, height, 1);
++    return 0;
++}
++```
++
++Set the option and the allocator if using the corresponding decoder.
++```c
++if (codec->id == AV_CODEC_ID_H264 && strncmp(codec->name, "h264_vita", 9) == 0) {
++    av_dict_set(opts, "vita_h264_dr", "1", 0);
++    ctx->get_buffer2 = get_buffer2_direct;
++}
++```
++
++Bundle the hollow texture and the decoded frame together.
++```c
++struct dr_texture {
++    vita2d_texture impl;
++    AVFrame frame;
++};
++
++static struct dr_texture *dr_texture_alloc()
++{
++    struct dr_texture *tex = malloc(sizeof(struct dr_texture));
++    memset(tex, 0, sizeof(struct dr_texture));
++    av_frame_unref(&tex->frame);
++    return tex;
++}
++
++static void dr_texture_free(struct dr_texture **p_tex)
++{
++    if (!p_tex || !(*p_tex))
++        return;
++
++    dr_texture_detach(*p_tex);
++    free(*p_tex);
++    *p_tex = NULL;
++}
++```
++
++VRAM should be locked when being attached.
++```c
++static void dr_texture_attach(struct dr_texture *tex, AVFrame *frame)
++{
++    const struct dr_format_spec *spec = get_dr_format_spec(frame->format);
++    if (!spec)
++        return;
++
++    AVBufferRef *buf = frame->buf[0];
++    if (!buf)
++        return;
++
++    // the aligned size is larger than the actual one
++    int width = FFMAX(FFALIGN(frame->width, 16), 64);
++    int height = FFMAX(FFALIGN(frame->height, 16), 64);
++
++    sceGxmMapMemory(buf->data, buf->size, SCE_GXM_MEMORY_ATTRIB_READ);
++    sceGxmTextureInitLinear(&tex->impl.gxm_tex, buf->data, spec->sce_format, width, height, 0);
++    av_frame_unref(&tex->frame);
++    av_frame_move_ref(&tex->frame, frame);
++}
++```
++
++Similarly, VRAM should be unlocked before being freed.
++```c
++
++static void dr_texture_detach(struct dr_texture *tex)
++{
++    AVBufferRef *buf = tex->frame.buf[0];
++    if (!buf)
++        return;
++
++    sceGxmUnmapMemory(buf->data);
++    av_frame_unref(&tex->frame);
++}
++```
++
++Probably, the texture should be clipped when being shown.
++```c
++if (tex->frame.buf[0])
++    vita2d_draw_texture_part(&tex->impl, xxx, yyy, 0, 0, tex->frame.width, tex->frame.height);
++
++```
+\ No newline at end of file
+diff --git a/configure b/configure
+index b6616f00b6..9dfa7c97d7 100755
+--- a/configure
++++ b/configure
+@@ -349,6 +349,7 @@ External library support:
+   --enable-omx             enable OpenMAX IL code [no]
+   --enable-omx-rpi         enable OpenMAX IL code for Raspberry Pi [no]
+   --enable-rkmpp           enable Rockchip Media Process Platform code [no]
++  --enable-vita            enable PlayStation Vita audio and video hardware decoder [no]
+   --disable-v4l2-m2m       disable V4L2 mem2mem code [autodetect]
+   --disable-vaapi          disable Video Acceleration API (mainly Unix/Intel) code [autodetect]
+   --disable-vdpau          disable Nvidia Video Decode and Presentation API for Unix code [autodetect]
+@@ -1873,6 +1874,7 @@ EXTERNAL_LIBRARY_LIST="
+     openssl
+     pocketsphinx
+     vapoursynth
++    vita
+ "
+ 
+ HWACCEL_AUTODETECT_LIBRARY_LIST="
+@@ -3260,6 +3262,12 @@ av1_qsv_encoder_select="qsvenc"
+ av1_qsv_encoder_deps="libvpl"
+ av1_amf_encoder_deps="amf"
+ 
++# vita hardware decoders
++aac_vita_decoder_deps="vita_audiodec"
++mp3_vita_decoder_deps="vita_audiodec"
++h264_vita_decoder_deps="vita_videodec"
++h264_vita_decoder_select="extract_extradata_bsf h264_mp4toannexb_bsf"
++
+ # parsers
+ aac_parser_select="adts_header mpeg4audio"
+ av1_parser_select="cbs_av1"
+@@ -4235,6 +4243,15 @@ for e in $env; do
+     eval "export $e"
+ done
+ 
++if test "$target_os" = vita; then
++    arch=armv7-a
++    cpu=cortex-a9
++    cross_prefix="$VITASDK/bin/arm-vita-eabi-"
++    enable cross_compile
++    disable armv5te
++    disable armv6t2
++fi
++
+ if disabled autodetect; then
+ 
+     # Unless iconv is explicitely disabled by the user, we still want to probe
+@@ -4454,6 +4471,9 @@ fi
+ if enabled cuda_nvcc; then
+     nvcc_default="nvcc"
+     nvccflags_default="-gencode arch=compute_30,code=sm_30 -O2"
++elif enabled vita; then
++    nvcc_default="false"
++    nvccflags_default=""
+ else
+     nvcc_default="clang"
+     nvccflags_default="--cuda-gpu-arch=sm_30 -O2"
+@@ -5733,6 +5753,12 @@ case $target_os in
+         ;;
+     none)
+         ;;
++    vita)
++        add_cflags -ftree-vectorize -fomit-frame-pointer -ffast-math -D_BSD_SOURCE
++        add_cppflags -ftree-vectorize -fomit-frame-pointer -ffast-math -fno-rtti -fno-exceptions -std=gnu++11 -D_BSD_SOURCE
++        add_ldflags -Wl,-q
++        disable runtime_cpudetect
++        ;;
+     *)
+         die "Unknown OS '$target_os'."
+         ;;
+@@ -6795,6 +6821,9 @@ enabled rkmpp             && { require_pkg_config rkmpp rockchip_mpp  rockchip/r
+                                  die "ERROR: rkmpp requires --enable-libdrm"; }
+                              }
+ enabled vapoursynth       && require_pkg_config vapoursynth "vapoursynth-script >= 42" VSScript.h vsscript_init
++enabled vita              && { { check_lib vita_audiodec psp2/audiodec.h sceAudiodecInitLibrary -lSceAudiodec_stub &&
++                                 check_lib vita_videodec psp2/videodec.h sceVideodecInitLibrary -lSceVideodec_stub -lSceCodecEngine_stub; } ||
++                                die "ERROR: VitaSDK not found"; }
+ 
+ 
+ if enabled gcrypt; then
+diff --git a/libavcodec/Makefile b/libavcodec/Makefile
+index 389253f5d0..ccf926110b 100644
+--- a/libavcodec/Makefile
++++ b/libavcodec/Makefile
+@@ -970,6 +970,11 @@ OBJS-$(CONFIG_ADPCM_YAMAHA_DECODER)       += adpcm.o adpcm_data.o
+ OBJS-$(CONFIG_ADPCM_YAMAHA_ENCODER)       += adpcmenc.o adpcm_data.o
+ OBJS-$(CONFIG_ADPCM_ZORK_DECODER)         += adpcm.o adpcm_data.o
+ 
++# vita
++OBJS-$(CONFIG_AAC_VITA_DECODER)           += vitadec_audio.o
++OBJS-$(CONFIG_MP3_VITA_DECODER)           += vitadec_audio.o
++OBJS-$(CONFIG_H264_VITA_DECODER)          += vitadec_video.o
++
+ # hardware accelerators
+ OBJS-$(CONFIG_D3D11VA)                    += dxva2.o
+ OBJS-$(CONFIG_DXVA2)                      += dxva2.o
+diff --git a/libavcodec/allcodecs.c b/libavcodec/allcodecs.c
+index e593ad19af..9122397e3d 100644
+--- a/libavcodec/allcodecs.c
++++ b/libavcodec/allcodecs.c
+@@ -819,6 +819,11 @@ extern const FFCodec ff_libxavs2_encoder;
+ extern const FFCodec ff_libxvid_encoder;
+ extern const FFCodec ff_libzvbi_teletext_decoder;
+ 
++/* vita */
++extern const FFCodec ff_aac_vita_decoder;
++extern const FFCodec ff_mp3_vita_decoder;
++extern const FFCodec ff_h264_vita_decoder;
++
+ /* text */
+ extern const FFCodec ff_bintext_decoder;
+ extern const FFCodec ff_xbin_decoder;
+diff --git a/libavcodec/h264_mp4toannexb_bsf.c b/libavcodec/h264_mp4toannexb_bsf.c
+index d11be455c2..5c03b2630d 100644
+--- a/libavcodec/h264_mp4toannexb_bsf.c
++++ b/libavcodec/h264_mp4toannexb_bsf.c
+@@ -177,17 +177,14 @@ static int h264_mp4toannexb_filter(AVBSFContext *ctx, AVPacket *opkt)
+     uint64_t out_size;
+     int ret;
+ 
++    // avoid redundant packet allocations when filtering a raw h264 stream
++    if (!s->extradata_parsed)
++        return ff_bsf_get_packet_ref(ctx, opkt);
++
+     ret = ff_bsf_get_packet(ctx, &in);
+     if (ret < 0)
+         return ret;
+ 
+-    /* nothing to filter */
+-    if (!s->extradata_parsed) {
+-        av_packet_move_ref(opkt, in);
+-        av_packet_free(&in);
+-        return 0;
+-    }
+-
+     buf_end  = in->data + in->size;
+ 
+ #define LOG_ONCE(...) \
+diff --git a/libavcodec/vitadec_audio.c b/libavcodec/vitadec_audio.c
+new file mode 100644
+index 0000000000..9c845aac85
+--- /dev/null
++++ b/libavcodec/vitadec_audio.c
+@@ -0,0 +1,446 @@
++#include <stdbool.h>
++#include <stdint.h>
++#include <string.h>
++
++#include <psp2/audiodec.h>
++#include <psp2/kernel/sysmem.h>
++
++#include "decode.h"
++#include "avcodec.h"
++#include "internal.h"
++#include "codec_internal.h"
++
++#include "mpeg4audio.h"
++#include "adts_parser.h"
++#include "adts_header.h"
++#include "mpegaudiodecheader.h"
++
++#define VITA_DECODE_AUDIO_CTX_FLAG_POSTPONE_INIT    1
++#define VITA_DECODE_AUDIO_CTX_FLAG_DECODER_READY    (1 << 1)
++#define VITA_DECODE_AUDIO_CTX_FLAG_INIT_LIB         (1 << 2)
++#define VITA_DECODE_AUDIO_CTX_FLAG_INIT_DECODER     (1 << 3)
++#define VITA_DECODE_AUDIO_CTX_FLAG_INIT_BUFFER      (1 << 4)
++
++#define VITA_AUDIO_MEM_BLOCK_NAME   "ffmpeg_adec"
++#define VITA_AUDIO_MEM_BLOCK_TYPE   SCE_KERNEL_MEMBLOCK_TYPE_USER_RW_UNCACHE
++#define VITA_AUDIO_MEM_ALIGN_SIZE   (4 * 1024)
++
++typedef struct VitaDecodeInputBuffer {
++    uint8_t *data;
++    int size;
++} VitaDecodeInputBuffer;
++
++typedef struct VitaDecodePolicyInitParams {
++    const char *name;
++    AVCodecContext *avctx;
++    VitaDecodeInputBuffer *buffer;
++    SceAudiodecInfo *info;
++    SceAudiodecInitParam init;
++} VitaDecodePolicyInitParams;
++
++typedef struct VitaDecodePolicy {
++    const char *name;
++    SceAudiodecType type;
++    bool (*init)(VitaDecodePolicyInitParams *params);
++    void (*skip)(VitaDecodeInputBuffer *buffer);
++} VitaDecodePolicy;
++
++typedef struct VitaDecodeContextImpl {
++    const VitaDecodePolicy *policy;
++    unsigned int flags;
++    SceAudiodecCtrl ctrl;
++    SceAudiodecInfo info;
++    SceUID memblock;
++} VitaDecodeContextImpl;
++
++typedef struct VitaDecodeContext {
++    AVClass *clz;
++    VitaDecodeContextImpl impl;
++} VitaDecodeContext;
++
++static const VitaDecodePolicy vita_dec_policy_aac;
++static const VitaDecodePolicy vita_dec_policy_mp3;
++
++static VitaDecodeContextImpl *get_ctx_impl(AVCodecContext *avctx)
++{
++    return &((VitaDecodeContext*) avctx->priv_data)->impl;
++}
++
++static const VitaDecodePolicy *find_decode_policy(AVCodecContext *avctx)
++{
++    switch (avctx->codec_id) {
++    case AV_CODEC_ID_AAC:
++        return &vita_dec_policy_aac;
++    case AV_CODEC_ID_MP3:
++        return &vita_dec_policy_mp3;
++    default:
++        return NULL;
++    }
++}
++
++static av_cold int vita_init(AVCodecContext *avctx)
++{
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    const VitaDecodePolicy *policy = find_decode_policy(avctx);
++
++    // every decoder should have a corresponding policy
++    if (!policy)
++        return AVERROR_UNKNOWN;
++
++    memset(ctx, 0, sizeof(VitaDecodeContextImpl));
++
++    ctx->policy = policy;
++    ctx->ctrl.size = sizeof(SceAudiodecCtrl);
++    ctx->ctrl.wordLength = SCE_AUDIODEC_WORD_LENGTH_16BITS;
++    ctx->ctrl.pInfo = &ctx->info;
++
++    avctx->sample_fmt = AV_SAMPLE_FMT_S16;
++    ctx->flags |= VITA_DECODE_AUDIO_CTX_FLAG_POSTPONE_INIT;
++    return 0;
++}
++
++static int get_bytes_per_sample(AVCodecContext *avctx)
++{
++    return 2 * avctx->ch_layout.nb_channels;
++}
++
++static void do_cleanup(AVCodecContext *avctx)
++{
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++
++    if (ctx->flags & VITA_DECODE_AUDIO_CTX_FLAG_INIT_DECODER)
++        sceAudiodecDeleteDecoder(&ctx->ctrl);
++    if (ctx->flags & VITA_DECODE_AUDIO_CTX_FLAG_INIT_LIB)
++        sceAudiodecTermLibrary(ctx->policy->type);
++    if (ctx->flags & VITA_DECODE_AUDIO_CTX_FLAG_INIT_BUFFER)
++        sceKernelFreeMemBlock(ctx->memblock);
++
++    memset(ctx, 0, sizeof(VitaDecodeContextImpl));
++}
++
++static av_cold int vita_close(AVCodecContext *avctx)
++{
++    do_cleanup(avctx);
++    return 0;
++}
++
++static bool do_alloc_buffer(size_t size, SceUID *out_mb, void **out_ptr)
++{
++    int ret = 0;
++    SceUID mb = -1;
++    void *ptr = NULL;
++    size_t size_aligned = FFALIGN(size, VITA_AUDIO_MEM_ALIGN_SIZE);
++    SceKernelAllocMemBlockOpt opt = {0};
++
++    opt.size = sizeof(SceKernelAllocMemBlockOpt);
++    opt.attr = SCE_KERNEL_ALLOC_MEMBLOCK_ATTR_HAS_ALIGNMENT;
++    opt.alignment = SCE_AUDIODEC_ALIGNMENT_SIZE;
++
++    mb = sceKernelAllocMemBlock(VITA_AUDIO_MEM_BLOCK_NAME, VITA_AUDIO_MEM_BLOCK_TYPE, size_aligned, &opt);
++    if (mb < 0)
++        goto bail;
++
++    ret = sceKernelGetMemBlockBase(mb, &ptr);
++    if (ret < 0)
++        goto bail;
++
++    *out_mb = mb;
++    *out_ptr = ptr;
++    return true;
++
++bail:
++    if (mb >= 0)
++        sceKernelFreeMemBlock(mb);
++    return false;
++}
++
++static void do_init(AVCodecContext *avctx, VitaDecodeInputBuffer *buffer)
++{
++    int ret = 0;
++    void *ptr_buf = NULL;
++    size_t buf_size = 0;
++    size_t buf_input = 0;
++    size_t buf_output = 0;
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    VitaDecodePolicyInitParams params = {0};
++
++    params.avctx = avctx;
++    params.buffer = buffer;
++    params.name = ctx->policy->name;
++    params.info = &ctx->info;
++    if (!ctx->policy->init(&params))
++        goto bail;
++
++    ret = sceAudiodecInitLibrary(ctx->policy->type, &params.init);
++    if (ret != 0) {
++        av_log(avctx, AV_LOG_ERROR, "vita_%s init: init library failed 0x%x\n", ctx->policy->name, ret);
++        goto bail;
++    }
++    ctx->flags |= VITA_DECODE_AUDIO_CTX_FLAG_INIT_LIB;
++
++    ret = sceAudiodecCreateDecoder(&ctx->ctrl, ctx->policy->type);
++    if (ret != 0) {
++        av_log(avctx, AV_LOG_ERROR, "vita_%s init: create decoder failed 0x%x\n", ctx->policy->name, ret);
++        goto bail;
++    }
++    ctx->flags |= VITA_DECODE_AUDIO_CTX_FLAG_INIT_DECODER;
++
++    buf_input = FFALIGN(ctx->ctrl.maxEsSize, SCE_AUDIODEC_ALIGNMENT_SIZE);
++    buf_output = FFALIGN(ctx->ctrl.maxPcmSize, SCE_AUDIODEC_ALIGNMENT_SIZE);
++    buf_size = buf_input + buf_output;
++    if (!do_alloc_buffer(buf_size, &ctx->memblock, &ptr_buf)) {
++        av_log(avctx, AV_LOG_ERROR, "vita_%s init: alloc failed\n", ctx->policy->name);
++        goto bail;
++    }
++    ctx->ctrl.pEs = ptr_buf;
++    ctx->ctrl.pPcm = (uint8_t*) ptr_buf + buf_input;
++    ctx->flags |= VITA_DECODE_AUDIO_CTX_FLAG_INIT_BUFFER;
++
++    ctx->flags |= VITA_DECODE_AUDIO_CTX_FLAG_DECODER_READY;
++    return;
++
++bail:
++    do_cleanup(avctx);
++}
++
++static int vita_decode(AVCodecContext *avctx, AVFrame *frame, int *got_frame, AVPacket *avpkt)
++{
++    int ret = 0;
++    size_t input_bytes = 0;
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    VitaDecodeInputBuffer buffer = { .data = avpkt->data, .size = avpkt->size };
++
++    if (ctx->policy->skip)
++        ctx->policy->skip(&buffer);
++
++    if (!buffer.size)
++        return avpkt->size;
++
++    if (ctx->flags & VITA_DECODE_AUDIO_CTX_FLAG_POSTPONE_INIT) {
++        ctx->flags &= ~VITA_DECODE_AUDIO_CTX_FLAG_POSTPONE_INIT;
++        do_init(avctx, &buffer);
++    }
++
++    // ignore any decode requests if init failed
++    if (!(ctx->flags & VITA_DECODE_AUDIO_CTX_FLAG_DECODER_READY))
++        return AVERROR_UNKNOWN;
++
++    // the input may not conform to requirements of the APIs
++    // so it had better be copied to our buffer
++    input_bytes = FFMIN(ctx->ctrl.maxEsSize, buffer.size);
++    memcpy(ctx->ctrl.pEs, buffer.data, input_bytes);
++
++    ret = sceAudiodecDecodeNFrames(&ctx->ctrl, 1);
++    if (ret < 0) {
++        av_log(avctx, AV_LOG_ERROR, "vita_%s decode: failed 0x%x\n", ctx->policy->name, ret);
++        return AVERROR_UNKNOWN;
++    }
++
++    if (ctx->ctrl.outputPcmSize) {
++        frame->nb_samples = ctx->ctrl.outputPcmSize / get_bytes_per_sample(avctx);
++        ret = ff_get_buffer(avctx, frame, 0);
++        if (ret < 0)
++            return ret;
++
++        *got_frame = 1;
++        memcpy(frame->data[0], ctx->ctrl.pPcm, ctx->ctrl.outputPcmSize);
++    }
++
++    // consumed byte count
++    return ctx->ctrl.inputEsSize;
++}
++
++static void vita_flush(AVCodecContext *avctx)
++{
++    int ret = 0;
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++
++    if (!(ctx->flags & VITA_DECODE_AUDIO_CTX_FLAG_DECODER_READY))
++        return;
++
++    ret = sceAudiodecClearContext(&ctx->ctrl);
++    if (ret != 0)
++        av_log(avctx, AV_LOG_ERROR, "vita_%s flush: failed 0x%x\n", ctx->policy->name, ret);
++}
++
++static bool do_check_header_parse(VitaDecodePolicyInitParams *params, int ret)
++{
++    if (ret < 0) {
++        av_log(params->avctx, AV_LOG_ERROR, "vita_%s init: parse header failed 0x%x\n", params->name, ret);
++        return false;
++    }
++    return true;
++}
++
++static bool do_set_avctx_fields(VitaDecodePolicyInitParams *params, int channels, int sample_rate) {
++    if (channels != 1 && channels != 2) {
++        av_log(params->avctx, AV_LOG_ERROR, "vita_%s init: invalid channels %d\n", params->name, channels);
++        return false;
++    }
++
++    av_channel_layout_uninit(&params->avctx->ch_layout);
++    av_channel_layout_default(&params->avctx->ch_layout, channels);
++    params->avctx->sample_rate = sample_rate;
++    return true;
++}
++
++static bool vita_dec_policy_init_aac(VitaDecodePolicyInitParams *params)
++{
++    int ret = 0;
++    int has_adts = 0;
++    int channels = 0;
++    int sample_rate = 0;
++    bool parse_done = false;
++
++    if (params->avctx->extradata) {
++        MPEG4AudioConfig cfg;
++        ret = avpriv_mpeg4audio_get_config2(&cfg, 
++            params->avctx->extradata, params->avctx->extradata_size,
++            1, params->avctx);
++        parse_done = (ret >= 0);
++        has_adts = 0;
++        channels = cfg.chan_config;
++        sample_rate = cfg.sample_rate;        
++    }
++
++    if (!parse_done) {
++        AACADTSHeaderInfo header;
++        AACADTSHeaderInfo *ref = &header;
++        ret = avpriv_adts_header_parse(&ref, params->buffer->data, params->buffer->size);
++        if (!do_check_header_parse(params, ret))
++            return false;
++        has_adts = 1;
++        channels = header.chan_config;
++        sample_rate = header.sample_rate;
++    }
++
++    if (!do_set_avctx_fields(params, channels, sample_rate))
++        return false;
++
++    params->init.size = sizeof(params->init.aac);
++    params->init.aac.totalStreams = 1;
++
++    params->info->aac.size = sizeof(SceAudiodecInfoAac);
++    params->info->aac.ch = channels;
++    params->info->aac.samplingRate = sample_rate;
++    params->info->aac.isAdts = has_adts;
++    params->info->aac.isSbr = 1;   // cannot get it from header, set true in case we need it
++
++    return true;
++}
++
++static bool do_get_mp3_header(VitaDecodePolicyInitParams *params, VitaDecodeInputBuffer *buffer, uint32_t *header)
++{
++    if (buffer->size < 4) {
++        if (params)
++            av_log(params->avctx, AV_LOG_ERROR, "vita_%s init: invalid header size %d\n", params->name, buffer->size);
++        return false;
++    } else {
++        *header = AV_RB32(buffer->data);
++        return true;
++    }
++}
++
++static void vita_dec_policy_skip_mp3(VitaDecodeInputBuffer *buffer)
++{
++    uint32_t header = 0;
++
++    // I don't know how to make these malformed data
++    // just follow the implementation of mpegaudio decoder
++    while (buffer->size && !*buffer->data) {
++        buffer->data++;
++        buffer->size--;
++    }
++
++    if (!do_get_mp3_header(NULL, buffer, &header))
++        return;
++
++    // the library cannot handle ID3 data, which should be skipped by the caller
++    // however, the decoder is unlikely to receive these data from the parser or demuxer
++    // since header check is not expensive, it's worth doing so for every packet
++    if ((header >> 8) == (AV_RB32("TAG") >> 8))
++        buffer->size = 0;
++}
++
++static SceAudiodecMpegVersion do_get_mp3_version(uint32_t header)
++{
++    uint32_t bits = (header >> 19) & 0x03;
++    switch (bits) {
++    case 0x00:
++        return SCE_AUDIODEC_MP3_MPEG_VERSION_2_5;
++    case 0x02:
++        return SCE_AUDIODEC_MP3_MPEG_VERSION_2;
++    case 0x03:
++        return SCE_AUDIODEC_MP3_MPEG_VERSION_1;
++    default:
++        return SCE_AUDIODEC_MP3_MPEG_VERSION_RESERVED;
++    }
++}
++
++static bool vita_dec_policy_init_mp3(VitaDecodePolicyInitParams *params)
++{
++    uint32_t header = 0;
++    MPADecodeHeader mdh;
++
++    if (!do_get_mp3_header(params, params->buffer, &header))
++        return false;
++
++    if (!do_check_header_parse(params, avpriv_mpegaudio_decode_header(&mdh, header)))
++        return false;
++
++    if (!do_set_avctx_fields(params, mdh.nb_channels, mdh.sample_rate))
++        return false;
++
++    params->init.size = sizeof(params->init.mp3);
++    params->init.mp3.totalStreams = 1;
++
++    params->info->mp3.size = sizeof(SceAudiodecInfoMp3);
++    params->info->mp3.ch = mdh.nb_channels;
++    params->info->mp3.version = do_get_mp3_version(header);
++
++    return true;
++}
++
++static const VitaDecodePolicy vita_dec_policy_aac = {
++    .name   = "aac",
++    .type   = SCE_AUDIODEC_TYPE_AAC,
++    .init   = vita_dec_policy_init_aac,
++};
++
++static const VitaDecodePolicy vita_dec_policy_mp3 = {
++    .name   = "mp3",
++    .type   = SCE_AUDIODEC_TYPE_MP3,
++    .init   = vita_dec_policy_init_mp3,
++    .skip   = vita_dec_policy_skip_mp3,
++};
++
++#define FFVITA_DEC(NAME, ID) \
++    static const AVClass vita_##NAME##_dec_class = { \
++        .class_name     = "vita_" AV_STRINGIFY(NAME) "_dec", \
++        .item_name      = av_default_item_name, \
++        .version        = LIBAVUTIL_VERSION_INT, \
++    }; \
++    const FFCodec ff_##NAME##_vita_decoder = { \
++        .p.name             = AV_STRINGIFY(NAME) "_vita", \
++        CODEC_LONG_NAME(AV_STRINGIFY(NAME) " (vita)"), \
++        .p.type             = AVMEDIA_TYPE_AUDIO, \
++        .p.id               = ID, \
++        .priv_data_size     = sizeof(VitaDecodeContext), \
++        .init               = vita_init, \
++        .close              = vita_close, \
++        .flush              = vita_flush, \
++        FF_CODEC_DECODE_CB(vita_decode), \
++        .p.sample_fmts      = (const enum AVSampleFormat[]) { \
++            AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_NONE, \
++        }, \
++        .p.ch_layouts       = (const AVChannelLayout[]) { \
++            AV_CHANNEL_LAYOUT_MONO, AV_CHANNEL_LAYOUT_STEREO, { 0 }, \
++        }, \
++        .p.priv_class       = &vita_##NAME##_dec_class, \
++        .p.capabilities     = AV_CODEC_CAP_CHANNEL_CONF | AV_CODEC_CAP_AVOID_PROBING | AV_CODEC_CAP_HARDWARE, \
++        .caps_internal      = FF_CODEC_CAP_NOT_INIT_THREADSAFE | FF_CODEC_CAP_INIT_CLEANUP, \
++        .p.wrapper_name     = "vita", \
++    };
++
++FFVITA_DEC(aac, AV_CODEC_ID_AAC)
++FFVITA_DEC(mp3, AV_CODEC_ID_MP3)
+diff --git a/libavcodec/vitadec_video.c b/libavcodec/vitadec_video.c
+new file mode 100644
+index 0000000000..988f884f8c
+--- /dev/null
++++ b/libavcodec/vitadec_video.c
+@@ -0,0 +1,1082 @@
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdlib.h>
++#include <string.h>
++
++#include <psp2/videodec.h>
++#include <psp2/kernel/sysmem.h>
++#include <psp2/kernel/threadmgr/thread.h>
++
++#include "decode.h"
++#include "avcodec.h"
++#include "hwconfig.h"
++#include "internal.h"
++#include "codec_internal.h"
++
++#include "h264_ps.h"
++#include "h264_parse.h"
++#include "h2645_parse.h"
++#include "startcode.h"
++
++#include "libavutil/log.h"
++#include "libavutil/opt.h"
++#include "libavutil/macros.h"
++#include "libavutil/imgutils.h"
++#include "libavutil/mathematics.h"
++
++// non-exported internal API
++
++typedef struct SceVideodecCtrl{
++    SceAvcdecBuf memBuf;
++    SceUID memBufUid;
++    SceUIntVAddr vaContext;
++    SceUInt32 contextSize;
++} SceVideodecCtrl;
++
++SceInt32 sceAvcdecDecodeFlush(SceAvcdecCtrl *ctrl);
++SceInt32 sceAvcdecDecodeStop(SceAvcdecCtrl *ctrl, SceAvcdecArrayPicture *pictures);
++
++SceUID sceCodecEngineOpenUnmapMemBlock(void *ptr, SceSize size);
++SceInt32 sceCodecEngineCloseUnmapMemBlock(SceUID uid);
++
++SceUIntVAddr sceCodecEngineAllocMemoryFromUnmapMemBlock(SceUID uid, SceUInt32 size, SceUInt32 align);
++SceInt32 sceCodecEngineFreeMemoryFromUnmapMemBlock(SceUID uid, SceUIntVAddr p);
++
++void sceAvcdecSetDecodeMode(SceVideodecType type, SceInt32 mode);
++void sceVideodecSetConfigInternal(SceVideodecType type, SceInt32 cfg);
++
++void sceVideodecQueryMemSizeInternal(SceVideodecType type, SceVideodecQueryInitInfo *query, SceUInt32 *size);
++SceInt32 sceAvcdecQueryDecoderMemSizeInternal(SceVideodecType type, SceAvcdecQueryDecoderInfo *query, SceAvcdecDecoderInfo *decoder);
++
++SceInt32 sceVideodecInitLibraryWithUnmapMemInternal(SceVideodecType type, SceVideodecCtrl *ctrl, SceVideodecQueryInitInfo *query);
++SceInt32 sceAvcdecCreateDecoderInternal(SceVideodecType type, SceAvcdecCtrl *decoder, SceAvcdecQueryDecoderInfo *query);
++
++SceInt32 sceAvcdecDecodeAvailableSize(SceAvcdecCtrl *decoder);
++SceInt32 sceAvcdecDecodeAuInternal(SceAvcdecCtrl *decoder, SceAvcdecAu *au, SceInt32 *pic);
++SceInt32 sceAvcdecDecodeGetPictureWithWorkPictureInternal(SceAvcdecCtrl *decoder, SceAvcdecArrayPicture *a1, SceAvcdecArrayPicture *a2, SceInt32 *pic);
++
++// | Frame | Output | Codec | Time-NoCopy | Time-CopyOut |
++// |-------|--------|-------|-------------|--------------|
++// | CDRAM | CDRAM  | CDRAM | 2.419       | 3.686        |
++// | PHY   | PHY    | PHY   | 2.747       | 2.917        |
++// | PHY   | CDRAM  | CDRAM | 2.556       | 4.343        |
++// | CDRAM | PHY    | CDRAM | 2.460       | 2.936        |
++// | CDRAM | CDRAM  | PHY   | 2.467       | 3.733        |
++//
++// These buffers can be allocated in either PHY or CDRAM memory. 
++// The sample is a 20-second 540x360 mp4, which has 200 packets.
++//
++// Although PHY memory can improve performance a little bit, 
++// it is too scarce (only 26MB available) to hold all buffers 
++// in high resolution video decoding, so CDRAM is a better choice.
++
++#define VITA_DECODE_MEM_BLOCK_NAME              "ffmpeg_vdec"
++#define VITA_DECODE_MEM_BLOCK_TYPE              SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW
++#define VITA_DECODE_MEM_BLOCK_SIZE_ALIGN        (256 * 1024)
++// #define VITA_DECODE_MEM_BLOCK_TYPE              SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_PHYCONT_NC_RW
++// #define VITA_DECODE_MEM_BLOCK_SIZE_ALIGN        (1024 * 1024)
++#define VITA_DECODE_TIMESTAMP_UNIT_BASE         (90 * 1000)
++#define VITA_DECODE_TIMESTAMP_VOID              (0xffffffff)
++
++#define VITA_DECODE_VIDEO_FLAG_INIT_POSTPONED           1
++#define VITA_DECODE_VIDEO_FLAG_DECODER_READY            (1 << 1)
++#define VITA_DECODE_VIDEO_FLAG_DONE_AVC_LIB             (1 << 2)
++#define VITA_DECODE_VIDEO_FLAG_DONE_DECODER             (1 << 3)
++#define VITA_DECODE_VIDEO_FLAG_DONE_BUFFER_FRAME        (1 << 4)
++#define VITA_DECODE_VIDEO_FLAG_DONE_BUFFER_OUTPUT       (1 << 5)
++#define VITA_DECODE_VIDEO_FLAG_DONE_BUFFER_CODEC_MB     (1 << 6)
++#define VITA_DECODE_VIDEO_FLAG_DONE_BUFFER_CODEC_UNMAP  (1 << 7)
++#define VITA_DECODE_VIDEO_FLAG_DONE_BUFFER_CODEC_VADDR  (1 << 8)
++
++enum VitaDecodeBufferType {
++    VITA_DECODE_BUFFER_TYPE_FRAME,
++    VITA_DECODE_BUFFER_TYPE_OUTPUT,
++    VITA_DECODE_BUFFER_TYPE_CODEC_MEM,
++    VITA_DECODE_BUFFER_TYPE_CODEC_UNMAP,
++    VITA_DECODE_BUFFER_TYPE_CODEC_VADDR,
++    VITA_DECODE_BUFFER_TYPE_NB,
++};
++
++typedef struct VitaDecodeFormatDescriptor {
++    enum AVPixelFormat ff_format;
++    SceAvcdecPixelFormat sce_format;
++    int pitch_alignment;
++} VitaDecodeFormatDescriptor;
++
++typedef struct VitaDecodeBufferAllocParams {
++    SceUID *mb;
++    void *ptr;
++    void *ref;
++    int size;
++    int alignment;
++} VitaDecodeBufferAllocParams;
++
++typedef struct VitaDecodeBufferFreeParams {
++    SceUID *mb;
++    void *ptr;
++    void *ref;
++} VitaDecodeBufferFreeParams;
++
++typedef struct VitaDecodeBufferDescriptor {
++    bool (*alloc)(VitaDecodeBufferAllocParams *p);
++    void (*free)(VitaDecodeBufferFreeParams *p);
++    const char *name;
++    int field_bit;
++    int offset_mb;
++    int offset_ptr;
++    int offset_ref;
++    int alignment_addr;
++    int alignment_size;
++} VitaDecodeBufferDescriptor;
++
++typedef struct VitaDecodeContextImpl {
++    int flags;
++    int option_dr;
++
++    int frame_width;
++    int frame_height;
++    int frame_pitch;
++    const VitaDecodeFormatDescriptor *frame_format;
++
++    SceUID decoder_mb_frame;
++    SceUID decoder_mb_output;
++    SceUID decoder_mb_codec_mem;
++    SceUID decoder_mb_codec_unmap;
++    SceUIntVAddr decoder_vaddr_codec;
++    void *decoder_ptr_codec_mem;
++    void *decoder_ptr_output;
++    int decoder_picture_int;
++    SceAvcdecCtrl decoder_ctrl;
++    AVFrame *decoder_dr_frame;
++
++    int h264_width;
++    int h264_height;
++    int h264_ref_frames;
++} VitaDecodeContextImpl;
++
++typedef struct VitaDecodeContext {
++    AVClass *clz;
++    VitaDecodeContextImpl impl;
++} VitaDecodeContext;
++
++
++static bool do_mem_alloc(VitaDecodeBufferAllocParams *p);
++static void do_mem_free(VitaDecodeBufferFreeParams *p);
++static bool do_unmap_open(VitaDecodeBufferAllocParams *p);
++static void do_unmap_close(VitaDecodeBufferFreeParams *p);
++static bool do_vaddr_alloc(VitaDecodeBufferAllocParams *p);
++static void do_vaddr_free(VitaDecodeBufferFreeParams *p);
++
++static void do_init(AVCodecContext *avctx);
++static void buffers_free(AVCodecContext *avctx);
++
++
++static const VitaDecodeFormatDescriptor vita_decode_format_descriptors[] = {
++    { AV_PIX_FMT_VITA_YUV420P, SCE_AVCDEC_PIXELFORMAT_YUV420_RASTER, 32 },
++    { AV_PIX_FMT_VITA_NV12, SCE_AVCDEC_PIXELFORMAT_YUV420_PACKED_RASTER, 16 },
++    { AV_PIX_FMT_RGBA, SCE_AVCDEC_PIXELFORMAT_RGBA8888, 16 },
++    { AV_PIX_FMT_BGR565LE, SCE_AVCDEC_PIXELFORMAT_RGBA565, 16 },
++    { AV_PIX_FMT_BGR555LE, SCE_AVCDEC_PIXELFORMAT_RGBA5551, 16 },
++    { AV_PIX_FMT_YUV420P, SCE_AVCDEC_PIXELFORMAT_YUV420_RASTER, 32 },
++    { AV_PIX_FMT_NV12, SCE_AVCDEC_PIXELFORMAT_YUV420_PACKED_RASTER, 16 },
++};
++
++static const VitaDecodeBufferDescriptor vita_decode_buffer_descriptors[VITA_DECODE_BUFFER_TYPE_NB] = {
++    [VITA_DECODE_BUFFER_TYPE_FRAME] = {
++        do_mem_alloc,
++        do_mem_free,
++        "frame",
++        VITA_DECODE_VIDEO_FLAG_DONE_BUFFER_FRAME,
++        offsetof(VitaDecodeContextImpl, decoder_mb_frame),
++        0,
++        0,
++        (1024 * 1024),
++        0,
++    },
++
++    [VITA_DECODE_BUFFER_TYPE_OUTPUT] = {
++        do_mem_alloc,
++        do_mem_free,
++        "output",
++        VITA_DECODE_VIDEO_FLAG_DONE_BUFFER_OUTPUT,
++        offsetof(VitaDecodeContextImpl, decoder_mb_output),
++        offsetof(VitaDecodeContextImpl, decoder_ptr_output),
++        0,
++        0,
++        0,
++    },
++
++    [VITA_DECODE_BUFFER_TYPE_CODEC_MEM] = {
++        do_mem_alloc,
++        do_mem_free,
++        "codec_mb",
++        VITA_DECODE_VIDEO_FLAG_DONE_BUFFER_CODEC_MB,
++        offsetof(VitaDecodeContextImpl, decoder_mb_codec_mem),
++        offsetof(VitaDecodeContextImpl, decoder_ptr_codec_mem),
++        0,
++        (1024 * 1024),
++        (1024 * 1024),
++    },
++
++    [VITA_DECODE_BUFFER_TYPE_CODEC_UNMAP] = {
++        do_unmap_open,
++        do_unmap_close,
++        "codec_unmap",
++        VITA_DECODE_VIDEO_FLAG_DONE_BUFFER_CODEC_UNMAP,
++        offsetof(VitaDecodeContextImpl, decoder_mb_codec_unmap),
++        0,
++        offsetof(VitaDecodeContextImpl, decoder_ptr_codec_mem),
++        0,
++        (1024 * 1024),
++    },
++
++    [VITA_DECODE_BUFFER_TYPE_CODEC_VADDR] = {
++        do_vaddr_alloc,
++        do_vaddr_free,
++        "codec_vaddr",
++        VITA_DECODE_VIDEO_FLAG_DONE_BUFFER_CODEC_VADDR,
++        0,
++        offsetof(VitaDecodeContextImpl, decoder_vaddr_codec),
++        offsetof(VitaDecodeContextImpl, decoder_mb_codec_unmap),
++        (256 * 1024),
++        0,
++    },
++};
++
++
++static bool do_mem_alloc(VitaDecodeBufferAllocParams *p)
++{
++    SceUID mb = -1;
++    void *ptr = NULL;
++    SceUID *out_mb = p->mb;
++    void **out_ptr = p->ptr;
++    SceKernelAllocMemBlockOpt opt = {0};
++    SceKernelAllocMemBlockOpt *arg = NULL;
++
++    if (VITA_DECODE_MEM_BLOCK_TYPE != SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_PHYCONT_NC_RW && p->alignment) {
++        arg = &opt;
++        arg->size = sizeof(SceKernelAllocMemBlockOpt);
++        arg->attr = SCE_KERNEL_ALLOC_MEMBLOCK_ATTR_HAS_ALIGNMENT;
++        arg->alignment = p->alignment;
++    }
++
++    p->size = FFALIGN(p->size, VITA_DECODE_MEM_BLOCK_SIZE_ALIGN);
++    mb = sceKernelAllocMemBlock(VITA_DECODE_MEM_BLOCK_NAME, VITA_DECODE_MEM_BLOCK_TYPE, p->size, arg);
++    if (mb < 0)
++        goto fail;
++
++    if (sceKernelGetMemBlockBase(mb, &ptr) != 0)
++        goto fail;
++
++    *out_mb = mb;
++    *out_ptr = ptr;
++    return true;
++
++fail:
++    if (mb >= 0)
++        sceKernelFreeMemBlock(mb);
++    return false;
++}
++
++static void __attribute__((optimize("no-optimize-sibling-calls"))) do_mem_free(VitaDecodeBufferFreeParams *p)
++{
++    sceKernelFreeMemBlock(*p->mb);
++}
++
++static bool do_unmap_open(VitaDecodeBufferAllocParams *p)
++{
++    void **mem_base = p->ref;
++    int mb = sceCodecEngineOpenUnmapMemBlock(*mem_base, p->size);
++    if (mb <= 0)
++        return false;
++    *p->mb = mb;
++    return true;
++}
++
++static void __attribute__((optimize("no-optimize-sibling-calls"))) do_unmap_close(VitaDecodeBufferFreeParams *p)
++{
++    sceCodecEngineCloseUnmapMemBlock(*p->mb);
++}
++
++static bool do_vaddr_alloc(VitaDecodeBufferAllocParams *p)
++{
++    SceUID *unmap = p->ref;
++    SceUIntVAddr *vaddr = p->ptr;
++    SceUIntVAddr ret = sceCodecEngineAllocMemoryFromUnmapMemBlock(*unmap, p->size, p->alignment);
++    if (!ret)
++        return false;
++    *vaddr = ret;
++    p->ptr = NULL;  // don't export it as void pointer
++    return true;
++}
++
++static void __attribute__((optimize("no-optimize-sibling-calls"))) do_vaddr_free(VitaDecodeBufferFreeParams *p)
++{
++    SceUID *unmap = p->ref;
++    SceUIntVAddr *vaddr = p->ptr;
++    sceCodecEngineFreeMemoryFromUnmapMemBlock(*unmap, *vaddr);
++}
++
++static VitaDecodeContextImpl *get_ctx_impl(AVCodecContext *avctx)
++{
++    return &((VitaDecodeContext*) avctx->priv_data)->impl;
++}
++
++static void do_uninit_decoder(AVCodecContext *avctx)
++{
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    if (ctx->flags & VITA_DECODE_VIDEO_FLAG_DONE_DECODER) {
++        ctx->flags &= ~VITA_DECODE_VIDEO_FLAG_DONE_DECODER;
++        sceAvcdecDeleteDecoder(&ctx->decoder_ctrl);
++    }
++    if (ctx->flags & VITA_DECODE_VIDEO_FLAG_DONE_AVC_LIB) {
++        ctx->flags &= ~VITA_DECODE_VIDEO_FLAG_DONE_AVC_LIB;
++        sceVideodecTermLibrary(SCE_VIDEODEC_TYPE_HW_AVCDEC);
++    }
++    buffers_free(avctx);
++    av_frame_free(&ctx->decoder_dr_frame);
++    ctx->flags &= ~VITA_DECODE_VIDEO_FLAG_DECODER_READY;
++}
++
++static void do_cleanup(AVCodecContext *avctx)
++{
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    do_uninit_decoder(avctx);
++    ctx->flags = 0;
++}
++
++static void extract_buffer_field_ptrs(const VitaDecodeBufferDescriptor *bd, void *ctx, SceUID **mb, void **ptr, void **ref)
++{
++    if (bd->offset_mb)
++        *mb = (SceUID*) ((uint8_t*) ctx + bd->offset_mb);
++    if (bd->offset_ptr)
++        *ptr = (void*) ((uint8_t*) ctx + bd->offset_ptr);
++    if (bd->offset_ref)
++        *ref = (void*) ((uint8_t*) ctx + bd->offset_ref);
++}
++
++static bool buffers_alloc(AVCodecContext *avctx, int *sizes, void **ptrs)
++{
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    for (int i = 0; i < VITA_DECODE_BUFFER_TYPE_NB; i++) {
++        const VitaDecodeBufferDescriptor *bd = &vita_decode_buffer_descriptors[i];
++        SceUID dummy_out_mb = 0;
++        void *dummy_out_ptr = NULL;
++        VitaDecodeBufferAllocParams p = {0};
++        extract_buffer_field_ptrs(bd, ctx, &p.mb, &p.ptr, &p.ref);
++        p.alignment = bd->alignment_addr;
++        p.size = bd->alignment_size ? FFALIGN(sizes[i], bd->alignment_size) : sizes[i];
++        if (p.size <= 0)
++            continue;
++
++        // allocator functions don't need null check when exporting results
++        if (!p.mb)
++            p.mb = &dummy_out_mb;
++        if (!p.ptr)
++            p.ptr = &dummy_out_ptr;
++
++        if (!bd->alloc(&p)) {
++            av_log(avctx, AV_LOG_ERROR, "vita_h264 init: allocate %s buffer failed\n", bd->name);
++            return false;
++        }
++
++        sizes[i] = p.size;
++        ptrs[i] = p.ptr ? *((void**) p.ptr) : NULL;
++        ctx->flags |= bd->field_bit;
++    }
++    return true;
++}
++
++static void buffers_free(AVCodecContext *avctx)
++{
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    for (int i = VITA_DECODE_BUFFER_TYPE_NB - 1; i >= 0; i--) {
++        const VitaDecodeBufferDescriptor *bd = &vita_decode_buffer_descriptors[i];
++        if (ctx->flags & bd->field_bit) {
++            VitaDecodeBufferFreeParams p = {0};
++            extract_buffer_field_ptrs(bd, ctx, &p.mb, &p.ptr, &p.ref);
++            bd->free(&p);
++        }
++    }
++}
++
++static const VitaDecodeFormatDescriptor* get_format_descriptor(enum AVPixelFormat fmt)
++{
++    for (int i = 0; i < FF_ARRAY_ELEMS(vita_decode_format_descriptors); i++) {
++        const VitaDecodeFormatDescriptor *desc = &vita_decode_format_descriptors[i];
++        if (desc->ff_format == fmt)
++            return desc;
++    }
++    return NULL;
++}
++
++static enum AVPixelFormat resolve_user_request_format(enum AVPixelFormat fmt)
++{
++    const AVPixFmtDescriptor *ff_desc = NULL;
++    const VitaDecodeFormatDescriptor *vita_desc = get_format_descriptor(fmt);
++    if (vita_desc)
++        return vita_desc->ff_format;
++
++    ff_desc = av_pix_fmt_desc_get(fmt);
++    if (!ff_desc || ff_desc->log2_chroma_w || (ff_desc->flags & AV_PIX_FMT_FLAG_PLANAR))
++        return AV_PIX_FMT_YUV420P;
++    else
++        return AV_PIX_FMT_RGBA;
++}
++
++static const SPS* find_actived_h264_sps(AVCodecContext *avctx, H264ParamSets *ps)
++{
++    const SPS *sps = NULL;
++    for (int i = 0; i < MAX_SPS_COUNT; i++) {
++        AVBufferRef *ref = ps->sps_list[i];
++        const SPS *it = ref ? (const SPS*) ref->data : NULL;
++        if (!it)
++            continue;
++
++        if (sps) {
++            // most h264 streams just have one SPS / PPS
++            av_log(avctx, AV_LOG_WARNING, "vita_h264 parse: multiple SPS NALs\n");
++            break;
++        } else {
++            sps = it;
++        }
++    }
++    return sps;
++}
++
++static bool do_update_dimension(AVCodecContext *avctx, H264ParamSets *ps)
++{
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    const SPS *sps = find_actived_h264_sps(avctx, ps);
++    const VitaDecodeFormatDescriptor *desc = get_format_descriptor(avctx->pix_fmt);
++    if (!sps || !desc)
++        return false;
++
++    avctx->coded_width = 16 * sps->mb_width;
++    avctx->coded_height = 16 * sps->mb_height;
++    avctx->width = avctx->coded_width - (sps->crop_left + sps->crop_right);
++    avctx->height = avctx->coded_height - (sps->crop_top + sps->crop_bottom);
++
++    if (ctx->h264_width == avctx->width 
++        && ctx->h264_height == avctx->height
++        && ctx->h264_ref_frames == sps->ref_frame_count
++        && ctx->frame_format == desc)
++        return false;
++
++    ctx->h264_width = avctx->width;
++    ctx->h264_height = avctx->height;
++    ctx->h264_ref_frames = sps->ref_frame_count;
++
++    // https://github.com/MakiseKurisu/vita-sceVideodecInitLibrary-test
++    ctx->frame_width = FFMAX(FFALIGN(avctx->width, 16), 64);
++    ctx->frame_height = FFMAX(FFALIGN(avctx->height, 16), 64);
++    ctx->frame_pitch = FFALIGN(avctx->width, desc->pitch_alignment);
++    ctx->frame_format = desc;
++    return true;
++}
++
++static bool do_parse_meta_data_raw(AVCodecContext *avctx, uint8_t *buf, int size, bool need_resize)
++{
++    int ret = 0;
++    bool succeed = false;
++    bool changed = false;
++    int h264_is_avcc = 0;
++    int h264_len_bytes = 0;
++    H264ParamSets ps = {0};
++
++    ret = ff_h264_decode_extradata(buf, size,
++        &ps, &h264_is_avcc, &h264_len_bytes,
++        avctx->err_recognition, avctx);
++    if (ret < 0)
++        goto bail;
++
++    changed = do_update_dimension(avctx, &ps);
++    if (changed && need_resize)
++        do_init(avctx);
++
++    succeed = true;
++
++bail:
++    ff_h264_ps_uninit(&ps);
++    return succeed;
++}
++
++static bool do_skip_nal_start_code(const uint8_t **p, const uint8_t *end)
++{
++    uint32_t state = 0;
++    const uint8_t *skip = avpriv_find_start_code(*p, end, &state);
++    if (skip >= end)
++        return false;
++
++    *p = skip - 1;
++    return true;
++}
++
++static bool do_find_meta_nals(const uint8_t **buf, int *size)
++{
++    bool has_pps = false;
++    bool has_sps = false;
++    const uint8_t *p = *buf;
++    const uint8_t *end = p + *size;
++    const uint8_t *nal_end = NULL;
++
++    if (!do_skip_nal_start_code(&p, end))
++        return false;
++
++    while (p < end) {
++        switch (*p & 0x1f) {
++        case H264_NAL_PPS:
++            has_pps = true;
++            break;
++        case H264_NAL_SPS:
++            has_sps = true;
++            break;
++
++        case H264_NAL_SLICE:
++        case H264_NAL_DPA:
++        case H264_NAL_DPB:
++        case H264_NAL_DPC:
++        case H264_NAL_IDR_SLICE:
++            // non-VCL NALs will not follow VCL NALs in an access unit
++            return false;
++        }
++
++        if (do_skip_nal_start_code(&p, end)) {
++            // even though start code may be 0x0001
++            // NAL parsing should be fine with extra trailing zero bytes
++            nal_end = p - 3;
++        } else {
++            p = end;
++            nal_end = end;
++        }
++
++        if (has_pps && has_sps) {
++            *size = nal_end - *buf;
++            return true;
++        }
++    }
++
++    return false;
++}
++
++static bool do_parse_meta_nals(AVCodecContext *avctx, H264ParamSets *ps, const uint8_t *buf, int size)
++{
++    int ret = 0;
++    bool succeed = false;
++    H2645Packet nals = {0};
++
++    ret = ff_h2645_packet_split(&nals, buf, size, avctx, 0, 0, AV_CODEC_ID_H264, 0, 0);
++    if (ret < 0) {
++        av_log(avctx, AV_LOG_ERROR, "vita_h264 parse: split NALs failed\n");
++        goto fail;
++    }
++
++    for (int i = 0; i < nals.nb_nals; i++) {
++        H2645NAL *nal = &nals.nals[i];
++        switch (nal->type) {
++        case H264_NAL_PPS:
++            ret = ff_h264_decode_picture_parameter_set(&nal->gb, avctx, ps, nal->size_bits);
++            if (ret < 0) {
++                av_log(avctx, AV_LOG_ERROR, "vita_h264 parse: parse PPS failed\n");
++                goto fail;
++            }
++            break;
++        case H264_NAL_SPS:
++            ret = ff_h264_decode_seq_parameter_set(&nal->gb, avctx, ps, 0);
++            if (ret < 0) {
++                av_log(avctx, AV_LOG_ERROR, "vita_h264 parse: parse SPS failed\n");
++                goto fail;
++            }
++            break;
++        }
++    }
++    succeed = true;
++fail:
++    ff_h2645_packet_uninit(&nals);
++    return succeed;
++}
++
++static void do_parse_meta_data_probed(AVCodecContext *avctx, AVPacket *avpkt)
++{
++    int size = avpkt->size;
++    const uint8_t *buf = avpkt->data;
++    H264ParamSets ps = {0};
++
++    if (!do_find_meta_nals(&buf, &size))
++        goto bail;
++    if (!do_parse_meta_nals(avctx, &ps, buf, size))
++        goto bail;
++    if (!do_update_dimension(avctx, &ps))
++        goto bail;
++
++    do_init(avctx);
++bail:
++    ff_h264_ps_uninit(&ps);
++}
++
++static bool prepare_dr_frame(AVCodecContext *avctx, bool check_buf)
++{
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    if (!ctx->decoder_dr_frame) {
++        AVFrame *frame = av_frame_alloc();
++        if (!frame) {
++            av_log(avctx, AV_LOG_ERROR, "vita_h264 dr: get frame holder failed\n");
++            return false;
++        }
++        ctx->decoder_dr_frame = frame;
++    }
++
++    if (ff_get_buffer(avctx, ctx->decoder_dr_frame, 0) != 0)
++        return false;
++
++    if (check_buf) {
++        uint8_t *buffers[4] = {NULL};
++        int strides[4] = {0};
++        int steps[4] = {0};
++        uint8_t **dr_buffers = ctx->decoder_dr_frame->data;
++        int *dr_strides = ctx->decoder_dr_frame->linesize;
++        int dr_pitch = 0;
++        const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get(avctx->pix_fmt);
++        if (!desc) {
++            av_log(avctx, AV_LOG_ERROR, "vita_h264 dr: unknown pix format %d\n", avctx->pix_fmt);
++            goto check_fail;
++        }
++
++        // check buffer count
++        for (int i = 1; i < AV_NUM_DATA_POINTERS; i++) {
++            if (ctx->decoder_dr_frame->buf[i]) {
++                av_log(avctx, AV_LOG_ERROR, "vita_h264 dr: multi-buffer is not supported\n");
++                goto check_fail;
++            }
++        }
++
++        av_image_fill_max_pixsteps(steps, NULL, desc);
++        dr_pitch = dr_strides[0] / steps[0];
++
++        // check plane memory layout
++        av_image_fill_arrays(buffers, strides, dr_buffers[0],
++            avctx->pix_fmt, dr_pitch, ctx->frame_height, 1);
++        if (memcmp(buffers, dr_buffers, desc->nb_components * sizeof(buffers[0]))
++            || memcmp(strides, dr_strides, desc->nb_components * sizeof(strides[0]))) {
++            av_log(avctx, AV_LOG_ERROR, "vita_h264 dr: illegal memory layout\n");
++            goto check_fail;
++        }
++    }
++
++    return true;
++
++check_fail:
++    av_frame_unref(ctx->decoder_dr_frame);
++    return false;
++}
++
++static void do_init(AVCodecContext *avctx)
++{
++    int ret = 0;
++    int ouput_buf_size = 0;
++    int codec_buf_size = 0;
++
++    SceVideodecCtrl ctrl = {0};
++    SceAvcdecDecoderInfo di = {0};
++    SceVideodecQueryInitInfo init = {0};
++    SceAvcdecQueryDecoderInfo qdi = {0};
++    int sizes[VITA_DECODE_BUFFER_TYPE_NB] = {0};
++    void *ptrs[VITA_DECODE_BUFFER_TYPE_NB] = {NULL};
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++
++    if (ctx->h264_width <= 0 || ctx->h264_height <= 0) {
++        av_log(avctx, AV_LOG_ERROR, "vita_h264 init: unknown video width or height\n");
++        goto fail;
++    }
++
++    // the decoder may have been initialized before
++    do_uninit_decoder(avctx);
++
++    init.hwAvc.size = sizeof(SceVideodecQueryInitInfoHwAvcdec);
++    init.hwAvc.horizontal = ctx->frame_width;
++    init.hwAvc.vertical = ctx->frame_height;
++    init.hwAvc.numOfRefFrames = ctx->h264_ref_frames;
++    init.hwAvc.numOfStreams = 1;
++    sceVideodecSetConfigInternal(SCE_VIDEODEC_TYPE_HW_AVCDEC, 2);
++    sceAvcdecSetDecodeMode(SCE_VIDEODEC_TYPE_HW_AVCDEC, 0x80);
++    sceVideodecQueryMemSizeInternal(SCE_VIDEODEC_TYPE_HW_AVCDEC, &init, &codec_buf_size);
++    if (codec_buf_size <= 0) {
++        av_log(avctx, AV_LOG_ERROR, "vita_h264 init: query codec buffer size failed\n");
++        goto fail;
++    }
++
++    qdi.horizontal = init.hwAvc.horizontal;
++    qdi.vertical = init.hwAvc.vertical;
++    qdi.numOfRefFrames = init.hwAvc.numOfRefFrames;
++    ret = sceAvcdecQueryDecoderMemSizeInternal(SCE_VIDEODEC_TYPE_HW_AVCDEC, &qdi, &di);
++    if (ret != 0) {
++        av_log(avctx, AV_LOG_ERROR, "vita_h264 init: query frame buffer size failed 0x%x\n", ret);
++        goto fail;
++    }
++
++    if (ctx->option_dr) {
++        if (!prepare_dr_frame(avctx, true))
++            goto fail;
++    } else {
++        ouput_buf_size = av_image_get_buffer_size(avctx->pix_fmt, ctx->frame_pitch, ctx->frame_height, 1);
++        if (ouput_buf_size <= 0) {
++            av_log(avctx, AV_LOG_ERROR, "vita_h264 init: invalid output buffer size\n");
++            goto fail;
++        }
++    }
++
++    sizes[VITA_DECODE_BUFFER_TYPE_FRAME] = di.frameMemSize;
++    sizes[VITA_DECODE_BUFFER_TYPE_OUTPUT] = ouput_buf_size;
++    sizes[VITA_DECODE_BUFFER_TYPE_CODEC_MEM] = codec_buf_size;
++    sizes[VITA_DECODE_BUFFER_TYPE_CODEC_UNMAP] = codec_buf_size;
++    sizes[VITA_DECODE_BUFFER_TYPE_CODEC_VADDR] = codec_buf_size;
++    if (!buffers_alloc(avctx, sizes, ptrs))
++        goto fail;
++
++    ctrl.vaContext = ctx->decoder_vaddr_codec;
++    ctrl.contextSize = codec_buf_size;
++    ret = sceVideodecInitLibraryWithUnmapMemInternal(SCE_VIDEODEC_TYPE_HW_AVCDEC, &ctrl, &init);
++    if (ret != 0) {
++        av_log(avctx, AV_LOG_ERROR, "vita_h264 init: init library failed 0x%x\n", ret);
++        goto fail;
++    }
++    ctx->flags |= VITA_DECODE_VIDEO_FLAG_DONE_AVC_LIB;
++
++    memset(&ctx->decoder_ctrl, 0, sizeof(SceAvcdecCtrl));
++    ctx->decoder_ctrl.frameBuf.pBuf = ptrs[VITA_DECODE_BUFFER_TYPE_FRAME];
++    ctx->decoder_ctrl.frameBuf.size = sizes[VITA_DECODE_BUFFER_TYPE_FRAME];
++    ret = sceAvcdecCreateDecoderInternal(SCE_VIDEODEC_TYPE_HW_AVCDEC, &ctx->decoder_ctrl, &qdi);
++    if (ret != 0) {
++        av_log(avctx, AV_LOG_ERROR, "vita_h264 init: create decoder failed: 0x%x\n", ret);
++        goto fail;
++    }
++    ctx->flags |= VITA_DECODE_VIDEO_FLAG_DONE_DECODER;
++
++    ctx->flags |= VITA_DECODE_VIDEO_FLAG_DECODER_READY;
++    return;
++
++fail:
++    do_cleanup(avctx);
++}
++
++static av_cold int vita_init(AVCodecContext *avctx)
++{
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    avctx->pix_fmt = resolve_user_request_format(avctx->pix_fmt);
++    ctx->option_dr = avctx->pix_fmt == AV_PIX_FMT_VITA_YUV420P || avctx->pix_fmt == AV_PIX_FMT_VITA_NV12;
++    ctx->flags = VITA_DECODE_VIDEO_FLAG_INIT_POSTPONED;
++    do_parse_meta_data_raw(avctx, avctx->extradata, avctx->extradata_size, false);
++    return 0;
++}
++
++static av_cold int vita_close(AVCodecContext *avctx)
++{
++    do_cleanup(avctx);
++    return 0;
++}
++
++static void vita_flush(AVCodecContext *avctx)
++{
++    int ret = 0;
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++    if (!(ctx->flags & VITA_DECODE_VIDEO_FLAG_DECODER_READY)) {
++        av_log(avctx, AV_LOG_ERROR, "vita_h264 flush: decoder not ready\n");
++        return;
++    }
++
++    ret = sceAvcdecDecodeFlush(&ctx->decoder_ctrl);
++    if (ret)
++        av_log(avctx, AV_LOG_ERROR, "vita_h264 flush: failed 0x%x\n", ret);
++}
++
++static AVRational* select_time_base(AVCodecContext *avctx)
++{
++    AVRational *base = &avctx->pkt_timebase;
++    return (base && base->num && base->den) ? base : NULL;
++}
++
++static void to_timestamp_vita(int64_t pts, AVRational *ff_base, SceVideodecTimeStamp *ts)
++{
++    int64_t result = 0;
++    if (pts == AV_NOPTS_VALUE) {
++        ts->upper = VITA_DECODE_TIMESTAMP_VOID;
++        ts->lower = VITA_DECODE_TIMESTAMP_VOID;
++        return;
++    }
++
++    if (ff_base) {
++        AVRational vita_base = av_make_q(1, VITA_DECODE_TIMESTAMP_UNIT_BASE);
++        result = av_rescale_q(pts, *ff_base, vita_base);
++    } else {
++        result = pts;
++    }
++    ts->upper = (SceUInt32) (result >> 32);
++    ts->lower = (SceUInt32) (result);
++}
++
++static int64_t to_timestamp_ff(AVRational *ff_base, SceVideodecTimeStamp *ts)
++{
++    int64_t count = 0;
++    if (ts->upper == VITA_DECODE_TIMESTAMP_VOID && ts->lower == VITA_DECODE_TIMESTAMP_VOID)
++        return AV_NOPTS_VALUE;
++
++    count = (((uint64_t) ts->upper) << 32) | ((uint64_t) ts->lower);
++    if (ff_base) {
++        AVRational vita_base = av_make_q(1, VITA_DECODE_TIMESTAMP_UNIT_BASE);
++        return av_rescale_q(count, vita_base, *ff_base);
++    } else {
++        return count;
++    }
++}
++
++static bool do_output_frame(AVCodecContext *avctx, AVFrame *frame, SceAvcdecPicture *p)
++{
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++
++    int ret = 0;
++    int steps[4] = {0};
++    int strides[4] = {0};
++    uint8_t *buffers[4] = {NULL};
++    uint32_t crop_x = 0;
++    uint32_t crop_y = 0;
++    uint8_t *pixels = NULL;
++    const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get(avctx->pix_fmt);
++    if (!desc)
++        return false;
++
++    av_image_fill_max_pixsteps(steps, NULL, desc);
++    crop_x = FFMIN(p->frame.frameCropLeftOffset, p->frame.framePitch - ctx->h264_width);
++    crop_y = FFMIN(p->frame.frameCropTopOffset, p->frame.frameHeight - ctx->h264_height);
++    pixels = (uint8_t*) ctx->decoder_ptr_output + (crop_x + crop_y * p->frame.framePitch) * steps[0];
++
++    ret = av_image_fill_arrays(buffers, strides,
++        pixels, avctx->pix_fmt, 
++        p->frame.framePitch, p->frame.frameHeight, 1);
++    if (ret <= 0)
++        return false;
++
++    av_image_copy(frame->data, frame->linesize, 
++        (const uint8_t**) buffers, (const int*) strides,
++        avctx->pix_fmt, avctx->width, avctx->height);
++
++    return true;
++}
++
++static int vita_decode(AVCodecContext *avctx, AVFrame *frame, int *got_frame, AVPacket *avpkt)
++{
++    int ret = 0;
++    int buffer_full = 0;
++    VitaDecodeContextImpl *ctx = get_ctx_impl(avctx);
++
++    SceAvcdecPicture p = {0};
++    SceAvcdecPicture *pp[] = {&p};
++    SceAvcdecArrayPicture ap = {0};
++    void *frame_output = NULL;
++
++    // is it a corner use case?
++    // some developers may send SPS and PPS through side data,
++    // but a more proper way may be sending them through packet.
++    size_t side_data_size = 0;
++    uint8_t *side_data_buf = av_packet_get_side_data(avpkt, AV_PKT_DATA_NEW_EXTRADATA, &side_data_size);
++    if (side_data_buf)
++        do_parse_meta_data_raw(avctx, side_data_buf, side_data_size, true);
++
++    // it's necessary to probe SPS or PPS for every packet
++    // 1. there is no extradata being passed when decoding a raw h264 stream with a parser
++    // 2. the new SPS or PPS only appears in packets when decoding a mixed h264 stream
++    //    containing different-sized video data
++    do_parse_meta_data_probed(avctx, avpkt);
++
++    if (ctx->flags & VITA_DECODE_VIDEO_FLAG_INIT_POSTPONED) {
++        ctx->flags &= ~VITA_DECODE_VIDEO_FLAG_INIT_POSTPONED;
++        do_init(avctx);
++    }
++
++    // reject any decode invocations if init failed
++    if (!(ctx->flags & VITA_DECODE_VIDEO_FLAG_DECODER_READY)) {
++        av_log(avctx, AV_LOG_ERROR, "vita_h264 decode: decoder not ready\n");
++        return AVERROR_UNKNOWN;
++    }
++
++    frame_output = ctx->option_dr
++        ? ctx->decoder_dr_frame->data[0]
++        : ctx->decoder_ptr_output;
++
++    p.size = sizeof(SceAvcdecPicture);
++    p.frame.pixelType = ctx->frame_format->sce_format;
++    p.frame.framePitch = ctx->frame_pitch;
++    p.frame.frameWidth = ctx->frame_width;
++    p.frame.frameHeight = ctx->frame_height;
++    p.frame.pPicture[0] = frame_output;
++
++    ap.numOfElm = 1;
++    ap.pPicture = pp;
++
++    if (!avpkt->size) {
++        ret = sceAvcdecDecodeStop(&ctx->decoder_ctrl, &ap);
++        if (ret < 0) {
++            av_log(avctx, AV_LOG_ERROR, "vita_h264 decode: flush failed 0x%x\n", ret);
++            return AVERROR_UNKNOWN;
++        }
++    } else {
++        SceAvcdecAu au = {0};
++        AVRational *time_base = select_time_base(avctx);
++        to_timestamp_vita(avpkt->pts, time_base,  &au.pts);
++        to_timestamp_vita(avpkt->dts, time_base, &au.dts);
++
++decode:
++        ret = sceAvcdecDecodeAvailableSize(&ctx->decoder_ctrl);
++        if (ret < avpkt->size) {
++            buffer_full = 1;
++            au.es.pBuf = NULL;
++            au.es.size = 0;
++        } else {
++            buffer_full = 0;
++            au.es.pBuf = avpkt->data;
++            au.es.size = avpkt->size;
++        }
++
++        ret = sceAvcdecDecode(&ctx->decoder_ctrl, &au, &ap);
++        if (ret == SCE_AVCDEC_ERROR_ES_BUFFER_FULL) {
++            buffer_full = 1;
++        } else if (ret < 0) {
++            av_log(avctx, AV_LOG_ERROR, "vita_h264 decode: decode au failed 0x%x\n", ret);
++            return AVERROR_UNKNOWN;
++        }
++
++        if (buffer_full && ap.numOfOutput == 0) {
++            sceKernelDelayThread(100);
++            goto decode;
++        }
++    }
++
++    if (!ap.numOfOutput)
++        goto done;
++
++    if (ctx->option_dr) {
++        av_frame_unref(frame);
++        av_frame_move_ref(frame, ctx->decoder_dr_frame);
++        ff_decode_frame_props(avctx, frame);
++        if (!prepare_dr_frame(avctx, false))
++            return AVERROR_UNKNOWN;
++    } else {
++        ret = ff_get_buffer(avctx, frame, 0);
++        if (ret < 0)
++            return ret;
++
++        if (!do_output_frame(avctx, frame, &p)) {
++            av_frame_unref(frame);
++            av_log(avctx, AV_LOG_ERROR, "vita_h264 decode: output frame failed\n");
++            return AVERROR_UNKNOWN;
++        }
++    }
++
++    *got_frame = 1;
++    frame->pts = to_timestamp_ff(select_time_base(avctx), &p.info.pts);
++
++done:
++    return buffer_full ? AVERROR_BUFFER_TOO_SMALL : 0;
++}
++
++static inline int decode_simple_internal(AVCodecContext *avctx, AVFrame *frame)
++{
++    AVCodecInternal   *avci = avctx->internal;
++    AVPacket     *const pkt = avci->in_pkt;
++    const FFCodec *const codec = ffcodec(avctx->codec);
++    int got_frame, actual_got_frame;
++    int ret;
++
++    if (!pkt->data && !avci->draining) {
++        av_packet_unref(pkt);
++        ret = ff_decode_get_packet(avctx, pkt);
++        if (ret < 0 && ret != AVERROR_EOF)
++            return ret;
++    }
++
++    if (avci->draining_done) {
++        return AVERROR_EOF;
++    }
++
++    got_frame = 0;
++
++    ret = vita_decode(avctx, frame, &got_frame, pkt);
++    if (ret == AVERROR_BUFFER_TOO_SMALL)
++        return 0;
++
++    if (!(codec->caps_internal & FF_CODEC_CAP_SETS_PKT_DTS))
++        frame->pkt_dts = pkt->dts;
++
++    if(!avctx->has_b_frames)
++        frame->pkt_pos = pkt->pos;
++
++    actual_got_frame = got_frame;
++
++    if (frame->flags & AV_FRAME_FLAG_DISCARD)
++        got_frame = 0;
++
++    if (!got_frame)
++        av_frame_unref(frame);
++
++    if (avci->draining && !actual_got_frame) {
++        if (ret < 0) {
++            int nb_errors_max = 21;
++
++            if (avci->nb_draining_errors++ >= nb_errors_max) {
++                av_log(avctx, AV_LOG_ERROR, "Too many errors when draining, this is a bug. "
++                       "Stop draining and force EOF.\n");
++                avci->draining_done = 1;
++                ret = AVERROR_BUG;
++            }
++        } else {
++            avci->draining_done = 1;
++        }
++    }
++
++    av_packet_unref(pkt);
++
++    if (got_frame)
++        av_assert0(frame->buf[0]);
++
++    return ret < 0 ? ret : 0;
++}
++
++static int decode_simple_receive_frame(AVCodecContext *avctx, AVFrame *frame)
++{
++    int ret;
++    while (!frame->buf[0]) {
++        ret = decode_simple_internal(avctx, frame);
++        if (ret < 0)
++            return ret;
++    }
++
++    return 0;
++}
++
++static const AVClass vita_h264_dec_class = {
++    .class_name     = "vita_h264_dec",
++    .item_name      = av_default_item_name,
++    .option         = NULL,
++    .version        = LIBAVUTIL_VERSION_INT,
++};
++
++const FFCodec ff_h264_vita_decoder = {
++    .p.name             = "h264_vita",
++    CODEC_LONG_NAME("h264 (vita)"),
++    .p.type             = AVMEDIA_TYPE_VIDEO,
++    .p.id               = AV_CODEC_ID_H264,
++    .priv_data_size     = sizeof(VitaDecodeContext),
++    .init               = vita_init,
++    .close              = vita_close,
++    .flush              = vita_flush,
++    FF_CODEC_RECEIVE_FRAME_CB(decode_simple_receive_frame),
++    .bsfs               = "h264_mp4toannexb",
++    .p.priv_class       = &vita_h264_dec_class,
++    .p.capabilities     = AV_CODEC_CAP_DR1 | AV_CODEC_CAP_DELAY | AV_CODEC_CAP_AVOID_PROBING | AV_CODEC_CAP_HARDWARE,
++    .caps_internal      = FF_CODEC_CAP_NOT_INIT_THREADSAFE | FF_CODEC_CAP_INIT_CLEANUP,
++    .p.wrapper_name     = "vita",
++    .hw_configs         = (const AVCodecHWConfigInternal *const []) {
++        HW_CONFIG_INTERNAL(VITA_NV12),
++        HW_CONFIG_INTERNAL(VITA_YUV420P),
++        NULL
++    },
++};
+diff --git a/libavformat/os_support.h b/libavformat/os_support.h
+index f2ff38e23b..c53b323fd8 100644
+--- a/libavformat/os_support.h
++++ b/libavformat/os_support.h
+@@ -95,13 +95,40 @@
+ #  define lseek(f,p,w) lseek64((f), (p), (w))
+ #endif
+ 
++#ifdef __vita__
++#include <string.h>
++#endif
++
+ static inline int is_dos_path(const char *path)
+ {
++    int ret = 0;
++
++#ifdef __vita__
++    // https://github.com/TheOfficialFloW/VitaShell/blob/master/file.c
++    const char devs[][6] = {
++        "gro0:", "grw0:", "imc0:", "os0:", "pd0:",
++        "sa0:", "sd0:", "tm0:", "ud0:", "uma0:",
++        "ur0:", "ux0:", "vd0:", "vs0:", "xmc0:", "host0:",
++    };
++
++    const char *sep = memchr(path, ':', 6);
++    if (sep) {
++        size_t max_len = sep - path;
++        for (int i = 0; i < sizeof(devs) / sizeof(devs[0]); i++) {
++            if (!strncmp(path, devs[i], max_len)) {
++                ret = 1;
++                break;
++            }
++        }
++    }
++#endif
++
+ #if HAVE_DOS_PATHS
+     if (path[0] && path[1] == ':')
+         return 1;
+ #endif
+-    return 0;
++
++    return ret;
+ }
+ 
+ #if defined(_WIN32)
+diff --git a/libavutil/avstring.c b/libavutil/avstring.c
+index e460b5be7f..2b3b4f2e6b 100644
+--- a/libavutil/avstring.c
++++ b/libavutil/avstring.c
+@@ -266,6 +266,10 @@ const char *av_basename(const char *path)
+     d = strchr(path, ':');
+     p = FFMAX3(p, q, d);
+ #endif
++#ifdef __vita__
++    char *d = strchr(path, ':');
++    p = FFMAX(p, d);
++#endif
+ 
+     if (!p)
+         return path;
+@@ -277,6 +281,11 @@ const char *av_dirname(char *path)
+ {
+     char *p = path ? strrchr(path, '/') : NULL;
+ 
++#ifdef __vita__
++    char *d = strchr(path, ':');
++    p = FFMAX(p, d);
++#endif
++
+ #if HAVE_DOS_PATHS
+     char *q = path ? strrchr(path, '\\') : NULL;
+     char *d = path ? strchr(path, ':')  : NULL;
+diff --git a/libavutil/cpu.c b/libavutil/cpu.c
+index 2c5f7f4958..91892dcf6f 100644
+--- a/libavutil/cpu.c
++++ b/libavutil/cpu.c
+@@ -244,6 +244,10 @@ int av_cpu_count(void)
+     nb_cpus = sysinfo.dwNumberOfProcessors;
+ #endif
+ 
++#ifdef __vita__
++    nb_cpus = 4;
++#endif
++
+     if (!atomic_exchange_explicit(&printed, 1, memory_order_relaxed))
+         av_log(NULL, AV_LOG_DEBUG, "detected %d logical cores\n", nb_cpus);
+ 
+diff --git a/libavutil/pixdesc.c b/libavutil/pixdesc.c
+index 62a2ae08d9..46142e14a1 100644
+--- a/libavutil/pixdesc.c
++++ b/libavutil/pixdesc.c
+@@ -2717,6 +2717,30 @@ static const AVPixFmtDescriptor av_pix_fmt_descriptors[AV_PIX_FMT_NB] = {
+         .flags = AV_PIX_FMT_FLAG_RGB | AV_PIX_FMT_FLAG_FLOAT |
+                  AV_PIX_FMT_FLAG_ALPHA,
+     },
++    [AV_PIX_FMT_VITA_NV12] = {
++        .name = "vita_nv12",
++        .nb_components = 3,
++        .log2_chroma_w = 1,
++        .log2_chroma_h = 1,
++        .comp = {
++            { 0, 1, 0, 0, 8 },        /* Y */
++            { 1, 2, 0, 0, 8 },        /* U */
++            { 1, 2, 1, 0, 8 },        /* V */
++        },
++        .flags = AV_PIX_FMT_FLAG_PLANAR,
++    },
++    [AV_PIX_FMT_VITA_YUV420P] = {
++        .name = "vita_yuv420p",
++        .nb_components = 3,
++        .log2_chroma_w = 1,
++        .log2_chroma_h = 1,
++        .comp = {
++            { 0, 1, 0, 0, 8 },        /* Y */
++            { 1, 1, 0, 0, 8 },        /* U */
++            { 2, 1, 0, 0, 8 },        /* V */
++        },
++        .flags = AV_PIX_FMT_FLAG_PLANAR,
++    },
+ };
+ 
+ static const char * const color_range_names[] = {
+diff --git a/libavutil/pixfmt.h b/libavutil/pixfmt.h
+index 37c2c79e01..261c468c39 100644
+--- a/libavutil/pixfmt.h
++++ b/libavutil/pixfmt.h
+@@ -420,6 +420,9 @@ enum AVPixelFormat {
+     AV_PIX_FMT_RGBAF32BE,   ///< IEEE-754 single precision packed RGBA 32:32:32:32, 128bpp, RGBARGBA..., big-endian
+     AV_PIX_FMT_RGBAF32LE,   ///< IEEE-754 single precision packed RGBA 32:32:32:32, 128bpp, RGBARGBA..., little-endian
+ 
++    AV_PIX_FMT_VITA_NV12,
++    AV_PIX_FMT_VITA_YUV420P,
++
+     AV_PIX_FMT_NB         ///< number of pixel formats, DO NOT USE THIS if you want to link with shared libav* because the number of formats might differ between versions
+ };
+ 
