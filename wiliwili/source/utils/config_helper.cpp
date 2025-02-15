@@ -49,14 +49,19 @@ extern in_addr_t secondary_dns;
 #endif
 
 #ifdef __PSV__
+#include <mbedtls/platform.h>
 #include <psp2/kernel/cpu.h>
 #include <psp2/kernel/threadmgr/thread.h>
 #include <psp2/vshbridge.h>
+#include <psp2/gxm.h>
+#include <psp2/kernel/sysmem.h>
 extern "C"
 {
 unsigned int _newlib_heap_size_user      = 220 * 1024 * 1024;
-unsigned int sceLibcHeapSize             = 24 * 1024 * 1024;
 unsigned int _pthread_stack_default_user = 2 * 1024 * 1024;
+#ifndef BOREALIS_USE_GXM
+unsigned int sceLibcHeapSize             = 24 * 1024 * 1024;
+#endif
 }
 #endif
 
@@ -849,6 +854,83 @@ void ProgramConfig::checkOnTop() {
     }
 }
 
+#ifdef __PSV__
+#define MEM_POOL_SIZE (20 * 1024 * 1024)
+#define MEM_POOL_TYPE SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_PHYCONT_RW
+static void *s_mspace = nullptr;
+static SceUID mempool_id = 0;
+static void *mempool_addr = nullptr;
+static size_t mempool_size = MEM_POOL_SIZE;
+
+int __attribute__((optimize("no-optimize-sibling-calls"))) malloc_finalize() {
+    if (s_mspace)
+        sceClibMspaceDestroy(s_mspace);
+    if (mempool_addr)
+        sceGxmUnmapMemory(mempool_addr);
+    if (mempool_id)
+        sceKernelFreeMemBlock(mempool_id);
+    return 0;
+}
+
+int malloc_init() {
+    int res;
+    if (s_mspace)
+        return 0;
+    mempool_id = sceKernelAllocMemBlock("curl_mempool", MEM_POOL_TYPE, mempool_size, NULL);
+    sceKernelGetMemBlockBase(mempool_id, &mempool_addr);
+    if (!mempool_addr)
+        goto error;
+    res = sceGxmMapMemory(mempool_addr, mempool_size, SCE_GXM_MEMORY_ATTRIB_RW);
+    if (res != SCE_OK)
+        goto error;
+    s_mspace = sceClibMspaceCreate(mempool_addr, mempool_size);
+    if (!s_mspace)
+        goto error;
+
+    return 0;
+error:
+    malloc_finalize();
+    return 1;
+}
+
+void __attribute__((optimize("no-optimize-sibling-calls"))) *sce_malloc(size_t size) {
+    if (!s_mspace)
+        malloc_init();
+    return sceClibMspaceMalloc(s_mspace, size);
+}
+
+void __attribute__((optimize("no-optimize-sibling-calls"))) sce_free(void *ptr) {
+    if (!ptr || !s_mspace)
+        return;
+    sceClibMspaceFree(s_mspace, ptr);
+}
+
+void __attribute__((optimize("no-optimize-sibling-calls"))) *sce_calloc(size_t nelem, size_t size) {
+    if (!s_mspace)
+        malloc_init();
+    return sceClibMspaceCalloc(s_mspace, nelem, size);
+}
+
+void __attribute__((optimize("no-optimize-sibling-calls"))) *sce_realloc(void *ptr, size_t size) {
+    if (!s_mspace)
+        malloc_init();
+    return sceClibMspaceRealloc(s_mspace, ptr, size);
+}
+
+char __attribute__((optimize("no-optimize-sibling-calls"))) *sce_strdup(const char *str) {
+    size_t len;
+    char *newstr;
+    if(!str)
+        return (char *)nullptr;
+    len = strlen(str) + 1;
+    newstr = (char *)sce_malloc(len);
+    if(!newstr)
+        return (char *)nullptr;
+    sceClibMemcpy(newstr, str, len);
+    return newstr;
+}
+#endif
+
 void ProgramConfig::init() {
     brls::Logger::info("wiliwili {}", APPVersion::instance().git_tag);
     wiliwili::initCrashDump();
@@ -857,7 +939,13 @@ void ProgramConfig::init() {
     brls::Application::getWindowSizeChangedEvent()->subscribe([]() { ProgramConfig::instance().checkOnTop(); });
 
     // Set min_threads and max_threads of http thread pool
+#ifdef BOREALIS_USE_GXM
+    // TODO: 不确定为什么 gles 版无法使用 libheap, 当 gxm 稳定后会移除 gles 版本，所以暂时忽略
+    mbedtls_platform_set_calloc_free(sce_calloc, sce_free);
+    curl_global_init_mem(CURL_GLOBAL_DEFAULT, sce_malloc, sce_free, sce_realloc, sce_strdup, sce_calloc);
+#else
     curl_global_init(CURL_GLOBAL_DEFAULT);
+#endif
     cpr::async::startup(THREAD_POOL_MIN_THREAD_NUM, THREAD_POOL_MAX_THREAD_NUM, std::chrono::milliseconds(5000));
 
 #ifdef _WIN32

@@ -1,0 +1,29 @@
+pkgname=mbedtls
+pkgver=3.4.1
+pkgrel=1
+url="https://www.trustedfirmware.org/projects/mbed-tls/"
+source=("https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v$pkgver.tar.gz" "mbedtls.patch")
+sha256sums=('SKIP' 'SKIP')
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch --strip=1 --input=${srcdir}/mbedtls.patch
+}
+
+build() {
+  cd $pkgname-$pkgver
+  mkdir build && cd build
+  cmake .. \
+    -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake \
+    -DCMAKE_INSTALL_PREFIX=$prefix \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DENABLE_PROGRAMS=OFF \
+    -DENABLE_TESTING=OFF \
+    -DMBEDTLS_FATAL_WARNINGS=OFF
+  make -j$(nproc) mbedtls
+}
+
+package () {
+  cd $pkgname-$pkgver/build
+  make DESTDIR=$pkgdir install
+}

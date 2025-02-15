@@ -29,11 +29,14 @@ RUN mkdir -p /vita/dependencies/include && \
 
 # Install VDPM Dependencies
 ADD . /vdpm
-RUN vdpm mbedtls libass harfbuzz fribidi freetype libpng libwebp && \
+RUN vdpm libass harfbuzz fribidi freetype libpng libwebp && \
     adduser --gecos '' --disabled-password builder && \
     echo 'builder ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/builder && \
     chown -R builder:builder /vdpm && \
     ls -l /vdpm && \
+    su - builder -c "cd /vdpm/mbedtls && vita-makepkg" && \
+    vdpm /vdpm/mbedtls/*-arm.tar.xz && \
+    touch /tmp/vdpm_install_mbedtls && \
     su - builder -c "cd /vdpm/ffmpeg && vita-makepkg" && \
     su - builder -c "cd /vdpm/curl && vita-makepkg" && \
     su - builder -c "cd /vdpm/sdl2 && vita-makepkg" && \
