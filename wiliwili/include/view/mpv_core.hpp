@@ -254,6 +254,12 @@ public:
     int getHue() const;
 
     /**
+     * 设置硬解码模式
+     * @param value 为真时将硬解码设置为 auto-copy, 为假时将硬解码设置为 各个平台默认值
+     */
+    void setHwdecCopyMode(bool value);
+
+    /**
      * 禁用系统锁屏
      */
     static void disableDimming(bool disable);
@@ -358,7 +364,7 @@ public:
     inline static bool HARDWARE_DEC = false;
 
     // 硬解方式
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(BOREALIS_USE_GXM)
     inline static std::string PLAYER_HWDEC_METHOD = "auto";
 #elif defined(__PSV__)
     inline static std::string PLAYER_HWDEC_METHOD = "vita-copy";

@@ -794,12 +794,20 @@ void MPVCore::draw(brls::Rect area, float alpha) {
 #elif defined(BOREALIS_USE_GXM)
     auto *vg = brls::Application::getNVGContext();
 
+    if (MPVCore::VIDEO_MIRROR) {
+        nvgSave(vg);
+        nvgTranslate(vg, area.getWidth() + area.getMinX() * 2, 0);
+        nvgScale(vg, -1, 1);
+    }
     NVGpaint img = nvgImagePattern(vg, 0, 0, brls::Application::contentWidth, brls::Application::contentHeight, 0,
                                    nvg_image, alpha);
     nvgBeginPath(vg);
     nvgRect(vg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
     nvgFillPaint(vg, img);
     nvgFill(vg);
+    if (MPVCore::VIDEO_MIRROR) {
+        nvgRestore(vg);
+    }
 #elif defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D) || defined(BOREALIS_USE_D3D11)
     // 只在非透明时绘制视频，可以避免退出页面时视频画面残留
     if (alpha >= 1) {
@@ -1219,7 +1227,19 @@ void MPVCore::setAspect(const std::string &value) {
 
 void MPVCore::setMirror(bool value) {
     MPVCore::VIDEO_MIRROR = value;
+#ifndef BOREALIS_USE_GXM
     command_async("set", "vf", value ? "hflip" : "");
+    setHwdecCopyMode(value);
+#endif
+}
+
+void MPVCore::setHwdecCopyMode(bool value) {
+    // 如果正在使用硬解，那么将硬解更新为 auto-copy，避免直接硬解因为不经过 cpu 处理导致镜像翻转、滤镜无效
+    if (MPVCore::HARDWARE_DEC) {
+        std::string hwdec = value ? "auto-copy" : MPVCore::PLAYER_HWDEC_METHOD;
+        command_async("set", "hwdec", hwdec);
+        brls::Logger::info("MPV hardware decode: {}", hwdec);
+    }
 }
 
 void MPVCore::setBrightness(int value) {

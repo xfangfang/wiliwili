@@ -111,12 +111,8 @@ void PlayerSetting::setupCustomShaders() {
             }
 
 #ifdef BOREALIS_USE_D3D11
-            // 如果正在使用硬解，那么将硬解更新为 auto-copy，避免直接硬解因为不经过 cpu 处理导致滤镜无效
-            if (MPVCore::HARDWARE_DEC) {
-                std::string hwdec = value ? "auto-copy" : MPVCore::PLAYER_HWDEC_METHOD;
-                MPVCore::instance().command_async("set", "hwdec", hwdec);
-                brls::Logger::info("MPV hardware decode: {}", hwdec);
-            }
+            // D3D11 下硬解需要开启 copy 模式，才能正常使用着色器
+            MPVCore::instance().setHwdecCopyMode(value);
 #endif
 
             GA("player_setting", {{"shader", cell->title->getFullText()}});
@@ -194,13 +190,6 @@ void PlayerSetting::setupCommonSetting() {
     btnMirror->init("wiliwili/player/setting/common/mirror"_i18n, MPVCore::VIDEO_MIRROR, [](bool value) {
         MPVCore::instance().setMirror(!MPVCore::VIDEO_MIRROR);
         GA("player_setting", {{"mirror", value ? "true" : "false"}});
-
-        // 如果正在使用硬解，那么将硬解更新为 auto-copy，避免直接硬解因为不经过 cpu 处理导致镜像翻转无效
-        if (MPVCore::HARDWARE_DEC) {
-            std::string hwdec = MPVCore::VIDEO_MIRROR ? "auto-copy" : MPVCore::PLAYER_HWDEC_METHOD;
-            MPVCore::instance().command_async("set", "hwdec", hwdec);
-            brls::Logger::info("MPV hardware decode: {}", hwdec);
-        }
     });
 
     /// Player aspect
