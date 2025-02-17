@@ -58,14 +58,6 @@ bool PlayerSetting::isTranslucent() { return true; }
 brls::View* PlayerSetting::getDefaultFocus() { return this->settings->getDefaultFocus(); }
 
 void PlayerSetting::setupCustomShaders() {
-    // TODO Fix: shaders cannot work with deko3d and ps4
-#if !defined(_DEBUG) && (defined(BOREALIS_USE_DEKO3D) || defined(PS4) || defined(__PSV__))
-    // hide shader setting: deko3d, psv and ps4
-    auto* cell = new brls::RadioCell();
-    cell->title->setText("wiliwili/dialog/not_supported"_i18n);
-    shaderBox->addView(cell);
-    return;
-#else
     if (!ShaderHelper::instance().isAvailable()) {
         auto* cell = new brls::RadioCell();
         cell->title->setText("wiliwili/player/setting/common/wiki"_i18n);
@@ -82,7 +74,6 @@ void PlayerSetting::setupCustomShaders() {
         shaderBox->addView(hint);
         return;
     }
-#endif
 
     auto pack = ShaderHelper::instance().getShaderPack();
     for (auto& p : pack.profiles) {
