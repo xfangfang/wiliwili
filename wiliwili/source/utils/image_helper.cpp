@@ -189,6 +189,15 @@ void ImageHelper::load(const std::string &url) {
     });
 }
 
+static inline void freeImageData(uint8_t* imageData, bool isWebp) {
+#ifdef USE_WEBP
+    if (isWebp)
+        WebPFree(imageData);
+    else
+#endif
+        stbi_image_free(imageData);
+}
+
 void ImageHelper::requestImage() {
     brls::Logger::verbose("request Image 2: {} {}", this->imageUrl, this->isCancel);
 
@@ -231,6 +240,17 @@ void ImageHelper::requestImage() {
     }
 #endif
 
+#ifdef BOREALIS_USE_GXM
+    bool dxt5 = this->imageFlag & NVG_IMAGE_DXT5;
+    size_t size = nearest_po2(imageW) * nearest_po2(imageH);
+    if (!dxt5)
+        size >> 1;
+    auto *compressed = (uint8_t *)malloc(size);
+    dxt_compress(compressed, imageData, imageW, imageH, dxt5);
+    freeImageData(imageData, isWebp);
+    imageData = compressed;
+#endif
+
     brls::sync([this, r, imageData, imageW, imageH, isWebp]() {
         // 再检查一遍缓存
         int tex = brls::TextureCache::instance().getCache(this->imageUrl);
@@ -242,9 +262,7 @@ void ImageHelper::requestImage() {
             if (imageData) {
 #ifdef BOREALIS_USE_GXM
                 bool dxt5 = this->imageFlag & NVG_IMAGE_DXT5;
-                tex = nvgCreateImageRGBA(vg, imageW, imageH, (dxt5 ? NVG_IMAGE_DXT5 : NVG_IMAGE_DXT1) | NVG_IMAGE_LPDDR, nullptr);
-                NVGXMtexture *gxmTex = nvgxmImageHandle(vg, tex);
-                dxt_compress(gxmTex->data, imageData, imageW, imageH, dxt5);
+                tex = nvgCreateImageRGBA(vg, imageW, imageH, (dxt5 ? NVG_IMAGE_DXT5 : NVG_IMAGE_DXT1) | NVG_IMAGE_LPDDR, imageData);
 #else
                 tex = nvgCreateImageRGBA(vg, imageW, imageH, 0, imageData);
 #endif
@@ -261,12 +279,11 @@ void ImageHelper::requestImage() {
             }
         }
         if (imageData) {
-#ifdef USE_WEBP
-            if (isWebp)
-                WebPFree(imageData);
-            else
+#ifdef BOREALIS_USE_GXM
+            free(imageData);
+#else
+            freeImageData(imageData, isWebp);
 #endif
-                stbi_image_free(imageData);
         }
         this->clean();
     });
