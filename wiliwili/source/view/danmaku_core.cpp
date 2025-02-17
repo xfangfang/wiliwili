@@ -816,7 +816,7 @@ void WebMask::parseHeader2(const std::string &text) {
         offset = ntohll(offset);
         sliceList.emplace_back(time, offset, 0);
         if (i != 0) sliceList[i - 1].offsetEnd = offset;
-        if (i == length - 1) sliceList[i].offsetEnd = 0xFFFFFFFFFFFFFFFF;
+        if (i == length - 1) sliceList[i].offsetEnd = SIZE_T_MAX;
         currentOffset += 16;
     }
 
@@ -867,7 +867,7 @@ const MaskSlice &WebMask::getSlice(size_t index) {
                 // 解压分片数据
                 std::string data;
                 try {
-                    if (slice.offsetEnd == 0xFFFFFFFFFFFFFFFF) slice.offsetEnd = text.size() + offset;
+                    if (slice.offsetEnd == SIZE_T_MAX) slice.offsetEnd = text.size() + offset;
                     data = wiliwili::decompressGzipData(
                         text.substr(slice.offsetStart - offset, slice.offsetEnd - slice.offsetStart));
                 } catch (const std::runtime_error &e) {

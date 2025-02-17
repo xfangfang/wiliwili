@@ -855,7 +855,7 @@ void ProgramConfig::checkOnTop() {
 }
 
 #ifdef __PSV__
-#define MEM_POOL_SIZE (20 * 1024 * 1024)
+#define MEM_POOL_SIZE (26 * 1024 * 1024)
 #define MEM_POOL_TYPE SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_PHYCONT_RW
 static void *s_mspace = nullptr;
 static SceUID mempool_id = 0;

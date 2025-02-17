@@ -106,6 +106,13 @@ public:
     }
 
     ~ImageThreadPool() override { this->Stop(); }
+
+    CURLSH* getShare() {
+        return share.getShare();
+    }
+
+private:
+    bilibili::CurlSharedObject share;
 };
 
 ImageHelper::ImageHelper(brls::Image* view) : imageView(view) {}
@@ -186,8 +193,14 @@ void ImageHelper::requestImage() {
     brls::Logger::verbose("request Image 2: {} {}", this->imageUrl, this->isCancel);
 
     // 请求图片
-    cpr::Response r = cpr::Get(bilibili::HTTP::VERIFY, bilibili::HTTP::PROXIES, cpr::Url{this->imageUrl},
-                               cpr::ProgressCallback([this](...) -> bool { return !this->isCancel; }));
+    cpr::Session session;
+    CURL* curl = session.GetCurlHolder()->handle;
+    curl_easy_setopt(curl, CURLOPT_SHARE, ImageThreadPool::instance().getShare());
+    session.SetVerifySsl(bilibili::HTTP::VERIFY);
+    session.SetProxies(bilibili::HTTP::PROXIES);
+    session.SetUrl(cpr::Url{this->imageUrl});
+    session.SetProgressCallback(cpr::ProgressCallback([this](...) -> bool { return !this->isCancel; }));
+    cpr::Response r = session.Get();
 
     // 图片请求失败或取消请求
     if (r.status_code != 200 || r.downloaded_bytes == 0 || this->isCancel) {
