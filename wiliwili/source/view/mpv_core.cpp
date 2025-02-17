@@ -954,6 +954,12 @@ void MPVCore::eventMainLoop() {
                     brls::Logger::error("========> MPV ERROR: {}", mpvErrorString(node->error));
                     mpvCoreEvent.fire(MpvEventEnum::MPV_FILE_ERROR);
                 }
+#ifdef BOREALIS_USE_GXM
+                else
+                {
+                    setFrameSize(rect); // 清空残留画面
+                }
+#endif
 
                 break;
             }
