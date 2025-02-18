@@ -28,9 +28,6 @@ using ErrorCallback = std::function<void(const std::string&, int code)>;
 #endif
 #define CALLBACK(data) \
     if (callback) callback(data)
-#define CPR_HTTP_BASE                                                                               \
-    cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS}, cpr::Timeout{bilibili::HTTP::TIMEOUT}, \
-        bilibili::HTTP::HEADERS, bilibili::HTTP::COOKIES, bilibili::HTTP::PROXIES, bilibili::HTTP::VERIFY
 
 class CurlSharedObject {
 public:
@@ -75,17 +72,20 @@ public:
         {"Origin", "https://www.bilibili.com"},
     };
     static inline int TIMEOUT = 10000;
+    static inline int CONNECTION_TIMEOUT = 0;
+    static inline int DNS_CACHE_TIMEOUT = 60;
     static inline cpr::Proxies PROXIES;
     static inline cpr::VerifySsl VERIFY;
     static inline std::string PROTOCOL = "https:";
     static inline CurlSharedObject CURL_SHARE;
 
-    static std::shared_ptr<cpr::Session> getSession() {
+    static std::shared_ptr<cpr::Session> createSession() {
         auto session = std::make_shared<cpr::Session>();
         CURL* curl = session->GetCurlHolder()->handle;
         curl_easy_setopt(curl, CURLOPT_SHARE, HTTP::CURL_SHARE.getShare());
-        session->SetHttpVersion(cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS});
+        curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, HTTP::DNS_CACHE_TIMEOUT);
         session->SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
+        session->SetConnectTimeout(cpr::ConnectTimeout{bilibili::HTTP::CONNECTION_TIMEOUT});
         session->SetHeader(bilibili::HTTP::HEADERS);
         session->SetCookies(bilibili::HTTP::COOKIES);
         session->SetProxies(bilibili::HTTP::PROXIES);
@@ -93,13 +93,11 @@ public:
         return session;
     }
 
-    static cpr::Response get(const std::string& url, const cpr::Parameters& parameters = {}, int timeout = 10000);
-
     static void __cpr_post(const std::string& url, const cpr::Parameters& parameters = {},
                            const cpr::Payload& payload                               = {},
                            const std::function<void(const cpr::Response&)>& callback = nullptr,
                            const ErrorCallback& error                                = nullptr) {
-        auto session = getSession();;
+        auto session = createSession();;
         session->SetUrl(cpr::Url{parseLink(url)});
         session->SetParameters(parameters);
         session->SetPayload(payload);
@@ -120,7 +118,7 @@ public:
     static void __cpr_get(const std::string& url, const cpr::Parameters& parameters = {},
                           const std::function<void(const cpr::Response&)>& callback = nullptr,
                           const ErrorCallback& error                                = nullptr) {
-        auto session = getSession();;
+        auto session = createSession();;
         session->SetUrl(cpr::Url{parseLink(url)});
         session->SetParameters(parameters);
 

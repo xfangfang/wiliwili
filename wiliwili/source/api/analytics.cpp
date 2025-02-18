@@ -61,19 +61,23 @@ void Analytics::send() {
     auto content_str = content.dump();
     brls::Logger::debug("report event: {}", content_str);
 
-    cpr::PostCallback(
-        [](const cpr::Response& r) {
-            if (r.status_code != 204) {
-                brls::Logger::error("report event error: {} {}", r.status_code, r.error.message);
-            }
-        },
-        cpr::Parameters{
-            {"api_secret", GA_KEY},
-            {"measurement_id", GA_ID},
-        },
-        bilibili::HTTP::VERIFY, bilibili::HTTP::PROXIES, cpr::Url{GA_URL},
-        cpr::Header{{"User-Agent", "wiliwili/" + app_version}, {"Content-Type", "application/json"}},
-        cpr::Cookies{{"_ga", client_id}}, cpr::Body{content_str}, cpr::Timeout{4000});
+    auto session = bilibili::HTTP::createSession();;
+    session->SetUrl(cpr::Url{GA_URL});
+    session->SetParameters(cpr::Parameters{
+        {"api_secret", GA_KEY},
+        {"measurement_id", GA_ID},
+    });
+    session->SetHeader(cpr::Header{
+        {"User-Agent", "wiliwili/" + app_version},
+        {"Content-Type", "application/json"}
+    });
+    session->SetCookies(cpr::Cookies{{"_ga", client_id}});
+    session->SetBody(cpr::Body{content_str});
+    session->PostCallback([](const cpr::Response& r) {
+        if (r.status_code != 204) {
+            brls::Logger::error("report event error: {} {}", r.status_code, r.error.message);
+        }
+    });
 }
 
 Analytics::Analytics() {

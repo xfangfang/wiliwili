@@ -13,6 +13,9 @@
 #include "borealis/core/singleton.hpp"
 #include "bilibili/result/analytics_result.h"
 
+// Uncomment this line to disable Google Analytics
+//#define NO_GA
+
 namespace analytics {
 
 #define STR_IMPL(x) #x

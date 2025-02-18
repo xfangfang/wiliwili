@@ -43,15 +43,17 @@ void BilibiliClient::get_webmask(const std::string& url, int64_t rangeStart, int
     std::optional<std::int64_t> start, end;
     if (rangeStart != -1) start = rangeStart;
     if (rangeEnd != -1) end = rangeEnd;
-    cpr::GetCallback<>(
+    auto session = HTTP::createSession();
+    session->SetRange(cpr::Range{start, end});
+    session->SetUrl(cpr::Url{url});
+    session->GetCallback<>(
         [callback, error](const cpr::Response& r) {
             try {
                 callback(r.text);
             } catch (const std::exception& e) {
                 ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
             }
-        },
-        cpr::Range{start, end}, cpr::Url{url}, CPR_HTTP_BASE);
+        });
 }
 
 void BilibiliClient::get_video_pagelist(const std::string& bvid,
@@ -256,7 +258,10 @@ void BilibiliClient::get_video_relation(uint64_t epid, const std::function<void(
 
 void BilibiliClient::get_danmaku(uint64_t cid, const std::function<void(std::string)>& callback,
                                  const ErrorCallback& error) {
-    cpr::GetCallback<>(
+    auto session = HTTP::createSession();
+    session->SetUrl(cpr::Url{HTTP::PROTOCOL + Api::VideoDanmaku});
+    session->SetParameters(cpr::Parameters({{"oid", std::to_string(cid)}}));
+    session->GetCallback<>(
         [callback, error](const cpr::Response& r) {
             if (r.status_code != 200) {
                 ERROR_MSG(r.error.message, r.status_code);
@@ -267,14 +272,16 @@ void BilibiliClient::get_danmaku(uint64_t cid, const std::function<void(std::str
             } catch (const std::exception& e) {
                 ERROR_MSG(e.what(), -1);
             }
-        },
-        cpr::Url{HTTP::PROTOCOL + Api::VideoDanmaku}, cpr::Parameters({{"oid", std::to_string(cid)}}), CPR_HTTP_BASE);
+        });
 }
 
 void BilibiliClient::get_highlight_progress(uint64_t cid,
                                             const std::function<void(VideoHighlightProgress)>& callback,
                                             const ErrorCallback& error) {
-    cpr::GetCallback<>(
+    auto session = HTTP::createSession();
+    session->SetUrl(cpr::Url{HTTP::PROTOCOL + Api::VideoHighlight});
+    session->SetParameters(cpr::Parameters({{"cid", std::to_string(cid)}}));
+    session->GetCallback<>(
         [callback, error](const cpr::Response& r) {
             if (r.status_code != 200) {
                 ERROR_MSG(r.error.message, r.status_code);
@@ -286,18 +293,14 @@ void BilibiliClient::get_highlight_progress(uint64_t cid,
             } catch (const std::exception& e) {
                 ERROR_MSG(e.what(), -1);
             }
-        },
-        cpr::Url{HTTP::PROTOCOL + Api::VideoHighlight}, cpr::Parameters({{"cid", std::to_string(cid)}}), CPR_HTTP_BASE);
+        });
 }
 
 void BilibiliClient::get_subtitle(const std::string& link, const std::function<void(SubtitleData)>& callback,
                                   const ErrorCallback& error) {
-    std::string url = link;
-    if (link.compare(0, 2, "//") == 0) {
-        url = "https:" + url;
-    }
-
-    cpr::GetCallback<>(
+    auto session = HTTP::createSession();
+    session->SetUrl(cpr::Url{link});
+    session->GetCallback<>(
         [callback, error](const cpr::Response& r) {
             try {
                 nlohmann::json res = nlohmann::json::parse(r.text);
@@ -307,8 +310,7 @@ void BilibiliClient::get_subtitle(const std::string& link, const std::function<v
                 printf("data: %s\n", r.text.c_str());
                 printf("ERROR: %s\n", e.what());
             }
-        },
-        cpr::Url{url}, cpr::Parameters({}), CPR_HTTP_BASE);
+        });
 }
 
 /// 视频页 上报历史记录

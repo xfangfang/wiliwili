@@ -602,13 +602,17 @@ public:
                               const ErrorCallback& error                          = nullptr);
 
     /// 初始化设置Cookie
-    static void init(Cookies& cookies, std::function<void(Cookies, std::string)> writeCookiesCallback,
-                     int timeout = 10000, const std::string& httpProxy = "", const std::string& httpsProxy = "",
-                     bool tlsVerify = true);
+    static void init(Cookies& cookies, std::function<void(Cookies, std::string)> writeCookiesCallback);
 
     static void setProxy(const std::string& httpProxy = "", const std::string& httpsProxy = "");
 
     static void setTlsVerify(bool value);
+
+    static void setHttpTimeout(int ms);
+
+    static void setConnectionTimeout(int ms);
+
+    static void setDnsCacheTimeout(int ms);
 
     static std::string genRandomBuvid3();
 };

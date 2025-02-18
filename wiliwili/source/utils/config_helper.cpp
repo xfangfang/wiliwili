@@ -91,6 +91,7 @@ unsigned int sceLibcHeapSize             = 24 * 1024 * 1024;
 #define WILI_UI_SCALE_DEFAULT 0
 // 默认音频质量 (2 为 低, PSV 的喇叭质量差，音质高低无区别，设置成低可以减少流量)
 #define WILI_AUDIO_QUALITY_DEFAULT 2
+#define WILI_DNS_CACHE_TIMEOUT 3600000
 #else
 // 默认清晰度 (116 为 1080P@60)
 #define WILI_VIDEO_QUALITY_DEFAULT 116
@@ -105,6 +106,8 @@ unsigned int sceLibcHeapSize             = 24 * 1024 * 1024;
 #define WILI_UI_SCALE_DEFAULT 1
 // 默认音频质量 (0 为 高)
 #define WILI_AUDIO_QUALITY_DEFAULT 0
+// DNS 缓存时间
+#define WILI_DNS_CACHE_TIMEOUT 60000
 #endif
 
 using namespace brls::literals;
@@ -266,6 +269,9 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::ON_TOP_WINDOW_HEIGHT, {"on_top_window_height", {"270"}, {270}, 0}},
     {SettingItem::ON_TOP_MODE, {"on_top_mode", {"off", "always", "auto"}, {0, 1, 2}, 0}},
     {SettingItem::SCROLL_SPEED, {"scroll_speed", {}, {}, 0}},
+    {SettingItem::HTTP_TIMEOUT, {"http_timeout", {}, {}, 0}},
+    {SettingItem::HTTP_CONNECTION_TIMEOUT, {"http_connection_timeout", {}, {}, 0}},
+    {SettingItem::HTTP_DNS_CACHE_TIMEOUT, {"http_dns_cache_timeout", {}, {}, 0}},
 
     /// Custom
     {SettingItem::UP_FILTER, {"up_filter", {}, {}, 0}},
@@ -1024,13 +1030,12 @@ void ProgramConfig::init() {
             ProgramConfig::instance().setRefreshToken(token);
             // 用户重新登录后，恢复默认清晰度设置
             VideoDetail::defaultQuality = WILI_VIDEO_QUALITY_DEFAULT;
-        },
-#ifdef __PSV__
-        10000,
-#else
-        5000,
-#endif
-        httpProxy, httpsProxy, getBoolOption(SettingItem::TLS_VERIFY));
+        });
+    BILI::setProxy(httpProxy, httpsProxy);
+    BILI::setTlsVerify(getBoolOption(SettingItem::TLS_VERIFY));
+    BILI::setHttpTimeout(getSettingItem(SettingItem::HTTP_TIMEOUT, 5000));
+    BILI::setConnectionTimeout(getSettingItem(SettingItem::HTTP_CONNECTION_TIMEOUT, 0));
+    BILI::setDnsCacheTimeout(getSettingItem(SettingItem::HTTP_DNS_CACHE_TIMEOUT, WILI_DNS_CACHE_TIMEOUT));
 }
 
 std::string ProgramConfig::getHomePath() {

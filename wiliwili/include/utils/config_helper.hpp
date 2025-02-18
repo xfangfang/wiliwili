@@ -96,6 +96,9 @@ enum class SettingItem {
     HTTP_PROXY,
     HTTP_PROXY_STATUS,
     TLS_VERIFY,
+    HTTP_TIMEOUT,
+    HTTP_CONNECTION_TIMEOUT,
+    HTTP_DNS_CACHE_TIMEOUT,
     UP_FILTER,
 };
 

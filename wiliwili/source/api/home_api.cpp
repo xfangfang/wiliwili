@@ -196,15 +196,9 @@ void BilibiliClient::get_pgc_all_filter(const std::function<void(PGCIndexFilters
         std::vector<std::string> index_names = {"追番", "电影", "电视剧", "纪录片", "综艺", "影视综合"};
         cpr::MultiPerform multiperform;
         for (auto& i : index_types) {
-            std::shared_ptr<cpr::Session> session = std::make_shared<cpr::Session>();
+            auto session = HTTP::createSession();
             session->SetUrl(HTTP::PROTOCOL + Api::PGCIndexFilter);
             session->SetParameters({{"type", "2"}, {"index_type", i}});
-            session->SetHeader(HTTP::HEADERS);
-            session->SetVerifySsl(HTTP::VERIFY);
-            session->SetProxies(HTTP::PROXIES);
-            session->SetTimeout(HTTP::TIMEOUT);
-            session->SetCookies(HTTP::COOKIES);
-            session->SetHttpVersion(cpr::HttpVersion{cpr::HttpVersionCode::VERSION_2_0_TLS});
             multiperform.AddSession(session);
         }
 

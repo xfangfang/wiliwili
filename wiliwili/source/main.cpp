@@ -9,9 +9,6 @@
  Licensed under the GPL-3.0 license
 */
 
-// Uncomment this line to disable Google Analytics
-//#define NO_GA
-
 #include <borealis.hpp>
 
 #include "utils/config_helper.hpp"

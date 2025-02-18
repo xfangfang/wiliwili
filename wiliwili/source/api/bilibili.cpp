@@ -26,16 +26,11 @@ std::string BilibiliClient::genRandomBuvid3() {
 
 // set bilibili cookie and cookies callback
 // This callback is called when the BilibiliClient updates the cookie
-void BilibiliClient::init(Cookies& data, std::function<void(Cookies, std::string)> callback, int timeout,
-                          const std::string& httpProxy, const std::string& httpsProxy, bool tlsVerify) {
+void BilibiliClient::init(Cookies& data, std::function<void(Cookies, std::string)> callback) {
     BilibiliClient::writeCookiesCallback = std::move(callback);
     for (const auto& cookie : data) {
         HTTP::COOKIES.emplace_back({cookie.first, cookie.second});
     }
-    HTTP::TIMEOUT = timeout;
-
-    setProxy(httpProxy, httpsProxy);
-    setTlsVerify(tlsVerify);
 }
 
 void BilibiliClient::setProxy(const std::string& httpProxy, const std::string& httpsProxy) {
@@ -46,6 +41,18 @@ void BilibiliClient::setProxy(const std::string& httpProxy, const std::string& h
 void BilibiliClient::setTlsVerify(bool value) {
     HTTP::VERIFY = cpr::VerifySsl{value};
     HTTP::PROTOCOL = value ? "https:" : "http:";
+}
+
+void BilibiliClient::setHttpTimeout(int ms) {
+    HTTP::TIMEOUT = ms;
+}
+
+void BilibiliClient::setConnectionTimeout(int ms) {
+    HTTP::CONNECTION_TIMEOUT = ms;
+}
+
+void BilibiliClient::setDnsCacheTimeout(int ms) {
+    HTTP::DNS_CACHE_TIMEOUT = ms / 1000;
 }
 
 }  // namespace bilibili
