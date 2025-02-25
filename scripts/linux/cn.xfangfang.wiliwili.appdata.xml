@@ -14,8 +14,8 @@
         <content_attribute id="social-info">mild</content_attribute>
     </content_rating>
     <description>
-        <p>wiliwili is an open-source Bilibili client offering PC-like experience with cross-platform support, featuring touch/mouse/keyboard/gamepad controls and optimized for both desktop and handheld devices.</p>
-        <p xml:lang="zh_CN">wiliwili 是开源的 Bilibili 客户端，提供类似PC端的体验，支持触控/鼠标/键盘/手柄操作，适配桌面和手持设备。</p>
+        <p>wiliwili is an open-source Bilibili client delivering an experience similar to the official PC client, supporting touch/mouse/keyboard/gamepad controls and optimized for both desktop and handheld devices.</p>
+        <p xml:lang="zh_CN">wiliwili 是开源的 Bilibili 客户端，提供类似官方PC端的体验，支持触控/鼠标/键盘/手柄操作，适配桌面和手持设备。</p>
         <p>Features:</p>
         <p xml:lang="zh_CN">功能特点：</p>
         <ul>
