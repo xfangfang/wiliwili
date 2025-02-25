@@ -4,7 +4,9 @@
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-3.0-only</project_license>
     <name>wiliwili</name>
-    <developer_name>xfangfang and the wiliwili contributors</developer_name>
+    <developer id="cn.xfangfang">
+        <name>xfangfang and the wiliwili contributors</name>
+    </developer>
     <summary>Watch videos from Bilibili</summary>
     <launchable type="desktop-id">cn.xfangfang.wiliwili.desktop</launchable>
     <translation type="gettext">wiliwili</translation>
@@ -12,14 +14,10 @@
         <content_attribute id="social-info">mild</content_attribute>
     </content_rating>
     <description>
-        <p>wiliwili has an experience that is very close to the official PC client</p>
-        <p xml:lang="zh_CN">wiliwili 拥有非常接近官方PC客户端的B站浏览体验</p>
-        <p>Simultaneously supports touch screen, mouse, keyboard, and controller control</p>
-        <p xml:lang="zh_CN">同时支持触屏、鼠标、键盘 与 手柄操控</p>
-        <p>Whether it's a computer or a gaming handheld, you can get a brand new user experience</p>
-        <p xml:lang="zh_CN">无论是电脑还是游戏掌机都能获得全新的使用体验</p>
+        <p>wiliwili is an open-source Bilibili client offering PC-like experience with cross-platform support, featuring touch/mouse/keyboard/gamepad controls and optimized for both desktop and handheld devices.</p>
+        <p xml:lang="zh_CN">wiliwili 是开源的 Bilibili 客户端，提供类似PC端的体验，支持触控/鼠标/键盘/手柄操作，适配桌面和手持设备。</p>
         <p>Features:</p>
-        <p xml:lang="zh_CN">特点:</p>
+        <p xml:lang="zh_CN">功能特点：</p>
         <ul>
             <li>Multilingual: Simplified Chinese, Traditional Chinese, English...</li>
             <li xml:lang="zh_CN">多语言：简、繁、日、韩、英 ...</li>
