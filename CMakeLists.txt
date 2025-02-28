@@ -206,6 +206,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 set_source_files_properties(
         wiliwili/source/utils/config_helper.cpp
+        wiliwili/source/utils/version_helper.cpp
         wiliwili/source/activity/setting_activity.cpp
         wiliwili/source/activity/dlna_activity.cpp
         PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)

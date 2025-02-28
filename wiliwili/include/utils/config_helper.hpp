@@ -117,6 +117,8 @@ public:
 
     std::string getPlatform();
 
+    std::string getDeviceName();
+
     static std::string getPackageName();
 
     bool needUpdate(std::string latestVersion);

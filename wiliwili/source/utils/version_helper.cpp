@@ -10,12 +10,17 @@
 #include <borealis/core/application.hpp>
 #include <borealis/core/thread.hpp>
 #include <borealis/views/dialog.hpp>
-#include <borealis/platforms/desktop/steam_deck.hpp>
-
 #include "utils/config_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "api/bilibili/util/http.hpp"
 #include "fragment/latest_update.hpp"
+#ifdef __SWITCH__
+#include <switch.h>
+#elif defined(__APPLE__)
+#include <SystemConfiguration/SystemConfiguration.h>
+#elif defined(__linux__)
+#include <borealis/platforms/desktop/steam_deck.hpp>
+#endif
 
 using namespace brls::literals;
 
@@ -69,6 +74,37 @@ std::string APPVersion::getPlatform() {
 #endif
 }
 
+std::string APPVersion::getDeviceName() {
+#ifdef __SWITCH__
+    SetSysDeviceNickName nick;
+    if (R_SUCCEEDED(setsysGetDeviceNickname(&nick))) {
+        return nick.nickname;
+    }
+#elif defined(_WIN32)
+    DWORD bufsize = MAX_PATH;
+    std::vector<WCHAR> buf(bufsize);
+    if (GetComputerNameW(buf.data(), &bufsize)) {
+        std::string name(bufsize * 3, '\0');
+        WideCharToMultiByte(CP_UTF8, 0, buf.data(), bufsize, name.data(), name.size(), nullptr, nullptr);
+        return name.data();
+    }
+#elif defined(__APPLE__)
+    CFStringRef nameRef = SCDynamicStoreCopyComputerName(nullptr, nullptr);
+    if (nameRef) {
+        std::string name(CFStringGetLength(nameRef) * 3, '\0');
+        CFStringGetCString(nameRef, name.data(), name.size(), kCFStringEncodingUTF8);
+        CFRelease(nameRef);
+        return name.data();
+    }
+#elif defined(__linux__)
+    std::vector<char> buf(128);
+    if (gethostname(buf.data(), buf.size()) == 0) {
+        return buf.data();
+    }
+#endif
+    return fmt::format("wiliwili - {}", getPlatform());
+}
+
 std::string APPVersion::getPackageName() { return std::string{STR(BUILD_PACKAGE_NAME)}; }
 
 bool APPVersion::needUpdate(std::string latestVersion) {
@@ -115,7 +151,7 @@ void APPVersion::checkUpdate(int delay, bool showUpToDateDialog) {
                         return;
                     }
                     const nlohmann::json res = nlohmann::json::parse(r.text);
-                    auto info          = res.get<ReleaseNote>();
+                    auto info                = res.get<ReleaseNote>();
                     if (info.tag_name.empty()) {
                         brls::Logger::error("Cannot parse update info, tag_name is empty");
                         return;

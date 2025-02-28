@@ -82,7 +82,7 @@ void MineQrLogin::checkLogin() {
     brls::Logger::debug("check login");
     ASYNC_RETAIN
     bilibili::BilibiliClient::get_login_info_v2(
-        this->oauthKey, "wiliwili - " + APPVersion::instance().getPlatform(), ProgramConfig::instance().getDeviceID(),
+        this->oauthKey, APPVersion::instance().getDeviceName(), ProgramConfig::instance().getDeviceID(),
         [ASYNC_TOKEN](bilibili::LoginInfo info) {
             this->loginCb.fire(info);
             brls::Logger::debug("return code:{}", (int)info);
