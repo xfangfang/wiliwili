@@ -187,6 +187,8 @@ file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
 if (WIN32)
     configure_file("${CMAKE_SOURCE_DIR}/wiliwili/app_win32.rc.in" "${CMAKE_BINARY_DIR}/app_win32.rc")
     list(APPEND MAIN_SRC ${CMAKE_BINARY_DIR}/app_win32.rc)
+elseif (PLATFORM_PSV)
+    configure_file("${CMAKE_SOURCE_DIR}/wiliwili/app_vita.xml.in" "${CMAKE_BINARY_DIR}/template.xml")
 elseif (PLATFORM_SWITCH)
     # System service initialization functions required for libnx
     list(APPEND MAIN_SRC ${BOREALIS_LIBRARY}/lib/platforms/switch/switch_wrapper.c)
@@ -253,7 +255,13 @@ elseif (PLATFORM_IOS)
             "wiliwili"
             "${APP_VERSION}")
 elseif (PLATFORM_PSV)
-    set(PSV_ASSETS_FILES ${CMAKE_SOURCE_DIR}/scripts/psv/sce_sys sce_sys)
+    set(PSV_ASSETS_FILES
+        ${CMAKE_SOURCE_DIR}/scripts/psv/sce_sys/icon0.png sce_sys/icon0.png
+        ${CMAKE_SOURCE_DIR}/scripts/psv/sce_sys/pic0.png sce_sys/pic0.png
+        ${CMAKE_SOURCE_DIR}/scripts/psv/sce_sys/bg.png sce_sys/livearea/contents/bg.png
+        ${CMAKE_SOURCE_DIR}/scripts/psv/sce_sys/startup.png sce_sys/livearea/contents/startup.png
+        ${CMAKE_BINARY_DIR}/template.xml sce_sys/livearea/contents/template.xml
+        )
     if (NOT USE_LIBROMFS)
         list(APPEND PSV_ASSETS_FILES ${CMAKE_SOURCE_DIR}/resources resources)
     endif ()
