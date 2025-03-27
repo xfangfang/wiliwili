@@ -23,7 +23,7 @@ typedef void (*on_message_func_t)(const std::string &);
 class LiveDanmaku {
 public:
     int room_id;
-    int uid;
+    uint64_t uid;
     void connect(int room_id, uint64_t uid, const bilibili::LiveDanmakuinfo &info);
     void disconnect();
     void send_join_request(int room_id, uint64_t uid);
