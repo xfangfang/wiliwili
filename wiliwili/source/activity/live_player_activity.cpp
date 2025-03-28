@@ -103,7 +103,6 @@ LiveActivity::LiveActivity(int roomid, const std::string& name, const std::strin
     this->liveData.watched_show.text_large = views.empty() ? "获取中..." : views;
     this->liveData.uname                   = ""; // 初始为空，待获取
     this->liveData.cover                   = ""; // 初始为空，待获取
-    this->liveData.online                  = 0;  // 初始为0，待获取
     
     // 设置全局指针，以便静态回调函数能访问到实例
     g_liveActivity = this;
@@ -179,15 +178,6 @@ void LiveActivity::setVideoQuality() {
 
 void LiveActivity::onContentAvailable()
 {   
-    // 配置返回按钮点击事件
-    brls::View* backButton = this->video->getView("video/osd/back");
-    if (backButton) {
-        backButton->registerClickAction([this](brls::View* view) {
-            brls::Application::popActivity(brls::TransitionAnimation::FADE);
-            return true;
-        });
-    }
-
     // 设置全屏按钮图标
     this->video->setFullscreenIcon(this->video->isFullscreen());
 
@@ -212,11 +202,9 @@ void LiveActivity::onContentAvailable()
 
     // 设置视频相关UI
     this->video->setLiveMode();
-    this->video->hideVideoProgressSlider();
     this->video->hideDLNAButton();
     this->video->hideSubtitleSetting();
     this->video->hideVideoRelatedSetting();
-    this->video->hideVideoSpeedButton();
     this->video->hideBottomLineSetting();
     this->video->hideHighlightLineSetting();
     this->video->hideSkipOpeningCreditsSetting();
@@ -243,9 +231,13 @@ void LiveActivity::onContentAvailable()
         }
     });
     
-    // 设置主播信息
-    this->liveAuthor->setUserInfo("", "", "");
-
+    // 设置直播标题
+    this->liveTitleLabel->setText(liveData.title);
+    
+    // 初始显示空的主播信息，等待API获取后更新
+    this->liveAuthor->setUserInfo("", "加载中...", "");
+    this->liveAuthor->setHintType(InfoHintType::NONE); // 初始不显示关注按钮
+    
     // 调整清晰度
     this->registerAction("wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
                          [this](brls::View* view) -> bool {
@@ -305,11 +297,16 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo &result)
         return;
     }
     brls::Logger::debug("current quality: {}", liveUrl.current_qn);
+    // 更新画质信息，确保全屏模式下也能显示正确的画质
+    std::string currentQualityDesc = "";
     for (auto &i : liveUrl.accept_qn) {
         auto desc = getQualityDescription(i);
         brls::Logger::debug("live quality: {}/{}", desc, i);
         if (liveUrl.current_qn == i) {
+            currentQualityDesc = desc;
             this->video->setQuality(desc);
+            // 向所有VideoView实例发送画质更新事件（确保全屏视图更新）
+            APP_E->fire(VideoView::SET_QUALITY, (void*)desc.c_str());
         }
     }
 
@@ -317,8 +314,11 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo &result)
     this->video->setTitle(liveData.title);
     this->video->setOnlineCount(liveData.watched_show.text_large);
 
-    // 设置主播信息
-    this->liveAuthor->setUserInfo("", "", "");
+    // 获取主播信息
+    this->requestLiveAnchorInfo(liveData.roomid);
+    
+    // 获取主播称号信息
+    this->requestLiveAnchorTitle(liveData.roomid);
 
     // todo: 允许使用备用链接
     for (const auto& i : liveUrl.url_info) {
@@ -437,4 +437,36 @@ LiveActivity::~LiveActivity() {
     
     // 清空全局指针
     g_liveActivity = nullptr;
+}
+
+// 添加onAnchorInfo实现
+void LiveActivity::onAnchorInfo(const std::string& face, const std::string& uname) {
+    brls::Logger::debug("LiveActivity: onAnchorInfo: 用户名={}, 头像URL={}", uname, face);
+    
+    // 设置主播信息
+    if (!face.empty()) {
+        this->liveAuthor->setUserInfo(face, uname, liveData.watched_show.text_large);
+    } else {
+        this->liveAuthor->setUserInfo("pictures/default_avatar.png", uname, liveData.watched_show.text_large);
+    }
+    
+    // 更新标题
+    this->liveTitleLabel->setText(liveData.title);
+}
+
+// 添加主播称号信息处理函数
+void LiveActivity::onAnchorTitleInfo(const std::string& title) {
+    brls::Logger::debug("LiveActivity: onAnchorTitleInfo: 称号={}", title);
+    
+    // 保存称号
+    this->anchorTitle = title;
+    
+    // 设置称号标签文本
+    if (!title.empty()) {
+        this->anchorTitleLabel->setText(title);
+        this->anchorTitleLabel->setVisibility(brls::Visibility::VISIBLE);
+    } else {
+        // 如果没有称号，隐藏标签
+        this->anchorTitleLabel->setVisibility(brls::Visibility::GONE);
+    }
 }

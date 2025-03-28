@@ -42,13 +42,15 @@
                     fontSize="12"
                     text="用户名"
                     singleLine="true"/>
-                    
-            <brls:Label
-                    id="danmaku_content"
-                    grow="1"
-                    marginLeft="6"
-                    fontSize="14"
-                    text="这是一条弹幕内容"/>
         </brls:Box>
+                    
+        <!-- 弹幕内容单独放在一行 -->
+        <brls:Label
+                id="danmaku_content"
+                width="100%"
+                marginTop="4"
+                fontSize="14"
+                text="这是一条弹幕内容"
+                singleLine="false"/>
     </brls:Box>
 </brls:Box> 

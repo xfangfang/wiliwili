@@ -8,6 +8,7 @@
 #include <borealis/core/bind.hpp>
 #include <borealis/views/scrolling_frame.hpp>
 #include <borealis/core/box.hpp>
+#include <borealis/views/label.hpp>
 
 #include "utils/event_helper.hpp"
 #include "presenter/live_data.hpp"
@@ -39,6 +40,12 @@ public:
 
     void onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& info) override;
 
+    // 添加主播信息回调函数实现
+    void onAnchorInfo(const std::string& face, const std::string& uname) override;
+
+    // 新增：处理主播称号信息
+    void onAnchorTitleInfo(const std::string& title) override;
+
     std::vector<std::string> getQualityDescriptionList();
     int getCurrentQualityIndex();
 
@@ -54,6 +61,9 @@ private:
     BRLS_BIND(UserInfoView, liveAuthor, "live_author");
     BRLS_BIND(brls::Box, liveDanmakuContainer, "live_danmaku_container");
     BRLS_BIND(brls::ScrollingFrame, liveDanmakuList, "live_danmaku_list");
+    BRLS_BIND(brls::Label, liveTitleLabel, "live/title");
+    // 新增：主播称号Label
+    BRLS_BIND(brls::Label, anchorTitleLabel, "anchor/title");
 
     // 暂停的延时函数 handle
     size_t toggleDelayIter = 0;
@@ -63,6 +73,7 @@ private:
     LiveDanmaku danmaku;
 
     bilibili::LiveVideoResult liveData;
+    std::string anchorTitle = ""; // 新增：主播称号
 
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;

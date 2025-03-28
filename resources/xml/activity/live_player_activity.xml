@@ -21,35 +21,63 @@
             <VideoView
                     id="video"
                     focusable="true"
-                    focusDown="live_detail_info_box"
+                    focusDown="live_title_box"
                     focusRight="live_danmaku_sidebar"
                     grow="1"
                     width="@style/wiliwili/player/width"
                     height="auto"/>
+
+            <!-- 直播标题 -->
+            <brls:Box
+                    id="live_title_box"
+                    wireframe="false"
+                    marginTop="10"
+                    alignItems="center"
+                    focusable="true"
+                    focusUp="video"
+                    focusDown="live_author"
+                    height="40"
+                    width="100%">
+                <brls:Label
+                        id="live/title"
+                        wireframe="false"
+                        fontSize="24"
+                        marginLeft="10"
+                        singleLine="true"/>
+            </brls:Box>
 
             <!--直播UP主相关信息-->
             <brls:Box
                     id="live_detail_info_box"
                     wireframe="false"
                     width="100%"
-                    height="100"
-                    axis="column">
-
+                    height="auto">
                 <brls:Box
                         wireframe="false"
                         width="100%"
                         height="100%"
+                        maxHeight="100"
                         alignItems="flexStart"
+                        axis="column"
                         justifyContent="center">
                     <UserInfoView
                             focusable="true"
                             wireframe="false"
                             marginLeft="10"
                             id="live_author"
-                            focusUp="video"
+                            focusUp="live_title_box"
                             focusRight="live_danmaku_sidebar"
+                            visibility="visible"
                             width="100%"
                             height="80%"/>
+                    <!-- 主播称号标签 -->
+                    <brls:Label
+                            id="anchor/title"
+                            fontSize="15"
+                            marginLeft="10"
+                            marginTop="5"
+                            textColor="#FFB30F"
+                            visibility="visible"/>
                 </brls:Box>
             </brls:Box>
         </brls:Box>

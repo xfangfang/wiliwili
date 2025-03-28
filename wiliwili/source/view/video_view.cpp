@@ -1018,6 +1018,9 @@ void VideoView::setLiveMode() {
     centerStatusLabel->setVisibility(brls::Visibility::GONE);
     rightStatusLabel->setVisibility(brls::Visibility::GONE);
     _setTvControlMode(false);
+    // 在直播模式下隐藏进度条、倍速按钮
+    hideVideoProgressSlider();
+    hideVideoSpeedButton();
 }
 
 void VideoView::setTvControlMode(bool state) {
