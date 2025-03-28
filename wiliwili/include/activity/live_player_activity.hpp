@@ -6,17 +6,21 @@
 
 #include <borealis/core/activity.hpp>
 #include <borealis/core/bind.hpp>
+#include <borealis/views/scrolling_frame.hpp>
+#include <borealis/core/box.hpp>
 
 #include "utils/event_helper.hpp"
 #include "presenter/live_data.hpp"
 #include "live/danmaku_live.hpp"
+#include "view/live_core.hpp"
 
 class VideoView;
+class UserInfoView;
 
 class LiveActivity : public brls::Activity, public LiveDataRequest {
 public:
     // Declare that the content of this activity is the given XML file
-    CONTENT_FROM_XML_RES("activity/video_activity.xml");
+    CONTENT_FROM_XML_RES("activity/live_player_activity.xml");
 
     explicit LiveActivity(int roomid, const std::string& name = "", const std::string& views = "");
 
@@ -39,11 +43,17 @@ public:
     int getCurrentQualityIndex();
 
     void retryRequestData();
+    
+    // 处理接收到的弹幕，展示在侧边栏
+    void processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& danmaku_list);
 
     ~LiveActivity() override;
 
 private:
     BRLS_BIND(VideoView, video, "video");
+    BRLS_BIND(UserInfoView, liveAuthor, "live_author");
+    BRLS_BIND(brls::Box, liveDanmakuContainer, "live_danmaku_container");
+    BRLS_BIND(brls::ScrollingFrame, liveDanmakuList, "live_danmaku_list");
 
     // 暂停的延时函数 handle
     size_t toggleDelayIter = 0;
@@ -58,4 +68,6 @@ private:
     MPVEvent::Subscription tl_event_id;
     //视频清晰度
     CustomEvent::Subscription event_id;
+    //弹幕事件
+    CustomEvent::Subscription danmaku_event_id;
 };

@@ -16,25 +16,28 @@
 
 #include "live/extract_messages.hpp"
 #include "live/ws_utils.hpp"
+#include "bilibili.h"
 
 #include "view/video_view.hpp"
 #include "view/live_core.hpp"
 #include "view/grid_dropdown.hpp"
 #include "view/qr_image.hpp"
 #include "view/mpv_core.hpp"
+#include "view/user_info.hpp"
+#include "view/live_danmaku_item.hpp"
 
 using namespace brls::literals;
 
+// 定义一个全局变量，用于存储LiveActivity实例指针，以便在静态回调中访问
+static LiveActivity* g_liveActivity = nullptr;
+
+// 处理弹幕展示
 static void process_danmaku(const std::vector<LiveDanmakuItem>& danmaku_list) {
-    //TODO:做其他处理
-    //...
-
-    //弹幕加载到视频中去
+    // 弹幕加载到视频中去
     LiveDanmakuCore::instance().add(danmaku_list);
-
-    // danmaku_t_free(dan);
 }
 
+// 弹幕接收回调函数
 static void onDanmakuReceived(const std::string& msg) {
     std::vector<uint8_t> payload(msg.begin(), msg.end());
     std::vector<std::string> messages = parse_packet(payload);
@@ -55,7 +58,14 @@ static void onDanmakuReceived(const std::string& msg) {
             free(live_msg.ptr);
         }
     }
+    
+    // 处理弹幕到视频
     process_danmaku(danmaku_list);
+    
+    // 处理弹幕到侧边栏
+    if (g_liveActivity) {
+        g_liveActivity->processDanmakuForSidebar(danmaku_list);
+    }
 }
 
 static void showDialog(const std::string& msg, const std::string& pic, bool forceQuit) {
@@ -89,8 +99,15 @@ static void showDialog(const std::string& msg, const std::string& pic, bool forc
 LiveActivity::LiveActivity(int roomid, const std::string& name, const std::string& views) {
     brls::Logger::debug("LiveActivity: create: {}", roomid);
     this->liveData.roomid                  = roomid;
-    this->liveData.title                   = name;
-    this->liveData.watched_show.text_large = views;
+    this->liveData.title                   = name.empty() ? "直播间 " + std::to_string(roomid) : name;
+    this->liveData.watched_show.text_large = views.empty() ? "获取中..." : views;
+    this->liveData.uname                   = ""; // 初始为空，待获取
+    this->liveData.cover                   = ""; // 初始为空，待获取
+    this->liveData.online                  = 0;  // 初始为0，待获取
+    
+    // 设置全局指针，以便静态回调函数能访问到实例
+    g_liveActivity = this;
+    
     this->setCommonData();
 }
 
@@ -160,13 +177,26 @@ void LiveActivity::setVideoQuality() {
     });
 }
 
-void LiveActivity::onContentAvailable() {
+void LiveActivity::onContentAvailable()
+{   
+    // 配置返回按钮点击事件
+    brls::View* backButton = this->video->getView("video/osd/back");
+    if (backButton) {
+        backButton->registerClickAction([this](brls::View* view) {
+            brls::Application::popActivity(brls::TransitionAnimation::FADE);
+            return true;
+        });
+    }
+
+    // 设置全屏按钮图标
+    this->video->setFullscreenIcon(this->video->isFullscreen());
+
     brls::Logger::debug("LiveActivity: onContentAvailable");
 
     MPVCore::instance().setAspect(
         ProgramConfig::instance().getSettingItem(SettingItem::PLAYER_ASPECT, std::string{"-1"}));
 
-    this->video->registerAction("", brls::BUTTON_B, [this](...) {
+    this->video->registerAction("hints/back"_i18n, brls::BUTTON_B, [this](...) {
         if (this->video->isOSDLock()) {
             this->video->toggleOSD();
         } else {
@@ -180,6 +210,7 @@ void LiveActivity::onContentAvailable() {
         return true;
     });
 
+    // 设置视频相关UI
     this->video->setLiveMode();
     this->video->hideVideoProgressSlider();
     this->video->hideDLNAButton();
@@ -190,28 +221,12 @@ void LiveActivity::onContentAvailable() {
     this->video->hideHighlightLineSetting();
     this->video->hideSkipOpeningCreditsSetting();
     this->video->disableCloseOnEndOfFile();
-    this->video->setFullscreenIcon(true);
     this->video->setTitle(liveData.title);
     this->video->setOnlineCount(liveData.watched_show.text_large);
     this->video->setStatusLabelLeft("");
-    this->video->setCustomToggleAction([this]() {
-        if (MPVCore::instance().isStopped()) {
-            this->onLiveData(this->liveRoomPlayInfo);
-        } else if (MPVCore::instance().isPaused()) {
-            MPVCore::instance().resume();
-        } else {
-            this->video->showOSD(false);
-            MPVCore::instance().pause();
-            brls::cancelDelay(toggleDelayIter);
-            ASYNC_RETAIN
-            toggleDelayIter = brls::delay(5000, [ASYNC_TOKEN]() {
-                ASYNC_RELEASE
-                if (MPVCore::instance().isPaused()) {
-                    MPVCore::instance().stop();
-                }
-            });
-        }
-    });
+    
+    // 设置主播信息
+    this->liveAuthor->setUserInfo("", "", "");
 
     // 调整清晰度
     this->registerAction("wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
@@ -248,12 +263,12 @@ int LiveActivity::getCurrentQualityIndex() {
     return 0;
 }
 
-void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
-    // todo：定时获取在线人数
-    this->video->setOnlineCount(liveData.watched_show.text_large);
-
+void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo &result)
+{
+    brls::Logger::debug("LiveActivity: onLiveData");
+    // 判断房间是否被封禁
     if (result.is_locked) {
-        brls::Logger::error("LiveActivity: live {} is locked", result.room_id);
+        brls::Logger::debug("LiveActivity: live {} is locked", result.room_id);
         this->video->showOSD(false);
         showDialog(fmt::format("这个房间已经被封禁（至 {}）！(╯°口°)╯(┴—┴", wiliwili::sec2FullDate(result.lock_till)),
                    "pictures/room-block.png", true);
@@ -272,14 +287,21 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo& result) {
         return;
     }
     brls::Logger::debug("current quality: {}", liveUrl.current_qn);
-    for (auto& i : liveUrl.accept_qn) {
+    for (auto &i : liveUrl.accept_qn) {
         auto desc = getQualityDescription(i);
         brls::Logger::debug("live quality: {}/{}", desc, i);
         if (liveUrl.current_qn == i) {
-            std::string quality = desc + " \uE0EF";
-            APP_E->fire(VideoView::SET_QUALITY, (void*)quality.c_str());
+            this->video->setQuality(desc);
         }
     }
+
+    // 设置视频标题、在线人数和主播信息
+    this->video->setTitle(liveData.title);
+    this->video->setOnlineCount(liveData.watched_show.text_large);
+
+    // 设置主播信息
+    this->liveAuthor->setUserInfo("", "", "");
+
     // todo: 允许使用备用链接
     for (const auto& i : liveUrl.url_info) {
         auto url = i.host + liveUrl.base_url + i.extra;
@@ -356,6 +378,29 @@ void LiveActivity::retryRequestData() {
     });
 }
 
+void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& danmaku_list) {
+    // 确保UI更新在主线程进行
+    brls::sync([this, danmaku_list]() {
+        for (const auto& danmaku : danmaku_list) {
+            auto* item = LiveDanmakuItemView::create();
+            item->setDanmaku(danmaku);
+            
+            // 将新弹幕添加到顶部
+            if (this->liveDanmakuContainer->getChildren().size() > 0) {
+                this->liveDanmakuContainer->addView(item, 0);
+            } else {
+                this->liveDanmakuContainer->addView(item);
+            }
+            
+            // 控制侧边栏最多显示100条弹幕
+            if (this->liveDanmakuContainer->getChildren().size() > 100) {
+                auto& children = this->liveDanmakuContainer->getChildren();
+                this->liveDanmakuContainer->removeView(children[children.size() - 1]);
+            }
+        }
+    });
+}
+
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     danmaku.disconnect();
@@ -367,4 +412,7 @@ LiveActivity::~LiveActivity() {
     LiveDanmakuCore::instance().reset();
     brls::cancelDelay(toggleDelayIter);
     brls::cancelDelay(errorDelayIter);
+    
+    // 清空全局指针
+    g_liveActivity = nullptr;
 }

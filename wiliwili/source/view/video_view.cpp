@@ -1191,9 +1191,10 @@ void VideoView::setFullScreen(bool fs) {
         video->osdSlider->setClipPoint(osdSlider->getClipPoint());
         video->refreshToggleIcon();
         video->setHighlightProgress(highlightData);
-        if (video->isLiveMode) video->setLiveMode();
+        if (this->isLiveMode) video->setLiveMode();
         video->setCustomToggleAction(customToggleAction);
         DanmakuCore::instance().refresh();
+        LiveDanmakuCore::instance().refresh();
         video->setOnlineCount(this->videoOnlineCountLabel->getFullText());
         if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
             video->hideLoading();
@@ -1250,6 +1251,7 @@ void VideoView::setFullScreen(bool fs) {
                     video->setQuality(this->getQuality());
                     video->videoSpeed->setText(this->videoSpeed->getFullText());
                     DanmakuCore::instance().refresh();
+                    LiveDanmakuCore::instance().refresh();
                     if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
                         video->hideLoading();
                     } else {

@@ -9,6 +9,7 @@
 #include <cstddef>
 
 #include "nanovg.h"
+#include <borealis/core/application.hpp>
 
 LiveDanmakuItem::LiveDanmakuItem(danmaku_t *dan) { this->danmaku = dan; }
 
@@ -38,6 +39,25 @@ void LiveDanmakuCore::reset() {
         this->next.pop_front();
     }
     this->next_mutex.unlock();
+}
+
+void LiveDanmakuCore::refresh() {
+    // 保留现有的弹幕数据，但重新初始化显示参数
+    
+    // 计算弹幕显示的行数
+    int lineNum = brls::Application::windowHeight / DanmakuCore::DANMAKU_STYLE_FONTSIZE;
+    if (lineNum < 1) lineNum = 1;
+    
+    // 重置行时间信息
+    this->scroll_lines.clear();
+    this->center_lines.clear();
+    
+    // 调整行数
+    this->scroll_lines.resize(lineNum);
+    this->center_lines.resize(lineNum, 0);
+    
+    // 设置行高
+    this->line_height = DanmakuCore::DANMAKU_STYLE_FONTSIZE * DanmakuCore::DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
 }
 
 void LiveDanmakuCore::add(const std::vector<LiveDanmakuItem> &dan_l) {

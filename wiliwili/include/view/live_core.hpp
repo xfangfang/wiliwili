@@ -49,6 +49,7 @@ public:
     std::map<int, std::deque<LiveDanmakuItem>> now;
 
     void reset();
+    void refresh();
     void add(const std::vector<LiveDanmakuItem> &dan_l);
     void draw(NVGcontext *vg, float x, float y, float width, float height, float alpha);
 
