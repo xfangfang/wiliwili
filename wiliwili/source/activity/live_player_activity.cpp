@@ -16,6 +16,7 @@
 
 #include "live/extract_messages.hpp"
 #include "live/ws_utils.hpp"
+#include "live/dl_emoticon.hpp"
 #include "bilibili.h"
 
 #include "view/video_view.hpp"
@@ -106,6 +107,9 @@ LiveActivity::LiveActivity(int roomid, const std::string& name, const std::strin
     
     // 设置全局指针，以便静态回调函数能访问到实例
     g_liveActivity = this;
+    
+    // 初始化表情包映射
+    this->emoticons = std::make_shared<lmp>();
     
     this->setCommonData();
 }
@@ -335,8 +339,25 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo &result)
 }
 
 void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& info) {
-    danmaku.setonMessage(onDanmakuReceived);
-    danmaku.connect(roomid, std::stoll(ProgramConfig::instance().getUserID()), info);
+    // 获取表情包URL列表
+    brls::Logger::debug("LiveActivity: 开始获取表情包URL列表...");
+    
+    // 创建一个线程来获取表情包URL，避免阻塞主线程
+    std::thread([this, roomid, info]() {
+        try {
+            *this->emoticons = dl_emoticon(roomid);
+            brls::Logger::debug("LiveActivity: 获取了 {} 个表情包URL", this->emoticons->size());
+            
+            // 将表情包映射传递给LiveDanmakuCore
+            LiveDanmakuCore::instance().setEmoticons(this->emoticons);
+        } catch (const std::exception& e) {
+            brls::Logger::error("LiveActivity: 获取表情包URL失败: {}", e.what());
+        }
+        
+        // 获取表情包URL后连接弹幕服务器
+        danmaku.setonMessage(onDanmakuReceived);
+        danmaku.connect(roomid, std::stoll(ProgramConfig::instance().getUserID()), info);
+    }).detach();
 }
 
 void LiveActivity::onError(const std::string& error) {
@@ -434,6 +455,9 @@ LiveActivity::~LiveActivity() {
     LiveDanmakuCore::instance().reset();
     brls::cancelDelay(toggleDelayIter);
     brls::cancelDelay(errorDelayIter);
+    
+    // 清空表情包数据
+    this->emoticons->clear();
     
     // 清空全局指针
     g_liveActivity = nullptr;

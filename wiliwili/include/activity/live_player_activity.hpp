@@ -14,6 +14,8 @@
 #include "presenter/live_data.hpp"
 #include "live/danmaku_live.hpp"
 #include "view/live_core.hpp"
+#include "live/dl_emoticon.hpp"
+#include <memory>
 
 class VideoView;
 class UserInfoView;
@@ -74,6 +76,9 @@ private:
 
     bilibili::LiveVideoResult liveData;
     std::string anchorTitle = ""; // 新增：主播称号
+    
+    // 表情包映射
+    std::shared_ptr<lmp> emoticons;
 
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;

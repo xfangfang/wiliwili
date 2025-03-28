@@ -4,6 +4,7 @@
 #include <borealis/core/bind.hpp>
 #include <borealis/views/label.hpp>
 #include "view/live_core.hpp"
+#include "view/text_box.hpp"
 
 class LiveDanmakuItemView : public brls::Box {
 public:
@@ -20,4 +21,7 @@ private:
     BRLS_BIND(brls::Label, contentLabel, "danmaku_content");
     BRLS_BIND(brls::Label, levelLabel, "danmaku_level_text");
     BRLS_BIND(brls::Box, levelBox, "danmaku_user_level");
+    
+    // 用于显示富文本内容的TextBox
+    TextBox* contentBox = nullptr;
 }; 

@@ -5,12 +5,14 @@
 #pragma once
 
 #include "api/live/extract_messages.hpp"
+#include "live/dl_emoticon.hpp"
 
 #include <chrono>
 #include <cstddef>
 #include <deque>
 #include <map>
 #include <mutex>
+#include <memory>
 
 #include <nanovg.h>
 #include <borealis/core/singleton.hpp>
@@ -47,11 +49,29 @@ public:
     std::mutex next_mutex;
 
     std::map<int, std::deque<LiveDanmakuItem>> now;
+    
+    // 表情包映射
+    std::shared_ptr<lmp> emoticons;
 
     void reset();
     void refresh();
     void add(const std::vector<LiveDanmakuItem> &dan_l);
     void draw(NVGcontext *vg, float x, float y, float width, float height, float alpha);
+    
+    // 设置表情包映射
+    void setEmoticons(std::shared_ptr<lmp> emotes) { this->emoticons = emotes; }
 
     bool init_danmaku(NVGcontext *vg, LiveDanmakuItem &i, float width, int LINES, float SECOND, time_p now, int time);
+    
+    // 判断字符串是否是表情
+    bool isEmoticon(const std::string& text) const;
+    
+    // 查找文本中所有表情的位置和长度
+    std::vector<std::pair<size_t, size_t>> findEmoticons(const std::string& text) const;
+    
+    // 渲染表情
+    void drawEmoticon(NVGcontext *vg, const std::string& name, float x, float y, float size, float alpha = 1.0f);
+    
+    // 清理表情缓存
+    void clearEmoticonCache();
 };
