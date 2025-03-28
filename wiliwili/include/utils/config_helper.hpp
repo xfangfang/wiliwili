@@ -102,6 +102,7 @@ enum class SettingItem {
     HTTP_CONNECTION_TIMEOUT,
     HTTP_DNS_CACHE_TIMEOUT,
     UP_FILTER,
+    LIVE_DANMAKU_FILTER_LEVEL,
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {

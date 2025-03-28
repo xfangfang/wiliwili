@@ -367,8 +367,10 @@ VideoView::VideoView() {
         new brls::TapGestureRecognizer(this->btnDanmakuIcon->getParent()));
 
     /// 弹幕设置按钮
-    this->btnDanmakuSettingIcon->getParent()->registerClickAction([](...) {
-        auto setting = new PlayerDanmakuSetting();
+    this->btnDanmakuSettingIcon->getParent()->registerClickAction([this](...) {
+        // 判断当前是否处于直播模式
+        bool isLiveMode = this->isLiveMode;
+        auto setting = new PlayerDanmakuSetting(isLiveMode);
         brls::Application::pushActivity(new brls::Activity(setting));
         GA("open_danmaku_setting")
         return true;

@@ -439,7 +439,11 @@
         "color": "Color",
         "advanced": "Advanced",
         "level": "Filter level",
-        "level_n": "Level {}"
+        "level_n": "Level {}",
+        "level_live": "Danmaku filter level",
+        "level_live_none": "No filter (UL0+)",
+        "level_live_n": "UL{} and above",
+        "level_live_60": "UL60 only"
       },
       "style": {
         "header": "Danmaku style",

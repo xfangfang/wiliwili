@@ -439,7 +439,11 @@
         "color": "彩色弹幕",
         "advanced": "高级弹幕",
         "level": "过滤等级",
-        "level_n": "{}级"
+        "level_n": "{}级",
+        "level_live": "直播过滤等级",
+        "level_live_none": "不过滤 (UL0+)",
+        "level_live_n": "UL{}以上",
+        "level_live_60": "仅UL60"
       },
       "style": {
         "header": "弹幕样式",

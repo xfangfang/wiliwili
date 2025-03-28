@@ -224,6 +224,24 @@ void LiveActivity::onContentAvailable()
     this->video->setTitle(liveData.title);
     this->video->setOnlineCount(liveData.watched_show.text_large);
     this->video->setStatusLabelLeft("");
+    this->video->setCustomToggleAction([this]() {
+        if (MPVCore::instance().isStopped()) {
+            this->onLiveData(this->liveRoomPlayInfo);
+        } else if (MPVCore::instance().isPaused()) {
+            MPVCore::instance().resume();
+        } else {
+            this->video->showOSD(false);
+            MPVCore::instance().pause();
+            brls::cancelDelay(toggleDelayIter);
+            ASYNC_RETAIN
+            toggleDelayIter = brls::delay(5000, [ASYNC_TOKEN]() {
+                ASYNC_RELEASE
+                if (MPVCore::instance().isPaused()) {
+                    MPVCore::instance().stop();
+                }
+            });
+        }
+    });
     
     // 设置主播信息
     this->liveAuthor->setUserInfo("", "", "");
@@ -382,6 +400,10 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
     // 确保UI更新在主线程进行
     brls::sync([this, danmaku_list]() {
         for (const auto& danmaku : danmaku_list) {
+            // 添加弹幕等级过滤，与LiveDanmakuCore::add方法中的过滤条件保持一致
+            if (danmaku.danmaku->user_level < LiveDanmakuCore::DANMAKU_FILTER_LEVEL_LIVE) 
+                continue;
+                
             auto* item = LiveDanmakuItemView::create();
             item->setDanmaku(danmaku);
             
