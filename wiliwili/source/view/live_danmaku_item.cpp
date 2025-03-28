@@ -109,7 +109,7 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
             richText.push_back(emoticonImage);
         } else {
             // 表情不存在，显示文本
-            auto textSpan = std::make_shared<RichTextSpan>(danmakuText);
+            auto textSpan = std::make_shared<RichTextSpan>(danmakuText, this->contentBox->getTextColor());
             richText.push_back(textSpan);
         }
         
@@ -131,7 +131,7 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
                 // 添加表情前的文本
                 if (start > lastEnd) {
                     std::string textPart = danmakuText.substr(lastEnd, start - lastEnd);
-                    auto textSpan = std::make_shared<RichTextSpan>(textPart);
+                    auto textSpan = std::make_shared<RichTextSpan>(textPart, this->contentBox->getTextColor());
                     richText.push_back(textSpan);
                 }
                 
@@ -153,7 +153,7 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
                     richText.push_back(emoticonImage);
                 } else {
                     // 表情不存在，显示文本
-                    auto textSpan = std::make_shared<RichTextSpan>(emoteName);
+                    auto textSpan = std::make_shared<RichTextSpan>(emoteName, this->contentBox->getTextColor());
                     richText.push_back(textSpan);
                 }
                 
@@ -163,7 +163,7 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
             // 添加剩余文本
             if (lastEnd < danmakuText.length()) {
                 std::string textPart = danmakuText.substr(lastEnd);
-                auto textSpan = std::make_shared<RichTextSpan>(textPart);
+                auto textSpan = std::make_shared<RichTextSpan>(textPart, this->contentBox->getTextColor());
                 richText.push_back(textSpan);
             }
             
