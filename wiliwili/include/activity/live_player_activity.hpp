@@ -16,11 +16,15 @@
 #include "view/live_core.hpp"
 #include "live/dl_emoticon.hpp"
 #include <memory>
+#include <map>
+#include <chrono>
 
 class VideoView;
 class UserInfoView;
+class LiveDanmakuItemView; // 添加前向声明
 
-class LiveActivity : public brls::Activity, public LiveDataRequest {
+class LiveActivity : public brls::Activity, 
+                     public LiveDataRequest {
 public:
     // Declare that the content of this activity is the given XML file
     CONTENT_FROM_XML_RES("activity/live_player_activity.xml");
@@ -55,6 +59,21 @@ public:
     
     // 处理接收到的弹幕，展示在侧边栏
     void processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& danmaku_list);
+    
+    // 处理接收到的超级留言(SC)，展示在侧边栏
+    void processSuperChatForSidebar(const std::vector<LiveDanmakuItem>& sc_list);
+    
+    // 处理SC置顶相关
+    // 添加SC置顶
+    void addPinnedSuperChat(const LiveDanmakuItem& sc);
+    // 移除SC置顶
+    void removePinnedSuperChat(int sc_id);
+    // 检查SC是否置顶
+    bool isPinnedSuperChat(int sc_id) const;
+    // 定时器回调，检查SC过期
+    void checkPinnedSuperChatExpiry();
+    // 启动SC过期检查定时器
+    void startSuperChatExpiryTimer();
 
     ~LiveActivity() override;
 
@@ -71,6 +90,8 @@ private:
     size_t toggleDelayIter = 0;
     // 遇到错误重试的延时函数 handle
     size_t errorDelayIter = 0;
+    // SC检查过期的延时函数 handle
+    size_t scExpiryCheckIter = 0;
 
     LiveDanmaku danmaku;
 
@@ -79,6 +100,12 @@ private:
     
     // 表情包映射
     std::shared_ptr<lmp> emoticons;
+    
+    // SC置顶管理
+    // 键：SC的ID (user_uid)，值：过期时间点
+    std::map<int, std::chrono::time_point<std::chrono::system_clock>> pinnedSuperChats;
+    // 保存SC视图项的引用，用于更新状态
+    std::map<int, LiveDanmakuItemView*> pinnedSuperChatViews;
 
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;

@@ -4,14 +4,35 @@
 
 #pragma once
 
-#include "api/live/extract_messages.hpp"
-#include "live/dl_emoticon.hpp"
-
 #include <chrono>
-#include <cstddef>
 #include <deque>
-#include <map>
 #include <mutex>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+#include <memory>
+
+typedef std::chrono::time_point<std::chrono::system_clock> time_p;
+
+struct NVGcontext;
+struct RichTextImage;
+struct Image;
+
+// 表情包映射类型
+typedef std::unordered_map<std::string, std::string> lmp;
+
+// 前向声明
+namespace message {
+    class Danmaku;
+    class SuperChat;
+}
+
+#include "api/live/extract_messages.hpp"
+
+#include "live/dl_emoticon.hpp"
+#include <cstddef>
+#include <map>
 #include <memory>
 
 #include <nanovg.h>
@@ -20,15 +41,23 @@
 using time_p = std::chrono::time_point<std::chrono::system_clock>;
 class LiveDanmakuItem {
 public:
-    LiveDanmakuItem(danmaku_t *danmaku);
+    enum class Type {
+        DANMAKU,
+        SUPER_CHAT
+    };
+
+    LiveDanmakuItem(std::shared_ptr<message::Danmaku> danmaku);
+    LiveDanmakuItem(std::shared_ptr<message::SuperChat> sc);
     LiveDanmakuItem(const LiveDanmakuItem &item);
-    LiveDanmakuItem(LiveDanmakuItem &&item);
-    ~LiveDanmakuItem() {
-        if (!danmaku) return;
-        danmaku_t_free(danmaku);
-        free(danmaku);
-    }
-    danmaku_t *danmaku;
+    LiveDanmakuItem(LiveDanmakuItem &&item) noexcept;
+    ~LiveDanmakuItem() = default;
+    
+    Type type = Type::DANMAKU;
+    
+    // 使用std::shared_ptr替换原始指针
+    std::shared_ptr<message::Danmaku> danmaku;
+    std::shared_ptr<message::SuperChat> super_chat;
+    
     time_p time;
     size_t line  = 0;
     float length = 0;

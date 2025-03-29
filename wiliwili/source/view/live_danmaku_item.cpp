@@ -9,9 +9,7 @@ LiveDanmakuItemView::LiveDanmakuItemView() {
     
     // 将contentLabel替换为TextBox
     this->contentBox = new TextBox();
-    // this->contentBox->setDetachFromView(true); // 允许脱离视图设置
     this->contentBox->setWidthPercentage(100); // 使用百分比宽度
-    // this->contentBox->setHeight(brls::View::AUTO);
     this->contentBox->setMarginTop(4);
     this->contentBox->setFontSize(14);
     this->contentBox->setSingleLine(false);
@@ -29,11 +27,129 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
     // 重置item背景颜色为默认透明
     this->setBackgroundColor(nvgRGBA(0, 0, 0, 0));
     
+    // 默认隐藏头像
+    this->avatarImage->setVisibility(brls::Visibility::GONE);
+    
+    // 判断是否是超级留言(SC)
+    if (danmaku.type == LiveDanmakuItem::Type::SUPER_CHAT) {
+        // 处理超级留言
+        
+        // 保存SC ID (用户UID)
+        this->scId = danmaku.super_chat->user_uid;
+        
+        // 设置用户名
+        this->usernameLabel->setText(!danmaku.super_chat->user_name.empty() ? danmaku.super_chat->user_name : "用户");
+        
+        // 隐藏等级
+        this->levelBox->setVisibility(brls::Visibility::GONE);
+        
+        // 处理粉丝牌子
+        if (!danmaku.super_chat->fan_medal_name.empty() && danmaku.super_chat->fan_medal_level > 0) {
+            // 设置粉丝牌子文本（名称+等级）
+            this->fanMedalLabel->setText(danmaku.super_chat->fan_medal_name + 
+                                       std::to_string(danmaku.super_chat->fan_medal_level));
+            this->fanMedalBox->setVisibility(brls::Visibility::VISIBLE);
+        } else {
+            this->fanMedalBox->setVisibility(brls::Visibility::GONE);
+        }
+        
+        // 隐藏房管标识和VIP标识
+        this->adminBox->setVisibility(brls::Visibility::GONE);
+        this->vipBox->setVisibility(brls::Visibility::GONE);
+        
+        // 设置SC金额
+        std::string priceText = "¥" + std::to_string(danmaku.super_chat->price);
+        this->scPriceLabel->setText(priceText);
+        this->scPriceBox->setVisibility(brls::Visibility::VISIBLE);
+        
+        // 设置用户头像
+        if (!danmaku.super_chat->user_face.empty()) {
+            // 显示头像组件
+            this->avatarImage->setVisibility(brls::Visibility::VISIBLE);
+            // 加载头像图片
+            ImageHelper::with(this->avatarImage)->load(danmaku.super_chat->user_face);
+        }
+        
+        // 设置SC内容
+        std::string scContent = !danmaku.super_chat->message.empty() ? danmaku.super_chat->message : "";
+        
+        // 设置SC背景色
+        NVGcolor backgroundColor;
+        
+        // 使用 background_price_color
+        if (!danmaku.super_chat->background_price_color.empty()) {
+            // 解析十六进制颜色
+            std::string colorHex = danmaku.super_chat->background_price_color;
+            // 去掉 # 前缀
+            if (colorHex.length() > 0 && colorHex[0] == '#') {
+                colorHex = colorHex.substr(1);
+            }
+            
+            // 转换为RGB
+            unsigned int r = 0, g = 0, b = 0;
+            if (colorHex.length() >= 6) {
+                if (sscanf(colorHex.c_str(), "%02x%02x%02x", &r, &g, &b) == 3) {
+                    backgroundColor = nvgRGBA(r, g, b, 230); // 90%不透明度
+                    this->setBackgroundColor(backgroundColor);
+                    
+                    // 保存原始背景色，用于置顶/取消置顶切换
+                    this->originalBgColor = backgroundColor;
+                    
+                    brls::Logger::debug("SC价格背景色设置成功: #{:02x}{:02x}{:02x}", r, g, b);
+                }
+            }
+        } else {
+            backgroundColor = nvgRGBA(49, 113, 210, 230); // 默认SC背景色 (蓝色)
+            this->setBackgroundColor(backgroundColor);
+            
+            // 保存原始背景色，用于置顶/取消置顶切换
+            this->originalBgColor = backgroundColor;
+            
+            brls::Logger::debug("使用默认SC背景色");
+        }
+        
+        // 根据背景颜色亮度计算文本颜色（简化为只使用黑色或白色）
+        // 计算颜色亮度 (基于YIQ公式: 亮度 = 0.299*R + 0.587*G + 0.114*B)
+        double brightness = (0.299 * (backgroundColor.r * 255) + 
+                            0.587 * (backgroundColor.g * 255) + 
+                            0.114 * (backgroundColor.b * 255)) / 255;
+        
+        // 如果亮度较高(浅色背景)，使用深色文本；否则使用浅色文本
+        NVGcolor textColor = (brightness > 0.5) ? 
+                    nvgRGB(0, 0, 0) :     // 黑色文本(深色)
+                    nvgRGB(255, 255, 255); // 白色文本(浅色)
+        
+        brls::Logger::debug("SC文本颜色根据背景亮度计算: 亮度={:.2f}, 使用{}色文本", 
+                           brightness, (brightness > 0.5) ? "黑" : "白");
+        
+        // 设置用户名颜色与内容颜色一致，提高可读性
+        this->usernameLabel->setTextColor(textColor);
+        
+        // 创建富文本内容
+        RichTextData richText;
+        auto contentSpan = std::make_shared<RichTextSpan>(scContent, textColor);
+        richText.push_back(contentSpan);
+        
+        // 设置富文本
+        this->contentBox->setRichText(richText);
+        
+        return;
+    }
+    
+    // 以下是普通弹幕的处理逻辑
+    
+    // 清空SC ID
+    this->scId = 0;
+    
     // 设置用户名
-    this->usernameLabel->setText(danmaku.danmaku->user_name ? danmaku.danmaku->user_name : "用户");
+    this->usernameLabel->setText(!danmaku.danmaku->user_name.empty() ? danmaku.danmaku->user_name : "用户");
+    
+    // 隐藏SC金额标签
+    this->scPriceBox->setVisibility(brls::Visibility::GONE);
     
     // 设置用户等级
     this->levelLabel->setText("UL" + std::to_string(danmaku.danmaku->user_level));
+    this->levelBox->setVisibility(brls::Visibility::VISIBLE);
     
     // 首先根据用户等级设置不同的颜色
     int level = danmaku.danmaku->user_level;
@@ -82,9 +198,9 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
     }
     
     // 处理粉丝牌子
-    if (danmaku.danmaku->fan_medal_name && danmaku.danmaku->fan_medal_level > 0) {
+    if (!danmaku.danmaku->fan_medal_name.empty() && danmaku.danmaku->fan_medal_level > 0) {
         // 设置粉丝牌子文本（名称+等级）
-        this->fanMedalLabel->setText(std::string(danmaku.danmaku->fan_medal_name) + std::to_string(danmaku.danmaku->fan_medal_level));
+        this->fanMedalLabel->setText(danmaku.danmaku->fan_medal_name + std::to_string(danmaku.danmaku->fan_medal_level));
         
         // 设置粉丝牌子颜色
         NVGcolor medalColor;
@@ -112,13 +228,8 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
         this->adminBox->setVisibility(brls::Visibility::VISIBLE);
         
         // 为房管的弹幕项添加橙色背景（30%透明度）
-        NVGcolor adminColor = nvgRGBA(255, 153, 0, 255); // 橙色
-        this->setBackgroundColor(nvgRGBA(
-            adminColor.r * 255,
-            adminColor.g * 255,
-            adminColor.b * 255,
-            76  // 255 * 0.3 = 76.5
-        ));
+        // 直接使用RGB值，不需要乘以255
+        this->setBackgroundColor(nvgRGBA(255, 153, 0, 76)); // 橙色，30%透明度
     } else {
         this->adminBox->setVisibility(brls::Visibility::GONE);
     }
@@ -167,20 +278,19 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
         // 只有在不是房管的情况下才设置VIP的背景颜色
         // 这样确保房管的橙色背景优先级高于VIP
         if (!danmaku.danmaku->is_guard) {
-            // 设置整个item的背景颜色为VIP标识颜色的30%透明度
-            this->setBackgroundColor(nvgRGBA(
-                vipColor.r * 255,
-                vipColor.g * 255,
-                vipColor.b * 255,
-                76  // 255 * 0.3 = 76.5
-            ));
+            // 直接使用RGB值和30%透明度
+            // 从已经计算好的vipColor中提取RGB值
+            unsigned char r = vipColor.r * 255;
+            unsigned char g = vipColor.g * 255;
+            unsigned char b = vipColor.b * 255;
+            this->setBackgroundColor(nvgRGBA(r, g, b, 76)); // 30%透明度
         }
     } else {
         this->vipBox->setVisibility(brls::Visibility::GONE);
     }
     
     // 设置弹幕内容 - 检查是否含有表情
-    std::string danmakuText = danmaku.danmaku->dan ? danmaku.danmaku->dan : "";
+    std::string danmakuText = !danmaku.danmaku->dan.empty() ? danmaku.danmaku->dan : "";
     
     // 获取LiveDanmakuCore的表情映射
     auto& liveDanmakuCore = LiveDanmakuCore::instance();
@@ -273,6 +383,38 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
         } else {
             // 普通文本，直接设置
             this->contentBox->setText(danmakuText);
+        }
+    }
+}
+
+// 实现置顶状态设置方法
+void LiveDanmakuItemView::setPinned(bool pinned) {
+    if (this->pinned == pinned) {
+        // 状态没有变化，不需要处理
+        return;
+    }
+    
+    this->pinned = pinned;
+    
+    if (pinned) {
+        // 设置为置顶状态
+        if (this->scId != 0) {
+            // 只添加"置顶"标识，不修改颜色
+            // 在价格标签旁边添加一个"⭐"符号
+            std::string currentText = this->scPriceLabel->getFullText();
+            if (currentText.find("⭐") == std::string::npos) {
+                this->scPriceLabel->setText("⭐ " + currentText);
+            }
+        }
+    } else {
+        // 恢复原始状态
+        if (this->scId != 0) {
+            // 移除"置顶"标识
+            std::string currentText = this->scPriceLabel->getFullText();
+            size_t starPos = currentText.find("⭐ ");
+            if (starPos != std::string::npos) {
+                this->scPriceLabel->setText(currentText.substr(3)); // 移除"⭐ "
+            }
         }
     }
 }

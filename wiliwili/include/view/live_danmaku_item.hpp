@@ -16,6 +16,15 @@ public:
     // 创建新的弹幕项视图
     static LiveDanmakuItemView* create();
     
+    // 获取SC ID (用户UID)
+    int getSuperChatId() const { return scId; }
+    
+    // 设置/取消置顶状态
+    void setPinned(bool pinned);
+    
+    // 检查是否置顶
+    bool isPinned() const { return pinned; }
+    
 private:
     BRLS_BIND(brls::Label, usernameLabel, "danmaku_username");
     BRLS_BIND(brls::Label, contentLabel, "danmaku_content");
@@ -30,6 +39,22 @@ private:
     BRLS_BIND(brls::Box, vipBox, "danmaku_vip");
     BRLS_BIND(brls::Label, vipLabel, "danmaku_vip_text");
     
+    // SC金额标签
+    BRLS_BIND(brls::Box, scPriceBox, "danmaku_sc_price");
+    BRLS_BIND(brls::Label, scPriceLabel, "danmaku_sc_price_text");
+    
+    // 用户头像
+    BRLS_BIND(brls::Image, avatarImage, "danmaku_avatar");
+    
     // 用于显示富文本内容的TextBox
     TextBox* contentBox = nullptr;
+    
+    // SC ID (用户UID)
+    int scId = 0;
+    
+    // 是否为置顶状态
+    bool pinned = false;
+    
+    // 保存原始背景色，用于取消置顶时恢复
+    NVGcolor originalBgColor = nvgRGBA(0, 0, 0, 0);
 }; 

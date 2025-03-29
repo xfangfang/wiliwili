@@ -19,6 +19,17 @@
                 height="auto"
                 alignItems="center">
             
+            <!-- SC用户头像 -->
+            <brls:Image
+                    id="danmaku_avatar"
+                    width="24"
+                    height="24"
+                    scalingType="fit"
+                    cornerRadius="100"
+                    marginRight="4"
+                    visibility="gone"
+                    image="@res/pictures/default_avatar.png"/>
+            
             <brls:Box
                     id="danmaku_user_level"
                     width="auto"
@@ -94,6 +105,26 @@
                         fontSize="10"
                         textColor="#FFFFFF"
                         text="舰长"/>
+            </brls:Box>
+            
+            <!-- SC金额标签 -->
+            <brls:Box
+                    id="danmaku_sc_price"
+                    width="auto"
+                    height="18"
+                    backgroundColor="#FF9900"
+                    cornerRadius="4"
+                    alignItems="center"
+                    justifyContent="center"
+                    paddingLeft="6"
+                    paddingRight="6"
+                    marginLeft="4"
+                    visibility="gone">
+                <brls:Label
+                        id="danmaku_sc_price_text"
+                        fontSize="12"
+                        textColor="#FFFFFF"
+                        text="¥30"/>
             </brls:Box>
             
             <brls:Label

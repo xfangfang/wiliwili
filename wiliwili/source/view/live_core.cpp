@@ -14,23 +14,42 @@
 #include <borealis/core/application.hpp>
 #include <borealis/core/logger.hpp>
 
-LiveDanmakuItem::LiveDanmakuItem(danmaku_t *dan) { this->danmaku = dan; }
-
-LiveDanmakuItem::LiveDanmakuItem(const LiveDanmakuItem &item) {
-    this->danmaku = danmaku_t_copy(item.danmaku);
-    this->time    = item.time;
-    this->length  = item.length;
-    this->speed   = item.speed;
-    this->line    = item.line;
+LiveDanmakuItem::LiveDanmakuItem(std::shared_ptr<message::Danmaku> dan) { 
+    this->type = Type::DANMAKU;
+    this->danmaku = dan; 
 }
 
-LiveDanmakuItem::LiveDanmakuItem(LiveDanmakuItem &&item) {
-    this->danmaku = item.danmaku;
+LiveDanmakuItem::LiveDanmakuItem(std::shared_ptr<message::SuperChat> sc) {
+    this->type = Type::SUPER_CHAT;
+    this->super_chat = sc;
+}
+
+LiveDanmakuItem::LiveDanmakuItem(const LiveDanmakuItem &item) {
+    this->type    = item.type;
     this->time    = item.time;
     this->length  = item.length;
     this->speed   = item.speed;
     this->line    = item.line;
-    item.danmaku  = nullptr;
+    
+    if (item.type == Type::DANMAKU) {
+        this->danmaku = item.danmaku;
+    } else if (item.type == Type::SUPER_CHAT) {
+        this->super_chat = item.super_chat;
+    }
+}
+
+LiveDanmakuItem::LiveDanmakuItem(LiveDanmakuItem &&item) noexcept {
+    this->type    = item.type;
+    this->time    = item.time;
+    this->length  = item.length;
+    this->speed   = item.speed;
+    this->line    = item.line;
+    
+    if (item.type == Type::DANMAKU) {
+        this->danmaku = std::move(item.danmaku);
+    } else if (item.type == Type::SUPER_CHAT) {
+        this->super_chat = std::move(item.super_chat);
+    }
 }
 
 void LiveDanmakuCore::reset() {
@@ -53,12 +72,15 @@ void LiveDanmakuCore::reset() {
 }
 
 void LiveDanmakuCore::clearEmoticonCache() {
+    static std::mutex emoticon_cache_mutex;
     static std::unordered_map<std::string, std::unique_ptr<RichTextImage>>& emotionImageCache = 
         []() -> std::unordered_map<std::string, std::unique_ptr<RichTextImage>>& {
             static std::unordered_map<std::string, std::unique_ptr<RichTextImage>> cache;
             return cache;
         }();
     
+    // 使用锁保护静态缓存
+    std::lock_guard<std::mutex> lock(emoticon_cache_mutex);
     emotionImageCache.clear();
 }
 
@@ -82,6 +104,9 @@ void LiveDanmakuCore::refresh() {
 }
 
 void LiveDanmakuCore::add(const std::vector<LiveDanmakuItem> &dan_l) {
+    // 加锁保护 next 队列
+    std::lock_guard<std::mutex> lock(this->next_mutex);
+    
     for (const auto &i : dan_l) {
         if (i.danmaku->dan_type == 4 && !DanmakuCore::DANMAKU_FILTER_SHOW_BOTTOM)
             continue;
@@ -91,9 +116,9 @@ void LiveDanmakuCore::add(const std::vector<LiveDanmakuItem> &dan_l) {
             continue;
         if (i.danmaku->user_level < DANMAKU_FILTER_LEVEL_LIVE) continue;
         if (i.danmaku->dan_color != 0xffffff && !DanmakuCore::DANMAKU_FILTER_SHOW_COLOR) continue;
-        this->next_mutex.lock();
+        
+        // 不需要再加锁，因为外层已经加锁了
         this->next.emplace_front(std::move(i));
-        this->next_mutex.unlock();
     }
 }
 
@@ -310,10 +335,10 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float 
                 }
                 
                 if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
-                    nvgText(vg, x + width / 2 - j.length / 2 + dx, y + j.line * line_height + 5 + dy, j.danmaku->dan,
+                    nvgText(vg, x + width / 2 - j.length / 2 + dx, y + j.line * line_height + 5 + dy, j.danmaku->dan.c_str(),
                             nullptr);
                 } else if (position > 0) {
-                    nvgText(vg, x + width - position + dx, y + j.line * line_height + 5 + dy, j.danmaku->dan, nullptr);
+                    nvgText(vg, x + width - position + dx, y + j.line * line_height + 5 + dy, j.danmaku->dan.c_str(), nullptr);
                 }
             }
             nvgFontBlur(vg, 0.0f);
@@ -410,9 +435,9 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float 
             }
             
             if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
-                nvgText(vg, x + width / 2 - j.length / 2, y + j.line * line_height + 5, j.danmaku->dan, nullptr);
+                nvgText(vg, x + width / 2 - j.length / 2, y + j.line * line_height + 5, j.danmaku->dan.c_str(), nullptr);
             } else if (position > 0) {
-                nvgText(vg, x + width - position, y + j.line * line_height + 5, j.danmaku->dan, nullptr);
+                nvgText(vg, x + width - position, y + j.line * line_height + 5, j.danmaku->dan.c_str(), nullptr);
             }
         }
     }
@@ -442,7 +467,7 @@ bool LiveDanmakuCore::init_danmaku(NVGcontext *vg, LiveDanmakuItem &i, float wid
                                    int time) {
     float bounds[4];
     if (!i.length) {
-        nvgTextBounds(vg, 0, 0, i.danmaku->dan, nullptr, bounds);
+        nvgTextBounds(vg, 0, 0, i.danmaku->dan.c_str(), nullptr, bounds);
         i.length = bounds[2] - bounds[0];
         if (!i.length) i.length = 1;
     }

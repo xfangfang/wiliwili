@@ -91,7 +91,7 @@
                 grow="1">
             
             <brls:Header
-                    title="实时弹幕"
+                    title="实时互动"
                     paddingTop="15"/>
                     
             <brls:ScrollingFrame

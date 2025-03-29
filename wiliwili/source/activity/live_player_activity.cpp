@@ -14,11 +14,6 @@
 #include "utils/shader_helper.hpp"
 #include "utils/config_helper.hpp"
 
-#include "live/extract_messages.hpp"
-#include "live/ws_utils.hpp"
-#include "live/dl_emoticon.hpp"
-#include "bilibili.h"
-
 #include "view/video_view.hpp"
 #include "view/live_core.hpp"
 #include "view/grid_dropdown.hpp"
@@ -26,6 +21,11 @@
 #include "view/mpv_core.hpp"
 #include "view/user_info.hpp"
 #include "view/live_danmaku_item.hpp"
+
+#include "api/live/extract_messages.hpp"
+#include "api/live/ws_utils.hpp"
+#include "api/live/dl_emoticon.hpp"
+#include "bilibili.h"
 
 using namespace brls::literals;
 
@@ -48,24 +48,41 @@ static void onDanmakuReceived(const std::string& msg) {
     }
 
     std::vector<LiveDanmakuItem> danmaku_list;
+    std::vector<LiveDanmakuItem> sc_list;
 
     for (const auto& live_msg : extract_messages(messages)) {
-        if (live_msg.type == danmaku) {
-            if (!live_msg.ptr) continue;
-            danmaku_list.emplace_back(LiveDanmakuItem((danmaku_t*)live_msg.ptr));
-            // free(live_msg.ptr);
-        } else if (live_msg.type == watched_change) {
-            //TODO: 更新在线人数
-            free(live_msg.ptr);
+        if (!live_msg) continue;
+        
+        if (live_msg->type == MessageType::DANMAKU) {
+            auto* danmaku_msg = dynamic_cast<message::LiveDanmaku*>(live_msg.get());
+            if (!danmaku_msg || !danmaku_msg->data) continue;
+            
+            danmaku_list.emplace_back(LiveDanmakuItem(danmaku_msg->data));
+        } else if (live_msg->type == MessageType::WATCHED_CHANGE) {
+            // TODO: 更新在线人数
+            // auto* watched_msg = dynamic_cast<message::LiveWatchedChange*>(live_msg.get());
+            // if (watched_msg && watched_msg->data) {
+            //     // 更新在线人数
+            // }
+        } else if (live_msg->type == MessageType::SUPER_CHAT) {
+            auto* sc_msg = dynamic_cast<message::LiveSuperChat*>(live_msg.get());
+            if (!sc_msg || !sc_msg->data) continue;
+            
+            sc_list.emplace_back(LiveDanmakuItem(sc_msg->data));
         }
     }
     
     // 处理弹幕到视频
     process_danmaku(danmaku_list);
     
-    // 处理弹幕到侧边栏
+    // 处理弹幕到侧边栏（包括普通弹幕和SC）
+    // 使用shared_ptr安全地获取活动对象
     if (g_liveActivity) {
         g_liveActivity->processDanmakuForSidebar(danmaku_list);
+        // 处理SC消息到侧边栏
+        if (!sc_list.empty()) {
+            g_liveActivity->processSuperChatForSidebar(sc_list);
+        }
     }
 }
 
@@ -182,6 +199,10 @@ void LiveActivity::setVideoQuality() {
 
 void LiveActivity::onContentAvailable()
 {   
+    // 设置全局指针，以便静态回调函数能安全地访问到实例
+    // 这里是多余的，但保留它以增强安全性
+    g_liveActivity = this;
+    
     // 设置全屏按钮图标
     this->video->setFullscreenIcon(this->video->isFullscreen());
 
@@ -252,7 +273,7 @@ void LiveActivity::onContentAvailable()
     // 根据房间号重新获取高清播放链接
     this->requestData(liveData.roomid);
 
-    // 连接直播弹幕
+    // 连接直播弹幕 - 确保g_liveActivity在此之前已初始化
     this->requestLiveDanmakuToken(this->liveData.roomid);
 
     // 获取直播间是否为大航海专属直播
@@ -342,30 +363,45 @@ void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& in
     // 获取表情包URL列表
     brls::Logger::debug("LiveActivity: 开始获取表情包URL列表...");
     
+    // 创建当前对象的指针副本
+    LiveActivity* self = g_liveActivity;
+    if (!self) {
+        brls::Logger::error("LiveActivity: onDanmakuInfo失败: 全局指针无效");
+        return;
+    }
+    
+    // 复制房间ID和弹幕信息，确保它们在线程中可用
+    int room_id_copy = roomid;
+    bilibili::LiveDanmakuinfo info_copy = info;
+    
     // 创建一个线程来获取表情包URL，避免阻塞主线程
-    std::thread([this, roomid, info]() {
+    std::thread([self, room_id_copy, info_copy]() {
         try {
-            // 检查活动是否仍然存在
-            if (!g_liveActivity || g_liveActivity != this) return;
+            // 再次检查对象是否有效（防止在线程启动后对象被销毁）
+            if (!self || self != g_liveActivity) {
+                brls::Logger::debug("LiveActivity: 线程中断: 对象已被销毁");
+                return;
+            }
             
-            *g_liveActivity->emoticons = dl_emoticon(roomid);
-            brls::Logger::debug("LiveActivity: 获取了 {} 个表情包URL", g_liveActivity->emoticons->size());
-            
-            // 再次检查活动是否仍然存在
-            if (!g_liveActivity || g_liveActivity != this) return;
+            // 在线程中安全地访问表情包映射
+            *(self->emoticons) = dl_emoticon(room_id_copy);
+            brls::Logger::debug("LiveActivity: 获取了 {} 个表情包URL", self->emoticons->size());
             
             // 将表情包映射传递给LiveDanmakuCore
-            LiveDanmakuCore::instance().setEmoticons(g_liveActivity->emoticons);
+            LiveDanmakuCore::instance().setEmoticons(self->emoticons);
+            
+            // 再次检查对象是否有效
+            if (!self || self != g_liveActivity) {
+                brls::Logger::debug("LiveActivity: 线程中断: 对象已被销毁");
+                return;
+            }
+            
+            // 获取表情包URL后连接弹幕服务器
+            self->danmaku.setonMessage(onDanmakuReceived);
+            self->danmaku.connect(room_id_copy, std::stoll(ProgramConfig::instance().getUserID()), info_copy);
         } catch (const std::exception& e) {
             brls::Logger::error("LiveActivity: 获取表情包URL失败: {}", e.what());
         }
-
-        // 在连接前最后检查一次活动状态
-        if (!g_liveActivity || g_liveActivity != this) return;
-        
-        // 获取表情包URL后连接弹幕服务器
-        danmaku.setonMessage(onDanmakuReceived);
-        danmaku.connect(roomid, std::stoll(ProgramConfig::instance().getUserID()), info);
     }).detach();
 }
 
@@ -437,9 +473,19 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
             auto* item = LiveDanmakuItemView::create();
             item->setDanmaku(danmaku);
             
-            // 将新弹幕添加到顶部
+            // 将新弹幕添加到顶部（但在置顶SC之下）
             if (this->liveDanmakuContainer->getChildren().size() > 0) {
-                this->liveDanmakuContainer->addView(item, 0);
+                // 查找合适的插入位置：在所有置顶SC之后
+                int insertPos = 0;
+                for (size_t i = 0; i < this->liveDanmakuContainer->getChildren().size(); i++) {
+                    auto* existingItem = dynamic_cast<LiveDanmakuItemView*>(this->liveDanmakuContainer->getChildren()[i]);
+                    if (existingItem && existingItem->isPinned()) {
+                        insertPos++;
+                    } else {
+                        break;
+                    }
+                }
+                this->liveDanmakuContainer->addView(item, insertPos);
             } else {
                 this->liveDanmakuContainer->addView(item);
             }
@@ -447,29 +493,233 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
             // 控制侧边栏最多显示100条弹幕
             if (this->liveDanmakuContainer->getChildren().size() > 100) {
                 auto& children = this->liveDanmakuContainer->getChildren();
-                this->liveDanmakuContainer->removeView(children[children.size() - 1]);
+                
+                // 从末尾开始查找非置顶的项目删除
+                for (int i = children.size() - 1; i >= 0; i--) {
+                    auto* danmakuItem = dynamic_cast<LiveDanmakuItemView*>(children[i]);
+                    if (danmakuItem && !danmakuItem->isPinned()) {
+                        this->liveDanmakuContainer->removeView(children[i]);
+                        break;
+                    }
+                }
+                
+                // 如果所有项都是置顶状态，则先不删除
+                // 当置顶项过期后会自动处理
             }
         }
     });
 }
 
+void LiveActivity::processSuperChatForSidebar(const std::vector<LiveDanmakuItem>& sc_list) {
+    // 确保UI更新在主线程进行
+    brls::sync([this, sc_list]() {
+        for (const auto& sc : sc_list) {
+            auto* item = LiveDanmakuItemView::create();
+            item->setDanmaku(sc);
+            
+            // 将新SC添加到侧边栏顶部
+            if (this->liveDanmakuContainer->getChildren().size() > 0) {
+                this->liveDanmakuContainer->addView(item, 0);
+            } else {
+                this->liveDanmakuContainer->addView(item);
+            }
+            
+            // 设置SC置顶（如果持续时间大于0）
+            if (sc.super_chat && sc.super_chat->time > 0) {
+                // 添加到置顶SC管理中
+                this->addPinnedSuperChat(sc);
+                
+                // 设置视图项为置顶状态
+                item->setPinned(true);
+                
+                // 保存视图项引用
+                if (sc.super_chat->user_uid > 0) {
+                    this->pinnedSuperChatViews[sc.super_chat->user_uid] = item;
+                }
+            }
+            
+            // 控制侧边栏最多显示100条弹幕
+            if (this->liveDanmakuContainer->getChildren().size() > 100) {
+                auto& children = this->liveDanmakuContainer->getChildren();
+                
+                // 从末尾开始查找非置顶的项目删除
+                for (int i = children.size() - 1; i >= 0; i--) {
+                    auto* danmakuItem = dynamic_cast<LiveDanmakuItemView*>(children[i]);
+                    if (danmakuItem && !danmakuItem->isPinned()) {
+                        this->liveDanmakuContainer->removeView(children[i]);
+                        break;
+                    }
+                }
+                
+                // 如果所有项都是置顶状态，则删除最后一个（最旧的）
+                if (this->liveDanmakuContainer->getChildren().size() > 100) {
+                    auto& updatedChildren = this->liveDanmakuContainer->getChildren();
+                    this->liveDanmakuContainer->removeView(updatedChildren[updatedChildren.size() - 1]);
+                }
+            }
+        }
+        
+        // 启动SC过期检查定时器（如果尚未启动）
+        if (this->pinnedSuperChats.size() > 0 && this->scExpiryCheckIter == 0) {
+            this->startSuperChatExpiryTimer();
+        }
+    });
+}
+
+// 添加SC置顶
+void LiveActivity::addPinnedSuperChat(const LiveDanmakuItem& sc) {
+    // 确保是SC消息
+    if (sc.type != LiveDanmakuItem::Type::SUPER_CHAT || !sc.super_chat) {
+        return;
+    }
+    
+    // 获取SC ID（用户UID）
+    int scId = sc.super_chat->user_uid;
+    
+    // 必须有有效的ID
+    if (scId <= 0) {
+        return;
+    }
+    
+    // 计算过期时间
+    auto now = std::chrono::system_clock::now();
+    std::chrono::time_point<std::chrono::system_clock> expiryTime;
+    
+    // 如果提供了end_time字段且有效，直接使用
+    if (sc.super_chat->end_time > 0) {
+        // 使用end_time作为过期时间点
+        auto end_time_point = std::chrono::system_clock::from_time_t(sc.super_chat->end_time);
+        expiryTime = end_time_point;
+        brls::Logger::debug("LiveActivity: 使用SC提供的结束时间戳: {}", sc.super_chat->end_time);
+    } else {
+        // 使用当前时间加上持续时间
+        expiryTime = now + std::chrono::seconds(sc.super_chat->time);
+        brls::Logger::debug("LiveActivity: 使用SC持续时间计算过期时间: {}秒", sc.super_chat->time);
+    }
+    
+    // 添加到置顶管理
+    this->pinnedSuperChats[scId] = expiryTime;
+    
+    brls::Logger::debug("LiveActivity: 添加置顶SC: ID={}, 持续时间={}秒", scId, sc.super_chat->time);
+}
+
+// 移除SC置顶
+void LiveActivity::removePinnedSuperChat(int sc_id) {
+    // 查找SC视图项
+    auto viewIt = this->pinnedSuperChatViews.find(sc_id);
+    if (viewIt != this->pinnedSuperChatViews.end() && viewIt->second) {
+        // 直接从界面中移除视图项（不需要先取消置顶状态和重新定位）
+        brls::View* view = viewIt->second;
+        auto& children = this->liveDanmakuContainer->getChildren();
+        
+        // 找到当前视图位置
+        int currentIndex = -1;
+        for (size_t i = 0; i < children.size(); i++) {
+            if (children[i] == view) {
+                currentIndex = i;
+                break;
+            }
+        }
+        
+        // 如果找到了，直接删除
+        if (currentIndex >= 0) {
+            this->liveDanmakuContainer->removeView(view);
+        }
+        
+        // 从视图项映射中移除
+        this->pinnedSuperChatViews.erase(sc_id);
+    }
+    
+    // 从置顶管理中移除
+    this->pinnedSuperChats.erase(sc_id);
+    
+    brls::Logger::debug("LiveActivity: 移除置顶SC: ID={}", sc_id);
+    
+    // 如果没有置顶SC了，取消定时器
+    if (this->pinnedSuperChats.empty()) {
+        brls::cancelDelay(this->scExpiryCheckIter);
+        this->scExpiryCheckIter = 0;
+    }
+}
+
+// 检查SC是否置顶
+bool LiveActivity::isPinnedSuperChat(int sc_id) const {
+    return this->pinnedSuperChats.find(sc_id) != this->pinnedSuperChats.end();
+}
+
+// 启动SC过期检查定时器
+void LiveActivity::startSuperChatExpiryTimer() {
+    // 取消已有的定时器
+    brls::cancelDelay(this->scExpiryCheckIter);
+    
+    // 启动新的定时器，每秒检查一次
+    ASYNC_RETAIN
+    this->scExpiryCheckIter = brls::delay(1000, [ASYNC_TOKEN]() {
+        ASYNC_RELEASE
+        this->checkPinnedSuperChatExpiry();
+    });
+}
+
+// 定时器回调，检查SC过期
+void LiveActivity::checkPinnedSuperChatExpiry() {
+    auto now = std::chrono::system_clock::now();
+    std::vector<int> expiredScIds;
+    
+    // 查找已过期的SC
+    for (const auto& [scId, expiryTime] : this->pinnedSuperChats) {
+        if (now >= expiryTime) {
+            expiredScIds.push_back(scId);
+        }
+    }
+    
+    // 移除已过期的SC
+    for (int scId : expiredScIds) {
+        this->removePinnedSuperChat(scId);
+    }
+    
+    // 如果还有置顶SC，继续检查
+    if (!this->pinnedSuperChats.empty()) {
+        this->startSuperChatExpiryTimer();
+    }
+}
+
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
+    
+    // 先重置全局共享指针，防止后续回调继续使用
+    if (g_liveActivity == this) {
+        g_liveActivity = nullptr;
+    }
+    
+    // 断开直播弹幕连接
     danmaku.disconnect();
+    
     // 取消监控mpv
     APP_E->unsubscribe(event_id);
     MPV_E->unsubscribe(tl_event_id);
+    
     // 在取消监控之后再停止播放器，避免在播放器停止时触发事件 (尤其是：END_OF_FILE)
     this->video->stop();
+    
+    // 重置直播弹幕核心
     LiveDanmakuCore::instance().reset();
+    
+    // 取消延时任务
     brls::cancelDelay(toggleDelayIter);
     brls::cancelDelay(errorDelayIter);
+    brls::cancelDelay(scExpiryCheckIter);
     
     // 清空表情包数据
     this->emoticons->clear();
     
-    // 清空全局指针
-    g_liveActivity = nullptr;
+    // 清空置顶SC数据
+    this->pinnedSuperChats.clear();
+    this->pinnedSuperChatViews.clear();
+    
+    // 析构时已不需要清空全局指针，因为在函数开头已经处理
+    // g_liveActivity = nullptr;
+    
+    brls::Logger::debug("LiveActivity: delete completed");
 }
 
 // 添加onAnchorInfo实现
