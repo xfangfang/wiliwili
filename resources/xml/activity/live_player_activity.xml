@@ -85,9 +85,10 @@
         <!--右侧弹幕侧边栏-->
         <brls:Box
                 id="live_danmaku_sidebar"
-                width="220"
+                width="240"
                 height="auto"
                 axis="column"
+                marginRight="10"
                 grow="1">
             
             <brls:Header
@@ -103,6 +104,7 @@
                         id="live_danmaku_container"
                         width="100%"
                         height="auto"
+                        paddingRight="5"
                         axis="column">
                     <!-- 弹幕内容将动态添加到这里 -->
                 </brls:Box>
