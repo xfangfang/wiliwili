@@ -26,6 +26,9 @@ LiveDanmakuItemView::LiveDanmakuItemView() {
 }
 
 void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
+    // 重置item背景颜色为默认透明
+    this->setBackgroundColor(nvgRGBA(0, 0, 0, 0));
+    
     // 设置用户名
     this->usernameLabel->setText(danmaku.danmaku->user_name ? danmaku.danmaku->user_name : "用户");
     
@@ -76,6 +79,104 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
             default:
                 this->levelBox->setBackgroundColor(nvgRGBA(255, 102, 153, 255));
         }
+    }
+    
+    // 处理粉丝牌子
+    if (danmaku.danmaku->fan_medal_name && danmaku.danmaku->fan_medal_level > 0) {
+        // 设置粉丝牌子文本（名称+等级）
+        this->fanMedalLabel->setText(std::string(danmaku.danmaku->fan_medal_name) + std::to_string(danmaku.danmaku->fan_medal_level));
+        
+        // 设置粉丝牌子颜色
+        NVGcolor medalColor;
+        // 使用牌子的开始颜色作为背景色
+        if (danmaku.danmaku->fan_medal_start_color != 0) {
+            // 解析RGB颜色（假设fan_medal_start_color是RGB格式的十进制值）
+            int r = (danmaku.danmaku->fan_medal_start_color >> 16) & 0xFF;
+            int g = (danmaku.danmaku->fan_medal_start_color >> 8) & 0xFF;
+            int b = danmaku.danmaku->fan_medal_start_color & 0xFF;
+            medalColor = nvgRGBA(r, g, b, 255);
+        } else {
+            // 默认颜色
+            medalColor = nvgRGBA(136, 136, 136, 255);
+        }
+        this->fanMedalBox->setBackgroundColor(medalColor);
+        this->fanMedalBox->setVisibility(brls::Visibility::VISIBLE);
+    } else {
+        // 没有粉丝牌子，隐藏
+        this->fanMedalBox->setVisibility(brls::Visibility::GONE);
+    }
+    
+    // 处理房管标识
+    if (danmaku.danmaku->is_guard) {
+        this->adminLabel->setText("房管");
+        this->adminBox->setVisibility(brls::Visibility::VISIBLE);
+        
+        // 为房管的弹幕项添加橙色背景（30%透明度）
+        NVGcolor adminColor = nvgRGBA(255, 153, 0, 255); // 橙色
+        this->setBackgroundColor(nvgRGBA(
+            adminColor.r * 255,
+            adminColor.g * 255,
+            adminColor.b * 255,
+            76  // 255 * 0.3 = 76.5
+        ));
+    } else {
+        this->adminBox->setVisibility(brls::Visibility::GONE);
+    }
+    
+    // 处理VIP标识（舰长、提督、总督）
+    if (danmaku.danmaku->user_vip_level > 0 && danmaku.danmaku->user_vip_level <= 3) {
+        std::string vipText;
+        NVGcolor vipColor;
+        
+        // 使用粉丝牌子的font_color作为VIP标识的背景色
+        int fontColor = danmaku.danmaku->fan_medal_font_color;
+        if (fontColor != 0) {
+            // 解析RGB颜色
+            int r = (fontColor >> 16) & 0xFF;
+            int g = (fontColor >> 8) & 0xFF;
+            int b = fontColor & 0xFF;
+            vipColor = nvgRGBA(r, g, b, 255);
+        } else {
+            // 没有粉丝牌子颜色时，使用默认VIP颜色
+            switch (danmaku.danmaku->user_vip_level) {
+                case 3:
+                    vipColor = nvgRGBA(92, 179, 239, 255); // 蓝色 - 舰长
+                    break;
+                case 2:
+                    vipColor = nvgRGBA(172, 117, 243, 255); // 紫色 - 提督
+                    break;
+                case 1:
+                    vipColor = nvgRGBA(255, 102, 102, 255); // 红色 - 总督
+                    break;
+                default:
+                    vipColor = nvgRGBA(92, 179, 239, 255); // 默认蓝色
+            }
+        }
+        
+        switch (danmaku.danmaku->user_vip_level) {
+            case 3: vipText = "舰长"; break;
+            case 2: vipText = "提督"; break;
+            case 1: vipText = "总督"; break;
+            default: vipText = "舰长";
+        }
+        
+        this->vipLabel->setText(vipText);
+        this->vipBox->setBackgroundColor(vipColor);
+        this->vipBox->setVisibility(brls::Visibility::VISIBLE);
+        
+        // 只有在不是房管的情况下才设置VIP的背景颜色
+        // 这样确保房管的橙色背景优先级高于VIP
+        if (!danmaku.danmaku->is_guard) {
+            // 设置整个item的背景颜色为VIP标识颜色的30%透明度
+            this->setBackgroundColor(nvgRGBA(
+                vipColor.r * 255,
+                vipColor.g * 255,
+                vipColor.b * 255,
+                76  // 255 * 0.3 = 76.5
+            ));
+        }
+    } else {
+        this->vipBox->setVisibility(brls::Visibility::GONE);
     }
     
     // 设置弹幕内容 - 检查是否含有表情

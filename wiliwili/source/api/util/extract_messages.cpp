@@ -86,6 +86,99 @@ std::vector<live_t> extract_messages(const std::vector<std::string> &messages) {
 
         if (it == json_message.end()) continue;
 
+        if (it->get_ref<std::string &>() == "SUPER_CHAT_MESSAGE" || it->get_ref<std::string &>() == "SUPER_CHAT_MESSAGE_JPN") {
+            if (!json_message.contains("data")) continue;
+            auto &data = json_message["data"];
+
+            super_chat_t *sc = super_chat_t_init();
+            if (!sc) {
+                continue;
+            }
+
+            // 获取消息内容
+            if (data.contains("message") && data["message"].is_string()) {
+                sc->message = to_cstr(data["message"].get_ref<const std::string &>());
+            }
+
+            // 获取消息字体颜色
+            if (data.contains("message_font_color") && data["message_font_color"].is_string()) {
+                sc->message_font_color = to_cstr(data["message_font_color"].get_ref<const std::string &>());
+            }
+
+            // 获取背景颜色
+            if (data.contains("background_color") && data["background_color"].is_string()) {
+                sc->background_color = to_cstr(data["background_color"].get_ref<const std::string &>());
+            }
+            
+            // 获取背景渐变色（开始）
+            if (data.contains("background_color_start") && data["background_color_start"].is_string()) {
+                sc->background_color_start = to_cstr(data["background_color_start"].get_ref<const std::string &>());
+            }
+            
+            // 获取背景渐变色（结束）
+            if (data.contains("background_color_end") && data["background_color_end"].is_string()) {
+                sc->background_color_end = to_cstr(data["background_color_end"].get_ref<const std::string &>());
+            }
+
+            // 获取金额
+            if (data.contains("price") && data["price"].is_number()) {
+                sc->price = data["price"].get<int>();
+            }
+
+            // 获取持续时间
+            if (data.contains("time") && data["time"].is_number()) {
+                sc->time = data["time"].get<int>();
+            }
+
+            // 获取用户信息
+            if (data.contains("user_info")) {
+                auto &user_info = data["user_info"];
+                
+                // 用户名
+                if (user_info.contains("uname") && user_info["uname"].is_string()) {
+                    sc->user_name = to_cstr(user_info["uname"].get_ref<const std::string &>());
+                }
+                
+                // 用户头像
+                if (user_info.contains("face") && user_info["face"].is_string()) {
+                    sc->user_face = to_cstr(user_info["face"].get_ref<const std::string &>());
+                }
+                
+                // 大航海等级
+                if (user_info.contains("guard_level") && user_info["guard_level"].is_number()) {
+                    sc->guard_level = user_info["guard_level"].get<int>();
+                }
+            }
+
+            // 获取UID
+            if (data.contains("uid") && data["uid"].is_number()) {
+                sc->user_uid = data["uid"].get<int>();
+            }
+
+            // 获取粉丝牌信息
+            if (data.contains("medal_info")) {
+                auto &medal_info = data["medal_info"];
+                
+                // 粉丝牌名称
+                if (medal_info.contains("medal_name") && medal_info["medal_name"].is_string()) {
+                    sc->fan_medal_name = to_cstr(medal_info["medal_name"].get_ref<const std::string &>());
+                }
+                
+                // 粉丝牌等级
+                if (medal_info.contains("medal_level") && medal_info["medal_level"].is_number()) {
+                    sc->fan_medal_level = medal_info["medal_level"].get<int>();
+                }
+                
+                // 粉丝牌主播名称
+                if (medal_info.contains("anchor_uname") && medal_info["anchor_uname"].is_string()) {
+                    sc->fan_medal_liveuser_name = to_cstr(medal_info["anchor_uname"].get_ref<const std::string &>());
+                }
+            }
+
+            live_messages.emplace_back(live_t{super_chat, sc});
+            continue;
+        }
+
         if (it->get_ref<std::string &>() == "WATCHED_CHANGE") {
             if (json_message["data"]["num"].is_number()) continue;
 
@@ -171,4 +264,52 @@ std::vector<live_t> extract_messages(const std::vector<std::string> &messages) {
         }
     }
     return live_messages;
+}
+
+super_chat_t *super_chat_t_init() {
+    super_chat_t *ret          = (super_chat_t *)malloc(sizeof(super_chat_t));
+    ret->user_name             = nullptr;
+    ret->user_face             = nullptr;
+    ret->message               = nullptr;
+    ret->message_font_color    = nullptr;
+    ret->background_color      = nullptr;
+    ret->background_color_start = nullptr;
+    ret->background_color_end  = nullptr;
+    ret->fan_medal_name        = nullptr;
+    ret->fan_medal_liveuser_name = nullptr;
+    ret->user_uid              = 0;
+    ret->price                 = 0;
+    ret->time                  = 0;
+    ret->fan_medal_level       = 0;
+    ret->guard_level           = 0;
+    return ret;
+}
+
+super_chat_t *super_chat_t_copy(const super_chat_t *p) {
+    if (!p) return nullptr;
+    super_chat_t *ret = (super_chat_t *)malloc(sizeof(super_chat_t));
+    if (!ret) return nullptr;
+    memcpy(ret, p, sizeof(super_chat_t));
+    ret->user_name             = strdup_s(p->user_name);
+    ret->user_face             = strdup_s(p->user_face);
+    ret->message               = strdup_s(p->message);
+    ret->message_font_color    = strdup_s(p->message_font_color);
+    ret->background_color      = strdup_s(p->background_color);
+    ret->background_color_start = strdup_s(p->background_color_start);
+    ret->background_color_end  = strdup_s(p->background_color_end);
+    ret->fan_medal_name        = strdup_s(p->fan_medal_name);
+    ret->fan_medal_liveuser_name = strdup_s(p->fan_medal_liveuser_name);
+    return ret;
+}
+
+void super_chat_t_free(const super_chat_t *p) {
+    free(p->user_name);
+    free(p->user_face);
+    free(p->message);
+    free(p->message_font_color);
+    free(p->background_color);
+    free(p->background_color_start);
+    free(p->background_color_end);
+    free(p->fan_medal_name);
+    free(p->fan_medal_liveuser_name);
 }

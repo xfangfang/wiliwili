@@ -36,6 +36,66 @@
                         text="UL1"/>
             </brls:Box>
             
+            <!-- 粉丝牌子 -->
+            <brls:Box
+                    id="danmaku_fan_medal"
+                    width="auto"
+                    height="18"
+                    backgroundColor="#888888"
+                    cornerRadius="4"
+                    alignItems="center"
+                    justifyContent="center"
+                    paddingLeft="4"
+                    paddingRight="4"
+                    marginLeft="4"
+                    visibility="gone">
+                <brls:Label
+                        id="danmaku_fan_medal_text"
+                        fontSize="10"
+                        textColor="#FFFFFF"
+                        text="牌子1"/>
+            </brls:Box>
+            
+            <!-- 房管标识 -->
+            <brls:Box
+                    id="danmaku_admin"
+                    width="auto"
+                    height="18"
+                    backgroundColor="#FF9900"
+                    cornerRadius="4"
+                    alignItems="center"
+                    justifyContent="center"
+                    paddingLeft="4"
+                    paddingRight="4"
+                    marginLeft="4"
+                    visibility="gone">
+                <brls:Label
+                        id="danmaku_admin_text"
+                        fontSize="10"
+                        textColor="#FFFFFF"
+                        text="房管"/>
+            </brls:Box>
+            
+            <!-- VIP标识 -->
+            <brls:Box
+                    id="danmaku_vip"
+                    width="auto"
+                    height="18"
+                    backgroundColor="#E22882"
+                    cornerRadius="4"
+                    alignItems="center"
+                    justifyContent="center"
+                    paddingLeft="4"
+                    paddingRight="4"
+                    marginLeft="4"
+                    visibility="gone">
+                <brls:Label
+                        id="danmaku_vip_text"
+                        fontSize="10"
+                        textColor="#FFFFFF"
+                        text="舰长"/>
+            </brls:Box>
+            
             <brls:Label
                     id="danmaku_username"
                     marginLeft="6"

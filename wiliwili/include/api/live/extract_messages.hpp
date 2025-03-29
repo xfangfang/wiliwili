@@ -25,7 +25,6 @@ typedef enum {
 
 typedef struct {
     //b站会直接传3个值{"num":23592,"text_large":"2.3万人看过","text_small":"2.3万"}
-    //真的浪费
     int num;
 } watched_change_t;
 
@@ -42,9 +41,7 @@ typedef struct {
     //暂时先写这俩
 } online_v2_t;
 
-//弹幕类型，内容太多，暂时写这么多
-//
-//很多重复内容，感觉不是同一批人写的，或者可能b站想换协议，
+//弹幕类型
 typedef struct {
     //用户名字
     char* user_name;
@@ -98,10 +95,40 @@ danmaku_t* danmaku_t_copy(const danmaku_t* p);
 void danmaku_t_free(const danmaku_t* p);
 
 typedef struct {
-    //todo
+    // 用户名
+    char* user_name;
+    // 用户头像URL
+    char* user_face;
+    // SC消息内容
+    char* message;
+    // SC消息字体颜色
+    char* message_font_color;
+    // SC背景颜色
+    char* background_color;
+    // SC背景颜色(开始)
+    char* background_color_start;
+    // SC背景颜色(结束)
+    char* background_color_end;
+    // 粉丝牌名字
+    char* fan_medal_name;
+    // 粉丝牌对应主播名字
+    char* fan_medal_liveuser_name;
+    // 用户UID
+    int user_uid;
+    // SC价格(金额)
+    int price;
+    // SC持续时间(秒)
+    int time;
+    // 粉丝牌等级
+    uint8_t fan_medal_level;
+    // 大航海等级
+    uint8_t guard_level;
 } super_chat_t;
 
-//这里b站的接口命名更混乱，感觉b站后面会逐步换掉
+super_chat_t* super_chat_t_init();
+super_chat_t* super_chat_t_copy(const super_chat_t* p);
+void super_chat_t_free(const super_chat_t* p);
+
 typedef struct {
     //用户名字
     char* user_name;

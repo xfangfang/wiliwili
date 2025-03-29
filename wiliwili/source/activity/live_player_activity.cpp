@@ -345,14 +345,23 @@ void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& in
     // 创建一个线程来获取表情包URL，避免阻塞主线程
     std::thread([this, roomid, info]() {
         try {
-            *this->emoticons = dl_emoticon(roomid);
-            brls::Logger::debug("LiveActivity: 获取了 {} 个表情包URL", this->emoticons->size());
+            // 检查活动是否仍然存在
+            if (!g_liveActivity || g_liveActivity != this) return;
+            
+            *g_liveActivity->emoticons = dl_emoticon(roomid);
+            brls::Logger::debug("LiveActivity: 获取了 {} 个表情包URL", g_liveActivity->emoticons->size());
+            
+            // 再次检查活动是否仍然存在
+            if (!g_liveActivity || g_liveActivity != this) return;
             
             // 将表情包映射传递给LiveDanmakuCore
-            LiveDanmakuCore::instance().setEmoticons(this->emoticons);
+            LiveDanmakuCore::instance().setEmoticons(g_liveActivity->emoticons);
         } catch (const std::exception& e) {
             brls::Logger::error("LiveActivity: 获取表情包URL失败: {}", e.what());
         }
+
+        // 在连接前最后检查一次活动状态
+        if (!g_liveActivity || g_liveActivity != this) return;
         
         // 获取表情包URL后连接弹幕服务器
         danmaku.setonMessage(onDanmakuReceived);

@@ -22,6 +22,14 @@ private:
     BRLS_BIND(brls::Label, levelLabel, "danmaku_level_text");
     BRLS_BIND(brls::Box, levelBox, "danmaku_user_level");
     
+    // 新增绑定
+    BRLS_BIND(brls::Box, fanMedalBox, "danmaku_fan_medal");
+    BRLS_BIND(brls::Label, fanMedalLabel, "danmaku_fan_medal_text");
+    BRLS_BIND(brls::Box, adminBox, "danmaku_admin");
+    BRLS_BIND(brls::Label, adminLabel, "danmaku_admin_text");
+    BRLS_BIND(brls::Box, vipBox, "danmaku_vip");
+    BRLS_BIND(brls::Label, vipLabel, "danmaku_vip_text");
+    
     // 用于显示富文本内容的TextBox
     TextBox* contentBox = nullptr;
 }; 
