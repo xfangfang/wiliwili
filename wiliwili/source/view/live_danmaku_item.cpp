@@ -35,9 +35,6 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
     if (danmaku.type == LiveDanmakuItem::Type::SUPER_CHAT) {
         // 处理超级留言
         
-        // 保存SC ID (用户UID)
-        this->scId = danmaku.super_chat->user_uid;
-        
         // 设置用户名
         this->usernameLabel->setText(!danmaku.super_chat->user_name.empty() ? danmaku.super_chat->user_name : "用户");
         
@@ -139,9 +136,6 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
     
     // 以下是普通弹幕的处理逻辑
     
-    // 清空SC ID
-    this->scId = 0;
-    
     // 设置用户名
     this->usernameLabel->setText(!danmaku.danmaku->user_name.empty() ? danmaku.danmaku->user_name : "用户");
     
@@ -154,50 +148,32 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
     
     // 首先根据用户等级设置不同的颜色
     int level = danmaku.danmaku->user_level;
-    NVGcolor levelColor;
-    
-    if (level >= 0 && level <= 60) {
-        // 根据等级设置不同的颜色
-        if (level >= 0 && level <= 5) {
-            // 新手色 - 浅绿色
-            levelColor = nvgRGBA(137, 207, 127, 255);
-        } else if (level <= 10) {
-            // 初级色 - 绿色
-            levelColor = nvgRGBA(95, 179, 86, 255);
-        } else if (level <= 20) {
-            // 中级色 - 蓝色
-            levelColor = nvgRGBA(92, 179, 239, 255);
-        } else if (level <= 30) {
-            // 高级色 - 紫色
-            levelColor = nvgRGBA(172, 117, 243, 255);
-        } else if (level <= 40) {
-            // 资深色 - 橙色
-            levelColor = nvgRGBA(255, 163, 72, 255);
-        } else if (level <= 50) {
-            // 专家色 - 红色
-            levelColor = nvgRGBA(255, 102, 102, 255);
-        } else {
-            // 大神色 - 金色
-            levelColor = nvgRGBA(255, 215, 0, 255);
-        }
-        this->levelBox->setBackgroundColor(levelColor);
-    } else {
-        // 根据弹幕类型设置不同的背景色（保留原有的逻辑）
-        switch (danmaku.danmaku->dan_type) {
-            case 0:  // 普通
-                this->levelBox->setBackgroundColor(nvgRGBA(255, 102, 153, 255));
-                break;
-            case 1:  // 系统
-                this->levelBox->setBackgroundColor(nvgRGBA(254, 153, 0, 255));
-                break;
-            case 2:  // 礼物
-                this->levelBox->setBackgroundColor(nvgRGBA(102, 204, 51, 255));
-                break;
-            default:
-                this->levelBox->setBackgroundColor(nvgRGBA(255, 102, 153, 255));
-        }
+    NVGcolor levelColor = nvgRGBA(92, 179, 239, 255);
+
+    if (level >= 0 && level <= 5) {
+        // 新手色 - 浅绿色
+        levelColor = nvgRGBA(137, 207, 127, 255);
+    } else if (level <= 10) {
+        // 初级色 - 绿色
+        levelColor = nvgRGBA(95, 179, 86, 255);
+    } else if (level <= 20) {
+        // 中级色 - 蓝色
+        levelColor = nvgRGBA(92, 179, 239, 255);
+    } else if (level <= 30) {
+        // 高级色 - 紫色
+        levelColor = nvgRGBA(172, 117, 243, 255);
+    } else if (level <= 40) {
+        // 资深色 - 橙色
+        levelColor = nvgRGBA(255, 163, 72, 255);
+    } else if (level <= 50) {
+        // 专家色 - 红色
+        levelColor = nvgRGBA(255, 102, 102, 255);
+    } else if (level <= 60) {
+        // 大神色 - 金色
+        levelColor = nvgRGBA(255, 215, 0, 255);
     }
-    
+    this->levelBox->setBackgroundColor(levelColor);
+
     // 处理粉丝牌子
     if (!danmaku.danmaku->fan_medal_name.empty() && danmaku.danmaku->fan_medal_level > 0) {
         // 设置粉丝牌子文本（名称+等级）
@@ -207,14 +183,14 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
         NVGcolor medalColor;
         // 使用牌子的开始颜色作为背景色
         if (danmaku.danmaku->fan_medal_start_color != 0) {
-            // 解析RGB颜色（假设fan_medal_start_color是RGB格式的十进制值）
+            // 解析RGB颜色
             int r = (danmaku.danmaku->fan_medal_start_color >> 16) & 0xFF;
             int g = (danmaku.danmaku->fan_medal_start_color >> 8) & 0xFF;
             int b = danmaku.danmaku->fan_medal_start_color & 0xFF;
             medalColor = nvgRGBA(r, g, b, 255);
         } else {
             // 默认颜色
-            medalColor = nvgRGBA(136, 136, 136, 255);
+            medalColor = levelColor;
         }
         this->fanMedalBox->setBackgroundColor(medalColor);
         this->fanMedalBox->setVisibility(brls::Visibility::VISIBLE);
@@ -229,8 +205,7 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
         this->adminBox->setVisibility(brls::Visibility::VISIBLE);
         
         // 为房管的弹幕项添加橙色背景（30%透明度）
-        // 直接使用RGB值，不需要乘以255
-        this->setBackgroundColor(nvgRGBA(255, 153, 0, 76)); // 橙色，30%透明度
+        this->setBackgroundColor(nvgRGBA(255, 153, 0, 76));
     } else {
         this->adminBox->setVisibility(brls::Visibility::GONE);
     }
@@ -240,29 +215,18 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
         std::string vipText;
         NVGcolor vipColor;
         
-        // 使用粉丝牌子的font_color作为VIP标识的背景色
-        int fontColor = danmaku.danmaku->fan_medal_font_color;
-        if (fontColor != 0) {
-            // 解析RGB颜色
-            int r = (fontColor >> 16) & 0xFF;
-            int g = (fontColor >> 8) & 0xFF;
-            int b = fontColor & 0xFF;
-            vipColor = nvgRGBA(r, g, b, 255);
-        } else {
-            // 没有粉丝牌子颜色时，使用默认VIP颜色
-            switch (danmaku.danmaku->user_vip_level) {
-                case 3:
-                    vipColor = nvgRGBA(92, 179, 239, 255); // 蓝色 - 舰长
-                    break;
-                case 2:
-                    vipColor = nvgRGBA(172, 117, 243, 255); // 紫色 - 提督
-                    break;
-                case 1:
-                    vipColor = nvgRGBA(255, 102, 102, 255); // 红色 - 总督
-                    break;
-                default:
-                    vipColor = nvgRGBA(92, 179, 239, 255); // 默认蓝色
-            }
+        switch (danmaku.danmaku->user_vip_level) {
+            case 3:
+                vipColor = nvgRGBA(92, 179, 239, 255); // 蓝色 - 舰长
+                break;
+            case 2:
+                vipColor = nvgRGBA(172, 117, 243, 255); // 紫色 - 提督
+                break;
+            case 1:
+                vipColor = nvgRGBA(255, 102, 102, 255); // 红色 - 总督
+                break;
+            default:
+                vipColor = nvgRGBA(92, 179, 239, 255); // 默认蓝色
         }
         
         switch (danmaku.danmaku->user_vip_level) {
@@ -391,33 +355,10 @@ void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
 // 实现置顶状态设置方法
 void LiveDanmakuItemView::setPinned(bool pinned) {
     if (this->pinned == pinned) {
-        // 状态没有变化，不需要处理
         return;
     }
     
     this->pinned = pinned;
-    
-    if (pinned) {
-        // 设置为置顶状态
-        if (this->scId != 0) {
-            // 只添加"置顶"标识，不修改颜色
-            // 在价格标签旁边添加一个"⭐"符号
-            std::string currentText = this->scPriceLabel->getFullText();
-            if (currentText.find("⭐") == std::string::npos) {
-                this->scPriceLabel->setText("⭐ " + currentText);
-            }
-        }
-    } else {
-        // 恢复原始状态
-        if (this->scId != 0) {
-            // 移除"置顶"标识
-            std::string currentText = this->scPriceLabel->getFullText();
-            size_t starPos = currentText.find("⭐ ");
-            if (starPos != std::string::npos) {
-                this->scPriceLabel->setText(currentText.substr(3)); // 移除"⭐ "
-            }
-        }
-    }
 }
 
 LiveDanmakuItemView* LiveDanmakuItemView::create() {

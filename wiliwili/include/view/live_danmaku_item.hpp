@@ -16,8 +16,11 @@ public:
     // 创建新的弹幕项视图
     static LiveDanmakuItemView* create();
     
-    // 获取SC ID (用户UID)
-    int getSuperChatId() const { return scId; }
+    // 获取SC唯一标识
+    const std::string& getSuperChatToken() const { return scToken; }
+    
+    // 设置SC唯一标识
+    void setSuperChatToken(const std::string& token) { scToken = token; }
     
     // 设置/取消置顶状态
     void setPinned(bool pinned);
@@ -31,7 +34,6 @@ private:
     BRLS_BIND(brls::Label, levelLabel, "danmaku_level_text");
     BRLS_BIND(brls::Box, levelBox, "danmaku_user_level");
     
-    // 新增绑定
     BRLS_BIND(brls::Box, fanMedalBox, "danmaku_fan_medal");
     BRLS_BIND(brls::Label, fanMedalLabel, "danmaku_fan_medal_text");
     BRLS_BIND(brls::Box, adminBox, "danmaku_admin");
@@ -49,8 +51,8 @@ private:
     // 用于显示富文本内容的TextBox
     TextBox* contentBox = nullptr;
     
-    // SC ID (用户UID)
-    int scId = 0;
+    // SC唯一标识
+    std::string scToken;
     
     // 是否为置顶状态
     bool pinned = false;

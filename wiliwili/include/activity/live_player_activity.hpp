@@ -65,15 +65,17 @@ public:
     
     // 处理SC置顶相关
     // 添加SC置顶
-    void addPinnedSuperChat(const LiveDanmakuItem& sc);
+    void addPinnedSuperChat(const LiveDanmakuItem& sc, const std::string& scToken);
     // 移除SC置顶
-    void removePinnedSuperChat(int sc_id);
+    void removePinnedSuperChat(const std::string& sc_token);
     // 检查SC是否置顶
-    bool isPinnedSuperChat(int sc_id) const;
+    bool isPinnedSuperChat(const std::string& sc_token) const;
     // 定时器回调，检查SC过期
     void checkPinnedSuperChatExpiry();
     // 启动SC过期检查定时器
     void startSuperChatExpiryTimer();
+    // 生成SC唯一标识
+    std::string generateSuperChatToken(const LiveDanmakuItem& sc) const;
 
     ~LiveActivity() override;
 
@@ -102,10 +104,10 @@ private:
     std::shared_ptr<lmp> emoticons;
     
     // SC置顶管理
-    // 键：SC的ID (user_uid)，值：过期时间点
-    std::map<int, std::chrono::time_point<std::chrono::system_clock>> pinnedSuperChats;
+    // 键：SC的唯一标识，值：过期时间点
+    std::map<std::string, std::chrono::time_point<std::chrono::system_clock>> pinnedSuperChats;
     // 保存SC视图项的引用，用于更新状态
-    std::map<int, LiveDanmakuItemView*> pinnedSuperChatViews;
+    std::map<std::string, LiveDanmakuItemView*> pinnedSuperChatViews;
 
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;

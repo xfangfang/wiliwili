@@ -526,16 +526,19 @@ void LiveActivity::processSuperChatForSidebar(const std::vector<LiveDanmakuItem>
             
             // 设置SC置顶（如果持续时间大于0）
             if (sc.super_chat && sc.super_chat->time > 0) {
+                std::string scToken = this->generateSuperChatToken(sc);
+                
+                // 设置SC项的唯一标识
+                item->setSuperChatToken(scToken);
+                
                 // 添加到置顶SC管理中
-                this->addPinnedSuperChat(sc);
+                this->addPinnedSuperChat(sc, scToken);
                 
                 // 设置视图项为置顶状态
                 item->setPinned(true);
                 
                 // 保存视图项引用
-                if (sc.super_chat->user_uid > 0) {
-                    this->pinnedSuperChatViews[sc.super_chat->user_uid] = item;
-                }
+                this->pinnedSuperChatViews[scToken] = item;
             }
             
             // 控制侧边栏最多显示100条弹幕
@@ -567,17 +570,15 @@ void LiveActivity::processSuperChatForSidebar(const std::vector<LiveDanmakuItem>
 }
 
 // 添加SC置顶
-void LiveActivity::addPinnedSuperChat(const LiveDanmakuItem& sc) {
+void LiveActivity::addPinnedSuperChat(const LiveDanmakuItem& sc, const std::string& scToken) {
     // 确保是SC消息
     if (sc.type != LiveDanmakuItem::Type::SUPER_CHAT || !sc.super_chat) {
         return;
     }
     
-    // 获取SC ID（用户UID）
-    int scId = sc.super_chat->user_uid;
-    
-    // 必须有有效的ID
-    if (scId <= 0) {
+    // 检查提供的token是否为空
+    if (scToken.empty()) {
+        brls::Logger::error("LiveActivity: 添加置顶SC失败: token为空");
         return;
     }
     
@@ -598,18 +599,53 @@ void LiveActivity::addPinnedSuperChat(const LiveDanmakuItem& sc) {
     }
     
     // 添加到置顶管理
-    this->pinnedSuperChats[scId] = expiryTime;
+    this->pinnedSuperChats[scToken] = expiryTime;
     
-    brls::Logger::debug("LiveActivity: 添加置顶SC: ID={}, 持续时间={}秒", scId, sc.super_chat->time);
+    brls::Logger::debug("LiveActivity: 添加置顶SC: Token={}, 用户ID={}, 持续时间={}秒", 
+                       scToken, sc.super_chat->user_uid, sc.super_chat->time);
+}
+
+// 生成SC唯一标识
+std::string LiveActivity::generateSuperChatToken(const LiveDanmakuItem& sc) const {
+    if (sc.type != LiveDanmakuItem::Type::SUPER_CHAT || !sc.super_chat) {
+        // 非SC消息，返回空字符串
+        return "";
+    }
+    
+    // 获取当前时间戳（毫秒级）
+    auto now = std::chrono::system_clock::now();
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+    
+    // 组合SC的属性：用户ID + 时间戳 + 金额
+    std::string token = std::to_string(sc.super_chat->user_uid) + "_" + 
+                        std::to_string(ms) + "_" + 
+                        std::to_string(sc.super_chat->price);
+    
+    // 添加随机数以进一步确保唯一性
+    // 使用当前时间作为随机数种子
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    token += "_" + std::to_string(std::rand() % 10000);
+    
+    return token;
 }
 
 // 移除SC置顶
-void LiveActivity::removePinnedSuperChat(int sc_id) {
+void LiveActivity::removePinnedSuperChat(const std::string& scToken) {
+    // 检查是否为空标识
+    if (scToken.empty()) {
+        return;
+    }
+    
     // 查找SC视图项
-    auto viewIt = this->pinnedSuperChatViews.find(sc_id);
+    auto viewIt = this->pinnedSuperChatViews.find(scToken);
     if (viewIt != this->pinnedSuperChatViews.end() && viewIt->second) {
-        // 直接从界面中移除视图项（不需要先取消置顶状态和重新定位）
-        brls::View* view = viewIt->second;
+        LiveDanmakuItemView* itemView = viewIt->second;
+        
+        // 先取消置顶状态
+        itemView->setPinned(false);
+        
+        // 然后从界面中移除视图项
+        brls::View* view = itemView;
         auto& children = this->liveDanmakuContainer->getChildren();
         
         // 找到当前视图位置
@@ -627,13 +663,13 @@ void LiveActivity::removePinnedSuperChat(int sc_id) {
         }
         
         // 从视图项映射中移除
-        this->pinnedSuperChatViews.erase(sc_id);
+        this->pinnedSuperChatViews.erase(scToken);
     }
     
     // 从置顶管理中移除
-    this->pinnedSuperChats.erase(sc_id);
+    this->pinnedSuperChats.erase(scToken);
     
-    brls::Logger::debug("LiveActivity: 移除置顶SC: ID={}", sc_id);
+    brls::Logger::debug("LiveActivity: 移除置顶SC: Token={}", scToken);
     
     // 如果没有置顶SC了，取消定时器
     if (this->pinnedSuperChats.empty()) {
@@ -643,8 +679,8 @@ void LiveActivity::removePinnedSuperChat(int sc_id) {
 }
 
 // 检查SC是否置顶
-bool LiveActivity::isPinnedSuperChat(int sc_id) const {
-    return this->pinnedSuperChats.find(sc_id) != this->pinnedSuperChats.end();
+bool LiveActivity::isPinnedSuperChat(const std::string& scToken) const {
+    return !scToken.empty() && this->pinnedSuperChats.find(scToken) != this->pinnedSuperChats.end();
 }
 
 // 启动SC过期检查定时器
@@ -663,18 +699,18 @@ void LiveActivity::startSuperChatExpiryTimer() {
 // 定时器回调，检查SC过期
 void LiveActivity::checkPinnedSuperChatExpiry() {
     auto now = std::chrono::system_clock::now();
-    std::vector<int> expiredScIds;
-    
+    std::vector<std::string> expiredScTokens;
+
     // 查找已过期的SC
-    for (const auto& [scId, expiryTime] : this->pinnedSuperChats) {
+    for (const auto& [scToken, expiryTime] : this->pinnedSuperChats) {
         if (now >= expiryTime) {
-            expiredScIds.push_back(scId);
+            expiredScTokens.push_back(scToken);
         }
     }
     
     // 移除已过期的SC
-    for (int scId : expiredScIds) {
-        this->removePinnedSuperChat(scId);
+    for (const std::string& scToken : expiredScTokens) {
+        this->removePinnedSuperChat(scToken);
     }
     
     // 如果还有置顶SC，继续检查
@@ -715,9 +751,6 @@ LiveActivity::~LiveActivity() {
     // 清空置顶SC数据
     this->pinnedSuperChats.clear();
     this->pinnedSuperChatViews.clear();
-    
-    // 析构时已不需要清空全局指针，因为在函数开头已经处理
-    // g_liveActivity = nullptr;
     
     brls::Logger::debug("LiveActivity: delete completed");
 }
