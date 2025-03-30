@@ -439,7 +439,11 @@
         "color": "彩色",
         "advanced": "高級",
         "level": "按等級篩選",
-        "level_n": "等級 {}"
+        "level_n": "等級 {}",
+        "level_live": "直播過濾等級",
+        "level_live_none": "不過濾 (UL0+)",
+        "level_live_n": "UL{}以上",
+        "level_live_60": "僅UL60"
       },
       "style": {
         "header": "彈幕風格",
