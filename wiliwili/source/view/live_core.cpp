@@ -209,36 +209,46 @@ void LiveDanmakuCore::drawEmoticon(NVGcontext *vg, const std::string& name, floa
     }
     
     // 创建RichTextImage对象
-    static std::unordered_map<std::string, std::unique_ptr<RichTextImage>> emotionImageCache;
-    static const size_t MAX_CACHE_SIZE = 50; // 最大缓存数量
+    static std::mutex emoticon_cache_mutex;
+    static constexpr size_t MAX_CACHE_SIZE = 500; // 最大缓存数量
+    static std::unordered_map<std::string, std::unique_ptr<RichTextImage>>& emotionImageCache = 
+        []() -> std::unordered_map<std::string, std::unique_ptr<RichTextImage>>& {
+            static std::unordered_map<std::string, std::unique_ptr<RichTextImage>> cache;
+            return cache;
+        }();
     
-    auto cacheIt = emotionImageCache.find(name);
     RichTextImage* emotionImage = nullptr;
     
-    if (cacheIt == emotionImageCache.end()) {
-        // 缓存过大时，随机清除一个
-        if (emotionImageCache.size() >= MAX_CACHE_SIZE) {
-            auto it = emotionImageCache.begin();
-            std::advance(it, rand() % emotionImageCache.size());
-            emotionImageCache.erase(it);
-        }
+    {
+        // 使用锁保护缓存访问
+        std::lock_guard<std::mutex> lock(emoticon_cache_mutex);
         
-        // 如果缓存中没有，创建新的RichTextImage
-        emotionImageCache[name] = std::make_unique<RichTextImage>(url, size, size);
-        emotionImage = emotionImageCache[name].get();
-        
-        // 加载图片
-        ImageHelper::with(emotionImage->image)->load(url);
-    } else {
-        emotionImage = cacheIt->second.get();
-        // 更新尺寸（如果需要）
-        if (emotionImage->width != size || emotionImage->height != size) {
-            emotionImage->width = size;
-            emotionImage->height = size;
-            emotionImage->image->setWidth(size);
-            emotionImage->image->setHeight(size);
+        auto cacheIt = emotionImageCache.find(name);
+        if (cacheIt == emotionImageCache.end()) {
+            // 缓存过大时，随机清除一个
+            if (emotionImageCache.size() >= MAX_CACHE_SIZE) {
+                auto it = emotionImageCache.begin();
+                std::advance(it, rand() % emotionImageCache.size());
+                emotionImageCache.erase(it);
+            }
+            
+            // 如果缓存中没有，创建新的RichTextImage
+            emotionImageCache[name] = std::make_unique<RichTextImage>(url, size, size);
+            emotionImage = emotionImageCache[name].get();
+            
+            // 加载图片
+            ImageHelper::with(emotionImage->image)->load(url);
+        } else {
+            emotionImage = cacheIt->second.get();
+            // 更新尺寸（如果需要）
+            if (emotionImage->width != size || emotionImage->height != size) {
+                emotionImage->width = size;
+                emotionImage->height = size;
+                emotionImage->image->setWidth(size);
+                emotionImage->image->setHeight(size);
+            }
         }
-    }
+    } // 锁在这里释放
     
     // 设置位置
     emotionImage->setPosition(x, y);

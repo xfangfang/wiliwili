@@ -29,61 +29,10 @@
 
 using namespace brls::literals;
 
-// 定义一个全局变量，用于存储LiveActivity实例指针，以便在静态回调中访问
-static LiveActivity* g_liveActivity = nullptr;
-
 // 处理弹幕展示
 static void process_danmaku(const std::vector<LiveDanmakuItem>& danmaku_list) {
     // 弹幕加载到视频中去
     LiveDanmakuCore::instance().add(danmaku_list);
-}
-
-// 弹幕接收回调函数
-static void onDanmakuReceived(const std::string& msg) {
-    std::vector<uint8_t> payload(msg.begin(), msg.end());
-    std::vector<std::string> messages = parse_packet(payload);
-
-    if (messages.empty()) {
-        return;
-    }
-
-    std::vector<LiveDanmakuItem> danmaku_list;
-    std::vector<LiveDanmakuItem> sc_list;
-
-    for (const auto& live_msg : extract_messages(messages)) {
-        if (!live_msg) continue;
-        
-        if (live_msg->type == MessageType::DANMAKU) {
-            auto* danmaku_msg = dynamic_cast<message::LiveDanmaku*>(live_msg.get());
-            if (!danmaku_msg || !danmaku_msg->data) continue;
-            
-            danmaku_list.emplace_back(LiveDanmakuItem(danmaku_msg->data));
-        } else if (live_msg->type == MessageType::WATCHED_CHANGE) {
-            // TODO: 更新在线人数
-            // auto* watched_msg = dynamic_cast<message::LiveWatchedChange*>(live_msg.get());
-            // if (watched_msg && watched_msg->data) {
-            //     // 更新在线人数
-            // }
-        } else if (live_msg->type == MessageType::SUPER_CHAT) {
-            auto* sc_msg = dynamic_cast<message::LiveSuperChat*>(live_msg.get());
-            if (!sc_msg || !sc_msg->data) continue;
-            
-            sc_list.emplace_back(LiveDanmakuItem(sc_msg->data));
-        }
-    }
-    
-    // 处理弹幕到视频
-    process_danmaku(danmaku_list);
-    
-    // 处理弹幕到侧边栏（包括普通弹幕和SC）
-    // 使用shared_ptr安全地获取活动对象
-    if (g_liveActivity) {
-        g_liveActivity->processDanmakuForSidebar(danmaku_list);
-        // 处理SC消息到侧边栏
-        if (!sc_list.empty()) {
-            g_liveActivity->processSuperChatForSidebar(sc_list);
-        }
-    }
 }
 
 static void showDialog(const std::string& msg, const std::string& pic, bool forceQuit) {
@@ -121,9 +70,6 @@ LiveActivity::LiveActivity(int roomid, const std::string& name, const std::strin
     this->liveData.watched_show.text_large = views.empty() ? "获取中..." : views;
     this->liveData.uname                   = ""; // 初始为空，待获取
     this->liveData.cover                   = ""; // 初始为空，待获取
-    
-    // 设置全局指针，以便静态回调函数能访问到实例
-    g_liveActivity = this;
     
     // 初始化表情包映射
     this->emoticons = std::make_shared<lmp>();
@@ -199,10 +145,6 @@ void LiveActivity::setVideoQuality() {
 
 void LiveActivity::onContentAvailable()
 {   
-    // 设置全局指针，以便静态回调函数能安全地访问到实例
-    // 这里是多余的，但保留它以增强安全性
-    g_liveActivity = this;
-    
     // 设置全屏按钮图标
     this->video->setFullscreenIcon(this->video->isFullscreen());
 
@@ -363,42 +305,93 @@ void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& in
     // 获取表情包URL列表
     brls::Logger::debug("LiveActivity: 开始获取表情包URL列表...");
     
-    // 创建当前对象的指针副本
-    LiveActivity* self = g_liveActivity;
-    if (!self) {
-        brls::Logger::error("LiveActivity: onDanmakuInfo失败: 全局指针无效");
-        return;
-    }
-    
     // 复制房间ID和弹幕信息，确保它们在线程中可用
     int room_id_copy = roomid;
     bilibili::LiveDanmakuinfo info_copy = info;
     
+    // 捕获共享状态对象，而不是this指针
+    std::shared_ptr<ThreadSafeState> state = this->threadState;
+    std::shared_ptr<lmp> emoticonsPtr = this->emoticons;
+    
     // 创建一个线程来获取表情包URL，避免阻塞主线程
-    std::thread([self, room_id_copy, info_copy]() {
+    std::thread([state, emoticonsPtr, room_id_copy, info_copy, this]() {
         try {
-            // 再次检查对象是否有效（防止在线程启动后对象被销毁）
-            if (!self || self != g_liveActivity) {
+            // 检查活动状态
+            if (!state->isActive.load(std::memory_order_acquire)) {
                 brls::Logger::debug("LiveActivity: 线程中断: 对象已被销毁");
                 return;
             }
             
             // 在线程中安全地访问表情包映射
-            *(self->emoticons) = dl_emoticon(room_id_copy);
-            brls::Logger::debug("LiveActivity: 获取了 {} 个表情包URL", self->emoticons->size());
+            *emoticonsPtr = dl_emoticon(room_id_copy);
+            brls::Logger::debug("LiveActivity: 获取了 {} 个表情包URL", emoticonsPtr->size());
             
             // 将表情包映射传递给LiveDanmakuCore
-            LiveDanmakuCore::instance().setEmoticons(self->emoticons);
+            LiveDanmakuCore::instance().setEmoticons(emoticonsPtr);
             
-            // 再次检查对象是否有效
-            if (!self || self != g_liveActivity) {
+            // 再次检查活动状态
+            if (!state->isActive.load(std::memory_order_acquire)) {
                 brls::Logger::debug("LiveActivity: 线程中断: 对象已被销毁");
                 return;
             }
             
+            // 设置消息回调，捕获共享状态
+            this->danmaku.setonMessage([state, this](const std::string& msg) {
+                // 检查活动状态
+                if (!state->isActive.load(std::memory_order_acquire)) {
+                    return; // 静默返回，不执行任何操作
+                }
+                
+                std::vector<uint8_t> payload(msg.begin(), msg.end());
+                std::vector<std::string> messages = parse_packet(payload);
+                
+                if (messages.empty()) {
+                    return;
+                }
+                
+                std::vector<LiveDanmakuItem> danmaku_list;
+                std::vector<LiveDanmakuItem> sc_list;
+                
+                for (const auto& live_msg : extract_messages(messages)) {
+                    if (!live_msg) continue;
+                    
+                    if (live_msg->type == MessageType::DANMAKU) {
+                        auto* danmaku_msg = dynamic_cast<message::LiveDanmaku*>(live_msg.get());
+                        if (!danmaku_msg || !danmaku_msg->data) continue;
+                        
+                        danmaku_list.emplace_back(LiveDanmakuItem(danmaku_msg->data));
+                    } else if (live_msg->type == MessageType::WATCHED_CHANGE) {
+                        // TODO: 更新在线人数
+                        // auto* watched_msg = dynamic_cast<message::LiveWatchedChange*>(live_msg.get());
+                        // if (watched_msg && watched_msg->data) {
+                        //     // 更新在线人数
+                        // }
+                    } else if (live_msg->type == MessageType::SUPER_CHAT) {
+                        auto* sc_msg = dynamic_cast<message::LiveSuperChat*>(live_msg.get());
+                        if (!sc_msg || !sc_msg->data) continue;
+                        
+                        sc_list.emplace_back(LiveDanmakuItem(sc_msg->data));
+                    }
+                }
+                
+                // 处理弹幕到视频
+                process_danmaku(danmaku_list);
+                
+                // 处理弹幕到侧边栏
+                if (!danmaku_list.empty() && state->isActive.load(std::memory_order_acquire)) {
+                    this->processDanmakuForSidebar(danmaku_list);
+                }
+                
+                // 处理SC消息到侧边栏
+                if (!sc_list.empty() && state->isActive.load(std::memory_order_acquire)) {
+                    this->processSuperChatForSidebar(sc_list);
+                }
+            });
+            
             // 获取表情包URL后连接弹幕服务器
-            self->danmaku.setonMessage(onDanmakuReceived);
-            self->danmaku.connect(room_id_copy, std::stoll(ProgramConfig::instance().getUserID()), info_copy);
+            if (state->isActive.load(std::memory_order_acquire)) {
+                this->danmaku.connect(room_id_copy, std::stoll(ProgramConfig::instance().getUserID()), info_copy);
+            }
         } catch (const std::exception& e) {
             brls::Logger::error("LiveActivity: 获取表情包URL失败: {}", e.what());
         }
@@ -722,10 +715,7 @@ void LiveActivity::checkPinnedSuperChatExpiry() {
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
     
-    // 先重置全局共享指针，防止后续回调继续使用
-    if (g_liveActivity == this) {
-        g_liveActivity = nullptr;
-    }
+    threadState->isActive.store(false, std::memory_order_release);
     
     // 断开直播弹幕连接
     danmaku.disconnect();

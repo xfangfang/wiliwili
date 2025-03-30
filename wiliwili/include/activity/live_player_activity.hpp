@@ -18,6 +18,7 @@
 #include <memory>
 #include <map>
 #include <chrono>
+#include <atomic>
 
 class VideoView;
 class UserInfoView;
@@ -115,4 +116,10 @@ private:
     CustomEvent::Subscription event_id;
     //弹幕事件
     CustomEvent::Subscription danmaku_event_id;
+    
+    //使用共享状态对象
+    struct ThreadSafeState {
+        std::atomic<bool> isActive{true};
+    };
+    std::shared_ptr<ThreadSafeState> threadState{std::make_shared<ThreadSafeState>()};
 };

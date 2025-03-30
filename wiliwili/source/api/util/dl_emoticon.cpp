@@ -3,7 +3,7 @@
 //
 
 #include <nlohmann/json.hpp>
-#include <cpr/cpr.h>
+// #include <cpr/cpr.h>
 
 #include <cstdint>
 #include <string>
@@ -14,69 +14,6 @@
 #include "utils/config_helper.hpp"
 #include "bilibili/util/http.hpp"
 #include "bilibili.h"
-
-// 下载二进制文件的回调
-size_t writeCallback(char* ptr, size_t size, size_t nmemb, void* userdata) {
-    auto* data = reinterpret_cast<std::vector<uint8_t>*>(userdata);
-    size_t bytes = size * nmemb;
-    data->insert(data->end(), ptr, ptr + bytes);
-    return bytes;
-}
-
-static void download(const std::string &url, std::vector<uint8_t> &data) {
-    // 使用libcurl直接下载二进制数据
-    CURL* curl = curl_easy_init();
-    if (curl) {
-        // 设置URL
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        
-        // 设置回调函数
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
-        
-        // 设置请求头
-        struct curl_slist* headers = nullptr;
-        headers = curl_slist_append(headers, "Accept: */*");
-        headers = curl_slist_append(headers, "Accept-Encoding: identity");
-        headers = curl_slist_append(headers, "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        
-        // 执行请求
-        CURLcode res = curl_easy_perform(curl);
-        
-        // 检查请求是否成功
-        if (res != CURLE_OK) {
-            brls::Logger::error("表情下载失败: {}, 错误: {}", url, curl_easy_strerror(res));
-            data.clear();
-        } else {
-            long response_code;
-            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-            if (response_code == 200) {
-                brls::Logger::debug("表情下载成功: {}, 大小: {} 字节", url, data.size());
-                
-                // 保存文件用于调试
-                /*
-                std::string filename = "sdmc:/switch/wiliwili/emoticon_" + std::to_string(rand() % 10000) + ".png";
-                std::ofstream file(filename, std::ios::binary);
-                if (file) {
-                    file.write(reinterpret_cast<const char*>(data.data()), data.size());
-                    file.close();
-                    brls::Logger::debug("表情保存到: {}", filename);
-                }
-                */
-            } else {
-                brls::Logger::error("表情下载失败: {}, 状态码: {}", url, response_code);
-                data.clear();
-            }
-        }
-        
-        // 清理
-        curl_slist_free_all(headers);
-        curl_easy_cleanup(curl);
-    } else {
-        brls::Logger::error("无法初始化CURL");
-    }
-}
 
 static void to_url(int room_id, std::vector<std::string> &names, std::vector<std::string> &urls) {
     std::string api_url = "https://api.live.bilibili.com/xlive/web-ucenter/v2/emoticon/GetEmoticons?platform=pc&room_id=" + std::to_string(room_id);

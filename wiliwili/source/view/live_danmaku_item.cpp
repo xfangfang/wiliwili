@@ -13,7 +13,7 @@ LiveDanmakuItemView::LiveDanmakuItemView() {
     this->contentBox->setMarginTop(4);
     this->contentBox->setFontSize(14);
     this->contentBox->setSingleLine(false);
-    this->contentBox->setMaxWidthPercentage(92); // 添加最大宽度限制
+    this->contentBox->setMaxWidthPercentage(95); // 添加最大宽度限制
     
     // 获取contentLabel的父视图
     brls::Box* parent = dynamic_cast<brls::Box*>(this->contentLabel->getParent());
