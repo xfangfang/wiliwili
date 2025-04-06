@@ -84,6 +84,8 @@ void LiveActivity::setCommonData() {
     // 清空自定义着色器
     ShaderHelper::instance().clearShader(false);
 
+    this->maxSidebarDanmakuCount = ProgramConfig::instance().getIntOption(SettingItem::LIVE_SIDEBAR_DANMAKU_COUNT);
+
     event_id    = APP_E->subscribe([this](const std::string& event, void* data) {
         if (event == VideoView::QUALITY_CHANGE) {
             this->setVideoQuality();
@@ -152,6 +154,15 @@ void LiveActivity::onContentAvailable()
 
     MPVCore::instance().setAspect(
         ProgramConfig::instance().getSettingItem(SettingItem::PLAYER_ASPECT, std::string{"-1"}));
+        
+    // 根据侧边栏设置调整界面布局
+    if (this->maxSidebarDanmakuCount <= 0) {
+        // 如果设置为0，隐藏侧边栏并扩展左侧区域
+        this->liveDanmakuSidebar->setVisibility(brls::Visibility::GONE);
+    } else {
+        // 显示侧边栏，使用默认宽度设置
+        this->liveDanmakuSidebar->setVisibility(brls::Visibility::VISIBLE);
+    }
 
     this->video->registerAction("hints/back"_i18n, brls::BUTTON_B, [this](...) {
         if (this->video->isOSDLock()) {
@@ -458,6 +469,11 @@ void LiveActivity::retryRequestData() {
 }
 
 void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& danmaku_list) {
+    // 如果设置为0，表示隐藏侧边栏，直接返回
+    if (this->maxSidebarDanmakuCount <= 0) {
+        return;
+    }
+    
     // 确保UI更新在主线程进行
     brls::sync([this, danmaku_list]() {
         for (const auto& danmaku : danmaku_list) {
@@ -485,8 +501,8 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
                 this->liveDanmakuContainer->addView(item);
             }
             
-            // 控制侧边栏最多显示100条弹幕
-            if (this->liveDanmakuContainer->getChildren().size() > 100) {
+            // 控制侧边栏弹幕数量
+            if (this->liveDanmakuContainer->getChildren().size() > this->maxSidebarDanmakuCount) {
                 auto& children = this->liveDanmakuContainer->getChildren();
                 
                 // 从末尾开始查找非置顶的项目删除
@@ -506,6 +522,11 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
 }
 
 void LiveActivity::processSuperChatForSidebar(const std::vector<LiveDanmakuItem>& sc_list) {
+    // 如果设置为0，表示隐藏侧边栏，直接返回
+    if (this->maxSidebarDanmakuCount <= 0) {
+        return;
+    }
+    
     // 确保UI更新在主线程进行
     brls::sync([this, sc_list]() {
         for (const auto& sc : sc_list) {
@@ -536,8 +557,8 @@ void LiveActivity::processSuperChatForSidebar(const std::vector<LiveDanmakuItem>
                 this->pinnedSuperChatViews[scToken] = item;
             }
             
-            // 控制侧边栏最多显示100条弹幕
-            if (this->liveDanmakuContainer->getChildren().size() > 100) {
+            // 控制侧边栏弹幕数量
+            if (this->liveDanmakuContainer->getChildren().size() > this->maxSidebarDanmakuCount) {
                 auto& children = this->liveDanmakuContainer->getChildren();
                 
                 // 从末尾开始查找非置顶的项目删除
@@ -550,7 +571,7 @@ void LiveActivity::processSuperChatForSidebar(const std::vector<LiveDanmakuItem>
                 }
                 
                 // 如果所有项都是置顶状态，则删除最后一个（最旧的）
-                if (this->liveDanmakuContainer->getChildren().size() > 100) {
+                if (this->liveDanmakuContainer->getChildren().size() > this->maxSidebarDanmakuCount) {
                     auto& updatedChildren = this->liveDanmakuContainer->getChildren();
                     this->liveDanmakuContainer->removeView(updatedChildren[updatedChildren.size() - 1]);
                 }

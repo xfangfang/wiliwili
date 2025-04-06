@@ -43,8 +43,10 @@
         "header": "UI",
         "window": "Window",
         "bottom_bar": "Bottom bar",
-        "ui_style": "UI style",
-        "tv_osd": "TV style OSD control"
+        "ui_style": "UI Style",
+        "tv_osd": "TV style OSD control",
+        "live_sidebar_count": "Live Sidebar Danmaku Count",
+        "live_sidebar_hide": "Hide Sidebar"
       },
       "others": {
         "header": "Others",

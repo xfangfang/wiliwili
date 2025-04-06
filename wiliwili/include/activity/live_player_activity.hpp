@@ -88,6 +88,9 @@ private:
     BRLS_BIND(brls::Label, liveTitleLabel, "live/title");
     // 新增：主播称号Label
     BRLS_BIND(brls::Label, anchorTitleLabel, "anchor/title");
+    // 新增：侧边栏Box和左侧内容Box
+    BRLS_BIND(brls::Box, liveDanmakuSidebar, "live_danmaku_sidebar");
+    BRLS_BIND(brls::Box, liveDetailLeftBox, "live_detail_left_box");
 
     // 暂停的延时函数 handle
     size_t toggleDelayIter = 0;
@@ -109,6 +112,9 @@ private:
     std::map<std::string, std::chrono::time_point<std::chrono::system_clock>> pinnedSuperChats;
     // 保存SC视图项的引用，用于更新状态
     std::map<std::string, LiveDanmakuItemView*> pinnedSuperChatViews;
+    
+    // 侧边栏弹幕最大数量
+    int maxSidebarDanmakuCount = 100;
 
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;
