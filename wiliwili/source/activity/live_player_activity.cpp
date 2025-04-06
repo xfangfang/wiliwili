@@ -484,13 +484,26 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
         return;
     }
     
+    // 过滤弹幕列表
+    std::vector<LiveDanmakuItem> filtered_danmakus;
+    filtered_danmakus.reserve(danmaku_list.size());
+    
+    // 进行过滤
+    for (const auto& danmaku : danmaku_list) {
+        // 添加弹幕等级过滤，与LiveDanmakuCore::add方法中的过滤条件保持一致
+        if (danmaku.danmaku->user_level < LiveDanmakuCore::DANMAKU_FILTER_LEVEL_LIVE) 
+            continue;
+        filtered_danmakus.push_back(danmaku);
+    }
+    
+    // 如果没有通过过滤的弹幕，直接返回
+    if (filtered_danmakus.empty()) {
+        return;
+    }
+    
     // 确保UI更新在主线程进行
-    brls::sync([this, danmaku_list]() {
-        for (const auto& danmaku : danmaku_list) {
-            // 添加弹幕等级过滤，与LiveDanmakuCore::add方法中的过滤条件保持一致
-            if (danmaku.danmaku->user_level < LiveDanmakuCore::DANMAKU_FILTER_LEVEL_LIVE) 
-                continue;
-                
+    brls::sync([this, filtered_danmakus = std::move(filtered_danmakus)]() {
+        for (const auto& danmaku : filtered_danmakus) {
             auto* item = LiveDanmakuItemView::create();
             item->setDanmaku(danmaku);
             
@@ -523,9 +536,6 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
                         break;
                     }
                 }
-                
-                // 如果所有项都是置顶状态，则先不删除
-                // 当置顶项过期后会自动处理
             }
         }
     });

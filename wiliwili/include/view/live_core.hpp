@@ -46,6 +46,13 @@ public:
         SUPER_CHAT
     };
 
+    // 弹幕内容类型
+    enum class ContentType {
+        TEXT,           // 纯文本
+        EMOTICON,       // 纯表情
+        MIXED           // 包含文本和表情的混合内容
+    };
+
     LiveDanmakuItem(std::shared_ptr<message::Danmaku> danmaku);
     LiveDanmakuItem(std::shared_ptr<message::SuperChat> sc);
     LiveDanmakuItem(const LiveDanmakuItem &item);
@@ -53,6 +60,7 @@ public:
     ~LiveDanmakuItem() = default;
     
     Type type = Type::DANMAKU;
+    ContentType contentType = ContentType::TEXT; // 默认为纯文本
     
     // 使用std::shared_ptr替换原始指针
     std::shared_ptr<message::Danmaku> danmaku;
@@ -62,6 +70,9 @@ public:
     size_t line  = 0;
     float length = 0;
     float speed  = 0;
+    
+    // 仅用于混合类型弹幕的表情位置缓存
+    std::vector<std::pair<size_t, size_t>> emotePositions;
 };
 
 class LiveDanmakuCore : public brls::Singleton<LiveDanmakuCore> {
@@ -88,12 +99,16 @@ public:
     void draw(NVGcontext *vg, float x, float y, float width, float height, float alpha);
     
     // 设置表情包映射
-    void setEmoticons(std::shared_ptr<lmp> emotes) { this->emoticons = emotes; }
+    void setEmoticons(std::shared_ptr<lmp> emotes) {
+        this->emoticons = emotes;
+        // 清空表情缓存，因为表情包可能已更新
+        clearEmoticonCache();
+    }
 
     bool init_danmaku(NVGcontext *vg, LiveDanmakuItem &i, float width, int LINES, float SECOND, time_p now, int time);
     
     // 判断字符串是否是表情
-    bool isEmoticon(const std::string& text) const;
+    bool isEmoticon(const LiveDanmakuItem& danmaku) const;
     
     // 查找文本中所有表情的位置和长度
     std::vector<std::pair<size_t, size_t>> findEmoticons(const std::string& text) const;
@@ -103,4 +118,7 @@ public:
     
     // 清理表情缓存
     void clearEmoticonCache();
+    
+    // 确定弹幕内容类型
+    LiveDanmakuItem::ContentType determineContentType(const LiveDanmakuItem& danmaku);
 };
