@@ -307,8 +307,8 @@ void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& in
     auto room_id_copy = roomid;
     auto emoticonsPtr = std::make_shared<lmp>();
     
-    // 使用brls::async在后台线程执行任务
-    brls::async([state, room_id_copy, emoticonsPtr, info, this]() {
+    // 使用cpr::async在后台线程执行任务
+    cpr::async([state, room_id_copy, emoticonsPtr, info, this]() {
         try {
             // 检查活动状态
             if (!state->isActive.load(std::memory_order_acquire)) {
