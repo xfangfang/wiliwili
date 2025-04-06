@@ -193,6 +193,10 @@ void LiveActivity::onContentAvailable()
     this->video->hideHighlightLineSetting();
     this->video->hideSkipOpeningCreditsSetting();
     this->video->disableCloseOnEndOfFile();
+    
+    // 禁用底部固定进度条
+    VideoView::BOTTOM_BAR = false;
+    
     this->video->setTitle(liveData.title);
     this->video->setOnlineCount(liveData.watched_show.text_large);
     this->video->setStatusLabelLeft("");
@@ -743,6 +747,9 @@ void LiveActivity::checkPinnedSuperChatExpiry() {
 
 LiveActivity::~LiveActivity() {
     brls::Logger::debug("LiveActivity: delete");
+    
+    // 恢复底部固定进度条的设置
+    VideoView::BOTTOM_BAR = ProgramConfig::instance().getBoolOption(SettingItem::PLAYER_BOTTOM_BAR);
     
     threadState->isActive.store(false, std::memory_order_release);
     
