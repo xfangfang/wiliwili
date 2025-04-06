@@ -24,6 +24,13 @@ LiveDanmakuItemView::LiveDanmakuItemView() {
     }
 }
 
+LiveDanmakuItemView::~LiveDanmakuItemView() {
+    // 释放头像图片资源
+    if (this->avatarImage) {
+        ImageHelper::clear(this->avatarImage);
+    }
+}
+
 void LiveDanmakuItemView::setDanmaku(const LiveDanmakuItem& danmaku) {
     // 重置item背景颜色为默认透明
     this->setBackgroundColor(nvgRGBA(0, 0, 0, 0));

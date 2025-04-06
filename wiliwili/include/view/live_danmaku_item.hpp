@@ -9,6 +9,7 @@
 class LiveDanmakuItemView : public brls::Box {
 public:
     LiveDanmakuItemView();
+    ~LiveDanmakuItemView();
     
     // 设置弹幕内容
     void setDanmaku(const LiveDanmakuItem& danmaku);

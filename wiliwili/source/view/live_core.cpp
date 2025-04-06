@@ -81,6 +81,15 @@ void LiveDanmakuCore::clearEmoticonCache() {
     
     // 使用锁保护静态缓存
     std::lock_guard<std::mutex> lock(emoticon_cache_mutex);
+    
+    // 在清除缓存前，先释放所有图片资源
+    for (auto& pair : emotionImageCache) {
+        if (pair.second && pair.second->image) {
+            ImageHelper::clear(pair.second->image);
+        }
+    }
+    
+    // 然后清空缓存
     emotionImageCache.clear();
 }
 
@@ -210,7 +219,7 @@ void LiveDanmakuCore::drawEmoticon(NVGcontext *vg, const std::string& name, floa
     
     // 创建RichTextImage对象
     static std::mutex emoticon_cache_mutex;
-    static constexpr size_t MAX_CACHE_SIZE = 500; // 最大缓存数量
+    static constexpr size_t MAX_CACHE_SIZE = 50; // 最大缓存数量
     static std::unordered_map<std::string, std::unique_ptr<RichTextImage>>& emotionImageCache = 
         []() -> std::unordered_map<std::string, std::unique_ptr<RichTextImage>>& {
             static std::unordered_map<std::string, std::unique_ptr<RichTextImage>> cache;
@@ -229,6 +238,10 @@ void LiveDanmakuCore::drawEmoticon(NVGcontext *vg, const std::string& name, floa
             if (emotionImageCache.size() >= MAX_CACHE_SIZE) {
                 auto it = emotionImageCache.begin();
                 std::advance(it, rand() % emotionImageCache.size());
+                // 在删除前先释放图片资源
+                if (it->second && it->second->image) {
+                    ImageHelper::clear(it->second->image);
+                }
                 emotionImageCache.erase(it);
             }
             
@@ -361,8 +374,11 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float 
             
             // 检查是否是表情
             if (j.danmaku->is_emoticon || isEmoticon(j.danmaku->dan)) {
-                float emoticon_size = DanmakuCore::DANMAKU_STYLE_FONTSIZE * 1.2f; // 表情略大于字体
-                float v_offset = DanmakuCore::DANMAKU_STYLE_FONTSIZE * 0.1f; // 垂直微调，使表情与文字对齐
+                float emoticon_size = DanmakuCore::DANMAKU_STYLE_FONTSIZE * 1.1f; // 表情略大于字体
+                // 计算垂直偏移量，使表情中心与文字中心对齐
+                // 文字高度约为DANMAKU_STYLE_FONTSIZE，表情高度为emoticon_size
+                // 需要将表情向上偏移，使其中心与文字中心对齐
+                float v_offset = (DanmakuCore::DANMAKU_STYLE_FONTSIZE - emoticon_size) / 2;
                 float emoticonAlpha = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.01f * alpha; // 与弹幕一致的透明度
                 
                 if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
@@ -386,8 +402,9 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float 
             if (!emotePositions.empty()) {
                 // 包含表情的混合文本，需要分段绘制
                 std::string fullText = j.danmaku->dan;
-                float emoticon_size = DanmakuCore::DANMAKU_STYLE_FONTSIZE * 1.2f; // 表情略大于字体
-                float v_offset = DanmakuCore::DANMAKU_STYLE_FONTSIZE * 0.1f; // 垂直微调
+                float emoticon_size = DanmakuCore::DANMAKU_STYLE_FONTSIZE * 1.05f; // 表情略大于字体
+                // 计算垂直偏移量，使表情中心与文字中心对齐
+                float v_offset = 0;
                 float emoticonAlpha = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.01f * alpha; // 透明度
                 float cursorX = 0;
                 float baseX = 0;
