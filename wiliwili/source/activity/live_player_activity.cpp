@@ -302,19 +302,13 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo &result)
 }
 
 void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& info) {
-    // 获取表情包URL列表
-    brls::Logger::debug("LiveActivity: 开始获取表情包URL列表...");
+    // 保存必要的状态
+    auto state = this->threadState;
+    auto room_id_copy = roomid;
+    auto emoticonsPtr = std::make_shared<lmp>();
     
-    // 复制房间ID和弹幕信息，确保它们在线程中可用
-    int room_id_copy = roomid;
-    bilibili::LiveDanmakuinfo info_copy = info;
-    
-    // 捕获共享状态对象，而不是this指针
-    std::shared_ptr<ThreadSafeState> state = this->threadState;
-    std::shared_ptr<lmp> emoticonsPtr = this->emoticons;
-    
-    // 创建一个线程来获取表情包URL，避免阻塞主线程
-    std::thread([state, emoticonsPtr, room_id_copy, info_copy, this]() {
+    // 使用brls::async在后台线程执行任务
+    brls::async([state, room_id_copy, emoticonsPtr, info, this]() {
         try {
             // 检查活动状态
             if (!state->isActive.load(std::memory_order_acquire)) {
@@ -335,67 +329,75 @@ void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& in
                 return;
             }
             
-            // 设置消息回调，捕获共享状态
+            // 设置消息回调,捕获共享状态
             this->danmaku.setonMessage([state, this](const std::string& msg) {
                 // 检查活动状态
                 if (!state->isActive.load(std::memory_order_acquire)) {
-                    return; // 静默返回，不执行任何操作
-                }
-                
-                std::vector<uint8_t> payload(msg.begin(), msg.end());
-                std::vector<std::string> messages = parse_packet(payload);
-                
-                if (messages.empty()) {
+                    brls::Logger::debug("LiveActivity: 消息回调中断: 对象已被销毁");
                     return;
                 }
                 
-                std::vector<LiveDanmakuItem> danmaku_list;
-                std::vector<LiveDanmakuItem> sc_list;
-                
-                for (const auto& live_msg : extract_messages(messages)) {
-                    if (!live_msg) continue;
-                    
-                    if (live_msg->type == MessageType::DANMAKU) {
-                        auto* danmaku_msg = dynamic_cast<message::LiveDanmaku*>(live_msg.get());
-                        if (!danmaku_msg || !danmaku_msg->data) continue;
-                        
-                        danmaku_list.emplace_back(LiveDanmakuItem(danmaku_msg->data));
-                    } else if (live_msg->type == MessageType::WATCHED_CHANGE) {
-                        // TODO: 更新在线人数
-                        // auto* watched_msg = dynamic_cast<message::LiveWatchedChange*>(live_msg.get());
-                        // if (watched_msg && watched_msg->data) {
-                        //     // 更新在线人数
-                        // }
-                    } else if (live_msg->type == MessageType::SUPER_CHAT) {
-                        auto* sc_msg = dynamic_cast<message::LiveSuperChat*>(live_msg.get());
-                        if (!sc_msg || !sc_msg->data) continue;
-                        
-                        sc_list.emplace_back(LiveDanmakuItem(sc_msg->data));
+                // 使用brls::sync确保在UI线程中更新UI
+                brls::sync([state, this, msg]() {
+                    if (!state->isActive.load(std::memory_order_acquire)) {
+                        brls::Logger::debug("LiveActivity: UI更新中断: 对象已被销毁");
+                        return;
                     }
-                }
-                
-                // 处理弹幕到视频
-                process_danmaku(danmaku_list);
-                
-                // 处理弹幕到侧边栏
-                if (!danmaku_list.empty() && state->isActive.load(std::memory_order_acquire)) {
-                    this->processDanmakuForSidebar(danmaku_list);
-                }
-                
-                // 处理SC消息到侧边栏
-                if (!sc_list.empty() && state->isActive.load(std::memory_order_acquire)) {
-                    this->processSuperChatForSidebar(sc_list);
-                }
+                    
+                    std::vector<uint8_t> payload(msg.begin(), msg.end());
+                    std::vector<std::string> messages = parse_packet(payload);
+                    
+                    if (messages.empty()) {
+                        return;
+                    }
+                    
+                    std::vector<LiveDanmakuItem> danmaku_list;
+                    std::vector<LiveDanmakuItem> sc_list;
+                    
+                    for (const auto& live_msg : extract_messages(messages)) {
+                        if (!live_msg) continue;
+                        
+                        if (live_msg->type == MessageType::DANMAKU) {
+                            auto* danmaku_msg = dynamic_cast<message::LiveDanmaku*>(live_msg.get());
+                            if (!danmaku_msg || !danmaku_msg->data) continue;
+                            
+                            danmaku_list.emplace_back(LiveDanmakuItem(danmaku_msg->data));
+                        } else if (live_msg->type == MessageType::WATCHED_CHANGE) {
+                            // TODO: 更新在线人数
+                            // auto* watched_msg = dynamic_cast<message::LiveWatchedChange*>(live_msg.get());
+                            // if (watched_msg && watched_msg->data) {
+                            //     // 更新在线人数
+                            // }
+                        } else if (live_msg->type == MessageType::SUPER_CHAT) {
+                            auto* sc_msg = dynamic_cast<message::LiveSuperChat*>(live_msg.get());
+                            if (!sc_msg || !sc_msg->data) continue;
+                            
+                            sc_list.emplace_back(LiveDanmakuItem(sc_msg->data));
+                        }
+                    }
+                    
+                    // 处理弹幕到视频
+                    process_danmaku(danmaku_list);
+                    
+                    // 处理弹幕到侧边栏
+                    if (!danmaku_list.empty() && state->isActive.load(std::memory_order_acquire)) {
+                        this->processDanmakuForSidebar(danmaku_list);
+                    }
+                    
+                    // 处理SC消息到侧边栏
+                    if (!sc_list.empty() && state->isActive.load(std::memory_order_acquire)) {
+                        this->processSuperChatForSidebar(sc_list);
+                    }
+                });
             });
             
-            // 获取表情包URL后连接弹幕服务器
-            if (state->isActive.load(std::memory_order_acquire)) {
-                this->danmaku.connect(room_id_copy, std::stoll(ProgramConfig::instance().getUserID()), info_copy);
-            }
+            // 连接弹幕服务器
+            this->danmaku.connect(room_id_copy, std::stoll(ProgramConfig::instance().getUserID()), info);
+            
         } catch (const std::exception& e) {
-            brls::Logger::error("LiveActivity: 获取表情包URL失败: {}", e.what());
+            brls::Logger::error("LiveActivity: 弹幕处理错误: {}", e.what());
         }
-    }).detach();
+    });
 }
 
 void LiveActivity::onError(const std::string& error) {
