@@ -379,20 +379,36 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float 
                 // 文字高度约为DANMAKU_STYLE_FONTSIZE，表情高度为emoticon_size
                 // 需要将表情向上偏移，使其中心与文字中心对齐
                 float v_offset = (DanmakuCore::DANMAKU_STYLE_FONTSIZE - emoticon_size) / 2;
+                
+                // 对于纯表情弹幕(is_emoticon为true)，使用两倍大小
+                if (j.danmaku->is_emoticon) {
+                    v_offset = 0;
+                    emoticon_size = DanmakuCore::DANMAKU_STYLE_FONTSIZE * 1.8f;
+                }
+                
                 float emoticonAlpha = DanmakuCore::DANMAKU_STYLE_ALPHA * 0.01f * alpha; // 与弹幕一致的透明度
                 
-                if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
+                if (j.danmaku->is_emoticon) {
+                    // 纯表情弹幕只渲染滚动弹幕
+                    if (position > 0) {
+                        // 滚动弹幕
+                        drawEmoticon(vg, j.danmaku->dan, 
+                                    x + width - position + emoticon_size/2, 
+                                    y + j.line * line_height + 5 + v_offset, 
+                                    emoticon_size, emoticonAlpha);
+                    }
+                } else if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
                     // 顶部或底部弹幕
                     drawEmoticon(vg, j.danmaku->dan, 
-                                 x + width / 2, 
-                                 y + j.line * line_height + 5 + v_offset, 
-                                 emoticon_size, emoticonAlpha);
+                                x + width / 2, 
+                                y + j.line * line_height + 5 + v_offset, 
+                                emoticon_size, emoticonAlpha);
                 } else if (position > 0) {
-                    // 滚动弹幕
+                    // 普通表情滚动弹幕
                     drawEmoticon(vg, j.danmaku->dan, 
-                                 x + width - position + emoticon_size/2, 
-                                 y + j.line * line_height + 5 + v_offset, 
-                                 emoticon_size, emoticonAlpha);
+                                x + width - position + emoticon_size/2, 
+                                y + j.line * line_height + 5 + v_offset, 
+                                emoticon_size, emoticonAlpha);
                 }
                 continue;
             }
@@ -501,6 +517,11 @@ bool LiveDanmakuCore::init_danmaku(NVGcontext *vg, LiveDanmakuItem &i, float wid
     i.speed = (width + i.length) / SECOND;
     i.time  = now + std::chrono::milliseconds(time);
 
+    // 如果是纯表情弹幕，并且不是滚动弹幕，则直接抛弃
+    if (i.danmaku->is_emoticon && (i.danmaku->dan_type == 4 || i.danmaku->dan_type == 5)) {
+        return false;
+    }
+
     for (int k = 0; k < LINES; ++k) {
         if (i.danmaku->dan_type == 4 && !center_lines[LINES - k - 1]) {
             //底部
@@ -516,10 +537,27 @@ bool LiveDanmakuCore::init_danmaku(NVGcontext *vg, LiveDanmakuItem &i, float wid
                    i.time + std::chrono::milliseconds(size_t(width / i.speed * 1000.0f)) > scroll_lines[k].second) {
             //滚动
             // 一条弹幕末尾出现的时间点
-            scroll_lines[k].first = i.time + std::chrono::milliseconds(size_t(i.length / i.speed * 1000.0f));
+            // 为纯表情弹幕添加额外缓冲时间
+            float bufferFactor = i.danmaku->is_emoticon ? 1.1f : 1.0f;
+            scroll_lines[k].first = i.time + std::chrono::milliseconds(size_t(i.length * bufferFactor / i.speed * 1000.0f));
             // 一条弹幕完全消失的时间点
             scroll_lines[k].second = i.time + std::chrono::milliseconds(size_t(SECOND * 1000.0f));
             i.line                 = k;
+            
+            // 如果是纯表情弹幕，需要占用两行空间，检查下一行是否也可用
+            if (i.danmaku->is_emoticon && k + 1 < LINES) {
+                // 检查下一行是否也可用
+                if (!(i.time > scroll_lines[k + 1].first &&
+                      i.time + std::chrono::milliseconds(size_t(width / i.speed * 1000.0f)) > scroll_lines[k + 1].second)) {
+                    // 下一行不可用，当前行也不能用
+                    continue;
+                }
+                
+                // 下一行也占用，同样需要添加缓冲
+                scroll_lines[k + 1].first = i.time + std::chrono::milliseconds(size_t(i.length * bufferFactor / i.speed * 1000.0f));
+                scroll_lines[k + 1].second = i.time + std::chrono::milliseconds(size_t(SECOND * 1000.0f));
+            }
+            
             return true;
         }
     }

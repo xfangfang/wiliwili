@@ -158,7 +158,13 @@ void LiveActivity::onContentAvailable()
     // 根据侧边栏设置调整界面布局
     if (this->maxSidebarDanmakuCount <= 0) {
         // 如果设置为0，隐藏侧边栏并扩展左侧区域
-        this->liveDanmakuSidebar->setVisibility(brls::Visibility::GONE);
+        this->liveDanmakuSidebar->setVisibility(brls::Visibility::GONE);        
+        // 自动进入全屏模式
+        brls::delay(100, [this]() {
+            if (!this->video->isFullscreen()) {
+                this->video->setFullScreen(true);
+            }
+        });
     } else {
         // 显示侧边栏，使用默认宽度设置
         this->liveDanmakuSidebar->setVisibility(brls::Visibility::VISIBLE);
