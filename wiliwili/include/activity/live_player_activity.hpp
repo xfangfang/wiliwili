@@ -28,7 +28,13 @@ class LiveActivity : public brls::Activity,
                      public LiveDataRequest {
 public:
     // Declare that the content of this activity is the given XML file
-    CONTENT_FROM_XML_RES("activity/live_player_activity.xml");
+    // CONTENT_FROM_XML_RES("activity/live_player_activity.xml");
+    brls ::View* createContentView() override {
+        if (maxSidebarDanmakuCount != 0)
+            return brls ::View ::createFromXMLResource("activity/live_player_activity.xml");
+        else
+            return brls ::View ::createFromXMLResource("activity/video_activity.xml");
+    }
 
     explicit LiveActivity(int roomid, const std::string& name = "", const std::string& views = "");
 
@@ -78,19 +84,22 @@ public:
     // 生成SC唯一标识
     std::string generateSuperChatToken(const LiveDanmakuItem& sc) const;
 
+    // 添加方法检查是否应该显示侧边栏
+    bool shouldShowSidebar() const {
+        return maxSidebarDanmakuCount > 0;
+    }
+
     ~LiveActivity() override;
 
 private:
-    BRLS_BIND(VideoView, video, "video");
-    BRLS_BIND(UserInfoView, liveAuthor, "live_author");
-    BRLS_BIND(brls::Box, liveDanmakuContainer, "live_danmaku_container");
-    BRLS_BIND(brls::ScrollingFrame, liveDanmakuList, "live_danmaku_list");
-    BRLS_BIND(brls::Label, liveTitleLabel, "live/title");
-    // 新增：主播称号Label
-    BRLS_BIND(brls::Label, anchorTitleLabel, "anchor/title");
-    // 新增：侧边栏Box和左侧内容Box
-    BRLS_BIND(brls::Box, liveDanmakuSidebar, "live_danmaku_sidebar");
-    BRLS_BIND(brls::Box, liveDetailLeftBox, "live_detail_left_box");
+    VideoView* video = nullptr;
+    UserInfoView* liveAuthor = nullptr;
+    brls::Box* liveDanmakuContainer = nullptr;
+    brls::ScrollingFrame* liveDanmakuList = nullptr;
+    brls::Label* liveTitleLabel = nullptr;
+    brls::Label* anchorTitleLabel = nullptr;
+    brls::Box* liveDanmakuSidebar = nullptr;
+    brls::Box* liveDetailLeftBox = nullptr;
 
     // 暂停的延时函数 handle
     size_t toggleDelayIter = 0;

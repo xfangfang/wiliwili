@@ -148,42 +148,43 @@ void LiveActivity::setVideoQuality() {
 void LiveActivity::onContentAvailable()
 {   
     // 设置全屏按钮图标
+    // 首先查找并绑定video组件，这在两种布局中都存在
+    this->video = (VideoView*)this->getView("video");
+    if (!this->video) {
+        brls::Logger::error("LiveActivity: 找不到video视图");
+        return;
+    }
+    
     this->video->setFullscreenIcon(this->video->isFullscreen());
 
     brls::Logger::debug("LiveActivity: onContentAvailable");
 
     MPVCore::instance().setAspect(
         ProgramConfig::instance().getSettingItem(SettingItem::PLAYER_ASPECT, std::string{"-1"}));
-        
+
     // 根据侧边栏设置调整界面布局
-    if (this->maxSidebarDanmakuCount <= 0) {
-        // 如果设置为0，隐藏侧边栏并扩展左侧区域
-        this->liveDanmakuSidebar->setVisibility(brls::Visibility::GONE);        
-        // 自动进入全屏模式
-        brls::delay(100, [this]() {
-            if (!this->video->isFullscreen()) {
-                this->video->setFullScreen(true);
-            }
-        });
-    } else {
-        // 显示侧边栏，使用默认宽度设置
-        this->liveDanmakuSidebar->setVisibility(brls::Visibility::VISIBLE);
-    }
-
-    this->video->registerAction("hints/back"_i18n, brls::BUTTON_B, [this](...) {
-        if (this->video->isOSDLock()) {
-            this->video->toggleOSD();
-        } else {
-            if (this->video->getTvControlMode() && this->video->isOSDShown()) {
-                this->video->toggleOSD();
-                return true;
-            }
-            brls::Logger::debug("exit live");
-            brls::Application::popActivity();
+    if (this->shouldShowSidebar()) {
+        // 绑定侧边栏相关的UI元素
+        this->liveAuthor = (UserInfoView*)this->getView("live_author");
+        this->liveDanmakuContainer = (brls::Box*)this->getView("live_danmaku_container");
+        this->liveDanmakuList = (brls::ScrollingFrame*)this->getView("live_danmaku_list");
+        this->liveTitleLabel = (brls::Label*)this->getView("live/title");
+        this->anchorTitleLabel = (brls::Label*)this->getView("anchor/title");
+        this->liveDanmakuSidebar = (brls::Box*)this->getView("live_danmaku_sidebar");
+        this->liveDetailLeftBox = (brls::Box*)this->getView("live_detail_left_box");
+        
+        // 设置直播标题
+        if (this->liveTitleLabel) {
+            this->liveTitleLabel->setText(liveData.title);
         }
-        return true;
-    });
-
+        
+        // 初始显示空的主播信息，等待API获取后更新
+        if (this->liveAuthor) {
+            this->liveAuthor->setUserInfo("", "加载中...", "");
+            this->liveAuthor->setHintType(InfoHintType::NONE); // 初始不显示关注按钮
+        }
+    }
+    
     // 设置视频相关UI
     this->video->setLiveMode();
     this->video->hideDLNAButton();
@@ -218,13 +219,6 @@ void LiveActivity::onContentAvailable()
             });
         }
     });
-    
-    // 设置直播标题
-    this->liveTitleLabel->setText(liveData.title);
-    
-    // 初始显示空的主播信息，等待API获取后更新
-    this->liveAuthor->setUserInfo("", "加载中...", "");
-    this->liveAuthor->setHintType(InfoHintType::NONE); // 初始不显示关注按钮
     
     // 调整清晰度
     this->registerAction("wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
@@ -480,7 +474,7 @@ void LiveActivity::retryRequestData() {
 
 void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& danmaku_list) {
     // 如果设置为0，表示隐藏侧边栏，直接返回
-    if (this->maxSidebarDanmakuCount <= 0) {
+    if (!this->shouldShowSidebar() || !this->liveDanmakuContainer) {
         return;
     }
     
@@ -501,8 +495,14 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
         return;
     }
     
+    auto state = this->threadState;
     // 确保UI更新在主线程进行
-    brls::sync([this, filtered_danmakus = std::move(filtered_danmakus)]() {
+    brls::sync([this, state, filtered_danmakus = std::move(filtered_danmakus)]() {
+        // 再次检查UI组件和活动状态
+        if (state->isActive.load(std::memory_order_acquire) && this->shouldShowSidebar() && this->liveDanmakuContainer) {
+            return;
+        }
+        
         for (const auto& danmaku : filtered_danmakus) {
             auto* item = LiveDanmakuItemView::create();
             item->setDanmaku(danmaku);
@@ -543,12 +543,18 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
 
 void LiveActivity::processSuperChatForSidebar(const std::vector<LiveDanmakuItem>& sc_list) {
     // 如果设置为0，表示隐藏侧边栏，直接返回
-    if (this->maxSidebarDanmakuCount <= 0) {
+    if (!this->shouldShowSidebar() || !this->liveDanmakuContainer) {
         return;
     }
-    
+
+    auto state = this->threadState;
     // 确保UI更新在主线程进行
-    brls::sync([this, sc_list]() {
+    brls::sync([this, sc_list, state]() {
+        // 再次检查UI组件和活动状态
+        if (state->isActive.load(std::memory_order_acquire) && this->shouldShowSidebar() && this->liveDanmakuContainer) {
+            return;
+        }
+        
         for (const auto& sc : sc_list) {
             auto* item = LiveDanmakuItemView::create();
             item->setDanmaku(sc);
@@ -771,7 +777,9 @@ LiveActivity::~LiveActivity() {
     MPV_E->unsubscribe(tl_event_id);
     
     // 在取消监控之后再停止播放器，避免在播放器停止时触发事件 (尤其是：END_OF_FILE)
-    this->video->stop();
+    if (this->video) {
+        this->video->stop();
+    }
     
     // 重置直播弹幕核心
     LiveDanmakuCore::instance().reset();
@@ -782,7 +790,9 @@ LiveActivity::~LiveActivity() {
     brls::cancelDelay(scExpiryCheckIter);
     
     // 清空表情包数据
-    this->emoticons->clear();
+    if (this->emoticons) {
+        this->emoticons->clear();
+    }
     
     // 清空置顶SC数据
     this->pinnedSuperChats.clear();
@@ -795,15 +805,24 @@ LiveActivity::~LiveActivity() {
 void LiveActivity::onAnchorInfo(const std::string& face, const std::string& uname) {
     brls::Logger::debug("LiveActivity: onAnchorInfo: 用户名={}, 头像URL={}", uname, face);
     
-    // 设置主播信息
-    if (!face.empty()) {
-        this->liveAuthor->setUserInfo(face, uname, liveData.watched_show.text_large);
-    } else {
-        this->liveAuthor->setUserInfo("pictures/default_avatar.png", uname, liveData.watched_show.text_large);
+    if (this->shouldShowSidebar() && this->liveAuthor) {
+        // 设置主播信息
+        if (!face.empty()) {
+            this->liveAuthor->setUserInfo(face, uname, liveData.watched_show.text_large);
+        } else {
+            this->liveAuthor->setUserInfo("pictures/default_avatar.png", uname, liveData.watched_show.text_large);
+        }
     }
     
     // 更新标题
-    this->liveTitleLabel->setText(liveData.title);
+    if (this->video) {
+        this->video->setTitle(liveData.title);
+    }
+    
+    // 同时更新侧边栏标题（如果存在）
+    if (this->shouldShowSidebar() && this->liveTitleLabel) {
+        this->liveTitleLabel->setText(liveData.title);
+    }
 }
 
 // 添加主播称号信息处理函数
@@ -813,12 +832,14 @@ void LiveActivity::onAnchorTitleInfo(const std::string& title) {
     // 保存称号
     this->anchorTitle = title;
     
-    // 设置称号标签文本
-    if (!title.empty()) {
-        this->anchorTitleLabel->setText(title);
-        this->anchorTitleLabel->setVisibility(brls::Visibility::VISIBLE);
-    } else {
-        // 如果没有称号，隐藏标签
-        this->anchorTitleLabel->setVisibility(brls::Visibility::GONE);
+    if (this->shouldShowSidebar() && this->anchorTitleLabel) {
+        // 设置称号标签文本
+        if (!title.empty()) {
+            this->anchorTitleLabel->setText(title);
+            this->anchorTitleLabel->setVisibility(brls::Visibility::VISIBLE);
+        } else {
+            // 如果没有称号，隐藏标签
+            this->anchorTitleLabel->setVisibility(brls::Visibility::GONE);
+        }
     }
 }
