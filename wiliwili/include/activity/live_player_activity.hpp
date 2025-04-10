@@ -14,7 +14,6 @@
 #include "presenter/live_data.hpp"
 #include "live/danmaku_live.hpp"
 #include "view/live_core.hpp"
-#include "live/dl_emoticon.hpp"
 #include <memory>
 #include <map>
 #include <chrono>
@@ -112,9 +111,6 @@ private:
 
     bilibili::LiveVideoResult liveData;
     std::string anchorTitle = ""; // 新增：主播称号
-    
-    // 表情包映射
-    std::shared_ptr<lmp> emoticons;
     
     // SC置顶管理
     // 键：SC的唯一标识，值：过期时间点

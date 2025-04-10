@@ -7,6 +7,7 @@
 
 #include "activity/live_player_activity.hpp"
 #include "utils/number_helper.hpp"
+#include "live/dl_emoticon.hpp"
 
 #include <vector>
 #include <chrono>
@@ -70,9 +71,6 @@ LiveActivity::LiveActivity(int roomid, const std::string& name, const std::strin
     this->liveData.watched_show.text_large = views.empty() ? "获取中..." : views;
     this->liveData.uname                   = ""; // 初始为空，待获取
     this->liveData.cover                   = ""; // 初始为空，待获取
-    
-    // 初始化表情包映射
-    this->emoticons = std::make_shared<lmp>();
     
     this->setCommonData();
 }
@@ -499,7 +497,7 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
     // 确保UI更新在主线程进行
     brls::sync([this, state, filtered_danmakus = std::move(filtered_danmakus)]() {
         // 再次检查UI组件和活动状态
-        if (state->isActive.load(std::memory_order_acquire) && this->shouldShowSidebar() && this->liveDanmakuContainer) {
+        if (!state->isActive.load(std::memory_order_acquire) || !this->shouldShowSidebar() || !this->liveDanmakuContainer) {
             return;
         }
         
@@ -551,7 +549,7 @@ void LiveActivity::processSuperChatForSidebar(const std::vector<LiveDanmakuItem>
     // 确保UI更新在主线程进行
     brls::sync([this, sc_list, state]() {
         // 再次检查UI组件和活动状态
-        if (state->isActive.load(std::memory_order_acquire) && this->shouldShowSidebar() && this->liveDanmakuContainer) {
+        if (!state->isActive.load(std::memory_order_acquire) || !this->shouldShowSidebar() || !this->liveDanmakuContainer) {
             return;
         }
         
@@ -788,11 +786,6 @@ LiveActivity::~LiveActivity() {
     brls::cancelDelay(toggleDelayIter);
     brls::cancelDelay(errorDelayIter);
     brls::cancelDelay(scExpiryCheckIter);
-    
-    // 清空表情包数据
-    if (this->emoticons) {
-        this->emoticons->clear();
-    }
     
     // 清空置顶SC数据
     this->pinnedSuperChats.clear();
