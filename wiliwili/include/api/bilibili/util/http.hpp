@@ -9,6 +9,7 @@
 
 #include "bilibili/util/md5.hpp"
 #include "bilibili/util/json.hpp"
+#include "bilibili/util/wbi.hpp"
 #include "utils/number_helper.hpp"
 #include <pystring.h>
 
@@ -38,23 +39,19 @@ public:
         curl_share_setopt(share, CURLSHOPT_UNLOCKFUNC, unlock_callback);
         curl_share_setopt(share, CURLSHOPT_USERDATA, lock_array);
     }
-    ~CurlSharedObject() {
-        curl_share_cleanup(share);
-    }
+    ~CurlSharedObject() { curl_share_cleanup(share); }
 
-    static void lock_callback(CURL *handle, curl_lock_data data, curl_lock_access access, void *userptr) {
-        auto *lock_array = (std::recursive_mutex *)userptr;
+    static void lock_callback(CURL* handle, curl_lock_data data, curl_lock_access access, void* userptr) {
+        auto* lock_array = (std::recursive_mutex*)userptr;
         lock_array[data].lock();
     }
 
-    static void unlock_callback(CURL *handle, curl_lock_data data, void *userptr) {
-        auto *lock_array = (std::recursive_mutex *)userptr;
+    static void unlock_callback(CURL* handle, curl_lock_data data, void* userptr) {
+        auto* lock_array = (std::recursive_mutex*)userptr;
         lock_array[data].unlock();
     }
 
-    CURLSH* getShare() {
-        return share;
-    }
+    CURLSH* getShare() { return share; }
 
 private:
     CURLSH* share;
@@ -69,9 +66,9 @@ public:
         {"Referer", "https://www.bilibili.com/client"},
         {"Origin", "https://www.bilibili.com"},
     };
-    static inline int TIMEOUT = 10000;
+    static inline int TIMEOUT            = 10000;
     static inline int CONNECTION_TIMEOUT = 0;
-    static inline int DNS_CACHE_TIMEOUT = 60;
+    static inline int DNS_CACHE_TIMEOUT  = 60;
     static inline cpr::Proxies PROXIES;
     static inline cpr::VerifySsl VERIFY;
     static inline std::string PROTOCOL = "https:";
@@ -79,7 +76,7 @@ public:
 
     static std::shared_ptr<cpr::Session> createSession() {
         auto session = std::make_shared<cpr::Session>();
-        CURL* curl = session->GetCurlHolder()->handle;
+        CURL* curl   = session->GetCurlHolder()->handle;
         curl_easy_setopt(curl, CURLOPT_SHARE, HTTP::CURL_SHARE.getShare());
         curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, HTTP::DNS_CACHE_TIMEOUT);
         session->SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
@@ -95,47 +92,47 @@ public:
                            const cpr::Payload& payload                               = {},
                            const std::function<void(const cpr::Response&)>& callback = nullptr,
                            const ErrorCallback& error                                = nullptr) {
-        auto session = createSession();;
+        auto session = createSession();
+        ;
         session->SetUrl(cpr::Url{parseLink(url)});
         session->SetParameters(parameters);
         session->SetPayload(payload);
 
-        session->PostCallback(
-            [callback, error](const cpr::Response& r) {
-                if (r.error) {
-                    ERROR_MSG(r.error.message, -1);
-                    return;
-                } else if (r.status_code != 200) {
-                    ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
-                    return;
-                }
-                callback(r);
-            });
+        session->PostCallback([callback, error](const cpr::Response& r) {
+            if (r.error) {
+                ERROR_MSG(r.error.message, -1);
+                return;
+            } else if (r.status_code != 200) {
+                ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
+                return;
+            }
+            callback(r);
+        });
     }
 
     static void __cpr_get(const std::string& url, const cpr::Parameters& parameters = {},
                           const std::function<void(const cpr::Response&)>& callback = nullptr,
                           const ErrorCallback& error                                = nullptr) {
-        auto session = createSession();;
+        auto session = createSession();
+        ;
         session->SetUrl(cpr::Url{parseLink(url)});
         session->SetParameters(parameters);
 
-        session->GetCallback(
-            [callback, error](const cpr::Response& r) {
-                if (r.error) {
-                    ERROR_MSG(r.error.message, -1);
-                    return;
-                } else if (r.status_code != 200) {
-                    ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
-                    return;
-                }
-                callback(r);
-            });
+        session->GetCallback([callback, error](const cpr::Response& r) {
+            if (r.error) {
+                ERROR_MSG(r.error.message, -1);
+                return;
+            } else if (r.status_code != 200) {
+                ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
+                return;
+            }
+            callback(r);
+        });
     }
 
     template <typename ReturnType>
     static int parseJson(const cpr::Response& r, const std::function<void(ReturnType)>& callback = nullptr,
-                          const ErrorCallback& error = nullptr) {
+                         const ErrorCallback& error = nullptr) {
         try {
             nlohmann::json res = nlohmann::json::parse(r.text);
             int code           = res.at("code").get<int>();
@@ -244,6 +241,23 @@ public:
                     printf("ERROR: %s\n", e.what());
                 }
             },
+            error);
+    }
+
+    template <typename ReturnType>
+    static void getResultWithWbiAsync(const std::string& url, cpr::Parameters parameters = {},
+                                      const std::function<void(ReturnType)>& callback = nullptr,
+                                      const ErrorCallback& error                      = nullptr) {
+        // 使用 WBI 签名
+        if (!wbi::encWbi(parameters)) {
+            if (error) {
+                error("WBI签名失败", -412);
+            }
+            return;
+        }
+
+        __cpr_get(
+            url, parameters, [callback, error](const cpr::Response& r) { parseJson<ReturnType>(r, callback, error); },
             error);
     }
 };
