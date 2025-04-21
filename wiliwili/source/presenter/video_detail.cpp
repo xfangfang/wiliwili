@@ -394,7 +394,7 @@ void VideoDetail::requestUploadedVideos(uint64_t mid, int pn, int ps) {
     brls::Logger::debug("请求投稿视频: {}/{}", mid, userUploadedVideoRequestIndex);
     ASYNC_RETAIN
     BILI::get_user_videos(
-        mid, userUploadedVideoRequestIndex, ps,
+        mid, userUploadedVideoRequestIndex, ps, "pubdate", "",
         [ASYNC_TOKEN](const bilibili::UserUploadedVideoResultWrapper& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE

@@ -318,7 +318,7 @@ void BilibiliClient::get_my_bangumi(const std::string& mid, size_t type, size_t 
 }
 
 /// get user's upload videos
-void BilibiliClient::get_user_videos(uint64_t mid, int pn, int ps,
+void BilibiliClient::get_user_videos(uint64_t mid, int pn, int ps, const std::string& order, const std::string& keyword,
                                      const std::function<void(UserUploadedVideoResultWrapper)>& callback,
                                      const ErrorCallback& error) {
     HTTP::getResultWithWbiAsync<UserUploadedVideoResultWrapper>(Api::UserUploadedVideo,
@@ -326,6 +326,8 @@ void BilibiliClient::get_user_videos(uint64_t mid, int pn, int ps,
                                                                     {"mid", std::to_string(mid)},
                                                                     {"ps", std::to_string(ps)},
                                                                     {"pn", std::to_string(pn)},
+                                                                    {"order", order},
+                                                                    {"keyword", keyword},
                                                                 },
                                                                 callback, error);
 }
