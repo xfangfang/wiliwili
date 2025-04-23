@@ -47,6 +47,7 @@ class VideoOnlineTotal;         // 某个视频在线人数，30s刷新一次
 class VideoRelation;            // 某个视频点赞收藏情况
 class VideoEpisodeRelation;     // 番剧的某一集的点赞收藏情况
 class VideoUrlResult;           // 视频播放地址
+class SeasonUrlResult;          // 番剧播放地址
 class VideoHighlightProgress;   // 视频高能进度条
 class VideoDetailPage;
 typedef std::vector<VideoDetailPage> VideoDetailPageListResult;  // 视频分P列表 （视频详情API可以直接获取分P列表）
@@ -304,7 +305,7 @@ public:
                               const ErrorCallback& error                          = nullptr);
 
     /// get season video url by cid
-    static void get_season_url(uint64_t cid, int qn = 64, const std::function<void(VideoUrlResult)>& callback = nullptr,
+    static void get_season_url(uint64_t cid, int qn = 64, const std::function<void(SeasonUrlResult)>& callback = nullptr,
                                const ErrorCallback& error = nullptr);
 
     /// get live video url by roomid

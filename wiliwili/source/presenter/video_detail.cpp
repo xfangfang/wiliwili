@@ -303,12 +303,12 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, uint64_t cid, b
     brls::Logger::debug("请求番剧视频播放地址: {}", cid);
     BILI::get_season_url(
         cid, defaultQuality,
-        [ASYNC_TOKEN](const bilibili::VideoUrlResult& result) {
+        [ASYNC_TOKEN](const bilibili::SeasonUrlResult& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
                 brls::Logger::debug("BILI::get_video_url");
-                this->videoUrlResult = result;
-                this->onVideoPlayUrl(result);
+                this->videoUrlResult = result.video_info;
+                this->onVideoPlayUrl(this->videoUrlResult);
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {

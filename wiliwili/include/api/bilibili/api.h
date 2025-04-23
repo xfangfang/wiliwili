@@ -38,14 +38,16 @@ const std::string SeasonRCMD = _apiBase + "/pgc/season/web/related/recommend";
 const std::string SeasonStatus = _apiBase + "/pgc/view/web/season/user/status";
 /// 在线观看人数.
 const std::string OnlineViewerCount = _apiBase + "/x/player/online/total";
-/// 视频播放信息.
-const std::string PlayInformation = _apiBase + "/x/player/playurl";
+/// 视频播放地址
+const std::string PlayUrl = _apiBase + "/x/player/playurl";
+const std::string PlayUrl2 = _apiBase + "/x/player/wbi/playurl";
 /// 视频播放地址 TV.
 const std::string PlayUrlTV = _apiBase + "/x/tv/card/view_v2";
 /// 视频播放地址 投屏
 const std::string PlayUrlCast = _apiBase + "/x/tv/playurl";
 /// 番剧播放地址
 const std::string SeasonUrl = _apiBase + "/pgc/player/web/playurl";
+const std::string SeasonUrl2 = _apiBase + "/pgc/player/web/v2/playurl";
 /// 视频分P列表.
 const std::string PlayPageList = _apiBase + "/x/player/pagelist";
 /// 视频播放信息.

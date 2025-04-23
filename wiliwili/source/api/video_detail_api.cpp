@@ -69,9 +69,16 @@ void BilibiliClient::get_video_pagelist(uint64_t aid, const std::function<void(V
 
 void BilibiliClient::get_video_url(const std::string& bvid, uint64_t cid, int qn,
                                    const std::function<void(VideoUrlResult)>& callback, const ErrorCallback& error) {
-    HTTP::getResultAsync<VideoUrlResult>(Api::PlayInformation,
+    HTTP::getResultAsync<VideoUrlResult>(Api::PlayUrl2,
                                          {{"bvid", std::string(bvid)},
                                           {"cid", std::to_string(cid)},
+                                          {"gaia_source", "view-card"},
+                                          {"from_client", "BROWSER"},
+                                          {"is_main_page", "false"},
+                                          {"need_fragment", "false"},
+                                          {"isGaiaAvoided", "true"},
+                                          {"voice_balance", "1"},
+                                          {"web_location", "1315873"},
                                           {"qn", std::to_string(qn)},
                                           {"fourk", "1"},
                                           {"fnval", FNVAL},
@@ -81,9 +88,16 @@ void BilibiliClient::get_video_url(const std::string& bvid, uint64_t cid, int qn
 
 void BilibiliClient::get_video_url(uint64_t aid, uint64_t cid, int qn, const std::function<void(VideoUrlResult)>& callback,
                                    const ErrorCallback& error) {
-    HTTP::getResultAsync<VideoUrlResult>(Api::PlayInformation,
+    HTTP::getResultAsync<VideoUrlResult>(Api::PlayUrl2,
                                          {{"aid", std::to_string(aid)},
                                           {"cid", std::to_string(cid)},
+                                          {"gaia_source", "view-card"},
+                                          {"from_client", "BROWSER"},
+                                          {"is_main_page", "false"},
+                                          {"need_fragment", "false"},
+                                          {"isGaiaAvoided", "true"},
+                                          {"voice_balance", "1"},
+                                          {"web_location", "1315873"},
                                           {"qn", std::to_string(qn)},
                                           {"fourk", "1"},
                                           {"fnval", FNVAL},
@@ -167,12 +181,23 @@ void BilibiliClient::get_season_status(uint64_t seasonID, const std::function<vo
                                              callback, error);
 }
 
-void BilibiliClient::get_season_url(uint64_t cid, int qn, const std::function<void(VideoUrlResult)>& callback,
+void BilibiliClient::get_season_url(uint64_t cid, int qn, const std::function<void(SeasonUrlResult)>& callback,
                                     const ErrorCallback& error) {
-    HTTP::getResultAsync<VideoUrlResult>(
-        Api::SeasonUrl,
-        {{"cid", std::to_string(cid)}, {"qn", std::to_string(qn)}, {"fourk", "1"}, {"fnval", FNVAL}, {"fnver", "0"}},
-        callback, error);
+    HTTP::getResultAsync<SeasonUrlResult>(
+            Api::SeasonUrl2,
+            {{"cid",           std::to_string(cid)},
+             {"qn",            std::to_string(qn)},
+             {"gaia_source",   ""},
+             {"from_client",   "PC_APP"},
+             {"is_main_page",  "false"},
+             {"need_fragment", "false"},
+             {"isGaiaAvoided", "false"},
+             {"voice_balance", "1"},
+             {"drm_tech_type", "3"},
+             {"fourk",         "1"},
+             {"fnval",         FNVAL},
+             {"fnver",         "0"}},
+            callback, error);
 }
 
 void BilibiliClient::get_live_url(int roomid, int qn, const std::function<void(LiveUrlResultWrapper)>& callback,
