@@ -13,10 +13,6 @@ on:
         description: 'SSH connection to Ubuntu'
         required: false
         default: 'false'
-      arm_flatpak:
-        description: 'build flatpak (aarch64)'
-        required: false
-        default: 'false'
       universal_macos:
         description: 'build macos (universal)'
         required: false
@@ -122,24 +118,32 @@ jobs:
 
   build-win:
     needs: [ version ]
-    runs-on: windows-2019
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { arch: x86_64, msystem: MINGW64, driver: gl }
-          - { arch: x86_64, msystem: MINGW64, driver: d3d, cmake: "-DUSE_D3D11=ON" }
-          - { arch: x86, msystem: MINGW32, driver: gl, cmake: "-DUSE_GL2=ON" }
-          - { arch: x86, msystem: MINGW32, driver: d3d, cmake: "-DUSE_D3D11=ON" }
+          - { arch: x86_64, sys: mingw64, env: x86_64, driver: gl }
+          - { arch: x86_64, sys: mingw64, env: x86_64, driver: d3d, cmake: "-DUSE_D3D11=ON" }
+          - { arch: x86, sys: mingw32, env: i686, driver: gl, cmake: "-DUSE_GL2=ON" }
+          - { arch: x86, sys: mingw32, env: i686, driver: d3d, cmake: "-DUSE_D3D11=ON" }
+        # - { arch: arm64, sys: clangarm64, env: clang-aarch64, driver: d3d, cmake: "-DUSE_D3D11=ON" }
         arch: [ x86_64, x86 ]
-        driver: [gl, d3d]
-    env:
-      MSYSTEM: ${{ matrix.msystem }}
-      MSYS2_PATH_TYPE: inherit
+        driver: [ gl, d3d ]
+    runs-on: ${{ contains(matrix.sys, 'arm64') && 'windows-11-arm' || 'windows-latest' }}
     defaults:
       run:
-        shell: C:\shells\msys2bash.cmd {0}
+        shell: msys2 {0}
     steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.sys }}
+          path-type: inherit
+          cache: false
+          release: ${{ contains(matrix.sys, 'arm64') }}
+          install: >-
+            mingw-w64-${{ matrix.env }}-ninja
+            mingw-w64-${{ matrix.env }}-pkgconf
+            mingw-w64-${{ matrix.env }}-cc
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -147,15 +151,8 @@ jobs:
           fetch-depth: 0
       - name: Install dependency
         run: |
-          pacman -S --needed --noconfirm --noprogressbar \
-            ${MINGW_PACKAGE_PREFIX}-gcc \
-            ${MINGW_PACKAGE_PREFIX}-ninja unzip
-
           curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.39.0-4-any.pkg.tar.zst
           pacman -U --noconfirm *.pkg.tar.zst
-
-          curl -LO https://github.com/rainers/cv2pdb/releases/download/v0.52/cv2pdb-0.52.zip
-          unzip cv2pdb-0.52.zip cv2pdb64.exe -d /usr/bin
       - if: matrix.arch == 'x86'
         name: Config Editbin
         shell: powershell
@@ -169,9 +166,8 @@ jobs:
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake ${BRLS_GLFW}/src/mappings.h.in ${BRLS_GLFW}/src/mappings.h
       - name: Build dependency
         run: |
-          curl -sL https://github.com/webmproject/libwebp/archive/v1.4.0.tar.gz | tar zxf - -C /tmp
-          cd /tmp/libwebp-1.4.0
-          cmake -B build -G Ninja \
+          curl -sL https://github.com/webmproject/libwebp/archive/v1.5.0.tar.gz | tar zxf - -C /tmp
+          cmake -B build-libwebp -S /tmp/libwebp-1.5.0 -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
             -DBUILD_SHARED_LIBS=OFF \
@@ -185,12 +181,11 @@ jobs:
             -DWEBP_BUILD_WEBPMUX=OFF \
             -DWEBP_BUILD_LIBWEBPMUX=OFF \
             -DWEBP_BUILD_EXTRAS=OFF
-          cmake --build build
-          cmake --install build
+          cmake --build build-libwebp
+          cmake --install build-libwebp
 
           curl -sL https://curl.se/download/curl-8.7.1.tar.xz | tar Jxf - -C /tmp
-          cd /tmp/curl-8.7.1
-          cmake -B build -G Ninja \
+          cmake -B build-curl -S /tmp/curl-8.7.1 -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
             -DBUILD_SHARED_LIBS=OFF \
@@ -205,12 +200,12 @@ jobs:
             -DCURL_USE_LIBSSH2=OFF \
             -DCURL_USE_LIBPSL=OFF \
             -DZLIB_USE_STATIC_LIBS=ON
-          cmake --build build
-          cmake --install build
+          cmake --build build-curl
+          cmake --install build-curl
       - name: Build
         run: |
           cmake -B build -G Ninja ${{ matrix.cmake }} \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_BUILD_TYPE=Release \
             -DPLATFORM_DESKTOP=ON \
             -DWIN32_TERMINAL=OFF \
             -DUSE_SYSTEM_CURL=ON \
@@ -221,7 +216,7 @@ jobs:
             -DMPV_BUNDLE_DLL=${MINGW_PREFIX}/bin/libmpv-2.dll \
             -DVERSION_BUILD=${{ github.run_number }}
           cmake --build build
-          cv2pdb64 build/wiliwili.exe
+          strip build/wiliwili.exe
           cp -a README.md build
       - name: Upload dist
         uses: actions/upload-artifact@v4
@@ -229,7 +224,6 @@ jobs:
           name: ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}
           path: |
             build/wiliwili.exe
-            build/wiliwili.pdb
             build/README.md
 
 #  build-win-uwp:
@@ -415,36 +409,37 @@ jobs:
 
   build-flatpak:
     needs: [ version ]
-    runs-on: ubuntu-latest
     container:
-      image: bilelmoussaoui/flatpak-github-actions:freedesktop-24.08
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-24.08
       options: --privileged
     strategy:
       matrix:
+        include:
+          - { arch: x86_64, runner: ubuntu-24.04 }
+          - { arch: aarch64, runner: ubuntu-24.04-arm }
         arch: [ x86_64, aarch64 ]
         driver: [ gl, gles2 ]
         exclude:
-          - arch: x86_64
-            driver: gles2
+          - { arch: x86_64, driver: gles2 }
       # Don't fail the whole workflow if one architecture fails
       fail-fast: false
+    runs-on: ${{ matrix.runner }}
     env:
       FLATPAK_NAME: wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         with:
           submodules: recursive
           fetch-depth: 0
 
       - name: Add OpenGL ES 2.0 build option
-        if: matrix.driver == 'gles2' && ( matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true' ) )
+        if: matrix.driver == 'gles2'
         run: |
           sed -i 's/USE_GLES2=OFF/USE_GLES2=ON/' .flatpak-manifest.yml
 
       - name: Disable unity build
-        if: ( github.event.inputs.disable_unity_build == 'true' ) && ( matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true') )
+        if: github.event.inputs.disable_unity_build == 'true'
         run: |
           sed -i 's/BRLS_UNITY_BUILD=ON/BRLS_UNITY_BUILD=OFF/' .flatpak-manifest.yml
 
@@ -453,30 +448,15 @@ jobs:
         run: |
           echo "FLATPAK_NAME=wiliwili-Linux-${{ needs.version.outputs.version }}-${{ matrix.driver }}.flatpak"  >> $GITHUB_ENV
 
-      - name: Install docker
-        if: ${{ matrix.arch == 'aarch64' }}
-        run: |
-          dnf -y install docker
-
       - name: Install deps
         id: dep
-        if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         run: |
-          dnf -y install cmake
           BRLS_GLFW="library/borealis/library/lib/extern/glfw/"
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake  ${BRLS_GLFW}/src/mappings.h.in  ${BRLS_GLFW}/src/mappings.h
           echo "FLATPAK_NAME=${FLATPAK_NAME}"  >> $GITHUB_OUTPUT
           echo ${FLATPAK_NAME}
 
-      - name: Set up QEMU
-        id: qemu
-        if: matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-
-      - uses: xfangfang/flatpak-github-actions/flatpak-builder@master
-        if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.5
         with:
           bundle: ${{ steps.dep.outputs.FLATPAK_NAME }}
           manifest-path: .flatpak-manifest.yml
@@ -486,7 +466,6 @@ jobs:
           upload-artifact: false
 
       - uses: actions/upload-artifact@v4
-        if: matrix.arch == 'x86_64' || ( matrix.arch == 'aarch64' && github.event.inputs.arm_flatpak == 'true')
         with:
           name: wiliwili-Linux-${{ needs.version.outputs.version }}-${{ matrix.arch }}-${{ matrix.driver }}
           path: ${{ steps.dep.outputs.FLATPAK_NAME }}
