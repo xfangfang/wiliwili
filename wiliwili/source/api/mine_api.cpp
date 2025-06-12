@@ -321,15 +321,14 @@ void BilibiliClient::get_my_bangumi(const std::string& mid, size_t type, size_t 
 void BilibiliClient::get_user_videos(uint64_t mid, int pn, int ps, const std::string& order, const std::string& keyword,
                                      const std::function<void(UserUploadedVideoResultWrapper)>& callback,
                                      const ErrorCallback& error) {
-    HTTP::getResultWithWbiAsync<UserUploadedVideoResultWrapper>(Api::UserUploadedVideo,
-                                                                {
-                                                                    {"mid", std::to_string(mid)},
-                                                                    {"ps", std::to_string(ps)},
-                                                                    {"pn", std::to_string(pn)},
-                                                                    {"order", order},
-                                                                    {"keyword", keyword},
-                                                                },
-                                                                callback, error);
+    cpr::Parameters params = {
+        {"mid", std::to_string(mid)}, {"ps", std::to_string(ps)}, {"pn", std::to_string(pn)}, {"order", order}};
+
+    if (!keyword.empty()) {
+        params.Add({"keyword", keyword});
+    }
+
+    HTTP::getResultWithWbiAsync<UserUploadedVideoResultWrapper>(Api::UserUploadedVideo, params, callback, error);
 }
 
 void BilibiliClient::get_user_videos2(uint64_t mid, int pn, int ps,
