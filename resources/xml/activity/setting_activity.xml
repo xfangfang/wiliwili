@@ -202,6 +202,9 @@
                             <brls:BooleanCell
                                     id="cell/gamepadVibration"/>
 
+                            <SelectorCell
+                                    id="setting/live/sidebar_count"/>
+
                             <brls:BooleanCell
                                     id="setting/opencc"/>
 

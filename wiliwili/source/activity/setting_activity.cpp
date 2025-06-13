@@ -13,8 +13,8 @@
 
 #include "bilibili.h"
 #include "activity/setting_activity.hpp"
-#include "activity/hint_activity.hpp"
 #include "activity/search_activity_tv.hpp"
+#include "activity/hint_activity.hpp"
 #include "fragment/setting_network.hpp"
 #include "fragment/test_rumble.hpp"
 #include "utils/config_helper.hpp"
@@ -695,6 +695,35 @@ void SettingActivity::onContentAvailable() {
                          MPVCore::LOW_QUALITY = value;
                          MPVCore::instance().restart();
                      });
+
+    // 添加直播侧边栏弹幕数量设置
+    auto& sidebarConf = ProgramConfig::instance();
+    // 获取实际保存的弹幕数量
+    int sidebarCount = sidebarConf.getIntOption(SettingItem::LIVE_SIDEBAR_DANMAKU_COUNT);
+    // 建立映射关系：实际值到索引
+    const std::vector<int> counts = {0, 10, 25, 50, 100};
+    // 默认选择索引
+    int sidebarIndex = 4; // 默认100条
+    
+    // 根据保存的实际值找到对应的索引
+    for (size_t i = 0; i < counts.size(); i++) {
+        if (sidebarCount == counts[i]) {
+            sidebarIndex = i;
+            break;
+        }
+    }
+    
+    this->selectorLiveSidebarCount->init(
+        "wiliwili/setting/app/ui/live_sidebar_count"_i18n,
+        {"0 ("_i18n + "wiliwili/setting/app/ui/live_sidebar_hide"_i18n + ")", "10", "25", "50", "100"},
+        sidebarIndex,
+        [counts](int data) {
+            // 索引值转换为实际的弹幕数量值
+            const int actualCount = counts[data];
+            ProgramConfig::instance().setSettingItem(SettingItem::LIVE_SIDEBAR_DANMAKU_COUNT, actualCount, true);
+            return true;
+        }
+    );
 }
 
 SettingActivity::~SettingActivity() { brls::Logger::debug("SettingActivity: delete"); }

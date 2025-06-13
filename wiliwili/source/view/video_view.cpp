@@ -367,8 +367,10 @@ VideoView::VideoView() {
         new brls::TapGestureRecognizer(this->btnDanmakuIcon->getParent()));
 
     /// 弹幕设置按钮
-    this->btnDanmakuSettingIcon->getParent()->registerClickAction([](...) {
-        auto setting = new PlayerDanmakuSetting();
+    this->btnDanmakuSettingIcon->getParent()->registerClickAction([this](...) {
+        // 判断当前是否处于直播模式
+        bool isLiveMode = this->isLiveMode;
+        auto setting = new PlayerDanmakuSetting(isLiveMode);
         brls::Application::pushActivity(new brls::Activity(setting));
         GA("open_danmaku_setting")
         return true;
@@ -1016,6 +1018,9 @@ void VideoView::setLiveMode() {
     centerStatusLabel->setVisibility(brls::Visibility::GONE);
     rightStatusLabel->setVisibility(brls::Visibility::GONE);
     _setTvControlMode(false);
+    // 在直播模式下隐藏进度条、倍速按钮
+    hideVideoProgressSlider();
+    hideVideoSpeedButton();
 }
 
 void VideoView::setTvControlMode(bool state) {
@@ -1191,9 +1196,10 @@ void VideoView::setFullScreen(bool fs) {
         video->osdSlider->setClipPoint(osdSlider->getClipPoint());
         video->refreshToggleIcon();
         video->setHighlightProgress(highlightData);
-        if (video->isLiveMode) video->setLiveMode();
+        if (this->isLiveMode) video->setLiveMode();
         video->setCustomToggleAction(customToggleAction);
         DanmakuCore::instance().refresh();
+        LiveDanmakuCore::instance().refresh();
         video->setOnlineCount(this->videoOnlineCountLabel->getFullText());
         if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
             video->hideLoading();
@@ -1224,40 +1230,97 @@ void VideoView::setFullScreen(bool fs) {
             }
 
             // 同时点击全屏按钮和评论会导致评论弹出在 BasePlayerActivity 和 videoView 之间，
-            // 因此目前需要遍历全部的 activity 找到 BasePlayerActivity
+            // 因此目前需要遍历全部的 activity 找到 BasePlayerActivity 或包含VideoView的Activity
             if (activityStack.size() <= 2) {
                 brls::Application::popActivity();
                 return;
             }
+            
+            bool found = false;
             for (size_t i = activityStack.size() - 2; i != 0; i--) {
+                // 检查是否为BasePlayerActivity
                 auto* last = dynamic_cast<BasePlayerActivity*>(activityStack[i]);
-                if (!last) continue;
-                auto* video = dynamic_cast<VideoView*>(last->getView("video"));
-                if (video) {
-                    video->setProgress(this->getProgress());
-                    video->showOSD(this->osd_state != OSDState::ALWAYS_ON);
-                    video->setDuration(this->rightStatusLabel->getFullText());
-                    video->setPlaybackTime(this->leftStatusLabel->getFullText());
-                    video->registerMpvEvent();
-                    video->showReplay    = showReplay;
-                    video->real_duration = real_duration;
-                    video->setLastPlayedPosition(lastPlayedPosition);
-                    video->osdSlider->setClipPoint(osdSlider->getClipPoint());
-                    video->setBangumiCustomSetting(this->bangumiTitle, this->bangumiSeasonId);
-                    video->refreshToggleIcon();
-                    video->setHighlightProgress(highlightData);
-                    video->refreshDanmakuIcon();
-                    video->setQuality(this->getQuality());
-                    video->videoSpeed->setText(this->videoSpeed->getFullText());
-                    DanmakuCore::instance().refresh();
-                    if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
-                        video->hideLoading();
-                    } else {
-                        video->showLoading();
+                if (last) {
+                    auto* video = dynamic_cast<VideoView*>(last->getView("video"));
+                    if (video) {
+                        // 将当前播放状态传递给小窗
+                        video->setProgress(this->getProgress());
+                        video->showOSD(this->osd_state != OSDState::ALWAYS_ON);
+                        video->setDuration(this->rightStatusLabel->getFullText());
+                        video->setPlaybackTime(this->leftStatusLabel->getFullText());
+                        video->registerMpvEvent();
+                        video->showReplay    = showReplay;
+                        video->real_duration = real_duration;
+                        video->setLastPlayedPosition(lastPlayedPosition);
+                        video->osdSlider->setClipPoint(osdSlider->getClipPoint());
+                        video->setBangumiCustomSetting(this->bangumiTitle, this->bangumiSeasonId);
+                        video->refreshToggleIcon();
+                        video->setHighlightProgress(highlightData);
+                        video->refreshDanmakuIcon();
+                        video->setQuality(this->getQuality());
+                        video->videoSpeed->setText(this->videoSpeed->getFullText());
+                        DanmakuCore::instance().refresh();
+                        LiveDanmakuCore::instance().refresh();
+                        
+                        // 同步播放/暂停状态
+                        if (MPVCore::instance().isPaused()) {
+                            video->pause();
+                        } else if (MPVCore::instance().isPlaying()) {
+                            video->resume();
+                        }
+                        
+                        if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
+                            video->hideLoading();
+                        } else {
+                            video->showLoading();
+                        }
+                        found = true;
+                        break;
+                    }
+                } else {
+                    // 如果不是BasePlayerActivity，检查是否是包含VideoView的Activity
+                    // 这可能是LiveActivity或其他类型的Activity
+                    auto* contentView = activityStack[i]->getContentView();
+                    if (contentView) {
+                        auto* video = dynamic_cast<VideoView*>(contentView->getView("video"));
+                        if (video) {
+                            // 对于非BasePlayerActivity中的VideoView，也应该同步状态
+                            video->setProgress(this->getProgress());
+                            video->showOSD(this->osd_state != OSDState::ALWAYS_ON);
+                            video->setDuration(this->rightStatusLabel->getFullText());
+                            video->setPlaybackTime(this->leftStatusLabel->getFullText());
+                            video->registerMpvEvent();
+                            video->refreshToggleIcon();
+                            video->refreshDanmakuIcon();
+                            video->setQuality(this->getQuality());
+                            
+                            // 同步播放/暂停状态
+                            if (MPVCore::instance().isPaused()) {
+                                video->pause();
+                            } else if (MPVCore::instance().isPlaying()) {
+                                video->resume();
+                            }
+                            
+                            DanmakuCore::instance().refresh();
+                            LiveDanmakuCore::instance().refresh();
+                            
+                            if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
+                                video->hideLoading();
+                            } else {
+                                video->showLoading();
+                            }
+                            found = true;
+                            break;
+                        }
                     }
                 }
-                break;
             }
+            
+            // 如果没有找到合适的Activity，但仍需要退出全屏
+            if (!found) {
+                brls::Logger::debug("No suitable activity found to return to when exiting fullscreen");
+            }
+            
             // Pop fullscreen videoView
             brls::Application::popActivity(brls::TransitionAnimation::NONE);
         });

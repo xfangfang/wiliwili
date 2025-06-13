@@ -70,4 +70,5 @@ private:
     BRLS_BIND(BiliSelectorCell, cellOnTopMode, "cell/onTopMode");
     BRLS_BIND(brls::BooleanCell, cellVibration, "cell/gamepadVibration");
     BRLS_BIND(brls::Label, labelAboutVersion, "setting/about/version");
+    BRLS_BIND(BiliSelectorCell, selectorLiveSidebarCount, "setting/live/sidebar_count");
 };

@@ -7,6 +7,7 @@
 
 #include "fragment/player_danmaku_setting.hpp"
 #include "view/danmaku_core.hpp"
+#include "view/live_core.hpp"
 #include "view/button_close.hpp"
 #include "view/selector_cell.hpp"
 #include "utils/config_helper.hpp"
@@ -14,7 +15,7 @@
 
 using namespace brls::literals;
 
-PlayerDanmakuSetting::PlayerDanmakuSetting() {
+PlayerDanmakuSetting::PlayerDanmakuSetting(bool isLiveMode) {
     this->inflateFromXMLRes("xml/fragment/player_danmaku_setting.xml");
     brls::Logger::debug("Fragment PlayerDanmakuSetting: create");
 
@@ -80,6 +81,17 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
                                  return true;
                              });
 
+    // 根据当前模式设置过滤等级控件的可见性
+    if (isLiveMode) {
+        // 播放直播时，隐藏普通弹幕等级设置，显示直播弹幕等级设置
+        this->cellLevel->setVisibility(brls::Visibility::GONE);
+        this->cellLevelLive->setVisibility(brls::Visibility::VISIBLE);
+    } else {
+        // 播放视频时，显示普通弹幕等级设置，隐藏直播弹幕等级设置
+        this->cellLevel->setVisibility(brls::Visibility::VISIBLE);
+        this->cellLevelLive->setVisibility(brls::Visibility::GONE);
+    }
+
     std::vector<std::string> levels;
     for (size_t i = 1; i <= 10; i++)
         levels.emplace_back(wiliwili::format("wiliwili/player/danmaku/filter/level_n"_i18n, i));
@@ -88,6 +100,36 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
                               DanmakuCore::DANMAKU_FILTER_LEVEL = data + 1;
                               DanmakuCore::save();
                               DanmakuCore::instance().refresh();
+                              return true;
+                          });
+
+    // 添加直播弹幕等级设置
+    std::vector<std::string> liveLevels;
+    for (size_t i = 0; i <= 60; i += 5) {
+        if (i == 0)
+            liveLevels.emplace_back("wiliwili/player/danmaku/filter/level_live_none"_i18n);
+        else
+            liveLevels.emplace_back(wiliwili::format("wiliwili/player/danmaku/filter/level_live_n"_i18n, i));
+    }
+    // 添加特殊值60
+    if (liveLevels.size() == 13) // 0,5,10,...,55,60已有13个值
+        liveLevels[12] = "wiliwili/player/danmaku/filter/level_live_60"_i18n;
+    else
+        liveLevels.emplace_back("wiliwili/player/danmaku/filter/level_live_60"_i18n);
+    
+    // 获取当前设置值或使用默认值0
+    int liveDanmakuLevel = 0;
+    try {
+        liveDanmakuLevel = LiveDanmakuCore::DANMAKU_FILTER_LEVEL_LIVE;
+    } catch (const std::exception& e) {
+        brls::Logger::error("Error getting live danmaku level: {}", e.what());
+    }
+    
+    this->cellLevelLive->init("wiliwili/player/danmaku/filter/level_live"_i18n, liveLevels,
+                          liveDanmakuLevel / 5, [](int data) {
+                              LiveDanmakuCore::DANMAKU_FILTER_LEVEL_LIVE = data * 5;
+                              ProgramConfig::instance().setSettingItem(SettingItem::LIVE_DANMAKU_FILTER_LEVEL, data * 5);
+                              ProgramConfig::instance().save();
                               return true;
                           });
 
@@ -165,7 +207,7 @@ PlayerDanmakuSetting::PlayerDanmakuSetting() {
 
 PlayerDanmakuSetting::~PlayerDanmakuSetting() { brls::Logger::debug("Fragment PlayerDanmakuSetting: delete"); }
 
-brls::View* PlayerDanmakuSetting::create() { return new PlayerDanmakuSetting(); }
+brls::View* PlayerDanmakuSetting::create(bool isLiveMode) { return new PlayerDanmakuSetting(isLiveMode); }
 
 bool PlayerDanmakuSetting::isTranslucent() { return true; }
 

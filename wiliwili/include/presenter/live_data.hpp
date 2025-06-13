@@ -19,6 +19,10 @@ public:
 
     virtual void onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& info) {}
 
+    virtual void onAnchorInfo(const std::string& face, const std::string& uname) {}
+
+    virtual void onAnchorTitleInfo(const std::string& title) {}
+
     void requestData(int roomid);
 
     void reportHistory(int roomid);
@@ -26,6 +30,10 @@ public:
     void requestPayLiveInfo(int roomid);
 
     void requestLiveDanmakuToken(int roomid);
+
+    void requestLiveAnchorInfo(int roomid);
+
+    void requestLiveAnchorTitle(int roomid);
 
     std::string getQualityDescription(int qn);
 

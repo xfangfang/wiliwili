@@ -44,7 +44,9 @@
         "window": "窗口",
         "bottom_bar": "底部提示栏",
         "ui_style": "界面风格",
-        "tv_osd": "电视风格播放器"
+        "tv_osd": "电视风格播放器",
+        "live_sidebar_count": "直播间侧边栏弹幕数量",
+        "live_sidebar_hide": "隐藏侧边栏"
       },
       "others": {
         "header": "其他设置",
@@ -439,7 +441,11 @@
         "color": "彩色弹幕",
         "advanced": "高级弹幕",
         "level": "过滤等级",
-        "level_n": "{}级"
+        "level_n": "{}级",
+        "level_live": "直播过滤等级",
+        "level_live_none": "不过滤 (UL0+)",
+        "level_live_n": "UL{}以上",
+        "level_live_60": "仅UL60"
       },
       "style": {
         "header": "弹幕样式",

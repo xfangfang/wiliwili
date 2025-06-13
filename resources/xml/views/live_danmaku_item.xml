@@ -1,0 +1,147 @@
+<brls:Box
+        width="auto"
+        height="auto"
+        marginTop="5"
+        marginBottom="5"
+        marginLeft="5"
+        marginRight="5"
+        cornerRadius="8"
+        padding="8">
+    
+    <brls:Box
+            width="100%"
+            height="auto"
+            axis="column">
+        
+        <!-- 用户名和等级信息 -->
+        <brls:Box
+                width="100%"
+                height="auto"
+                alignItems="center">
+            
+            <!-- SC用户头像 -->
+            <brls:Image
+                    id="danmaku_avatar"
+                    width="24"
+                    height="24"
+                    scalingType="fit"
+                    cornerRadius="100"
+                    marginRight="4"
+                    visibility="gone"
+                    image="@res/pictures/default_avatar.png"/>
+            
+            <brls:Box
+                    id="danmaku_user_level"
+                    width="auto"
+                    height="18"
+                    backgroundColor="#FF6699"
+                    cornerRadius="4"
+                    alignItems="center"
+                    justifyContent="center"
+                    paddingLeft="4"
+                    paddingRight="4">
+                <brls:Label
+                        id="danmaku_level_text"
+                        fontSize="10"
+                        textColor="#FFFFFF"
+                        text="UL1"/>
+            </brls:Box>
+            
+            <!-- 粉丝牌子 -->
+            <brls:Box
+                    id="danmaku_fan_medal"
+                    width="auto"
+                    height="18"
+                    backgroundColor="#888888"
+                    cornerRadius="4"
+                    alignItems="center"
+                    justifyContent="center"
+                    paddingLeft="4"
+                    paddingRight="4"
+                    marginLeft="4"
+                    visibility="gone">
+                <brls:Label
+                        id="danmaku_fan_medal_text"
+                        fontSize="10"
+                        textColor="#FFFFFF"
+                        text="牌子1"/>
+            </brls:Box>
+            
+            <!-- 房管标识 -->
+            <brls:Box
+                    id="danmaku_admin"
+                    width="auto"
+                    height="18"
+                    backgroundColor="#FF9900"
+                    cornerRadius="4"
+                    alignItems="center"
+                    justifyContent="center"
+                    paddingLeft="4"
+                    paddingRight="4"
+                    marginLeft="4"
+                    visibility="gone">
+                <brls:Label
+                        id="danmaku_admin_text"
+                        fontSize="10"
+                        textColor="#FFFFFF"
+                        text="房管"/>
+            </brls:Box>
+            
+            <!-- VIP标识 -->
+            <brls:Box
+                    id="danmaku_vip"
+                    width="auto"
+                    height="18"
+                    backgroundColor="#E22882"
+                    cornerRadius="4"
+                    alignItems="center"
+                    justifyContent="center"
+                    paddingLeft="4"
+                    paddingRight="4"
+                    marginLeft="4"
+                    visibility="gone">
+                <brls:Label
+                        id="danmaku_vip_text"
+                        fontSize="10"
+                        textColor="#FFFFFF"
+                        text="舰长"/>
+            </brls:Box>
+            
+            <!-- SC金额标签 -->
+            <brls:Box
+                    id="danmaku_sc_price"
+                    width="auto"
+                    height="18"
+                    backgroundColor="#FF9900"
+                    cornerRadius="4"
+                    alignItems="center"
+                    justifyContent="center"
+                    paddingLeft="6"
+                    paddingRight="6"
+                    marginLeft="4"
+                    visibility="gone">
+                <brls:Label
+                        id="danmaku_sc_price_text"
+                        fontSize="12"
+                        textColor="#FFFFFF"
+                        text="¥30"/>
+            </brls:Box>
+            
+            <brls:Label
+                    id="danmaku_username"
+                    marginLeft="6"
+                    fontSize="12"
+                    text="用户名"
+                    singleLine="true"/>
+        </brls:Box>
+                    
+        <!-- 弹幕内容单独放在一行 -->
+        <brls:Label
+                id="danmaku_content"
+                width="100%"
+                marginTop="4"
+                fontSize="14"
+                text="这是一条弹幕内容"
+                singleLine="false"/>
+    </brls:Box>
+</brls:Box> 

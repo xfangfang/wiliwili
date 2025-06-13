@@ -30,6 +30,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Filter files
+        run: |
+          find . -type f -not \( -name "*.md" -o -name "*.svg" -o -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) -delete
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:

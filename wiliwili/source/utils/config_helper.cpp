@@ -31,9 +31,10 @@
 #include "presenter/video_detail.hpp"
 #include "activity/player_activity.hpp"
 #include "activity/search_activity_tv.hpp"
-#include "view/danmaku_core.hpp"
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
+#include "view/live_core.hpp"
+#include "view/danmaku_core.hpp"
 
 #ifdef PS4
 #include <orbis/SystemService.h>
@@ -277,6 +278,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 
     /// Custom
     {SettingItem::UP_FILTER, {"up_filter", {}, {}, 0}},
+    {SettingItem::LIVE_DANMAKU_FILTER_LEVEL, {"live_danmaku_filter_level", {}, {}, 0}},
+    {SettingItem::LIVE_SIDEBAR_DANMAKU_COUNT, {"live_sidebar_danmaku_count", {"0", "10", "25", "50", "100"}, {0, 10, 25, 50, 100}, 4}},
 };
 
 ProgramConfig::ProgramConfig() = default;
@@ -551,6 +554,7 @@ void ProgramConfig::load() {
     DanmakuCore::DANMAKU_FILTER_SHOW_COLOR    = getBoolOption(SettingItem::DANMAKU_FILTER_COLOR);
     DanmakuCore::DANMAKU_FILTER_SHOW_ADVANCED = getBoolOption(SettingItem::DANMAKU_FILTER_ADVANCED);
     DanmakuCore::DANMAKU_FILTER_LEVEL         = getIntOption(SettingItem::DANMAKU_FILTER_LEVEL);
+    LiveDanmakuCore::DANMAKU_FILTER_LEVEL_LIVE = getIntOption(SettingItem::LIVE_DANMAKU_FILTER_LEVEL);
     DanmakuCore::DANMAKU_STYLE_AREA           = getIntOption(SettingItem::DANMAKU_STYLE_AREA);
     DanmakuCore::DANMAKU_STYLE_ALPHA          = getIntOption(SettingItem::DANMAKU_STYLE_ALPHA);
     DanmakuCore::DANMAKU_STYLE_FONTSIZE       = getIntOption(SettingItem::DANMAKU_STYLE_FONTSIZE);
@@ -791,10 +795,14 @@ int ProgramConfig::getIntOption(SettingItem item) {
             return this->setting.at(optionData.key).get<int>();
         } catch (const std::exception& e) {
             brls::Logger::error("Damaged config found: {}/{}", optionData.key, e.what());
-            return optionData.rawOptionList[optionData.defaultOption];
+            if (!optionData.rawOptionList.empty())
+                return optionData.rawOptionList[optionData.defaultOption];
+            return 0;
         }
     }
-    return optionData.rawOptionList[optionData.defaultOption];
+    if (!optionData.rawOptionList.empty())
+        return optionData.rawOptionList[optionData.defaultOption];
+    return 0;
 }
 
 bool ProgramConfig::getBoolOption(SettingItem item) {

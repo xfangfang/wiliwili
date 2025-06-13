@@ -44,7 +44,9 @@
         "window": "Window",
         "bottom_bar": "Bottom bar",
         "ui_style": "UI style",
-        "tv_osd": "TV style OSD control"
+        "tv_osd": "TV style OSD control",
+        "live_sidebar_count": "Live Sidebar Danmaku Count",
+        "live_sidebar_hide": "Hide Sidebar"
       },
       "others": {
         "header": "Others",
@@ -439,7 +441,11 @@
         "color": "Color",
         "advanced": "Advanced",
         "level": "Filter level",
-        "level_n": "Level {}"
+        "level_n": "Level {}",
+        "level_live": "Danmaku filter level",
+        "level_live_none": "No filter (UL0+)",
+        "level_live_n": "UL{} and above",
+        "level_live_60": "UL60 only"
       },
       "style": {
         "header": "Danmaku style",

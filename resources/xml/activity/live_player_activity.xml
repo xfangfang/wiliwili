@@ -1,0 +1,114 @@
+<brls:AppletFrame
+        id="video/detail/frame"
+        iconInterpolation="linear"
+        headerHidden="true"
+        footerHidden="false">
+    <brls:Box
+            width="auto"
+            height="auto"
+            grow="1.0"
+            axis="row">
+
+        <!--页面左侧-->
+        <brls:Box
+                id="live_detail_left_box"
+                margin="10"
+                width="@style/wiliwili/player/width"
+                height="auto"
+                wireframe="false"
+                axis="column">
+
+            <VideoView
+                    id="video"
+                    focusable="true"
+                    focusDown="live_title_box"
+                    focusRight="live_danmaku_sidebar"
+                    grow="1"
+                    width="@style/wiliwili/player/width"
+                    height="auto"/>
+
+            <!-- 直播标题 -->
+            <brls:Box
+                    id="live_title_box"
+                    wireframe="false"
+                    marginTop="10"
+                    alignItems="center"
+                    focusable="true"
+                    focusUp="video"
+                    focusDown="live_author"
+                    height="40"
+                    width="100%">
+                <brls:Label
+                        id="live/title"
+                        wireframe="false"
+                        fontSize="24"
+                        marginLeft="10"
+                        singleLine="true"/>
+            </brls:Box>
+
+            <!--直播UP主相关信息-->
+            <brls:Box
+                    id="live_detail_info_box"
+                    wireframe="false"
+                    width="100%"
+                    height="auto">
+                <brls:Box
+                        wireframe="false"
+                        width="100%"
+                        height="100%"
+                        maxHeight="100"
+                        alignItems="flexStart"
+                        axis="column"
+                        justifyContent="center">
+                    <UserInfoView
+                            focusable="true"
+                            wireframe="false"
+                            marginLeft="10"
+                            id="live_author"
+                            focusUp="live_title_box"
+                            focusRight="live_danmaku_sidebar"
+                            visibility="visible"
+                            width="100%"
+                            height="80%"/>
+                    <!-- 主播称号标签 -->
+                    <brls:Label
+                            id="anchor/title"
+                            fontSize="15"
+                            marginLeft="10"
+                            marginTop="5"
+                            textColor="#FFB30F"
+                            visibility="visible"/>
+                </brls:Box>
+            </brls:Box>
+        </brls:Box>
+
+        <!--右侧弹幕侧边栏-->
+        <brls:Box
+                id="live_danmaku_sidebar"
+                width="240"
+                height="auto"
+                axis="column"
+                marginRight="10"
+                grow="1">
+            
+            <brls:Header
+                    title="实时互动"
+                    paddingTop="15"/>
+                    
+            <brls:ScrollingFrame
+                    id="live_danmaku_list"
+                    width="100%"
+                    height="auto"
+                    grow="1">
+                <brls:Box
+                        id="live_danmaku_container"
+                        width="100%"
+                        height="auto"
+                        paddingRight="5"
+                        axis="column">
+                    <!-- 弹幕内容将动态添加到这里 -->
+                </brls:Box>
+            </brls:ScrollingFrame>
+        </brls:Box>
+    </brls:Box>
+</brls:AppletFrame> 

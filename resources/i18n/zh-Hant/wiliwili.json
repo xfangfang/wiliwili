@@ -44,7 +44,9 @@
         "window": "視窗",
         "bottom_bar": "底部提示欄",
         "ui_style": "介面風格",
-        "tv_osd": "電視風格播放器"
+        "tv_osd": "電視風格播放器",
+        "live_sidebar_count": "直播間側邊欄彈幕數量",
+        "live_sidebar_hide": "隱藏側邊欄"
       },
       "others": {
         "header": "其他設定",
@@ -439,7 +441,11 @@
         "color": "彩色",
         "advanced": "高級",
         "level": "按等級篩選",
-        "level_n": "等級 {}"
+        "level_n": "等級 {}",
+        "level_live": "直播過濾等級",
+        "level_live_none": "不過濾 (UL0+)",
+        "level_live_n": "UL{}以上",
+        "level_live_60": "僅UL60"
       },
       "style": {
         "header": "彈幕風格",

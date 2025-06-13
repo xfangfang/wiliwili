@@ -87,6 +87,9 @@
                     <SelectorCell
                             id="player/danmaku/filter/level"/>
 
+                    <SelectorCell
+                            id="player/danmaku/filter/level_live"/>
+
                     <brls:BooleanCell
                             id="player/danmaku/filter/mask"/>
 

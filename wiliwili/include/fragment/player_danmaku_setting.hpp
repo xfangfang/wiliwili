@@ -20,7 +20,7 @@ class BooleanCell;
 };  // namespace brls
 class PlayerDanmakuSetting : public brls::Box {
 public:
-    PlayerDanmakuSetting();
+    PlayerDanmakuSetting(bool isLiveMode = false);
 
     bool isTranslucent() override;
 
@@ -28,10 +28,11 @@ public:
 
     ~PlayerDanmakuSetting() override;
 
-    static View* create();
+    static View* create(bool isLiveMode = false);
 
 private:
     BRLS_BIND(BiliSelectorCell, cellLevel, "player/danmaku/filter/level");
+    BRLS_BIND(BiliSelectorCell, cellLevelLive, "player/danmaku/filter/level_live");
     BRLS_BIND(brls::BooleanCell, cellMask, "player/danmaku/filter/mask");
     BRLS_BIND(brls::BooleanCell, cellScroll, "player/danmaku/filter/scroll");
     BRLS_BIND(brls::BooleanCell, cellTop, "player/danmaku/filter/top");
