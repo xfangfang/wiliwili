@@ -48,7 +48,10 @@ public:
         int play    = r.meta.stat.view > 0 ? r.meta.stat.view : r.play;
         int danmaku = r.meta.stat.danmaku > 0 ? r.meta.stat.danmaku : r.video_review;
 
-        item->setCard(cover, r.title, r.author + " · " + wiliwili::sec2TimeDate(timestamp),
+        // 优先使用 meta.title 作为标题，如果不存在则使用 title
+        std::string title = !r.meta.title.empty() ? r.meta.title : r.title;
+
+        item->setCard(cover, title, r.author + " · " + wiliwili::sec2TimeDate(timestamp),
                       play == -1 ? "-" : wiliwili::num2w(play), wiliwili::num2w(danmaku), r.length);
         item->setCharging(r.is_charging_arc);
         return item;
