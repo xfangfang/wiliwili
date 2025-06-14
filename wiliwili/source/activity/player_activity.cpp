@@ -44,8 +44,12 @@ public:
         // 优先使用meta.ptime作为更新时间，如果不存在则使用created
         unsigned int timestamp = r.meta.ptime > 0 ? r.meta.ptime : r.created;
 
+        // 优先使用 meta.stat 中的播放量和弹幕数
+        int play    = r.meta.stat.view > 0 ? r.meta.stat.view : r.play;
+        int danmaku = r.meta.stat.danmaku > 0 ? r.meta.stat.danmaku : r.video_review;
+
         item->setCard(cover, r.title, r.author + " · " + wiliwili::sec2TimeDate(timestamp),
-                      r.play == -1 ? "-" : wiliwili::num2w(r.play), wiliwili::num2w(r.video_review), r.length);
+                      play == -1 ? "-" : wiliwili::num2w(play), wiliwili::num2w(danmaku), r.length);
         item->setCharging(r.is_charging_arc);
         return item;
     }

@@ -102,6 +102,19 @@ public:
         std::string intro;
         unsigned int ptime    = 0;  // 合集更新时间
         unsigned int ep_count = 0;  // 合集视频数量
+
+        // 合集统计信息
+        struct StatInfo {
+            uint64_t season_id = 0;
+            int view           = 0;
+            int danmaku        = 0;
+            int reply          = 0;
+            int favorite       = 0;
+            int coin           = 0;
+            int share          = 0;
+            int like           = 0;
+        };
+        StatInfo stat;
     };
     MetaInfo meta;
     uint64_t season_id = 0;  // 合集 ID，如果不是合集则为 0
@@ -137,6 +150,35 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, UserUploadedVideoRe
         }
         if (meta.contains("ep_count")) {
             meta.at("ep_count").get_to(nlohmann_json_t.meta.ep_count);
+        }
+
+        // 解析 meta.stat 字段
+        if (meta.contains("stat") && !meta.at("stat").is_null()) {
+            auto& stat = meta.at("stat");
+            if (stat.contains("season_id")) {
+                stat.at("season_id").get_to(nlohmann_json_t.meta.stat.season_id);
+            }
+            if (stat.contains("view")) {
+                stat.at("view").get_to(nlohmann_json_t.meta.stat.view);
+            }
+            if (stat.contains("danmaku")) {
+                stat.at("danmaku").get_to(nlohmann_json_t.meta.stat.danmaku);
+            }
+            if (stat.contains("reply")) {
+                stat.at("reply").get_to(nlohmann_json_t.meta.stat.reply);
+            }
+            if (stat.contains("favorite")) {
+                stat.at("favorite").get_to(nlohmann_json_t.meta.stat.favorite);
+            }
+            if (stat.contains("coin")) {
+                stat.at("coin").get_to(nlohmann_json_t.meta.stat.coin);
+            }
+            if (stat.contains("share")) {
+                stat.at("share").get_to(nlohmann_json_t.meta.stat.share);
+            }
+            if (stat.contains("like")) {
+                stat.at("like").get_to(nlohmann_json_t.meta.stat.like);
+            }
         }
     }
 
