@@ -37,7 +37,14 @@ public:
             (RecyclingGridItemRelatedVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::UserUploadedVideoResult& r = this->list[index];
-        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.author + " · " + wiliwili::sec2TimeDate(r.created),
+
+        // 优先使用meta.cover作为封面图，如果不存在则使用pic
+        std::string cover = r.meta.cover.empty() ? r.pic + ImageHelper::h_ext : r.meta.cover + ImageHelper::h_ext;
+
+        // 优先使用meta.ptime作为更新时间，如果不存在则使用created
+        unsigned int timestamp = r.meta.ptime > 0 ? r.meta.ptime : r.created;
+
+        item->setCard(cover, r.title, r.author + " · " + wiliwili::sec2TimeDate(timestamp),
                       r.play == -1 ? "-" : wiliwili::num2w(r.play), wiliwili::num2w(r.video_review), r.length);
         item->setCharging(r.is_charging_arc);
         return item;
@@ -158,7 +165,8 @@ void PlayerActivity::onContentAvailable() {
     this->videoTitleBox->addGestureRecognizer(new brls::TapGestureRecognizer(this->videoTitleBox));
 
     // 自动加载下一页评论
-    this->recyclingGrid->onNextPage([this]() { this->requestVideoComment(std::to_string(this->videoDetailResult.aid)); });
+    this->recyclingGrid->onNextPage(
+        [this]() { this->requestVideoComment(std::to_string(this->videoDetailResult.aid)); });
 
     this->requestData(this->videoDetailResult);
 

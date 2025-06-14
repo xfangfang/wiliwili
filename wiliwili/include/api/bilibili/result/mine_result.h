@@ -92,8 +92,21 @@ public:
     std::string length;
     uint64_t aid;
     std::string bvid;
-    bool is_charging_arc; // 充电专属视频
+    bool is_charging_arc;  // 充电专属视频
+
+    // 合集相关信息
+    struct MetaInfo {
+        uint64_t id = 0;  // season_id
+        std::string title;
+        std::string cover;
+        std::string intro;
+        unsigned int ptime    = 0;  // 合集更新时间
+        unsigned int ep_count = 0;  // 合集视频数量
+    };
+    MetaInfo meta;
+    uint64_t season_id = 0;  // 合集 ID，如果不是合集则为 0
 };
+
 inline void from_json(const nlohmann::json& nlohmann_json_j, UserUploadedVideoResult& nlohmann_json_t) {
     if (nlohmann_json_j.at("play").is_number()) {
         nlohmann_json_j.at("play").get_to(nlohmann_json_t.play);
@@ -103,6 +116,35 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, UserUploadedVideoRe
     if (nlohmann_json_j.contains("is_charging_arc")) {
         nlohmann_json_j.at("is_charging_arc").get_to(nlohmann_json_t.is_charging_arc);
     }
+
+    // 解析 meta 字段
+    if (nlohmann_json_j.contains("meta") && !nlohmann_json_j.at("meta").is_null()) {
+        auto& meta = nlohmann_json_j.at("meta");
+        if (meta.contains("id")) {
+            meta.at("id").get_to(nlohmann_json_t.meta.id);
+        }
+        if (meta.contains("title")) {
+            meta.at("title").get_to(nlohmann_json_t.meta.title);
+        }
+        if (meta.contains("cover")) {
+            meta.at("cover").get_to(nlohmann_json_t.meta.cover);
+        }
+        if (meta.contains("intro")) {
+            meta.at("intro").get_to(nlohmann_json_t.meta.intro);
+        }
+        if (meta.contains("ptime")) {
+            meta.at("ptime").get_to(nlohmann_json_t.meta.ptime);
+        }
+        if (meta.contains("ep_count")) {
+            meta.at("ep_count").get_to(nlohmann_json_t.meta.ep_count);
+        }
+    }
+
+    // 解析 season_id 字段
+    if (nlohmann_json_j.contains("season_id")) {
+        nlohmann_json_j.at("season_id").get_to(nlohmann_json_t.season_id);
+    }
+
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, comment, pic, description, copyright, title,
                                              video_review, author, mid, created, length, aid, bvid));
 }
