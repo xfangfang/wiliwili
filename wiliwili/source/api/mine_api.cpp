@@ -135,50 +135,48 @@ void BilibiliClient::get_user_cards(const std::vector<std::string>& uids,
     HTTP::getResultAsync<UserCardListResult>(Api::UserCards, {{"uids", mid}}, callback, error);
 }
 
-void BilibiliClient::new_inbox_sessions(time_t begin_ts,
-                        const std::function<void(InboxChatResultWrapper)>& callback,
-                        const ErrorCallback& error) {
-    HTTP::getResultAsync<InboxChatResultWrapper>(Api::ChatSessions, {
-        {"begin_ts", std::to_string(begin_ts)},
-        {"mobi_app", "web"},
-    }, callback, error);
+void BilibiliClient::new_inbox_sessions(time_t begin_ts, const std::function<void(InboxChatResultWrapper)>& callback,
+                                        const ErrorCallback& error) {
+    HTTP::getResultAsync<InboxChatResultWrapper>(Api::ChatSessions,
+                                                 {
+                                                     {"begin_ts", std::to_string(begin_ts)},
+                                                     {"mobi_app", "web"},
+                                                 },
+                                                 callback, error);
 }
 
-void BilibiliClient::update_inbox_ack(const std::string& talker_id,
-                                 int session_type,
-                                 const std::string& ack_seqno,
-                                 const std::string& csrf,
-                                 const ErrorCallback& error) {
-    HTTP::getResultAsync<Cookies>(Api::ChatUpdateAct, {
-        {"talker_id", talker_id},
-        {"session_type", std::to_string(session_type)},
-        {"ack_seqno", ack_seqno},
-        {"csrf", csrf},
-        {"mobi_app", "web"},
-    }, nullptr, error);
+void BilibiliClient::update_inbox_ack(const std::string& talker_id, int session_type, const std::string& ack_seqno,
+                                      const std::string& csrf, const ErrorCallback& error) {
+    HTTP::getResultAsync<Cookies>(Api::ChatUpdateAct,
+                                  {
+                                      {"talker_id", talker_id},
+                                      {"session_type", std::to_string(session_type)},
+                                      {"ack_seqno", ack_seqno},
+                                      {"csrf", csrf},
+                                      {"mobi_app", "web"},
+                                  },
+                                  nullptr, error);
 }
 
-void BilibiliClient::fetch_inbox_msgs(const std::string& talker_id, size_t size,
-                                  int session_type,
-                                  const std::string& begin_seqno,
-                                  const std::function<void(InboxMessageResultWrapper)>& callback,
-                                  const ErrorCallback& error) {
-    HTTP::getResultAsync<InboxMessageResultWrapper>(Api::ChatFetchMsgs, {
-        {"sender_device_id", "1"},
-        {"talker_id", talker_id},
-        {"session_type", std::to_string(session_type)},
-        {"begin_seqno", begin_seqno},
-        {"size", std::to_string(size)},
-        {"mobi_app", "web"},
-    }, callback, error);              
+void BilibiliClient::fetch_inbox_msgs(const std::string& talker_id, size_t size, int session_type,
+                                      const std::string& begin_seqno,
+                                      const std::function<void(InboxMessageResultWrapper)>& callback,
+                                      const ErrorCallback& error) {
+    HTTP::getResultAsync<InboxMessageResultWrapper>(Api::ChatFetchMsgs,
+                                                    {
+                                                        {"sender_device_id", "1"},
+                                                        {"talker_id", talker_id},
+                                                        {"session_type", std::to_string(session_type)},
+                                                        {"begin_seqno", begin_seqno},
+                                                        {"size", std::to_string(size)},
+                                                        {"mobi_app", "web"},
+                                                    },
+                                                    callback, error);
 }
 
-void BilibiliClient::send_inbox_msg(const std::string& sender_id,
-                               const std::string& receiver_id,
-                               const std::string& message,
-                               const std::string& csrf,
-                               const std::function<void(InboxSendResult)>& callback,
-                               const ErrorCallback& error) {
+void BilibiliClient::send_inbox_msg(const std::string& sender_id, const std::string& receiver_id,
+                                    const std::string& message, const std::string& csrf,
+                                    const std::function<void(InboxSendResult)>& callback, const ErrorCallback& error) {
     cpr::Payload payload = {
         {"msg[msg_type]", "1"},
         {"msg[content]", message},
@@ -191,37 +189,34 @@ void BilibiliClient::send_inbox_msg(const std::string& sender_id,
         {"msg[new_face_version]", "1"},
         {"csrf", csrf},
     };
-    HTTP::postResultAsync<InboxSendResult>(Api::ChatSendMsg, {
-        {"w_sender_uid", sender_id},
-        {"w_receiver_id", receiver_id},
-    }, payload, callback, error);
+    HTTP::postResultAsync<InboxSendResult>(Api::ChatSendMsg,
+                                           {
+                                               {"w_sender_uid", sender_id},
+                                               {"w_receiver_id", receiver_id},
+                                           },
+                                           payload, callback, error);
 }
 
 void BilibiliClient::msg_feed_reply(const MsgFeedCursor& cursor,
                                     const std::function<void(FeedReplyResultWrapper)>& callback,
                                     const ErrorCallback& error) {
-    HTTP::getResultAsync<FeedReplyResultWrapper>(Api::MsgFeedReply,
-                                                    {{"id", std::to_string(cursor.id)},
-                                                     {"reply_time", std::to_string(cursor.time)}},
-                                                    callback, error);
+    HTTP::getResultAsync<FeedReplyResultWrapper>(
+        Api::MsgFeedReply, {{"id", std::to_string(cursor.id)}, {"reply_time", std::to_string(cursor.time)}}, callback,
+        error);
 }
 
-void BilibiliClient::msg_feed_at(const MsgFeedCursor& cursor,
-                                    const std::function<void(FeedAtResultWrapper)>& callback,
-                                    const ErrorCallback& error) {
-    HTTP::getResultAsync<FeedAtResultWrapper>(Api::MsgFeedAt,
-                                                    {{"id", std::to_string(cursor.id)},
-                                                     {"at_time", std::to_string(cursor.time)}},
-                                                    callback, error);
+void BilibiliClient::msg_feed_at(const MsgFeedCursor& cursor, const std::function<void(FeedAtResultWrapper)>& callback,
+                                 const ErrorCallback& error) {
+    HTTP::getResultAsync<FeedAtResultWrapper>(
+        Api::MsgFeedAt, {{"id", std::to_string(cursor.id)}, {"at_time", std::to_string(cursor.time)}}, callback, error);
 }
 
 void BilibiliClient::msg_feed_like(const MsgFeedCursor& cursor,
-                                    const std::function<void(FeedLikeResultWrapper)>& callback,
-                                    const ErrorCallback& error) {
-    HTTP::getResultAsync<FeedLikeResultWrapper>(Api::MsgFeedLike,
-                                                    {{"id", std::to_string(cursor.id)},
-                                                     {"like_time", std::to_string(cursor.time)}},
-                                                    callback, error);
+                                   const std::function<void(FeedLikeResultWrapper)>& callback,
+                                   const ErrorCallback& error) {
+    HTTP::getResultAsync<FeedLikeResultWrapper>(
+        Api::MsgFeedLike, {{"id", std::to_string(cursor.id)}, {"like_time", std::to_string(cursor.time)}}, callback,
+        error);
 }
 
 /// get person history videos
@@ -323,16 +318,20 @@ void BilibiliClient::get_my_bangumi(const std::string& mid, size_t type, size_t 
 }
 
 /// get user's upload videos
-void BilibiliClient::get_user_videos(uint64_t mid, int pn, int ps,
+void BilibiliClient::get_user_videos(uint64_t mid, int pn, int ps, const std::string& order, const std::string& keyword,
                                      const std::function<void(UserUploadedVideoResultWrapper)>& callback,
                                      const ErrorCallback& error) {
-    HTTP::getResultAsync<UserUploadedVideoResultWrapper>(Api::UserUploadedVideo,
-                                                         {
-                                                             {"mid", std::to_string(mid)},
-                                                             {"ps", std::to_string(ps)},
-                                                             {"pn", std::to_string(pn)},
-                                                         },
-                                                         callback, error);
+    cpr::Parameters params = {{"mid", std::to_string(mid)},
+                              {"ps", std::to_string(ps)},
+                              {"pn", std::to_string(pn)},
+                              {"order", order},
+                              {"order_avoided", "true"}};  // 与返回数据的排序相关，固定为 true
+
+    if (!keyword.empty()) {
+        params.Add({"keyword", keyword});
+    }
+
+    HTTP::getResultWithWbiAsync<UserUploadedVideoResultWrapper>(Api::UserUploadedVideo, params, callback, error);
 }
 
 void BilibiliClient::get_user_videos2(uint64_t mid, int pn, int ps,

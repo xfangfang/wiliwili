@@ -37,8 +37,32 @@ public:
             (RecyclingGridItemRelatedVideoCard*)recycler->dequeueReusableCell("Cell");
 
         bilibili::UserUploadedVideoResult& r = this->list[index];
-        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.author + " · " + wiliwili::sec2TimeDate(r.created),
-                      r.play == -1 ? "-" : wiliwili::num2w(r.play), wiliwili::num2w(r.video_review), r.length);
+
+        std::string cover;
+        unsigned int timestamp;
+        int play;
+        int danmaku;
+        std::string title;
+
+        // 只有当 is_avoided 为 1 时才优先使用 meta 字段中的数据
+        if (r.is_avoided == 1) {
+            // 使用合集相关数据
+            cover     = r.meta.cover.empty() ? r.pic + ImageHelper::h_ext : r.meta.cover + ImageHelper::h_ext;
+            timestamp = r.meta.ptime > 0 ? r.meta.ptime : r.created;
+            play      = r.meta.stat.view > 0 ? r.meta.stat.view : r.play;
+            danmaku   = r.meta.stat.danmaku > 0 ? r.meta.stat.danmaku : r.video_review;
+            title     = !r.meta.title.empty() ? r.meta.title : r.title;
+        } else {
+            // 使用普通视频数据
+            cover     = r.pic + ImageHelper::h_ext;
+            timestamp = r.created;
+            play      = r.play;
+            danmaku   = r.video_review;
+            title     = r.title;
+        }
+
+        item->setCard(cover, title, r.author + " · " + wiliwili::sec2TimeDate(timestamp),
+                      play == -1 ? "-" : wiliwili::num2w(play), wiliwili::num2w(danmaku), r.length);
         item->setCharging(r.is_charging_arc);
         return item;
     }
@@ -158,7 +182,8 @@ void PlayerActivity::onContentAvailable() {
     this->videoTitleBox->addGestureRecognizer(new brls::TapGestureRecognizer(this->videoTitleBox));
 
     // 自动加载下一页评论
-    this->recyclingGrid->onNextPage([this]() { this->requestVideoComment(std::to_string(this->videoDetailResult.aid)); });
+    this->recyclingGrid->onNextPage(
+        [this]() { this->requestVideoComment(std::to_string(this->videoDetailResult.aid)); });
 
     this->requestData(this->videoDetailResult);
 

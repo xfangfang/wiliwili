@@ -80,7 +80,7 @@ public:
     void changeEpisode(const bilibili::SeasonEpisodeResult& i);
 
     /// 获取Up主的其他视频: pn 为0 自动获取下一页
-    void requestUploadedVideos(uint64_t mid, int pn = 0, int ps = 10);
+    void requestUploadedVideos(uint64_t mid, int pn = 0, int ps = 30);
 
     /// 获取单个视频播放人数
     void requestVideoOnline(const std::string& bvid, uint64_t cid);
