@@ -93,6 +93,7 @@ public:
     uint64_t aid;
     std::string bvid;
     bool is_charging_arc;  // 充电专属视频
+    int is_avoided = 0;    // 1 表示是合集，0 表示是独立视频
 
     // 合集相关信息
     struct MetaInfo {
@@ -128,6 +129,11 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, UserUploadedVideoRe
     }
     if (nlohmann_json_j.contains("is_charging_arc")) {
         nlohmann_json_j.at("is_charging_arc").get_to(nlohmann_json_t.is_charging_arc);
+    }
+
+    // 解析 is_avoided 字段
+    if (nlohmann_json_j.contains("is_avoided")) {
+        nlohmann_json_j.at("is_avoided").get_to(nlohmann_json_t.is_avoided);
     }
 
     // 解析 meta 字段

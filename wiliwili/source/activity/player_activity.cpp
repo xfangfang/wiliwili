@@ -38,18 +38,28 @@ public:
 
         bilibili::UserUploadedVideoResult& r = this->list[index];
 
-        // 优先使用meta.cover作为封面图，如果不存在则使用pic
-        std::string cover = r.meta.cover.empty() ? r.pic + ImageHelper::h_ext : r.meta.cover + ImageHelper::h_ext;
+        std::string cover;
+        unsigned int timestamp;
+        int play;
+        int danmaku;
+        std::string title;
 
-        // 优先使用meta.ptime作为更新时间，如果不存在则使用created
-        unsigned int timestamp = r.meta.ptime > 0 ? r.meta.ptime : r.created;
-
-        // 优先使用 meta.stat 中的播放量和弹幕数
-        int play    = r.meta.stat.view > 0 ? r.meta.stat.view : r.play;
-        int danmaku = r.meta.stat.danmaku > 0 ? r.meta.stat.danmaku : r.video_review;
-
-        // 优先使用 meta.title 作为标题，如果不存在则使用 title
-        std::string title = !r.meta.title.empty() ? r.meta.title : r.title;
+        // 只有当 is_avoided 为 1 时才优先使用 meta 字段中的数据
+        if (r.is_avoided == 1) {
+            // 使用合集相关数据
+            cover     = r.meta.cover.empty() ? r.pic + ImageHelper::h_ext : r.meta.cover + ImageHelper::h_ext;
+            timestamp = r.meta.ptime > 0 ? r.meta.ptime : r.created;
+            play      = r.meta.stat.view > 0 ? r.meta.stat.view : r.play;
+            danmaku   = r.meta.stat.danmaku > 0 ? r.meta.stat.danmaku : r.video_review;
+            title     = !r.meta.title.empty() ? r.meta.title : r.title;
+        } else {
+            // 使用普通视频数据
+            cover     = r.pic + ImageHelper::h_ext;
+            timestamp = r.created;
+            play      = r.play;
+            danmaku   = r.video_review;
+            title     = r.title;
+        }
 
         item->setCard(cover, title, r.author + " · " + wiliwili::sec2TimeDate(timestamp),
                       play == -1 ? "-" : wiliwili::num2w(play), wiliwili::num2w(danmaku), r.length);
