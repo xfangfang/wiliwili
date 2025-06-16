@@ -160,6 +160,13 @@ extern std::unique_ptr<brls::D3D11Context> D3D11_CONTEXT;
 #define glBindFramebuffer(a, b) void()
 #endif
 
+#if defined(__PS4__) || defined(__PSV__) || defined(__SWITCH__) || defined(ANDROID)
+#elif defined(__linux__) && defined(__GLFW__)
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_EXPOSE_NATIVE_WAYLAND
+#include <GLFW/glfw3native.h>
+#endif
+
 static inline void check_error(int status) {
     if (status < 0) {
         brls::Logger::error("MPV ERROR ====> {}", mpvErrorString(status));
@@ -296,12 +303,12 @@ void MPVCore::init() {
     if (!mpv) {
         brls::fatal("Error Create mpv Handle");
     }
-
+    std::string confDir = ProgramConfig::instance().getConfigDir();
     // misc
     mpvSetOptionString(mpv, "config", "yes");
-    mpvSetOptionString(mpv, "config-dir", ProgramConfig::instance().getConfigDir().c_str());
+    mpvSetOptionString(mpv, "config-dir", confDir.c_str());
+    mpvSetOptionString(mpv, "gpu-shader-cache-dir", fmt::format("{}/cache", confDir).c_str());
     mpvSetOptionString(mpv, "ytdl", "no");
-    mpvSetOptionString(mpv, "cache-on-disk", "no");
     mpvSetOptionString(mpv, "audio-channels", "stereo");
     mpvSetOptionString(mpv, "idle", "yes");
     mpvSetOptionString(mpv, "loop-file", "no");
@@ -476,6 +483,12 @@ void MPVCore::init() {
     mpv_render_param params[]{{MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
                               {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
                               {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
+#if defined(GLFW_EXPOSE_NATIVE_X11)
+                              {MPV_RENDER_PARAM_X11_DISPLAY, glfwGetX11Display()},
+#endif
+#if defined(GLFW_EXPOSE_NATIVE_WAYLAND)
+                              {MPV_RENDER_PARAM_WL_DISPLAY, glfwGetWaylandDisplay()},
+#endif
                               {MPV_RENDER_PARAM_INVALID, nullptr}};
 #endif
 

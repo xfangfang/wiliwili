@@ -41,6 +41,7 @@ modules:
       - -Dbuild-date=false
       - -Dcplayer=false
       - -Dmanpage-build=disabled
+      - -Dvulkan=disabled
     sources:
       - type: archive
         url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.39.0.tar.gz
@@ -63,6 +64,25 @@ modules:
               project-id: 17166
               stable-only: true
               url-template: https://xorg.freedesktop.org/archive/individual/lib/libXpresent-$version.tar.xz
+
+      - name: libdisplay-info
+        cleanup:
+          - /bin
+        buildsystem: meson
+        sources:
+          - type: archive
+            url: https://gitlab.freedesktop.org/emersion/libdisplay-info/-/releases/0.2.0/downloads/libdisplay-info-0.2.0.tar.xz
+            sha256: 5a2f002a16f42dd3540c8846f80a90b8f4bdcd067a94b9d2087bc2feae974176
+        modules:
+          - name: hwdata
+            cleanup:
+              - "*"
+            config-opts:
+              - --disable-blacklist
+            sources:
+              - type: archive
+                url: https://github.com/vcrhonek/hwdata/archive/v0.396.tar.gz
+                sha256: 6ed6ff6eb9d137b9669af6966974643a015cf302a39237ef84dd2efa5e20bae8
 
       - name: luajit
         no-autogen: true
@@ -160,17 +180,20 @@ modules:
           - --enable-gpl
           - --disable-doc
           - --disable-programs
+          - --disable-protocols
           - --disable-encoders
           - --disable-muxers
           - --enable-encoder=png
+          - --disable-demuxers
+          - --enable-protocol=file,http,tcp,udp,hls,https,tls,httpproxy
+          - --enable-demuxer=mov,flv,hls
+          - --enable-libdrm
+          - --enable-vaapi
+          - --enable-vdpau
           - --enable-libdav1d
-          - --enable-libfontconfig
-          - --enable-libfreetype
-          - --enable-libopus
-          - --enable-librsvg
-          - --enable-libvpx
-          - --enable-libmp3lame
-
+          - --enable-zlib
+          - --enable-bzlib
+          - --enable-libass
         sources:
           - type: git
             url: https://github.com/FFmpeg/FFmpeg.git
