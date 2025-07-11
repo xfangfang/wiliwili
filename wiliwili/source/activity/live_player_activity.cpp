@@ -27,6 +27,9 @@
 #include "api/live/ws_utils.hpp"
 #include "api/live/dl_emoticon.hpp"
 #include "bilibili.h"
+#include "bilibili/api.h"
+#include "bilibili/util/http.hpp"
+#include "bilibili/util/json.hpp"
 
 using namespace brls::literals;
 
@@ -230,6 +233,9 @@ void LiveActivity::onContentAvailable()
 
     // 连接直播弹幕 - 确保g_liveActivity在此之前已初始化
     this->requestLiveDanmakuToken(this->liveData.roomid);
+
+    // 获取历史弹幕，填充侧边栏
+    this->requestHistoryDanmaku(this->liveData.roomid);
 
     // 获取直播间是否为大航海专属直播
     this->requestPayLiveInfo(liveData.roomid);
@@ -835,4 +841,123 @@ void LiveActivity::onAnchorTitleInfo(const std::string& title) {
             this->anchorTitleLabel->setVisibility(brls::Visibility::GONE);
         }
     }
+}
+
+static void append_danmaku_from_json_array(const nlohmann::json& arr, std::vector<LiveDanmakuItem>& dan_list) {
+    for (const auto& item : arr) {
+        auto dan = std::make_shared<message::Danmaku>();
+
+        // 基础字段
+        if (item.contains("text") && item["text"].is_string())
+            dan->dan = item["text"].get<std::string>();
+        if (item.contains("nickname") && item["nickname"].is_string())
+            dan->user_name = item["nickname"].get<std::string>();
+        if (item.contains("uid") && item["uid"].is_number_integer())
+            dan->user_uid = item["uid"].get<int>();
+
+        // 用户名颜色
+        if (item.contains("uname_color") && item["uname_color"].is_string()) {
+            const std::string& color_str = item["uname_color"].get<std::string>();
+            if (!color_str.empty() && color_str[0] == '#' && color_str.length() == 7)
+                dan->user_name_color = color_str;
+        }
+
+        // 用户等级
+        if (item.contains("user_level") && item["user_level"].is_array() && !item["user_level"].empty())
+            dan->user_level = item["user_level"][0].get<int>();
+
+        // 房管标识
+        if (item.contains("isadmin") && item["isadmin"].is_number())
+            dan->is_guard = item["isadmin"].get<int>();
+
+        // 粉丝牌信息
+        if (item.contains("medal") && item["medal"].is_array() && item["medal"].size() >= 3) {
+            const auto& medal = item["medal"];
+            dan->fan_medal_level        = medal[0].get<int>();
+            dan->fan_medal_name         = medal[1].get<std::string>();
+            dan->fan_medal_liveuser_name = medal[2].get<std::string>();
+            if (medal.size() >= 5)
+                dan->fan_medal_start_color = medal[4].get<int>();
+        }
+
+        dan_list.emplace_back(LiveDanmakuItem(dan));
+    }
+}
+
+static bool parse_history_danmaku_response(const std::string& text, std::vector<LiveDanmakuItem>& dan_list) {
+    try {
+        nlohmann::json res = nlohmann::json::parse(text);
+
+        // 校验返回码
+        if (!res.contains("code") || res["code"].get<int>() != 0) {
+            brls::Logger::error("LiveActivity: 历史弹幕返回错误 code: {}, message: {}", 
+                                res.value("code", -1), res.value("message", std::string("未知错误")));
+            return false;
+        }
+
+        if (!res.contains("data") || !res["data"].is_object()) {
+            brls::Logger::error("LiveActivity: 历史弹幕返回格式异常");
+            return false;
+        }
+
+        const auto& data = res["data"];
+        if (data.contains("admin") && data["admin"].is_array())
+            append_danmaku_from_json_array(data["admin"], dan_list);
+        if (data.contains("room") && data["room"].is_array())
+            append_danmaku_from_json_array(data["room"], dan_list);
+
+        return !dan_list.empty();
+    } catch (const std::exception& e) {
+        brls::Logger::error("LiveActivity: 历史弹幕解析失败: {}", e.what());
+        return false;
+    }
+}
+
+void LiveActivity::requestHistoryDanmaku(int roomid) {
+
+    if (!this->shouldShowSidebar())
+        return;
+
+    auto state = this->threadState;
+
+    // 构造请求 URL
+    std::string api_path  = bilibili::Api::_liveBase + "/xlive/web-room/v1/dM/gethistory";
+    std::string final_url = bilibili::parseLink(api_path);
+    brls::Logger::debug("LiveActivity: 请求历史弹幕 URL: {}", final_url);
+
+    cpr::async([state, roomid, this, final_url]() {
+        try {
+            auto session = bilibili::HTTP::createSession();
+            session->SetUrl(cpr::Url{final_url});
+            session->SetParameters(cpr::Parameters{{"roomid", std::to_string(roomid)}});
+
+            session->GetCallback([state, this](const cpr::Response& r) {
+                if (!state->isActive.load(std::memory_order_acquire))
+                    return;
+
+                if (r.error) {
+                    brls::Logger::error("LiveActivity: 历史弹幕请求错误: {}", r.error.message);
+                    return;
+                }
+                if (r.status_code != 200) {
+                    brls::Logger::error("LiveActivity: 历史弹幕请求返回状态码: {}, 响应内容: {}", r.status_code, r.text);
+                    return;
+                }
+
+                std::vector<LiveDanmakuItem> dan_list;
+                if (!parse_history_danmaku_response(r.text, dan_list))
+                    return;
+
+                brls::Logger::debug("LiveActivity: 成功解析 {} 条历史弹幕", dan_list.size());
+
+                brls::sync([state, this, dan_list = std::move(dan_list)]() {
+                    if (!state->isActive.load(std::memory_order_acquire))
+                        return;
+                    this->processDanmakuForSidebar(dan_list);
+                });
+            });
+        } catch (const std::exception& e) {
+            brls::Logger::error("LiveActivity: 历史弹幕请求异常: {}", e.what());
+        }
+    });
 }

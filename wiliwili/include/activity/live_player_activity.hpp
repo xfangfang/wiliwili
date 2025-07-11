@@ -63,6 +63,8 @@ public:
 
     void retryRequestData();
     
+    // 新增：请求历史弹幕并填充侧边栏
+    void requestHistoryDanmaku(int roomid);
     // 处理接收到的弹幕，展示在侧边栏
     void processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& danmaku_list);
     
