@@ -153,12 +153,12 @@ jobs:
         run: |
           curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.40.0-2-any.pkg.tar.zst
           pacman -U --noconfirm *.pkg.tar.zst
-      - if: matrix.arch == 'x86'
+      - if: matrix.sys == 'mingw32'
         name: Config Editbin
         shell: powershell
         run: |
           $vcvarsall_path = vswhere.exe -latest -products * -find "VC\Auxiliary\Build\vcvarsall.bat"
-          $cc1_path = Get-ChildItem -Path "C:\msys64\mingw32\lib\gcc" -Filter cc1plus.exe -Recurse -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }
+          $cc1_path = Get-ChildItem -Path "${{ steps.msys2.outputs.msys2-location }}\mingw32\lib\gcc" -Filter cc1plus.exe -Recurse -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }
           cmd.exe /c "call ""$vcvarsall_path"" x86_amd64 && editbin /LARGEADDRESSAWARE $cc1_path"
       - name: Update gamepad db
         run: |
