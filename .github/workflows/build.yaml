@@ -126,7 +126,7 @@ jobs:
           - { arch: x86_64, sys: mingw64, env: x86_64, driver: d3d, cmake: "-DUSE_D3D11=ON" }
           - { arch: x86, sys: mingw32, env: i686, driver: gl, cmake: "-DUSE_GL2=ON" }
           - { arch: x86, sys: mingw32, env: i686, driver: d3d, cmake: "-DUSE_D3D11=ON" }
-        # - { arch: arm64, sys: clangarm64, env: clang-aarch64, driver: d3d, cmake: "-DUSE_D3D11=ON" }
+          - { arch: arm64, sys: clangarm64, env: clang-aarch64, driver: d3d, cmake: "-DUSE_D3D11=ON" }
         arch: [ x86_64, x86 ]
         driver: [ gl, d3d ]
     runs-on: ${{ contains(matrix.sys, 'arm64') && 'windows-11-arm' || 'windows-latest' }}
@@ -151,7 +151,7 @@ jobs:
           fetch-depth: 0
       - name: Install dependency
         run: |
-          curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.39.0-4-any.pkg.tar.zst
+          curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.40.0-2-any.pkg.tar.zst
           pacman -U --noconfirm *.pkg.tar.zst
       - if: matrix.arch == 'x86'
         name: Config Editbin
