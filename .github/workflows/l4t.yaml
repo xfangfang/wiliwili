@@ -2,7 +2,7 @@ name: Build l4t
 
 on:
   push:
-    branches: ["yoga"]
+    branches: ["yoga", "l4t"]
 
   workflow_dispatch:
 
@@ -12,15 +12,13 @@ jobs:
       fail-fast: false
       matrix:
         release: [ switchroot-bionic ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout wiliwili
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
       - name: Build docker
         run: docker build -t build:${{ matrix.release }} scripts/deb/${{ matrix.release }}
       - name: Build wiliwili

@@ -127,7 +127,9 @@ jobs:
           - { arch: x86, sys: mingw32, env: i686, driver: gl, cmake: "-DUSE_GL2=ON" }
           - { arch: x86, sys: mingw32, env: i686, driver: d3d, cmake: "-DUSE_D3D11=ON" }
           - { arch: arm64, sys: clangarm64, env: clang-aarch64, driver: d3d, cmake: "-DUSE_D3D11=ON" }
-        arch: [ x86_64, x86 ]
+        exclude:
+          - { arch: arm64, driver: gl }
+        arch: [ x86_64, x86, arm64 ]
         driver: [ gl, d3d ]
     runs-on: ${{ contains(matrix.sys, 'arm64') && 'windows-11-arm' || 'windows-latest' }}
     defaults:
@@ -482,6 +484,7 @@ jobs:
         include:
           - { driver: gxm,   docker: latest-gxm, cmake: "-DUSE_GXM=ON -DUSE_VITA_SHARK=OFF" }
           - { driver: gles2, docker: latest,     cmake: "-DUSE_SYSTEM_SDL2=ON -DMPV_NO_FB=ON" }
+        driver: [ gxm, gles2 ]
 
     steps:
       - uses: actions/checkout@v4

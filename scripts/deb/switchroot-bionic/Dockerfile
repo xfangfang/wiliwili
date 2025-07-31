@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y gnupg wget \
   && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 60 --slave /usr/bin/cpp cpp /usr/bin/g++-8 \
   && apt-get remove -y gnupg && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* /usr/share/man/*
 
-RUN apt-get update && apt-get install -y --no-install-recommends xorg-dev libdbus-1-dev libssl-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends xorg-dev libwayland-dev libdbus-1-dev libssl-dev \
     libass-dev libwebp-dev libv4l-dev libpulse-dev libuchardet-dev nvidia-l4t-jetson-multimedia-api \
   && rm -rf /var/lib/apt/lists/* /usr/share/man/* /usr/src/tensorrt/*
 

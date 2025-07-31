@@ -160,8 +160,7 @@ extern std::unique_ptr<brls::D3D11Context> D3D11_CONTEXT;
 #define glBindFramebuffer(a, b) void()
 #endif
 
-#if defined(__PS4__) || defined(__PSV__) || defined(__SWITCH__) || defined(ANDROID)
-#elif defined(__linux__) && defined(__GLFW__)
+#if defined(__linux__) && defined(__GLFW__) && defined(USE_EGL)
 #define GLFW_EXPOSE_NATIVE_X11
 #define GLFW_EXPOSE_NATIVE_WAYLAND
 #include <GLFW/glfw3native.h>
@@ -483,13 +482,11 @@ void MPVCore::init() {
     mpv_render_param params[]{{MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
                               {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
                               {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
-#if defined(USE_EGL)
 #if defined(GLFW_EXPOSE_NATIVE_X11)
                               {MPV_RENDER_PARAM_X11_DISPLAY, glfwGetX11Display()},
 #endif
 #if defined(GLFW_EXPOSE_NATIVE_WAYLAND)
                               {MPV_RENDER_PARAM_WL_DISPLAY, glfwGetWaylandDisplay()},
-#endif
 #endif
                               {MPV_RENDER_PARAM_INVALID, nullptr}};
 #endif
