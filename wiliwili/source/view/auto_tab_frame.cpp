@@ -1046,6 +1046,17 @@ void AttachedView::registerTabAction(std::string hintText, enum brls::Controller
     if (this->tab) this->tab->registerAction(hintText, button, action, hidden, allowRepeating, sound);
 }
 
+void AttachedView::registerTabAction(const std::string& hintText, const brls::ControllerButton button,
+                                     const brls::BrlsKeyCombination key, const brls::ActionListener& action,
+                                     const bool hidden, const bool allowRepeating, const brls::Sound sound) {
+    this->registerAction(hintText, button, action, hidden, allowRepeating, sound);
+    this->registerAction(key, action, allowRepeating);
+    if (this->tab) {
+        this->tab->registerAction(hintText, button, action, hidden, allowRepeating, sound);
+        this->tab->registerAction(key, action, allowRepeating);
+    }
+}
+
 AttachedView::AttachedView() { this->setGrow(1); }
 
 AttachedView::~AttachedView() { brls::Logger::debug("delete AttachedView"); }

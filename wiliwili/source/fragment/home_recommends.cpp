@@ -12,6 +12,7 @@
 #include "utils/config_helper.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -20,7 +21,9 @@ using namespace brls::literals;
 class DataSourceRecommendVideoList : public RecyclingGridDataSource {
 public:
     explicit DataSourceRecommendVideoList(bilibili::RecommendVideoListResult result)
-        : recommendList(std::move(result)) {}
+        : recommendList(std::move(result)) {
+    }
+
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
@@ -102,6 +105,7 @@ HomeRecommends::HomeRecommends() {
 
 void HomeRecommends::onCreate() {
     this->registerTabAction("wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
+                            ShortcutHelper::getRefresh(),
                             [this](brls::View* view) -> bool {
                                 this->recyclingGrid->refresh();
                                 return true;

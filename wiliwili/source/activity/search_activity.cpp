@@ -12,6 +12,7 @@
 #include "utils/config_helper.hpp"
 #include "utils/event_helper.hpp"
 #include "analytics.h"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -24,19 +25,23 @@ SearchActivity::SearchActivity(const std::string& key) {
 void SearchActivity::onContentAvailable() {
     brls::Logger::debug("SearchActivity: onContentAvailable");
 
-    this->registerAction(
-        "wiliwili/search/tab"_i18n, brls::ControllerButton::BUTTON_Y, [this](brls::View* view) -> bool {
-            brls::Application::getImeManager()->openForText([&](const std::string& text) { this->search(text); },
-                                                            "wiliwili/home/common/search"_i18n, "", 32,
-                                                            SearchActivity::currentKey, 0);
-            return true;
-        });
-
-    this->searchBox->addGestureRecognizer(new brls::TapGestureRecognizer(this->searchBox, [this]() {
+    auto openText = [this]() {
         brls::Application::getImeManager()->openForText([&](const std::string& text) { this->search(text); },
                                                         "wiliwili/home/common/search"_i18n, "", 32,
                                                         SearchActivity::currentKey, 0);
-    }));
+    };
+
+    this->registerAction("wiliwili/search/tab"_i18n, brls::ControllerButton::BUTTON_Y, [openText](brls::View* view) {
+        openText();
+        return true;
+    });
+
+    this->registerAction(ShortcutHelper::getSearch(), [openText](brls::View* view) {
+        openText();
+        return true;
+    });
+
+    this->searchBox->addGestureRecognizer(new brls::TapGestureRecognizer(this->searchBox, openText));
 
     this->getUpdateSearchEvent()->subscribe([this](const std::string& s) { this->search(s); });
     this->searchTab->getSearchHotsTab()->setSearchCallback(&updateSearchEvent);

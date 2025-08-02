@@ -22,6 +22,7 @@
 #include "utils/gesture_helper.hpp"
 #include "presenter/comment_related.hpp"
 #include "bilibili.h"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -271,13 +272,14 @@ PlayerSingleComment::PlayerSingleComment(CommentUiType type) : uiType(type) {
         brls::Application::popActivity(brls::TransitionAnimation::NONE);
     });
 
-    this->registerAction("wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
-                         [this](brls::View* view) {
-                             brls::Application::giveFocus(this->closeBtn);
-                             this->recyclingGrid->forceRequestNextPage();
-                             this->setCommentData(this->root, NAN, this->commentType);
-                             return true;
-                         });
+    auto refreshFunc = [this](brls::View* view) {
+        brls::Application::giveFocus(this->closeBtn);
+        this->recyclingGrid->forceRequestNextPage();
+        this->setCommentData(this->root, NAN, this->commentType);
+        return true;
+    };
+    this->registerAction("wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X, refreshFunc);
+    this->registerAction(ShortcutHelper::getRefresh(), refreshFunc);
 }
 
 void PlayerSingleComment::setCommentData(const bilibili::VideoCommentResult& result, float y, int type) {

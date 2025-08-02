@@ -190,6 +190,7 @@ void DLNAActivity::onContentAvailable() {
             return true;
         },
         true);
+    this->video->registerCommonActions(this);
 
     // 手动将焦点 赋给video组件，这将允许焦点进入video组件内部
     brls::sync([this]() { brls::Application::giveFocus(video); });

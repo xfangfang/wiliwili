@@ -155,6 +155,8 @@ void LiveActivity::onContentAvailable()
     
     this->video->setFullscreenIcon(this->video->isFullscreen());
 
+    this->video->registerCommonActions(this);
+
     brls::Logger::debug("LiveActivity: onContentAvailable");
 
     MPVCore::instance().setAspect(

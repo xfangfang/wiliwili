@@ -13,6 +13,7 @@
 #include "view/svg_image.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 class DataSourceHotsRankVideoList : public RecyclingGridDataSource {
 public:
@@ -89,7 +90,9 @@ HomeHotsRank::HomeHotsRank() {
 }
 
 void HomeHotsRank::onCreate() {
-    this->registerTabAction("切换", brls::ControllerButton::BUTTON_X, [this](brls::View* view) -> bool {
+    this->registerTabAction("切换", brls::ControllerButton::BUTTON_X,
+        ShortcutHelper::getRefresh(),
+        [this](brls::View* view) -> bool {
         this->switchChannel();
         return true;
     });

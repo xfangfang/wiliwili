@@ -6,6 +6,8 @@
 #include <borealis/core/thread.hpp>
 
 #include "fragment/home_cinema.hpp"
+
+#include "utils/shortcut_helper.hpp"
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"
 #include "view/video_card.hpp"
@@ -29,6 +31,7 @@ brls::View* HomeCinema::create() { return new HomeCinema(); }
 
 void HomeCinema::onCreate() {
     this->registerTabAction("wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
+                            ShortcutHelper::getRefresh(),
                             [this](brls::View* view) -> bool {
                                 this->tabFrame->refresh();
                                 return true;
@@ -36,6 +39,7 @@ void HomeCinema::onCreate() {
 
     this->registerTabAction(
         "上一项", brls::ControllerButton::BUTTON_LT,
+        ShortcutHelper::getLastSub(),
         [this](brls::View* view) -> bool {
             tabFrame->focus2LastTab();
             return true;
@@ -44,6 +48,7 @@ void HomeCinema::onCreate() {
 
     this->registerTabAction(
         "下一项", brls::ControllerButton::BUTTON_RT,
+        ShortcutHelper::getNextSub(),
         [this](brls::View* view) -> bool {
             tabFrame->focus2NextTab();
             return true;

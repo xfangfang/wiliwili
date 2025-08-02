@@ -13,6 +13,7 @@
 #include "view/dynamic_article.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -290,12 +291,26 @@ DynamicTab::DynamicTab() {
         true);
 
     this->registerAction(
+        ShortcutHelper::getLast(),
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2LastTab();
+            return true;
+        });
+
+    this->registerAction(
         "下一项", brls::ControllerButton::BUTTON_RB,
         [this](brls::View* view) -> bool {
             tabFrame->focus2NextTab();
             return true;
         },
         true);
+
+    this->registerAction(
+        ShortcutHelper::getNext(),
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2NextTab();
+            return true;
+        });
 
 
     // 获取动态
@@ -333,6 +348,7 @@ void DynamicTab::onArticleError(const std::string& error) {
 
 void DynamicTab::onCreate() {
     this->registerTabAction("wiliwili/activity/refresh"_i18n, brls::ControllerButton::BUTTON_X,
+                            ShortcutHelper::getRefresh(),
                             [this](brls::View* view) -> bool {
                                 this->setCurrentUser(0);
                                 this->videoRecyclingGrid->refresh();
@@ -343,7 +359,17 @@ void DynamicTab::onCreate() {
                                                  this->videoRecyclingGrid->refresh();
                                                  return true;
                                              });
+    this->videoRecyclingGrid->registerAction(ShortcutHelper::getRefresh(),
+                                             [this](brls::View* view) -> bool {
+                                                 this->videoRecyclingGrid->refresh();
+                                                 return true;
+                                             });
     this->articleRecyclingGrid->registerAction("wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
+                                             [this](brls::View* view) -> bool {
+                                                 this->articleRecyclingGrid->refresh();
+                                                 return true;
+                                             });
+    this->articleRecyclingGrid->registerAction(ShortcutHelper::getRefresh(),
                                              [this](brls::View* view) -> bool {
                                                  this->articleRecyclingGrid->refresh();
                                                  return true;

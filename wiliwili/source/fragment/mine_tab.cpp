@@ -19,6 +19,7 @@
 #include "fragment/mine_later.hpp"
 
 #include "bilibili/result/mine_result.h"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls;
 using namespace brls::literals;
@@ -87,6 +88,7 @@ MineTab::MineTab() {
 
 void MineTab::onCreate() {
     this->registerTabAction("wiliwili/mine/login/refresh"_i18n, brls::ControllerButton::BUTTON_X,
+                            ShortcutHelper::getRefresh(),
                             [this](brls::View* view) -> bool {
                                 this->requestData();
                                 return true;
@@ -95,6 +97,7 @@ void MineTab::onCreate() {
 
     this->registerTabAction(
         "上一项", brls::ControllerButton::BUTTON_LB,
+        ShortcutHelper::getLast(),
         [this](brls::View* view) -> bool {
             tabFrame->focus2LastTab();
             return true;
@@ -103,6 +106,7 @@ void MineTab::onCreate() {
 
     this->registerTabAction(
         "下一项", brls::ControllerButton::BUTTON_RB,
+        ShortcutHelper::getNext(),
         [this](brls::View* view) -> bool {
             tabFrame->focus2NextTab();
             return true;
@@ -117,7 +121,8 @@ void MineTab::onUserNotLogin() {
         "hints/ok"_i18n, BUTTON_A,
         [this](View*) -> bool {
             auto dialog = new brls::Dialog(MineQrLogin::create(this->loginCb));
-            dialog->addButton("hints/cancel"_i18n, []() {});
+            dialog->addButton("hints/cancel"_i18n, []() {
+            });
             dialog->open();
             return true;
         },
@@ -140,7 +145,8 @@ void MineTab::onUserInfo(const bilibili::UserResult& data) {
         "hints/ok"_i18n, BUTTON_A,
         [](View*) -> bool {
             auto dialog = new brls::Dialog("wiliwili/mine/login/logout"_i18n);
-            dialog->addButton("hints/back"_i18n, []() {});
+            dialog->addButton("hints/back"_i18n, []() {
+            });
             dialog->addButton("hints/ok"_i18n, []() {
                 ProgramConfig::instance().setCookie({});
                 brls::Application::getPlatform()->exitToHomeMode(false);

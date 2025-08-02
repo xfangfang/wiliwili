@@ -4,6 +4,8 @@
 
 #include "fragment/home_hots.hpp"
 
+#include "utils/shortcut_helper.hpp"
+
 HomeHots::HomeHots() {
     this->inflateFromXMLRes("xml/fragment/home_hots.xml");
     brls::Logger::debug("Fragment HomeHots: create");
@@ -16,6 +18,7 @@ brls::View* HomeHots::create() { return new HomeHots(); }
 void HomeHots::onCreate() {
     this->registerTabAction(
         "上一项", brls::ControllerButton::BUTTON_LT,
+        ShortcutHelper::getLastSub(),
         [this](brls::View* view) -> bool {
             tabFrame->focus2LastTab();
             return true;
@@ -24,6 +27,7 @@ void HomeHots::onCreate() {
 
     this->registerTabAction(
         "下一项", brls::ControllerButton::BUTTON_RT,
+        ShortcutHelper::getNextSub(),
         [this](brls::View* view) -> bool {
             tabFrame->focus2NextTab();
             return true;

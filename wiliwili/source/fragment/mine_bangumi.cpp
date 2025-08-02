@@ -9,6 +9,7 @@
 #include "view/video_card.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -91,7 +92,9 @@ void MineBangumi::onCreate() {
         this->requestData(true);
     });
     this->registerTabAction(requestType == 1 ? "wiliwili/mine/refresh_anime"_i18n : "wiliwili/mine/refresh_series"_i18n,
-                            brls::ControllerButton::BUTTON_X, [this](brls::View* view) -> bool {
+                            brls::ControllerButton::BUTTON_X,
+                            ShortcutHelper::getRefresh(),
+                            [this](brls::View* view) -> bool {
                                 this->recyclingGrid->refresh();
                                 return true;
                             });

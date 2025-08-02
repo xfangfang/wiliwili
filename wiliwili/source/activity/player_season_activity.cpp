@@ -16,6 +16,7 @@
 #include "utils/dialog_helper.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 #include "view/video_view.hpp"
 #include "view/video_card.hpp"
 #include "view/svg_image.hpp"
@@ -298,6 +299,10 @@ void PlayerSeasonActivity::onSeasonVideoInfo(const bilibili::SeasonResultWrapper
                 item->setBadge(d.badge_info.text, d.badge_info.bg_color);
                 return (RecyclingGridItem*)item;
             }));
+        dropdown->registerAction(ShortcutHelper::getPlaylist(), [dropdown](...) {
+            dropdown->dismiss();
+            return true;
+        });
         brls::Application::pushActivity(new brls::Activity(dropdown));
         return true;
     });

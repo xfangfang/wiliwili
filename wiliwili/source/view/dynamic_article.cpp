@@ -18,6 +18,7 @@
 #include "fragment/player_single_comment.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -394,6 +395,10 @@ void DynamicArticleDetail::initList(const bilibili::DynamicArticleResult& result
                                             this->toggleCommentMode();
                                             return true;
                                         });
+    this->recyclingGrid->registerAction(ShortcutHelper::getRefresh(), [this](...) {
+        this->toggleCommentMode();
+        return true;
+    });
     this->recyclingGrid->setDataSource(new DataSourceDynamicDetailList(data, state, &likeStateEvent, &likeNumEvent,
                                                                        this->getVideoCommentMode(),
                                                                        [this]() { this->toggleCommentMode(); }));

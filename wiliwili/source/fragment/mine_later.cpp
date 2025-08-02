@@ -10,16 +10,20 @@
 #include "utils/number_helper.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
 class DataSourceMineWatchLaterList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceMineWatchLaterList(bilibili::WatchLaterList result) : list(std::move(result)) {}
+    explicit DataSourceMineWatchLaterList(bilibili::WatchLaterList result) : list(std::move(result)) {
+    }
+
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         RecyclingGridItemVideoCard* item = (RecyclingGridItemVideoCard*)recycler->dequeueReusableCell("Cell");
         bilibili::WatchLaterItem& r      = this->list[index];
-        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name, 0, r.stat.view, r.stat.danmaku, r.duration);  //todo
+        item->setCard(r.pic + ImageHelper::h_ext, r.title, r.owner.name, 0, r.stat.view, r.stat.danmaku,
+                      r.duration); //todo
         return item;
     }
 
@@ -55,6 +59,7 @@ brls::View* MineLater::create() { return new MineLater(); }
 
 void MineLater::onCreate() {
     this->registerTabAction("wiliwili/mine/refresh_later"_i18n, brls::ControllerButton::BUTTON_X,
+                            ShortcutHelper::getRefresh(),
                             [this](brls::View* view) -> bool {
                                 this->recyclingGrid->refresh();
                                 return true;

@@ -11,6 +11,7 @@
 #include "view/video_card.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -121,7 +122,9 @@ brls::View* MineCollection::create() { return new MineCollection(); }
 void MineCollection::onCreate() {
     this->registerTabAction(getRequestType() == COLLECTION_UI_TYPE_1 ? "wiliwili/mine/refresh_collection"_i18n
                                                                      : "wiliwili/mine/refresh_subscription"_i18n,
-                            brls::ControllerButton::BUTTON_X, [this](brls::View* view) -> bool {
+                            brls::ControllerButton::BUTTON_X,
+                            ShortcutHelper::getRefresh(),
+                            [this](brls::View* view) -> bool {
                                 this->recyclingGrid->refresh();
                                 return true;
                             });

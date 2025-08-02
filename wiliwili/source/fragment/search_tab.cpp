@@ -10,6 +10,7 @@
 #include "fragment/search_cinema.hpp"
 #include "fragment/search_hots.hpp"
 #include "fragment/search_history.hpp"
+#include "utils/shortcut_helper.hpp"
 
 SearchTab::SearchTab() {
     this->inflateFromXMLRes("xml/fragment/search_tab.xml");
@@ -24,12 +25,26 @@ SearchTab::SearchTab() {
         true);
 
     this->registerAction(
+        ShortcutHelper::getLast(),
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2LastTab();
+            return true;
+        });
+
+    this->registerAction(
         "下一项", brls::ControllerButton::BUTTON_RB,
         [this](brls::View* view) -> bool {
             tabFrame->focus2NextTab();
             return true;
         },
         true);
+
+    this->registerAction(
+    ShortcutHelper::getNext(),
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2NextTab();
+            return true;
+        });
 }
 
 SearchTab::~SearchTab() { brls::Logger::debug("Fragment SearchTabActivity: delete"); }

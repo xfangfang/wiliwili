@@ -16,6 +16,7 @@
 #include "utils/dialog_helper.hpp"
 #include "utils/number_helper.hpp"
 #include "presenter/comment_related.hpp"
+#include "utils/shortcut_helper.hpp"
 #include "view/qr_image.hpp"
 #include "view/video_view.hpp"
 #include "view/grid_dropdown.hpp"
@@ -214,6 +215,12 @@ void BasePlayerActivity::setCommonData() {
                                       return true;
                                   });
 
+    recyclingGrid->registerAction(ShortcutHelper::getRefresh(),
+                                  [this](brls::View* view) -> bool {
+                                      this->setCommentMode();
+                                      return true;
+                                  });
+
     // 切换右侧Tab
     this->registerAction(
         "上一项", brls::ControllerButton::BUTTON_LT,
@@ -244,6 +251,20 @@ void BasePlayerActivity::setCommonData() {
             return true;
         },
         true);
+
+    this->registerAction(
+        ShortcutHelper::getLast(),
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2LastTab();
+            return true;
+        });
+    this->registerAction(
+        ShortcutHelper::getNext(),
+        [this](brls::View* view) -> bool {
+            tabFrame->focus2NextTab();
+            return true;
+        });
+    video->registerCommonActions(this);
 
     // 调整清晰度
     this->registerAction("wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
@@ -457,6 +478,10 @@ void BasePlayerActivity::setVideoQuality() {
             return true;
         },
         true);
+    dropdown->registerAction(ShortcutHelper::getVideoQuality(), [dropdown](...) {
+        dropdown->dismiss();
+        return true;
+    });
 
     // 因为触摸的问题 视频组件上开启新的 activity 需要同步执行
     // 不然在某些情况下焦点会错乱

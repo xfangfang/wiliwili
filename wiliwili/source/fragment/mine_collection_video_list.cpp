@@ -12,6 +12,7 @@
 #include "utils/image_helper.hpp"
 #include "utils/activity_helper.hpp"
 #include "bilibili.h"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -85,6 +86,11 @@ MineCollectionVideoList::MineCollectionVideoList() {
         this->requestCollectionList();
     });
     this->registerAction("wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
+                         [this](brls::View* view) -> bool {
+                             this->recyclingGrid->refresh();
+                             return true;
+                         });
+    this->registerAction(ShortcutHelper::getRefresh(),
                          [this](brls::View* view) -> bool {
                              this->recyclingGrid->refresh();
                              return true;

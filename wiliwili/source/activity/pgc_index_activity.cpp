@@ -15,6 +15,7 @@
 #include "utils/image_helper.hpp"
 #include "utils/activity_helper.hpp"
 #include "analytics.h"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -23,7 +24,7 @@ const std::map<std::string, int> INDEX_TYPE_MAP  = {{"1", 0}, {"2", 1}, {"5", 2}
 const std::vector<std::string> INDEX_TYPE_VECTOR = {"1", "2", "5", "3", "7", "102"};
 
 /// 辅助映射：index_type -> index name
-const std::map<std::string, std::string> INDEX_TYPE_NAME_MAP = {{"1", "追番"},   {"2", "电影"}, {"5", "电视剧"},
+const std::map<std::string, std::string> INDEX_TYPE_NAME_MAP = {{"1", "追番"}, {"2", "电影"}, {"5", "电视剧"},
                                                                 {"3", "纪录片"}, {"7", "综艺"}, {"102", "影视综合"}};
 
 /// 检索行中的一项
@@ -203,6 +204,12 @@ public:
             },
             true);
 
+        this->registerAction(ShortcutHelper::getLast(),
+                             [this](brls::View* view) -> bool {
+                                 tabFrame->focus2LastTab();
+                                 return true;
+                             });
+
         this->registerAction(
             "下一项", brls::ControllerButton::BUTTON_RB,
             [this](brls::View* view) -> bool {
@@ -210,6 +217,12 @@ public:
                 return true;
             },
             true);
+
+        this->registerAction(ShortcutHelper::getNext(),
+                             [this](brls::View* view) -> bool {
+                                 tabFrame->focus2NextTab();
+                                 return true;
+                             });
 
         this->addView(tabFrame);
         this->open();
@@ -244,9 +257,9 @@ public:
 
     // 打开检索表单时设置默认的tab与选项
     void setDefault(UserRequestData data) {
-        if (data.count("index_type") == 0) return;  // 未包含 index_type
+        if (data.count("index_type") == 0) return; // 未包含 index_type
         std::string index_type = data["index_type"];
-        if (PGCIndexRequest::INDEX_FILTERS.count(index_type) == 0) return;  //包含了不支持的 index_type
+        if (PGCIndexRequest::INDEX_FILTERS.count(index_type) == 0) return; //包含了不支持的 index_type
 
         int index = INDEX_TYPE_MAP.at(index_type);
 
@@ -254,7 +267,7 @@ public:
         brls::sync([this, index, index_type, data]() {
             this->tabFrame->focusTab(index);
 
-            auto& items = PGCIndexRequest::INDEX_FILTERS[index_type].filter;  // index_type 分类下的数据
+            auto& items = PGCIndexRequest::INDEX_FILTERS[index_type].filter; // index_type 分类下的数据
 
             // 设置默认数据，从后向前遍历保证最后一个选中的是最上面的一行
             auto& rows = this->getIndexRows();
@@ -281,8 +294,8 @@ public:
     IndexChangeEvent* getIndexChangeEvent() { return &this->event; }
 
     void startScrolling(float newScroll, float time = 300,
-                        brls::EasingFunction func = brls::EasingFunction::quadraticOut,
-                        std::function<void()> cb  = nullptr) {
+                        brls::EasingFunction func   = brls::EasingFunction::quadraticOut,
+                        std::function<void()> cb    = nullptr) {
         if (newScroll == this->contentOffsetY) return;
 
         brls::Application::blockInputs();
@@ -306,7 +319,9 @@ public:
 
 class DataSourcePGCIndexVideoList : public RecyclingGridDataSource {
 public:
-    DataSourcePGCIndexVideoList(bilibili::PGCIndexListResult result) : list(std::move(result)) {}
+    DataSourcePGCIndexVideoList(bilibili::PGCIndexListResult result) : list(std::move(result)) {
+    }
+
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemPGCVideoCard* item = (RecyclingGridItemPGCVideoCard*)recycler->dequeueReusableCell("Cell");
@@ -372,6 +387,10 @@ void PGCIndexActivity::onContentAvailable() {
                              this->openIndexActivity();
                              return true;
                          });
+    this->registerAction(ShortcutHelper::getRefresh(), [this](brls::View* view) {
+        this->openIndexActivity();
+        return true;
+    });
 }
 
 PGCIndexActivity::~PGCIndexActivity() {
@@ -404,16 +423,16 @@ void PGCIndexActivity::onError(const std::string& error) {
 
 // 解析用户选择的检索数据，返回一个 human-readable 字符串列表
 std::vector<std::string> PGCIndexActivity::parseData(const UserRequestData& query) {
-    if (query.count("index_type") == 0) return {"参数错误"};  // 未包含 index_type
+    if (query.count("index_type") == 0) return {"参数错误"}; // 未包含 index_type
     std::string type = query.at("index_type");
-    if (INDEX_TYPE_NAME_MAP.count(type) == 0) return {"未知参数"};  //包含了不支持的 index_type
+    if (INDEX_TYPE_NAME_MAP.count(type) == 0) return {"未知参数"}; //包含了不支持的 index_type
 
     if (PGCIndexRequest::INDEX_FILTERS.empty()) {
         // 从表中查询默认分类
         return {INDEX_TYPE_NAME_MAP.at(type), "skeleton", "skeleton", "skeleton", "skeleton", "skeleton", "skeleton"};
     }
 
-    if (PGCIndexRequest::INDEX_FILTERS.count(type) == 0) return {"未知参数"};  //包含了不支持的 index_type
+    if (PGCIndexRequest::INDEX_FILTERS.count(type) == 0) return {"未知参数"}; //包含了不支持的 index_type
 
     bilibili::PGCIndexFilterWrapper& data = PGCIndexRequest::INDEX_FILTERS.at(type);
 
@@ -440,7 +459,7 @@ void PGCIndexActivity::parseParam(const std::string& url) {
     // parse request params
     try {
         std::vector<std::string> data;
-        pystring::split(url, data, "?");  // url eg: "/page/home/pgc/more?type=2&index_type=2"
+        pystring::split(url, data, "?"); // url eg: "/page/home/pgc/more?type=2&index_type=2"
         this->originParam = data[1];
         std::vector<std::string> params;
         pystring::split(data[1], params, "&");

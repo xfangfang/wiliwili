@@ -11,12 +11,15 @@
 #include "utils/number_helper.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
 class DataSourceMineHistoryVideoList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceMineHistoryVideoList(bilibili::HistoryVideoListResult result) : list(std::move(result)) {}
+    explicit DataSourceMineHistoryVideoList(bilibili::HistoryVideoListResult result) : list(std::move(result)) {
+    }
+
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemHistoryVideoCard* item =
@@ -121,6 +124,7 @@ brls::View* MineHistory::create() { return new MineHistory(); }
 
 void MineHistory::onCreate() {
     this->registerTabAction("wiliwili/mine/refresh_history"_i18n, brls::ControllerButton::BUTTON_X,
+                            ShortcutHelper::getRefresh(),
                             [this](brls::View* view) -> bool {
                                 this->recyclingGrid->refresh();
                                 return true;

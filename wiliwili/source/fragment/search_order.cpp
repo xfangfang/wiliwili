@@ -7,6 +7,7 @@
 #include "fragment/search_order.hpp"
 #include "fragment/search_video.hpp"
 #include "activity/search_activity.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -29,6 +30,7 @@ SearchOrder::~SearchOrder() {
 void SearchOrder::onCreate() {
     this->registerTabAction("wiliwili/home/common/refresh"_i18n,
         brls::ControllerButton::BUTTON_X,
+        ShortcutHelper::getRefresh(),
         [this](brls::View* view) -> bool {
             this->tabFrame->refresh();
             return true;
@@ -36,6 +38,7 @@ void SearchOrder::onCreate() {
 
     this->registerTabAction(
         "上一项", brls::ControllerButton::BUTTON_LT,
+        ShortcutHelper::getLastSub(),
         [this](brls::View* view) -> bool {
             tabFrame->focus2LastTab();
             return true;
@@ -44,6 +47,7 @@ void SearchOrder::onCreate() {
 
     this->registerTabAction(
         "下一项", brls::ControllerButton::BUTTON_RT,
+        ShortcutHelper::getNextSub(),
         [this](brls::View* view) -> bool {
             tabFrame->focus2NextTab();
             return true;

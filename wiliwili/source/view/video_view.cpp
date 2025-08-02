@@ -23,6 +23,8 @@
 #include "fragment/player_setting.hpp"
 #include "fragment/player_dlna_search.hpp"
 #include "view/video_view.hpp"
+
+#include "utils/shortcut_helper.hpp"
 #include "view/live_core.hpp"
 #include "view/subtitle_core.hpp"
 #include "view/video_progress_slider.hpp"
@@ -78,16 +80,16 @@ VideoView::VideoView() {
         }
     });
 
-    this->registerAction(
-        "\uE08F", brls::ControllerButton::BUTTON_LB,
-        [this](brls::View* view) -> bool {
-            CHECK_OSD(true);
-            seeking_range -= getSeekRange(seeking_range);
-            this->requestSeeking(seeking_range);
-            return true;
-        },
-        false, true);
+    // 快退
+    auto rewindFunc = [this](...) -> bool {
+        CHECK_OSD(true);
+        seeking_range -= getSeekRange(seeking_range);
+        this->requestSeeking(seeking_range);
+        return true;
+    };
+    this->registerAction("\uE08F", brls::ControllerButton::BUTTON_LB, rewindFunc, false, true);
 
+    // 快进
     this->registerAction(
         "\uE08E", brls::ControllerButton::BUTTON_RB,
         [this](brls::View* view) -> bool {
@@ -106,25 +108,24 @@ VideoView::VideoView() {
         },
         false, true);
 
-    this->registerAction(
-        "toggleOSD", brls::ControllerButton::BUTTON_Y,
-        [this](brls::View* view) -> bool {
-            // 拖拽进度时不要影响显示 OSD
-            if (is_seeking) return true;
-            this->toggleOSD();
-            return true;
-        },
-        true);
+    // 显示隐藏 OSD
+    auto osdFunc = [this](...) -> bool {
+        // 拖拽进度时不要影响显示 OSD
+        if (is_seeking) return true;
+        this->toggleOSD();
+        return true;
+    };
+    this->registerAction("toggleOSD", brls::ControllerButton::BUTTON_Y, osdFunc, true);
 
-    this->registerAction(
-        "toggleDanmaku", brls::ControllerButton::BUTTON_X,
-        [this](brls::View* view) -> bool {
-            CHECK_OSD(true);
-            this->toggleDanmaku();
-            return true;
-        },
-        true);
+    // 切换弹幕显示
+    auto danmakuFunc = [this](...) -> bool {
+        CHECK_OSD(true);
+        this->toggleDanmaku();
+        return true;
+    };
+    this->registerAction("toggleDanmaku", brls::ControllerButton::BUTTON_X, danmakuFunc, true);
 
+    // 升高音量
     this->registerAction(
         "volumeUp", brls::ControllerButton::BUTTON_NAV_UP,
         [this](brls::View* view) -> bool {
@@ -139,6 +140,7 @@ VideoView::VideoView() {
         },
         true, true);
 
+    // 降低音量
     this->registerAction(
         "volumeDown", brls::ControllerButton::BUTTON_NAV_DOWN,
         [this](brls::View* view) -> bool {
@@ -286,64 +288,35 @@ VideoView::VideoView() {
     });
 
     /// 清晰度按钮
-    this->videoQuality->getParent()->registerClickAction([](...) {
+    auto qualityFunc = [this](...) {
+        CHECK_OSD(true);
         APP_E->fire(VideoView::QUALITY_CHANGE, nullptr);
         return true;
-    });
-    this->videoQuality->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->videoQuality->getParent()));
-    this->registerAction("wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START,
-                         [this](brls::View* view) -> bool {
-                             CHECK_OSD(true);
-                             APP_E->fire(VideoView::QUALITY_CHANGE, nullptr);
-                             return true;
-                         });
+    };
+    this->videoQuality->getParent()->registerClickAction(qualityFunc);
+    this->videoQuality->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(videoQuality->getParent()));
+    this->registerAction("wiliwili/player/quality"_i18n, brls::ControllerButton::BUTTON_START, qualityFunc);
 
     /// 视频详情信息
-    this->registerAction(
-        "profile", brls::ControllerButton::BUTTON_BACK,
-        [this](brls::View* view) -> bool {
-            CHECK_OSD(true);
-            if (videoProfile->getVisibility() == brls::Visibility::VISIBLE) {
-                videoProfile->setVisibility(brls::Visibility::INVISIBLE);
-                return true;
-            }
-            videoProfile->setVisibility(brls::Visibility::VISIBLE);
-            videoProfile->update();
+    auto profileFunc = [this](...) {
+        CHECK_OSD(true);
+        if (videoProfile->getVisibility() == brls::Visibility::VISIBLE) {
+            videoProfile->setVisibility(brls::Visibility::INVISIBLE);
             return true;
-        },
-        true);
+        }
+        videoProfile->setVisibility(brls::Visibility::VISIBLE);
+        videoProfile->update();
+        return true;
+    };
+    this->registerAction("profile", brls::ControllerButton::BUTTON_BACK, profileFunc, true);
+    this->registerAction(ShortcutHelper::getVideoProfile(), profileFunc);
 
     /// 倍速按钮
-    this->videoSpeed->getParent()->registerClickAction([](...) {
-        auto conf = ProgramConfig::instance().getOptionData(SettingItem::PLAYER_DEFAULT_SPEED);
-
-        // 找到当前倍速对应的列表值
-        double speed      = MPVCore::instance().getSpeed();
-        int selectedIndex = (int)ProgramConfig::instance().getIntOptionIndex(SettingItem::PLAYER_DEFAULT_SPEED);
-        for (size_t i = 0; i < conf.rawOptionList.size(); i++) {
-            if (fabs(conf.rawOptionList[i] * 0.01 - speed) < 1e-5) {
-                selectedIndex = (int)i;
-                break;
-            }
-        }
-
-        // 展示倍速列表
-        BaseDropdown::text(
-            "wiliwili/player/speed"_i18n, conf.optionList,
-            [conf](int selected) {
-                // 设置播放器倍速
-                MPVCore::instance().setSpeed(conf.rawOptionList[selected] * 0.01);
-                // 保存下倍速非1时的值，快捷键触发时使用此值
-                if (conf.rawOptionList[selected] != 100) {
-                    MPVCore::VIDEO_SPEED = conf.rawOptionList[selected];
-                    ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_DEFAULT_SPEED, MPVCore::VIDEO_SPEED);
-                }
-            },
-            selectedIndex);
-
+    auto showSpeedFunc = [](...) {
+        showSpeedList();
         return true;
-    });
+    };
+    this->videoSpeed->getParent()->registerClickAction(showSpeedFunc);
     this->videoSpeed->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->videoSpeed->getParent()));
 
     /// 全屏按钮
@@ -370,7 +343,7 @@ VideoView::VideoView() {
     this->btnDanmakuSettingIcon->getParent()->registerClickAction([this](...) {
         // 判断当前是否处于直播模式
         bool isLiveMode = this->isLiveMode;
-        auto setting = new PlayerDanmakuSetting(isLiveMode);
+        auto setting    = new PlayerDanmakuSetting(isLiveMode);
         brls::Application::pushActivity(new brls::Activity(setting));
         GA("open_danmaku_setting")
         return true;
@@ -379,36 +352,13 @@ VideoView::VideoView() {
         new brls::TapGestureRecognizer(this->btnDanmakuSettingIcon->getParent()));
 
     /// 播放器设置按钮
-    this->btnSettingIcon->getParent()->registerClickAction([this](...) {
-        auto setting = new PlayerSetting();
-
-        setting->setBangumiCustomSetting(bangumiTitle, bangumiSeasonId);
-
-        // 不显示弹幕则认为不是在播放B站视频，此时隐藏设置菜单中的上传历史记录
-        if (!showHistorySetting) {
-            setting->hideHistoryCell();
-        }
-        if (!showVideoRelatedSetting) {
-            setting->hideVideoRelatedCells();
-        }
-        if (!showSubtitleSetting) {
-            setting->hideSubtitleCells();
-        }
-        if (!showBottomLineSetting) {
-            setting->hideBottomLineCells();
-        }
-        if (!showHighlightLineSetting) {
-            setting->hideHighlightLineCells();
-        }
-        if (!showOpeningCreditsSetting) {
-            setting->hideSkipOpeningCreditsSetting();
-        }
-        brls::Application::pushActivity(new brls::Activity(setting));
-        GA("open_player_setting")
+    auto settingFunc = [this](...) {
+        this->showPlayerSetting();
         return true;
-    });
-    this->btnSettingIcon->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->btnSettingIcon->getParent()));
+    };
+    this->btnSettingIcon->getParent()->registerClickAction(settingFunc);
+    this->btnSettingIcon->getParent()->
+        addGestureRecognizer(new brls::TapGestureRecognizer(btnSettingIcon->getParent()));
 
     /// 音量按钮
     this->btnVolumeIcon->getParent()->registerClickAction([this](brls::View* view) {
@@ -675,8 +625,9 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
 
     // draw danmaku
     if (enableDanmaku) {
-        isLiveMode ? LiveDanmakuCore::instance().draw(vg, x, y, width, height, alpha)
-                   : DanmakuCore::instance().draw(vg, x, y, width, height, alpha);
+        isLiveMode
+            ? LiveDanmakuCore::instance().draw(vg, x, y, width, height, alpha)
+            : DanmakuCore::instance().draw(vg, x, y, width, height, alpha);
     }
 
     // draw osd
@@ -740,9 +691,9 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
         if (a2 > 120) a2 = 240 - a2;
         if (a3 > 120) a3 = 240 - a3;
 
-        float tx                              = frame.getMinX() - 50;
-        float ty                              = frame.getMinY() + 4.5;
-        std::vector<std::pair<int, int>> data = {{0, a3 + 80}, {15, a2 + 80}, {30, a1 + 80}};
+        float tx                               = frame.getMinX() - 50;
+        float ty                               = frame.getMinY() + 4.5;
+        std::vector<std::pair<int, int> > data = {{0, a3 + 80}, {15, a2 + 80}, {30, a1 + 80}};
 
         for (auto& i : data) {
             nvgBeginPath(vg);
@@ -773,7 +724,7 @@ void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y, float wi
     float dX     = width / ((float)highlightData.data.size() - 1);
     float halfDx = dX / 2;
     float pointX = x, lastX = x;
-    float lastY = baseY;
+    float lastY  = baseY;
     nvgMoveTo(vg, lastX, lastY);
     lastY -= 12;
     nvgLineTo(vg, lastX, lastY);
@@ -961,6 +912,71 @@ void VideoView::toggleOSD() {
     } else {
         this->showOSD(true);
     }
+}
+
+void VideoView::showSpeedList() {
+    auto conf = ProgramConfig::instance().getOptionData(SettingItem::PLAYER_DEFAULT_SPEED);
+
+    // 找到当前倍速对应的列表值
+    double speed      = MPVCore::instance().getSpeed();
+    int selectedIndex = (int)ProgramConfig::instance().getIntOptionIndex(SettingItem::PLAYER_DEFAULT_SPEED);
+    for (size_t i = 0; i < conf.rawOptionList.size(); i++) {
+        if (fabs(conf.rawOptionList[i] * 0.01 - speed) < 1e-5) {
+            selectedIndex = (int)i;
+            break;
+        }
+    }
+
+    // 展示倍速列表
+    auto dropdown = BaseDropdown::text(
+        "wiliwili/player/speed"_i18n, conf.optionList,
+        [conf](int selected) {
+            // 设置播放器倍速
+            MPVCore::instance().setSpeed(conf.rawOptionList[selected] * 0.01);
+            // 保存下倍速非1时的值，快捷键触发时使用此值
+            if (conf.rawOptionList[selected] != 100) {
+                MPVCore::VIDEO_SPEED = conf.rawOptionList[selected];
+                ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_DEFAULT_SPEED, MPVCore::VIDEO_SPEED);
+            }
+        },
+        selectedIndex);
+    dropdown->registerAction(ShortcutHelper::getVideoSpeed(), [dropdown](...) {
+        dropdown->dismiss();
+        return true;
+    });
+}
+
+void VideoView::showPlayerSetting() const {
+    auto setting = new PlayerSetting();
+
+    setting->registerAction(ShortcutHelper::getSetting(), [](...) {
+        brls::Application::popActivity();
+        return true;
+    });
+
+    setting->setBangumiCustomSetting(bangumiTitle, bangumiSeasonId);
+
+    // 不显示弹幕则认为不是在播放B站视频，此时隐藏设置菜单中的上传历史记录
+    if (!showHistorySetting) {
+        setting->hideHistoryCell();
+    }
+    if (!showVideoRelatedSetting) {
+        setting->hideVideoRelatedCells();
+    }
+    if (!showSubtitleSetting) {
+        setting->hideSubtitleCells();
+    }
+    if (!showBottomLineSetting) {
+        setting->hideBottomLineCells();
+    }
+    if (!showHighlightLineSetting) {
+        setting->hideHighlightLineCells();
+    }
+    if (!showOpeningCreditsSetting) {
+        setting->hideSkipOpeningCreditsSetting();
+    }
+    brls::Application::pushActivity(new brls::Activity(setting));
+    GA("open_player_setting")
 }
 
 // Loading
@@ -1205,16 +1221,17 @@ void VideoView::setFullScreen(bool fs) {
             video->hideLoading();
         }
         if (this->seasonAction != nullptr) {
-            brls::View *view = video->showEpisode->getParent();
+            brls::View* view = video->showEpisode->getParent();
             view->registerClickAction(this->seasonAction);
             view->addGestureRecognizer(new brls::TapGestureRecognizer(view));
             view->setVisibility(brls::Visibility::VISIBLE);
             video->showEpisode->setVisibility(brls::Visibility::VISIBLE);
+            video->setSeasonAction(this->seasonAction);
         }
         container->addView(video);
-        auto activity = new brls::Activity(container);
+        const auto activity = new brls::Activity(container);
         brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
-        registerFullscreen(activity);
+        video->registerCommonActions(activity);
     } else {
         ASYNC_RETAIN
         brls::sync([ASYNC_TOKEN]() {
@@ -1235,7 +1252,7 @@ void VideoView::setFullScreen(bool fs) {
                 brls::Application::popActivity();
                 return;
             }
-            
+
             bool found = false;
             for (size_t i = activityStack.size() - 2; i != 0; i--) {
                 // 检查是否为BasePlayerActivity
@@ -1261,14 +1278,14 @@ void VideoView::setFullScreen(bool fs) {
                         video->videoSpeed->setText(this->videoSpeed->getFullText());
                         DanmakuCore::instance().refresh();
                         LiveDanmakuCore::instance().refresh();
-                        
+
                         // 同步播放/暂停状态
                         if (MPVCore::instance().isPaused()) {
                             video->pause();
                         } else if (MPVCore::instance().isPlaying()) {
                             video->resume();
                         }
-                        
+
                         if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
                             video->hideLoading();
                         } else {
@@ -1293,17 +1310,17 @@ void VideoView::setFullScreen(bool fs) {
                             video->refreshToggleIcon();
                             video->refreshDanmakuIcon();
                             video->setQuality(this->getQuality());
-                            
+
                             // 同步播放/暂停状态
                             if (MPVCore::instance().isPaused()) {
                                 video->pause();
                             } else if (MPVCore::instance().isPlaying()) {
                                 video->resume();
                             }
-                            
+
                             DanmakuCore::instance().refresh();
                             LiveDanmakuCore::instance().refresh();
-                            
+
                             if (osdCenterBox->getVisibility() == brls::Visibility::GONE) {
                                 video->hideLoading();
                             } else {
@@ -1315,12 +1332,12 @@ void VideoView::setFullScreen(bool fs) {
                     }
                 }
             }
-            
+
             // 如果没有找到合适的Activity，但仍需要退出全屏
             if (!found) {
                 brls::Logger::debug("No suitable activity found to return to when exiting fullscreen");
             }
-            
+
             // Pop fullscreen videoView
             brls::Application::popActivity(brls::TransitionAnimation::NONE);
         });
@@ -1347,6 +1364,26 @@ void VideoView::buttonProcessing() {
     // 获取按键数据
     brls::ControllerState state{};
     input->updateUnifiedControllerState(&state);
+    auto speedUpShortcut = ShortcutHelper::getVideoSpeedUp();
+    bool shortcutPressed = input->getKeyboardKeyState(speedUpShortcut.code);
+    if (shortcutPressed) {
+        const bool ctrlPressed = input->getKeyboardKeyState(brls::BRLS_KBD_KEY_LEFT_CONTROL) ||
+                                 input->getKeyboardKeyState(brls::BRLS_KBD_KEY_RIGHT_CONTROL);
+        const bool altPressed = input->getKeyboardKeyState(brls::BRLS_KBD_KEY_LEFT_ALT) ||
+                                input->getKeyboardKeyState(brls::BRLS_KBD_KEY_RIGHT_ALT);
+        const bool shiftPressed = input->getKeyboardKeyState(brls::BRLS_KBD_KEY_LEFT_SHIFT) ||
+                                  input->getKeyboardKeyState(brls::BRLS_KBD_KEY_RIGHT_SHIFT);
+        const bool metaPressed = input->getKeyboardKeyState(brls::BRLS_KBD_KEY_LEFT_SUPER) ||
+                                 input->getKeyboardKeyState(brls::BRLS_KBD_KEY_RIGHT_SUPER);
+        if (static_cast<bool>(speedUpShortcut.mod & brls::BRLS_KBD_MODIFIER_SHIFT) != shiftPressed ||
+            static_cast<bool>(speedUpShortcut.mod & brls::BRLS_KBD_MODIFIER_CTRL) != ctrlPressed ||
+            static_cast<bool>(speedUpShortcut.mod & brls::BRLS_KBD_MODIFIER_ALT) != altPressed ||
+            static_cast<bool>(speedUpShortcut.mod & brls::BRLS_KBD_MODIFIER_META) != metaPressed) {
+            // If the key is pressed but the modifiers are not, unpressed it
+            shortcutPressed = false;
+        }
+    }
+    state.buttons[brls::BUTTON_RSB] |= shortcutPressed;
 
     // 当OSD显示时上下左右切换选择按钮，持续显示OSD
     if (is_focus_on_osd && isOSDShown() &&
@@ -1558,3 +1595,71 @@ void VideoView::onChildFocusGained(View* directChild, View* focusedView) {
 }
 
 float VideoView::getRealDuration() { return real_duration > 0 ? (float)real_duration : (float)mpvCore->duration; }
+
+void VideoView::registerCommonActions(brls::Activity* activity) {
+    activity->registerAction(
+        ShortcutHelper::getVideoPause(), [this](...) -> bool {
+            CHECK_OSD(true);
+            this->togglePlay();
+            return true;
+        });
+    activity->registerAction(
+        ShortcutHelper::getVolumeUp(), [this](...) -> bool {
+            CHECK_OSD(true);
+            this->requestVolume((int)MPVCore::instance().volume + 5, 400);
+            return true;
+        }, true);
+    activity->registerAction(
+        ShortcutHelper::getVolumeDown(), [this](...) -> bool {
+            CHECK_OSD(true);
+            this->requestVolume((int)MPVCore::instance().volume - 5, 400);
+            return true;
+        }, true);
+    activity->registerAction(
+        ShortcutHelper::getForward(), [this](...) -> bool {
+            CHECK_OSD(true);
+            seeking_range += getSeekRange(seeking_range);
+            this->requestSeeking(seeking_range);
+            return true;
+        }, true);
+    activity->registerAction(
+        ShortcutHelper::getRewind(), [this](...) -> bool {
+            CHECK_OSD(true);
+            seeking_range -= getSeekRange(seeking_range);
+            this->requestSeeking(seeking_range);
+            return true;
+        }, true);
+    activity->registerAction(
+        ShortcutHelper::getVideoOsd(), [this](...) -> bool {
+            CHECK_OSD(true);
+            this->toggleOSD();
+            return true;
+        });
+    activity->registerAction(
+        ShortcutHelper::getDanmaku(), [this](...) -> bool {
+            CHECK_OSD(true);
+            this->toggleDanmaku();
+            return true;
+        });
+    activity->registerAction(
+        ShortcutHelper::getVideoQuality(), [this](...) -> bool {
+            CHECK_OSD(true);
+            APP_E->fire(VideoView::QUALITY_CHANGE, nullptr);
+            return true;
+        });
+    activity->registerAction(ShortcutHelper::getVideoSpeed(), [this](...) -> bool {
+        CHECK_OSD(true);
+        showSpeedList();
+        return true;
+    });
+    activity->registerAction(ShortcutHelper::getSetting(), [this](...) -> bool {
+        CHECK_OSD(true);
+        this->showPlayerSetting();
+        return true;
+    });
+    activity->registerAction(ShortcutHelper::getPlaylist(), [this](brls::View* view) {
+        CHECK_OSD(true);
+        if (this->seasonAction) this->seasonAction(view);
+        return true;
+    });
+}

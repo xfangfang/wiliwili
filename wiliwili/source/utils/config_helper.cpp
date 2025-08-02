@@ -28,6 +28,7 @@
 #include "utils/vibration_helper.hpp"
 #include "utils/ban_list.hpp"
 #include "utils/string_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 #include "presenter/video_detail.hpp"
 #include "activity/player_activity.hpp"
 #include "activity/search_activity_tv.hpp"
@@ -146,6 +147,24 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_ASPECT, {"player_aspect", {"-1", "-2", "-3", "4:3", "16:9"}, {}, 0}},
     {SettingItem::HTTP_PROXY, {"http_proxy", {}, {}, 0}},
     {SettingItem::DANMAKU_STYLE_FONT, {"danmaku_style_font", {"stroke", "incline", "shadow", "pure"}, {}, 0}},
+    {SettingItem::SHORTCUT_REFRESH, {"shortcut_refresh", {}, {}, 0}},
+    {SettingItem::SHORTCUT_SEARCH, {"shortcut_search", {}, {}, 0}},
+    {SettingItem::SHORTCUT_LAST, {"shortcut_last", {}, {}, 0}},
+    {SettingItem::SHORTCUT_NEXT, {"shortcut_next", {}, {}, 0}},
+    {SettingItem::SHORTCUT_LAST_SUB, {"shortcut_last_sub", {}, {}, 0}},
+    {SettingItem::SHORTCUT_NEXT_SUB, {"shortcut_next_sub", {}, {}, 0}},
+    {SettingItem::SHORTCUT_VOLUME_UP, {"shortcut_volume_up", {}, {}, 0}},
+    {SettingItem::SHORTCUT_VOLUME_DOWN, {"shortcut_volume_down", {}, {}, 0}},
+    {SettingItem::SHORTCUT_VIDEO_PROFILE, {"shortcut_video_profile", {}, {}, 0}},
+    {SettingItem::SHORTCUT_DANMAKU, {"shortcut_danmaku", {}, {}, 0}},
+    {SettingItem::SHORTCUT_PLAYLIST, {"shortcut_playlist", {}, {}, 0}},
+    {SettingItem::SHORTCUT_FORWARD, {"shortcut_forward", {}, {}, 0}},
+    {SettingItem::SHORTCUT_REWIND, {"shortcut_rewind", {}, {}, 0}},
+    {SettingItem::SHORTCUT_SETTING, {"shortcut_setting", {}, {}, 0}},
+    {SettingItem::SHORTCUT_VIDEO_QUALITY, {"shortcut_video_quality", {}, {}, 0}},
+    {SettingItem::SHORTCUT_VIDEO_SPEED, {"shortcut_video_speed", {}, {}, 0}},
+    {SettingItem::SHORTCUT_VIDEO_SPEEDUP, {"shortcut_video_speedup", {}, {}, 0}},
+    {SettingItem::SHORTCUT_VIDEO_PAUSE, {"shortcut_video_pause", {}, {}, 0}},
 
     /// bool
     {SettingItem::APP_SWAP_ABXY, {"app_swap_abxy", {}, {}, 0}},
@@ -198,7 +217,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
       1}},
 #endif
 
-/// number
+    /// number
 #if defined(__PSV__)
     {SettingItem::PLAYER_INMEMORY_CACHE, {"player_inmemory_cache", {"0MB", "1MB", "5MB", "10MB"}, {0, 1, 5, 10}, 0}},
 #elif defined(__SWITCH__)
@@ -279,7 +298,8 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     /// Custom
     {SettingItem::UP_FILTER, {"up_filter", {}, {}, 0}},
     {SettingItem::LIVE_DANMAKU_FILTER_LEVEL, {"live_danmaku_filter_level", {}, {}, 0}},
-    {SettingItem::LIVE_SIDEBAR_DANMAKU_COUNT, {"live_sidebar_danmaku_count", {"0", "10", "25", "50", "100"}, {0, 10, 25, 50, 100}, 4}},
+    {SettingItem::LIVE_SIDEBAR_DANMAKU_COUNT,
+     {"live_sidebar_danmaku_count", {"0", "10", "25", "50", "100"}, {0, 10, 25, 50, 100}, 4}},
 };
 
 ProgramConfig::ProgramConfig() = default;
@@ -518,8 +538,8 @@ void ProgramConfig::load() {
     // 初始化视频清晰度最高限制
     VideoDetail::landscapeQualityMax = getSettingItem(SettingItem::VIDEO_QUALITY_LANDSCAPE_MAX,
                                                       WILI_VIDEO_QUALITY_LANDSCAPE_MAX);
-    VideoDetail::portraitQualityMax  = getSettingItem(SettingItem::VIDEO_QUALITY_PORTRAIT_MAX,
-                                                      WILI_VIDEO_QUALITY_PORTRAIT_MAX);
+    VideoDetail::portraitQualityMax = getSettingItem(SettingItem::VIDEO_QUALITY_PORTRAIT_MAX,
+                                                     WILI_VIDEO_QUALITY_PORTRAIT_MAX);
 
     // 初始化视频清晰度
     VideoDetail::defaultQuality = getSettingItem(SettingItem::VIDEO_QUALITY,
@@ -546,21 +566,21 @@ void ProgramConfig::load() {
     MPVCore::VIDEO_GAMMA      = getSettingItem(SettingItem::PLAYER_GAMMA, 0);
 
     // 初始化弹幕相关内容
-    DanmakuCore::DANMAKU_ON                   = getBoolOption(SettingItem::DANMAKU_ON);
-    DanmakuCore::DANMAKU_SMART_MASK           = getBoolOption(SettingItem::DANMAKU_SMART_MASK);
-    DanmakuCore::DANMAKU_FILTER_SHOW_TOP      = getBoolOption(SettingItem::DANMAKU_FILTER_TOP);
-    DanmakuCore::DANMAKU_FILTER_SHOW_BOTTOM   = getBoolOption(SettingItem::DANMAKU_FILTER_BOTTOM);
-    DanmakuCore::DANMAKU_FILTER_SHOW_SCROLL   = getBoolOption(SettingItem::DANMAKU_FILTER_SCROLL);
-    DanmakuCore::DANMAKU_FILTER_SHOW_COLOR    = getBoolOption(SettingItem::DANMAKU_FILTER_COLOR);
+    DanmakuCore::DANMAKU_ON = getBoolOption(SettingItem::DANMAKU_ON);
+    DanmakuCore::DANMAKU_SMART_MASK = getBoolOption(SettingItem::DANMAKU_SMART_MASK);
+    DanmakuCore::DANMAKU_FILTER_SHOW_TOP = getBoolOption(SettingItem::DANMAKU_FILTER_TOP);
+    DanmakuCore::DANMAKU_FILTER_SHOW_BOTTOM = getBoolOption(SettingItem::DANMAKU_FILTER_BOTTOM);
+    DanmakuCore::DANMAKU_FILTER_SHOW_SCROLL = getBoolOption(SettingItem::DANMAKU_FILTER_SCROLL);
+    DanmakuCore::DANMAKU_FILTER_SHOW_COLOR = getBoolOption(SettingItem::DANMAKU_FILTER_COLOR);
     DanmakuCore::DANMAKU_FILTER_SHOW_ADVANCED = getBoolOption(SettingItem::DANMAKU_FILTER_ADVANCED);
-    DanmakuCore::DANMAKU_FILTER_LEVEL         = getIntOption(SettingItem::DANMAKU_FILTER_LEVEL);
+    DanmakuCore::DANMAKU_FILTER_LEVEL = getIntOption(SettingItem::DANMAKU_FILTER_LEVEL);
     LiveDanmakuCore::DANMAKU_FILTER_LEVEL_LIVE = getIntOption(SettingItem::LIVE_DANMAKU_FILTER_LEVEL);
-    DanmakuCore::DANMAKU_STYLE_AREA           = getIntOption(SettingItem::DANMAKU_STYLE_AREA);
-    DanmakuCore::DANMAKU_STYLE_ALPHA          = getIntOption(SettingItem::DANMAKU_STYLE_ALPHA);
-    DanmakuCore::DANMAKU_STYLE_FONTSIZE       = getIntOption(SettingItem::DANMAKU_STYLE_FONTSIZE);
-    DanmakuCore::DANMAKU_STYLE_LINE_HEIGHT    = getIntOption(SettingItem::DANMAKU_STYLE_LINE_HEIGHT);
-    DanmakuCore::DANMAKU_STYLE_SPEED          = getIntOption(SettingItem::DANMAKU_STYLE_SPEED);
-    DanmakuCore::DANMAKU_STYLE_FONT           = DanmakuFontStyle{getStringOptionIndex(SettingItem::DANMAKU_STYLE_FONT)};
+    DanmakuCore::DANMAKU_STYLE_AREA = getIntOption(SettingItem::DANMAKU_STYLE_AREA);
+    DanmakuCore::DANMAKU_STYLE_ALPHA = getIntOption(SettingItem::DANMAKU_STYLE_ALPHA);
+    DanmakuCore::DANMAKU_STYLE_FONTSIZE = getIntOption(SettingItem::DANMAKU_STYLE_FONTSIZE);
+    DanmakuCore::DANMAKU_STYLE_LINE_HEIGHT = getIntOption(SettingItem::DANMAKU_STYLE_LINE_HEIGHT);
+    DanmakuCore::DANMAKU_STYLE_SPEED = getIntOption(SettingItem::DANMAKU_STYLE_SPEED);
+    DanmakuCore::DANMAKU_STYLE_FONT = DanmakuFontStyle{getStringOptionIndex(SettingItem::DANMAKU_STYLE_FONT)};
 
     DanmakuCore::DANMAKU_RENDER_QUALITY = getIntOption(SettingItem::DANMAKU_RENDER_QUALITY);
 
@@ -637,7 +657,7 @@ void ProgramConfig::load() {
 
     // 初始化i18n
     std::set<std::string> i18nData{
-        brls::LOCALE_AUTO,    brls::LOCALE_EN_US,   brls::LOCALE_JA, brls::LOCALE_RYU,
+        brls::LOCALE_AUTO, brls::LOCALE_EN_US, brls::LOCALE_JA, brls::LOCALE_RYU,
         brls::LOCALE_ZH_HANS, brls::LOCALE_ZH_HANT, brls::LOCALE_Ko, brls::LOCALE_IT,
     };
     std::string langData = getSettingItem(SettingItem::APP_LANG, brls::LOCALE_AUTO);
@@ -670,6 +690,40 @@ void ProgramConfig::load() {
 
     // 初始化闲置状态 FPS
     brls::Application::setDeactivatedFPS(getSettingItem(SettingItem::DEACTIVATED_FPS, 5));
+
+    // 初始化快捷键
+    ShortcutHelper::setRefresh(getSettingItem(SettingItem::SHORTCUT_REFRESH, std::string{
+#ifdef __APPLE__
+                                                  "meta-r"
+#else
+                                                  "ctrl-r"
+#endif
+                                              }));
+    ShortcutHelper::setSearch(getSettingItem(SettingItem::SHORTCUT_SEARCH, std::string{
+#ifdef __APPLE__
+                                                 "meta-f"
+#else
+                                                 "ctrl-f"
+#endif
+                                             }));
+
+    ShortcutHelper::setLast(getSettingItem(SettingItem::SHORTCUT_LAST, std::string{"pgup"}));
+    ShortcutHelper::setNext(getSettingItem(SettingItem::SHORTCUT_NEXT, std::string{"pgdn"}));
+    ShortcutHelper::setLastSub(getSettingItem(SettingItem::SHORTCUT_LAST_SUB, std::string{"shift-pgup"}));
+    ShortcutHelper::setNextSub(getSettingItem(SettingItem::SHORTCUT_NEXT_SUB, std::string{"shift-pgdn"}));
+    ShortcutHelper::setVolumeUp(getSettingItem(SettingItem::SHORTCUT_VOLUME_UP, std::string{"0"}));
+    ShortcutHelper::setVolumeDown(getSettingItem(SettingItem::SHORTCUT_VOLUME_DOWN, std::string{"9"}));
+    ShortcutHelper::setDanmaku(getSettingItem(SettingItem::SHORTCUT_DANMAKU, std::string{"d"}));
+    ShortcutHelper::setVideoProfile(getSettingItem(SettingItem::SHORTCUT_VIDEO_PROFILE, std::string{"f1"}));
+    ShortcutHelper::setVideoQuality(getSettingItem(SettingItem::SHORTCUT_VIDEO_QUALITY, std::string{"f2"}));
+    ShortcutHelper::setVideoSpeed(getSettingItem(SettingItem::SHORTCUT_VIDEO_SPEED, std::string{"f3"}));
+    ShortcutHelper::setPlaylist(getSettingItem(SettingItem::SHORTCUT_PLAYLIST, std::string{"f4"}));
+    ShortcutHelper::setSetting(getSettingItem(SettingItem::SHORTCUT_SETTING, std::string{"f5"}));
+    ShortcutHelper::setVideoSpeedUp(getSettingItem(SettingItem::SHORTCUT_VIDEO_SPEEDUP, std::string{"p"}));
+    ShortcutHelper::setForward(getSettingItem(SettingItem::SHORTCUT_FORWARD, std::string{"]"}));
+    ShortcutHelper::setRewind(getSettingItem(SettingItem::SHORTCUT_REWIND, std::string{"["}));
+    ShortcutHelper::setVideoOsd(getSettingItem(SettingItem::SHORTCUT_VIDEO_OSD, std::string{"o"}));
+    ShortcutHelper::setVideoPause(getSettingItem(SettingItem::SHORTCUT_VIDEO_PAUSE, std::string{"space"}));
 
     // 初始化一些在创建窗口之后才能初始化的内容
     brls::Application::getWindowCreationDoneEvent()->subscribe([this]() {
@@ -731,26 +785,9 @@ void ProgramConfig::load() {
                     case brls::BRLS_KBD_KEY_F11:
                         ProgramConfig::instance().toggleFullscreen();
                         break;
+#else
+                        // macOS 可以直接使用 ctrl-cmd-f 官方快捷键
 #endif
-                    case brls::BRLS_KBD_KEY_F: {
-                        // 在编辑框弹出时不触发
-                        auto activityStack  = brls::Application::getActivitiesStack();
-                        brls::Activity* top = activityStack[activityStack.size() - 1];
-                        if(!dynamic_cast<brls::EditTextDialog*>(top->getContentView())){
-                            ProgramConfig::instance().toggleFullscreen();
-                        }
-                        break;
-                    }
-                    case brls::BRLS_KBD_KEY_SPACE: {
-                        // 只在顶部的 Activity 中存在播放器组件时触发
-                        auto activityStack  = brls::Application::getActivitiesStack();
-                        brls::Activity* top = activityStack[activityStack.size() - 1];
-                        VideoView* video    = dynamic_cast<VideoView*>(top->getContentView()->getView("video"));
-                        if (video) {
-                            video->togglePlay();
-                        }
-                        break;
-                    }
                     default:
                         break;
                 }
@@ -862,7 +899,7 @@ void ProgramConfig::checkOnTop() {
             return;
         case 2: {
             // 自动模式，根据窗口大小判断是否需要切换到置顶模式
-            double factor     = brls::Application::getPlatform()->getVideoContext()->getScaleFactor();
+            double factor = brls::Application::getPlatform()->getVideoContext()->getScaleFactor();
             uint32_t minWidth = ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_WIDTH) * factor + 0.1;
             uint32_t minHeight =
                 ProgramConfig::instance().getIntOption(SettingItem::ON_TOP_WINDOW_HEIGHT) * factor + 0.1;
@@ -1020,6 +1057,7 @@ void ProgramConfig::init() {
         } else if (icon == "ps") {
             brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
         } else {
+            brls::Application::setHintsLiteMode(true);
             if (getBoolOption(SettingItem::APP_SWAP_ABXY)) {
                 brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_keyboard_swap.ttf");
             } else {
@@ -1188,7 +1226,9 @@ void ProgramConfig::setProxy(const std::string& proxy) {
     BILI::setProxy(httpProxy, httpsProxy);
 }
 
-void ProgramConfig::setTlsVerify(bool verify) { BILI::setTlsVerify(verify); }
+void ProgramConfig::setTlsVerify(bool verify) {
+    BILI::setTlsVerify(verify);
+}
 
 void ProgramConfig::addSeasonCustomSetting(const std::string& key, const SeasonCustomItem& item) {
     this->seasonCustom[key] = item;

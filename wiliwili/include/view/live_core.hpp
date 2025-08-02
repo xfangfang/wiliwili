@@ -16,8 +16,6 @@
 typedef std::chrono::time_point<std::chrono::system_clock> time_p;
 
 struct NVGcontext;
-struct RichTextImage;
-struct Image;
 
 // 表情包映射类型
 typedef std::unordered_map<std::string, std::string> lmp;

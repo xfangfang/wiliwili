@@ -6,6 +6,7 @@
 #include "view/text_box.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 #include "utils/string_helper.hpp"
 
 using namespace brls::literals;
@@ -154,7 +155,8 @@ InboxFeed::~InboxFeed() { brls::Logger::debug("Fragment InboxFeed: delete"); }
 
 void InboxFeed::onCreate() {
     this->requestData(feedMode, true);
-    this->registerTabAction("", brls::ControllerButton::BUTTON_X ,[this](brls::View* view) {
+    this->registerTabAction("", brls::ControllerButton::BUTTON_X, ShortcutHelper::getRefresh(),
+        [this](brls::View* view) {
         this->recyclingGrid->refresh();
         return true;
     }, true);

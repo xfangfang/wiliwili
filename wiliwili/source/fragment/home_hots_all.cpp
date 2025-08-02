@@ -10,6 +10,7 @@
 #include "view/recycling_grid.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/image_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -72,6 +73,7 @@ void HomeHotsAll::onHotsAllVideoList(const bilibili::HotsAllVideoListResult& res
 
 void HomeHotsAll::onCreate() {
     this->registerTabAction("wiliwili/home/common/refresh"_i18n, brls::ControllerButton::BUTTON_X,
+                            ShortcutHelper::getRefresh(),
                             [this](brls::View* view) -> bool {
                                 this->recyclingGrid->refresh();
                                 return true;

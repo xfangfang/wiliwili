@@ -9,6 +9,7 @@
 #include "view/inbox_msg_card.hpp"
 #include "view/custom_button.hpp"
 #include "utils/number_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -143,6 +144,11 @@ InboxChat::InboxChat(const bilibili::InboxChatResult& r, std::function<void()> c
     recyclingGrid->setPaddingBottom(80);
 
     this->registerAction("wiliwili/home/common/refresh"_i18n, brls::BUTTON_X, [this](brls::View* view) {
+        this->recyclingGrid->refresh();
+        return true;
+    });
+
+    this->registerAction(ShortcutHelper::getRefresh(), [this](...) {
         this->recyclingGrid->refresh();
         return true;
     });

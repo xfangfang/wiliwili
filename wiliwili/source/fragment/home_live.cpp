@@ -13,6 +13,7 @@
 #include "view/grid_dropdown.hpp"
 #include "utils/image_helper.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/shortcut_helper.hpp"
 
 using namespace brls::literals;
 
@@ -139,7 +140,9 @@ protected:
 
 class DataSourceLiveVideoList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceLiveVideoList(bilibili::LiveVideoListResult result) : videoList(std::move(result)) {}
+    explicit DataSourceLiveVideoList(bilibili::LiveVideoListResult result) : videoList(std::move(result)) {
+    }
+
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         RecyclingGridItemLiveVideoCard* item = (RecyclingGridItemLiveVideoCard*)recycler->dequeueReusableCell("Cell");
@@ -170,7 +173,8 @@ typedef brls::Event<const bilibili::LiveFullAreaResult> AreaSelectedEvent;
 class DataSourceLiveMainAreaList : public RecyclingGridDataSource {
 public:
     DataSourceLiveMainAreaList(bilibili::LiveFullAreaListResult result, size_t mainIndex)
-        : areaList(std::move(result)), defaultIndex(mainIndex) {}
+        : areaList(std::move(result)), defaultIndex(mainIndex) {
+    }
 
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
@@ -215,7 +219,9 @@ typedef brls::Event<int, int, std::string, std::string, int> SubAreaSelectedEven
 
 class DataSourceLiveSubAreaList : public RecyclingGridDataSource {
 public:
-    explicit DataSourceLiveSubAreaList(bilibili::LiveFullAreaResult result) : areaList(std::move(result)) {}
+    explicit DataSourceLiveSubAreaList(bilibili::LiveFullAreaResult result) : areaList(std::move(result)) {
+    }
+
     RecyclingGridItem* cellForRow(RecyclingGrid* recycler, size_t index) override {
         //从缓存列表中取出 或者 新生成一个表单项
         auto item = (GridSubAreaCell*)recycler->dequeueReusableCell("Cell");
@@ -231,7 +237,8 @@ public:
                                         areaList.name, areaList.area_list[index].name, areaList.id);
     }
 
-    void clearData() override {}
+    void clearData() override {
+    }
 
     SubAreaSelectedEvent* getSelectedEvent() { return &this->subAreaSelectedEvent; }
 
@@ -271,7 +278,7 @@ public:
         this->selectMainArea(result[mainIndex], subID);
 
         // 计算高度
-        float height = (float)mainDS->getItemCount() * 70 + header->getHeight() + 150;  // bottom
+        float height = (float)mainDS->getItemCount() * 70 + header->getHeight() + 150; // bottom
 
         content->setHeight(fmin(height, brls::Application::contentHeight * 0.73f));
     }
@@ -353,6 +360,7 @@ void HomeLive::onCreate() {
         return true;
     }));
     this->registerTabAction("wiliwili/home/common/switch"_i18n, brls::ControllerButton::BUTTON_X,
+                            ShortcutHelper::getRefresh(),
                             [this](brls::View* view) -> bool {
                                 this->switchChannel();
                                 return true;
