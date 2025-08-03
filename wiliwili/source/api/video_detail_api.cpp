@@ -28,14 +28,24 @@ void BilibiliClient::get_video_detail_all(const std::string& bvid,
 
 void BilibiliClient::get_page_detail(uint64_t aid, uint64_t cid, const std::function<void(VideoPageResult)>& callback,
                                      const ErrorCallback& error) {
-    HTTP::getResultAsync<VideoPageResult>(Api::PageDetail, {{"aid", std::to_string(aid)}, {"cid", std::to_string(cid)}},
-                                          callback, error);
+    HTTP::getResultWithWbiAsync<VideoPageResult>(Api::PageDetail,
+                                                 {
+                                                     {"aid", std::to_string(aid)},
+                                                     {"cid", std::to_string(cid)}
+                                                 },
+                                                 callback,
+                                                 error);
 }
 
 void BilibiliClient::get_page_detail(const std::string& bvid, uint64_t cid,
                                      const std::function<void(VideoPageResult)>& callback, const ErrorCallback& error) {
-    HTTP::getResultAsync<VideoPageResult>(Api::PageDetail, {{"bvid", bvid}, {"cid", std::to_string(cid)}}, callback,
-                                          error);
+    HTTP::getResultWithWbiAsync<VideoPageResult>(Api::PageDetail,
+                                                 {
+                                                     {"bvid", bvid},
+                                                     {"cid", std::to_string(cid)}
+                                                 },
+                                                 callback,
+                                                 error);
 }
 
 void BilibiliClient::get_webmask(const std::string& url, int64_t rangeStart, int64_t rangeEnd,
@@ -69,7 +79,7 @@ void BilibiliClient::get_video_pagelist(uint64_t aid, const std::function<void(V
 
 void BilibiliClient::get_video_url(const std::string& bvid, uint64_t cid, int qn,
                                    const std::function<void(VideoUrlResult)>& callback, const ErrorCallback& error) {
-    HTTP::getResultAsync<VideoUrlResult>(Api::PlayUrl2,
+    HTTP::getResultWithWbiAsync<VideoUrlResult>(Api::PlayUrl2,
                                          {{"bvid", std::string(bvid)},
                                           {"cid", std::to_string(cid)},
                                           {"gaia_source", "view-card"},
@@ -88,7 +98,7 @@ void BilibiliClient::get_video_url(const std::string& bvid, uint64_t cid, int qn
 
 void BilibiliClient::get_video_url(uint64_t aid, uint64_t cid, int qn, const std::function<void(VideoUrlResult)>& callback,
                                    const ErrorCallback& error) {
-    HTTP::getResultAsync<VideoUrlResult>(Api::PlayUrl2,
+    HTTP::getResultWithWbiAsync<VideoUrlResult>(Api::PlayUrl2,
                                          {{"aid", std::to_string(aid)},
                                           {"cid", std::to_string(cid)},
                                           {"gaia_source", "view-card"},

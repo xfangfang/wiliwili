@@ -535,9 +535,6 @@ public:
     VideoUrlResult video_info;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j, SeasonUrlResult& nlohmann_json_t) {
-    if (nlohmann_json_j.contains("video_info")) {
-        nlohmann_json_j.at("video_info").get_to(nlohmann_json_t.video_info);
-    }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, video_info));
 }
 
