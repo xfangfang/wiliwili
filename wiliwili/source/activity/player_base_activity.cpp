@@ -502,6 +502,18 @@ void BasePlayerActivity::setCommentMode() {
 void BasePlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) {
     brls::Logger::debug("onVideoPlayUrl quality: {}", result.quality);
 
+    if (result.accept_quality.empty() || result.accept_description.empty()) {
+        // 通常是返回了其他报错信息, 比如验证码
+        brls::Logger::error("onVideoPlayUrl: no video url available");
+        auto dialog = new brls::Dialog("Error: No video url available");
+        dialog->setCancelable(false);
+        dialog->addButton("hints/ok"_i18n, []() {
+            brls::sync([]() { brls::Application::popActivity(); });
+        });
+        dialog->open();
+        return;
+    }
+
     // 有效期 110 分钟
     videoDeadline = std::chrono::system_clock::now() + std::chrono::seconds(6600);
 
