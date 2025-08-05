@@ -197,7 +197,7 @@ void LiveDanmaku::send_join_request(const int room_id, const uint64_t uid) {
     json join_request = {{"uid", uid},
                          {"roomid", room_id},
                          {"protover", 2},
-                         {"buvid", ProgramConfig::instance().getBuvid3()},
+                         {"buvid", ProgramConfig::instance().getUuID()},
                          {"platform", "web"},
                          {"type", 2},
                          {"key", this->info.token}};

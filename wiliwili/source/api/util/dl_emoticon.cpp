@@ -29,16 +29,7 @@ static void to_url(int room_id, std::vector<std::string> &names, std::vector<std
         {"Referer", "https://live.bilibili.com/" + std::to_string(room_id)},
         {"Accept", "application/json, text/plain, */*"}
     });
-    
-    // 添加Buvid3 cookie如果存在
-    std::string buvid3 = ProgramConfig::instance().getBuvid3();
-    if (!buvid3.empty()) {
-        brls::Logger::debug("使用Buvid3: {}", buvid3);
-    } else {
-        buvid3 = bilibili::BilibiliClient::genRandomBuvid3();
-        brls::Logger::debug("生成新的Buvid3: {}", buvid3);
-    }
-    
+
     // 执行请求
     auto r = session->Get();
     

@@ -89,7 +89,7 @@ void BilibiliClient::get_login_info_v2(const std::string& qrcodeKey, const std::
                 auto data          = res.at("data").get<QrLoginInfoResultV2>();
                 if (data.status) {
                     std::map<std::string, std::string> cookies;
-                    cookies["buvid3"] = buvid3;
+                    cookies["_uuid"] = buvid3;
                     for (const auto& cookie : r.cookies) {
                         cookies[cookie.GetName()] = cookie.GetValue();
                         HTTP::COOKIES.emplace_back({cookie.GetName(), cookie.GetValue()});

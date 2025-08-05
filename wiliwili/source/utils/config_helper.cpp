@@ -392,11 +392,11 @@ std::string ProgramConfig::getUserID() {
     return this->cookie["DedeUserID"];
 }
 
-std::string ProgramConfig::getBuvid3() {
-    if (this->cookie.count("buvid3") == 0) {
+std::string ProgramConfig::getUuID() {
+    if (this->cookie.count("_uuid") == 0) {
         return "";
     }
-    return this->cookie["buvid3"];
+    return this->cookie["_uuid"];
 }
 
 bool ProgramConfig::hasLoginInfo() { return !getUserID().empty() && (getUserID() != "0") && !getCSRF().empty(); }
