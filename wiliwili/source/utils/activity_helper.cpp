@@ -33,7 +33,7 @@ void Intent::openAV(const std::string& avid, uint64_t cid, int progress) {
         return;
     tmp = (tmp | MAX) ^ XOR;
     std::string x = "0000000000";
-    int i = 0;
+    size_t i = 0;
     while (i < x.length()) {
         x[i++] = table[tmp % BASE];
         tmp /= BASE;

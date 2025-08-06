@@ -1189,11 +1189,7 @@ void ProgramConfig::loadCustomThemes() {
     if (!cpr::fs::exists(directoryPath)) return;
 
     for (const auto& entry : cpr::fs::directory_iterator(getConfigDir() + "/theme")) {
-#if USE_BOOST_FILESYSTEM
         if (!cpr::fs::is_directory(entry)) continue;
-#else
-        if (!entry.is_directory()) continue;
-#endif
         std::string subDirectory = entry.path().string();
         std::string jsonFilePath = subDirectory + "/resources_meta.json";
         if (!cpr::fs::exists(jsonFilePath)) continue;
