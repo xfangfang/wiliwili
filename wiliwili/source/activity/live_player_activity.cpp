@@ -884,80 +884,44 @@ static void append_danmaku_from_json_array(const nlohmann::json& arr, std::vecto
     }
 }
 
-static bool parse_history_danmaku_response(const std::string& text, std::vector<LiveDanmakuItem>& dan_list) {
-    try {
-        nlohmann::json res = nlohmann::json::parse(text);
-
-        // 校验返回码
-        if (!res.contains("code") || res["code"].get<int>() != 0) {
-            brls::Logger::error("LiveActivity: 历史弹幕返回错误 code: {}, message: {}", 
-                                res.value("code", -1), res.value("message", std::string("未知错误")));
-            return false;
-        }
-
-        if (!res.contains("data") || !res["data"].is_object()) {
-            brls::Logger::error("LiveActivity: 历史弹幕返回格式异常");
-            return false;
-        }
-
-        const auto& data = res["data"];
-        if (data.contains("admin") && data["admin"].is_array())
-            append_danmaku_from_json_array(data["admin"], dan_list);
-        if (data.contains("room") && data["room"].is_array())
-            append_danmaku_from_json_array(data["room"], dan_list);
-
-        return !dan_list.empty();
-    } catch (const std::exception& e) {
-        brls::Logger::error("LiveActivity: 历史弹幕解析失败: {}", e.what());
-        return false;
+static void parse_history_danmaku_data(const bilibili::LiveHistoryDanmakuData& data, std::vector<LiveDanmakuItem>& dan_list) {
+    // room 弹幕添加到后面
+    append_danmaku_from_json_array(data.room, dan_list);
+    
+    // admin 只保留一条，插入顶部
+    if (!data.admin.empty()) {
+        append_danmaku_from_json_array({data.admin[0]}, dan_list);
     }
 }
 
 void LiveActivity::requestHistoryDanmaku(int roomid) {
-
     if (!this->shouldShowSidebar())
         return;
 
     auto state = this->threadState;
 
-    // 构造请求 URL
-    std::string api_path  = bilibili::Api::_liveBase + "/xlive/web-room/v1/dM/gethistory";
-    std::string final_url = bilibili::parseLink(api_path);
-    brls::Logger::debug("LiveActivity: 请求历史弹幕 URL: {}", final_url);
+    bilibili::HTTP::getResultAsync<bilibili::LiveHistoryDanmakuData>(
+        bilibili::Api::LiveHistoryDanmaku,
+        cpr::Parameters{{"roomid", std::to_string(roomid)}},
+        [state, this](const bilibili::LiveHistoryDanmakuData& data) {
+            std::vector<LiveDanmakuItem> dan_list;
+            parse_history_danmaku_data(data, dan_list);
+            
+            if (dan_list.empty()) {
+                brls::Logger::debug("LiveActivity: 未获取到历史弹幕");
+                return;
+            }
 
-    cpr::async([state, roomid, this, final_url]() {
-        try {
-            auto session = bilibili::HTTP::createSession();
-            session->SetUrl(cpr::Url{final_url});
-            session->SetParameters(cpr::Parameters{{"roomid", std::to_string(roomid)}});
+            brls::Logger::debug("LiveActivity: 成功解析 {} 条历史弹幕", dan_list.size());
 
-            session->GetCallback([state, this](const cpr::Response& r) {
+            brls::sync([state, this, dan_list = std::move(dan_list)]() {
                 if (!state->isActive.load(std::memory_order_acquire))
                     return;
-
-                if (r.error) {
-                    brls::Logger::error("LiveActivity: 历史弹幕请求错误: {}", r.error.message);
-                    return;
-                }
-                if (r.status_code != 200) {
-                    brls::Logger::error("LiveActivity: 历史弹幕请求返回状态码: {}, 响应内容: {}", r.status_code, r.text);
-                    return;
-                }
-
-                std::vector<LiveDanmakuItem> dan_list;
-                if (!parse_history_danmaku_response(r.text, dan_list))
-                    return;
-
-                brls::Logger::debug("LiveActivity: 成功解析 {} 条历史弹幕", dan_list.size());
-
-                brls::sync([state, this, dan_list = std::move(dan_list)]() {
-                    if (!state->isActive.load(std::memory_order_acquire))
-                        return;
-                    this->processDanmakuForSidebar(dan_list);
-                });
+                this->processDanmakuForSidebar(dan_list);
             });
-        } catch (const std::exception& e) {
-            brls::Logger::error("LiveActivity: 历史弹幕请求异常: {}", e.what());
+        },
+        [](const std::string& error, int code) {
+            brls::Logger::error("LiveActivity: 历史弹幕请求失败: {}, code: {}", error, code);
         }
-    });
+    );
 }

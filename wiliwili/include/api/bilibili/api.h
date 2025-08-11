@@ -96,6 +96,8 @@ const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
 const std::string VideoHighlight = _bvcBase + "/pbp/data";
 /// 获取直播弹幕token
 const std::string LiveDanmakuInfo = _liveBase + "/xlive/web-room/v1/index/getDanmuInfo";
+/// 获取历史弹幕
+const std::string LiveHistoryDanmaku = _liveBase + "/xlive/web-room/v1/dM/gethistory";
 /// 直播API
 const std::string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
 /// 直播API V2

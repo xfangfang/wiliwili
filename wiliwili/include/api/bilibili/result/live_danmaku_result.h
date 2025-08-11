@@ -22,4 +22,11 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveDanmakuinfo, host_list, token);
 
+class LiveHistoryDanmakuData {
+public:
+    std::vector<nlohmann::json> admin;
+    std::vector<nlohmann::json> room;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LiveHistoryDanmakuData, admin, room);
+
 };  // namespace bilibili
