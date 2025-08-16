@@ -382,11 +382,17 @@ void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& in
                             
                             danmaku_list.emplace_back(LiveDanmakuItem(danmaku_msg->data));
                         } else if (live_msg->type == MessageType::WATCHED_CHANGE) {
-                            // TODO: 更新在线人数
-                            // auto* watched_msg = dynamic_cast<message::LiveWatchedChange*>(live_msg.get());
-                            // if (watched_msg && watched_msg->data) {
-                            //     // 更新在线人数
-                            // }
+                            // 更新看过人数
+                            auto* watched_msg = dynamic_cast<message::LiveWatchedChange*>(live_msg.get());
+                            if (watched_msg && watched_msg->data) {
+                                this->updateWatchedCount(watched_msg->data->num);
+                            }
+                        } else if (live_msg->type == MessageType::ONLINE_CNT) {
+                            // 更新在线人数
+                            auto* online_msg = dynamic_cast<message::LiveOnlineCount*>(live_msg.get());
+                            if (online_msg && online_msg->data) {
+                                this->updateOnlineCount(online_msg->data->count);
+                            }
                         } else if (live_msg->type == MessageType::SUPER_CHAT) {
                             auto* sc_msg = dynamic_cast<message::LiveSuperChat*>(live_msg.get());
                             if (!sc_msg || !sc_msg->data) continue;
@@ -812,6 +818,13 @@ void LiveActivity::onAnchorInfo(const std::string& face, const std::string& unam
             this->liveAuthor->setUserInfo("pictures/default_avatar.png", uname, liveData.watched_show.text_large);
         }
     }
+
+    // 缓存主播头像与昵称，避免后续更新人数时将头像清空
+    this->liveData.uname = uname;
+    if (!face.empty())
+        this->liveData.cover = face;
+    else if (this->liveData.cover.empty())
+        this->liveData.cover = "pictures/default_avatar.png";
     
     // 更新标题
     if (this->video) {
@@ -924,4 +937,34 @@ void LiveActivity::requestHistoryDanmaku(int roomid) {
             brls::Logger::error("LiveActivity: 历史弹幕请求失败: {}, code: {}", error, code);
         }
     );
+}
+
+// 更新看过人数
+void LiveActivity::updateWatchedCount(int watched_count) {
+    brls::Logger::debug("LiveActivity: 更新看过人数: {}", watched_count);
+    
+    // 格式化看过人数显示文本
+    std::string watched_text = wiliwili::num2w(watched_count) + "人看过";
+    
+    // 更新liveData中的看过人数
+    this->liveData.watched_show.text_large = watched_text;
+    
+    // 如果侧边栏显示，同时更新主播信息中的人数显示
+    if (this->shouldShowSidebar() && this->liveAuthor) {
+        // 只更新人数（misc），不要触碰头像与昵称，避免头像被置空而消失
+        this->liveAuthor->getLabelMisc()->setText(watched_text);
+    }
+}
+
+// 更新在线人数
+void LiveActivity::updateOnlineCount(int online_count) {
+    brls::Logger::debug("LiveActivity: 更新在线人数: {}", online_count);
+    
+    // 格式化在线人数显示文本
+    std::string online_text = wiliwili::num2w(online_count) + "人在线";
+    
+    // 更新视频播放器显示的在线人数（优先显示在线人数而非看过人数）
+    if (this->video) {
+        this->video->setOnlineCount(online_text);
+    }
 }

@@ -57,6 +57,12 @@ public:
 
     // 新增：处理主播称号信息
     void onAnchorTitleInfo(const std::string& title) override;
+    
+    // 新增：更新看过人数
+    void updateWatchedCount(int watched_count);
+    
+    // 新增：更新在线人数
+    void updateOnlineCount(int online_count);
 
     std::vector<std::string> getQualityDescriptionList();
     int getCurrentQualityIndex();
