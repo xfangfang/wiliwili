@@ -99,6 +99,9 @@ public:
     ~LiveActivity() override;
 
 private:
+    // 关注/取关主播
+    void follow_anchor(bool follow);
+
     VideoView* video = nullptr;
     UserInfoView* liveAuthor = nullptr;
     brls::Box* liveDanmakuContainer = nullptr;
@@ -128,6 +131,9 @@ private:
     
     // 侧边栏弹幕最大数量
     int maxSidebarDanmakuCount = 100;
+
+    // 主播关注状态
+    bool anchor_following = false;
 
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;

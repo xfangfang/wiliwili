@@ -121,6 +121,13 @@ void BilibiliClient::get_user_relation(const std::string& mid, const std::functi
     HTTP::getResultAsync<UserRelationStat>(Api::UserRelationStat, {{"vmid", mid}}, callback, error);
 }
 
+/// 获取与某个用户的关系（是否关注等）
+void BilibiliClient::get_user_relation_detail(const std::string& mid,
+                                              const std::function<void(UserRelationDetail)>& callback,
+                                              const ErrorCallback& error) {
+    HTTP::getResultAsync<UserRelationDetail>(Api::UserRelation, {{"fid", mid}}, callback, error);
+}
+
 /// 获取用户动态的数量
 void BilibiliClient::get_user_dynamic_count(const std::string& mid,
                                             const std::function<void(UserDynamicCount)>& callback,
