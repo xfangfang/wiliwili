@@ -24,3 +24,7 @@ build-*
 android-project
 *.deb
 *.dmp
+# AI
+.claude/
+CLAUDE.md
+AGENT.md
