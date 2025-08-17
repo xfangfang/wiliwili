@@ -216,19 +216,18 @@ void LiveActivity::onContentAvailable()
     
     // 设置视频相关UI
     this->video->setLiveMode();
-    this->video->hideDLNAButton();
     this->video->hideSubtitleSetting();
     this->video->hideVideoRelatedSetting();
     this->video->hideBottomLineSetting();
     this->video->hideHighlightLineSetting();
     this->video->hideSkipOpeningCreditsSetting();
+    this->video->hideOSDLockButton(); // 隐藏防误触按钮
     this->video->disableCloseOnEndOfFile();
     
     // 禁用底部固定进度条
     VideoView::BOTTOM_BAR = false;
     
     this->video->setTitle(liveData.title);
-    this->video->setOnlineCount(liveData.watched_show.text_large);
     this->video->setStatusLabelLeft("");
     this->video->setCustomToggleAction([this]() {
         if (MPVCore::instance().isStopped()) {
