@@ -66,8 +66,6 @@ static std::unordered_map<std::string, brls::BrlsKeyboardScancode> functionMap =
     {"semicolon", brls::BRLS_KBD_KEY_SEMICOLON}, /* ; */
     {"equal", brls::BRLS_KBD_KEY_EQUAL}, /* = */
     {"grave", brls::BRLS_KBD_KEY_GRAVE_ACCENT}, /* ` */
-    {"left_bracket", brls::BRLS_KBD_KEY_LEFT_BRACKET}, /* [ */
-    {"right_bracket", brls::BRLS_KBD_KEY_RIGHT_BRACKET}, /* ]' */
     {"[", brls::BRLS_KBD_KEY_LEFT_BRACKET},
     {"]", brls::BRLS_KBD_KEY_RIGHT_BRACKET},
 };
