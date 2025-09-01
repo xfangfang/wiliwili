@@ -156,6 +156,9 @@ jobs:
         run: |
           curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.40.0-2-any.pkg.tar.zst
           pacman -U --noconfirm *.pkg.tar.zst
+
+          curl -sLO https://github.com/rainers/cv2pdb/releases/download/v0.54/cv2pdb-0.54.zip
+          unzip cv2pdb-0.54.zip cv2pdb64.exe -d /usr/bin
       - if: matrix.sys == 'mingw32'
         name: Config Editbin
         shell: powershell
@@ -169,8 +172,8 @@ jobs:
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake ${BRLS_GLFW}/src/mappings.h.in ${BRLS_GLFW}/src/mappings.h
       - name: Build dependency
         run: |
-          curl -sL https://github.com/webmproject/libwebp/archive/v1.5.0.tar.gz | tar zxf - -C /tmp
-          cmake -B build-libwebp -S /tmp/libwebp-1.5.0 -G Ninja \
+          curl -sL https://github.com/webmproject/libwebp/archive/v1.6.0.tar.gz | tar zxf - -C /tmp
+          cmake -B build-libwebp -S /tmp/libwebp-1.6.0 -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
             -DBUILD_SHARED_LIBS=OFF \
@@ -208,7 +211,7 @@ jobs:
       - name: Build
         run: |
           cmake -B build -G Ninja ${{ matrix.cmake }} \
-            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DPLATFORM_DESKTOP=ON \
             -DWIN32_TERMINAL=OFF \
             -DUSE_SYSTEM_CURL=ON \
@@ -219,7 +222,7 @@ jobs:
             -DMPV_BUNDLE_DLL=${MINGW_PREFIX}/bin/libmpv-2.dll \
             -DVERSION_BUILD=${{ github.run_number }}
           cmake --build build
-          strip build/wiliwili.exe
+          cv2pdb64 build/wiliwili.exe
           cp -a README.md build
       - name: Upload dist
         uses: actions/upload-artifact@v4
@@ -227,6 +230,7 @@ jobs:
           name: ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}
           path: |
             build/wiliwili.exe
+            build/wiliwili.pdb
             build/README.md
 
 #  build-win-uwp:
