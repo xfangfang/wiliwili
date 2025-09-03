@@ -35,15 +35,15 @@
 
 using namespace brls::literals;
 
-const std::string OPENSOURCE =
+const std::string_view OPENSOURCE =
     "--------------------------------\n"
-    "FFmpeg\n"
+    "FFmpeg {}\n"
     "--------------------------------\n"
     "Official site:    https://www.ffmpeg.org\n\n"
     "Copyright (c) FFmpeg developers and contributors.\n\n"
     "Licensed under LGPLv2.1 or later\n\n\n"
     "--------------------------------\n"
-    "mpv\n"
+    "{}\n"
     "--------------------------------\n"
     "Official site:    https://mpv.io\n\n"
     "Copyright (c) mpv developers and contributors.\n\n"
@@ -274,7 +274,9 @@ void SettingActivity::onContentAvailable() {
                                + " (GXM)"
 #endif
     );
-    labelOpensource->setText(OPENSOURCE);
+    auto& mpv = MPVCore::instance();
+    labelOpensource->setText(fmt::format(fmt::runtime(OPENSOURCE),
+        mpv.getString("ffmpeg-version"), mpv.getString("mpv-version")));
 
     /// Quit APP
 #ifdef IOS
