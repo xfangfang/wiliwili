@@ -41,6 +41,7 @@ option(USE_SYSTEM_FMT "" ${USE_SHARED_LIB})
 option(USE_SYSTEM_TINYXML2 "" ${USE_SHARED_LIB})
 option(USE_SYSTEM_SDL2 "" ${USE_SHARED_LIB})
 option(USE_SYSTEM_MONGOOSE "" ${USE_SHARED_LIB})
+option(USE_SYSTEM_LUNASVG "" ${USE_SHARED_LIB})
 option(USE_SYSTEM_GLFW "Not recommended because we used a modified GLFW" OFF)
 
 option(DISABLE_OPENCC "Disable Chinese Simplified and Chinese Traditional Conversion" OFF)
