@@ -14,7 +14,10 @@
 
 namespace wiliwili {
 
-std::string urlEncode(const std::string &in) { return cpr::util::urlEncode(in); }
+std::string urlEncode(const std::string &in) {
+    auto&& s = cpr::util::urlEncode(in);
+    return std::string(s.begin(), s.end());
+}
 
 std::string base64Encode(const std::string &data) {
     size_t in_len  = data.size();
