@@ -475,10 +475,31 @@ public:
     float min_buffer_time;
     std::vector<DashMedia> video;
     std::vector<DashMedia> audio;
+
+    int dolby_type = 0; // 0: 无, 1: 普通杜比, 2: 全景声
+    std::vector<DashMedia> dolby_audio; // 可能为空
+    bool flac_display = false;
+    DashMedia flac_audio; // 若不存在则其url为空字符串
+    bool has_flac = false;
 };
 inline void from_json(const nlohmann::json& nlohmann_json_j, Dash& nlohmann_json_t) {
     if (nlohmann_json_j.contains("audio") && !nlohmann_json_j.at("audio").is_null()) {
         nlohmann_json_j.at("audio").get_to(nlohmann_json_t.audio);
+    }
+    // 解析杜比信息
+    if (nlohmann_json_j.contains("dolby") && nlohmann_json_j.at("dolby").is_object()) {
+        const auto& d = nlohmann_json_j.at("dolby");
+        if (d.contains("type") && !d.at("type").is_null()) d.at("type").get_to(nlohmann_json_t.dolby_type);
+        if (d.contains("audio") && d.at("audio").is_array()) d.at("audio").get_to(nlohmann_json_t.dolby_audio);
+    }
+    // 解析无损信息
+    if (nlohmann_json_j.contains("flac") && nlohmann_json_j.at("flac").is_object()) {
+        const auto& f = nlohmann_json_j.at("flac");
+        if (f.contains("display") && !f.at("display").is_null()) f.at("display").get_to(nlohmann_json_t.flac_display);
+        if (f.contains("audio") && f.at("audio").is_object()) {
+            f.at("audio").get_to(nlohmann_json_t.flac_audio);
+            nlohmann_json_t.has_flac = !nlohmann_json_t.flac_audio.base_url.empty();
+        }
     }
     NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, duration, video, min_buffer_time));
 }

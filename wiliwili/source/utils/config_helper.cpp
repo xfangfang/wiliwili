@@ -91,8 +91,8 @@ unsigned int sceLibcHeapSize             = 24 * 1024 * 1024;
 #define WILI_WINDOW_HEIGHT_DEFAULT 544
 // 默认 UI 缩放 (0 为 960x544)
 #define WILI_UI_SCALE_DEFAULT 0
-// 默认音频质量 (2 为 低, PSV 的喇叭质量差，音质高低无区别，设置成低可以减少流量)
-#define WILI_AUDIO_QUALITY_DEFAULT 2
+// 默认音频质量 (4 为 低, PSV 的喇叭质量差，音质高低无区别，设置成低可以减少流量)
+#define WILI_AUDIO_QUALITY_DEFAULT 4
 #define WILI_DNS_CACHE_TIMEOUT 3600000
 #else
 // 默认清晰度 (116 为 1080P@60)
@@ -106,8 +106,8 @@ unsigned int sceLibcHeapSize             = 24 * 1024 * 1024;
 #define WILI_WINDOW_HEIGHT_DEFAULT 720
 // 默认 UI 缩放 (1 为 1280x720)
 #define WILI_UI_SCALE_DEFAULT 1
-// 默认音频质量 (0 为 高)
-#define WILI_AUDIO_QUALITY_DEFAULT 0
+// 默认音频质量 (2 为 高)
+#define WILI_AUDIO_QUALITY_DEFAULT 2
 // DNS 缓存时间
 #define WILI_DNS_CACHE_TIMEOUT 60000
 #endif
@@ -190,7 +190,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_HIGHLIGHT_BAR, {"player_highlight_bar", {}, {}, 0}},
     {SettingItem::PLAYER_SKIP_OPENING_CREDITS, {"player_skip_opening_credits", {}, {}, 1}},
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
-#if defined(IOS) || defined(__PSV__) || defined(__SWITCH__)
+#if defined(IOS) || defined(__PSV__) || defined(__SWITCH__) || defined(__WINRT__)
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 1}},
 #else
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
@@ -212,7 +212,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
      {"tls_verify",
       {},
       {},
-#if defined(__PSV__) || defined(__SWITCH__) || defined(PS4)
+#if defined(__PSV__) || defined(__SWITCH__) || defined(PS4) || defined(__WINRT__)
       0}},
 #else
       1}},
@@ -254,7 +254,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::VIDEO_FORMAT, {"file_format", {"Dash (AVC/HEVC/AV1)", "FLV/MP4"}, {4048, 0}, 0}},
     {SettingItem::VIDEO_CODEC, {"video_codec", {"AVC/H.264", "HEVC/H.265", "AV1"}, {7, 12, 13}, 0}},
     {SettingItem::AUDIO_QUALITY,
-     {"audio_quality", {"High", "Medium", "Low"}, {30280, 30232, 30216}, WILI_AUDIO_QUALITY_DEFAULT}},
+     {"audio_quality", {"Dolby Atmos", "Hi-Res", "High", "Medium", "Low"}, {30250, 30251, 30280, 30232, 30216}, WILI_AUDIO_QUALITY_DEFAULT}},
     {SettingItem::DANMAKU_FILTER_LEVEL,
      {"danmaku_filter_level", {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 0}},
     {SettingItem::DANMAKU_STYLE_AREA, {"danmaku_style_area", {"1/4", "1/2", "3/4", "1"}, {25, 50, 75, 100}, 3}},

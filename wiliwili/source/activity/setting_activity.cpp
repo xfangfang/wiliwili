@@ -553,7 +553,7 @@ void SettingActivity::onContentAvailable() {
     auto bandwidthOption = conf.getOptionData(SettingItem::AUDIO_QUALITY);
     selectorQuality->init(
         "wiliwili/setting/app/playback/audio_quality"_i18n,
-        {"wiliwili/home/common/high"_i18n, "wiliwili/home/common/medium"_i18n, "wiliwili/home/common/low"_i18n},
+        {"wiliwili/setting/app/playback/dolby"_i18n, "wiliwili/setting/app/playback/hi_res"_i18n, "wiliwili/home/common/high"_i18n, "wiliwili/home/common/medium"_i18n, "wiliwili/home/common/low"_i18n},
         conf.getIntOptionIndex(SettingItem::AUDIO_QUALITY), [bandwidthOption](int data) {
             ProgramConfig::instance().setSettingItem(SettingItem::AUDIO_QUALITY, bandwidthOption.rawOptionList[data]);
             bilibili::BilibiliClient::AUDIO_QUALITY = bandwidthOption.rawOptionList[data];
