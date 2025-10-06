@@ -405,7 +405,11 @@ private:
 #ifdef MPV_SW_RENDER
     const int PIXCEL_SIZE          = 4;
     int nvg_image                  = 0;
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+    const char *sw_format          = "abgr";
+#else
     const char *sw_format          = "rgba";
+#endif
     int sw_size[2]                 = {1920, 1080};
     size_t pitch                   = PIXCEL_SIZE * sw_size[0];
     void *pixels                   = nullptr;
