@@ -66,15 +66,27 @@ static std::unordered_map<std::string, brls::BrlsKeyboardScancode> functionMap =
     {"semicolon", brls::BRLS_KBD_KEY_SEMICOLON}, /* ; */
     {"equal", brls::BRLS_KBD_KEY_EQUAL}, /* = */
     {"grave", brls::BRLS_KBD_KEY_GRAVE_ACCENT}, /* ` */
+    {"left_bracket", brls::BRLS_KBD_KEY_LEFT_BRACKET}, /* [ */
+    {"right_bracket", brls::BRLS_KBD_KEY_RIGHT_BRACKET}, /* ] */
+    {"'", brls::BRLS_KBD_KEY_APOSTROPHE},
+    {",", brls::BRLS_KBD_KEY_COMMA},
+    {".", brls::BRLS_KBD_KEY_PERIOD},
+    {"/", brls::BRLS_KBD_KEY_SLASH},
+    {"\\", brls::BRLS_KBD_KEY_BACKSLASH},
+    {";", brls::BRLS_KBD_KEY_SEMICOLON},
+    {"=", brls::BRLS_KBD_KEY_EQUAL},
+    {"`", brls::BRLS_KBD_KEY_GRAVE_ACCENT},
     {"[", brls::BRLS_KBD_KEY_LEFT_BRACKET},
     {"]", brls::BRLS_KBD_KEY_RIGHT_BRACKET},
 };
 
 brls::BrlsKeyCombination ShortcutHelper::parseKey(const std::string& config) {
-    auto keys = pystring::split(config, "-");
-    if (keys.empty()) {
-        brls::Logger::error("Invalid key configuration: {}", config);
-        return {brls::BRLS_KBD_KEY_UNKNOWN};
+    std::vector<std::string> keys;
+    if (pystring::endswith(config, "-")) {
+        const std::string cfg = config.substr(0, config.size() - 1) + "minus";
+        keys = pystring::split(cfg, "-");
+    } else {
+        keys = pystring::split(config, "-");
     }
     brls::BrlsKeyCombination res = {brls::BRLS_KBD_KEY_UNKNOWN};
     for (auto& key : keys) {
