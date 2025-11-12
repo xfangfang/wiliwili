@@ -389,6 +389,7 @@
         "header": "通用",
         "mirror": "鏡像畫面",
         "highlight": "下方固定顯示高能進度條",
+        "highlight_transition": "焦點高亮平滑過渡動畫",
         "skip_opening_credits": "跳過片頭片尾",
         "skip_hint1": "從下一個影片開始，自動跳過片頭片尾",
         "skip_hint2": "從下一個影片開始，關閉跳過片頭片尾",

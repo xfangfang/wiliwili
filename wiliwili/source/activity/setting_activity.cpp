@@ -369,7 +369,16 @@ void SettingActivity::onContentAvailable() {
         "wiliwili/setting/app/ui/tv_osd"_i18n, conf.getBoolOption(SettingItem::PLAYER_OSD_TV_MODE),
         [](bool value) { ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_OSD_TV_MODE, value); });
 
-/// Gamepad vibration
+    // Highlight focus transition animation toggle
+    cellHighlightTransition->init(
+        "wiliwili/player/setting/common/highlight_transition"_i18n,
+        conf.getBoolOption(SettingItem::PLAYER_HIGHLIGHT_TRANSITION),
+        [](bool value) {
+            ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_HIGHLIGHT_TRANSITION, value);
+            brls::View::enableHighlightTransition(value);
+        });
+
+    /// Gamepad vibration
 #ifdef __SWITCH__
     cellVibration->init("wiliwili/setting/app/others/vibration"_i18n,
                         conf.getBoolOption(SettingItem::GAMEPAD_VIBRATION), [](bool value) {

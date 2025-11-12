@@ -123,6 +123,7 @@ enum class SettingItem {
     SHORTCUT_VIDEO_SPEEDUP, // 视频倍速快捷键
     SHORTCUT_VIDEO_OSD, // 切换OSD显示
     SHORTCUT_VIDEO_PAUSE, // 视频播放暂停快捷键
+    PLAYER_HIGHLIGHT_TRANSITION, // 焦点高亮过渡动画开关
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
