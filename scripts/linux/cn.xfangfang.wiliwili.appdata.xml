@@ -60,4 +60,9 @@
     </screenshots>
     <url type="homepage">https://github.com/xfangfang/wiliwili</url>
     <url type="bugtracker">https://github.com/xfangfang/wiliwili/issues</url>
+    <keywords>
+        <keyword>bilibili client</keyword>
+        <keyword>video player</keyword>
+        <keyword>chinese video app</keyword>
+    </keywords>
 </component>
