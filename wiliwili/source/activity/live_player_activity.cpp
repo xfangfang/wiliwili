@@ -129,7 +129,9 @@ void LiveActivity::setCommonData() {
 void LiveActivity::setVideoQuality() {
     if (this->liveUrl.accept_qn.empty()) return;
 
-    brls::sync([this]() {
+    ASYNC_RETAIN
+    brls::sync([ASYNC_TOKEN]() {
+        ASYNC_RELEASE
         auto dropdown = BaseDropdown::text(
             "wiliwili/player/quality"_i18n, this->getQualityDescriptionList(),
             [this](int selected) {
@@ -336,12 +338,15 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo &result)
     // 查询并设置主播关注状态
     if (result.uid > 0) {
         std::string uid = std::to_string(result.uid);
+
+        ASYNC_RETAIN
         BILI::get_user_relation_detail(
             uid,
-            [this](const bilibili::UserRelationDetail& r) {
+            [ASYNC_TOKEN](const bilibili::UserRelationDetail& r) {
                 bool followed = (r.attribute == 2 || r.attribute == 6);
                 brls::Logger::info("是否关注了该主播: {}", followed);
-                brls::sync([this, followed]() {
+                brls::sync([ASYNC_TOKEN, followed]() {
+                    ASYNC_RELEASE
                     this->anchor_following = followed;
                     if (this->shouldShowSidebar() && this->liveAuthor) {
                         if (ProgramConfig::instance().getUserID() == std::to_string(this->liveRoomPlayInfo.uid))
@@ -352,7 +357,8 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo &result)
                     }
                 });
             },
-            [](BILI_ERR) {
+            [ASYNC_TOKEN](BILI_ERR) {
+                ASYNC_RELEASE
                 brls::Logger::error("get_user_relation_detail: {}", error);
             });
     }
@@ -406,9 +412,11 @@ void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& in
                     brls::Logger::debug("LiveActivity: 消息回调中断: 对象已被销毁");
                     return;
                 }
-                
+
+                ASYNC_RETAIN
                 // 使用brls::sync确保在UI线程中更新UI
-                brls::sync([state, this, msg]() {
+                brls::sync([state, msg, ASYNC_TOKEN]() {
+                    ASYNC_RELEASE
                     if (!state->isActive.load(std::memory_order_acquire)) {
                         brls::Logger::debug("LiveActivity: UI更新中断: 对象已被销毁");
                         return;
@@ -558,7 +566,9 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
     
     auto state = this->threadState;
     // 确保UI更新在主线程进行
-    brls::sync([this, state, filtered_danmakus = std::move(filtered_danmakus)]() {
+    ASYNC_RETAIN
+    brls::sync([state, filtered_danmakus = std::move(filtered_danmakus), ASYNC_TOKEN]() mutable {
+        ASYNC_RELEASE
         // 再次检查UI组件和活动状态
         if (!state->isActive.load(std::memory_order_acquire) || !this->shouldShowSidebar() || !this->liveDanmakuContainer) {
             return;
@@ -610,7 +620,9 @@ void LiveActivity::processSuperChatForSidebar(const std::vector<LiveDanmakuItem>
 
     auto state = this->threadState;
     // 确保UI更新在主线程进行
-    brls::sync([this, sc_list, state]() {
+    ASYNC_RETAIN
+    brls::sync([sc_list, state, ASYNC_TOKEN]() {
+        ASYNC_RELEASE
         // 再次检查UI组件和活动状态
         if (!state->isActive.load(std::memory_order_acquire) || !this->shouldShowSidebar() || !this->liveDanmakuContainer) {
             return;
@@ -995,27 +1007,31 @@ void LiveActivity::requestHistoryDanmaku(int roomid) {
 
     auto state = this->threadState;
 
+    ASYNC_RETAIN
     bilibili::HTTP::getResultAsync<bilibili::LiveHistoryDanmakuData>(
         bilibili::Api::LiveHistoryDanmaku,
         cpr::Parameters{{"roomid", std::to_string(roomid)}},
-        [state, this](const bilibili::LiveHistoryDanmakuData& data) {
+        [state, ASYNC_TOKEN](const bilibili::LiveHistoryDanmakuData& data) {
             std::vector<LiveDanmakuItem> dan_list;
             parse_history_danmaku_data(data, dan_list);
             
             if (dan_list.empty()) {
                 brls::Logger::debug("LiveActivity: 未获取到历史弹幕");
+                ASYNC_RELEASE
                 return;
             }
 
             brls::Logger::debug("LiveActivity: 成功解析 {} 条历史弹幕", dan_list.size());
 
-            brls::sync([state, this, dan_list = std::move(dan_list)]() {
+            brls::sync([state, dan_list = std::move(dan_list), ASYNC_TOKEN]() mutable {
+                ASYNC_RELEASE
                 if (!state->isActive.load(std::memory_order_acquire))
                     return;
                 this->processDanmakuForSidebar(dan_list);
             });
         },
-        [](const std::string& error, int code) {
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
             brls::Logger::error("LiveActivity: 历史弹幕请求失败: {}, code: {}", error, code);
         }
     );
