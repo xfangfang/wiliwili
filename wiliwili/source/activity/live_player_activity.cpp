@@ -358,8 +358,13 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo &result)
                 });
             },
             [ASYNC_TOKEN](BILI_ERR) {
-                ASYNC_RELEASE
-                brls::Logger::error("get_user_relation_detail: {}", error);
+                brls::sync([ASYNC_TOKEN, error]() {
+                    ASYNC_RELEASE
+                    brls::Logger::error("get_user_relation_detail: {}", error);
+                    if (this->shouldShowSidebar() && this->liveAuthor) {
+                        this->liveAuthor->setHintType(InfoHintType::NONE);
+                    }
+                });
             });
     }
 
