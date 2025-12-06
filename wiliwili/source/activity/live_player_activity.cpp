@@ -985,7 +985,7 @@ static void parse_history_danmaku_data(const bilibili::LiveHistoryDanmakuData& d
     
     // admin 只保留一条，插入顶部
     if (!data.admin.empty()) {
-        append_danmaku_from_json_array({data.admin[0]}, dan_list);
+        append_danmaku_from_json_array(nlohmann::json::array({data.admin[0]}), dan_list);
     }
 }
 
