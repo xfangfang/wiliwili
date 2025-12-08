@@ -198,6 +198,18 @@ std::vector<std::shared_ptr<message::LiveMessage>> extract_messages(const std::v
             live_messages.push_back(std::make_shared<message::LiveWatchedChange>(num));
             continue;
         }
+        
+        // 处理当前在线人数更新
+        if (cmd == "ONLINE_RANK_COUNT") {
+            if (!json_message.contains("data") || !json_message["data"].contains("count")) continue;
+            
+            auto& data = json_message["data"];
+            if (!data["count"].is_number()) continue;
+            
+            int count = data["count"].get<int>();
+            live_messages.push_back(std::make_shared<message::LiveOnlineCount>(count));
+            continue;
+        }
 
         // 处理弹幕消息
         if (cmd == "DANMU_MSG") {

@@ -3,6 +3,7 @@
 //
 
 #include <borealis/core/thread.hpp>
+#include <borealis/core/touch/tap_gesture.hpp>
 #include <borealis/views/dialog.hpp>
 
 #include "activity/live_player_activity.hpp"
@@ -14,6 +15,7 @@
 
 #include "utils/shader_helper.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/dialog_helper.hpp"
 
 #include "view/video_view.hpp"
 #include "view/live_core.hpp"
@@ -27,6 +29,9 @@
 #include "api/live/ws_utils.hpp"
 #include "api/live/dl_emoticon.hpp"
 #include "bilibili.h"
+#include "bilibili/api.h"
+#include "bilibili/util/http.hpp"
+#include "bilibili/result/mine_result.h"
 
 using namespace brls::literals;
 
@@ -124,7 +129,9 @@ void LiveActivity::setCommonData() {
 void LiveActivity::setVideoQuality() {
     if (this->liveUrl.accept_qn.empty()) return;
 
-    brls::sync([this]() {
+    ASYNC_RETAIN
+    brls::sync([ASYNC_TOKEN]() {
+        ASYNC_RELEASE
         auto dropdown = BaseDropdown::text(
             "wiliwili/player/quality"_i18n, this->getQualityDescriptionList(),
             [this](int selected) {
@@ -182,24 +189,49 @@ void LiveActivity::onContentAvailable()
         if (this->liveAuthor) {
             this->liveAuthor->setUserInfo("", "加载中...", "");
             this->liveAuthor->setHintType(InfoHintType::NONE); // 初始不显示关注按钮
+
+            // 注册点击
+            this->liveAuthor->registerClickAction([this](...) -> bool {
+                if (!DialogHelper::checkLogin()) return true;
+
+                uint64_t uid = this->liveRoomPlayInfo.uid;
+                if (uid == 0) {
+                    brls::Logger::warning("LiveActivity: 主播信息尚未加载，无法操作关注状态");
+                    return true;
+                }
+                
+                if (std::to_string(uid) == ProgramConfig::instance().getUserID()) return true;
+
+                if (this->anchor_following) {
+                    auto dialog = new brls::Dialog("wiliwili/player/not_follow"_i18n);
+                    dialog->addButton("hints/cancel"_i18n, []() {});
+                    dialog->addButton("hints/ok"_i18n, [this]() { this->follow_anchor(false); });
+                    dialog->open();
+                } else {
+                    this->follow_anchor(true);
+                }
+                return true;
+            });
+
+            // 添加手势识别器以支持鼠标点击
+            this->liveAuthor->addGestureRecognizer(new brls::TapGestureRecognizer(this->liveAuthor));
         }
     }
     
     // 设置视频相关UI
     this->video->setLiveMode();
-    this->video->hideDLNAButton();
     this->video->hideSubtitleSetting();
     this->video->hideVideoRelatedSetting();
     this->video->hideBottomLineSetting();
     this->video->hideHighlightLineSetting();
     this->video->hideSkipOpeningCreditsSetting();
+    this->video->hideOSDLockButton(); // 隐藏防误触按钮
     this->video->disableCloseOnEndOfFile();
     
     // 禁用底部固定进度条
     VideoView::BOTTOM_BAR = false;
     
     this->video->setTitle(liveData.title);
-    this->video->setOnlineCount(liveData.watched_show.text_large);
     this->video->setStatusLabelLeft("");
     this->video->setCustomToggleAction([this]() {
         if (MPVCore::instance().isStopped()) {
@@ -232,6 +264,9 @@ void LiveActivity::onContentAvailable()
 
     // 连接直播弹幕 - 确保g_liveActivity在此之前已初始化
     this->requestLiveDanmakuToken(this->liveData.roomid);
+
+    // 获取历史弹幕，填充侧边栏
+    this->requestHistoryDanmaku(this->liveData.roomid);
 
     // 获取直播间是否为大航海专属直播
     this->requestPayLiveInfo(liveData.roomid);
@@ -302,6 +337,39 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo &result)
     // 获取主播称号信息
     this->requestLiveAnchorTitle(liveData.roomid);
 
+    // 查询并设置主播关注状态
+    if (result.uid > 0) {
+        std::string uid = std::to_string(result.uid);
+
+        ASYNC_RETAIN
+        BILI::get_user_relation_detail(
+            uid,
+            [ASYNC_TOKEN](const bilibili::UserRelationDetail& r) {
+                bool followed = (r.attribute == 2 || r.attribute == 6);
+                brls::Logger::info("是否关注了该主播: {}", followed);
+                brls::sync([ASYNC_TOKEN, followed]() {
+                    ASYNC_RELEASE
+                    this->anchor_following = followed;
+                    if (this->shouldShowSidebar() && this->liveAuthor) {
+                        if (ProgramConfig::instance().getUserID() == std::to_string(this->liveRoomPlayInfo.uid))
+                            this->liveAuthor->setHintType(InfoHintType::NONE);
+                        else
+                            this->liveAuthor->setHintType(followed ? InfoHintType::UP_FOLLOWING
+                                                                   : InfoHintType::UP_NOT_FOLLOWED);
+                    }
+                });
+            },
+            [ASYNC_TOKEN](BILI_ERR) {
+                brls::sync([ASYNC_TOKEN, error]() {
+                    ASYNC_RELEASE
+                    brls::Logger::error("get_user_relation_detail: {}", error);
+                    if (this->shouldShowSidebar() && this->liveAuthor) {
+                        this->liveAuthor->setHintType(InfoHintType::NONE);
+                    }
+                });
+            });
+    }
+
     // todo: 允许使用备用链接
     for (const auto& i : liveUrl.url_info) {
         auto url = i.host + liveUrl.base_url + i.extra;
@@ -351,9 +419,11 @@ void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& in
                     brls::Logger::debug("LiveActivity: 消息回调中断: 对象已被销毁");
                     return;
                 }
-                
+
+                ASYNC_RETAIN
                 // 使用brls::sync确保在UI线程中更新UI
-                brls::sync([state, this, msg]() {
+                brls::sync([state, msg, ASYNC_TOKEN]() {
+                    ASYNC_RELEASE
                     if (!state->isActive.load(std::memory_order_acquire)) {
                         brls::Logger::debug("LiveActivity: UI更新中断: 对象已被销毁");
                         return;
@@ -378,11 +448,17 @@ void LiveActivity::onDanmakuInfo(int roomid, const bilibili::LiveDanmakuinfo& in
                             
                             danmaku_list.emplace_back(LiveDanmakuItem(danmaku_msg->data));
                         } else if (live_msg->type == MessageType::WATCHED_CHANGE) {
-                            // TODO: 更新在线人数
-                            // auto* watched_msg = dynamic_cast<message::LiveWatchedChange*>(live_msg.get());
-                            // if (watched_msg && watched_msg->data) {
-                            //     // 更新在线人数
-                            // }
+                            // 更新看过人数
+                            auto* watched_msg = dynamic_cast<message::LiveWatchedChange*>(live_msg.get());
+                            if (watched_msg && watched_msg->data) {
+                                this->updateWatchedCount(watched_msg->data->num);
+                            }
+                        } else if (live_msg->type == MessageType::ONLINE_CNT) {
+                            // 更新在线人数
+                            auto* online_msg = dynamic_cast<message::LiveOnlineCount*>(live_msg.get());
+                            if (online_msg && online_msg->data) {
+                                this->updateOnlineCount(online_msg->data->count);
+                            }
                         } else if (live_msg->type == MessageType::SUPER_CHAT) {
                             auto* sc_msg = dynamic_cast<message::LiveSuperChat*>(live_msg.get());
                             if (!sc_msg || !sc_msg->data) continue;
@@ -497,7 +573,9 @@ void LiveActivity::processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& 
     
     auto state = this->threadState;
     // 确保UI更新在主线程进行
-    brls::sync([this, state, filtered_danmakus = std::move(filtered_danmakus)]() {
+    ASYNC_RETAIN
+    brls::sync([state, filtered_danmakus = std::move(filtered_danmakus), ASYNC_TOKEN]() mutable {
+        ASYNC_RELEASE
         // 再次检查UI组件和活动状态
         if (!state->isActive.load(std::memory_order_acquire) || !this->shouldShowSidebar() || !this->liveDanmakuContainer) {
             return;
@@ -549,7 +627,9 @@ void LiveActivity::processSuperChatForSidebar(const std::vector<LiveDanmakuItem>
 
     auto state = this->threadState;
     // 确保UI更新在主线程进行
-    brls::sync([this, sc_list, state]() {
+    ASYNC_RETAIN
+    brls::sync([sc_list, state, ASYNC_TOKEN]() {
+        ASYNC_RELEASE
         // 再次检查UI组件和活动状态
         if (!state->isActive.load(std::memory_order_acquire) || !this->shouldShowSidebar() || !this->liveDanmakuContainer) {
             return;
@@ -808,6 +888,13 @@ void LiveActivity::onAnchorInfo(const std::string& face, const std::string& unam
             this->liveAuthor->setUserInfo("pictures/default_avatar.png", uname, liveData.watched_show.text_large);
         }
     }
+
+    // 缓存主播头像与昵称，避免后续更新人数时将头像清空
+    this->liveData.uname = uname;
+    if (!face.empty())
+        this->liveData.cover = face;
+    else if (this->liveData.cover.empty())
+        this->liveData.cover = "pictures/default_avatar.png";
     
     // 更新标题
     if (this->video) {
@@ -818,6 +905,37 @@ void LiveActivity::onAnchorInfo(const std::string& face, const std::string& unam
     if (this->shouldShowSidebar() && this->liveTitleLabel) {
         this->liveTitleLabel->setText(liveData.title);
     }
+}
+
+void LiveActivity::follow_anchor(bool follow) {
+    std::string csrf = ProgramConfig::instance().getCSRF();
+    if (csrf.empty()) return;
+    uint64_t uid = this->liveRoomPlayInfo.uid;
+    if (uid == 0) return;
+
+    // 预先更新 UI
+    if (this->shouldShowSidebar() && this->liveAuthor) {
+        this->liveAuthor->setHintType(follow ? InfoHintType::UP_FOLLOWING : InfoHintType::UP_NOT_FOLLOWED);
+    }
+
+    ASYNC_RETAIN
+    BILI::follow_up(
+        csrf, std::to_string(uid), follow,
+        [ASYNC_TOKEN, follow]() {
+            ASYNC_RELEASE
+            this->anchor_following = follow;
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            brls::Logger::error("follow_up: {}", error);
+            brls::sync([ASYNC_TOKEN]() {
+                ASYNC_RELEASE
+                // 回滚 UI
+                if (this->shouldShowSidebar() && this->liveAuthor) {
+                    this->liveAuthor->setHintType(this->anchor_following ? InfoHintType::UP_FOLLOWING
+                                                                         : InfoHintType::UP_NOT_FOLLOWED);
+                }
+            });
+        });
 }
 
 // 添加主播称号信息处理函数
@@ -836,5 +954,122 @@ void LiveActivity::onAnchorTitleInfo(const std::string& title) {
             // 如果没有称号，隐藏标签
             this->anchorTitleLabel->setVisibility(brls::Visibility::GONE);
         }
+    }
+}
+
+static void append_danmaku_from_json_array(const nlohmann::json& arr, std::vector<LiveDanmakuItem>& dan_list) {
+    for (const auto& item : arr) {
+        auto dan = std::make_shared<message::Danmaku>();
+
+        // 基础字段
+        if (item.contains("text") && item["text"].is_string())
+            dan->dan = item["text"].get<std::string>();
+        if (item.contains("nickname") && item["nickname"].is_string())
+            dan->user_name = item["nickname"].get<std::string>();
+        if (item.contains("uid") && item["uid"].is_number_integer())
+            dan->user_uid = item["uid"].get<int>();
+
+        // 用户名颜色
+        if (item.contains("uname_color") && item["uname_color"].is_string()) {
+            const std::string& color_str = item["uname_color"].get<std::string>();
+            if (!color_str.empty() && color_str[0] == '#' && color_str.length() == 7)
+                dan->user_name_color = color_str;
+        }
+
+        // 用户等级
+        if (item.contains("user_level") && item["user_level"].is_array() && !item["user_level"].empty())
+            dan->user_level = item["user_level"][0].get<int>();
+
+        // 房管标识
+        if (item.contains("isadmin") && item["isadmin"].is_number())
+            dan->is_guard = item["isadmin"].get<int>();
+
+        // 粉丝牌信息
+        if (item.contains("medal") && item["medal"].is_array() && item["medal"].size() >= 3) {
+            const auto& medal = item["medal"];
+            dan->fan_medal_level        = medal[0].get<int>();
+            dan->fan_medal_name         = medal[1].get<std::string>();
+            dan->fan_medal_liveuser_name = medal[2].get<std::string>();
+            if (medal.size() >= 5)
+                dan->fan_medal_start_color = medal[4].get<int>();
+        }
+
+        dan_list.emplace_back(LiveDanmakuItem(dan));
+    }
+}
+
+static void parse_history_danmaku_data(const bilibili::LiveHistoryDanmakuData& data, std::vector<LiveDanmakuItem>& dan_list) {
+    // room 弹幕添加到后面
+    append_danmaku_from_json_array(data.room, dan_list);
+    
+    // admin 只保留一条，插入顶部
+    if (data.room.empty() && !data.admin.empty()) {
+        append_danmaku_from_json_array(nlohmann::json::array({data.admin[0]}), dan_list);
+    }
+}
+
+void LiveActivity::requestHistoryDanmaku(int roomid) {
+    if (!this->shouldShowSidebar())
+        return;
+
+    auto state = this->threadState;
+
+    ASYNC_RETAIN
+    bilibili::HTTP::getResultAsync<bilibili::LiveHistoryDanmakuData>(
+        bilibili::Api::LiveHistoryDanmaku,
+        cpr::Parameters{{"roomid", std::to_string(roomid)}},
+        [state, ASYNC_TOKEN](const bilibili::LiveHistoryDanmakuData& data) {
+            std::vector<LiveDanmakuItem> dan_list;
+            parse_history_danmaku_data(data, dan_list);
+            
+            if (dan_list.empty()) {
+                brls::Logger::debug("LiveActivity: 未获取到历史弹幕");
+                ASYNC_RELEASE
+                return;
+            }
+
+            brls::Logger::debug("LiveActivity: 成功解析 {} 条历史弹幕", dan_list.size());
+
+            brls::sync([state, dan_list = std::move(dan_list), ASYNC_TOKEN]() mutable {
+                ASYNC_RELEASE
+                if (!state->isActive.load(std::memory_order_acquire))
+                    return;
+                this->processDanmakuForSidebar(dan_list);
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
+            brls::Logger::error("LiveActivity: 历史弹幕请求失败: {}, code: {}", error, code);
+        }
+    );
+}
+
+// 更新看过人数
+void LiveActivity::updateWatchedCount(int watched_count) {
+    brls::Logger::debug("LiveActivity: 更新看过人数: {}", watched_count);
+    
+    // 格式化看过人数显示文本
+    std::string watched_text = wiliwili::num2w(watched_count) + "人看过";
+    
+    // 更新liveData中的看过人数
+    this->liveData.watched_show.text_large = watched_text;
+    
+    // 如果侧边栏显示，同时更新主播信息中的人数显示
+    if (this->shouldShowSidebar() && this->liveAuthor) {
+        // 只更新人数（misc），不要触碰头像与昵称，避免头像被置空而消失
+        this->liveAuthor->getLabelMisc()->setText(watched_text);
+    }
+}
+
+// 更新在线人数
+void LiveActivity::updateOnlineCount(int online_count) {
+    brls::Logger::debug("LiveActivity: 更新在线人数: {}", online_count);
+    
+    // 格式化在线人数显示文本
+    std::string online_text = wiliwili::num2w(online_count) + "人在线";
+    
+    // 更新视频播放器显示的在线人数（优先显示在线人数而非看过人数）
+    if (this->video) {
+        this->video->setOnlineCount(online_text);
     }
 }

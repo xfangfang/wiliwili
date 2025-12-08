@@ -57,12 +57,20 @@ public:
 
     // 新增：处理主播称号信息
     void onAnchorTitleInfo(const std::string& title) override;
+    
+    // 新增：更新看过人数
+    void updateWatchedCount(int watched_count);
+    
+    // 新增：更新在线人数
+    void updateOnlineCount(int online_count);
 
     std::vector<std::string> getQualityDescriptionList();
     int getCurrentQualityIndex();
 
     void retryRequestData();
     
+    // 新增：请求历史弹幕并填充侧边栏
+    void requestHistoryDanmaku(int roomid);
     // 处理接收到的弹幕，展示在侧边栏
     void processDanmakuForSidebar(const std::vector<LiveDanmakuItem>& danmaku_list);
     
@@ -91,6 +99,9 @@ public:
     ~LiveActivity() override;
 
 private:
+    // 关注/取关主播
+    void follow_anchor(bool follow);
+
     VideoView* video = nullptr;
     UserInfoView* liveAuthor = nullptr;
     brls::Box* liveDanmakuContainer = nullptr;
@@ -120,6 +131,9 @@ private:
     
     // 侧边栏弹幕最大数量
     int maxSidebarDanmakuCount = 100;
+
+    // 主播关注状态
+    bool anchor_following = false;
 
     //更新timeLabel
     MPVEvent::Subscription tl_event_id;

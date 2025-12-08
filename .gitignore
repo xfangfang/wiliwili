@@ -24,3 +24,13 @@ build-*
 android-project
 *.deb
 *.dmp
+# Github Copilot
+.github/copilot-instructions.md
+.github/instructions/
+.github/prompts/
+.github/chatmodes/
+# Claude Code
+.claude/
+CLAUDE.md
+# Other AI
+AGENT.md

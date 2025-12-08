@@ -142,12 +142,16 @@ void LiveDataRequest::requestLiveAnchorInfo(int roomid) {
                 }
             },
             [ASYNC_TOKEN](BILI_ERR) {
-                ASYNC_RELEASE
                 brls::Logger::error("get live anchor info: {}", error);
+                brls::sync([ASYNC_TOKEN]() {
+                    ASYNC_RELEASE
+                    this->onAnchorInfo("", "主播");
+                });
             }
         );
     } else {
         brls::Logger::error("get live anchor info: no uid available");
+        this->onAnchorInfo("", "主播");
     }
 }
 

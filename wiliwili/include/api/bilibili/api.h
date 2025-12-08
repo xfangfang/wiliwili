@@ -77,6 +77,8 @@ const std::string Triple    = _appBase + "/x/v2/view/like/triple";
 const std::string TripleWeb = _apiBase + "x/web-interface/archive/like/triple";
 /// 关注 取关
 const std::string Follow = _apiBase + "/x/relation/modify";
+/// 查询单个用户关系（是否关注等）
+const std::string UserRelation = _apiBase + "/x/relation";
 /// 番剧 追剧/取消追剧
 const std::string FollowSeason     = _apiBase + "/pgc/app/follow/add";
 const std::string UndoFollowSeason = _apiBase + "/pgc/app/follow/del";
@@ -98,6 +100,8 @@ const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
 const std::string VideoHighlight = _bvcBase + "/pbp/data";
 /// 获取直播弹幕token
 const std::string LiveDanmakuInfo = _liveBase + "/xlive/web-room/v1/index/getDanmuInfo";
+/// 获取历史弹幕
+const std::string LiveHistoryDanmaku = _liveBase + "/xlive/web-room/v1/dM/gethistory";
 /// 直播API
 const std::string LiveUrl = _liveBase + "/room/v1/Room/playUrl";
 /// 直播API V2

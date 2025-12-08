@@ -147,4 +147,13 @@ public:
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserRelationStat, mid, following, black, follower);
 
+// 单个用户关系详情（来自 /x/relation）
+class UserRelationDetail {
+public:
+    uint64_t mid{};
+    int attribute{};  // 0: 未关注, 2: 已关注, 6: 互相关注, 128: 拉黑
+    uint64_t mtime{};
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(UserRelationDetail, mid, attribute, mtime);
+
 }  // namespace bilibili

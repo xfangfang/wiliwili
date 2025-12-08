@@ -59,6 +59,7 @@ class VideoCommentAddResult;                                     // 发布评论
 class VideoDetailResult;                                         // 视频详情
 class VideoDetailAllResult;  // 更详细的视频详情，包括 分P、合集、推荐、评论
 class UserRelationStat;      // 用户关注/粉丝/黑名单 数量
+class UserRelationDetail;    // 与某用户的关系详情（是否关注等）
 class UserDynamicCount;      // 用户动态的数量
 class UnixTimeResult;
 class CollectionListResultWrapper;        // 用户收藏列表
@@ -129,6 +130,11 @@ public:
     static void get_user_relation(const std::string& mid,
                                   const std::function<void(UserRelationStat)>& callback = nullptr,
                                   const ErrorCallback& error                            = nullptr);
+
+    /// 获取与某个用户的关系（是否关注等）
+    static void get_user_relation_detail(const std::string& mid,
+                                         const std::function<void(UserRelationDetail)>& callback = nullptr,
+                                         const ErrorCallback& error                               = nullptr);
 
     /// 获取用户动态的数量
     static void get_user_dynamic_count(const std::string& mid,

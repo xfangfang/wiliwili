@@ -270,7 +270,7 @@ mingw32-make -C build wiliwili -j$(nproc)
 #### Docker
 
 ```shell
-docker run --rm -v $(pwd):/data devkitpro/devkita64:20240202 \
+docker run --rm -v $(pwd):/data devkitpro/devkita64:20251117 \
   bash -c "/data/scripts/build_switch.sh"
 ```
 
