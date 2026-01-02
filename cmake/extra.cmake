@@ -50,10 +50,14 @@ if (APPLE AND PLATFORM_DESKTOP)
         message(STATUS "build for modern system, using curl provided by system")
         set(USE_SYSTEM_CURL ON)
         set(CPR_FORCE_DARWINSSL_BACKEND ON)
+        # Add this to avoid linker error imported from: https://github.com/xfangfang/borealis/pull/115
+        # Delete after drop support for macOS < 10.7
+        set(CMAKE_OSX_DEPLOYMENT_TARGET ${MACOS_VERSION} CACHE STRING "" FORCE)
     else ()
         message(STATUS "build for old system, using boost filesystem and compile curl")
         set(USE_BOOST_FILESYSTEM ON)
         set(USE_SYSTEM_CURL OFF)
+        set(CMAKE_OSX_DEPLOYMENT_TARGET ${MACOS_VERSION} CACHE STRING "" FORCE)
     endif()
 
     if (NOT USE_SYSTEM_CURL)
