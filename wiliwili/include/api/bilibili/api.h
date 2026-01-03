@@ -200,7 +200,7 @@ const std::string WatchLater = _apiBase + "/x/v2/history/toview/web";
 /// ===
 /// 搜索页API
 /// ===
-const std::string Search     = _apiBase + "/x/web-interface/search/type";
+const std::string Search     = _apiBase + "/x/web-interface/wbi/search/type";
 const std::string TVSuggest  = _apiBase + "/x/tv/suggest";
 const std::string SearchHots = _apiBase + "/x/web-interface/search/square";
 
