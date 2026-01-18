@@ -78,6 +78,8 @@ public:
     static inline std::string PROTOCOL = "https:";
     static inline CurlSharedObject CURL_SHARE;
 
+    static std::string getEncodedCookie(const cpr::Cookies& cookies);
+
     static std::shared_ptr<cpr::Session> createSession() {
         auto session = std::make_shared<cpr::Session>();
         CURL* curl = session->GetCurlHolder()->handle;
@@ -86,7 +88,6 @@ public:
         session->SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
         session->SetConnectTimeout(cpr::ConnectTimeout{bilibili::HTTP::CONNECTION_TIMEOUT});
         session->SetHeader(bilibili::HTTP::HEADERS);
-        session->SetCookies(bilibili::HTTP::COOKIES);
         session->SetProxies(bilibili::HTTP::PROXIES);
         session->SetVerifySsl(bilibili::HTTP::VERIFY);
         return session;
@@ -165,15 +166,7 @@ public:
         return 1;
     }
 
-    static void signParameters(cpr::Parameters& parameters) {
-        parameters.Add({{"appkey", BILIBILI_APP_KEY},
-                        {"build", BILIBILI_BUILD},
-                        {"ts", std::to_string(wiliwili::getUnixTime() * 1000)}});
-        std::vector<std::string> kv;
-        pystring::split(parameters.GetContent(cpr::CurlHolder()), kv, "&");
-        std::sort(kv.begin(), kv.end());
-        parameters.Add({{"sign", websocketpp::md5::md5_hash_hex(pystring::join("&", kv) + BILIBILI_APP_SECRET)}});
-    }
+    static void signParameters(cpr::Parameters& parameters);
 
     template <typename ReturnType>
     static void getResultAsync(const std::string& url,

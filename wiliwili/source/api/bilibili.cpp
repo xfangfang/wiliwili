@@ -31,6 +31,8 @@ void BilibiliClient::init(Cookies& data, std::function<void(Cookies, std::string
     for (const auto& cookie : data) {
         HTTP::COOKIES.emplace_back({cookie.first, cookie.second});
     }
+    // Manually set cookie, because cpr's cookie algorithm does not conform to the rfc6265
+    HTTP::HEADERS["cookie"] = HTTP::getEncodedCookie(HTTP::COOKIES);
 }
 
 void BilibiliClient::setProxy(const std::string& httpProxy, const std::string& httpsProxy) {
