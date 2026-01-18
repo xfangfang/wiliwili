@@ -190,8 +190,12 @@ public:
     static void getResultWithWbiAsync(const std::string& url,
                                       cpr::Parameters parameters                      = {},
                                       const std::function<void(ReturnType)>& callback = nullptr,
-                                      const ErrorCallback& error                      = nullptr) {
-        wbi::updateWbiKeys([url, parameters, callback, error]() mutable {
+                                      const ErrorCallback& error                      = nullptr,
+                                      bool needSign                                   = false) {
+        wbi::updateWbiKeys([url, parameters, callback, error, needSign]() mutable {
+            if (needSign) {
+                signParameters(parameters);
+            }
             wbi::encWbi(parameters);
             _cpr_get(
                 url,
