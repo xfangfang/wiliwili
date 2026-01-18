@@ -622,5 +622,7 @@ public:
     static void setDnsCacheTimeout(int ms);
 
     static std::string genRandomBuvid3();
+
+    static std::string genRandomUuid();
 };
 }  // namespace bilibili

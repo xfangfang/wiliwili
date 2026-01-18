@@ -70,12 +70,13 @@ void BilibiliClient::get_login_info(const std::string& oauthKey, const std::func
 void BilibiliClient::get_login_info_v2(const std::string& qrcodeKey, const std::string& deviceName,
                                        const std::string& deviceID, const std::function<void(enum LoginInfo)>& callback,
                                        const ErrorCallback& error) {
-    auto buvid3   = BilibiliClient::genRandomBuvid3();
+    auto uuid   = BilibiliClient::genRandomUuid();
+
     HTTP::COOKIES = {{{"appkey", BILIBILI_APP_KEY},
                       {"mobi_app", "pc_electron"},
                       {"device", "mac"},
                       {"innersign", "0"},
-                      {"buvid3", buvid3},
+                      {"buvid3", uuid},
                       {"device_id", deviceID},
                       {"device_name", deviceName}},
                      false};
@@ -84,14 +85,17 @@ void BilibiliClient::get_login_info_v2(const std::string& qrcodeKey, const std::
 
     HTTP::_cpr_get(
         Api::QrLoginInfoV2, {{"qrcode_key", qrcodeKey}, {"source", "main_electron_pc"}},
-        [callback, error, buvid3](const cpr::Response& r) {
+        [callback, error, uuid](const cpr::Response& r) {
             try {
                 HTTP::COOKIES      = {false};
                 nlohmann::json res = nlohmann::json::parse(r.text);
                 auto data          = res.at("data").get<QrLoginInfoResultV2>();
                 if (data.status) {
                     std::map<std::string, std::string> cookies;
-                    cookies["_uuid"] = buvid3;
+                    cookies["_uuid"] = uuid;
+                    HTTP::COOKIES.emplace_back({"_uuid", cookies["_uuid"]});
+                    cookies["buvid3"] = BilibiliClient::genRandomBuvid3();
+                    HTTP::COOKIES.emplace_back({"buvid3", cookies["buvid3"]});
                     for (const auto& cookie : r.cookies) {
                         cookies[cookie.GetName()] = cookie.GetValue();
                         HTTP::COOKIES.emplace_back({cookie.GetName(), cookie.GetValue()});

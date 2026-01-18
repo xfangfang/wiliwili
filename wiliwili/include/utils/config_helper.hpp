@@ -193,7 +193,7 @@ public:
     ProgramConfig(const ProgramConfig& config);
     void setProgramConfig(const ProgramConfig& conf);
     void setCookie(const Cookie& data);
-    Cookie getCookie() const;
+    Cookie getCookie();
     void addHistory(const std::string& key);
     std::vector<std::string> getHistoryList();
     void setHistory(const std::vector<std::string>& list);
@@ -289,7 +289,7 @@ public:
     void checkOnTop();
 
     std::vector<CustomTheme> customThemes;
-    Cookie cookie = {{"DedeUserID", "0"}};
+    Cookie cookie = {};
     std::string refreshToken;
     nlohmann::json setting;
     std::string client;

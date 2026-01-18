@@ -332,7 +332,18 @@ void ProgramConfig::setCookie(const Cookie& data) {
     this->save();
 }
 
-Cookie ProgramConfig::getCookie() const { return this->cookie; }
+Cookie ProgramConfig::getCookie() {
+    // 生成虚假的 buvid3，在获取直播分区时需要此字段
+    if (!this->cookie.count("buvid3")) {
+        this->cookie["buvid3"] = wiliwili::getRandomHex(32, false);
+    }
+    // 生成虚假的 DedeUserID，在未登录时使用
+    // 默认用户ID (DedeUserID) 为0表示未登录，如果没有此字段老版本搜索api会报错，但目前没有这个问题，维持现状
+    if (!this->cookie.count("DedeUserID")) {
+        this->cookie["DedeUserID"] = "0";
+    }
+    return this->cookie;
+}
 
 void ProgramConfig::addHistory(const std::string& key) {
     if (key.empty()) return;

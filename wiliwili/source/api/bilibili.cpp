@@ -19,9 +19,13 @@ std::string genRandomHex(int length) {
     return text;
 }
 
-std::string BilibiliClient::genRandomBuvid3() {
+std::string BilibiliClient::genRandomUuid() {
     return genRandomHex(8) + "-" + genRandomHex(4) + "-" + genRandomHex(4) + "-" + genRandomHex(4) + "-" +
            genRandomHex(17) + "infoc";
+}
+
+std::string BilibiliClient::genRandomBuvid3() {
+    return genRandomHex(32);
 }
 
 // set bilibili cookie and cookies callback
