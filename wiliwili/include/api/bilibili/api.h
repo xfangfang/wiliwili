@@ -119,7 +119,7 @@ const std::string LiveAreaList = _liveBase + "/xlive/app-interface/v2/index/getA
 /// ===
 
 /// 主页 推荐
-const std::string Recommend = _apiBase + "/x/web-interface/index/top/feed/rcmd";
+const std::string Recommend = _apiBase + "/x/web-interface/wbi/index/top/feed/rcmd";
 /// 主页 热门 热门综合
 const std::string HotsAll = _apiBase + "/x/web-interface/popular";
 /// 主页 热门 每周推荐列表

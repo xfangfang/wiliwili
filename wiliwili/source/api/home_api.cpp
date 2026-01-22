@@ -32,7 +32,7 @@ void BilibiliClient::get_recommend(int index, int num, int fresh_type, std::stri
         });
     }
 
-    HTTP::getResultAsync<RecommendVideoListResultWrapper>(
+    HTTP::getResultWithWbiAsync<RecommendVideoListResultWrapper>(
         Api::Recommend, parameters,
         [callback, index](RecommendVideoListResultWrapper wrapper) {
             wrapper.requestIndex = index;
