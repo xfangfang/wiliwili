@@ -37,10 +37,18 @@ void SearchVideo::_requestSearch(const std::string& key) {
     ASYNC_RETAIN
     BILI::search_video(
         key, "video", requestIndex, this->requestOrder,
-        [ASYNC_TOKEN](const bilibili::SearchResult& result) {
-            for (auto i : result.result) {
-                brls::Logger::verbose("search: {}", i.title);
-            }
+        [ASYNC_TOKEN](const bilibili::SearchResult& originalResult) {
+            bilibili::SearchResult result = originalResult;
+            // 过滤掉不支持的搜索结果
+            const auto it = std::copy_if(
+                originalResult.result.begin(),
+                originalResult.result.end(),
+                result.result.begin(),
+                [](const bilibili::VideoItemSearchResult& r) {
+                    return !r.notSupported;
+                }
+            );
+            result.result.resize(std::distance(result.result.begin(), it));
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
                 auto* datasource = dynamic_cast<DataSourceSearchVideoList*>(recyclingGrid->getDataSource());

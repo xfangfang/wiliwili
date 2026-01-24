@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "bilibili/util/json.hpp"
 #include <pystring.h>
 
 namespace bilibili {
@@ -63,6 +63,8 @@ public:
     std::string rightBottomBadge;
 
     VideoSearchBadgeResult badge;
+
+    bool notSupported{};
 };
 
 inline void from_json(const nlohmann::json &nlohmann_json_j, VideoItemSearchResult &nlohmann_json_t) {
@@ -81,10 +83,9 @@ inline void from_json(const nlohmann::json &nlohmann_json_j, VideoItemSearchResu
             nlohmann_json_t.cover = "http:" + nlohmann_json_t.cover;
         }
     } else if (video_type == "ketang") {
-        nlohmann_json_j.at("aid").get_to(nlohmann_json_t.aid);
-        nlohmann_json_j.at("pic").get_to(nlohmann_json_t.cover);
-        nlohmann_json_j.at("author").get_to(nlohmann_json_t.subtitle);
-        nlohmann_json_j.at("play").get_to(nlohmann_json_t.play);
+        // 移除课堂内容，暂不支持播放，可能造成解析错误
+        // TODO: 更新到新的搜索接口可以自动过滤掉非video类型的结果
+        nlohmann_json_t.notSupported = true;
     } else if (video_type == "media_bangumi" || video_type == "media_ft") {
         // media_bangumi: 番剧
         // media_ft: 影视
