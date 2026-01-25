@@ -245,5 +245,6 @@ bool VideoProgressSlider::cancelPointerChange() {
     if (this->progress < 0) this->progress = 0;
     if (this->progress > 1) this->progress = 1;
     updateUI();
+    progressCancelEvent.fire();
     return true;
 }

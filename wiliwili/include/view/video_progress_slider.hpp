@@ -43,6 +43,9 @@ public:
     // Manual dragging is over
     brls::Event<float>* getProgressSetEvent() { return &progressSetEvent; }
 
+    // Manual dragging is canceled
+    brls::Event<>* getProgressCancelEvent() { return &progressCancelEvent; }
+
     // Add a chapter point
     void addClipPoint(float point);
 
@@ -62,6 +65,7 @@ private:
 
     brls::Event<float> progressEvent;
     brls::Event<float> progressSetEvent;
+    brls::Event<> progressCancelEvent;
 
     std::vector<float> clipPointList;
 

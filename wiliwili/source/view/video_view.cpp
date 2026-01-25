@@ -161,6 +161,10 @@ VideoView::VideoView() {
         leftStatusLabel->setText(wiliwili::sec2Time(getRealDuration() * progress));
     });
 
+    osdSlider->getProgressCancelEvent()->subscribe([this]() {
+        if (isTvControlMode) hideOSD();
+    });
+
     /// 组件触摸事件
     /// 单击控制 OSD
     /// 双击控制播放与暂停
