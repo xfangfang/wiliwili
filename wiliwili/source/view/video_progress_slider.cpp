@@ -197,10 +197,20 @@ void VideoProgressSlider::draw(NVGcontext* vg, float x, float y, float width, fl
 void VideoProgressSlider::buttonsProcessing() {
     auto& state        = brls::Application::getControllerState();
     static bool repeat = false;
+    static brls::ControllerState lastState = state;
 
     if (state.buttons[brls::BUTTON_NAV_RIGHT] && state.buttons[brls::BUTTON_NAV_LEFT]) return;
 
+    // 在移动光标的中途放开按键，重新计算起始进度
+    if (lastState.buttons[brls::BUTTON_NAV_RIGHT] != state.buttons[brls::BUTTON_NAV_RIGHT] ||
+        lastState.buttons[brls::BUTTON_NAV_LEFT] != state.buttons[brls::BUTTON_NAV_LEFT] ) {
+        lastStartProgress = progress;
+    }
+
     float step = 0.2f;
+    if (progressUpdater) {
+        step = progressUpdater(progress - lastStartProgress);
+    }
 
     if (state.buttons[brls::BUTTON_NAV_RIGHT]) {
         progress += step / brls::Application::getFPS();
@@ -227,6 +237,7 @@ void VideoProgressSlider::buttonsProcessing() {
         (progress > 0.01f && progress < 0.99f)) {
         repeat = false;
     }
+    lastState = state;
 }
 
 void VideoProgressSlider::onChildFocusLost(brls::View* directChild, brls::View* focusedView) {

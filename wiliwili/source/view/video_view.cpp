@@ -165,6 +165,11 @@ VideoView::VideoView() {
         if (isTvControlMode) hideOSD();
     });
 
+    osdSlider->setProgressUpdater([this](float offset) {
+        if (real_duration <= 0) return 0.2f;
+        return getSeekRange(offset * real_duration) / (float)real_duration * 8.0f;
+    });
+
     /// 组件触摸事件
     /// 单击控制 OSD
     /// 双击控制播放与暂停

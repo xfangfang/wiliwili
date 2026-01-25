@@ -56,6 +56,8 @@ public:
 
     const std::vector<float>& getClipPoint();
 
+    void setProgressUpdater(const std::function<float(float)>& updater) { progressUpdater = updater; }
+
 private:
     brls::InputManager* input;
     brls::Rectangle* line;
@@ -76,6 +78,10 @@ private:
     // while pointer is selected, the last progress value set by setProgress()
     // is stored here to be restored when canceling the selection
     float lastProgress         = 1;
+
+    // pointer 被选中时, 上一次按钮按下时的进度值
+    float lastStartProgress  = 0;
+    std::function <float(float)> progressUpdater{};
 
     void buttonsProcessing();
     void updateUI();
