@@ -58,6 +58,8 @@ public:
 
     void setProgressUpdater(const std::function<float(float)>& updater) { progressUpdater = updater; }
 
+    void setManuallyMode();
+
 private:
     brls::InputManager* input;
     brls::Rectangle* line;

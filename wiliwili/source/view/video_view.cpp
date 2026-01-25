@@ -468,6 +468,19 @@ VideoView::VideoView() {
         return true;
     });
 
+    // TV模式下，全屏+OSD隐藏时，可以使用左右键直接调整进度
+    auto sliderFunc = [this](...) {
+        if (isTvControlMode && !isOSDShown() && isFullscreen()) {
+            this->showOSD(true);
+            this->is_osd_shown = true; // 直接标记为显示状态，避免在 onChildFocusGained 焦点又被转移
+            brls::Application::giveFocus(this->osdSlider);
+            this->osdSlider->setManuallyMode();
+        }
+        return false;
+    };
+    this->registerAction("", brls::ControllerButton::BUTTON_RIGHT, sliderFunc, true);
+    this->registerAction("", brls::ControllerButton::BUTTON_LEFT, sliderFunc, true);
+
     // 自定义的mpv事件
     customEventSubscribeID = APP_E->subscribe([this](const std::string& event, void* data) {
         if (event == VideoView::SET_TITLE) {

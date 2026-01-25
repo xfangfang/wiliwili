@@ -46,10 +46,7 @@ VideoProgressSlider::VideoProgressSlider() {
     this->forwardXMLAttribute("focusRight", pointer);
 
     pointer->registerClickAction([this](...) {
-        pointerSelected = !pointerSelected;
-        pointer->setHideHighlightBackground(!pointerSelected);
-        ignoreProgressSetting = pointerSelected;
-        if (!pointerSelected) progressSetEvent.fire(this->progress);
+        this->setManuallyMode();
         return true;
     });
 
@@ -258,4 +255,12 @@ bool VideoProgressSlider::cancelPointerChange() {
     updateUI();
     progressCancelEvent.fire();
     return true;
+}
+
+void VideoProgressSlider::setManuallyMode() {
+    lastStartProgress = progress;
+    pointerSelected = !pointerSelected;
+    pointer->setHideHighlightBackground(!pointerSelected);
+    ignoreProgressSetting = pointerSelected;
+    if (!pointerSelected) progressSetEvent.fire(this->progress);
 }
