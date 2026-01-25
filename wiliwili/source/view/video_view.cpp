@@ -38,11 +38,11 @@ enum ClickState { IDLE = 0, PRESS = 1, FAST_RELEASE = 3, FAST_PRESS = 4, CLICK_D
 
 static int getSeekRange(int current) {
     current = abs(current);
-    if (current < 60) return 5;
-    if (current < 300) return 10;
-    if (current < 600) return 20;
-    if (current < 1200) return 60;
-    return current / 15;
+    if (current <= 30) return 5;
+    if (current <= 60) return 15;
+    if (current <= 300) return 30;
+    if (current <= 1200) return 60;
+    return current / 20;
 }
 
 #define CHECK_OSD(shake)                                                              \
