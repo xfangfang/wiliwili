@@ -470,6 +470,7 @@ VideoView::VideoView() {
 
     // TV模式下，全屏+OSD隐藏时，可以使用左右键直接调整进度
     auto sliderFunc = [this](...) {
+        CHECK_OSD(true);
         if (isTvControlMode && !isOSDShown() && isFullscreen()) {
             this->showOSD(true);
             this->is_osd_shown = true; // 直接标记为显示状态，避免在 onChildFocusGained 焦点又被转移
