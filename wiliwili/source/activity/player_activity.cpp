@@ -312,17 +312,6 @@ void PlayerActivity::onVideoPageListInfo(const bilibili::VideoDetailPageListResu
             if (r.cid == 0) return;
             // 触发播放对应的分集
             this->onIndexChange(r.page - 1);
-
-            // 更新ui
-            auto* item = dynamic_cast<PlayerTabCell*>(recycler->getGridItemByIndex(index));
-            if (!item) return;
-            std::vector<RecyclingGridItem*>& items = recycler->getGridItems();
-            for (auto& i : items) {
-                auto* cell = dynamic_cast<PlayerTabCell*>(i);
-                if (cell) cell->setSelected(false);
-            }
-            item->setSelected(true);
-            ds->setCurrentIndex(index);
         });
 
         // 设置标题上方的数字
@@ -496,6 +485,9 @@ void PlayerActivity::onIndexChange(size_t index) {
     }
 
     brls::Logger::debug("切换分P: {}", index);
+
+    // 保证UI同步
+    changeIndexEvent.fire(index);
     // 上报历史记录
     this->reportCurrentProgress(MPVCore::instance().video_progress, MPVCore::instance().duration);
     // 焦点放在video上
@@ -515,7 +507,6 @@ void PlayerActivity::onIndexChange(size_t index) {
 void PlayerActivity::onIndexChangeToNext() {
     // videoDetailPage.page 是从1开始计数的单调递增序号，所以这里是尝试加载下一分P
     if (videoDetailPage.page < videoDetailResult.pages.size()) {
-        changeIndexEvent.fire(videoDetailPage.page);
         this->onIndexChange(videoDetailPage.page);
         return;
     }
