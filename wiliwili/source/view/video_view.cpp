@@ -118,6 +118,10 @@ VideoView::VideoView() {
 
     // 切换弹幕显示
     auto danmakuFunc = [this](...) -> bool {
+        if (this->hintBox->getVisibility() == brls::Visibility::VISIBLE) {
+            APP_E->fire(VideoView::SWITCH_TO_LAST, nullptr);
+            return true;
+        }
         CHECK_OSD(true);
         this->toggleDanmaku();
         return true;
@@ -1652,6 +1656,11 @@ void VideoView::registerCommonActions(brls::Activity* activity) {
     activity->registerAction(
         ShortcutHelper::getDanmaku(), [this](...) -> bool {
             CHECK_OSD(true);
+            // 如果正在显示提示（提示历史播放进度），则不切换弹幕状态，将这种情况临时绑定成切换历史进度
+            if (this->hintBox->getVisibility() == brls::Visibility::VISIBLE) {
+                APP_E->fire(VideoView::SWITCH_TO_LAST, nullptr);
+                return true;
+            }
             this->toggleDanmaku();
             return true;
         });

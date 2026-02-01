@@ -372,6 +372,22 @@ void BasePlayerActivity::setCommonData() {
     customEventSubscribeID = APP_E->subscribe([this](const std::string& event, void* data) {
         if (event == VideoView::QUALITY_CHANGE) {
             this->setVideoQuality();
+        } else if (event == VideoView::SWITCH_TO_LAST) {
+            // 历史播放进度储存在 SubtitleCore 中
+            auto videoPage = SubtitleCore::instance().getSubtitleList();
+            if (videoPage.last_play_cid == videoDetailPage.cid) {
+                // 因为占用了切换弹幕的按键，所以在无效的情况下保持切换弹幕
+                this->video->toggleDanmaku();
+                return;
+            }
+            brls::Logger::debug("切换到历史播放进度：{}/{}", videoPage.last_play_cid, videoPage.last_play_time);
+            for (auto& p : videoDetailResult.pages) {
+                if (p.cid == videoPage.last_play_cid) {
+                    this->onIndexChange(p.page - 1);
+                    this->setProgress(videoPage.last_play_time / 1000);
+                    break;
+                }
+            }
         } else if (event == "REQUEST_CAST_URL") {
             this->requestCastUrl();
         }

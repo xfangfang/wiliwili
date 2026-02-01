@@ -246,6 +246,7 @@ public:
     inline static const std::string SET_QUALITY    = "SET_QUALITY";
     inline static const std::string HINT           = "HINT";
     inline static const std::string LAST_TIME      = "LAST_TIME";
+    inline static const std::string SWITCH_TO_LAST = "SWITCH_TO_LAST";
     inline static const std::string REPLAY         = "REPLAY";
     inline static const std::string CLIP_INFO      = "CLIP_INFO";
     inline static const std::string HIGHLIGHT_INFO = "HIGHLIGHT_INFO";
