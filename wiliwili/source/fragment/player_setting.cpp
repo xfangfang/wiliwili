@@ -133,7 +133,7 @@ void PlayerSetting::setupCommonSetting() {
                       BasePlayerActivity::PLAYER_SKIP_OPENING_CREDITS = value;
                       std::string hint = value ? "wiliwili/player/setting/common/skip_hint1"_i18n
                                                : "wiliwili/player/setting/common/skip_hint2"_i18n;
-                      APP_E->fire(VideoView::HINT, (void*)hint.c_str());
+                      brls::Application::notify(hint);
                       GA("player_setting", {{"skip", value ? "true" : "false"}});
                   });
 
@@ -497,7 +497,7 @@ void PlayerSetting::setBangumiCustomSetting(const std::string& title, uint64_t i
             btnClipStart->setVisibility(brls::Visibility::GONE);
             btnClipEnd->setVisibility(brls::Visibility::GONE);
         }
-        APP_E->fire(VideoView::HINT, (void*)hint.c_str());
+        brls::Application::notify(hint);
         GA("season_custom_setting", {{"custom_clip", value ? "true" : "false"}});
     });
     btnClipStart->init(
