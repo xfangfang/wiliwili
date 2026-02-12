@@ -1,5 +1,9 @@
 #include <nlohmann/json.hpp>
+#include <sstream>
+#include <thread>
 #include <utility>
+
+#include <borealis/core/logger.hpp>
 
 #include "bilibili.h"
 #include "bilibili/api.h"
@@ -79,40 +83,57 @@ void BilibiliClient::get_video_pagelist(uint64_t aid, const std::function<void(V
 
 void BilibiliClient::get_video_url(const std::string& bvid, uint64_t cid, int qn,
                                    const std::function<void(VideoUrlResult)>& callback, const ErrorCallback& error) {
-    HTTP::getResultWithWbiAsync<VideoUrlResult>(Api::PlayUrl2,
-                                         {{"bvid", std::string(bvid)},
-                                          {"cid", std::to_string(cid)},
-                                          {"gaia_source", "view-card"},
-                                          {"from_client", "BROWSER"},
-                                          {"is_main_page", "false"},
-                                          {"need_fragment", "false"},
-                                          {"isGaiaAvoided", "true"},
-                                          {"voice_balance", "1"},
-                                          {"web_location", "1315873"},
-                                          {"qn", std::to_string(qn)},
-                                          {"fourk", "1"},
-                                          {"fnval", FNVAL},
-                                          {"fnver", "0"}},
-                                         callback, error);
+    cpr::Parameters params = {{"bvid", std::string(bvid)},
+                               {"cid", std::to_string(cid)},
+                               {"gaia_source", "view-card"},
+                               {"from_client", "BROWSER"},
+                               {"is_main_page", "false"},
+                               {"need_fragment", "false"},
+                               {"isGaiaAvoided", "true"},
+                               {"voice_balance", "1"},
+                               {"web_location", "1315873"},
+                               {"qn", std::to_string(qn)},
+                               {"fourk", "1"},
+                               {"fnval", FNVAL},
+                               {"fnver", "0"}};
+
+    HTTP::getResultWithWbiAsync<VideoUrlResult>(Api::PlayUrl2, params,
+                                                 callback,
+                                                 [params, callback, error](const std::string& msg, int code) mutable {
+                                                     if (code == -412) {
+                                                         // WBI 获取失败（例如未登录或 nav 返回不包含 wbi_img），尝试回退到老接口并签名请求
+                                                         HTTP::getResultAsync<VideoUrlResult>(Api::PlayUrl, params, callback, error, true);
+                                                         return;
+                                                     }
+                                                     if (error) error(msg, code);
+                                                 });
 }
 
 void BilibiliClient::get_video_url(uint64_t aid, uint64_t cid, int qn, const std::function<void(VideoUrlResult)>& callback,
                                    const ErrorCallback& error) {
-    HTTP::getResultWithWbiAsync<VideoUrlResult>(Api::PlayUrl2,
-                                         {{"aid", std::to_string(aid)},
-                                          {"cid", std::to_string(cid)},
-                                          {"gaia_source", "view-card"},
-                                          {"from_client", "BROWSER"},
-                                          {"is_main_page", "false"},
-                                          {"need_fragment", "false"},
-                                          {"isGaiaAvoided", "true"},
-                                          {"voice_balance", "1"},
-                                          {"web_location", "1315873"},
-                                          {"qn", std::to_string(qn)},
-                                          {"fourk", "1"},
-                                          {"fnval", FNVAL},
-                                          {"fnver", "0"}},
-                                         callback, error);
+    cpr::Parameters params = {{"aid", std::to_string(aid)},
+                               {"cid", std::to_string(cid)},
+                               {"gaia_source", "view-card"},
+                               {"from_client", "BROWSER"},
+                               {"is_main_page", "false"},
+                               {"need_fragment", "false"},
+                               {"isGaiaAvoided", "true"},
+                               {"voice_balance", "1"},
+                               {"web_location", "1315873"},
+                               {"qn", std::to_string(qn)},
+                               {"fourk", "1"},
+                               {"fnval", FNVAL},
+                               {"fnver", "0"}};
+
+    HTTP::getResultWithWbiAsync<VideoUrlResult>(Api::PlayUrl2, params,
+                                                 callback,
+                                                 [params, callback, error](const std::string& msg, int code) mutable {
+                                                     if (code == -412) {
+                                                         HTTP::getResultAsync<VideoUrlResult>(Api::PlayUrl, params, callback, error, true);
+                                                         return;
+                                                     }
+                                                     if (error) error(msg, code);
+                                                 });
 }
 
 void BilibiliClient::get_video_url_cast(uint64_t oid, uint64_t cid, int type, int qn, const std::string& csrf,
@@ -293,21 +314,67 @@ void BilibiliClient::get_video_relation(uint64_t epid, const std::function<void(
 
 void BilibiliClient::get_danmaku(uint64_t cid, const std::function<void(std::string)>& callback,
                                  const ErrorCallback& error) {
+    // 改用同步请求 - Android 上异步回调可能无法正确接收响应体
+    brls::Logger::info("[DANMAKU] Using SYNC request for cid={}", cid);
+    
     auto session = HTTP::createSession();
-    session->SetUrl(cpr::Url{HTTP::PROTOCOL + Api::VideoDanmaku});
+    std::string url = HTTP::PROTOCOL + Api::VideoDanmaku;
+    session->SetUrl(cpr::Url{url});
     session->SetParameters(cpr::Parameters({{"oid", std::to_string(cid)}}));
-    session->GetCallback<>(
-        [callback, error](const cpr::Response& r) {
-            if (r.status_code != 200) {
-                ERROR_MSG(r.error.message, r.status_code);
-                return;
-            }
-            try {
-                callback(r.text);
-            } catch (const std::exception& e) {
-                ERROR_MSG(e.what(), -1);
-            }
-        });
+    
+    brls::Logger::info("[DANMAKU REQUEST] cid={} url={}", cid, url);
+    
+    // 改用同步 Get() 而不是异步 GetCallback()
+    cpr::Response r = session->Get();
+    
+    // LOG: Response info
+    brls::Logger::info("[DANMAKU RESPONSE] status={} content_length={} bytes", 
+        r.status_code, r.text.size());
+    
+    // LOG: Response headers
+    brls::Logger::info("[DANMAKU HEADERS] Dumping all response headers:");
+    for (const auto& header : r.header) {
+        brls::Logger::info("  {}: {}", header.first, header.second);
+    }
+    
+    // LOG: Raw response info
+    brls::Logger::info("[DANMAKU RAW] downloaded_bytes={} uploaded_bytes={}", 
+        r.downloaded_bytes, r.uploaded_bytes);
+    
+    if (r.status_code != 200) {
+        std::string preview = r.text.substr(0, std::min<size_t>(200, r.text.size()));
+        brls::Logger::error("[DANMAKU ERROR] http status: {} error: {} preview: {}", 
+            r.status_code, r.error.message, preview);
+        ERROR_MSG(r.error.message, r.status_code);
+        return;
+    }
+    
+    // LOG: Show response preview
+    if (r.text.size() > 0) {
+        std::string preview = r.text.substr(0, std::min<size_t>(200, r.text.size()));
+        brls::Logger::info("[DANMAKU CONTENT] preview (first 200 chars): {}", preview);
+    } else {
+        brls::Logger::error("[DANMAKU ERROR] Response body is EMPTY! cid={}", cid);
+        brls::Logger::error("[DANMAKU ERROR] This means CPR received 0 bytes despite status 200");
+        brls::Logger::error("[DANMAKU ERROR] Trying alternative: check curl error code");
+        if (r.error.code != cpr::ErrorCode::OK) {
+            brls::Logger::error("[DANMAKU ERROR] Curl error: {} - {}", 
+                static_cast<int>(r.error.code), r.error.message);
+        }
+    }
+    
+    if (r.text.empty() || r.text[0] != '<') {
+        std::string preview = r.text.substr(0, std::min<size_t>(200, r.text.size()));
+        auto ctIt            = r.header.find("content-type");
+        std::string ctype    = (ctIt == r.header.end()) ? "" : ctIt->second;
+        brls::Logger::error("danmaku response not xml, content-type: {} preview: {}", ctype, preview);
+    }
+    
+    try {
+        callback(r.text);
+    } catch (const std::exception& e) {
+        ERROR_MSG(e.what(), -1);
+    }
 }
 
 void BilibiliClient::get_highlight_progress(uint64_t cid,
