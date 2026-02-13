@@ -880,17 +880,29 @@ void ProgramConfig::save() {
     const std::string path = this->getConfigDir() + "/wiliwili_config.json";
     // fs is defined in cpr/cpr.h
 #ifndef IOS
-    cpr::fs::create_directories(this->getConfigDir());
-#endif
-    nlohmann::json content(*this);
-    std::ofstream writeFile(path);
-    if (!writeFile) {
-        brls::Logger::error("Cannot write config to: {}", path);
+    try {
+        cpr::fs::create_directories(this->getConfigDir());
+    } catch (const std::exception &e) {
+        brls::Logger::error("ProgramConfig::save - create_directories failed: {}", e.what());
+        // If we cannot create config dir (e.g. permission denied), avoid throwing
+        // and skip saving to prevent process-wide termination.
         return;
     }
-    writeFile << content.dump(2);
-    writeFile.close();
-    brls::Logger::info("Write config to: {}", path);
+#endif
+    nlohmann::json content(*this);
+    try {
+        std::ofstream writeFile(path);
+        if (!writeFile) {
+            brls::Logger::error("ProgramConfig::save - Cannot open config for writing: {}", path);
+            return;
+        }
+        writeFile << content.dump(2);
+        writeFile.close();
+        brls::Logger::info("Write config to: {}", path);
+    } catch (const std::exception &e) {
+        brls::Logger::error("ProgramConfig::save - write failed: {}", e.what());
+        return;
+    }
 }
 
 void ProgramConfig::checkOnTop() {
@@ -1103,11 +1115,21 @@ std::string ProgramConfig::getHomePath() {
 #elif defined(_WIN32)
     return std::string(getenv("HOMEPATH"));
 #else
-    return std::string(getenv("HOME"));
+    const char* home = getenv("HOME");
+    if (home != nullptr) {
+        return std::string(home);
+    }
+    // Fallback for environments (like some Android runtimes) where HOME may be unset
+    return std::string(".");
 #endif
 }
 
 std::string ProgramConfig::getConfigDir() {
+#ifdef __ANDROID__
+    brls::Logger::info("getConfigDir() (Android) called");
+#else
+    brls::Logger::info("getConfigDir() called");
+#endif
 #ifdef __SWITCH__
     return "/config/wiliwili";
 #elif defined(PS4)
@@ -1127,29 +1149,61 @@ std::string ProgramConfig::getConfigDir() {
 #else
 #ifdef _DEBUG
     char currentPathBuffer[PATH_MAX];
-    std::string currentPath = getcwd(currentPathBuffer, sizeof(currentPathBuffer));
+    if (getcwd(currentPathBuffer, sizeof(currentPathBuffer)) != nullptr) {
+        std::string currentPath(currentPathBuffer);
 #ifdef _WIN32
-    return currentPath + "\\config\\wiliwili";
+        return currentPath + "\\config\\wiliwili";
 #else
-    return currentPath + "/config/wiliwili";
+        return currentPath + "/config/wiliwili";
 #endif /* _WIN32 */
+    } else {
+        brls::Logger::warning("getConfigDir: getcwd returned null in _DEBUG");
+#ifdef _WIN32
+        return std::string(".\\config\\wiliwili");
+#else
+        return std::string("./config/wiliwili");
+#endif
+    }
 #else
 #ifdef __APPLE__
-    return std::string(getenv("HOME")) + "/Library/Application Support/wiliwili";
+    return getHomePath() + "/Library/Application Support/wiliwili";
 #endif
 #ifdef __linux__
     std::string config = "";
-    char* config_home  = getenv("XDG_CONFIG_HOME");
-    if (config_home) config = std::string(config_home);
-    if (config.empty()) config = std::string(getenv("HOME")) + "/.config";
-    return config + "/wiliwili";
+    char* config_home = getenv("XDG_CONFIG_HOME");
+    brls::Logger::info("XDG_CONFIG_HOME ptr: {}", (void*)config_home);
+    if (config_home) {
+        try {
+            config = std::string(config_home);
+            brls::Logger::info("XDG_CONFIG_HOME value: {}", config);
+        } catch (...) {
+            brls::Logger::info("Failed to read XDG_CONFIG_HOME");
+            config.clear();
+        }
+    }
+    if (config.empty()) {
+        std::string home = getHomePath();
+        brls::Logger::info("getHomePath returned: {}", home);
+        if (home.empty()) home = ".";
+        config = home + "/.config";
+    }
+    std::string res = config + "/wiliwili";
+    brls::Logger::info("getConfigDir -> {}", res);
+    return res;
 #endif
 #ifdef _WIN32
     WCHAR wpath[MAX_PATH];
-    std::vector<char> lpath(MAX_PATH);
-    SHGetSpecialFolderPathW(0, wpath, CSIDL_LOCAL_APPDATA, false);
-    WideCharToMultiByte(CP_UTF8, 0, wpath, std::wcslen(wpath), lpath.data(), lpath.size(), nullptr, nullptr);
-    return std::string(lpath.data()) + "\\xfangfang\\wiliwili";
+    if (SHGetSpecialFolderPathW(NULL, wpath, CSIDL_LOCAL_APPDATA, FALSE)) {
+        int len = WideCharToMultiByte(CP_UTF8, 0, wpath, -1, nullptr, 0, nullptr, nullptr);
+        if (len > 0) {
+            std::string utf8(len, '\0');
+            WideCharToMultiByte(CP_UTF8, 0, wpath, -1, &utf8[0], len, nullptr, nullptr);
+            if (!utf8.empty() && utf8.back() == '\0') utf8.pop_back();
+            return utf8 + "\\xfangfang\\wiliwili";
+        }
+    }
+    brls::Logger::warning("getConfigDir: SHGetSpecialFolderPathW failed, falling back to current dir");
+    return std::string(".\\xfangfang\\wiliwili");
 #endif
 #endif /* _DEBUG */
 #endif /* __SWITCH__ */
@@ -1187,31 +1241,41 @@ void ProgramConfig::exit(char* argv[]) {
 void ProgramConfig::loadCustomThemes() {
     customThemes.clear();
     std::string directoryPath = getConfigDir() + "/theme";
-    if (!cpr::fs::exists(directoryPath)) return;
+    try {
+        if (!cpr::fs::exists(directoryPath)) return;
+    } catch (const std::exception& e) {
+        brls::Logger::error("ProgramConfig::loadCustomThemes - fs::exists failed: {}", e.what());
+        return;
+    }
 
-    for (const auto& entry : cpr::fs::directory_iterator(getConfigDir() + "/theme")) {
-        if (!cpr::fs::is_directory(entry)) continue;
-        std::string subDirectory = entry.path().string();
-        std::string jsonFilePath = subDirectory + "/resources_meta.json";
-        if (!cpr::fs::exists(jsonFilePath)) continue;
+    try {
+        for (const auto& entry : cpr::fs::directory_iterator(directoryPath)) {
+            if (!cpr::fs::is_directory(entry)) continue;
+            std::string subDirectory = entry.path().string();
+            std::string jsonFilePath = subDirectory + "/resources_meta.json";
+            if (!cpr::fs::exists(jsonFilePath)) continue;
 
-        std::ifstream readFile(jsonFilePath);
-        if (readFile) {
-            try {
-                nlohmann::json content;
-                readFile >> content;
-                readFile.close();
-                CustomTheme customTheme;
-                customTheme.path = subDirectory + "/";
-                customTheme.id   = entry.path().filename().string();
-                content.get_to(customTheme);
-                customThemes.emplace_back(customTheme);
-                brls::Logger::info("Load custom theme \"{}\" from: {}", customTheme.name, jsonFilePath);
-            } catch (const std::exception& e) {
-                brls::Logger::error("CustomTheme::load: {}", e.what());
-                continue;
+            std::ifstream readFile(jsonFilePath);
+            if (readFile) {
+                try {
+                    nlohmann::json content;
+                    readFile >> content;
+                    readFile.close();
+                    CustomTheme customTheme;
+                    customTheme.path = subDirectory + "/";
+                    customTheme.id   = entry.path().filename().string();
+                    content.get_to(customTheme);
+                    customThemes.emplace_back(customTheme);
+                    brls::Logger::info("Load custom theme \"{}\" from: {}", customTheme.name, jsonFilePath);
+                } catch (const std::exception& e) {
+                    brls::Logger::error("CustomTheme::load: {}", e.what());
+                    continue;
+                }
             }
         }
+    } catch (const std::exception& e) {
+        brls::Logger::error("ProgramConfig::loadCustomThemes - directory iteration failed: {}", e.what());
+        return;
     }
 }
 
