@@ -417,7 +417,7 @@ jobs:
   build-flatpak:
     needs: [ version ]
     container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-24.08
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
       options: --privileged
     strategy:
       matrix:
