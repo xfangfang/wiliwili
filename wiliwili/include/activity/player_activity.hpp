@@ -136,6 +136,7 @@ protected:
 
 private:
     bool activityShown = false;
+    bool firstVideoLoad = true;  // 用于在首次加载视频时触发自动全屏
     std::chrono::system_clock::time_point videoDeadline{};
 
     // 重新选择当前清晰度的播放链接播放

@@ -13,6 +13,7 @@
         "low_quality": "Decodifica di bassa qualità (Minor utilizzo CPU)",
         "in_memory_cache": "Inmemory cache",
         "hwdec": "Decodifica Hardware",
+        "auto_fullscreen": "Schermo intero automatico all'apertura del player",
         "exit_fullscreen": "Esci dallo schermo intero alla fine della riproduzione",
         "play_strategy": "Play strategy",
         "auto_play_next_part": "Riprodurre automaticamente la parte successiva",

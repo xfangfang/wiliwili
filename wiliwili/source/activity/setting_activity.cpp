@@ -689,6 +689,12 @@ void SettingActivity::onContentAvailable() {
                           MPVCore::AUTO_PLAY = value;
                       });
 
+    /// Auto fullscreen when entering player page
+    btnAutoFullscreen->init("wiliwili/setting/app/playback/auto_fullscreen"_i18n,
+                            conf.getBoolOption(SettingItem::PLAYER_AUTO_FULLSCREEN), [](bool value) {
+                                ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_AUTO_FULLSCREEN, value);
+                            });
+
     /// Decode quality
     btnQuality->init("wiliwili/setting/app/playback/low_quality"_i18n,
                      conf.getBoolOption(SettingItem::PLAYER_LOW_QUALITY), [](bool value) {

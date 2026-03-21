@@ -13,6 +13,7 @@
         "low_quality": "低品質ぬデコード (CPU使用率がふぃくくなやびーん)",
         "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
+        "auto_fullscreen": "動画プレーヤーに入る時に自動的に全画面表示",
         "exit_fullscreen": "再生終了時んかい全画面表示終了",
         "play_strategy": "プレイ方法",
         "auto_play_next_part": "次ぬパート自動再生",
