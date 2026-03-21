@@ -726,13 +726,10 @@ void BasePlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) 
 
     brls::Logger::debug("BasePlayerActivity::onVideoPlayUrl done");
 
-    // 首次加载视频时，根据配置决定是否自动全屏
-    if (firstVideoLoad) {
-        firstVideoLoad = false;
-        if (ProgramConfig::instance().getBoolOption(SettingItem::PLAYER_AUTO_FULLSCREEN) &&
-            !this->video->isFullscreen()) {
-            this->video->setFullScreen(true);
-        }
+    // 根据配置决定是否自动全屏
+    if (ProgramConfig::instance().getBoolOption(SettingItem::PLAYER_AUTO_FULLSCREEN) &&
+        !this->video->isFullscreen()) {
+        this->video->setFullScreen(true);
     }
 }
 
