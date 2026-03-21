@@ -8,11 +8,13 @@
       "tab": "アプリ",
       "playback": {
         "header": "再生",
+        "player": "Player",
         "report": "アップロード履歴と再生記録",
         "player_bar": "プログレスバーを常に表示する",
         "low_quality": "低品質のデコード (CPU使用率が低くなります)",
         "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
+        "auto_play": "Auto-play on video detail page",
         "exit_fullscreen": "再生終了時に全画面表示を終了",
         "play_strategy": "プレイ方法",
         "auto_play_next_part": "次のパートを自動再生",
@@ -21,9 +23,12 @@
         "auto_no": "再生後に動画を一時停止",
         "auto_hint": "「おすすめ動画を自動再生」はエピソード再生後におすすめ動画を自動再生します。",
         "sleep": "タイミングオフ",
+        "format": "Format",
         "video_codec": "ビデオコーデック",
         "audio_quality": "オーディオ品質",
-        "video_format": "動画の形式"
+        "video_format": "動画の形式",
+        "dolby": "Dolby Atmos",
+        "hi_res": "Hi-Res"
       },
       "image": {
         "header": "画像",
@@ -38,17 +43,25 @@
       },
       "ui": {
         "header": "UI",
-        "tv_osd": "TV style OSD control"
+        "window": "Window",
+        "bottom_bar": "Bottom bar",
+        "ui_style": "UI style",
+        "tv_osd": "TV style OSD control",
+        "live_sidebar_count": "Live Sidebar Danmaku Count",
+        "live_sidebar_hide": "Hide Sidebar"
       },
       "others": {
         "header": "その他",
         "vibration": "ゲームパッドの振動",
         "hide_bottom": "下のヒントバーを隠す",
         "hide_fps": "FPSを非表示",
+        "show_bottom": "Show bottom bar",
+        "show_fps": "Show FPS",
         "limited_fps": "最大フレーム数制限",
         "limited_fps_vsync": "垂直同期",
         "fullscreen": "フルスクリーン",
         "always_on_top": "Always on top",
+        "always_on_top_hint": "Auto: Automatically set the window to the top when the window size is small",
         "tv_search": "テレビスタイルの検索ページ",
         "clear_history": "検索履歴を削除",
         "clear_season": "番組のカスタム設定を消去",
@@ -82,6 +95,7 @@
         "opencc": "簡体字中国語を自動的に変換（再起動が必要です）",
         "keymap": {
           "header": "キーマップのスタイル",
+          "swap": "Swap AB/XY",
           "xbox": "Xbox",
           "ps": "PlayStation",
           "keyboard": "キーボード"
@@ -111,7 +125,9 @@
         "dlna_waiting": "DLNAキャストを待機中...",
         "dlna_quit": "DLNAキャストを終了しますか？",
         "up2date": "アプリは最新です",
+        "checking_update": "Checking for updates...",
         "release": "更新を確認",
+        "config_dir": "Config directory",
         "config": "設定ディレクトリを開く"
       }
     },
@@ -227,6 +243,10 @@
       "history_delete": "削除",
       "suggest": "提案"
     },
+    "history": {
+      "clear": "Delete search history",
+      "clear_hint": "Your search history will be permanently deleted from this device"
+    },
     "order": {
       "all": "All",
       "click": "Click",
@@ -244,6 +264,30 @@
   "activity": {
     "all": "全ての活動",
     "refresh": "リストを更新"
+  },
+  "inbox": {
+    "chat": {
+      "tab": "Chat List",
+      "hint": "Send a message to start chatting ~",
+      "unknown": "The message type is currently not supported"
+    },
+    "tab": {
+      "like": "Likes",
+      "at": "@me",
+      "reply": "Replies"
+    },
+    "type": {
+      "video": "video",
+      "reply": "comment",
+      "article": "article",
+      "dynamic": "activity",
+      "danmu": "danmaku",
+      "album": "activity"
+    },
+    "more": "and {} people liked my {}",
+    "like": "liked my {}",
+    "at": "@me at {}",
+    "reply": "replied to my {}"
   },
   "mine": {
     "login": {
@@ -399,7 +443,11 @@
         "color": "カラー",
         "advanced": "高度",
         "level": "フィルターレベル",
-        "level_n": "レベル {}"
+        "level_n": "レベル {}",
+        "level_live": "Danmaku filter level",
+        "level_live_none": "No filter (UL0+)",
+        "level_live_n": "UL{} and above",
+        "level_live_60": "UL60 only"
       },
       "style": {
         "header": "弾幕のスタイル",
