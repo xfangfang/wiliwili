@@ -47,8 +47,8 @@
         "bottom_bar": "하단바",
         "ui_style": "UI 스타일",
         "tv_osd": "TV 스타일 OSD 제어",
-        "live_sidebar_count": "Live Sidebar Danmaku Count",
-        "live_sidebar_hide": "Hide Sidebar"
+        "live_sidebar_count": "라이브 사이드바 탄막 수",
+        "live_sidebar_hide": "사이드바 숨기기"
       },
       "others": {
         "header": "기타",
@@ -444,10 +444,10 @@
         "advanced": "고급 설정",
         "level": "필터 수준",
         "level_n": "수준 {}",
-        "level_live": "Danmaku filter level",
-        "level_live_none": "No filter (UL0+)",
-        "level_live_n": "UL{} and above",
-        "level_live_60": "UL60 only"
+        "level_live": "탄막 필터 수준",
+        "level_live_none": "필터 없음 (UL0+)",
+        "level_live_n": "UL{} 이상",
+        "level_live_60": "UL60만"
       },
       "style": {
         "header": "탄막 스타일",

@@ -8,13 +8,13 @@
       "tab": "アプリ",
       "playback": {
         "header": "再生",
-        "player": "Player",
+        "player": "プレーヤー",
         "report": "アップロード履歴と再生記録",
         "player_bar": "プログレスバーを常に表示する",
         "low_quality": "低品質のデコード (CPU使用率が低くなります)",
         "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
-        "auto_play": "Auto-play on video detail page",
+        "auto_play": "動画詳細ページで自動再生",
         "exit_fullscreen": "再生終了時に全画面表示を終了",
         "play_strategy": "プレイ方法",
         "auto_play_next_part": "次のパートを自動再生",
@@ -23,7 +23,7 @@
         "auto_no": "再生後に動画を一時停止",
         "auto_hint": "「おすすめ動画を自動再生」はエピソード再生後におすすめ動画を自動再生します。",
         "sleep": "タイミングオフ",
-        "format": "Format",
+        "format": "フォーマット",
         "video_codec": "ビデオコーデック",
         "audio_quality": "オーディオ品質",
         "video_format": "動画の形式",
@@ -43,25 +43,25 @@
       },
       "ui": {
         "header": "UI",
-        "window": "Window",
-        "bottom_bar": "Bottom bar",
-        "ui_style": "UI style",
-        "tv_osd": "TV style OSD control",
-        "live_sidebar_count": "Live Sidebar Danmaku Count",
-        "live_sidebar_hide": "Hide Sidebar"
+        "window": "ウィンドウ",
+        "bottom_bar": "ボトムバー",
+        "ui_style": "UIスタイル",
+        "tv_osd": "テレビスタイルOSD制御",
+        "live_sidebar_count": "ライブサイドバーの弾幕数",
+        "live_sidebar_hide": "サイドバーを隠す"
       },
       "others": {
         "header": "その他",
         "vibration": "ゲームパッドの振動",
         "hide_bottom": "下のヒントバーを隠す",
         "hide_fps": "FPSを非表示",
-        "show_bottom": "Show bottom bar",
-        "show_fps": "Show FPS",
+        "show_bottom": "ヒントバーを表示",
+        "show_fps": "FPSを表示",
         "limited_fps": "最大フレーム数制限",
         "limited_fps_vsync": "垂直同期",
         "fullscreen": "フルスクリーン",
-        "always_on_top": "Always on top",
-        "always_on_top_hint": "Auto: Automatically set the window to the top when the window size is small",
+        "always_on_top": "常に最前面に表示",
+        "always_on_top_hint": "自動: ウィンドウサイズが小さい場合に自動的に最前面に設定",
         "tv_search": "テレビスタイルの検索ページ",
         "clear_history": "検索履歴を削除",
         "clear_season": "番組のカスタム設定を消去",
@@ -95,7 +95,7 @@
         "opencc": "簡体字中国語を自動的に変換（再起動が必要です）",
         "keymap": {
           "header": "キーマップのスタイル",
-          "swap": "Swap AB/XY",
+          "swap": "AB/XYを入れ替え",
           "xbox": "Xbox",
           "ps": "PlayStation",
           "keyboard": "キーボード"
@@ -125,9 +125,9 @@
         "dlna_waiting": "DLNAキャストを待機中...",
         "dlna_quit": "DLNAキャストを終了しますか？",
         "up2date": "アプリは最新です",
-        "checking_update": "Checking for updates...",
+        "checking_update": "更新を確認中...",
         "release": "更新を確認",
-        "config_dir": "Config directory",
+        "config_dir": "設定ディレクトリ",
         "config": "設定ディレクトリを開く"
       }
     },
@@ -227,9 +227,9 @@
     }
   },
   "dynamic": {
-    "detail": "Activity detail",
-    "video": "Video",
-    "article": "Activity"
+    "detail": "アクティビティの詳細",
+    "video": "動画",
+    "article": "アクティビティ"
   },
   "search": {
     "tv": {
@@ -244,15 +244,15 @@
       "suggest": "提案"
     },
     "history": {
-      "clear": "Delete search history",
-      "clear_hint": "Your search history will be permanently deleted from this device"
+      "clear": "検索履歴を削除",
+      "clear_hint": "検索履歴はこのデバイスから完全に削除されます"
     },
     "order": {
-      "all": "All",
-      "click": "Click",
-      "pubdate": "PublishDate",
-      "dm": "Danmaku",
-      "stow": "Favorite"
+      "all": "全て",
+      "click": "再生回数",
+      "pubdate": "公開日",
+      "dm": "弾幕数",
+      "stow": "お気に入り数"
     },
     "tab": "検索",
     "t0": "履歴",
@@ -267,27 +267,27 @@
   },
   "inbox": {
     "chat": {
-      "tab": "Chat List",
-      "hint": "Send a message to start chatting ~",
-      "unknown": "The message type is currently not supported"
+      "tab": "チャットリスト",
+      "hint": "メッセージを送ってチャットを始めましょう ~",
+      "unknown": "このメッセージタイプは現在サポートされていません"
     },
     "tab": {
-      "like": "Likes",
-      "at": "@me",
-      "reply": "Replies"
+      "like": "いいね",
+      "at": "@私",
+      "reply": "返信"
     },
     "type": {
-      "video": "video",
-      "reply": "comment",
-      "article": "article",
-      "dynamic": "activity",
-      "danmu": "danmaku",
-      "album": "activity"
+      "video": "動画",
+      "reply": "コメント",
+      "article": "記事",
+      "dynamic": "アクティビティ",
+      "danmu": "弾幕",
+      "album": "アクティビティ"
     },
-    "more": "and {} people liked my {}",
-    "like": "liked my {}",
-    "at": "@me at {}",
-    "reply": "replied to my {}"
+    "more": "と{}人が私の{}にいいねしました",
+    "like": "私の{}にいいねしました",
+    "at": "{}で@されました",
+    "reply": "私の{}に返信しました"
   },
   "mine": {
     "login": {
@@ -337,7 +337,7 @@
     "recommend": "おすすめ",
     "uploaded": "その他",
     "qr": "QRコードを読み取って視聴/共有",
-    "clipboard": "Copied to clipboard",
+    "clipboard": "クリップボードにコピーしました",
     "comment": "コメント",
     "current": " みんなが見ている",
     "share": "シェア",
@@ -405,8 +405,8 @@
       },
       "aspect": {
         "header": "ビデオアスペクト比",
-        "crop": "Crop",
-        "stretch": "Stretch",
+        "crop": "クロップ",
+        "stretch": "ストレッチ",
         "auto": "自動"
       },
       "shader": {
@@ -444,10 +444,10 @@
         "advanced": "高度",
         "level": "フィルターレベル",
         "level_n": "レベル {}",
-        "level_live": "Danmaku filter level",
-        "level_live_none": "No filter (UL0+)",
-        "level_live_n": "UL{} and above",
-        "level_live_60": "UL60 only"
+        "level_live": "弾幕フィルタレベル",
+        "level_live_none": "フィルターなし (UL0+)",
+        "level_live_n": "UL{}以上",
+        "level_live_60": "UL60のみ"
       },
       "style": {
         "header": "弾幕のスタイル",
@@ -455,7 +455,7 @@
         "font_stroke": "ストローク",
         "font_incline": "インクライン",
         "font_shadow": "シャドウ",
-        "font_pure": "Pure",
+        "font_pure": "ピュア",
         "area": "表示範囲",
         "area_1_4": "1/4 スクリーン",
         "area_2_4": "1/2 スクリーン",
