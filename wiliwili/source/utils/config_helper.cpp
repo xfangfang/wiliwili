@@ -209,6 +209,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DANMAKU_FILTER_ADVANCED, {"danmaku_filter_advanced", {}, {}, 0}},
     {SettingItem::DANMAKU_SMART_MASK, {"danmaku_smart_mask", {}, {}, 1}},
     {SettingItem::SEARCH_TV_MODE, {"search_tv_mode", {}, {}, 1}},
+    {SettingItem::PLAYER_HIGHLIGHT_TRANSITION, {"player_highlight_transition", {}, {}, 0}},
     {SettingItem::HTTP_PROXY_STATUS, {"http_proxy_status", {}, {}, 0}},
     {SettingItem::TLS_VERIFY,
      {"tls_verify",
@@ -636,6 +637,9 @@ void ProgramConfig::load() {
 
     // 初始化是否固定显示底部高能进度条
     VideoView::HIGHLIGHT_PROGRESS_BAR = getBoolOption(SettingItem::PLAYER_HIGHLIGHT_BAR);
+
+    // 初始化焦点高亮过渡动画
+    brls::View::enableHighlightTransition(getBoolOption(SettingItem::PLAYER_HIGHLIGHT_TRANSITION));
 
     // 初始化是否使用硬件加速
 #if defined(__PSV__) && defined(BOREALIS_USE_OPENGL)

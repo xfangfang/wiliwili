@@ -66,6 +66,7 @@ private:
     BRLS_BIND(brls::BooleanCell, cellShowFPS, "cell/showFPS");
     BRLS_BIND(brls::BooleanCell, cellTvSearch, "cell/tvSearch");
     BRLS_BIND(brls::BooleanCell, cellTvOSD, "cell/tvOSD");
+    BRLS_BIND(brls::BooleanCell, cellHighlightTransition, "cell/highlightTransition");
     BRLS_BIND(brls::BooleanCell, cellFullscreen, "cell/fullscreen");
     BRLS_BIND(BiliSelectorCell, cellOnTopMode, "cell/onTopMode");
     BRLS_BIND(brls::BooleanCell, cellVibration, "cell/gamepadVibration");
