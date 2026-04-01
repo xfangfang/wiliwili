@@ -4,6 +4,7 @@
 
 #include <limits>
 #include <cmath>
+#include <thread>
 
 #include <borealis/views/label.hpp>
 #include <borealis/views/progress_spinner.hpp>
@@ -11,7 +12,10 @@
 #include <borealis/core/thread.hpp>
 #include <borealis/views/slider.hpp>
 #include <borealis/views/applet_frame.hpp>
+#include <borealis/core/cache_helper.hpp>
 #include <pystring.h>
+#include <stb_image.h>
+#include <cpr/cpr.h>
 
 #include "utils/number_helper.hpp"
 #include "utils/config_helper.hpp"
@@ -33,6 +37,7 @@
 #include "view/video_profile.hpp"
 #include "view/danmaku_core.hpp"
 #include "view/mpv_core.hpp"
+#include "api/bilibili/util/http.hpp"
 
 enum ClickState { IDLE = 0, PRESS = 1, FAST_RELEASE = 3, FAST_PRESS = 4, CLICK_DOUBLE = 5 };
 
@@ -152,6 +157,7 @@ VideoView::VideoView() {
     osdSlider->getProgressSetEvent()->subscribe([this](float progress) {
         brls::Logger::verbose("Set progress: {}", progress);
         this->showOSD(true);
+        this->showThumbnailPreview = false;
         if (real_duration > 0) {
             // 当设置了视频时长数据
             mpvCore->seek((float)real_duration * progress);
@@ -163,9 +169,18 @@ VideoView::VideoView() {
     osdSlider->getProgressEvent()->subscribe([this](float progress) {
         this->showOSD(false);
         leftStatusLabel->setText(wiliwili::sec2Time(getRealDuration() * progress));
+        this->previewProgress      = progress;
+        this->showThumbnailPreview = snapshotData.isValid();
+        // 预加载当前位置需要的精灵图
+        if (snapshotData.isValid()) {
+            int tilesPerSheet = snapshotData.img_x_len * snapshotData.img_y_len;
+            int imageIdx      = findSnapshotIndex(getRealDuration() * progress);
+            loadSnapshotTexture((size_t)(imageIdx / tilesPerSheet));
+        }
     });
 
     osdSlider->getProgressCancelEvent()->subscribe([this]() {
+        this->showThumbnailPreview = false;
         if (isTvControlMode) hideOSD();
     });
 
@@ -512,6 +527,15 @@ VideoView::VideoView() {
             osdSlider->addClipPoint(*(float*)data);
         } else if (event == VideoView::HIGHLIGHT_INFO) {
             this->setHighlightProgress(*(VideoHighlightData*)data);
+        } else if (event == VideoView::SNAPSHOT_INFO) {
+            auto* snapshotPtr = (bilibili::VideoSnapshotData*)data;
+            if (snapshotPtr->isValid()) {
+                this->snapshotData     = *snapshotPtr;
+                this->snapshotTextures.assign(snapshotData.image.size(), 0);
+                this->snapshotLoading.assign(snapshotData.image.size(), false);
+                // Preload the first sprite sheet
+                this->loadSnapshotTexture(0);
+            }
         } else if (event == VideoView::REPLAY) {
             // 显示重播按钮
             showReplay = true;
@@ -573,10 +597,20 @@ void VideoView::requestSeeking(int seek, int delay) {
     osdSlider->setProgress((float)progress);
     leftStatusLabel->setText(wiliwili::sec2Time(getRealDuration() * progress));
 
+    // 更新缩略图预览
+    this->previewProgress      = (float)progress;
+    this->showThumbnailPreview = snapshotData.isValid();
+    if (snapshotData.isValid()) {
+        int tilesPerSheet = snapshotData.img_x_len * snapshotData.img_y_len;
+        int imageIdx      = findSnapshotIndex(getRealDuration() * (float)progress);
+        loadSnapshotTexture((size_t)(imageIdx / tilesPerSheet));
+    }
+
     // 取消之前的延迟触发
     brls::cancelDelay(seeking_iter);
     if (delay <= 0) {
         this->hideCenterHint();
+        this->showThumbnailPreview = false;
         seeking_range = 0;
         is_seeking    = false;
         if (seek == 0) return;
@@ -589,6 +623,7 @@ void VideoView::requestSeeking(int seek, int delay) {
         seeking_iter = brls::delay(delay, [ASYNC_TOKEN, seek]() {
             ASYNC_RELEASE
             this->hideCenterHint();
+            this->showThumbnailPreview = false;
             seeking_range = 0;
             is_seeking    = false;
             if (seek == 0) return;
@@ -600,6 +635,7 @@ void VideoView::requestSeeking(int seek, int delay) {
 
 VideoView::~VideoView() {
     brls::Logger::debug("trying delete VideoView...");
+    *snapshotAlive = false;
     this->unRegisterMpvEvent();
     APP_E->unsubscribe(customEventSubscribeID);
     brls::Logger::debug("Delete VideoView done");
@@ -721,6 +757,9 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
     // center hint
     osdCenterBox2->frame(ctx);
 
+    // draw thumbnail preview (shown when dragging the progress slider)
+    drawThumbnailPreview(vg, x, y, width, height);
+
     // draw video profile
     videoProfile->frame(ctx);
 }
@@ -759,6 +798,146 @@ void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y, float wi
     }
     nvgLineTo(vg, x + width, baseY);
     nvgFill(vg);
+}
+
+int VideoView::findSnapshotIndex(float seekTime) const {
+    // index[0] is always 0 (sentinel).
+    // index[i] (i >= 1) is the capture time for image (i-1) in seconds.
+    // Find the largest n >= 1 such that index[n] <= seekTime; the 0-based image index is n-1.
+    int imageIdx        = 0;
+    const auto& idx     = snapshotData.index;
+    for (int i = 1; i < (int)idx.size(); i++) {
+        if (idx[i] <= (int)seekTime) {
+            imageIdx = i - 1;
+        } else {
+            break;
+        }
+    }
+    return imageIdx;
+}
+
+void VideoView::loadSnapshotTexture(size_t index) {
+    if (index >= snapshotData.image.size()) return;
+    if (index < snapshotTextures.size() && snapshotTextures[index] > 0) return;
+    if (index < snapshotLoading.size() && snapshotLoading[index]) return;
+
+    while (snapshotTextures.size() <= index) snapshotTextures.push_back(0);
+    while (snapshotLoading.size() <= index) snapshotLoading.push_back(false);
+    snapshotLoading[index] = true;
+
+    std::string url  = bilibili::HTTP::PROTOCOL + snapshotData.image[index];
+    auto alive       = snapshotAlive;
+
+    std::thread([this, alive, url, index]() {
+        // Check cache first
+        int tex = brls::TextureCache::instance().getCache(url);
+        if (tex > 0) {
+            brls::sync([this, alive, tex, index]() {
+                if (!*alive) return;
+                if (index < snapshotTextures.size()) {
+                    snapshotTextures[index] = tex;
+                    snapshotLoading[index]  = false;
+                }
+            });
+            return;
+        }
+
+        cpr::Session session;
+        session.SetUrl(cpr::Url{url});
+        session.SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
+        session.SetConnectTimeout(cpr::ConnectTimeout{bilibili::HTTP::CONNECTION_TIMEOUT});
+        session.SetVerifySsl(bilibili::HTTP::VERIFY);
+        session.SetProxies(bilibili::HTTP::PROXIES);
+        cpr::Response r = session.Get();
+
+        if (r.status_code != 200 || r.downloaded_bytes == 0) {
+            brls::sync([this, alive, index]() {
+                if (!*alive) return;
+                if (index < snapshotLoading.size()) snapshotLoading[index] = false;
+            });
+            return;
+        }
+
+        int imageW = 0, imageH = 0, n;
+        uint8_t* imageData = stbi_load_from_memory((unsigned char*)r.text.data(),
+                                                   (int)r.downloaded_bytes, &imageW, &imageH, &n, 4);
+        if (!imageData) {
+            brls::sync([this, alive, index]() {
+                if (!*alive) return;
+                if (index < snapshotLoading.size()) snapshotLoading[index] = false;
+            });
+            return;
+        }
+
+        brls::sync([this, alive, url, imageData, imageW, imageH, index]() {
+            if (!*alive) {
+                stbi_image_free(imageData);
+                return;
+            }
+            NVGcontext* vg = brls::Application::getNVGContext();
+            int tex        = nvgCreateImageRGBA(vg, imageW, imageH, 0, imageData);
+            stbi_image_free(imageData);
+            if (tex > 0) brls::TextureCache::instance().addCache(url, tex);
+            if (index < snapshotTextures.size()) {
+                snapshotTextures[index] = tex;
+                snapshotLoading[index]  = false;
+            }
+        });
+    }).detach();
+}
+
+void VideoView::drawThumbnailPreview(NVGcontext* vg, float x, float y, float width, float height) {
+    if (!showThumbnailPreview || !snapshotData.isValid()) return;
+    if (snapshotTextures.empty()) return;
+
+    int imageIdx      = findSnapshotIndex(getRealDuration() * previewProgress);
+    int tilesPerSheet = snapshotData.img_x_len * snapshotData.img_y_len;
+    size_t sheetIdx   = (size_t)(imageIdx / tilesPerSheet);
+    int posInSheet    = imageIdx % tilesPerSheet;
+
+    // Start loading the needed sprite sheet if not yet loaded
+    loadSnapshotTexture(sheetIdx);
+
+    if (sheetIdx >= snapshotTextures.size() || snapshotTextures[sheetIdx] <= 0) return;
+
+    int col    = posInSheet % snapshotData.img_x_len;
+    int row    = posInSheet / snapshotData.img_x_len;
+    float srcX = (float)(col * snapshotData.img_x_size);
+    float srcY = (float)(row * snapshotData.img_y_size);
+
+    // Display at 2x original size
+    float displayW = (float)(snapshotData.img_x_size * 2);
+    float displayH = (float)(snapshotData.img_y_size * 2);
+
+    // Center horizontally, place slightly above center vertically
+    float dstX = x + (width - displayW) / 2.0f;
+    float dstY = y + (height - displayH) / 2.0f - 60.0f;
+
+    float totalW  = (float)(snapshotData.img_x_len * snapshotData.img_x_size);
+    float totalH  = (float)(snapshotData.img_y_len * snapshotData.img_y_size);
+    float scaleX  = displayW / (float)snapshotData.img_x_size;
+    float scaleY  = displayH / (float)snapshotData.img_y_size;
+
+    // Background
+    nvgBeginPath(vg);
+    nvgRoundedRect(vg, dstX - 3, dstY - 3, displayW + 6, displayH + 6, 3);
+    nvgFillColor(vg, nvgRGBAf(0.0f, 0.0f, 0.0f, 0.8f));
+    nvgFill(vg);
+
+    // Thumbnail: use scissor to clip to the display rect, then paint the full sprite sheet
+    nvgSave(vg);
+    nvgScissor(vg, dstX, dstY, displayW, displayH);
+    NVGpaint paint = nvgImagePattern(vg,
+                                     dstX - srcX * scaleX,
+                                     dstY - srcY * scaleY,
+                                     totalW * scaleX,
+                                     totalH * scaleY,
+                                     0, snapshotTextures[sheetIdx], 1.0f);
+    nvgBeginPath(vg);
+    nvgRect(vg, dstX, dstY, displayW, displayH);
+    nvgFillPaint(vg, paint);
+    nvgFill(vg);
+    nvgRestore(vg);
 }
 
 void VideoView::invalidate() { View::invalidate(); }
@@ -1231,6 +1410,12 @@ void VideoView::setFullScreen(bool fs) {
         video->osdSlider->setClipPoint(osdSlider->getClipPoint());
         video->refreshToggleIcon();
         video->setHighlightProgress(highlightData);
+        // 传递快照数据给全屏 VideoView
+        if (snapshotData.isValid()) {
+            video->snapshotData     = snapshotData;
+            video->snapshotTextures = snapshotTextures;
+            video->snapshotLoading.assign(snapshotData.image.size(), false);
+        }
         if (this->isLiveMode) video->setLiveMode();
         video->setCustomToggleAction(customToggleAction);
         DanmakuCore::instance().refresh();
@@ -1571,6 +1756,14 @@ void VideoView::registerMpvEvent() {
                 // 重置进度条标记点
                 osdSlider->clearClipPoint();
                 real_duration = 0;
+                // 重置视频快照数据
+                snapshotData         = bilibili::VideoSnapshotData{};
+                snapshotTextures.clear();
+                snapshotLoading.clear();
+                showThumbnailPreview = false;
+                // 让旧的加载线程失效
+                *snapshotAlive = false;
+                snapshotAlive  = std::make_shared<bool>(true);
                 break;
             default:
                 break;

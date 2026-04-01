@@ -292,6 +292,8 @@ void VideoDetail::requestVideoUrl(const std::string& bvid, uint64_t cid, bool re
     this->requestVideoPageDetail(bvid, cid, requestHistoryInfo);
     // 请求高能进度条
     this->requestHighlightProgress(cid);
+    // 请求视频快照（缩略图）
+    this->requestVideoSnapshot(bvid, cid);
 }
 
 /// 获取番剧地址
@@ -327,6 +329,8 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, uint64_t cid, b
     this->requestVideoPageDetail(bvid, cid, requestHistoryInfo);
     // 请求高能进度条
     this->requestHighlightProgress(cid);
+    // 请求视频快照（缩略图）
+    this->requestVideoSnapshot(bvid, cid);
 }
 
 /// 获取投屏地址
@@ -703,6 +707,23 @@ void VideoDetail::requestHighlightProgress(uint64_t cid) {
             ASYNC_RELEASE
             brls::Logger::error("HighlightProgress: {}", error);
             this->onHighlightProgress(bilibili::VideoHighlightProgress{});
+        });
+}
+
+void VideoDetail::requestVideoSnapshot(const std::string& bvid, uint64_t cid) {
+    brls::Logger::debug("请求视频快照：bvid: {} cid: {}", bvid, cid);
+    ASYNC_RETAIN
+    BILI::get_video_snapshot(
+        bvid, cid,
+        [ASYNC_TOKEN](const bilibili::VideoSnapshotData& result) {
+            brls::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                this->onVideoSnapshot(result);
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
+            brls::Logger::error("VideoSnapshot: {}", error);
         });
 }
 

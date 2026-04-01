@@ -4,11 +4,13 @@
 
 #pragma once
 
+#include <memory>
 #include <borealis/core/bind.hpp>
 #include <borealis/core/box.hpp>
 #include <borealis/core/application.hpp>
 
 #include "utils/event_helper.hpp"
+#include "bilibili/result/video_detail_result.h"
 
 namespace brls {
 class Label;
@@ -250,6 +252,7 @@ public:
     inline static const std::string REPLAY         = "REPLAY";
     inline static const std::string CLIP_INFO      = "CLIP_INFO";
     inline static const std::string HIGHLIGHT_INFO = "HIGHLIGHT_INFO";
+    inline static const std::string SNAPSHOT_INFO  = "SNAPSHOT_INFO";
     inline static const std::string REAL_DURATION  = "REAL_DURATION";
 
     // 用于指定 lastPlayedPosition 的值
@@ -353,6 +356,24 @@ private:
     brls::Time hintLastShowTime    = 0;
     int64_t lastPlayedPosition = POSITION_UNDEFINED;
     VideoHighlightData highlightData;  // 在播放器进度条上显示的标记点（用来展示片头片尾标记）
+
+    // 视频快照（缩略图）数据，用于进度跳转时预览
+    bilibili::VideoSnapshotData snapshotData;
+    std::vector<int> snapshotTextures;   // NVG 纹理 ID，每个精灵图对应一个
+    std::vector<bool> snapshotLoading;   // 是否正在加载对应精灵图
+    bool showThumbnailPreview  = false;  // 是否显示缩略图预览
+    float previewProgress      = 0;      // 当前预览的进度（0~1）
+    // 用于确保快照加载线程中 this 仍然有效
+    std::shared_ptr<bool> snapshotAlive = std::make_shared<bool>(true);
+
+    /// 加载指定精灵图
+    void loadSnapshotTexture(size_t index);
+
+    /// 根据时间（秒）找到对应的 0-based 缩略图索引
+    int findSnapshotIndex(float seekTime) const;
+
+    /// 绘制缩略图预览
+    void drawThumbnailPreview(NVGcontext* vg, float x, float y, float width, float height);
 
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);

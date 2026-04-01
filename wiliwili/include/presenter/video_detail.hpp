@@ -32,6 +32,7 @@ public:
     virtual void onUploadedVideos(const bilibili::UserUploadedVideoResultWrapper& result) {}
     virtual void onDanmakuInfo() {}
     virtual void onHighlightProgress(const bilibili::VideoHighlightProgress& result) {}
+    virtual void onVideoSnapshot(const bilibili::VideoSnapshotData& result) {}
     virtual void onVideoRecommend() {}
     virtual void onError(const std::string& error) {}
     virtual void onVideoOnlineCount(const bilibili::VideoOnlineTotal& result) {}
@@ -96,6 +97,9 @@ public:
 
     /// 获取视频高能进度条
     void requestHighlightProgress(uint64_t cid);
+
+    /// 获取视频快照（缩略图）
+    void requestVideoSnapshot(const std::string& bvid, uint64_t cid);
 
     /// 获取视频分P详情
     void requestVideoPageDetail(const std::string& bvid, uint64_t cid, bool requestHistoryInfo = true);
