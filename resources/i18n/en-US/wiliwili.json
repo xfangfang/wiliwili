@@ -1,487 +1,499 @@
 {
-  "title": "wiliwili",
-  "github": "https://github.com/xfangfang/wiliwili",
-  "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
-  "setting": {
-    "quit_hint": "You are about to exit the application. The settings will take effect after the next startup",
-    "app": {
-      "tab": "App",
-      "playback": {
-        "header": "Playback",
-        "player": "Player",
-        "report": "Upload history playback record",
-        "player_bar": "Always show progress bar",
-        "low_quality": "Low quality decoding (with less CPU usage)",
-        "in_memory_cache": "Inmemory cache",
-        "hwdec": "Hardware decode",
-        "auto_play": "Auto-play on video detail page",
-        "exit_fullscreen": "Exit full screen at the end of playback",
-        "play_strategy": "Play strategy",
-        "auto_play_next_part": "Automatically playing next part",
-        "auto_play_recommend": "Automatically playing recommend video",
-        "auto_loop": "Loop current video",
-        "auto_no": "Pause video after playing",
-        "auto_hint": "\"Automatically playing recommend video\" will automatically play recommended videos after the episode is played.",
-        "sleep": "Timing Off",
-        "format": "Format",
-        "video_codec": "Video Codec",
-        "audio_quality": "Audio Quality",
-        "video_format": "Video format",
-        "dolby": "Dolby Atmos",
-        "hi_res": "Hi-Res"
-      },
-      "image": {
-        "header": "Image",
-        "texture": "Number of picture texture caches",
-        "threads": "Number of image loading threads"
-      },
-      "network": {
-        "header": "Network",
-        "tls": "TLS verify",
-        "proxy": "Proxy",
-        "proxy_hint": "example: http://127.0.0.1:7890"
-      },
-      "ui": {
-        "header": "UI",
-        "window": "Window",
-        "bottom_bar": "Bottom bar",
-        "ui_style": "UI style",
-        "tv_osd": "TV style OSD control",
-        "live_sidebar_count": "Live Sidebar Danmaku Count",
-        "live_sidebar_hide": "Hide Sidebar"
-      },
-      "others": {
-        "header": "Others",
-        "vibration": "Gamepad vibration",
-        "hide_bottom": "Hide the hint bar below",
-        "hide_fps": "Hide FPS",
-        "show_bottom": "Show bottom bar",
-        "show_fps": "Show FPS",
-        "limited_fps": "Maximum frame limit",
-        "limited_fps_vsync": "Vertical Synchronization",
-        "fullscreen": "Fullscreen",
-        "always_on_top": "Always on top",
-        "always_on_top_hint": "Auto: Automatically set the window to the top when the window size is small",
-        "tv_search": "TV style search page",
-        "clear_history": "Clear search history",
-        "clear_season": "Clear bangumi custom settings",
-        "theme": {
-          "header": "Theme (restart required)",
-          "1": "Auto",
-          "2": "Light",
-          "3": "Dark"
-        },
-        "custom_theme": {
-          "header": "Custom Layout (restart required)"
-        },
-        "scale": {
-          "header": "UI Scale (restart required)",
-          "544p": "544p",
-          "720p": "720p",
-          "900p": "900p",
-          "1080p": "1080p"
-        },
-        "language": {
-          "header": "Language (restart required)",
-          "auto": "Auto",
-          "chinese_s": "简体中文",
-          "chinese_t": "繁體中文",
-          "english": "English",
-          "japanese": "日本語",
-          "ryukyuan": "島言葉",
-          "italiano": "Italiano",
-          "korean": "한국어"
-        },
-        "opencc": "Automatically convert Simplified Chinese (restart required)",
-        "keymap": {
-          "header": "Keymap style",
-          "swap": "Swap AB/XY",
-          "xbox": "Xbox",
-          "ps": "PlayStation",
-          "keyboard": "Keyboard"
-        }
-      }
-    },
-    "tools": {
-      "tab": "Tools",
-      "tutorial": {
-        "header": "Tutorial",
-        "intro": "Software introduction (online video; Chinese)",
-        "intro_bvid": "BV18W4y1q72C",
-        "wiki": "Access our wiki to get more information",
-        "open": "How to install desktop icon",
-        "error": "If you encounter a bug",
-        "hot_key": "Hot keys",
-        "font": "Set custom font"
-      },
-      "test": {
-        "header": "Diagnostics",
-        "net": "Network Diagnostics",
-        "vibration": "Vibration Test"
-      },
-      "others": {
-        "header": "Others",
-        "dlna": "DLNA Renderer",
-        "dlna_waiting": "Waiting for DLNA casting...",
-        "dlna_quit": "Exit the DLNA casting?",
-        "up2date": "App is up to date",
-        "checking_update": "Checking for updates...",
-        "release": "Check for updates",
-        "config_dir": "Config directory",
-        "config": "Open config directory"
-      }
-    },
-    "about": {
-      "tab": "About",
-      "brief_header": "Introduction",
-      "repository": "Repository",
-      "brief": "Yet another third-party bilibili client",
-      "repo_header": "Repository",
-      "author_header": "Author's speech",
-      "author": "一直想做个艺术家, 可惜程序员都没什么发挥的空间\n直到这个作品诞生，实现了：「在游戏机上看视频；用手机来玩游戏」\n或许算得上是一种行为艺术，这样的话我也就圆满了"
-    },
-    "opensource": {
-      "tab": "Opensource"
-    },
-    "tutorial": {
-      "error_q1": "Unable to access the network",
-      "error_a1": "1. Ensure the atmosphere and system firmware are up to date\n2. Confirm that the system time is correct\n3. Restore the default network settings, including IP, DNS, etc\n4.Using in China",
-      "error_q2": "Exits with random error",
-      "error_a2": "1. Using a Fat32 format memory card\n2. Ensure the atmosphere and system firmware are up to date\n3. Waiting for developers to repair",
-      "font_q1": "How to set custom font or keymap icon",
-      "font_a1": "1. Download the font or icon font you want\n2. Rename font to: font.ttf; Rename icon to: icon.ttf\n3. Place font files in the config directory\n4. Restart the application",
-      "font_q2": "FAQ",
-      "font_a2": "1. wiliwili prioritizes the display of custom fonts, with built-in fonts as a fallback\n2. \"Settings - Tools - Others\" provides a menu item to quickly open the config directory\n3. On Linux, wiliwili uses xdg-open to open the directory. If the configuration directory cannot be opened correctly, you can consider installing this tool"
-    },
-    "hot_keys": {
-      "common_header": "Common",
-      "common_content": "\uE0A4 / \uE0A5 Switch the primary page\n\uE0A6 / \uE0A7 Switch the secondary page",
-      "player_header": "Player",
-      "player_content": "\uE0C5 Speed up，double click \uE0C5 to lock\n\uE0A3 + \uE0A5 Seek forward\n\uE0A3 Toggle player OSD \n\uE0A2 Toggle danmaku"
-    },
-    "net": {
-      "test": {
-        "header": "Access Network",
-        "feed": "Test to get recommended videos"
-      },
-      "time": {
-        "header": "Time",
-        "subtitle": "Incorrect system time may cause network access failure",
-        "sys": "Current system time",
-        "net": "Get network time"
-      },
-      "profile": {
-        "header": "Network",
-        "subtitle": "Restoring network settings can also solve some problems",
-        "ip": "IP Address",
-        "dns": "DNS Address"
-      }
-    }
-  },
-  "hints": {
-    "hint1": "Select a game from home screen",
-    "hint2": "Hold the \uE0E5 key and click \uE0E0 to enter hbmenu",
-    "hint3": "In the hbmenu, select wiliwili",
-    "hint4": "Optional: Using provided wiliwili NSP forwarder (Please place wiliwili.nro in /switch/wiliwili.nro)",
-    "hint_nsp": "Click \uE0E0 to install NSP forwarder",
-    "hint_confirm": "Installing NSP forwarder may result in a ban\nPlease confirm again",
-    "hint_right": "The pictures are from the Internet, and the copyright belongs to Nintendo Co., Ltd"
-  },
-  "home": {
-    "common": {
-      "part": "Channel: ",
-      "recommend": "Recommend",
-      "search": "Search for videos",
-      "switch": "Switch",
-      "refresh": "Refresh",
-      "last": "Last",
-      "next": "Next",
-      "filter": "Filter",
-      "save": "Save",
-      "min": "Minutes",
-      "high": "High",
-      "medium": "Medium",
-      "low": "Low",
-      "no_login": "You are not logged in yet"
-    },
-    "live": {
-      "tab": "Live",
-      "dialog": "Channels",
-      "default": "Channel: Explore"
-    },
-    "rcmd": {
-      "tab": "Explore"
-    },
-    "hots": {
-      "tab": "Hots",
-      "t1": "Hots",
-      "t2": "Rank",
-      "t3": "Weekly",
-      "t4": "History"
-    },
-    "bangumi": {
-      "tab": "Bangumi"
-    },
-    "cinema": {
-      "tab": "Cinema"
-    }
-  },
-  "dynamic": {
-    "detail": "Activity detail",
-    "video": "Video",
-    "article": "Activity"
-  },
-  "search": {
-    "tv": {
-      "hint": "Support keywords and their initial letters",
-      "clear": "Clear",
-      "delete": "Delete",
-      "search": "Search",
-      "hots": "Hots",
-      "history": "History",
-      "history_clear": "Clear all",
-      "history_delete": "Delete",
-      "suggest": "Suggest"
-    },
-    "history": {
-      "clear": "Delete search history",
-      "clear_hint": "Your search history will be permanently deleted from this device"
-    },
-    "order": {
-      "all": "All",
-      "click": "Click",
-      "pubdate": "PublishDate",
-      "dm": "Danmaku",
-      "stow": "Favorite"
-    },
-    "tab": "Search",
-    "t0": "History",
-    "t1": "Hots",
-    "t2": "Video",
-    "t3": "Bangumi",
-    "t4": "Cinema"
-  },
-  "activity": {
-    "all": "All activities",
-    "refresh": "Refresh list"
-  },
-  "inbox": {
-    "chat": {
-      "tab": "Chat List",
-      "hint": "Send a message to start chatting ~",
-      "unknown": "The message type is currently not supported"
-    },
-    "tab": {
-      "like": "Likes",
-      "at": "@me",
-      "reply": "Replies"
-    },
-    "type": {
-      "video": "video",
-      "reply": "comment",
-      "article": "article",
-      "dynamic": "activity",
-      "danmu": "danmaku",
-      "album": "activity"
-    },
-    "more": "and {} people liked my {}",
-    "like": "liked my {}",
-    "at": "@me at {}",
-    "reply": "replied to my {}"
-  },
-  "mine": {
-    "login": {
-      "check": "Checking login info...",
-      "success": "Login success",
-      "refresh": "Refresh",
-      "click": "Click to login",
-      "logout": "Logout of the current account \n(the application will quit)",
-      "scan": "Scan QR code to login",
-      "loading": "Loading QR code...",
-      "hint": "Please use the BiliBili client to scan the QR code",
-      "network_error": "Network error, please try again",
-      "qr_not_available": "QR code invalid, please re-enter the dialog",
-      "need_confirm": "Waiting for confirmation",
-      "need_scan": "Waiting for scanning QR code"
-    },
-    "later": "Watch Later",
-    "history": "History",
-    "collection": "Favorite",
-    "subscription": "Subscription",
-    "anime": "Anime",
-    "series": "Series",
-    "refresh_history": "Refresh history",
-    "refresh_collection": "Refresh favorite",
-    "refresh_subscription": "Refresh Subscription",
-    "refresh_later": "Refresh Watch Later",
-    "refresh_anime": "Refresh anime",
-    "refresh_series": "Refresh series",
-    "coin": "Coin",
-    "following": "Following",
-    "follower": "Follower",
-    "activity": "Activity",
-    "public": "Public",
-    "private": "Private",
-    "num": " contents",
-    "pub": "Created at ",
-    "creator": "Creator",
-    "done": "Finished",
-    "article": "Open with browser:"
-  },
-  "player": {
-    "intro": "Introduction",
-    "p": "Parts",
-    "ugc_season": "Playlist",
-    "related": "Related",
-    "series": "Series",
-    "recommend": "Recommend",
-    "uploaded": "Others",
-    "qr": "Scan QR code to watch/share",
-    "clipboard": "Copied to clipboard",
-    "comment": "Comment",
-    "current": " people are watching",
-    "share": "Share",
-    "rights": "Reprint prohibited",
-    "fs": "Fullscreen",
-    "quality": "Quality",
-    "speed": "Speed",
-    "replay": "Replay",
-    "current_speed": "Current speed {}",
-    "not_follow": "Cancel following?",
-    "coin": {
-      "title": "Coin",
-      "hint": "Choose your coin num",
-      "like": "Like at the same time",
-      "own": "You can't give yourself a coin",
-      "run_out": "The number of coins for this video has been used up",
-      "exp": "Experience + {}（Today {}/50）",
-      "exp_full": "The experience gained today is full (50/50) \uE87D ！",
-      "pcs": "{} pcs"
-    },
-    "season_part": {
-      "ascend": "Ascend",
-      "descend": "Descend"
-    },
-    "comment_sort": {
-      "sort_top": "Sort by heat",
-      "sort_new": "Sort by newest",
-      "top": "Top Comments",
-      "new": "Newest Comments"
-    },
-    "collection": {
-      "type": "Favorite",
-      "title": "Select Favorites"
-    },
+    "title": "wiliwili",
+    "github": "https://github.com/xfangfang/wiliwili",
+    "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
     "setting": {
-      "subtitle": {
-        "header": "Subtitle"
-      },
-      "equalizer": {
-        "header": "Equalizer",
-        "brightness": "Brightness",
-        "contrast": "Contrast",
-        "saturation": "Saturation",
-        "gamma": "Gamma",
-        "hue": "Hue",
-        "reset": "Reset"
-      },
-      "common": {
-        "header": "Common",
-        "mirror": "Horizontally flip",
-        "highlight": "Always show hotspots",
-        "skip_opening_credits": "Skip opening credits",
-        "skip_hint1": "Automatically skip the opening credits from next video",
-        "skip_hint2": "Turn off skip opening credits from next video",
-        "skip_hint3": "Use custom opening credits from next video",
-        "skip_hint4": "Disable custom opening credits from next video",
-        "wiki": "Access our wiki to learn how shader works"
-      },
-      "season": {
-        "aspect": "Custom video aspect",
-        "clip": "Custom opening credits",
-        "clip_start": "Intro length",
-        "clip_end": "Outro length",
-        "unit": "Unit: seconds"
-      },
-      "aspect": {
-        "header": "Video aspect",
-        "crop": "Crop",
-        "stretch": "Stretch",
-        "auto": "Auto"
-      },
-      "shader": {
-        "header": "Shader"
-      }
+        "quit_hint": "You are about to exit the application. The settings will take effect after the next startup",
+        "app": {
+            "tab": "App",
+            "playback": {
+                "header": "Playback",
+                "player": "Player",
+                "report": "Upload history playback record",
+                "player_bar": "Always show progress bar",
+                "low_quality": "Low quality decoding (with less CPU usage)",
+                "in_memory_cache": "Inmemory cache",
+                "hwdec": "Hardware decode",
+                "auto_play": "Auto-play on video detail page",
+                "exit_fullscreen": "Exit full screen at the end of playback",
+                "play_strategy": "Play strategy",
+                "auto_play_next_part": "Automatically playing next part",
+                "auto_play_recommend": "Automatically playing recommend video",
+                "auto_loop": "Loop current video",
+                "auto_no": "Pause video after playing",
+                "auto_hint": "\"Automatically playing recommend video\" will automatically play recommended videos after the episode is played.",
+                "sleep": "Timing Off",
+                "format": "Format",
+                "video_codec": "Video Codec",
+                "audio_quality": "Audio Quality",
+                "video_format": "Video format",
+                "dolby": "Dolby Atmos",
+                "hi_res": "Hi-Res"
+            },
+            "image": {
+                "header": "Image",
+                "texture": "Number of picture texture caches",
+                "threads": "Number of image loading threads"
+            },
+            "network": {
+                "header": "Network",
+                "tls": "TLS verify",
+                "proxy": "Proxy",
+                "proxy_hint": "example: http://127.0.0.1:7890"
+            },
+            "ui": {
+                "header": "UI",
+                "window": "Window",
+                "bottom_bar": "Bottom bar",
+                "ui_style": "UI style",
+                "tv_osd": "TV style OSD control",
+                "live_sidebar_count": "Live Sidebar Danmaku Count",
+                "live_sidebar_hide": "Hide Sidebar"
+            },
+            "others": {
+                "header": "Others",
+                "vibration": "Gamepad vibration",
+                "hide_bottom": "Hide the hint bar below",
+                "hide_fps": "Hide FPS",
+                "show_bottom": "Show bottom bar",
+                "show_fps": "Show FPS",
+                "limited_fps": "Maximum frame limit",
+                "limited_fps_vsync": "Vertical Synchronization",
+                "fullscreen": "Fullscreen",
+                "always_on_top": "Always on top",
+                "always_on_top_hint": "Auto: Automatically set the window to the top when the window size is small",
+                "tv_search": "TV style search page",
+                "clear_history": "Clear search history",
+                "clear_season": "Clear bangumi custom settings",
+                "theme": {
+                    "header": "Theme (restart required)",
+                    "1": "Auto",
+                    "2": "Light",
+                    "3": "Dark"
+                },
+                "custom_theme": {
+                    "header": "Custom Layout (restart required)"
+                },
+                "scale": {
+                    "header": "UI Scale (restart required)",
+                    "544p": "544p",
+                    "720p": "720p",
+                    "900p": "900p",
+                    "1080p": "1080p"
+                },
+                "language": {
+                    "header": "Language (restart required)",
+                    "auto": "Auto",
+                    "chinese_s": "简体中文",
+                    "chinese_t": "繁體中文",
+                    "english": "English",
+                    "japanese": "日本語",
+                    "ryukyuan": "島言葉",
+                    "italiano": "Italiano",
+                    "korean": "한국어"
+                },
+                "opencc": "Automatically convert Simplified Chinese (restart required)",
+                "keymap": {
+                    "header": "Keymap style",
+                    "swap": "Swap AB/XY",
+                    "xbox": "Xbox",
+                    "ps": "PlayStation",
+                    "keyboard": "Keyboard"
+                }
+            }
+        },
+        "tools": {
+            "tab": "Tools",
+            "tutorial": {
+                "header": "Tutorial",
+                "intro": "Software introduction (online video; Chinese)",
+                "intro_bvid": "BV18W4y1q72C",
+                "wiki": "Access our wiki to get more information",
+                "open": "How to install desktop icon",
+                "error": "If you encounter a bug",
+                "hot_key": "Hot keys",
+                "font": "Set custom font"
+            },
+            "test": {
+                "header": "Diagnostics",
+                "net": "Network Diagnostics",
+                "vibration": "Vibration Test"
+            },
+            "others": {
+                "header": "Others",
+                "dlna": "DLNA Renderer",
+                "dlna_waiting": "Waiting for DLNA casting...",
+                "dlna_quit": "Exit the DLNA casting?",
+                "up2date": "App is up to date",
+                "checking_update": "Checking for updates...",
+                "release": "Check for updates",
+                "config_dir": "Config directory",
+                "config": "Open config directory",
+                "download_dir": "Video cache directory"
+            }
+        },
+        "about": {
+            "tab": "About",
+            "brief_header": "Introduction",
+            "repository": "Repository",
+            "brief": "Yet another third-party bilibili client",
+            "repo_header": "Repository",
+            "author_header": "Author's speech",
+            "author": "一直想做个艺术家, 可惜程序员都没什么发挥的空间\n直到这个作品诞生，实现了：「在游戏机上看视频；用手机来玩游戏」\n或许算得上是一种行为艺术，这样的话我也就圆满了"
+        },
+        "opensource": {
+            "tab": "Opensource"
+        },
+        "tutorial": {
+            "error_q1": "Unable to access the network",
+            "error_a1": "1. Ensure the atmosphere and system firmware are up to date\n2. Confirm that the system time is correct\n3. Restore the default network settings, including IP, DNS, etc\n4.Using in China",
+            "error_q2": "Exits with random error",
+            "error_a2": "1. Using a Fat32 format memory card\n2. Ensure the atmosphere and system firmware are up to date\n3. Waiting for developers to repair",
+            "font_q1": "How to set custom font or keymap icon",
+            "font_a1": "1. Download the font or icon font you want\n2. Rename font to: font.ttf; Rename icon to: icon.ttf\n3. Place font files in the config directory\n4. Restart the application",
+            "font_q2": "FAQ",
+            "font_a2": "1. wiliwili prioritizes the display of custom fonts, with built-in fonts as a fallback\n2. \"Settings - Tools - Others\" provides a menu item to quickly open the config directory\n3. On Linux, wiliwili uses xdg-open to open the directory. If the configuration directory cannot be opened correctly, you can consider installing this tool"
+        },
+        "hot_keys": {
+            "common_header": "Common",
+            "common_content": " /  Switch the primary page\n /  Switch the secondary page",
+            "player_header": "Player",
+            "player_content": " Speed up，double click  to lock\n +  Seek forward\n Toggle player OSD \n Toggle danmaku"
+        },
+        "net": {
+            "test": {
+                "header": "Access Network",
+                "feed": "Test to get recommended videos"
+            },
+            "time": {
+                "header": "Time",
+                "subtitle": "Incorrect system time may cause network access failure",
+                "sys": "Current system time",
+                "net": "Get network time"
+            },
+            "profile": {
+                "header": "Network",
+                "subtitle": "Restoring network settings can also solve some problems",
+                "ip": "IP Address",
+                "dns": "DNS Address"
+            }
+        }
     },
-    "cast": {
-      "header": "DLNA",
-      "device": "Devices",
-      "request_url": "Requesting video link...",
-      "cast_to_renderer": "Casting to renderer...",
-      "casting": "Casting...",
-      "cancel": "Cancel video casting",
-      "err_connect": "Unable to connect to the DLNA renderer",
-      "err_url": "Failed to obtain the video link",
-      "countdown": "Search countdown"
+    "hints": {
+        "hint1": "Select a game from home screen",
+        "hint2": "Hold the  key and click  to enter hbmenu",
+        "hint3": "In the hbmenu, select wiliwili",
+        "hint4": "Optional: Using provided wiliwili NSP forwarder (Please place wiliwili.nro in /switch/wiliwili.nro)",
+        "hint_nsp": "Click  to install NSP forwarder",
+        "hint_confirm": "Installing NSP forwarder may result in a ban\nPlease confirm again",
+        "hint_right": "The pictures are from the Internet, and the copyright belongs to Nintendo Co., Ltd"
     },
-    "danmaku": {
-      "header": "Danmaku setting",
-      "send": {
-        "action": "Send",
-        "hint": "Say something nice"
-      },
-      "performance": {
-        "header": "Performance",
-        "render": "Rendering quality"
-      },
-      "filter": {
-        "header": "Danmaku filter",
-        "mask": "Smart mask",
-        "top": "Top",
-        "scroll": "Scroll",
-        "bottom": "Bottom",
-        "color": "Color",
-        "advanced": "Advanced",
-        "level": "Filter level",
-        "level_n": "Level {}",
-        "level_live": "Danmaku filter level",
-        "level_live_none": "No filter (UL0+)",
-        "level_live_n": "UL{} and above",
-        "level_live_60": "UL60 only"
-      },
-      "style": {
-        "header": "Danmaku style",
-        "font": "Stroke Style",
-        "font_stroke": "Stroke",
-        "font_incline": "Incline",
-        "font_shadow": "Shadow",
-        "font_pure": "Pure",
-        "area": "Display area",
-        "area_1_4": "1/4 Screen",
-        "area_2_4": "1/2 Screen",
-        "area_3_4": "3/4 Screen",
-        "area_4_4": "Fullscreen",
-        "alpha": "Alpha",
-        "fontsize": "Fontsize",
-        "line_height": "Line Height",
+    "home": {
+        "common": {
+            "part": "Channel: ",
+            "recommend": "Recommend",
+            "search": "Search for videos",
+            "switch": "Switch",
+            "refresh": "Refresh",
+            "last": "Last",
+            "next": "Next",
+            "filter": "Filter",
+            "save": "Save",
+            "min": "Minutes",
+            "high": "High",
+            "medium": "Medium",
+            "low": "Low",
+            "no_login": "You are not logged in yet"
+        },
+        "live": {
+            "tab": "Live",
+            "dialog": "Channels",
+            "default": "Channel: Explore"
+        },
+        "rcmd": {
+            "tab": "Explore"
+        },
+        "hots": {
+            "tab": "Hots",
+            "t1": "Hots",
+            "t2": "Rank",
+            "t3": "Weekly",
+            "t4": "History"
+        },
+        "bangumi": {
+            "tab": "Bangumi"
+        },
+        "cinema": {
+            "tab": "Cinema"
+        }
+    },
+    "dynamic": {
+        "detail": "Activity detail",
+        "video": "Video",
+        "article": "Activity"
+    },
+    "search": {
+        "tv": {
+            "hint": "Support keywords and their initial letters",
+            "clear": "Clear",
+            "delete": "Delete",
+            "search": "Search",
+            "hots": "Hots",
+            "history": "History",
+            "history_clear": "Clear all",
+            "history_delete": "Delete",
+            "suggest": "Suggest"
+        },
+        "history": {
+            "clear": "Delete search history",
+            "clear_hint": "Your search history will be permanently deleted from this device"
+        },
+        "order": {
+            "all": "All",
+            "click": "Click",
+            "pubdate": "PublishDate",
+            "dm": "Danmaku",
+            "stow": "Favorite"
+        },
+        "tab": "Search",
+        "t0": "History",
+        "t1": "Hots",
+        "t2": "Video",
+        "t3": "Bangumi",
+        "t4": "Cinema"
+    },
+    "activity": {
+        "all": "All activities",
+        "refresh": "Refresh list"
+    },
+    "inbox": {
+        "chat": {
+            "tab": "Chat List",
+            "hint": "Send a message to start chatting ~",
+            "unknown": "The message type is currently not supported"
+        },
+        "tab": {
+            "like": "Likes",
+            "at": "@me",
+            "reply": "Replies"
+        },
+        "type": {
+            "video": "video",
+            "reply": "comment",
+            "article": "article",
+            "dynamic": "activity",
+            "danmu": "danmaku",
+            "album": "activity"
+        },
+        "more": "and {} people liked my {}",
+        "like": "liked my {}",
+        "at": "@me at {}",
+        "reply": "replied to my {}"
+    },
+    "mine": {
+        "login": {
+            "check": "Checking login info...",
+            "success": "Login success",
+            "refresh": "Refresh",
+            "click": "Click to login",
+            "logout": "Logout of the current account \n(the application will quit)",
+            "scan": "Scan QR code to login",
+            "loading": "Loading QR code...",
+            "hint": "Please use the BiliBili client to scan the QR code",
+            "network_error": "Network error, please try again",
+            "qr_not_available": "QR code invalid, please re-enter the dialog",
+            "need_confirm": "Waiting for confirmation",
+            "need_scan": "Waiting for scanning QR code"
+        },
+        "later": "Watch Later",
+        "history": "History",
+        "collection": "Favorite",
+        "subscription": "Subscription",
+        "anime": "Anime",
+        "series": "Series",
+        "refresh_history": "Refresh history",
+        "refresh_collection": "Refresh favorite",
+        "refresh_subscription": "Refresh Subscription",
+        "refresh_later": "Refresh Watch Later",
+        "refresh_anime": "Refresh anime",
+        "refresh_series": "Refresh series",
+        "coin": "Coin",
+        "following": "Following",
+        "follower": "Follower",
+        "activity": "Activity",
+        "public": "Public",
+        "private": "Private",
+        "num": " contents",
+        "pub": "Created at ",
+        "creator": "Creator",
+        "done": "Finished",
+        "article": "Open with browser:"
+    },
+    "player": {
+        "intro": "Introduction",
+        "p": "Parts",
+        "ugc_season": "Playlist",
+        "related": "Related",
+        "series": "Series",
+        "recommend": "Recommend",
+        "uploaded": "Others",
+        "qr": "Scan QR code to watch/share",
+        "clipboard": "Copied to clipboard",
+        "comment": "Comment",
+        "current": " people are watching",
+        "share": "Share",
+        "rights": "Reprint prohibited",
+        "fs": "Fullscreen",
+        "quality": "Quality",
         "speed": "Speed",
-        "speed_slow_plus": "Extremely slow",
-        "speed_slow": "Slow",
-        "speed_fast_plus": "Extremely fast",
-        "speed_fast": "Fast",
-        "speed_moderate": "Moderate"
-      }
+        "replay": "Replay",
+        "current_speed": "Current speed {}",
+        "not_follow": "Cancel following?",
+        "coin": {
+            "title": "Coin",
+            "hint": "Choose your coin num",
+            "like": "Like at the same time",
+            "own": "You can't give yourself a coin",
+            "run_out": "The number of coins for this video has been used up",
+            "exp": "Experience + {}（Today {}/50）",
+            "exp_full": "The experience gained today is full (50/50)  ！",
+            "pcs": "{} pcs"
+        },
+        "season_part": {
+            "ascend": "Ascend",
+            "descend": "Descend"
+        },
+        "comment_sort": {
+            "sort_top": "Sort by heat",
+            "sort_new": "Sort by newest",
+            "top": "Top Comments",
+            "new": "Newest Comments"
+        },
+        "collection": {
+            "type": "Favorite",
+            "title": "Select Favorites"
+        },
+        "setting": {
+            "subtitle": {
+                "header": "Subtitle"
+            },
+            "equalizer": {
+                "header": "Equalizer",
+                "brightness": "Brightness",
+                "contrast": "Contrast",
+                "saturation": "Saturation",
+                "gamma": "Gamma",
+                "hue": "Hue",
+                "reset": "Reset"
+            },
+            "common": {
+                "header": "Common",
+                "mirror": "Horizontally flip",
+                "highlight": "Always show hotspots",
+                "skip_opening_credits": "Skip opening credits",
+                "skip_hint1": "Automatically skip the opening credits from next video",
+                "skip_hint2": "Turn off skip opening credits from next video",
+                "skip_hint3": "Use custom opening credits from next video",
+                "skip_hint4": "Disable custom opening credits from next video",
+                "wiki": "Access our wiki to learn how shader works"
+            },
+            "season": {
+                "aspect": "Custom video aspect",
+                "clip": "Custom opening credits",
+                "clip_start": "Intro length",
+                "clip_end": "Outro length",
+                "unit": "Unit: seconds"
+            },
+            "aspect": {
+                "header": "Video aspect",
+                "crop": "Crop",
+                "stretch": "Stretch",
+                "auto": "Auto"
+            },
+            "shader": {
+                "header": "Shader"
+            }
+        },
+        "cast": {
+            "header": "DLNA",
+            "device": "Devices",
+            "request_url": "Requesting video link...",
+            "cast_to_renderer": "Casting to renderer...",
+            "casting": "Casting...",
+            "cancel": "Cancel video casting",
+            "err_connect": "Unable to connect to the DLNA renderer",
+            "err_url": "Failed to obtain the video link",
+            "countdown": "Search countdown"
+        },
+        "danmaku": {
+            "header": "Danmaku setting",
+            "send": {
+                "action": "Send",
+                "hint": "Say something nice"
+            },
+            "performance": {
+                "header": "Performance",
+                "render": "Rendering quality"
+            },
+            "filter": {
+                "header": "Danmaku filter",
+                "mask": "Smart mask",
+                "top": "Top",
+                "scroll": "Scroll",
+                "bottom": "Bottom",
+                "color": "Color",
+                "advanced": "Advanced",
+                "level": "Filter level",
+                "level_n": "Level {}",
+                "level_live": "Danmaku filter level",
+                "level_live_none": "No filter (UL0+)",
+                "level_live_n": "UL{} and above",
+                "level_live_60": "UL60 only"
+            },
+            "style": {
+                "header": "Danmaku style",
+                "font": "Stroke Style",
+                "font_stroke": "Stroke",
+                "font_incline": "Incline",
+                "font_shadow": "Shadow",
+                "font_pure": "Pure",
+                "area": "Display area",
+                "area_1_4": "1/4 Screen",
+                "area_2_4": "1/2 Screen",
+                "area_3_4": "3/4 Screen",
+                "area_4_4": "Fullscreen",
+                "alpha": "Alpha",
+                "fontsize": "Fontsize",
+                "line_height": "Line Height",
+                "speed": "Speed",
+                "speed_slow_plus": "Extremely slow",
+                "speed_slow": "Slow",
+                "speed_fast_plus": "Extremely fast",
+                "speed_fast": "Fast",
+                "speed_moderate": "Moderate"
+            }
+        },
+        "single_comment": {
+            "detail": "Details",
+            "hint": "Say something nice",
+            "related": "{} replies in total",
+            "end": "No more comments",
+            "delete": "After deleting the comment, all replies under the comment will be deleted\n\nDo you want to continue?"
+        },
+        "download": {
+            "btn": "Cache",
+            "label": "Cache",
+            "started": "Video caching started",
+            "dir_hint": "Set download directory",
+            "dir_placeholder": "Enter download directory path",
+            "dir_first_title": "Set Cache Location",
+            "dir_first_hint": "This is the first time caching a video. Please confirm the cache directory:",
+            "use_default": "Use this path",
+            "customize": "Customize"
+        }
     },
-    "single_comment": {
-      "detail": "Details",
-      "hint": "Say something nice",
-      "related": "{} replies in total",
-      "end": "No more comments",
-      "delete": "After deleting the comment, all replies under the comment will be deleted\n\nDo you want to continue?"
+    "dialog": {
+        "not_supported": "Not Supported",
+        "quit_hint": "Exiting app..."
     }
-  },
-  "dialog": {
-    "not_supported": "Not Supported",
-    "quit_hint": "Exiting app..."
-  }
 }

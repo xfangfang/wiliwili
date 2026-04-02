@@ -186,6 +186,34 @@
                                     wireframe="false"
                                     text="0"/>
                         </brls:Box>
+
+                        <brls:Box
+                                highlightCornerRadius="50"
+                                cornerRadius="50"
+                                padding="4"
+                                width="56"
+                                height="56"
+                                axis="column"
+                                alignItems="center"
+                                focusable="true">
+                            <SVGImage
+                                    id="video/btn/download"
+                                    positionTop="4"
+                                    width="40"
+                                    height="40"
+                                    SVG="@res/svg/bpx-svg-sprite-download.svg"/>
+                            <brls:Label
+                                    id="video/label/download"
+                                    positionType="absolute"
+                                    positionBottom="-30"
+                                    culled="false"
+                                    width="120"
+                                    horizontalAlign="center"
+                                    textColor="@theme/font/grey"
+                                    fontSize="16"
+                                    wireframe="false"
+                                    text="@i18n/wiliwili/player/download/label"/>
+                        </brls:Box>
                     </brls:Box>
                 </brls:Box>
 

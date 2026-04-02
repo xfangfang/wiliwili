@@ -123,6 +123,7 @@ enum class SettingItem {
     SHORTCUT_VIDEO_SPEEDUP, // 视频倍速快捷键
     SHORTCUT_VIDEO_OSD, // 切换OSD显示
     SHORTCUT_VIDEO_PAUSE, // 视频播放暂停快捷键
+    VIDEO_DOWNLOAD_PATH, // 视频缓存目录
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -254,6 +255,8 @@ public:
     void init();
 
     std::string getConfigDir();
+
+    std::string getDownloadDir();
 
     std::string getHomePath();
 

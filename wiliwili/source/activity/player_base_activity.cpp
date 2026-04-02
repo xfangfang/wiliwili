@@ -3,6 +3,7 @@
 //
 
 #include <utility>
+#include <cpr/filesystem.h>
 #include <borealis/core/thread.hpp>
 #include <borealis/core/touch/tap_gesture.hpp>
 #include <borealis/views/applet_frame.hpp>
@@ -282,6 +283,9 @@ void BasePlayerActivity::setCommonData() {
     this->btnFavorite->getParent()->addGestureRecognizer(
         new brls::TapGestureRecognizer(this->btnFavorite->getParent()));
 
+    this->btnDownload->getParent()->addGestureRecognizer(
+        new brls::TapGestureRecognizer(this->btnDownload->getParent()));
+
     this->videoUserInfo->addGestureRecognizer(new brls::TapGestureRecognizer(this->videoUserInfo));
 
     this->setRelationButton(false, false, false);
@@ -513,6 +517,65 @@ void BasePlayerActivity::setCommentMode() {
     this->recyclingGrid->showSkeleton();
     tabFrame->focusTab(0);
     requestVideoComment(std::to_string(this->getAid()), 0, getVideoCommentMode() == 3 ? 2 : 3);
+}
+
+void BasePlayerActivity::startVideoCache() {
+    auto& conf        = ProgramConfig::instance();
+    std::string saved = conf.getSettingItem(SettingItem::VIDEO_DOWNLOAD_PATH, std::string{""});
+
+    if (saved.empty()) {
+// 首次缓存：提示用户选择缓存目录
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+        // PC: 显示路径输入框，默认使用 ~/Downloads
+        std::string defaultDir = conf.getDownloadDir();
+        auto dialog            = new brls::Dialog("wiliwili/player/download/dir_first_hint"_i18n + "\n" + defaultDir);
+        dialog->addButton("wiliwili/player/download/use_default"_i18n, [this, defaultDir]() {
+            ProgramConfig::instance().setSettingItem(SettingItem::VIDEO_DOWNLOAD_PATH, defaultDir);
+            brls::sync([this]() { this->startVideoCache(); });
+        });
+        dialog->addButton("wiliwili/player/download/customize"_i18n, [this, defaultDir]() {
+            brls::Application::getImeManager()->openForText(
+                [this](const std::string& text) {
+                    if (text.empty()) return;
+                    ProgramConfig::instance().setSettingItem(SettingItem::VIDEO_DOWNLOAD_PATH, text);
+                    brls::sync([this]() { this->startVideoCache(); });
+                },
+                "wiliwili/player/download/dir_hint"_i18n, "wiliwili/player/download/dir_placeholder"_i18n, 512,
+                defaultDir, 0);
+        });
+        dialog->open();
+#else
+        // 非PC平台：自动设置为配置目录下的 download 子目录
+        std::string defaultDir = conf.getDownloadDir();
+        conf.setSettingItem(SettingItem::VIDEO_DOWNLOAD_PATH, defaultDir);
+        brls::Application::notify("wiliwili/setting/tools/others/download_dir"_i18n + ": " + defaultDir);
+        brls::sync([this]() { this->startVideoCache(); });
+#endif
+        return;
+    }
+
+    // 确保缓存目录存在
+    cpr::fs::create_directories(saved);
+
+    // 从视频标题生成文件名，过滤不合法的路径字符
+    std::string title = this->videoTitleLabel->getFullText();
+    if (title.empty()) title = "video";
+    for (auto& c : title) {
+        if (c == '/' || c == '\\' || c == ':' || c == '*' || c == '?' || c == '"' || c == '<' || c == '>' ||
+            c == '|') {
+            c = '_';
+        }
+    }
+
+#ifdef _WIN32
+    std::string filepath = saved + "\\" + title + ".ts";
+#else
+    std::string filepath = saved + "/" + title + ".ts";
+#endif
+
+    brls::Logger::info("Start video cache: {}", filepath);
+    MPVCore::instance().command_async("set", "stream-record", filepath);
+    brls::Application::notify("wiliwili/player/download/started"_i18n);
 }
 
 void BasePlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) {

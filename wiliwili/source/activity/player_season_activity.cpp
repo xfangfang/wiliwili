@@ -142,6 +142,12 @@ void PlayerSeasonActivity::onContentAvailable() {
         return true;
     });
 
+    // 缓存按钮
+    this->btnDownload->getParent()->registerClickAction([this](...) {
+        this->startVideoCache();
+        return true;
+    });
+
     this->videoUserInfo->registerClickAction([this](...) {
         if (!DialogHelper::checkLogin()) return true;
         this->followSeason(this->seasonInfo.season_id, !this->seasonStatus.follow);

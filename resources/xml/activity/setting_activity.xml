@@ -376,6 +376,10 @@
                                 id="tools/config_dir"
                                 title="@i18n/wiliwili/setting/tools/others/config"/>
 
+                        <brls:DetailCell
+                                id="tools/download_dir"
+                                title="@i18n/wiliwili/setting/tools/others/download_dir"/>
+
                         <brls:RadioCell
                                 id="tools/release_checker"/>
 

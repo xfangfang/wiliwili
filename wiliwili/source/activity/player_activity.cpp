@@ -193,6 +193,12 @@ void PlayerActivity::onContentAvailable() {
         return true;
     });
 
+    // 缓存按钮
+    this->btnDownload->getParent()->registerClickAction([this](...) {
+        this->startVideoCache();
+        return true;
+    });
+
     // 用户头像框
     this->videoUserInfo->registerClickAction([this](...) {
         if (!DialogHelper::checkLogin()) return true;

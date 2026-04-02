@@ -11,6 +11,7 @@ namespace brls {
 class RadioCell;
 class BooleanCell;
 class InputCell;
+class DetailCell;
 class Label;
 }  // namespace brls
 
@@ -39,6 +40,7 @@ private:
     BRLS_BIND(brls::RadioCell, btnReleaseChecker, "tools/release_checker");
     BRLS_BIND(brls::RadioCell, btnQuit, "tools/quit");
     BRLS_BIND(brls::RadioCell, btnOpenConfig, "tools/config_dir");
+    BRLS_BIND(brls::DetailCell, btnDownloadDir, "tools/download_dir");
     BRLS_BIND(brls::RadioCell, btnVibrationTest, "tools/vibration_test");
     BRLS_BIND(brls::RadioCell, btnDLNA, "tools/dlna");
     BRLS_BIND(brls::BooleanCell, btnTls, "setting/network/tls");
