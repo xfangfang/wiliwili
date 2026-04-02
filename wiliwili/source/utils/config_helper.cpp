@@ -1136,7 +1136,9 @@ std::string ProgramConfig::getDownloadDir() {
     char* xdgDownload = getenv("XDG_DOWNLOAD_DIR");
     if (xdgDownload && xdgDownload[0] != '\0') return std::string(xdgDownload);
 #endif
-    return std::string(getenv("HOME")) + "/Downloads";
+    char* home = getenv("HOME");
+    if (home) return std::string(home) + "/Downloads";
+    return getConfigDir() + "/download";
 #endif
 #else
     // Embedded / mobile: put next to config directory

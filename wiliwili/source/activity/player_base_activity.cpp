@@ -574,6 +574,8 @@ void BasePlayerActivity::startVideoCache() {
 #endif
 
     brls::Logger::info("Start video cache: {}", filepath);
+    // MPV 的 stream-record 属性会将当前播放的原始媒体流保存到指定文件
+    // 适用于 FLV（完整音视频）和 DASH（仅当前流）格式
     MPVCore::instance().command_async("set", "stream-record", filepath);
     brls::Application::notify("wiliwili/player/download/started"_i18n);
 }
