@@ -909,9 +909,10 @@ void VideoView::drawThumbnailPreview(NVGcontext* vg, float x, float y, float wid
     float displayW = 240.0f;
     float displayH = displayW * (float)snapshotData.img_y_size / (float)snapshotData.img_x_size;
 
-    // Center horizontally, place slightly above center vertically
+    // Center horizontally; place thumbnail so its bottom edge is above the
+    // center hint box (osdCenterBox2, 100x100 centered) with a small gap.
     float dstX = x + (width - displayW) / 2.0f;
-    float dstY = y + (height - displayH) / 2.0f - 60.0f;
+    float dstY = y + height / 2.0f - 60.0f - displayH;
 
     float totalW  = (float)(snapshotData.img_x_len * snapshotData.img_x_size);
     float totalH  = (float)(snapshotData.img_y_len * snapshotData.img_y_size);
