@@ -905,9 +905,9 @@ void VideoView::drawThumbnailPreview(NVGcontext* vg, float x, float y, float wid
     float srcX = (float)(col * snapshotData.img_x_size);
     float srcY = (float)(row * snapshotData.img_y_size);
 
-    // Display at 2x original size
-    float displayW = (float)(snapshotData.img_x_size * 2);
-    float displayH = (float)(snapshotData.img_y_size * 2);
+    // Display at a fixed width of 240, preserving aspect ratio
+    float displayW = 240.0f;
+    float displayH = displayW * (float)snapshotData.img_y_size / (float)snapshotData.img_x_size;
 
     // Center horizontally, place slightly above center vertically
     float dstX = x + (width - displayW) / 2.0f;
