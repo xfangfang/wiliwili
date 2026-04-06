@@ -67,4 +67,6 @@ private:
     bilibili::VideoSnapshotData snapshotData;
     std::vector<int> snapshotTextures;   // NVG 纹理 ID，每个精灵图对应一个
     std::vector<bool> snapshotLoading;   // 是否正在加载对应精灵图
+
+    int tilesPerSheet() const { return snapshotData.img_x_len * snapshotData.img_y_len; }
 };

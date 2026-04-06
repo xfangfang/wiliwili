@@ -29,9 +29,8 @@ bool VideoSnapshotCore::isValid() const { return snapshotData.isValid(); }
 
 void VideoSnapshotCore::preloadForTime(float seekTimeSec) {
     if (!snapshotData.isValid()) return;
-    int tilesPerSheet = snapshotData.img_x_len * snapshotData.img_y_len;
-    int imageIdx      = findIndex(seekTimeSec);
-    loadTexture((size_t)(imageIdx / tilesPerSheet));
+    int imageIdx = findIndex(seekTimeSec);
+    loadTexture((size_t)(imageIdx / tilesPerSheet()));
 }
 
 int VideoSnapshotCore::findIndex(float seekTime) const {
@@ -72,7 +71,7 @@ void VideoSnapshotCore::loadTexture(size_t index) {
     // Use cpr async callback to avoid std::thread + detach
     auto session = bilibili::HTTP::createSession();
     session->SetUrl(cpr::Url{url});
-    session->GetCallback([this, url, index](cpr::Response r) {
+    session->GetCallback([this, url, index](const cpr::Response& r) {
         if (r.status_code != 200 || r.downloaded_bytes == 0) {
             brls::sync([this, index]() {
                 if (index < snapshotLoading.size()) snapshotLoading[index] = false;
@@ -109,10 +108,9 @@ void VideoSnapshotCore::draw(NVGcontext* vg, float x, float y, float width, floa
     if (!snapshotData.isValid()) return;
     if (snapshotTextures.empty()) return;
 
-    int imageIdx      = findIndex(duration * progress);
-    int tilesPerSheet = snapshotData.img_x_len * snapshotData.img_y_len;
-    size_t sheetIdx   = (size_t)(imageIdx / tilesPerSheet);
-    int posInSheet    = imageIdx % tilesPerSheet;
+    int imageIdx       = findIndex(duration * progress);
+    size_t sheetIdx    = (size_t)(imageIdx / tilesPerSheet());
+    int posInSheet     = imageIdx % tilesPerSheet();
 
     // Start loading the needed sprite sheet if not yet loaded
     loadTexture(sheetIdx);
