@@ -1,488 +1,488 @@
 {
-    "title": "喴哩喴哩",
-    "github": "https://github.com/xfangfang/wiliwili",
-    "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
-    "setting": {
-        "quit_hint": "设置的内容将在下次启动后生效",
-        "app": {
-            "tab": "应用设置",
-            "playback": {
-                "header": "播放设置",
-                "player": "播放器",
-                "report": "上传历史播放记录",
-                "player_bar": "下方固定显示进度条",
-                "low_quality": "低画质解码（以画质为代价换取更低的功耗）",
-                "in_memory_cache": "解码缓存",
-                "hwdec": "硬件解码",
-                "auto_play": "视频详情页直接播放",
-                "exit_fullscreen": "播放结束时自动退出全屏",
-                "play_strategy": "播放方式",
-                "auto_play_next_part": "自动播放分集",
-                "auto_play_recommend": "自动播放推荐",
-                "auto_loop": "循环当前视频",
-                "auto_no": "播完暂停视频",
-                "auto_hint": "「自动播放推荐」 会在播完分集之后自动播放推荐视频",
-                "sleep": "定时关闭",
-                "format": "格式",
-                "video_codec": "视频编码",
-                "audio_quality": "视频音质",
-                "video_format": "视频格式",
-                "dolby": "杜比全景声",
-                "hi_res": "Hi-Res 无损",
-                "window_fullscreen_on_app_fullscreen": "应用内全屏时自动切换窗口全屏"
-            },
-            "image": {
-                "header": "图片设置",
-                "texture": "图片纹理缓存数量",
-                "threads": "图片加载线程数"
-            },
-            "network": {
-                "header": "网络设置",
-                "tls": "TLS 验证",
-                "proxy": "网络代理",
-                "proxy_hint": "示例: http://127.0.0.1:7890"
-            },
-            "ui": {
-                "header": "界面设置",
-                "window": "窗口",
-                "bottom_bar": "底部提示栏",
-                "ui_style": "界面风格",
-                "tv_osd": "电视风格播放器",
-                "live_sidebar_count": "直播间侧边栏弹幕数量",
-                "live_sidebar_hide": "隐藏侧边栏"
-            },
-            "others": {
-                "header": "其他设置",
-                "vibration": "手柄振动",
-                "hide_bottom": "隐藏下方提示栏",
-                "hide_fps": "隐藏 FPS",
-                "show_bottom": "显示提示栏",
-                "show_fps": "显示 FPS",
-                "limited_fps": "最高帧数限制",
-                "limited_fps_vsync": "垂直同步",
-                "fullscreen": "全屏显示",
-                "always_on_top": "窗口置顶",
-                "always_on_top_hint": "自动: 当窗口尺寸较小时自动开启置顶",
-                "tv_search": "电视风格搜索页",
-                "clear_history": "清空搜索记录",
-                "clear_season": "清空番剧自定义设置",
-                "theme": {
-                    "header": "主题配色 (需要重启)",
-                    "1": "跟随系统",
-                    "2": "浅色",
-                    "3": "深色"
-                },
-                "custom_theme": {
-                    "header": "自定义布局 (需要重启)"
-                },
-                "scale": {
-                    "header": "界面缩放 (需要重启)",
-                    "544p": "适合小屏幕",
-                    "720p": "默认",
-                    "900p": "适合大屏幕",
-                    "1080p": "适合超大屏幕"
-                },
-                "language": {
-                    "header": "语言 (需要重启)",
-                    "auto": "跟随系统",
-                    "chinese_s": "简体中文",
-                    "chinese_t": "繁体中文",
-                    "english": "英语",
-                    "japanese": "日语",
-                    "ryukyuan": "琉球语",
-                    "italiano": "意大利语",
-                    "korean": "韩语"
-                },
-                "opencc": "自动转换简体中文 (需要重启)",
-                "keymap": {
-                    "header": "键位图标 (需要重启)",
-                    "swap": "键位交换 (需要重启)",
-                    "xbox": "Xbox",
-                    "ps": "PlayStation",
-                    "keyboard": "键盘"
-                }
-            }
+  "title": "喴哩喴哩",
+  "github": "https://github.com/xfangfang/wiliwili",
+  "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
+  "setting": {
+    "quit_hint": "设置的内容将在下次启动后生效",
+    "app": {
+      "tab": "应用设置",
+      "playback": {
+        "header": "播放设置",
+        "player": "播放器",
+        "report": "上传历史播放记录",
+        "player_bar": "下方固定显示进度条",
+        "low_quality": "低画质解码（以画质为代价换取更低的功耗）",
+        "in_memory_cache": "解码缓存",
+        "hwdec": "硬件解码",
+        "auto_play": "视频详情页直接播放",
+        "exit_fullscreen": "播放结束时自动退出全屏",
+        "play_strategy": "播放方式",
+        "auto_play_next_part": "自动播放分集",
+        "auto_play_recommend": "自动播放推荐",
+        "auto_loop": "循环当前视频",
+        "auto_no": "播完暂停视频",
+        "auto_hint": "「自动播放推荐」 会在播完分集之后自动播放推荐视频",
+        "sleep": "定时关闭",
+        "format": "格式",
+        "video_codec": "视频编码",
+        "audio_quality": "视频音质",
+        "video_format": "视频格式",
+        "dolby": "杜比全景声",
+        "hi_res": "Hi-Res 无损",
+        "window_fullscreen_on_app_fullscreen": "应用内全屏时自动切换窗口全屏"
+      },
+      "image": {
+        "header": "图片设置",
+        "texture": "图片纹理缓存数量",
+        "threads": "图片加载线程数"
+      },
+      "network": {
+        "header": "网络设置",
+        "tls": "TLS 验证",
+        "proxy": "网络代理",
+        "proxy_hint": "示例: http://127.0.0.1:7890"
+      },
+      "ui": {
+        "header": "界面设置",
+        "window": "窗口",
+        "bottom_bar": "底部提示栏",
+        "ui_style": "界面风格",
+        "tv_osd": "电视风格播放器",
+        "live_sidebar_count": "直播间侧边栏弹幕数量",
+        "live_sidebar_hide": "隐藏侧边栏"
+      },
+      "others": {
+        "header": "其他设置",
+        "vibration": "手柄振动",
+        "hide_bottom": "隐藏下方提示栏",
+        "hide_fps": "隐藏 FPS",
+        "show_bottom": "显示提示栏",
+        "show_fps": "显示 FPS",
+        "limited_fps": "最高帧数限制",
+        "limited_fps_vsync": "垂直同步",
+        "fullscreen": "全屏显示",
+        "always_on_top": "窗口置顶",
+        "always_on_top_hint": "自动: 当窗口尺寸较小时自动开启置顶",
+        "tv_search": "电视风格搜索页",
+        "clear_history": "清空搜索记录",
+        "clear_season": "清空番剧自定义设置",
+        "theme": {
+          "header": "主题配色 (需要重启)",
+          "1": "跟随系统",
+          "2": "浅色",
+          "3": "深色"
         },
-        "tools": {
-            "tab": "实用工具",
-            "tutorial": {
-                "header": "使用教程",
-                "intro": "软件介绍 (在线视频)",
-                "intro_bvid": "BV18W4y1q72C",
-                "wiki": "查看项目 WIKI 获得详细说明",
-                "open": "应用开启方式与安装桌面图标",
-                "error": "软件内报错或部分功能不可用",
-                "hot_key": "隐藏的快捷键说明",
-                "font": "设置自定义字体"
-            },
-            "test": {
-                "header": "诊断信息",
-                "net": "网络诊断",
-                "vibration": "振动测试"
-            },
-            "others": {
-                "header": "其他",
-                "dlna": "DLNA 投屏",
-                "dlna_waiting": "等待 DLNA 投屏中...",
-                "dlna_quit": "确定要退出投屏?",
-                "up2date": "应用已经是最新版",
-                "checking_update": "正在检查更新...",
-                "release": "检查更新",
-                "config_dir": "配置目录",
-                "config": "打开配置目录"
-            }
+        "custom_theme": {
+          "header": "自定义布局 (需要重启)"
         },
-        "about": {
-            "tab": "关于更多",
-            "brief_header": "软件介绍",
-            "repository": "项目首页",
-            "brief": "专为手柄控制设计的第三方跨平台B站客户端\n完美复刻官方PC端B站，满足日常使用, 目前可以运行在PC全平台、PSV、PS4 和 Nintendo Switch 上",
-            "repo_header": "开源地址",
-            "author_header": "作者发言",
-            "author": "一直想做个艺术家, 可惜程序员都没什么发挥的空间\n直到这个作品诞生，实现了：「在游戏机上看视频；用手机来玩游戏」\n或许算得上是一种行为艺术，这样的话我也就圆满了"
+        "scale": {
+          "header": "界面缩放 (需要重启)",
+          "544p": "适合小屏幕",
+          "720p": "默认",
+          "900p": "适合大屏幕",
+          "1080p": "适合超大屏幕"
         },
-        "opensource": {
-            "tab": "开源许可"
+        "language": {
+          "header": "语言 (需要重启)",
+          "auto": "跟随系统",
+          "chinese_s": "简体中文",
+          "chinese_t": "繁体中文",
+          "english": "英语",
+          "japanese": "日语",
+          "ryukyuan": "琉球语",
+          "italiano": "意大利语",
+          "korean": "韩语"
         },
-        "tutorial": {
-            "error_q1": "无法访问网络",
-            "error_a1": "1. 确保大气层、系统固件最新\n2. 确认系统时间（包括日期）是正确的\n3. 恢复默认网络设置，包括IP、DNS等",
-            "error_q2": "软件随机报错退出",
-            "error_a2": "1. 使用Fat32格式内存卡\n2. 确保大气层、系统固件最新\n3. 等待开发者们修复",
-            "font_q1": "如何设置自定义字体或键位图标",
-            "font_a1": "1. 下载你想要的字体或图标字体文件\n2. 字体重命名为：font.ttf  图标重命名为：icon.ttf\n3. 将重命名后的文件放置在应用的配置目录\n4. 重启应用",
-            "font_q2": "常见问题",
-            "font_a2": "1. 软件优先显示自定义字体，以内置字体作为后备\n2. 「应用设置 - 实用工具 - 其他」 提供了快速打开配置目录的菜单项\n3. 在 Linux 上，wiliwili 使用 xdg-open 来打开目录，如果无法正确打开配置目录，可以考虑安装此工具"
-        },
-        "hot_keys": {
-            "common_header": "通用快捷键",
-            "common_content": " /  切换一级页面 \n /  切换二级页面",
-            "player_header": "播放器快捷键",
-            "player_content": " 快进，双击  快进锁定 \n +  向前跳转视频（单个  即可完整操控播放） \n 显示/隐藏 播放器OSD\n 显示/隐藏 弹幕 \n 显示/隐藏 视频数据"
-        },
-        "net": {
-            "test": {
-                "header": "访问网络",
-                "feed": "测试获取首页推荐"
-            },
-            "time": {
-                "header": "系统时间",
-                "subtitle": "系统时间不正确可能会导致网络访问失败",
-                "sys": "当前系统时间",
-                "net": "获取网络时间"
-            },
-            "profile": {
-                "header": "网络设置",
-                "subtitle": "若无法获取网络时间，可尝试还原系统网络设定",
-                "ip": "IP地址",
-                "dns": "DNS服务器地址"
-            }
+        "opencc": "自动转换简体中文 (需要重启)",
+        "keymap": {
+          "header": "键位图标 (需要重启)",
+          "swap": "键位交换 (需要重启)",
+          "xbox": "Xbox",
+          "ps": "PlayStation",
+          "keyboard": "键盘"
         }
+      }
     },
-    "hints": {
-        "hint1": "请从桌面选择任意游戏并按住  键",
-        "hint2": "点击  打开, 在应用开启期间保持按住  键，直到进入 hbmenu",
-        "hint3": "在 hbmenu 菜单中选择 wiliwili",
-        "hint4": "可选：安装桌面图标 (请将 wiliwili.nro 放置在 /switch/wiliwili.nro )",
-        "hint_nsp": "点击  安装桌面图标",
-        "hint_confirm": "安装桌面图标可能导致ban机\n请再次确认",
-        "hint_right": "掌机图片来源于网络，版权归任天堂 Nintendo Co., Ltd 所有"
+    "tools": {
+      "tab": "实用工具",
+      "tutorial": {
+        "header": "使用教程",
+        "intro": "软件介绍 (在线视频)",
+        "intro_bvid": "BV18W4y1q72C",
+        "wiki": "查看项目 WIKI 获得详细说明",
+        "open": "应用开启方式与安装桌面图标",
+        "error": "软件内报错或部分功能不可用",
+        "hot_key": "隐藏的快捷键说明",
+        "font": "设置自定义字体"
+      },
+      "test": {
+        "header": "诊断信息",
+        "net": "网络诊断",
+        "vibration": "振动测试"
+      },
+      "others": {
+        "header": "其他",
+        "dlna": "DLNA 投屏",
+        "dlna_waiting": "等待 DLNA 投屏中...",
+        "dlna_quit": "确定要退出投屏?",
+        "up2date": "应用已经是最新版",
+        "checking_update": "正在检查更新...",
+        "release": "检查更新",
+        "config_dir": "配置目录",
+        "config": "打开配置目录"
+      }
     },
-    "home": {
-        "common": {
-            "part": "分区: ",
-            "recommend": "推荐",
-            "search": "搜索你感兴趣的视频",
-            "switch": "切换",
-            "refresh": "刷新",
-            "last": "上一项",
-            "next": "下一项",
-            "filter": "筛选",
-            "save": "保存",
-            "min": "分钟",
-            "high": "高",
-            "medium": "中",
-            "low": "低",
-            "no_login": "用户未登录"
-        },
-        "live": {
-            "tab": "直播",
-            "dialog": "直播分区",
-            "default": "分区: 推荐"
-        },
-        "rcmd": {
-            "tab": "推荐"
-        },
-        "hots": {
-            "tab": "热门",
-            "t1": "综合热门",
-            "t2": "排行榜",
-            "t3": "每周必看",
-            "t4": "入站必刷"
-        },
-        "bangumi": {
-            "tab": "追番"
-        },
-        "cinema": {
-            "tab": "影视"
-        }
+    "about": {
+      "tab": "关于更多",
+      "brief_header": "软件介绍",
+      "repository": "项目首页",
+      "brief": "专为手柄控制设计的第三方跨平台B站客户端\n完美复刻官方PC端B站，满足日常使用, 目前可以运行在PC全平台、PSV、PS4 和 Nintendo Switch 上",
+      "repo_header": "开源地址",
+      "author_header": "作者发言",
+      "author": "一直想做个艺术家, 可惜程序员都没什么发挥的空间\n直到这个作品诞生，实现了：「在游戏机上看视频；用手机来玩游戏」\n或许算得上是一种行为艺术，这样的话我也就圆满了"
     },
-    "dynamic": {
-        "detail": "动态详情",
-        "video": "视频",
-        "article": "综合"
+    "opensource": {
+      "tab": "开源许可"
     },
-    "search": {
-        "tv": {
-            "hint": "支持关键字及关键字首字母",
-            "clear": "清空",
-            "delete": "删除",
-            "search": "搜索",
-            "hots": "热门搜索",
-            "history": "历史记录",
-            "history_clear": "全部清除",
-            "history_delete": "删除",
-            "suggest": "猜你想搜"
-        },
-        "history": {
-            "clear": "清空历史记录",
-            "clear_hint": "确认清空历史记录？"
-        },
-        "order": {
-            "all": "综合排序",
-            "click": "最多播放",
-            "pubdate": "最新发布",
-            "dm": "最多弹幕",
-            "stow": "最多收藏"
-        },
-        "tab": "搜索",
-        "t0": "历史",
-        "t1": "热搜",
-        "t2": "视频",
-        "t3": "番剧",
-        "t4": "影视"
+    "tutorial": {
+      "error_q1": "无法访问网络",
+      "error_a1": "1. 确保大气层、系统固件最新\n2. 确认系统时间（包括日期）是正确的\n3. 恢复默认网络设置，包括IP、DNS等",
+      "error_q2": "软件随机报错退出",
+      "error_a2": "1. 使用Fat32格式内存卡\n2. 确保大气层、系统固件最新\n3. 等待开发者们修复",
+      "font_q1": "如何设置自定义字体或键位图标",
+      "font_a1": "1. 下载你想要的字体或图标字体文件\n2. 字体重命名为：font.ttf  图标重命名为：icon.ttf\n3. 将重命名后的文件放置在应用的配置目录\n4. 重启应用",
+      "font_q2": "常见问题",
+      "font_a2": "1. 软件优先显示自定义字体，以内置字体作为后备\n2. 「应用设置 - 实用工具 - 其他」 提供了快速打开配置目录的菜单项\n3. 在 Linux 上，wiliwili 使用 xdg-open 来打开目录，如果无法正确打开配置目录，可以考虑安装此工具"
     },
-    "activity": {
-        "all": "全部动态",
-        "refresh": "刷新列表"
+    "hot_keys": {
+      "common_header": "通用快捷键",
+      "common_content": " /  切换一级页面 \n /  切换二级页面",
+      "player_header": "播放器快捷键",
+      "player_content": " 快进，双击  快进锁定 \n +  向前跳转视频（单个  即可完整操控播放） \n 显示/隐藏 播放器OSD\n 显示/隐藏 弹幕 \n 显示/隐藏 视频数据"
     },
-    "inbox": {
-        "chat": {
-            "tab": "聊天列表",
-            "hint": "发个消息聊聊呗 ~",
-            "unknown": "暂不支持该消息"
-        },
-        "tab": {
-            "like": "收到的赞",
-            "at": "@我的",
-            "reply": "回复我的"
-        },
-        "type": {
-            "video": "视频",
-            "reply": "评论",
-            "article": "文章",
-            "dynamic": "动态",
-            "danmu": "弹幕",
-            "album": "动态"
-        },
-        "more": "等 {} 人赞了我的{}",
-        "like": "赞了我的{}",
-        "at": "在{}中@了我",
-        "reply": "回复了我的{}"
-    },
-    "mine": {
-        "login": {
-            "check": "检查登录信息...",
-            "success": "登录成功",
-            "refresh": "刷新个人信息",
-            "click": "点击登录",
-            "logout": "退出登录当前的账户 (应用将会退出)",
-            "scan": "扫描二维码登录",
-            "loading": "加载二维码中...",
-            "hint": "请使用哔哩哔哩客户端扫码登录",
-            "network_error": "网络错误，请重试",
-            "qr_not_available": "二维码失效，请重新进入对话框",
-            "need_confirm": "等待确认",
-            "need_scan": "等待扫码"
-        },
-        "later": "稍后再看",
-        "history": "历史记录",
-        "collection": "我的收藏",
-        "subscription": "我的订阅",
-        "anime": "我的追番",
-        "series": "我的追剧",
-        "refresh_history": "刷新历史记录",
-        "refresh_collection": "刷新我的收藏",
-        "refresh_subscription": "刷新我的订阅",
-        "refresh_later": "刷新稍后再看",
-        "refresh_anime": "刷新我的追番",
-        "refresh_series": "刷新我的追剧",
-        "coin": "硬币",
-        "following": "关注",
-        "follower": "粉丝",
-        "activity": "动态",
-        "public": "公开",
-        "private": "私密",
-        "num": "个内容",
-        "pub": "创建于",
-        "creator": "创建者",
-        "done": "已看完",
-        "article": "使用浏览器打开专栏内容:"
-    },
-    "player": {
-        "intro": "查看简介",
-        "p": "分集",
-        "ugc_season": "合集",
-        "related": "推荐",
-        "series": "系列",
-        "recommend": "推荐",
-        "uploaded": "投稿",
-        "qr": "手机扫码观看/分享",
-        "clipboard": "已复制到剪贴板",
-        "comment": "评论",
-        "current": "人正在看",
-        "share": "分享",
-        "rights": "未经作者授权，禁止转载",
-        "fs": "全屏",
-        "quality": "画质",
-        "speed": "倍速",
-        "replay": "重播",
-        "current_speed": "{} 倍速播放中",
-        "not_follow": "取消关注?",
-        "coin": {
-            "title": "投币",
-            "hint": "选择你的投币数量",
-            "like": "同时点赞",
-            "own": "UP主不能自己投币",
-            "run_out": "对本稿件的投币枚数已用完",
-            "exp": "经验值+{}（今日{}/50）",
-            "exp_full": "今日投币+50经验成就 get  赞！",
-            "pcs": "{}个"
-        },
-        "season_part": {
-            "ascend": "正序",
-            "descend": "倒序"
-        },
-        "comment_sort": {
-            "sort_top": "按热度",
-            "sort_new": "按时间",
-            "top": "热门评论",
-            "new": "最新评论"
-        },
-        "collection": {
-            "type": "收藏",
-            "title": "选择收藏夹"
-        },
-        "setting": {
-            "subtitle": {
-                "header": "字幕"
-            },
-            "equalizer": {
-                "header": "均衡器",
-                "brightness": "亮度",
-                "contrast": "对比度",
-                "saturation": "饱和度",
-                "gamma": "伽马值",
-                "hue": "色调",
-                "reset": "重置"
-            },
-            "common": {
-                "header": "通用",
-                "mirror": "镜像画面",
-                "highlight": "下方固定显示高能进度条",
-                "skip_opening_credits": "跳过片头片尾",
-                "skip_hint1": "从下一个视频开始，自动跳过片头片尾",
-                "skip_hint2": "从下一个视频开始，关闭跳过片头片尾",
-                "skip_hint3": "从下一个视频开始，使用自定义的片头片尾",
-                "skip_hint4": "从下一个视频开始，停用自定义的片头片尾",
-                "wiki": "查看项目 WIKI 获得详细说明"
-            },
-            "season": {
-                "aspect": "自定义视频比例",
-                "clip": "自定义片头片尾",
-                "clip_start": "片头长度",
-                "clip_end": "片尾长度",
-                "unit": "单位: 秒"
-            },
-            "aspect": {
-                "header": "视频比例",
-                "crop": "填充",
-                "stretch": "拉伸",
-                "auto": "自动"
-            },
-            "shader": {
-                "header": "着色器"
-            }
-        },
-        "cast": {
-            "header": "投屏",
-            "device": "设备列表",
-            "request_url": "获取链接...",
-            "cast_to_renderer": "投射视频...",
-            "casting": "投屏中...",
-            "cancel": "取消投屏",
-            "err_connect": "无法连接到投屏设备",
-            "err_url": "获取投屏链接失败",
-            "countdown": "搜索倒计时"
-        },
-        "danmaku": {
-            "header": "弹幕设置",
-            "send": {
-                "action": "发送",
-                "hint": "发个友善的弹幕见证当下"
-            },
-            "performance": {
-                "header": "弹幕性能",
-                "render": "渲染尺寸"
-            },
-            "filter": {
-                "header": "弹幕过滤",
-                "mask": "智能防挡",
-                "top": "顶部弹幕",
-                "scroll": "滚动弹幕",
-                "bottom": "底部弹幕",
-                "color": "彩色弹幕",
-                "advanced": "高级弹幕",
-                "level": "过滤等级",
-                "level_n": "{}级",
-                "level_live": "直播过滤等级",
-                "level_live_none": "不过滤 (UL0+)",
-                "level_live_n": "UL{}以上",
-                "level_live_60": "仅UL60"
-            },
-            "style": {
-                "header": "弹幕样式",
-                "font": "描边类型",
-                "font_stroke": "描边",
-                "font_incline": "投影",
-                "font_shadow": "重墨",
-                "font_pure": "纯色",
-                "area": "显示区域",
-                "area_1_4": "1/4 屏幕",
-                "area_2_4": "1/2 屏幕",
-                "area_3_4": "3/4 屏幕",
-                "area_4_4": "全屏幕",
-                "alpha": "不透明度",
-                "fontsize": "弹幕字号",
-                "line_height": "弹幕行高",
-                "speed": "弹幕速度",
-                "speed_slow_plus": "极慢",
-                "speed_slow": "较慢",
-                "speed_fast_plus": "极快",
-                "speed_fast": "较快",
-                "speed_moderate": "适中"
-            }
-        },
-        "single_comment": {
-            "detail": "评论详情",
-            "hint": "发一条友善的评论",
-            "related": "相关回复共{}条",
-            "end": "没有更多评论",
-            "delete": "删除评论后，评论下所有回复都会被删除\n是否继续?"
-        }
-    },
-    "dialog": {
-        "not_supported": "不支持此功能",
-        "quit_hint": "正在退出应用..."
+    "net": {
+      "test": {
+        "header": "访问网络",
+        "feed": "测试获取首页推荐"
+      },
+      "time": {
+        "header": "系统时间",
+        "subtitle": "系统时间不正确可能会导致网络访问失败",
+        "sys": "当前系统时间",
+        "net": "获取网络时间"
+      },
+      "profile": {
+        "header": "网络设置",
+        "subtitle": "若无法获取网络时间，可尝试还原系统网络设定",
+        "ip": "IP地址",
+        "dns": "DNS服务器地址"
+      }
     }
+  },
+  "hints": {
+    "hint1": "请从桌面选择任意游戏并按住  键",
+    "hint2": "点击  打开, 在应用开启期间保持按住  键，直到进入 hbmenu",
+    "hint3": "在 hbmenu 菜单中选择 wiliwili",
+    "hint4": "可选：安装桌面图标 (请将 wiliwili.nro 放置在 /switch/wiliwili.nro )",
+    "hint_nsp": "点击  安装桌面图标",
+    "hint_confirm": "安装桌面图标可能导致ban机\n请再次确认",
+    "hint_right": "掌机图片来源于网络，版权归任天堂 Nintendo Co., Ltd 所有"
+  },
+  "home": {
+    "common": {
+      "part": "分区: ",
+      "recommend": "推荐",
+      "search": "搜索你感兴趣的视频",
+      "switch": "切换",
+      "refresh": "刷新",
+      "last": "上一项",
+      "next": "下一项",
+      "filter": "筛选",
+      "save": "保存",
+      "min": "分钟",
+      "high": "高",
+      "medium": "中",
+      "low": "低",
+      "no_login": "用户未登录"
+    },
+    "live": {
+      "tab": "直播",
+      "dialog": "直播分区",
+      "default": "分区: 推荐"
+    },
+    "rcmd": {
+      "tab": "推荐"
+    },
+    "hots": {
+      "tab": "热门",
+      "t1": "综合热门",
+      "t2": "排行榜",
+      "t3": "每周必看",
+      "t4": "入站必刷"
+    },
+    "bangumi": {
+      "tab": "追番"
+    },
+    "cinema": {
+      "tab": "影视"
+    }
+  },
+  "dynamic": {
+    "detail": "动态详情",
+    "video": "视频",
+    "article": "综合"
+  },
+  "search": {
+    "tv": {
+      "hint": "支持关键字及关键字首字母",
+      "clear": "清空",
+      "delete": "删除",
+      "search": "搜索",
+      "hots": "热门搜索",
+      "history": "历史记录",
+      "history_clear": "全部清除",
+      "history_delete": "删除",
+      "suggest": "猜你想搜"
+    },
+    "history": {
+      "clear": "清空历史记录",
+      "clear_hint": "确认清空历史记录？"
+    },
+    "order": {
+      "all": "综合排序",
+      "click": "最多播放",
+      "pubdate": "最新发布",
+      "dm": "最多弹幕",
+      "stow": "最多收藏"
+    },
+    "tab": "搜索",
+    "t0": "历史",
+    "t1": "热搜",
+    "t2": "视频",
+    "t3": "番剧",
+    "t4": "影视"
+  },
+  "activity": {
+    "all": "全部动态",
+    "refresh": "刷新列表"
+  },
+  "inbox": {
+    "chat": {
+      "tab": "聊天列表",
+      "hint": "发个消息聊聊呗 ~",
+      "unknown": "暂不支持该消息"
+    },
+    "tab": {
+      "like": "收到的赞",
+      "at": "@我的",
+      "reply": "回复我的"
+    },
+    "type": {
+      "video": "视频",
+      "reply": "评论",
+      "article": "文章",
+      "dynamic": "动态",
+      "danmu": "弹幕",
+      "album": "动态"
+    },
+    "more": "等 {} 人赞了我的{}",
+    "like": "赞了我的{}",
+    "at": "在{}中@了我",
+    "reply": "回复了我的{}"
+  },
+  "mine": {
+    "login": {
+      "check": "检查登录信息...",
+      "success": "登录成功",
+      "refresh": "刷新个人信息",
+      "click": "点击登录",
+      "logout": "退出登录当前的账户 (应用将会退出)",
+      "scan": "扫描二维码登录",
+      "loading": "加载二维码中...",
+      "hint": "请使用哔哩哔哩客户端扫码登录",
+      "network_error": "网络错误，请重试",
+      "qr_not_available": "二维码失效，请重新进入对话框",
+      "need_confirm": "等待确认",
+      "need_scan": "等待扫码"
+    },
+    "later": "稍后再看",
+    "history": "历史记录",
+    "collection": "我的收藏",
+    "subscription": "我的订阅",
+    "anime": "我的追番",
+    "series": "我的追剧",
+    "refresh_history": "刷新历史记录",
+    "refresh_collection": "刷新我的收藏",
+    "refresh_subscription": "刷新我的订阅",
+    "refresh_later": "刷新稍后再看",
+    "refresh_anime": "刷新我的追番",
+    "refresh_series": "刷新我的追剧",
+    "coin": "硬币",
+    "following": "关注",
+    "follower": "粉丝",
+    "activity": "动态",
+    "public": "公开",
+    "private": "私密",
+    "num": "个内容",
+    "pub": "创建于",
+    "creator": "创建者",
+    "done": "已看完",
+    "article": "使用浏览器打开专栏内容:"
+  },
+  "player": {
+    "intro": "查看简介",
+    "p": "分集",
+    "ugc_season": "合集",
+    "related": "推荐",
+    "series": "系列",
+    "recommend": "推荐",
+    "uploaded": "投稿",
+    "qr": "手机扫码观看/分享",
+    "clipboard": "已复制到剪贴板",
+    "comment": "评论",
+    "current": "人正在看",
+    "share": "分享",
+    "rights": "未经作者授权，禁止转载",
+    "fs": "全屏",
+    "quality": "画质",
+    "speed": "倍速",
+    "replay": "重播",
+    "current_speed": "{} 倍速播放中",
+    "not_follow": "取消关注?",
+    "coin": {
+      "title": "投币",
+      "hint": "选择你的投币数量",
+      "like": "同时点赞",
+      "own": "UP主不能自己投币",
+      "run_out": "对本稿件的投币枚数已用完",
+      "exp": "经验值+{}（今日{}/50）",
+      "exp_full": "今日投币+50经验成就 get  赞！",
+      "pcs": "{}个"
+    },
+    "season_part": {
+      "ascend": "正序",
+      "descend": "倒序"
+    },
+    "comment_sort": {
+      "sort_top": "按热度",
+      "sort_new": "按时间",
+      "top": "热门评论",
+      "new": "最新评论"
+    },
+    "collection": {
+      "type": "收藏",
+      "title": "选择收藏夹"
+    },
+    "setting": {
+      "subtitle": {
+        "header": "字幕"
+      },
+      "equalizer": {
+        "header": "均衡器",
+        "brightness": "亮度",
+        "contrast": "对比度",
+        "saturation": "饱和度",
+        "gamma": "伽马值",
+        "hue": "色调",
+        "reset": "重置"
+      },
+      "common": {
+        "header": "通用",
+        "mirror": "镜像画面",
+        "highlight": "下方固定显示高能进度条",
+        "skip_opening_credits": "跳过片头片尾",
+        "skip_hint1": "从下一个视频开始，自动跳过片头片尾",
+        "skip_hint2": "从下一个视频开始，关闭跳过片头片尾",
+        "skip_hint3": "从下一个视频开始，使用自定义的片头片尾",
+        "skip_hint4": "从下一个视频开始，停用自定义的片头片尾",
+        "wiki": "查看项目 WIKI 获得详细说明"
+      },
+      "season": {
+        "aspect": "自定义视频比例",
+        "clip": "自定义片头片尾",
+        "clip_start": "片头长度",
+        "clip_end": "片尾长度",
+        "unit": "单位: 秒"
+      },
+      "aspect": {
+        "header": "视频比例",
+        "crop": "填充",
+        "stretch": "拉伸",
+        "auto": "自动"
+      },
+      "shader": {
+        "header": "着色器"
+      }
+    },
+    "cast": {
+      "header": "投屏",
+      "device": "设备列表",
+      "request_url": "获取链接...",
+      "cast_to_renderer": "投射视频...",
+      "casting": "投屏中...",
+      "cancel": "取消投屏",
+      "err_connect": "无法连接到投屏设备",
+      "err_url": "获取投屏链接失败",
+      "countdown": "搜索倒计时"
+    },
+    "danmaku": {
+      "header": "弹幕设置",
+      "send": {
+        "action": "发送",
+        "hint": "发个友善的弹幕见证当下"
+      },
+      "performance": {
+        "header": "弹幕性能",
+        "render": "渲染尺寸"
+      },
+      "filter": {
+        "header": "弹幕过滤",
+        "mask": "智能防挡",
+        "top": "顶部弹幕",
+        "scroll": "滚动弹幕",
+        "bottom": "底部弹幕",
+        "color": "彩色弹幕",
+        "advanced": "高级弹幕",
+        "level": "过滤等级",
+        "level_n": "{}级",
+        "level_live": "直播过滤等级",
+        "level_live_none": "不过滤 (UL0+)",
+        "level_live_n": "UL{}以上",
+        "level_live_60": "仅UL60"
+      },
+      "style": {
+        "header": "弹幕样式",
+        "font": "描边类型",
+        "font_stroke": "描边",
+        "font_incline": "投影",
+        "font_shadow": "重墨",
+        "font_pure": "纯色",
+        "area": "显示区域",
+        "area_1_4": "1/4 屏幕",
+        "area_2_4": "1/2 屏幕",
+        "area_3_4": "3/4 屏幕",
+        "area_4_4": "全屏幕",
+        "alpha": "不透明度",
+        "fontsize": "弹幕字号",
+        "line_height": "弹幕行高",
+        "speed": "弹幕速度",
+        "speed_slow_plus": "极慢",
+        "speed_slow": "较慢",
+        "speed_fast_plus": "极快",
+        "speed_fast": "较快",
+        "speed_moderate": "适中"
+      }
+    },
+    "single_comment": {
+      "detail": "评论详情",
+      "hint": "发一条友善的评论",
+      "related": "相关回复共{}条",
+      "end": "没有更多评论",
+      "delete": "删除评论后，评论下所有回复都会被删除\n是否继续?"
+    }
+  },
+  "dialog": {
+    "not_supported": "不支持此功能",
+    "quit_hint": "正在退出应用..."
+  }
 }

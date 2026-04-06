@@ -1,488 +1,488 @@
 {
-    "title": "喴哩喴哩",
-    "github": "https://github.com/xfangfang/wiliwili",
-    "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
-    "setting": {
-        "quit_hint": "設定的內容將在下次啟動後生效",
-        "app": {
-            "tab": "應用設定",
-            "playback": {
-                "header": "播放設定",
-                "player": "播放機",
-                "report": "上傳歷史播放記錄",
-                "player_bar": "下方固定顯示進度條",
-                "low_quality": "低畫質解碼（以畫質為代價換取更低的功耗）",
-                "in_memory_cache": "解码緩存",
-                "hwdec": "硬體解碼",
-                "auto_play": "影片詳細頁直接播放",
-                "exit_fullscreen": "播放結束時自動退出全屏",
-                "play_strategy": "播放方式",
-                "auto_play_next_part": "自動播放分集",
-                "auto_play_recommend": "自動播放推薦",
-                "auto_loop": "循環當前影片",
-                "auto_no": "播完暫停影片",
-                "auto_hint": "「自動播放推薦」 會在播完分集之後自動播放推薦影片",
-                "sleep": "定時關閉",
-                "format": "格式",
-                "video_codec": "影像編碼",
-                "audio_quality": "影像音質",
-                "video_format": "影像格式",
-                "dolby": "杜比全景聲",
-                "hi_res": "Hi-Res 無損",
-                "window_fullscreen_on_app_fullscreen": "應用內全屏時自動切換視窗全屏"
-            },
-            "image": {
-                "header": "圖片設定",
-                "texture": "圖片紋理快取數量",
-                "threads": "圖片加載線程數"
-            },
-            "network": {
-                "header": "網絡設定",
-                "tls": "TLS 驗證",
-                "proxy": "網絡代理",
-                "proxy_hint": "示例: http://127.0.0.1:7890"
-            },
-            "ui": {
-                "header": "介面設定",
-                "window": "視窗",
-                "bottom_bar": "底部提示欄",
-                "ui_style": "介面風格",
-                "tv_osd": "電視風格播放器",
-                "live_sidebar_count": "直播間側邊欄彈幕數量",
-                "live_sidebar_hide": "隱藏側邊欄"
-            },
-            "others": {
-                "header": "其他設定",
-                "vibration": "手柄振動",
-                "hide_bottom": "隱藏下方提示欄",
-                "hide_fps": "隱藏 FPS",
-                "show_bottom": "顯示提示欄",
-                "show_fps": "顯示 FPS",
-                "limited_fps": "最高幀數限制",
-                "limited_fps_vsync": "垂直同步",
-                "fullscreen": "全荧幕顯示",
-                "always_on_top": "窗口置頂",
-                "always_on_top_hint": "自動: 當窗口尺寸較小時自動開啟置頂",
-                "tv_search": "電視風格搜尋頁",
-                "clear_history": "清空搜尋記錄",
-                "clear_season": "清空番劇自定義設定",
-                "theme": {
-                    "header": "主題配色 (需要重啟)",
-                    "1": "跟隨系統",
-                    "2": "淺色",
-                    "3": "深色"
-                },
-                "custom_theme": {
-                    "header": "自訂佈局 (需要重啟)"
-                },
-                "scale": {
-                    "header": "介面縮放 (需要重啟)",
-                    "544p": "適合小荧幕",
-                    "720p": "預設",
-                    "900p": "適合大荧幕",
-                    "1080p": "適合超大荧幕"
-                },
-                "language": {
-                    "header": "語言 (需要重啟)",
-                    "auto": "跟隨系統",
-                    "chinese_s": "简体中文",
-                    "chinese_t": "繁體中文",
-                    "english": "English",
-                    "japanese": "日本語",
-                    "ryukyuan": "島言葉",
-                    "italiano": "Italiano",
-                    "korean": "한국어"
-                },
-                "opencc": "自動轉換簡體中文 (需要重啓)",
-                "keymap": {
-                    "header": "鍵位風格 (需要重啟)",
-                    "swap": "鍵位交換 (需要重啟)",
-                    "xbox": "Xbox",
-                    "ps": "PlayStation",
-                    "keyboard": "鍵盤"
-                }
-            }
+  "title": "喴哩喴哩",
+  "github": "https://github.com/xfangfang/wiliwili",
+  "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
+  "setting": {
+    "quit_hint": "設定的內容將在下次啟動後生效",
+    "app": {
+      "tab": "應用設定",
+      "playback": {
+        "header": "播放設定",
+        "player": "播放機",
+        "report": "上傳歷史播放記錄",
+        "player_bar": "下方固定顯示進度條",
+        "low_quality": "低畫質解碼（以畫質為代價換取更低的功耗）",
+        "in_memory_cache": "解码緩存",
+        "hwdec": "硬體解碼",
+        "auto_play": "影片詳細頁直接播放",
+        "exit_fullscreen": "播放結束時自動退出全屏",
+        "play_strategy": "播放方式",
+        "auto_play_next_part": "自動播放分集",
+        "auto_play_recommend": "自動播放推薦",
+        "auto_loop": "循環當前影片",
+        "auto_no": "播完暫停影片",
+        "auto_hint": "「自動播放推薦」 會在播完分集之後自動播放推薦影片",
+        "sleep": "定時關閉",
+        "format": "格式",
+        "video_codec": "影像編碼",
+        "audio_quality": "影像音質",
+        "video_format": "影像格式",
+        "dolby": "杜比全景聲",
+        "hi_res": "Hi-Res 無損",
+        "window_fullscreen_on_app_fullscreen": "應用內全屏時自動切換視窗全屏"
+      },
+      "image": {
+        "header": "圖片設定",
+        "texture": "圖片紋理快取數量",
+        "threads": "圖片加載線程數"
+      },
+      "network": {
+        "header": "網絡設定",
+        "tls": "TLS 驗證",
+        "proxy": "網絡代理",
+        "proxy_hint": "示例: http://127.0.0.1:7890"
+      },
+      "ui": {
+        "header": "介面設定",
+        "window": "視窗",
+        "bottom_bar": "底部提示欄",
+        "ui_style": "介面風格",
+        "tv_osd": "電視風格播放器",
+        "live_sidebar_count": "直播間側邊欄彈幕數量",
+        "live_sidebar_hide": "隱藏側邊欄"
+      },
+      "others": {
+        "header": "其他設定",
+        "vibration": "手柄振動",
+        "hide_bottom": "隱藏下方提示欄",
+        "hide_fps": "隱藏 FPS",
+        "show_bottom": "顯示提示欄",
+        "show_fps": "顯示 FPS",
+        "limited_fps": "最高幀數限制",
+        "limited_fps_vsync": "垂直同步",
+        "fullscreen": "全荧幕顯示",
+        "always_on_top": "窗口置頂",
+        "always_on_top_hint": "自動: 當窗口尺寸較小時自動開啟置頂",
+        "tv_search": "電視風格搜尋頁",
+        "clear_history": "清空搜尋記錄",
+        "clear_season": "清空番劇自定義設定",
+        "theme": {
+          "header": "主題配色 (需要重啟)",
+          "1": "跟隨系統",
+          "2": "淺色",
+          "3": "深色"
         },
-        "tools": {
-            "tab": "實用工具",
-            "tutorial": {
-                "header": "使用教學",
-                "intro": "軟體介紹 (線上影片)",
-                "intro_bvid": "BV18W4y1q72C",
-                "wiki": "查看項目 WIKI 獲得詳細說明",
-                "open": "應用開啟方式與安裝桌面圖示",
-                "error": "軟體內報錯或部份功能不可用",
-                "hot_key": "隱藏的快速鍵說明",
-                "font": "設置自訂字型"
-            },
-            "test": {
-                "header": "診斷訊息",
-                "net": "網路診斷",
-                "vibration": "振動測試"
-            },
-            "others": {
-                "header": "其他",
-                "dlna": "DLNA 投映",
-                "dlna_waiting": "等待 DLNA 投映中...",
-                "dlna_quit": "確定要退出投映?",
-                "up2date": "應用程式為最新版本。",
-                "checking_update": "正在檢查更新...",
-                "release": "檢查更新",
-                "config_dir": "設定檔目錄",
-                "config": "開啟設定檔目錄"
-            }
+        "custom_theme": {
+          "header": "自訂佈局 (需要重啟)"
         },
-        "about": {
-            "tab": "關於更多",
-            "brief_header": "軟體介紹",
-            "repository": "專案首頁",
-            "brief": "專為搖桿控制設計的第三方跨平臺B站客戶端\n完美復刻官方PC端B站，滿足日常使用, 目前可以執行在PC全平臺、PSV、PS4 和 Nintendo Switch 上",
-            "repo_header": "開源位址",
-            "author_header": "作者發言",
-            "author": "一直想做個藝術家, 可惜程式師都沒什麽發揮的空間\n直到這個作品誕生，實現了：「在遊戲機上看影片；用手機來玩遊戲」\n或許算得上是一種行為藝術，這樣的話我也就圓滿了"
+        "scale": {
+          "header": "介面縮放 (需要重啟)",
+          "544p": "適合小荧幕",
+          "720p": "預設",
+          "900p": "適合大荧幕",
+          "1080p": "適合超大荧幕"
         },
-        "opensource": {
-            "tab": "開源許可"
+        "language": {
+          "header": "語言 (需要重啟)",
+          "auto": "跟隨系統",
+          "chinese_s": "简体中文",
+          "chinese_t": "繁體中文",
+          "english": "English",
+          "japanese": "日本語",
+          "ryukyuan": "島言葉",
+          "italiano": "Italiano",
+          "korean": "한국어"
         },
-        "tutorial": {
-            "error_q1": "無法訪問網路",
-            "error_a1": "1. 確保大氣層、系統韌體最新\n2. 確認系統時間（包括日期）是正確的\n3. 恢復預設網路設定，包括IP、DNS等",
-            "error_q2": "軟體隨機報錯退出",
-            "error_a2": "1. 使用Fat32格式記憶卡\n2. 確保大氣層、系統韌體最新\n3. 等待開發者們修復",
-            "font_q1": "如何設定自定義字體或鍵位圖標",
-            "font_a1": "1. 下載所需的字體或圖標字體\n2. 將字體重命名為：font.ttf； 將圖標重命名為：icon.ttf\n3. 將字體放在設定檔目錄中\n4. 重新啟動應用程序",
-            "font_q2": "常見問題",
-            "font_a2": "1. wiliwili 優先顯示自定義字體，內寘字體作為備用。\n2. “設定-工具-其他”提供了一個功能表項目，可以快速打開配寘目錄。\n3. 在 Linux 上，wiliwili 使用 xdg-open 打開目錄。 如果無法正確打開設定檔目錄，可以考慮安裝此工具。"
-        },
-        "hot_keys": {
-            "common_header": "通用快速鍵",
-            "common_content": " /  切換一級頁面\n /  切換二級頁面",
-            "player_header": "播放器快速鍵",
-            "player_content": " 快進，按兩下  快進鎖定\n +  向前跳轉影片（單個  即可完整操控播放）\n 顯示/隱藏播放器OSD\n 顯示/隱藏彈幕 \n 顯示/隱藏影像數據"
-        },
-        "net": {
-            "test": {
-                "header": "訪問網路",
-                "feed": "測試獲取首頁推薦"
-            },
-            "time": {
-                "header": "系統時間",
-                "subtitle": "系統時間不正確可能會導致網路訪問失敗",
-                "sys": "當前系統時間",
-                "net": "獲取網路時間"
-            },
-            "profile": {
-                "header": "網路設定",
-                "subtitle": "若無法獲取網路時間，可嘗試還原系統網路設定",
-                "ip": "IP位址",
-                "dns": "DNS伺服器位址"
-            }
+        "opencc": "自動轉換簡體中文 (需要重啓)",
+        "keymap": {
+          "header": "鍵位風格 (需要重啟)",
+          "swap": "鍵位交換 (需要重啟)",
+          "xbox": "Xbox",
+          "ps": "PlayStation",
+          "keyboard": "鍵盤"
         }
+      }
     },
-    "hints": {
-        "hint1": "請從桌面選擇任意遊戲並按住  鍵",
-        "hint2": "點擊  打開, 在應用開啟期間保持按住  鍵，直到進入 hbmenu",
-        "hint3": "在 hbmenu 目錄中選擇 wiliwili",
-        "hint4": "可選：安裝桌面圖示 (請將 wiliwili.nro 放置在 /switch/wiliwili.nro)",
-        "hint_nsp": "點擊  安裝桌面圖示",
-        "hint_confirm": "安裝桌面圖示可能導致ban機\n請再次確認",
-        "hint_right": "掌機圖片來源於網路，版權歸任天堂 Nintendo Co., Ltd 所有"
+    "tools": {
+      "tab": "實用工具",
+      "tutorial": {
+        "header": "使用教學",
+        "intro": "軟體介紹 (線上影片)",
+        "intro_bvid": "BV18W4y1q72C",
+        "wiki": "查看項目 WIKI 獲得詳細說明",
+        "open": "應用開啟方式與安裝桌面圖示",
+        "error": "軟體內報錯或部份功能不可用",
+        "hot_key": "隱藏的快速鍵說明",
+        "font": "設置自訂字型"
+      },
+      "test": {
+        "header": "診斷訊息",
+        "net": "網路診斷",
+        "vibration": "振動測試"
+      },
+      "others": {
+        "header": "其他",
+        "dlna": "DLNA 投映",
+        "dlna_waiting": "等待 DLNA 投映中...",
+        "dlna_quit": "確定要退出投映?",
+        "up2date": "應用程式為最新版本。",
+        "checking_update": "正在檢查更新...",
+        "release": "檢查更新",
+        "config_dir": "設定檔目錄",
+        "config": "開啟設定檔目錄"
+      }
     },
-    "home": {
-        "common": {
-            "part": "分區",
-            "recommend": "推薦",
-            "search": "搜索你感興趣的影片",
-            "switch": "切換",
-            "refresh": "重新整理",
-            "last": "上一項",
-            "next": "下一項",
-            "filter": "篩選",
-            "save": "儲存",
-            "min": "分鐘",
-            "high": "高",
-            "medium": "中",
-            "low": "低",
-            "no_login": "您尚未登入"
-        },
-        "live": {
-            "tab": "直播",
-            "dialog": "直播分區",
-            "default": "分區: 推薦"
-        },
-        "rcmd": {
-            "tab": "推薦"
-        },
-        "hots": {
-            "tab": "熱門",
-            "t1": "綜合熱門",
-            "t2": "排行榜",
-            "t3": "每周必看",
-            "t4": "入站必刷"
-        },
-        "bangumi": {
-            "tab": "追番"
-        },
-        "cinema": {
-            "tab": "影視"
-        }
+    "about": {
+      "tab": "關於更多",
+      "brief_header": "軟體介紹",
+      "repository": "專案首頁",
+      "brief": "專為搖桿控制設計的第三方跨平臺B站客戶端\n完美復刻官方PC端B站，滿足日常使用, 目前可以執行在PC全平臺、PSV、PS4 和 Nintendo Switch 上",
+      "repo_header": "開源位址",
+      "author_header": "作者發言",
+      "author": "一直想做個藝術家, 可惜程式師都沒什麽發揮的空間\n直到這個作品誕生，實現了：「在遊戲機上看影片；用手機來玩遊戲」\n或許算得上是一種行為藝術，這樣的話我也就圓滿了"
     },
-    "dynamic": {
-        "detail": "動態詳情",
-        "video": "影片",
-        "article": "綜合"
+    "opensource": {
+      "tab": "開源許可"
     },
-    "search": {
-        "tv": {
-            "hint": "支持關鍵字及關鍵字首字母",
-            "clear": "清空",
-            "delete": "删除",
-            "search": "搜尋",
-            "hots": "熱門搜尋",
-            "history": "歷史記錄",
-            "history_clear": "清除全部",
-            "history_delete": "删除",
-            "suggest": "猜你想搜"
-        },
-        "history": {
-            "clear": "清空歷史記錄",
-            "clear_hint": "確認清空歷史記錄？"
-        },
-        "order": {
-            "all": "綜合排序",
-            "click": "最多播放",
-            "pubdate": "最新發佈",
-            "dm": "最多彈幕",
-            "stow": "最多收藏"
-        },
-        "tab": "搜尋",
-        "t0": "歷史",
-        "t1": "熱搜",
-        "t2": "影片",
-        "t3": "番劇",
-        "t4": "影視"
+    "tutorial": {
+      "error_q1": "無法訪問網路",
+      "error_a1": "1. 確保大氣層、系統韌體最新\n2. 確認系統時間（包括日期）是正確的\n3. 恢復預設網路設定，包括IP、DNS等",
+      "error_q2": "軟體隨機報錯退出",
+      "error_a2": "1. 使用Fat32格式記憶卡\n2. 確保大氣層、系統韌體最新\n3. 等待開發者們修復",
+      "font_q1": "如何設定自定義字體或鍵位圖標",
+      "font_a1": "1. 下載所需的字體或圖標字體\n2. 將字體重命名為：font.ttf； 將圖標重命名為：icon.ttf\n3. 將字體放在設定檔目錄中\n4. 重新啟動應用程序",
+      "font_q2": "常見問題",
+      "font_a2": "1. wiliwili 優先顯示自定義字體，內寘字體作為備用。\n2. “設定-工具-其他”提供了一個功能表項目，可以快速打開配寘目錄。\n3. 在 Linux 上，wiliwili 使用 xdg-open 打開目錄。 如果無法正確打開設定檔目錄，可以考慮安裝此工具。"
     },
-    "activity": {
-        "all": "全部動態",
-        "refresh": "重新整理列表"
+    "hot_keys": {
+      "common_header": "通用快速鍵",
+      "common_content": " /  切換一級頁面\n /  切換二級頁面",
+      "player_header": "播放器快速鍵",
+      "player_content": " 快進，按兩下  快進鎖定\n +  向前跳轉影片（單個  即可完整操控播放）\n 顯示/隱藏播放器OSD\n 顯示/隱藏彈幕 \n 顯示/隱藏影像數據"
     },
-    "inbox": {
-        "chat": {
-            "tab": "聊天列表",
-            "hint": "發個消息聊聊唄 ~",
-            "unknown": "暫不支持該消息"
-        },
-        "tab": {
-            "like": "收到的贊",
-            "at": "@我的",
-            "reply": "回復我的"
-        },
-        "type": {
-            "video": "視頻",
-            "reply": "評論",
-            "article": "文章",
-            "dynamic": "動態",
-            "danmu": "彈幕",
-            "album": "動態"
-        },
-        "more": "等 {} 人贊了我的{}",
-        "like": "贊了我的{}",
-        "at": "在{}中@了我",
-        "reply": "回復我的{}"
-    },
-    "mine": {
-        "login": {
-            "check": "檢查登入資訊...",
-            "success": "登入成功",
-            "refresh": "重新整理個人資訊",
-            "click": "點選登入",
-            "logout": "退出登入當前的賬號 (應用將會退出)",
-            "scan": "掃描二維碼登錄",
-            "loading": "加載二維碼中...",
-            "hint": "請使用嗶哩嗶哩客戶端掃碼登錄",
-            "network_error": "網路錯誤，請重試",
-            "qr_not_available": "二維碼失效，請重新進入對話框",
-            "need_confirm": "等待確認",
-            "need_scan": "等待掃碼"
-        },
-        "later": "稍後再看",
-        "history": "歷史記錄",
-        "collection": "我的收藏",
-        "subscription": "我的訂閱",
-        "anime": "我的追番",
-        "series": "我的追劇",
-        "refresh_history": "重新整理歷史記錄",
-        "refresh_collection": "重新整理我的收藏",
-        "refresh_subscription": "重新整理我的訂閱",
-        "refresh_later": "重新整理稍後再看",
-        "refresh_anime": "重新整理我的追劇",
-        "refresh_series": "重新整理我的追番",
-        "coin": "硬幣",
-        "following": "關註",
-        "follower": "粉絲",
-        "activity": "動態",
-        "public": "公開",
-        "private": "私密",
-        "num": "個內容",
-        "pub": "建立於",
-        "creator": "創建者",
-        "done": "已看完",
-        "article": "使用瀏覽器開啟專欄內容:"
-    },
-    "player": {
-        "intro": "查看簡介",
-        "p": "分集",
-        "ugc_season": "合集",
-        "related": "推薦",
-        "series": "系列",
-        "recommend": "推薦",
-        "uploaded": "投稿",
-        "qr": "手機掃碼觀看/分享",
-        "clipboard": "已複製到剪貼板",
-        "comment": "評論",
-        "current": "人正在看",
-        "share": "分享",
-        "rights": "未經作者授權，禁止轉載",
-        "fs": "全屏",
-        "quality": "畫質",
-        "speed": "倍速",
-        "replay": "重播",
-        "current_speed": "{} 倍速播放中",
-        "not_follow": "取消關注？",
-        "coin": {
-            "title": "硬幣",
-            "hint": "選擇你的投幣數量",
-            "like": "同時點贊",
-            "own": "UP主不能自己投幣",
-            "run_out": "對本稿件的投幣枚數已用完",
-            "exp": "經驗值+{}（今日{}/50）",
-            "exp_full": "今日投幣+50經驗成就 get  贊！",
-            "pcs": "{} 个"
-        },
-        "season_part": {
-            "ascend": "正序",
-            "descend": "倒序"
-        },
-        "comment_sort": {
-            "sort_top": "按熱度",
-            "sort_new": "按時間",
-            "top": "熱門評論",
-            "new": "最新評論"
-        },
-        "collection": {
-            "type": "收藏",
-            "title": "選擇收藏夾"
-        },
-        "setting": {
-            "subtitle": {
-                "header": "字幕"
-            },
-            "equalizer": {
-                "header": "等化器",
-                "brightness": "亮度",
-                "contrast": "對比度",
-                "saturation": "飽和度",
-                "gamma": "伽馬值",
-                "hue": "色調",
-                "reset": "重置"
-            },
-            "common": {
-                "header": "通用",
-                "mirror": "鏡像畫面",
-                "highlight": "下方固定顯示高能進度條",
-                "skip_opening_credits": "跳過片頭片尾",
-                "skip_hint1": "從下一個影片開始，自動跳過片頭片尾",
-                "skip_hint2": "從下一個影片開始，關閉跳過片頭片尾",
-                "skip_hint3": "從下一個影片開始，使用自定義的片頭片尾",
-                "skip_hint4": "從下一個影片開始，停用自定義的片頭片尾",
-                "wiki": "查看項目 WIKI 獲得詳細說明"
-            },
-            "season": {
-                "aspect": "自定義影片比例",
-                "clip": "自定義片頭片尾",
-                "clip_start": "片頭長度",
-                "clip_end": "片尾長度",
-                "unit": "單位: 秒"
-            },
-            "aspect": {
-                "header": "影片比例",
-                "crop": "填充",
-                "stretch": "拉伸",
-                "auto": "自動"
-            },
-            "shader": {
-                "header": "著色器"
-            }
-        },
-        "cast": {
-            "header": "投屏",
-            "device": "装置列表",
-            "request_url": "獲取連結...",
-            "cast_to_renderer": "投射影片...",
-            "casting": "投屏中...",
-            "cancel": "取消投屏",
-            "err_connect": "無法連接到投屏装置",
-            "err_url": "獲取投屏連結失敗",
-            "countdown": "搜尋倒數計時"
-        },
-        "danmaku": {
-            "header": "彈幕設定",
-            "send": {
-                "action": "發送",
-                "hint": "發一條友善的彈幕"
-            },
-            "performance": {
-                "header": "彈幕效能",
-                "render": "渲染尺寸"
-            },
-            "filter": {
-                "header": "彈幕篩選",
-                "mask": "智慧防擋",
-                "top": "頂部",
-                "scroll": "滾動",
-                "bottom": "底部",
-                "color": "彩色",
-                "advanced": "高級",
-                "level": "按等級篩選",
-                "level_n": "等級 {}",
-                "level_live": "直播過濾等級",
-                "level_live_none": "不過濾 (UL0+)",
-                "level_live_n": "UL{}以上",
-                "level_live_60": "僅UL60"
-            },
-            "style": {
-                "header": "彈幕風格",
-                "font": "描邊風格",
-                "font_stroke": "描邊",
-                "font_incline": "投影",
-                "font_shadow": "重墨",
-                "font_pure": "純色",
-                "area": "彈幕區域",
-                "area_1_4": "1/4 荧幕",
-                "area_2_4": "1/2 荧幕",
-                "area_3_4": "3/4 荧幕",
-                "area_4_4": "全荧幕",
-                "alpha": "透明度",
-                "fontsize": "字體大小",
-                "line_height": "彈幕行高",
-                "speed": "速度",
-                "speed_slow_plus": "極慢",
-                "speed_slow": "慢速",
-                "speed_fast_plus": "極速",
-                "speed_fast": "快速",
-                "speed_moderate": "適當"
-            }
-        },
-        "single_comment": {
-            "detail": "評論詳情",
-            "hint": "發一條友善的評論",
-            "related": "總共{}個答覆",
-            "end": "沒有更多的評論",
-            "delete": "删除評論後，將删除評論下的所有回復\n\n是否要繼續？"
-        }
-    },
-    "dialog": {
-        "not_supported": "不支援此功能",
-        "quit_hint": "正在退出軟體..."
+    "net": {
+      "test": {
+        "header": "訪問網路",
+        "feed": "測試獲取首頁推薦"
+      },
+      "time": {
+        "header": "系統時間",
+        "subtitle": "系統時間不正確可能會導致網路訪問失敗",
+        "sys": "當前系統時間",
+        "net": "獲取網路時間"
+      },
+      "profile": {
+        "header": "網路設定",
+        "subtitle": "若無法獲取網路時間，可嘗試還原系統網路設定",
+        "ip": "IP位址",
+        "dns": "DNS伺服器位址"
+      }
     }
+  },
+  "hints": {
+    "hint1": "請從桌面選擇任意遊戲並按住  鍵",
+    "hint2": "點擊  打開, 在應用開啟期間保持按住  鍵，直到進入 hbmenu",
+    "hint3": "在 hbmenu 目錄中選擇 wiliwili",
+    "hint4": "可選：安裝桌面圖示 (請將 wiliwili.nro 放置在 /switch/wiliwili.nro)",
+    "hint_nsp": "點擊  安裝桌面圖示",
+    "hint_confirm": "安裝桌面圖示可能導致ban機\n請再次確認",
+    "hint_right": "掌機圖片來源於網路，版權歸任天堂 Nintendo Co., Ltd 所有"
+  },
+  "home": {
+    "common": {
+      "part": "分區",
+      "recommend": "推薦",
+      "search": "搜索你感興趣的影片",
+      "switch": "切換",
+      "refresh": "重新整理",
+      "last": "上一項",
+      "next": "下一項",
+      "filter": "篩選",
+      "save": "儲存",
+      "min": "分鐘",
+      "high": "高",
+      "medium": "中",
+      "low": "低",
+      "no_login": "您尚未登入"
+    },
+    "live": {
+      "tab": "直播",
+      "dialog": "直播分區",
+      "default": "分區: 推薦"
+    },
+    "rcmd": {
+      "tab": "推薦"
+    },
+    "hots": {
+      "tab": "熱門",
+      "t1": "綜合熱門",
+      "t2": "排行榜",
+      "t3": "每周必看",
+      "t4": "入站必刷"
+    },
+    "bangumi": {
+      "tab": "追番"
+    },
+    "cinema": {
+      "tab": "影視"
+    }
+  },
+  "dynamic": {
+    "detail": "動態詳情",
+    "video": "影片",
+    "article": "綜合"
+  },
+  "search": {
+    "tv": {
+      "hint": "支持關鍵字及關鍵字首字母",
+      "clear": "清空",
+      "delete": "删除",
+      "search": "搜尋",
+      "hots": "熱門搜尋",
+      "history": "歷史記錄",
+      "history_clear": "清除全部",
+      "history_delete": "删除",
+      "suggest": "猜你想搜"
+    },
+    "history": {
+      "clear": "清空歷史記錄",
+      "clear_hint": "確認清空歷史記錄？"
+    },
+    "order": {
+      "all": "綜合排序",
+      "click": "最多播放",
+      "pubdate": "最新發佈",
+      "dm": "最多彈幕",
+      "stow": "最多收藏"
+    },
+    "tab": "搜尋",
+    "t0": "歷史",
+    "t1": "熱搜",
+    "t2": "影片",
+    "t3": "番劇",
+    "t4": "影視"
+  },
+  "activity": {
+    "all": "全部動態",
+    "refresh": "重新整理列表"
+  },
+  "inbox": {
+    "chat": {
+      "tab": "聊天列表",
+      "hint": "發個消息聊聊唄 ~",
+      "unknown": "暫不支持該消息"
+    },
+    "tab": {
+      "like": "收到的贊",
+      "at": "@我的",
+      "reply": "回復我的"
+    },
+    "type": {
+      "video": "視頻",
+      "reply": "評論",
+      "article": "文章",
+      "dynamic": "動態",
+      "danmu": "彈幕",
+      "album": "動態"
+    },
+    "more": "等 {} 人贊了我的{}",
+    "like": "贊了我的{}",
+    "at": "在{}中@了我",
+    "reply": "回復我的{}"
+  },
+  "mine": {
+    "login": {
+      "check": "檢查登入資訊...",
+      "success": "登入成功",
+      "refresh": "重新整理個人資訊",
+      "click": "點選登入",
+      "logout": "退出登入當前的賬號 (應用將會退出)",
+      "scan": "掃描二維碼登錄",
+      "loading": "加載二維碼中...",
+      "hint": "請使用嗶哩嗶哩客戶端掃碼登錄",
+      "network_error": "網路錯誤，請重試",
+      "qr_not_available": "二維碼失效，請重新進入對話框",
+      "need_confirm": "等待確認",
+      "need_scan": "等待掃碼"
+    },
+    "later": "稍後再看",
+    "history": "歷史記錄",
+    "collection": "我的收藏",
+    "subscription": "我的訂閱",
+    "anime": "我的追番",
+    "series": "我的追劇",
+    "refresh_history": "重新整理歷史記錄",
+    "refresh_collection": "重新整理我的收藏",
+    "refresh_subscription": "重新整理我的訂閱",
+    "refresh_later": "重新整理稍後再看",
+    "refresh_anime": "重新整理我的追劇",
+    "refresh_series": "重新整理我的追番",
+    "coin": "硬幣",
+    "following": "關註",
+    "follower": "粉絲",
+    "activity": "動態",
+    "public": "公開",
+    "private": "私密",
+    "num": "個內容",
+    "pub": "建立於",
+    "creator": "創建者",
+    "done": "已看完",
+    "article": "使用瀏覽器開啟專欄內容:"
+  },
+  "player": {
+    "intro": "查看簡介",
+    "p": "分集",
+    "ugc_season": "合集",
+    "related": "推薦",
+    "series": "系列",
+    "recommend": "推薦",
+    "uploaded": "投稿",
+    "qr": "手機掃碼觀看/分享",
+    "clipboard": "已複製到剪貼板",
+    "comment": "評論",
+    "current": "人正在看",
+    "share": "分享",
+    "rights": "未經作者授權，禁止轉載",
+    "fs": "全屏",
+    "quality": "畫質",
+    "speed": "倍速",
+    "replay": "重播",
+    "current_speed": "{} 倍速播放中",
+    "not_follow": "取消關注？",
+    "coin": {
+      "title": "硬幣",
+      "hint": "選擇你的投幣數量",
+      "like": "同時點贊",
+      "own": "UP主不能自己投幣",
+      "run_out": "對本稿件的投幣枚數已用完",
+      "exp": "經驗值+{}（今日{}/50）",
+      "exp_full": "今日投幣+50經驗成就 get  贊！",
+      "pcs": "{} 个"
+    },
+    "season_part": {
+      "ascend": "正序",
+      "descend": "倒序"
+    },
+    "comment_sort": {
+      "sort_top": "按熱度",
+      "sort_new": "按時間",
+      "top": "熱門評論",
+      "new": "最新評論"
+    },
+    "collection": {
+      "type": "收藏",
+      "title": "選擇收藏夾"
+    },
+    "setting": {
+      "subtitle": {
+        "header": "字幕"
+      },
+      "equalizer": {
+        "header": "等化器",
+        "brightness": "亮度",
+        "contrast": "對比度",
+        "saturation": "飽和度",
+        "gamma": "伽馬值",
+        "hue": "色調",
+        "reset": "重置"
+      },
+      "common": {
+        "header": "通用",
+        "mirror": "鏡像畫面",
+        "highlight": "下方固定顯示高能進度條",
+        "skip_opening_credits": "跳過片頭片尾",
+        "skip_hint1": "從下一個影片開始，自動跳過片頭片尾",
+        "skip_hint2": "從下一個影片開始，關閉跳過片頭片尾",
+        "skip_hint3": "從下一個影片開始，使用自定義的片頭片尾",
+        "skip_hint4": "從下一個影片開始，停用自定義的片頭片尾",
+        "wiki": "查看項目 WIKI 獲得詳細說明"
+      },
+      "season": {
+        "aspect": "自定義影片比例",
+        "clip": "自定義片頭片尾",
+        "clip_start": "片頭長度",
+        "clip_end": "片尾長度",
+        "unit": "單位: 秒"
+      },
+      "aspect": {
+        "header": "影片比例",
+        "crop": "填充",
+        "stretch": "拉伸",
+        "auto": "自動"
+      },
+      "shader": {
+        "header": "著色器"
+      }
+    },
+    "cast": {
+      "header": "投屏",
+      "device": "装置列表",
+      "request_url": "獲取連結...",
+      "cast_to_renderer": "投射影片...",
+      "casting": "投屏中...",
+      "cancel": "取消投屏",
+      "err_connect": "無法連接到投屏装置",
+      "err_url": "獲取投屏連結失敗",
+      "countdown": "搜尋倒數計時"
+    },
+    "danmaku": {
+      "header": "彈幕設定",
+      "send": {
+        "action": "發送",
+        "hint": "發一條友善的彈幕"
+      },
+      "performance": {
+        "header": "彈幕效能",
+        "render": "渲染尺寸"
+      },
+      "filter": {
+        "header": "彈幕篩選",
+        "mask": "智慧防擋",
+        "top": "頂部",
+        "scroll": "滾動",
+        "bottom": "底部",
+        "color": "彩色",
+        "advanced": "高級",
+        "level": "按等級篩選",
+        "level_n": "等級 {}",
+        "level_live": "直播過濾等級",
+        "level_live_none": "不過濾 (UL0+)",
+        "level_live_n": "UL{}以上",
+        "level_live_60": "僅UL60"
+      },
+      "style": {
+        "header": "彈幕風格",
+        "font": "描邊風格",
+        "font_stroke": "描邊",
+        "font_incline": "投影",
+        "font_shadow": "重墨",
+        "font_pure": "純色",
+        "area": "彈幕區域",
+        "area_1_4": "1/4 荧幕",
+        "area_2_4": "1/2 荧幕",
+        "area_3_4": "3/4 荧幕",
+        "area_4_4": "全荧幕",
+        "alpha": "透明度",
+        "fontsize": "字體大小",
+        "line_height": "彈幕行高",
+        "speed": "速度",
+        "speed_slow_plus": "極慢",
+        "speed_slow": "慢速",
+        "speed_fast_plus": "極速",
+        "speed_fast": "快速",
+        "speed_moderate": "適當"
+      }
+    },
+    "single_comment": {
+      "detail": "評論詳情",
+      "hint": "發一條友善的評論",
+      "related": "總共{}個答覆",
+      "end": "沒有更多的評論",
+      "delete": "删除評論後，將删除評論下的所有回復\n\n是否要繼續？"
+    }
+  },
+  "dialog": {
+    "not_supported": "不支援此功能",
+    "quit_hint": "正在退出軟體..."
+  }
 }
