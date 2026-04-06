@@ -144,7 +144,11 @@ public:
 
     // Query
     DownloadTask* getTask(const std::string& id);
+    const std::vector<DownloadTask>& getTasks() const;
     std::vector<DownloadTask>& getTasks();
+
+    // Thread-safe snapshot for UI iteration
+    std::vector<DownloadTask> getTasksSnapshot() const;
 
     // Returns true if there are PENDING / DOWNLOADING / PAUSED tasks
     bool hasIncompleteDownloads() const;
@@ -173,7 +177,7 @@ private:
     void saveDanmaku(const DownloadTask& task);
 
     std::vector<DownloadTask> tasks;
-    std::mutex tasksMutex;
+    mutable std::mutex tasksMutex;
 
     static constexpr int MAX_CONCURRENT = 1;
 };

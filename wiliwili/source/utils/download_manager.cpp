@@ -215,10 +215,16 @@ DownloadTask* DownloadManager::getTask(const std::string& id) {
     return nullptr;
 }
 
+const std::vector<DownloadTask>& DownloadManager::getTasks() const { return tasks; }
 std::vector<DownloadTask>& DownloadManager::getTasks() { return tasks; }
 
+std::vector<DownloadTask> DownloadManager::getTasksSnapshot() const {
+    std::lock_guard<std::mutex> lock(tasksMutex);
+    return tasks;
+}
+
 bool DownloadManager::hasIncompleteDownloads() const {
-    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(tasksMutex));
+    std::lock_guard<std::mutex> lock(tasksMutex);
     for (const auto& t : tasks) {
         if (t.status == DownloadTaskStatus::PENDING || t.status == DownloadTaskStatus::DOWNLOADING ||
             t.status == DownloadTaskStatus::PAUSED) {

@@ -228,7 +228,9 @@ void DownloadActivity::refreshLists() {
     auto* activeSrc    = new ActiveDownloadDataSource(refreshCb);
     auto* completedSrc = new CompletedDownloadDataSource(refreshCb);
 
-    for (auto& t : DownloadManager::instance().getTasks()) {
+    // Take a thread-safe snapshot to avoid racing with background download threads
+    auto snapshot = DownloadManager::instance().getTasksSnapshot();
+    for (auto& t : snapshot) {
         if (t.status == DownloadTaskStatus::COMPLETED) {
             completedSrc->data.push_back(t);
         } else if (t.status != DownloadTaskStatus::CANCELLED) {
