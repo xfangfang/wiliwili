@@ -303,6 +303,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     /// Custom
     {SettingItem::UP_FILTER, {"up_filter", {}, {}, 0}},
     {SettingItem::LIVE_DANMAKU_FILTER_LEVEL, {"live_danmaku_filter_level", {}, {}, 0}},
+    {SettingItem::CUSTOM_THEME_COLOR, {"custom_theme_color", {}, {}, 0}},
 };
 
 ProgramConfig::ProgramConfig() = default;

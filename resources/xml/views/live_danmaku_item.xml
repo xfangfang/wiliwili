@@ -34,7 +34,7 @@
                     id="danmaku_user_level"
                     width="auto"
                     height="18"
-                    backgroundColor="#FF6699"
+                    backgroundColor="@theme/color/bilibili"
                     cornerRadius="4"
                     alignItems="center"
                     justifyContent="center"
