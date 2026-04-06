@@ -381,6 +381,10 @@
                                 title="@i18n/wiliwili/setting/tools/others/download_dir"/>
 
                         <brls:RadioCell
+                                id="tools/download_manager"
+                                title="@i18n/wiliwili/setting/tools/others/download_manager"/>
+
+                        <brls:RadioCell
                                 id="tools/release_checker"/>
 
                         <brls:RadioCell

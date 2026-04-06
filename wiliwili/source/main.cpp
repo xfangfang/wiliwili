@@ -10,14 +10,18 @@
 */
 
 #include <borealis.hpp>
+#include <borealis/views/dialog.hpp>
 
 #include "utils/config_helper.hpp"
 #include "utils/activity_helper.hpp"
+#include "utils/download_manager.hpp"
 #include "view/mpv_core.hpp"
 
 #ifdef IOS
 #include <SDL2/SDL_main.h>
 #endif
+
+using namespace brls::literals;
 
 int main(int argc, char* argv[]) {
     for (int i = 1; i < argc; i++) {
@@ -35,6 +39,9 @@ int main(int argc, char* argv[]) {
 
     // Load cookies and settings
     ProgramConfig::instance().init();
+
+    // Load download manager state (marks in-progress downloads as paused)
+    DownloadManager::instance().loadState();
 
     // Init the app and i18n
     if (!brls::Application::init()) {
@@ -84,6 +91,16 @@ int main(int argc, char* argv[]) {
         //        Intent::openCollection("2511565362"); // 测试打开收藏夹
         //        Intent::openPgcFilter("/page/home/pgc/more?type=2&index_type=2&area=2&order=2&season_status=-1&season_status=3,6"); // 影片分类索引
         //        Intent::openSetting();  //  设置页面
+
+        // Prompt user if there are incomplete downloads
+        if (DownloadManager::instance().hasIncompleteDownloads()) {
+            brls::sync([]() {
+                auto dialog = new brls::Dialog("wiliwili/download/manager/incomplete_hint"_i18n);
+                dialog->addButton("hints/cancel"_i18n, []() {});
+                dialog->addButton("hints/ok"_i18n, []() { Intent::openDownloadManager(); });
+                dialog->open();
+            });
+        }
     } else {
         Intent::openHint();
     }

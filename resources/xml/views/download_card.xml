@@ -1,0 +1,73 @@
+<brls:Box
+        width="auto"
+        height="120"
+        focusable="true"
+        paddingTop="8"
+        paddingBottom="8"
+        paddingLeft="12"
+        paddingRight="12"
+        axis="row"
+        alignItems="center">
+
+    <!-- Cover image -->
+    <brls:Image
+            id="download/cell/cover"
+            width="96"
+            height="54"
+            marginRight="14"
+            scalingType="fill"
+            cornerRadius="4"/>
+
+    <!-- Text info -->
+    <brls:Box
+            grow="1"
+            axis="column"
+            justifyContent="center">
+
+        <brls:Label
+                id="download/cell/title"
+                singleLine="true"
+                fontSize="20"
+                marginBottom="4"
+                width="auto"
+                height="auto"/>
+
+        <brls:Label
+                id="download/cell/quality"
+                singleLine="true"
+                fontSize="16"
+                textColor="@theme/font/grey"
+                width="auto"
+                height="auto"/>
+
+        <brls:Label
+                id="download/cell/progress"
+                singleLine="true"
+                fontSize="15"
+                marginTop="4"
+                textColor="@theme/color/bilibili"
+                width="auto"
+                height="auto"/>
+
+    </brls:Box>
+
+    <!-- Action buttons -->
+    <brls:Box
+            axis="row"
+            alignItems="center"
+            marginLeft="10">
+
+        <brls:RadioCell
+                id="download/cell/btn1"
+                width="100"
+                height="auto"/>
+
+        <brls:RadioCell
+                id="download/cell/btn2"
+                width="100"
+                height="auto"
+                marginLeft="8"/>
+
+    </brls:Box>
+
+</brls:Box>

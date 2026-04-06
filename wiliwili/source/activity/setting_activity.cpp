@@ -233,6 +233,11 @@ void SettingActivity::onContentAvailable() {
         return true;
     });
 
+    btnDownloadManager->registerClickAction([](...) -> bool {
+        Intent::openDownloadManager();
+        return true;
+    });
+
     btnTutorialFont->registerClickAction([](...) -> bool {
         auto dialog =
             new brls::Dialog((brls::Box*)brls::View::createFromXMLResource("fragment/settings_tutorial_font.xml"));

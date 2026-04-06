@@ -129,7 +129,8 @@
                 "release": "Check for updates",
                 "config_dir": "Config directory",
                 "config": "Open config directory",
-                "download_dir": "Video cache directory"
+                "download_dir": "Video cache directory",
+                "download_manager": "Download Manager"
             }
         },
         "about": {
@@ -489,7 +490,29 @@
             "dir_first_title": "Set Cache Location",
             "dir_first_hint": "This is the first time caching a video. Please confirm the cache directory:",
             "use_default": "Use this path",
-            "customize": "Customize"
+            "customize": "Customize",
+            "queued": "Download queued",
+            "completed": "Download completed",
+            "failed": "Download failed",
+            "select_quality": "Select download quality"
+        }
+    },
+    "download": {
+        "manager": {
+            "title": "Download Manager",
+            "downloading": "Downloading",
+            "downloaded": "Downloaded",
+            "pause": "Pause",
+            "resume": "Resume",
+            "cancel": "Cancel",
+            "delete": "Delete",
+            "play": "Play",
+            "incomplete_hint": "You have incomplete downloads. Open the download manager?",
+            "empty": "No downloads yet",
+            "speed": "{}",
+            "total": "{}/{}",
+            "confirm_cancel": "Cancel this download?",
+            "confirm_delete": "Delete this download and its files?"
         }
     },
     "dialog": {

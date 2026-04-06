@@ -14,6 +14,8 @@
 #include "activity/gallery_activity.hpp"
 #include "activity/dlna_activity.hpp"
 #include "activity/dynamic_activity.hpp"
+#include "activity/download_activity.hpp"
+#include "activity/local_player_activity.hpp"
 #include "fragment/mine_collection_video_list.hpp"
 #include "fragment/inbox_view.hpp"
 #include "utils/activity_helper.hpp"
@@ -121,5 +123,15 @@ void Intent::openDLNA() {
 
 void Intent::openActivity(const std::string& id) {
     auto activity = new DynamicActivity(id);
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+}
+
+void Intent::openDownloadManager() {
+    auto activity = new DownloadActivity();
+    brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
+}
+
+void Intent::openLocalVideo(const std::string& taskId) {
+    auto activity = new LocalPlayerActivity(taskId);
     brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
 }

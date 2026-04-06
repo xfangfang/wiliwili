@@ -41,6 +41,7 @@ private:
     BRLS_BIND(brls::RadioCell, btnQuit, "tools/quit");
     BRLS_BIND(brls::RadioCell, btnOpenConfig, "tools/config_dir");
     BRLS_BIND(brls::DetailCell, btnDownloadDir, "tools/download_dir");
+    BRLS_BIND(brls::RadioCell, btnDownloadManager, "tools/download_manager");
     BRLS_BIND(brls::RadioCell, btnVibrationTest, "tools/vibration_test");
     BRLS_BIND(brls::RadioCell, btnDLNA, "tools/dlna");
     BRLS_BIND(brls::BooleanCell, btnTls, "setting/network/tls");

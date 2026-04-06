@@ -129,7 +129,8 @@
                 "release": "检查更新",
                 "config_dir": "配置目录",
                 "config": "打开配置目录",
-                "download_dir": "视频缓存目录"
+                "download_dir": "视频缓存目录",
+                "download_manager": "下载管理"
             }
         },
         "about": {
@@ -489,7 +490,29 @@
             "dir_first_title": "设置缓存位置",
             "dir_first_hint": "首次缓存视频，请确认缓存目录：",
             "use_default": "使用此路径",
-            "customize": "自定义"
+            "customize": "自定义",
+            "queued": "已加入下载队列",
+            "completed": "下载完成",
+            "failed": "下载失败",
+            "select_quality": "选择下载清晰度"
+        }
+    },
+    "download": {
+        "manager": {
+            "title": "下载管理",
+            "downloading": "下载中",
+            "downloaded": "已下载",
+            "pause": "暂停",
+            "resume": "继续",
+            "cancel": "取消",
+            "delete": "删除",
+            "play": "播放",
+            "incomplete_hint": "有未完成的下载任务，是否打开下载页？",
+            "empty": "暂无下载",
+            "speed": "{}",
+            "total": "{}/{}",
+            "confirm_cancel": "取消此下载任务？",
+            "confirm_delete": "删除此下载及其文件？"
         }
     },
     "dialog": {
