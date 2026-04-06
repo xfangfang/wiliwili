@@ -94,4 +94,17 @@ std::string toUpper( const std::string & str, std::string::size_type length )
     return s;
 }
 
+bool parseHexColor(const std::string& hex, uint8_t& r, uint8_t& g, uint8_t& b) {
+    if (hex.size() != 6) return false;
+    try {
+        uint32_t value = std::stoul(hex, nullptr, 16);
+        r = (value >> 16) & 0xFF;
+        g = (value >> 8) & 0xFF;
+        b = value & 0xFF;
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
 };  // namespace wiliwili

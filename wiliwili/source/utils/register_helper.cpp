@@ -30,6 +30,7 @@
 #include "fragment/share_dialog.hpp"
 
 #include "utils/config_helper.hpp"
+#include "utils/string_helper.hpp"
 
 #include "view/auto_tab_frame.hpp"
 #include "view/video_view.hpp"
@@ -143,16 +144,11 @@ void Register::initCustomTheme() {
     NVGcolor biliColor = nvgRGB(255, 102, 153);
     std::string customColor =
         ProgramConfig::instance().getSettingItem(SettingItem::CUSTOM_THEME_COLOR, std::string{});
-    if (customColor.size() == 6) {
-        try {
-            uint32_t hex = std::stoul(customColor, nullptr, 16);
-            uint8_t r    = (hex >> 16) & 0xFF;
-            uint8_t g    = (hex >> 8) & 0xFF;
-            uint8_t b    = hex & 0xFF;
-            biliColor    = nvgRGB(r, g, b);
-        } catch (...) {
-            brls::Logger::error("Register::initCustomTheme: invalid custom_theme_color \"{}\"", customColor);
-        }
+    uint8_t r, g, b;
+    if (wiliwili::parseHexColor(customColor, r, g, b)) {
+        biliColor = nvgRGB(r, g, b);
+    } else if (!customColor.empty()) {
+        brls::Logger::error("Register::initCustomTheme: invalid custom_theme_color \"{}\"", customColor);
     }
     brls::Theme::getLightTheme().addColor("color/bilibili", biliColor);
     brls::Theme::getDarkTheme().addColor("color/bilibili", biliColor);
