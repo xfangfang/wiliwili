@@ -1,439 +1,440 @@
 {
-  "title": "wiliwili",
-  "github": "https://github.com/xfangfang/wiliwili",
-  "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
-  "setting": {
-    "quit_hint": "アプリケーションを終了しようとしています。 設定は次回起動時に有効になります",
-    "app": {
-      "tab": "アプリ",
-      "playback": {
-        "header": "再生",
-        "report": "アップロード履歴と再生記録",
-        "player_bar": "プログレスバーを常に表示する",
-        "low_quality": "低品質のデコード (CPU使用率が低くなります)",
-        "in_memory_cache": "インメモリキャッシュ",
-        "hwdec": "ハードウェアデコード",
-        "exit_fullscreen": "再生終了時に全画面表示を終了",
-        "play_strategy": "プレイ方法",
-        "auto_play_next_part": "次のパートを自動再生",
-        "auto_play_recommend": "おすすめ動画を自動再生",
-        "auto_loop": "現在の動画をループ再生",
-        "auto_no": "再生後に動画を一時停止",
-        "auto_hint": "「おすすめ動画を自動再生」はエピソード再生後におすすめ動画を自動再生します。",
-        "sleep": "タイミングオフ",
-        "video_codec": "ビデオコーデック",
-        "audio_quality": "オーディオ品質",
-        "video_format": "動画の形式"
-      },
-      "image": {
-        "header": "画像",
-        "texture": "ピクチャテクスチャキャッシュの数",
-        "threads": "画像ロードスレッド数"
-      },
-      "network": {
-        "header": "ネットワーク",
-        "tls": "TLS検証",
-        "proxy": "プロキシ",
-        "proxy_hint": "例：http://127.0.0.1:7890"
-      },
-      "ui": {
-        "header": "UI",
-        "tv_osd": "TV style OSD control"
-      },
-      "others": {
-        "header": "その他",
-        "vibration": "ゲームパッドの振動",
-        "hide_bottom": "下のヒントバーを隠す",
-        "hide_fps": "FPSを非表示",
-        "limited_fps": "最大フレーム数制限",
-        "limited_fps_vsync": "垂直同期",
-        "fullscreen": "フルスクリーン",
-        "always_on_top": "Always on top",
-        "tv_search": "テレビスタイルの検索ページ",
-        "clear_history": "検索履歴を削除",
-        "clear_season": "番組のカスタム設定を消去",
-        "theme": {
-          "header": "テーマ (再起動が必要です)",
-          "1": "自動",
-          "2": "ライト",
-          "3": "ダーク"
-        },
-        "custom_theme": {
-          "header": "カスタムレイアウト（再起動が必要）"
-        },
-        "scale": {
-          "header": "UIの大きさ（再起動が必要）",
-          "544p": "544p",
-          "720p": "720p",
-          "900p": "900p",
-          "1080p": "1080p"
-        },
-        "language": {
-          "header": "言語 (再起動が必要です)",
-          "auto": "自動",
-          "chinese_s": "简体中文",
-          "chinese_t": "繁體中文",
-          "english": "English",
-          "japanese": "日本語",
-          "ryukyuan": "島言葉",
-          "italiano": "Italiano",
-          "korean": "한국어"
-        },
-        "opencc": "簡体字中国語を自動的に変換（再起動が必要です）",
-        "keymap": {
-          "header": "キーマップのスタイル",
-          "xbox": "Xbox",
-          "ps": "PlayStation",
-          "keyboard": "キーボード"
-        }
-      }
-    },
-    "tools": {
-      "tab": "ツール",
-      "tutorial": {
-        "header": "チュートリアル",
-        "intro": "ソフトウェアの紹介（オンライン動画・中国語）",
-        "intro_bvid": "BV18W4y1q72C",
-        "wiki": "詳細については、ウィキにアクセスしてください",
-        "open": "デスクトップアイコンのインストール方法",
-        "error": "バグに遭遇した場合",
-        "hot_key": "ホットキー",
-        "font": "カスタムフォントを設定"
-      },
-      "test": {
-        "header": "診断情報",
-        "net": "ネットワークの診断",
-        "vibration": "振動テスト"
-      },
-      "others": {
-        "header": "その他",
-        "dlna": "DLNAレンダラー",
-        "dlna_waiting": "DLNAキャストを待機中...",
-        "dlna_quit": "DLNAキャストを終了しますか？",
-        "up2date": "アプリは最新です",
-        "release": "更新を確認",
-        "config": "設定ディレクトリを開く"
-      }
-    },
-    "about": {
-      "tab": "概要",
-      "brief_header": "紹介",
-      "repository": "リポジトリ",
-      "brief": "さらに別のサードパーティのビリビリクライアント",
-      "repo_header": "リポジトリ",
-      "author_header": "著者のスピーチ",
-      "author": "私はずっとアーティストになりたいと思っていましたが、残念ながらプログラマーの居場所はありません\n「ゲーム機で動画を見たり、携帯電話でゲームをしたりする」という仕事が生まれ、実現するまで\nある種のパフォーマンスアート、この場合私は完成します"
-    },
-    "opensource": {
-      "tab": "オープンソース"
-    },
-    "tutorial": {
-      "error_q1": "ネットワークにアクセスできません",
-      "error_a1": "1. 環境とシステムファームウェアが最新であることを確認してください\n2. システム時刻が正しいことを確認してください\n3. IP、DNSなどを含むデフォルトのネットワーク設定を復元します\n4.中国での使用",
-      "error_q2": "ランダムエラーで終了",
-      "error_a2": "1. Fat32フォーマットのメモリーカードを使用\n2. 環境とシステムファームウェアが最新であることを確認してください\n3. 開発者が修正するのを待ちます",
-      "font_q1": "カスタムフォントまたはキーマップアイコンを設定する方法",
-      "font_a1": "1.必要なフォントまたはアイコンフォントをダウンロードします\n2.フォントの名前を：font.ttf; アイコンの変更：icon.ttf\n3. configディレクトリにフォントファイルを配置します\n4.アプリケーションを再起動します",
-      "font_q2": "よくある質問",
-      "font_a2": "1. Wiliwiliは、フィルムインフォントをフォールバックとして、カスタムフォントの表示に優先順位を付けます\n2.「設定 - ツール - その他」は、構成ディレクトリをすばやく開くためのメニュー項目を提供します\n3. Linuxでは、WiliwiliはXDG-Openを使用してディレクトリを開きます。 構成ディレクトリを正しく開くことができない場合は、このツールのインストールを検討できます"
-    },
-    "hot_keys": {
-      "common_header": "一般",
-      "common_content": " /  プライマリページを切り替える\n /  セカンダリページを切り替える",
-      "player_header": "プレーヤー",
-      "player_content": " 速度を上げます。をダブルクリックしてロック\n +  前方にシークします\n プレーヤーのOSDを切り替え \n 弾幕を切り替え"
-    },
-    "net": {
-      "test": {
-        "header": "ネットワークのアクセス",
-        "feed": "おすすめの動画をテストして取得する"
-      },
-      "time": {
-        "header": "時間",
-        "subtitle": "システム時刻が正しくない場合、ネットワークアクセスが失敗する可能性があります",
-        "sys": "現在のシステム時刻",
-        "net": "ネットワークで時間を取得する"
-      },
-      "profile": {
-        "header": "ネットワーク",
-        "subtitle": "ネットワーク設定を復元すると、いくつかの問題を解決することもできます",
-        "ip": "IPアドレス",
-        "dns": "DNSアドレス"
-      }
-    }
-  },
-  "hints": {
-    "hint1": "ホーム画面からゲームを選択",
-    "hint2": "キーを押しながら をクリックしてhbmenuに入ります",
-    "hint3": "hbmenuで、wiliwiliを選択",
-    "hint4": "オプション： 提供されたwiliwiliNSPフォワーダーを使用 (wiliwili.nroを/switch/wiliwili.nroに配置してください)",
-    "hint_nsp": "をクリックしてNSPフォワーダーをインストールします",
-    "hint_confirm": "NSPフォワーダをインストールすると、BANされる可能性があります\nもう一度確認してください",
-    "hint_right": "写真はインターネットからのもので、著作権は任天堂株式会社に属します"
-  },
-  "home": {
-    "common": {
-      "part": "チャンネル： ",
-      "recommend": "おすすめ",
-      "search": "動画を検索",
-      "switch": "スイッチ",
-      "refresh": "更新",
-      "last": "ラスト",
-      "next": "次",
-      "filter": "フィルター",
-      "save": "保存",
-      "min": "分",
-      "high": "高",
-      "medium": "中",
-      "low": "低",
-      "no_login": "まだログインしていません"
-    },
-    "live": {
-      "tab": "ライブ",
-      "dialog": "チャンネル",
-      "default": "チャンネル：探索"
-    },
-    "rcmd": {
-      "tab": "探索"
-    },
-    "hots": {
-      "tab": "ホット",
-      "t1": "ホット",
-      "t2": "ランク",
-      "t3": "毎週",
-      "t4": "履歴"
-    },
-    "bangumi": {
-      "tab": "番組"
-    },
-    "cinema": {
-      "tab": "シネマ"
-    }
-  },
-  "dynamic": {
-    "detail": "Activity detail",
-    "video": "Video",
-    "article": "Activity"
-  },
-  "search": {
-    "tv": {
-      "hint": "キーワードと最初の文字をサポート",
-      "clear": "クリア",
-      "delete": "削除",
-      "search": "検索",
-      "hots": "ホット",
-      "history": "履歴",
-      "history_clear": "全て消去",
-      "history_delete": "削除",
-      "suggest": "提案"
-    },
-    "order": {
-      "all": "All",
-      "click": "Click",
-      "pubdate": "PublishDate",
-      "dm": "Danmaku",
-      "stow": "Favorite"
-    },
-    "tab": "検索",
-    "t0": "履歴",
-    "t1": "ホット",
-    "t2": "動画",
-    "t3": "番組",
-    "t4": "シネマ"
-  },
-  "activity": {
-    "all": "全ての活動",
-    "refresh": "リストを更新"
-  },
-  "mine": {
-    "login": {
-      "check": "ログイン情報を確認しています...",
-      "success": "ログインに成功しました",
-      "refresh": "更新",
-      "click": "クリックしてログイン",
-      "logout": "現在のアカウントからログアウト \n(アプリケーションが終了します)",
-      "scan": "QRコードを読み取ってログイン",
-      "loading": "QRコードを読み込んでいます...",
-      "hint": "BiliBiliクライアントを使用して QR コードをスキャンしてください",
-      "network_error": "ネットワークエラーです。もう一度お試しください",
-      "qr_not_available": "QRコードが無効です。ダイアログを再入力してください",
-      "need_confirm": "確認を待つ",
-      "need_scan": "QRコードのスキャンを待っています"
-    },
-    "later": "後で見る",
-    "history": "履歴",
-    "collection": "お気に入り",
-    "subscription": "サブスクリプション",
-    "anime": "アニメ",
-    "series": "シリーズ",
-    "refresh_history": "履歴をリフレッシュ",
-    "refresh_collection": "お気に入りをリフレッシュ",
-    "refresh_subscription": "サブスクリプションを更新",
-    "refresh_later": "後で見るを更新",
-    "refresh_anime": "アニメを更新",
-    "refresh_series": "シリーズを更新",
-    "coin": "コイン",
-    "following": "支援者",
-    "follower": "フォロワー",
-    "activity": "活動",
-    "public": "パブリック",
-    "private": "プライベート",
-    "num": " コンテンツ",
-    "pub": "で作成 ",
-    "creator": "作成者",
-    "done": "終了しました",
-    "article": "ブラウザで開く："
-  },
-  "player": {
-    "intro": "序章",
-    "p": "パート",
-    "ugc_season": "プレイリスト",
-    "related": "関連",
-    "series": "シリーズ",
-    "recommend": "おすすめ",
-    "uploaded": "その他",
-    "qr": "QRコードを読み取って視聴/共有",
-    "clipboard": "Copied to clipboard",
-    "comment": "コメント",
-    "current": " みんなが見ている",
-    "share": "シェア",
-    "rights": "再配布禁止",
-    "fs": "フルスクリーン",
-    "quality": "品質",
-    "speed": "速度",
-    "replay": "リプレイ",
-    "current_speed": "現在の速度 {}",
-    "not_follow": "フォローをキャンセルしますか？",
-    "coin": {
-      "title": "コイン",
-      "hint": "コインの数値を選択してください",
-      "like": "同じ時間の",
-      "own": "あなた自身にコインを与えることはできません",
-      "run_out": "このビデオのコインの枚数が使用されています",
-      "exp": "経験 + {}(今日 {}/50)",
-      "exp_full": "今日得られた経験はいっぱいです(50/50)  ！",
-      "pcs": "{} 個"
-    },
-    "season_part": {
-      "ascend": "昇順",
-      "descend": "降順"
-    },
-    "comment_sort": {
-      "sort_top": "ホット順に並び替え",
-      "sort_new": "最新順に並び替え",
-      "top": "トップコメント",
-      "new": "最新のコメント"
-    },
-    "collection": {
-      "type": "お気に入り",
-      "title": "お気に入りを選択"
-    },
+    "title": "wiliwili",
+    "github": "https://github.com/xfangfang/wiliwili",
+    "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
     "setting": {
-      "subtitle": {
-        "header": "字幕"
-      },
-      "equalizer": {
-        "header": "イコライザー",
-        "brightness": "輝度",
-        "contrast": "コントラスト",
-        "saturation": "彩度",
-        "gamma": "ガンマ",
-        "hue": "色相",
-        "reset": "リセット"
-      },
-      "common": {
-        "header": "一般",
-        "mirror": "水平方向に反転",
-        "highlight": "ホットスポットを常に表示",
-        "skip_opening_credits": "オープニングクレジットをスキップ",
-        "skip_hint1": "次の動画からオープニング クレジットを自動的にスキップします",
-        "skip_hint2": "次の動画からオープニングクレジットをスキップをオフにする",
-        "skip_hint3": "次の動画からカスタムオープニングクレジットを使用",
-        "skip_hint4": "次のビデオからカスタムオープニングクレジットを無効にする",
-        "wiki": "シェーダーの仕組みを学ぶには、wikiにアクセスしてください"
-      },
-      "season": {
-        "aspect": "カスタムビデオアスペクト",
-        "clip": "カスタムオープニングクレジット",
-        "clip_start": "イントロの長さ",
-        "clip_end": "アウトロの長さ",
-        "unit": "単位：秒"
-      },
-      "aspect": {
-        "header": "ビデオアスペクト比",
-        "crop": "Crop",
-        "stretch": "Stretch",
-        "auto": "自動"
-      },
-      "shader": {
-        "header": "シェーダー"
-      }
+        "quit_hint": "アプリケーションを終了しようとしています。 設定は次回起動時に有効になります",
+        "app": {
+            "tab": "アプリ",
+            "playback": {
+                "header": "再生",
+                "report": "アップロード履歴と再生記録",
+                "player_bar": "プログレスバーを常に表示する",
+                "low_quality": "低品質のデコード (CPU使用率が低くなります)",
+                "in_memory_cache": "インメモリキャッシュ",
+                "hwdec": "ハードウェアデコード",
+                "exit_fullscreen": "再生終了時に全画面表示を終了",
+                "play_strategy": "プレイ方法",
+                "auto_play_next_part": "次のパートを自動再生",
+                "auto_play_recommend": "おすすめ動画を自動再生",
+                "auto_loop": "現在の動画をループ再生",
+                "auto_no": "再生後に動画を一時停止",
+                "auto_hint": "「おすすめ動画を自動再生」はエピソード再生後におすすめ動画を自動再生します。",
+                "sleep": "タイミングオフ",
+                "video_codec": "ビデオコーデック",
+                "audio_quality": "オーディオ品質",
+                "video_format": "動画の形式",
+                "window_fullscreen_on_app_fullscreen": "アプリ内全画面時にウィンドウを全画面にする"
+            },
+            "image": {
+                "header": "画像",
+                "texture": "ピクチャテクスチャキャッシュの数",
+                "threads": "画像ロードスレッド数"
+            },
+            "network": {
+                "header": "ネットワーク",
+                "tls": "TLS検証",
+                "proxy": "プロキシ",
+                "proxy_hint": "例：http://127.0.0.1:7890"
+            },
+            "ui": {
+                "header": "UI",
+                "tv_osd": "TV style OSD control"
+            },
+            "others": {
+                "header": "その他",
+                "vibration": "ゲームパッドの振動",
+                "hide_bottom": "下のヒントバーを隠す",
+                "hide_fps": "FPSを非表示",
+                "limited_fps": "最大フレーム数制限",
+                "limited_fps_vsync": "垂直同期",
+                "fullscreen": "フルスクリーン",
+                "always_on_top": "Always on top",
+                "tv_search": "テレビスタイルの検索ページ",
+                "clear_history": "検索履歴を削除",
+                "clear_season": "番組のカスタム設定を消去",
+                "theme": {
+                    "header": "テーマ (再起動が必要です)",
+                    "1": "自動",
+                    "2": "ライト",
+                    "3": "ダーク"
+                },
+                "custom_theme": {
+                    "header": "カスタムレイアウト（再起動が必要）"
+                },
+                "scale": {
+                    "header": "UIの大きさ（再起動が必要）",
+                    "544p": "544p",
+                    "720p": "720p",
+                    "900p": "900p",
+                    "1080p": "1080p"
+                },
+                "language": {
+                    "header": "言語 (再起動が必要です)",
+                    "auto": "自動",
+                    "chinese_s": "简体中文",
+                    "chinese_t": "繁體中文",
+                    "english": "English",
+                    "japanese": "日本語",
+                    "ryukyuan": "島言葉",
+                    "italiano": "Italiano",
+                    "korean": "한국어"
+                },
+                "opencc": "簡体字中国語を自動的に変換（再起動が必要です）",
+                "keymap": {
+                    "header": "キーマップのスタイル",
+                    "xbox": "Xbox",
+                    "ps": "PlayStation",
+                    "keyboard": "キーボード"
+                }
+            }
+        },
+        "tools": {
+            "tab": "ツール",
+            "tutorial": {
+                "header": "チュートリアル",
+                "intro": "ソフトウェアの紹介（オンライン動画・中国語）",
+                "intro_bvid": "BV18W4y1q72C",
+                "wiki": "詳細については、ウィキにアクセスしてください",
+                "open": "デスクトップアイコンのインストール方法",
+                "error": "バグに遭遇した場合",
+                "hot_key": "ホットキー",
+                "font": "カスタムフォントを設定"
+            },
+            "test": {
+                "header": "診断情報",
+                "net": "ネットワークの診断",
+                "vibration": "振動テスト"
+            },
+            "others": {
+                "header": "その他",
+                "dlna": "DLNAレンダラー",
+                "dlna_waiting": "DLNAキャストを待機中...",
+                "dlna_quit": "DLNAキャストを終了しますか？",
+                "up2date": "アプリは最新です",
+                "release": "更新を確認",
+                "config": "設定ディレクトリを開く"
+            }
+        },
+        "about": {
+            "tab": "概要",
+            "brief_header": "紹介",
+            "repository": "リポジトリ",
+            "brief": "さらに別のサードパーティのビリビリクライアント",
+            "repo_header": "リポジトリ",
+            "author_header": "著者のスピーチ",
+            "author": "私はずっとアーティストになりたいと思っていましたが、残念ながらプログラマーの居場所はありません\n「ゲーム機で動画を見たり、携帯電話でゲームをしたりする」という仕事が生まれ、実現するまで\nある種のパフォーマンスアート、この場合私は完成します"
+        },
+        "opensource": {
+            "tab": "オープンソース"
+        },
+        "tutorial": {
+            "error_q1": "ネットワークにアクセスできません",
+            "error_a1": "1. 環境とシステムファームウェアが最新であることを確認してください\n2. システム時刻が正しいことを確認してください\n3. IP、DNSなどを含むデフォルトのネットワーク設定を復元します\n4.中国での使用",
+            "error_q2": "ランダムエラーで終了",
+            "error_a2": "1. Fat32フォーマットのメモリーカードを使用\n2. 環境とシステムファームウェアが最新であることを確認してください\n3. 開発者が修正するのを待ちます",
+            "font_q1": "カスタムフォントまたはキーマップアイコンを設定する方法",
+            "font_a1": "1.必要なフォントまたはアイコンフォントをダウンロードします\n2.フォントの名前を：font.ttf; アイコンの変更：icon.ttf\n3. configディレクトリにフォントファイルを配置します\n4.アプリケーションを再起動します",
+            "font_q2": "よくある質問",
+            "font_a2": "1. Wiliwiliは、フィルムインフォントをフォールバックとして、カスタムフォントの表示に優先順位を付けます\n2.「設定 - ツール - その他」は、構成ディレクトリをすばやく開くためのメニュー項目を提供します\n3. Linuxでは、WiliwiliはXDG-Openを使用してディレクトリを開きます。 構成ディレクトリを正しく開くことができない場合は、このツールのインストールを検討できます"
+        },
+        "hot_keys": {
+            "common_header": "一般",
+            "common_content": " /  プライマリページを切り替える\n /  セカンダリページを切り替える",
+            "player_header": "プレーヤー",
+            "player_content": " 速度を上げます。をダブルクリックしてロック\n +  前方にシークします\n プレーヤーのOSDを切り替え \n 弾幕を切り替え"
+        },
+        "net": {
+            "test": {
+                "header": "ネットワークのアクセス",
+                "feed": "おすすめの動画をテストして取得する"
+            },
+            "time": {
+                "header": "時間",
+                "subtitle": "システム時刻が正しくない場合、ネットワークアクセスが失敗する可能性があります",
+                "sys": "現在のシステム時刻",
+                "net": "ネットワークで時間を取得する"
+            },
+            "profile": {
+                "header": "ネットワーク",
+                "subtitle": "ネットワーク設定を復元すると、いくつかの問題を解決することもできます",
+                "ip": "IPアドレス",
+                "dns": "DNSアドレス"
+            }
+        }
     },
-    "cast": {
-      "header": "DLNA",
-      "device": "デバイス",
-      "request_url": "動画リンクをリクエストしています...",
-      "cast_to_renderer": "レンダラーにキャスト中...",
-      "casting": "キャスト中...",
-      "cancel": "ビデオキャストをキャンセル",
-      "err_connect": "DLNAレンダラーに接続できません",
-      "err_url": "動画リンクの取得に失敗しました",
-      "countdown": "カウントダウンを検索"
+    "hints": {
+        "hint1": "ホーム画面からゲームを選択",
+        "hint2": "キーを押しながら をクリックしてhbmenuに入ります",
+        "hint3": "hbmenuで、wiliwiliを選択",
+        "hint4": "オプション： 提供されたwiliwiliNSPフォワーダーを使用 (wiliwili.nroを/switch/wiliwili.nroに配置してください)",
+        "hint_nsp": "をクリックしてNSPフォワーダーをインストールします",
+        "hint_confirm": "NSPフォワーダをインストールすると、BANされる可能性があります\nもう一度確認してください",
+        "hint_right": "写真はインターネットからのもので、著作権は任天堂株式会社に属します"
     },
-    "danmaku": {
-      "header": "弾幕の設定",
-      "send": {
-        "action": "送信",
-        "hint": "素敵なことをコメントしましょう"
-      },
-      "performance": {
-        "header": "パフォーマンス",
-        "render": "レンダリングの品質"
-      },
-      "filter": {
-        "header": "弾幕フィルター",
-        "mask": "スマートマスク",
-        "top": "トップ",
-        "scroll": "スクロール",
-        "bottom": "下",
-        "color": "カラー",
-        "advanced": "高度",
-        "level": "フィルターレベル",
-        "level_n": "レベル {}"
-      },
-      "style": {
-        "header": "弾幕のスタイル",
-        "font": "ストロークスタイル",
-        "font_stroke": "ストローク",
-        "font_incline": "インクライン",
-        "font_shadow": "シャドウ",
-        "font_pure": "Pure",
-        "area": "表示範囲",
-        "area_1_4": "1/4 スクリーン",
-        "area_2_4": "1/2 スクリーン",
-        "area_3_4": "3/4 スクリーン",
-        "area_4_4": "フルスクリーン",
-        "alpha": "アルファ",
-        "fontsize": "フォントサイズ",
-        "line_height": "行の高さ",
+    "home": {
+        "common": {
+            "part": "チャンネル： ",
+            "recommend": "おすすめ",
+            "search": "動画を検索",
+            "switch": "スイッチ",
+            "refresh": "更新",
+            "last": "ラスト",
+            "next": "次",
+            "filter": "フィルター",
+            "save": "保存",
+            "min": "分",
+            "high": "高",
+            "medium": "中",
+            "low": "低",
+            "no_login": "まだログインしていません"
+        },
+        "live": {
+            "tab": "ライブ",
+            "dialog": "チャンネル",
+            "default": "チャンネル：探索"
+        },
+        "rcmd": {
+            "tab": "探索"
+        },
+        "hots": {
+            "tab": "ホット",
+            "t1": "ホット",
+            "t2": "ランク",
+            "t3": "毎週",
+            "t4": "履歴"
+        },
+        "bangumi": {
+            "tab": "番組"
+        },
+        "cinema": {
+            "tab": "シネマ"
+        }
+    },
+    "dynamic": {
+        "detail": "Activity detail",
+        "video": "Video",
+        "article": "Activity"
+    },
+    "search": {
+        "tv": {
+            "hint": "キーワードと最初の文字をサポート",
+            "clear": "クリア",
+            "delete": "削除",
+            "search": "検索",
+            "hots": "ホット",
+            "history": "履歴",
+            "history_clear": "全て消去",
+            "history_delete": "削除",
+            "suggest": "提案"
+        },
+        "order": {
+            "all": "All",
+            "click": "Click",
+            "pubdate": "PublishDate",
+            "dm": "Danmaku",
+            "stow": "Favorite"
+        },
+        "tab": "検索",
+        "t0": "履歴",
+        "t1": "ホット",
+        "t2": "動画",
+        "t3": "番組",
+        "t4": "シネマ"
+    },
+    "activity": {
+        "all": "全ての活動",
+        "refresh": "リストを更新"
+    },
+    "mine": {
+        "login": {
+            "check": "ログイン情報を確認しています...",
+            "success": "ログインに成功しました",
+            "refresh": "更新",
+            "click": "クリックしてログイン",
+            "logout": "現在のアカウントからログアウト \n(アプリケーションが終了します)",
+            "scan": "QRコードを読み取ってログイン",
+            "loading": "QRコードを読み込んでいます...",
+            "hint": "BiliBiliクライアントを使用して QR コードをスキャンしてください",
+            "network_error": "ネットワークエラーです。もう一度お試しください",
+            "qr_not_available": "QRコードが無効です。ダイアログを再入力してください",
+            "need_confirm": "確認を待つ",
+            "need_scan": "QRコードのスキャンを待っています"
+        },
+        "later": "後で見る",
+        "history": "履歴",
+        "collection": "お気に入り",
+        "subscription": "サブスクリプション",
+        "anime": "アニメ",
+        "series": "シリーズ",
+        "refresh_history": "履歴をリフレッシュ",
+        "refresh_collection": "お気に入りをリフレッシュ",
+        "refresh_subscription": "サブスクリプションを更新",
+        "refresh_later": "後で見るを更新",
+        "refresh_anime": "アニメを更新",
+        "refresh_series": "シリーズを更新",
+        "coin": "コイン",
+        "following": "支援者",
+        "follower": "フォロワー",
+        "activity": "活動",
+        "public": "パブリック",
+        "private": "プライベート",
+        "num": " コンテンツ",
+        "pub": "で作成 ",
+        "creator": "作成者",
+        "done": "終了しました",
+        "article": "ブラウザで開く："
+    },
+    "player": {
+        "intro": "序章",
+        "p": "パート",
+        "ugc_season": "プレイリスト",
+        "related": "関連",
+        "series": "シリーズ",
+        "recommend": "おすすめ",
+        "uploaded": "その他",
+        "qr": "QRコードを読み取って視聴/共有",
+        "clipboard": "Copied to clipboard",
+        "comment": "コメント",
+        "current": " みんなが見ている",
+        "share": "シェア",
+        "rights": "再配布禁止",
+        "fs": "フルスクリーン",
+        "quality": "品質",
         "speed": "速度",
-        "speed_slow_plus": "非常に遅い",
-        "speed_slow": "スロー",
-        "speed_fast_plus": "非常に速い",
-        "speed_fast": "速い",
-        "speed_moderate": "モデレート"
-      }
+        "replay": "リプレイ",
+        "current_speed": "現在の速度 {}",
+        "not_follow": "フォローをキャンセルしますか？",
+        "coin": {
+            "title": "コイン",
+            "hint": "コインの数値を選択してください",
+            "like": "同じ時間の",
+            "own": "あなた自身にコインを与えることはできません",
+            "run_out": "このビデオのコインの枚数が使用されています",
+            "exp": "経験 + {}(今日 {}/50)",
+            "exp_full": "今日得られた経験はいっぱいです(50/50)  ！",
+            "pcs": "{} 個"
+        },
+        "season_part": {
+            "ascend": "昇順",
+            "descend": "降順"
+        },
+        "comment_sort": {
+            "sort_top": "ホット順に並び替え",
+            "sort_new": "最新順に並び替え",
+            "top": "トップコメント",
+            "new": "最新のコメント"
+        },
+        "collection": {
+            "type": "お気に入り",
+            "title": "お気に入りを選択"
+        },
+        "setting": {
+            "subtitle": {
+                "header": "字幕"
+            },
+            "equalizer": {
+                "header": "イコライザー",
+                "brightness": "輝度",
+                "contrast": "コントラスト",
+                "saturation": "彩度",
+                "gamma": "ガンマ",
+                "hue": "色相",
+                "reset": "リセット"
+            },
+            "common": {
+                "header": "一般",
+                "mirror": "水平方向に反転",
+                "highlight": "ホットスポットを常に表示",
+                "skip_opening_credits": "オープニングクレジットをスキップ",
+                "skip_hint1": "次の動画からオープニング クレジットを自動的にスキップします",
+                "skip_hint2": "次の動画からオープニングクレジットをスキップをオフにする",
+                "skip_hint3": "次の動画からカスタムオープニングクレジットを使用",
+                "skip_hint4": "次のビデオからカスタムオープニングクレジットを無効にする",
+                "wiki": "シェーダーの仕組みを学ぶには、wikiにアクセスしてください"
+            },
+            "season": {
+                "aspect": "カスタムビデオアスペクト",
+                "clip": "カスタムオープニングクレジット",
+                "clip_start": "イントロの長さ",
+                "clip_end": "アウトロの長さ",
+                "unit": "単位：秒"
+            },
+            "aspect": {
+                "header": "ビデオアスペクト比",
+                "crop": "Crop",
+                "stretch": "Stretch",
+                "auto": "自動"
+            },
+            "shader": {
+                "header": "シェーダー"
+            }
+        },
+        "cast": {
+            "header": "DLNA",
+            "device": "デバイス",
+            "request_url": "動画リンクをリクエストしています...",
+            "cast_to_renderer": "レンダラーにキャスト中...",
+            "casting": "キャスト中...",
+            "cancel": "ビデオキャストをキャンセル",
+            "err_connect": "DLNAレンダラーに接続できません",
+            "err_url": "動画リンクの取得に失敗しました",
+            "countdown": "カウントダウンを検索"
+        },
+        "danmaku": {
+            "header": "弾幕の設定",
+            "send": {
+                "action": "送信",
+                "hint": "素敵なことをコメントしましょう"
+            },
+            "performance": {
+                "header": "パフォーマンス",
+                "render": "レンダリングの品質"
+            },
+            "filter": {
+                "header": "弾幕フィルター",
+                "mask": "スマートマスク",
+                "top": "トップ",
+                "scroll": "スクロール",
+                "bottom": "下",
+                "color": "カラー",
+                "advanced": "高度",
+                "level": "フィルターレベル",
+                "level_n": "レベル {}"
+            },
+            "style": {
+                "header": "弾幕のスタイル",
+                "font": "ストロークスタイル",
+                "font_stroke": "ストローク",
+                "font_incline": "インクライン",
+                "font_shadow": "シャドウ",
+                "font_pure": "Pure",
+                "area": "表示範囲",
+                "area_1_4": "1/4 スクリーン",
+                "area_2_4": "1/2 スクリーン",
+                "area_3_4": "3/4 スクリーン",
+                "area_4_4": "フルスクリーン",
+                "alpha": "アルファ",
+                "fontsize": "フォントサイズ",
+                "line_height": "行の高さ",
+                "speed": "速度",
+                "speed_slow_plus": "非常に遅い",
+                "speed_slow": "スロー",
+                "speed_fast_plus": "非常に速い",
+                "speed_fast": "速い",
+                "speed_moderate": "モデレート"
+            }
+        },
+        "single_comment": {
+            "detail": "詳細",
+            "hint": "何か素敵なことを言いましょう",
+            "related": "{} 件の返信",
+            "end": "コメントはありません",
+            "delete": "コメントを削除すると、コメントの下の全ての返信が削除されます\n\n続けますか？"
+        }
     },
-    "single_comment": {
-      "detail": "詳細",
-      "hint": "何か素敵なことを言いましょう",
-      "related": "{} 件の返信",
-      "end": "コメントはありません",
-      "delete": "コメントを削除すると、コメントの下の全ての返信が削除されます\n\n続けますか？"
+    "dialog": {
+        "not_supported": "サポートされていません",
+        "quit_hint": "アプリを終了しています..."
     }
-  },
-  "dialog": {
-    "not_supported": "サポートされていません",
-    "quit_hint": "アプリを終了しています..."
-  }
 }

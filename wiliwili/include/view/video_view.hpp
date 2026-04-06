@@ -260,6 +260,12 @@ public:
     // 当自动跳转下一集时不退出全屏
     inline static bool EXIT_FULLSCREEN_ON_END = true;
 
+    // 应用内全屏时同步切换窗口全屏 (仅 PC)
+    inline static bool WINDOW_FULLSCREEN_ON_APP_FULLSCREEN = false;
+
+    // 记录是否因应用内全屏而触发了窗口全屏，用于退出时还原
+    inline static bool WINDOW_FULLSCREEN_TRIGGERED = false;
+
     // Bottom progress bar
     inline static bool BOTTOM_BAR = true;
 

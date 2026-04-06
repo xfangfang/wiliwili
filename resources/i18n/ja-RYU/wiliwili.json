@@ -1,439 +1,440 @@
 {
-  "title": "wiliwili",
-  "github": "https://github.com/xfangfang/wiliwili",
-  "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
-  "setting": {
-    "quit_hint": "アプリケーション終了さんでぃそーいびーん。 設定ー次回起動時に有効なやびーん",
-    "app": {
-      "tab": "アプリ",
-      "playback": {
-        "header": "再生",
-        "report": "アップロード履歴とぅ再生記録",
-        "player_bar": "プログレスバー常に表示すん",
-        "low_quality": "低品質ぬデコード (CPU使用率がふぃくくなやびーん)",
-        "in_memory_cache": "インメモリキャッシュ",
-        "hwdec": "ハードウェアデコード",
-        "exit_fullscreen": "再生終了時んかい全画面表示終了",
-        "play_strategy": "プレイ方法",
-        "auto_play_next_part": "次ぬパート自動再生",
-        "auto_play_recommend": "うすすみ動画ぬ自動再生",
-        "auto_loop": "現在の動画をループ再生",
-        "auto_no": "再生後に動画を一時停止",
-        "auto_hint": "「おすすめ動画を自動再生」はエピソード再生後におすすめ動画を自動再生します。",
-        "sleep": "タイミングオフ",
-        "video_codec": "ビデオコーデック",
-        "audio_quality": "オーディオ品質",
-        "video_format": "動画ぬ形式"
-      },
-      "image": {
-        "header": "画像",
-        "texture": "ピクチャテクスチャキャッシュの数",
-        "threads": "画像ロードスレッド数"
-      },
-      "network": {
-        "header": "ネットワーク",
-        "tls": "TLS検証",
-        "proxy": "プロキシ",
-        "proxy_hint": "例：http://127.0.0.1:7890"
-      },
-      "ui": {
-        "header": "UI",
-        "tv_osd": "TV style OSD control"
-      },
-      "others": {
-        "header": "すぬ他",
-        "vibration": "ゲームパッドぬ振動",
-        "hide_bottom": "しちゃぬヒントバーくゎっくゎすん",
-        "hide_fps": "FPS非表示",
-        "limited_fps": "さいだいフレームすーいるゆいぎん",
-        "limited_fps_vsync": "しーさるちょくちゃーき",
-        "fullscreen": "フルスクリーン",
-        "always_on_top": "Always on top",
-        "tv_search": "テレビスタイルぬ検索ページ",
-        "clear_history": "検索履歴を削除",
-        "clear_season": "番組のカスタム設定を消去",
-        "theme": {
-          "header": "テーマ(再起動ぬいりゆーやいびーん)",
-          "1": "自動",
-          "2": "ライト",
-          "3": "ダーク"
-        },
-        "custom_theme": {
-          "header": "カスタムレイアウト（再起動が必要）"
-        },
-        "scale": {
-          "header": "UIの大きさ（再起動が必要）",
-          "544p": "544p",
-          "720p": "720p",
-          "900p": "900p",
-          "1080p": "1080p"
-        },
-        "language": {
-          "header": "言語 (再起動ぬいりゆーやいびーん)",
-          "auto": "自動",
-          "chinese_s": "简体中文",
-          "chinese_t": "繁體中文",
-          "english": "English",
-          "japanese": "日本語",
-          "ryukyuan": "島言葉",
-          "italiano": "Italiano",
-          "korean": "한국어"
-        },
-        "opencc": "簡体字中国語自動的に変換（再起動ぬいりゆーやいびーん）",
-        "keymap": {
-          "header": "キーマップぬスタイル",
-          "xbox": "Xbox",
-          "ps": "PlayStation",
-          "keyboard": "キーボード"
-        }
-      }
-    },
-    "tools": {
-      "tab": "ツール",
-      "tutorial": {
-        "header": "チュートリアル",
-        "intro": "ソフトウェアぬ紹介（オンライン動画・中国語）",
-        "intro_bvid": "BV18W4y1q72C",
-        "wiki": "詳細については、ウィキにアクセスしてください",
-        "open": "デスクトップアイコンぬインストール方法",
-        "error": "バグんかい遭遇さるばー",
-        "hot_key": "ホットキー",
-        "font": "カスタムフォント設定"
-      },
-      "test": {
-        "header": "診断情報",
-        "net": "ネットワークぬ診断",
-        "vibration": "振動テスト"
-      },
-      "others": {
-        "header": "すぬ他",
-        "dlna": "DLNAレンダラー",
-        "dlna_waiting": "DLNAキャストたいきちゅう...",
-        "dlna_quit": "DLNAキャストしーゅうりょうさびーが？",
-        "up2date": "アプリー最新やいびーん",
-        "release": "更新確認",
-        "config": "設定ディレクトリふぃらちゅん"
-      }
-    },
-    "about": {
-      "tab": "概要",
-      "brief_header": "紹介",
-      "repository": "リポジトリ",
-      "brief": "さらに別ぬサードパーティぬビリビリクライアント",
-      "repo_header": "リポジトリ",
-      "author_header": "著者ぬスピーチ",
-      "author": "わんねーかたくじらアーティストないぶさんでぃうむとーいびたしが、じゃんにんがちープログラマーぬ居場所ーあいびらん\n「ゲーム機っし動画んーちゃい、携帯電話っしゲームさいすん」でぃぬしぐとぅぬんまりー、実現すか\nあるさにぬパフォーマンスアート、くぬばーわんねーみーなやびーん"
-    },
-    "opensource": {
-      "tab": "オープンソース"
-    },
-    "tutorial": {
-      "error_q1": "ネットワークんかいアクセスなやびらん",
-      "error_a1": "1. 環境とぅシステムファームウェアぬ最新やんくとぅ確認しくぃみそーれー\n2. システム時刻ぬまくとぅ確認しくぃみそーれー\n3. IP、DNSんでーくくむるデフォルトぬネットワーク設定復元さびーん\n4.中国うぅてぃぬ使用",
-      "error_q2": "ランダムエラーっし終了",
-      "error_a2": "1. Fat32フォーマットぬメモリーカード使用\n2. 環境とぅシステムファームウェアぬ最新やんくとぅ確認しくぃみそーれー\n3. 開発者が修正すし待ちゃびーん",
-      "font_q1": "カスタムフォントあらんでぃキーマップアイコン設定する方法",
-      "font_a1": "1.いりゆーやるフォントあらんでぃアイコンフォントダウンロードさびーん\n2.フォントぬなめー：font.ttf; アイコンぬ変更：icon.ttf\n3. configディレクトリんかいフォントファイル配置さびーん\n4.アプリケーション再起動さびーん",
-      "font_q2": "ゆーある質問",
-      "font_a2": "1. Wiliwiliー、フィルムインフォントフォールバックとぅしてぃ、カスタムフォントぬ表示んかい優先順位ちきやびーん\n2.「設定 - ツール - すぬ他」ー、構成ディレクトリぐるくふぃらちゅるたみぬメニュー項目提供さびーん\n3. Linuxっしぇー、WiliwiliーXDG-Open使用しディレクトリふぃらちゃびーん。 構成ディレクトリ正しくふぃらちゅるくとぅがならんばーや、くぬツールぬインストール検討なやびーん"
-    },
-    "hot_keys": {
-      "common_header": "一般",
-      "common_content": " /  プライマリページ切り替いーん\n  /  セカンダリページ切り替いーん",
-      "player_header": "プレーヤー",
-      "player_content": " 速度上ぎやびーん。ダブルクリックしロック\n +  前方んかいシークさびーん\n プレーヤーぬOSD切り替えい \n 弾幕切り替い"
-    },
-    "net": {
-      "test": {
-        "header": "ネットワークぬアクセス",
-        "feed": "うすすみぬ動画テストし取得すん"
-      },
-      "time": {
-        "header": "時間",
-        "subtitle": "システム時刻ぬ正しこーねーんばー、ネットワーク アクセスぬしーやんじゅる可能性があいびーん",
-        "sys": "現在ぬシステム時刻",
-        "net": "ネットワークっし時間取得すん"
-      },
-      "profile": {
-        "header": "ネットワーク",
-        "subtitle": "ネットワーク設定復元しーねー、いくちがぬ問題はんすしんなやびーん",
-        "ip": "IPアドレス",
-        "dns": "DNSアドレス"
-      }
-    }
-  },
-  "hints": {
-    "hint1": "ホーム画面からゲーム選択",
-    "hint2": "キーうさがちー クリックしhbmenuんかいいやびーん",
-    "hint3": "hbmenuっし、wiliwili選択",
-    "hint4": "オプション: 提供さったるwiliwiliNSPフォワーダー使用 (wiliwili.nro/switch/wiliwili.nroんかい配置しくぃみそーれー)",
-    "hint_nsp": "クリックしNSPフォワーダーインストールさびーん",
-    "hint_confirm": "NSPフォワーダインストールしーねー、BANさりーる可能性があいびーん\nなーいちどぅ確認しくぃみそーれー",
-    "hint_right": "さしのーインターネットからぬむんでぃ、著作権ー任天堂株式会社んかい属さびーん"
-  },
-  "home": {
-    "common": {
-      "part": "チャンネル： ",
-      "recommend": "うすすみ",
-      "search": "動画検索",
-      "switch": "スイッチ",
-      "refresh": "更新",
-      "last": "ラスト",
-      "next": "次",
-      "filter": "フィルター",
-      "save": "保存",
-      "min": "分",
-      "high": "高",
-      "medium": "中",
-      "low": "ふぃく",
-      "no_login": "なーらログインさびらん"
-    },
-    "live": {
-      "tab": "ライブ",
-      "dialog": "チャンネル",
-      "default": "チャンネル：探索"
-    },
-    "rcmd": {
-      "tab": "探索"
-    },
-    "hots": {
-      "tab": "ホット",
-      "t1": "ホット",
-      "t2": "ランク",
-      "t3": "毎週",
-      "t4": "履歴"
-    },
-    "bangumi": {
-      "tab": "番組"
-    },
-    "cinema": {
-      "tab": "シネマ"
-    }
-  },
-  "dynamic": {
-    "detail": "Activity detail",
-    "video": "Video",
-    "article": "Activity"
-  },
-  "search": {
-    "tv": {
-      "hint": "キーワードとぅ最初ぬ文字サポート",
-      "clear": "クリア",
-      "delete": "削除",
-      "search": "検索",
-      "hots": "ホット",
-      "history": "履歴",
-      "history_clear": "まじり消去",
-      "history_delete": "削除",
-      "suggest": "提案"
-    },
-    "order": {
-      "all": "All",
-      "click": "Click",
-      "pubdate": "PublishDate",
-      "dm": "Danmaku",
-      "stow": "Favorite"
-    },
-    "tab": "検索",
-    "t0": "履歴",
-    "t1": "ホット",
-    "t2": "動画",
-    "t3": "番組",
-    "t4": "シネマ"
-  },
-  "activity": {
-    "all": "まじりぬ活動",
-    "refresh": "リスト更新"
-  },
-  "mine": {
-    "login": {
-      "check": "ログイン情報確認そーいびーん...",
-      "success": "ログインんかいでぃかさびたん",
-      "refresh": "更新",
-      "click": "クリックしログイン",
-      "logout": "現在ぬアカウントからログアウト \n(アプリケーションぬ終了さびーん)",
-      "scan": "QRコード読み取てぃログイン",
-      "loading": "QRコード読み込どーいびーん...",
-      "hint": "BiliBiliクライアント使用しQRコードスキャンしくぃみそーれー",
-      "network_error": "ネットワークエラーやいびーん。なーいちどぅう試しくぃみそーれー",
-      "qr_not_available": "QRコードぬ無効やいびーん。ダイアログ再入力しくぃみそーれー",
-      "need_confirm": "確認待ちゅん",
-      "need_scan": "QRコードぬスキャン待っちょーいびーん"
-    },
-    "later": "後でぃんーじゅん",
-    "history": "履歴",
-    "collection": "う気に入り",
-    "subscription": "サブスクリプション",
-    "anime": "アニメ",
-    "series": "シリーズ",
-    "refresh_history": "履歴リフレッシュ",
-    "refresh_collection": "う気に入りリフレッシュ",
-    "refresh_subscription": "サブスクリプション更新",
-    "refresh_later": "後でぃんーじゅん更新",
-    "refresh_anime": "アニメ更新",
-    "refresh_series": "シリーズ更新",
-    "coin": "コイン",
-    "following": "支援者",
-    "follower": "フォロワー",
-    "activity": "活動",
-    "public": "パブリック",
-    "private": "プライベート",
-    "num": " コンテンツ",
-    "pub": "でぃ作成 ",
-    "creator": "作成者",
-    "done": "終了さびたん",
-    "article": "ブラウザっしふぃらちゅん："
-  },
-  "player": {
-    "intro": "序章",
-    "p": "パート",
-    "ugc_season": "プレイリスト",
-    "related": "関連",
-    "series": "シリーズ",
-    "recommend": "うすすみ",
-    "uploaded": "すぬ他",
-    "qr": "QRコード読み取てぃ視聴/共有",
-    "clipboard": "Copied to clipboard",
-    "comment": "コメント",
-    "current": " むるがんーちょーん",
-    "share": "シェア",
-    "rights": "再配布禁止",
-    "fs": "フルスクリーン",
-    "quality": "品質",
-    "speed": "速度",
-    "replay": "リプレイ",
-    "current_speed": "現在ぬ速度 {}",
-    "not_follow": "フォローキャンセルさびーが？",
-    "coin": {
-      "title": "コイン",
-      "hint": "コインぬ数値選択しみそーれー",
-      "like": "いぬ時間ぬ",
-      "own": "うんじゅ自身んかいコインとぅらすしぇーなやびらん",
-      "run_out": "くぬビデオぬコインぬ枚数ぬ使用さりとーいびーん",
-      "exp": "経験 + {}(ちゅー {}/50)",
-      "exp_full": "ちゅー得らったる経験ーみっちゃかーんやいびーん(50/50)  ！",
-      "pcs": "{} 個"
-    },
-    "season_part": {
-      "ascend": "昇順",
-      "descend": "降順"
-    },
-    "comment_sort": {
-      "sort_top": "ホット順んかい並び替い",
-      "sort_new": "最新順んかい並び替い",
-      "top": "トップコメント",
-      "new": "最新ぬコメント"
-    },
-    "collection": {
-      "type": "ちーいり",
-      "title": "う気に入り選択"
-    },
+    "title": "wiliwili",
+    "github": "https://github.com/xfangfang/wiliwili",
+    "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
     "setting": {
-      "subtitle": {
-        "header": "字幕"
-      },
-      "equalizer": {
-        "header": "イコライザー",
-        "brightness": "輝度",
-        "contrast": "コントラスト",
-        "saturation": "彩度",
-        "gamma": "ガンマ",
-        "hue": "色相",
-        "reset": "リセット"
-      },
-      "common": {
-        "header": "一般",
-        "mirror": "水平方向に反転",
-        "highlight": "ホットスポットを常に表示",
-        "skip_opening_credits": "オープニングクレジットをスキップ",
-        "skip_hint1": "次の動画からオープニング クレジットを自動的にスキップします",
-        "skip_hint2": "次の動画からオープニングクレジットをスキップをオフにする",
-        "skip_hint3": "次の動画からカスタムオープニングクレジットを使用",
-        "skip_hint4": "次のビデオからカスタムオープニングクレジットを無効にする",
-        "wiki": "シェーダーぬ仕組み学ぶんがー、wikiんかいアクセスしみそーれー"
-      },
-      "season": {
-        "aspect": "カスタムビデオアスペクト",
-        "clip": "カスタムオープニングクレジット",
-        "clip_start": "イントロの長さ",
-        "clip_end": "アウトロの長さ",
-        "unit": "単位：秒"
-      },
-      "aspect": {
-        "header": "ビデオアスペクト比",
-        "crop": "Crop",
-        "stretch": "Stretch",
-        "auto": "自動"
-      },
-      "shader": {
-        "header": "シェーダー"
-      }
+        "quit_hint": "アプリケーション終了さんでぃそーいびーん。 設定ー次回起動時に有効なやびーん",
+        "app": {
+            "tab": "アプリ",
+            "playback": {
+                "header": "再生",
+                "report": "アップロード履歴とぅ再生記録",
+                "player_bar": "プログレスバー常に表示すん",
+                "low_quality": "低品質ぬデコード (CPU使用率がふぃくくなやびーん)",
+                "in_memory_cache": "インメモリキャッシュ",
+                "hwdec": "ハードウェアデコード",
+                "exit_fullscreen": "再生終了時んかい全画面表示終了",
+                "play_strategy": "プレイ方法",
+                "auto_play_next_part": "次ぬパート自動再生",
+                "auto_play_recommend": "うすすみ動画ぬ自動再生",
+                "auto_loop": "現在の動画をループ再生",
+                "auto_no": "再生後に動画を一時停止",
+                "auto_hint": "「おすすめ動画を自動再生」はエピソード再生後におすすめ動画を自動再生します。",
+                "sleep": "タイミングオフ",
+                "video_codec": "ビデオコーデック",
+                "audio_quality": "オーディオ品質",
+                "video_format": "動画ぬ形式",
+                "window_fullscreen_on_app_fullscreen": "アプリ内全画面時にウィンドウを全画面にする"
+            },
+            "image": {
+                "header": "画像",
+                "texture": "ピクチャテクスチャキャッシュの数",
+                "threads": "画像ロードスレッド数"
+            },
+            "network": {
+                "header": "ネットワーク",
+                "tls": "TLS検証",
+                "proxy": "プロキシ",
+                "proxy_hint": "例：http://127.0.0.1:7890"
+            },
+            "ui": {
+                "header": "UI",
+                "tv_osd": "TV style OSD control"
+            },
+            "others": {
+                "header": "すぬ他",
+                "vibration": "ゲームパッドぬ振動",
+                "hide_bottom": "しちゃぬヒントバーくゎっくゎすん",
+                "hide_fps": "FPS非表示",
+                "limited_fps": "さいだいフレームすーいるゆいぎん",
+                "limited_fps_vsync": "しーさるちょくちゃーき",
+                "fullscreen": "フルスクリーン",
+                "always_on_top": "Always on top",
+                "tv_search": "テレビスタイルぬ検索ページ",
+                "clear_history": "検索履歴を削除",
+                "clear_season": "番組のカスタム設定を消去",
+                "theme": {
+                    "header": "テーマ(再起動ぬいりゆーやいびーん)",
+                    "1": "自動",
+                    "2": "ライト",
+                    "3": "ダーク"
+                },
+                "custom_theme": {
+                    "header": "カスタムレイアウト（再起動が必要）"
+                },
+                "scale": {
+                    "header": "UIの大きさ（再起動が必要）",
+                    "544p": "544p",
+                    "720p": "720p",
+                    "900p": "900p",
+                    "1080p": "1080p"
+                },
+                "language": {
+                    "header": "言語 (再起動ぬいりゆーやいびーん)",
+                    "auto": "自動",
+                    "chinese_s": "简体中文",
+                    "chinese_t": "繁體中文",
+                    "english": "English",
+                    "japanese": "日本語",
+                    "ryukyuan": "島言葉",
+                    "italiano": "Italiano",
+                    "korean": "한국어"
+                },
+                "opencc": "簡体字中国語自動的に変換（再起動ぬいりゆーやいびーん）",
+                "keymap": {
+                    "header": "キーマップぬスタイル",
+                    "xbox": "Xbox",
+                    "ps": "PlayStation",
+                    "keyboard": "キーボード"
+                }
+            }
+        },
+        "tools": {
+            "tab": "ツール",
+            "tutorial": {
+                "header": "チュートリアル",
+                "intro": "ソフトウェアぬ紹介（オンライン動画・中国語）",
+                "intro_bvid": "BV18W4y1q72C",
+                "wiki": "詳細については、ウィキにアクセスしてください",
+                "open": "デスクトップアイコンぬインストール方法",
+                "error": "バグんかい遭遇さるばー",
+                "hot_key": "ホットキー",
+                "font": "カスタムフォント設定"
+            },
+            "test": {
+                "header": "診断情報",
+                "net": "ネットワークぬ診断",
+                "vibration": "振動テスト"
+            },
+            "others": {
+                "header": "すぬ他",
+                "dlna": "DLNAレンダラー",
+                "dlna_waiting": "DLNAキャストたいきちゅう...",
+                "dlna_quit": "DLNAキャストしーゅうりょうさびーが？",
+                "up2date": "アプリー最新やいびーん",
+                "release": "更新確認",
+                "config": "設定ディレクトリふぃらちゅん"
+            }
+        },
+        "about": {
+            "tab": "概要",
+            "brief_header": "紹介",
+            "repository": "リポジトリ",
+            "brief": "さらに別ぬサードパーティぬビリビリクライアント",
+            "repo_header": "リポジトリ",
+            "author_header": "著者ぬスピーチ",
+            "author": "わんねーかたくじらアーティストないぶさんでぃうむとーいびたしが、じゃんにんがちープログラマーぬ居場所ーあいびらん\n「ゲーム機っし動画んーちゃい、携帯電話っしゲームさいすん」でぃぬしぐとぅぬんまりー、実現すか\nあるさにぬパフォーマンスアート、くぬばーわんねーみーなやびーん"
+        },
+        "opensource": {
+            "tab": "オープンソース"
+        },
+        "tutorial": {
+            "error_q1": "ネットワークんかいアクセスなやびらん",
+            "error_a1": "1. 環境とぅシステムファームウェアぬ最新やんくとぅ確認しくぃみそーれー\n2. システム時刻ぬまくとぅ確認しくぃみそーれー\n3. IP、DNSんでーくくむるデフォルトぬネットワーク設定復元さびーん\n4.中国うぅてぃぬ使用",
+            "error_q2": "ランダムエラーっし終了",
+            "error_a2": "1. Fat32フォーマットぬメモリーカード使用\n2. 環境とぅシステムファームウェアぬ最新やんくとぅ確認しくぃみそーれー\n3. 開発者が修正すし待ちゃびーん",
+            "font_q1": "カスタムフォントあらんでぃキーマップアイコン設定する方法",
+            "font_a1": "1.いりゆーやるフォントあらんでぃアイコンフォントダウンロードさびーん\n2.フォントぬなめー：font.ttf; アイコンぬ変更：icon.ttf\n3. configディレクトリんかいフォントファイル配置さびーん\n4.アプリケーション再起動さびーん",
+            "font_q2": "ゆーある質問",
+            "font_a2": "1. Wiliwiliー、フィルムインフォントフォールバックとぅしてぃ、カスタムフォントぬ表示んかい優先順位ちきやびーん\n2.「設定 - ツール - すぬ他」ー、構成ディレクトリぐるくふぃらちゅるたみぬメニュー項目提供さびーん\n3. Linuxっしぇー、WiliwiliーXDG-Open使用しディレクトリふぃらちゃびーん。 構成ディレクトリ正しくふぃらちゅるくとぅがならんばーや、くぬツールぬインストール検討なやびーん"
+        },
+        "hot_keys": {
+            "common_header": "一般",
+            "common_content": " /  プライマリページ切り替いーん\n  /  セカンダリページ切り替いーん",
+            "player_header": "プレーヤー",
+            "player_content": " 速度上ぎやびーん。ダブルクリックしロック\n +  前方んかいシークさびーん\n プレーヤーぬOSD切り替えい \n 弾幕切り替い"
+        },
+        "net": {
+            "test": {
+                "header": "ネットワークぬアクセス",
+                "feed": "うすすみぬ動画テストし取得すん"
+            },
+            "time": {
+                "header": "時間",
+                "subtitle": "システム時刻ぬ正しこーねーんばー、ネットワーク アクセスぬしーやんじゅる可能性があいびーん",
+                "sys": "現在ぬシステム時刻",
+                "net": "ネットワークっし時間取得すん"
+            },
+            "profile": {
+                "header": "ネットワーク",
+                "subtitle": "ネットワーク設定復元しーねー、いくちがぬ問題はんすしんなやびーん",
+                "ip": "IPアドレス",
+                "dns": "DNSアドレス"
+            }
+        }
     },
-    "cast": {
-      "header": "DLNA",
-      "device": "デバイス",
-      "request_url": "ちゃーしがリンクリクエストそーいびーる...",
-      "cast_to_renderer": "レンダラーんかいキャストちゅう...",
-      "casting": "キャストちゅう...",
-      "cancel": "ビデオキャストキャンセル",
-      "err_connect": "DLNAレンダラーなさちどーくなやびらん",
-      "err_url": "ちゃーがリンクぬしゅうとぅくんかいしっぺーさびたん",
-      "countdown": "カウントダウンきんさく"
+    "hints": {
+        "hint1": "ホーム画面からゲーム選択",
+        "hint2": "キーうさがちー クリックしhbmenuんかいいやびーん",
+        "hint3": "hbmenuっし、wiliwili選択",
+        "hint4": "オプション: 提供さったるwiliwiliNSPフォワーダー使用 (wiliwili.nro/switch/wiliwili.nroんかい配置しくぃみそーれー)",
+        "hint_nsp": "クリックしNSPフォワーダーインストールさびーん",
+        "hint_confirm": "NSPフォワーダインストールしーねー、BANさりーる可能性があいびーん\nなーいちどぅ確認しくぃみそーれー",
+        "hint_right": "さしのーインターネットからぬむんでぃ、著作権ー任天堂株式会社んかい属さびーん"
     },
-    "danmaku": {
-      "header": "弾幕ぬ設定",
-      "send": {
-        "action": "送信",
-        "hint": "じょーとぅーやるくとぅコメントさびら"
-      },
-      "performance": {
-        "header": "パフォーマンス",
-        "render": "レンダリングの品質"
-      },
-      "filter": {
-        "header": "弾幕フィルター",
-        "mask": "スマートマスク",
-        "top": "トップ",
-        "scroll": "スクロール",
-        "bottom": "しちゃ",
-        "color": "カラー",
-        "advanced": "高度",
-        "level": "フィルターレベル",
-        "level_n": "レベル {}"
-      },
-      "style": {
-        "header": "弾幕ぬスタイル",
-        "font": "ストロークスタイル",
-        "font_stroke": "ストローク",
-        "font_incline": "インクライン",
-        "font_shadow": "シャドウ",
-        "font_pure": "Pure",
-        "area": "表示範囲",
-        "area_1_4": "1/4 スクリーン",
-        "area_2_4": "1/2 スクリーン",
-        "area_3_4": "3/4 スクリーン",
-        "area_4_4": "フルスクリーン",
-        "alpha": "アルファ",
-        "fontsize": "フォントサイズ",
-        "line_height": "行ぬ高さ",
+    "home": {
+        "common": {
+            "part": "チャンネル： ",
+            "recommend": "うすすみ",
+            "search": "動画検索",
+            "switch": "スイッチ",
+            "refresh": "更新",
+            "last": "ラスト",
+            "next": "次",
+            "filter": "フィルター",
+            "save": "保存",
+            "min": "分",
+            "high": "高",
+            "medium": "中",
+            "low": "ふぃく",
+            "no_login": "なーらログインさびらん"
+        },
+        "live": {
+            "tab": "ライブ",
+            "dialog": "チャンネル",
+            "default": "チャンネル：探索"
+        },
+        "rcmd": {
+            "tab": "探索"
+        },
+        "hots": {
+            "tab": "ホット",
+            "t1": "ホット",
+            "t2": "ランク",
+            "t3": "毎週",
+            "t4": "履歴"
+        },
+        "bangumi": {
+            "tab": "番組"
+        },
+        "cinema": {
+            "tab": "シネマ"
+        }
+    },
+    "dynamic": {
+        "detail": "Activity detail",
+        "video": "Video",
+        "article": "Activity"
+    },
+    "search": {
+        "tv": {
+            "hint": "キーワードとぅ最初ぬ文字サポート",
+            "clear": "クリア",
+            "delete": "削除",
+            "search": "検索",
+            "hots": "ホット",
+            "history": "履歴",
+            "history_clear": "まじり消去",
+            "history_delete": "削除",
+            "suggest": "提案"
+        },
+        "order": {
+            "all": "All",
+            "click": "Click",
+            "pubdate": "PublishDate",
+            "dm": "Danmaku",
+            "stow": "Favorite"
+        },
+        "tab": "検索",
+        "t0": "履歴",
+        "t1": "ホット",
+        "t2": "動画",
+        "t3": "番組",
+        "t4": "シネマ"
+    },
+    "activity": {
+        "all": "まじりぬ活動",
+        "refresh": "リスト更新"
+    },
+    "mine": {
+        "login": {
+            "check": "ログイン情報確認そーいびーん...",
+            "success": "ログインんかいでぃかさびたん",
+            "refresh": "更新",
+            "click": "クリックしログイン",
+            "logout": "現在ぬアカウントからログアウト \n(アプリケーションぬ終了さびーん)",
+            "scan": "QRコード読み取てぃログイン",
+            "loading": "QRコード読み込どーいびーん...",
+            "hint": "BiliBiliクライアント使用しQRコードスキャンしくぃみそーれー",
+            "network_error": "ネットワークエラーやいびーん。なーいちどぅう試しくぃみそーれー",
+            "qr_not_available": "QRコードぬ無効やいびーん。ダイアログ再入力しくぃみそーれー",
+            "need_confirm": "確認待ちゅん",
+            "need_scan": "QRコードぬスキャン待っちょーいびーん"
+        },
+        "later": "後でぃんーじゅん",
+        "history": "履歴",
+        "collection": "う気に入り",
+        "subscription": "サブスクリプション",
+        "anime": "アニメ",
+        "series": "シリーズ",
+        "refresh_history": "履歴リフレッシュ",
+        "refresh_collection": "う気に入りリフレッシュ",
+        "refresh_subscription": "サブスクリプション更新",
+        "refresh_later": "後でぃんーじゅん更新",
+        "refresh_anime": "アニメ更新",
+        "refresh_series": "シリーズ更新",
+        "coin": "コイン",
+        "following": "支援者",
+        "follower": "フォロワー",
+        "activity": "活動",
+        "public": "パブリック",
+        "private": "プライベート",
+        "num": " コンテンツ",
+        "pub": "でぃ作成 ",
+        "creator": "作成者",
+        "done": "終了さびたん",
+        "article": "ブラウザっしふぃらちゅん："
+    },
+    "player": {
+        "intro": "序章",
+        "p": "パート",
+        "ugc_season": "プレイリスト",
+        "related": "関連",
+        "series": "シリーズ",
+        "recommend": "うすすみ",
+        "uploaded": "すぬ他",
+        "qr": "QRコード読み取てぃ視聴/共有",
+        "clipboard": "Copied to clipboard",
+        "comment": "コメント",
+        "current": " むるがんーちょーん",
+        "share": "シェア",
+        "rights": "再配布禁止",
+        "fs": "フルスクリーン",
+        "quality": "品質",
         "speed": "速度",
-        "speed_slow_plus": "いっぺーにーさん",
-        "speed_slow": "スロー",
-        "speed_fast_plus": "いっぺーふぇーさん",
-        "speed_fast": "ふぇーさん",
-        "speed_moderate": "モデレート"
-      }
+        "replay": "リプレイ",
+        "current_speed": "現在ぬ速度 {}",
+        "not_follow": "フォローキャンセルさびーが？",
+        "coin": {
+            "title": "コイン",
+            "hint": "コインぬ数値選択しみそーれー",
+            "like": "いぬ時間ぬ",
+            "own": "うんじゅ自身んかいコインとぅらすしぇーなやびらん",
+            "run_out": "くぬビデオぬコインぬ枚数ぬ使用さりとーいびーん",
+            "exp": "経験 + {}(ちゅー {}/50)",
+            "exp_full": "ちゅー得らったる経験ーみっちゃかーんやいびーん(50/50)  ！",
+            "pcs": "{} 個"
+        },
+        "season_part": {
+            "ascend": "昇順",
+            "descend": "降順"
+        },
+        "comment_sort": {
+            "sort_top": "ホット順んかい並び替い",
+            "sort_new": "最新順んかい並び替い",
+            "top": "トップコメント",
+            "new": "最新ぬコメント"
+        },
+        "collection": {
+            "type": "ちーいり",
+            "title": "う気に入り選択"
+        },
+        "setting": {
+            "subtitle": {
+                "header": "字幕"
+            },
+            "equalizer": {
+                "header": "イコライザー",
+                "brightness": "輝度",
+                "contrast": "コントラスト",
+                "saturation": "彩度",
+                "gamma": "ガンマ",
+                "hue": "色相",
+                "reset": "リセット"
+            },
+            "common": {
+                "header": "一般",
+                "mirror": "水平方向に反転",
+                "highlight": "ホットスポットを常に表示",
+                "skip_opening_credits": "オープニングクレジットをスキップ",
+                "skip_hint1": "次の動画からオープニング クレジットを自動的にスキップします",
+                "skip_hint2": "次の動画からオープニングクレジットをスキップをオフにする",
+                "skip_hint3": "次の動画からカスタムオープニングクレジットを使用",
+                "skip_hint4": "次のビデオからカスタムオープニングクレジットを無効にする",
+                "wiki": "シェーダーぬ仕組み学ぶんがー、wikiんかいアクセスしみそーれー"
+            },
+            "season": {
+                "aspect": "カスタムビデオアスペクト",
+                "clip": "カスタムオープニングクレジット",
+                "clip_start": "イントロの長さ",
+                "clip_end": "アウトロの長さ",
+                "unit": "単位：秒"
+            },
+            "aspect": {
+                "header": "ビデオアスペクト比",
+                "crop": "Crop",
+                "stretch": "Stretch",
+                "auto": "自動"
+            },
+            "shader": {
+                "header": "シェーダー"
+            }
+        },
+        "cast": {
+            "header": "DLNA",
+            "device": "デバイス",
+            "request_url": "ちゃーしがリンクリクエストそーいびーる...",
+            "cast_to_renderer": "レンダラーんかいキャストちゅう...",
+            "casting": "キャストちゅう...",
+            "cancel": "ビデオキャストキャンセル",
+            "err_connect": "DLNAレンダラーなさちどーくなやびらん",
+            "err_url": "ちゃーがリンクぬしゅうとぅくんかいしっぺーさびたん",
+            "countdown": "カウントダウンきんさく"
+        },
+        "danmaku": {
+            "header": "弾幕ぬ設定",
+            "send": {
+                "action": "送信",
+                "hint": "じょーとぅーやるくとぅコメントさびら"
+            },
+            "performance": {
+                "header": "パフォーマンス",
+                "render": "レンダリングの品質"
+            },
+            "filter": {
+                "header": "弾幕フィルター",
+                "mask": "スマートマスク",
+                "top": "トップ",
+                "scroll": "スクロール",
+                "bottom": "しちゃ",
+                "color": "カラー",
+                "advanced": "高度",
+                "level": "フィルターレベル",
+                "level_n": "レベル {}"
+            },
+            "style": {
+                "header": "弾幕ぬスタイル",
+                "font": "ストロークスタイル",
+                "font_stroke": "ストローク",
+                "font_incline": "インクライン",
+                "font_shadow": "シャドウ",
+                "font_pure": "Pure",
+                "area": "表示範囲",
+                "area_1_4": "1/4 スクリーン",
+                "area_2_4": "1/2 スクリーン",
+                "area_3_4": "3/4 スクリーン",
+                "area_4_4": "フルスクリーン",
+                "alpha": "アルファ",
+                "fontsize": "フォントサイズ",
+                "line_height": "行ぬ高さ",
+                "speed": "速度",
+                "speed_slow_plus": "いっぺーにーさん",
+                "speed_slow": "スロー",
+                "speed_fast_plus": "いっぺーふぇーさん",
+                "speed_fast": "ふぇーさん",
+                "speed_moderate": "モデレート"
+            }
+        },
+        "single_comment": {
+            "detail": "詳細",
+            "hint": "ぬーがじょーとぅーやるくとぅ言やびら",
+            "related": "{} 件ぬ返信",
+            "end": "コメントーあいびらん",
+            "delete": "コメント削除しーねー、コメントぬしちゃぬまじりぬ返信ぬ削除さりやびーん\n\n続きやびーが？"
+        }
     },
-    "single_comment": {
-      "detail": "詳細",
-      "hint": "ぬーがじょーとぅーやるくとぅ言やびら",
-      "related": "{} 件ぬ返信",
-      "end": "コメントーあいびらん",
-      "delete": "コメント削除しーねー、コメントぬしちゃぬまじりぬ返信ぬ削除さりやびーん\n\n続きやびーが？"
+    "dialog": {
+        "not_supported": "サポートされていません",
+        "quit_hint": "アプリ終了そーいびーん..."
     }
-  },
-  "dialog": {
-    "not_supported": "サポートされていません",
-    "quit_hint": "アプリ終了そーいびーん..."
-  }
 }

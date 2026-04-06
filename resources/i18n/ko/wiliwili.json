@@ -1,479 +1,480 @@
 {
-  "title": "wiliwili",
-  "github": "https://github.com/xfangfang/wiliwili",
-  "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
-  "setting": {
-    "quit_hint": "응용 프로그램을 종료하려고 합니다. 다음 시작 후에 설정이 적용됩니다.",
-    "app": {
-      "tab": "앱",
-      "playback": {
-        "header": "재생",
-        "player": "플레이어",
-        "report": "이력 재생 기록 업로드",
-        "player_bar": "진행 표시줄 항상 표시",
-        "low_quality": "낮은 품질의 디코딩(CPU 사용량이 적음)",
-        "in_memory_cache": "메모리 캐시",
-        "hwdec": "하드웨어 디코드",
-        "auto_play": "비디오 세부 정보 페이지에서 자동 재생",
-        "exit_fullscreen": "재생 종료 시 전체 화면 종료",
-        "play_strategy": "재생 방법",
-        "auto_play_next_part": "자동으로 다음 동영상 재생",
-        "auto_play_recommend": "추천 동영상 자동 재생",
-        "auto_loop": "현재 동영상 반복",
-        "auto_no": "재생 후 비디오 일시 정지",
-        "auto_hint": "'추천 영상 자동 재생'은 에피소드 재생 후 추천 영상을 자동으로 재생합니다.",
-        "sleep": "타이밍 끄기",
-        "format": "형식",
-        "video_codec": "비디오 코덱",
-        "audio_quality": "오디오 품질",
-        "video_format": "비디오 형식"
-      },
-      "image": {
-        "header": "이미지",
-        "texture": "그림 텍스처 캐시 수",
-        "threads": "이미지 로드 스레드 수"
-      },
-      "network": {
-        "header": "네트워크",
-        "tls": "TLS 검증",
-        "proxy": "프록시",
-        "proxy_hint": "예: http://127.0.0.1:7890"
-      },
-      "ui": {
-        "header": "사용자 인터페이스",
-        "window": "윈도우",
-        "bottom_bar": "하단바",
-        "ui_style": "UI 스타일",
-        "tv_osd": "TV 스타일 OSD 제어"
-      },
-      "others": {
-        "header": "기타",
-        "vibration": "게임패드 진동",
-        "hide_bottom": "아래 힌트 바 숨기기",
-        "hide_fps": "FPS 숨김",
-        "show_bottom": "하단바 표시",
-        "show_fps": "FPS 표시",
-        "limited_fps": "최대 프레임 제한",
-        "limited_fps_vsync": "수직 동기화",
-        "fullscreen": "전체화면",
-        "always_on_top": "항상 상단",
-        "always_on_top_hint": "자동: 창 크기가 작을 경우 창을 자동으로 맨 위로 설정",
-        "tv_search": "TV 스타일 검색 페이지",
-        "clear_history": "검색 기록 지우기",
-        "clear_season": "반구미 커스텀 설정 지우기",
-        "theme": {
-          "header": "테마 (재시작 필요)",
-          "1": "자동",
-          "2": "밝음",
-          "3": "어두움"
-        },
-        "custom_theme": {
-          "header": "커스텀 레이아웃(재시작 필요)"
-        },
-        "scale": {
-          "header": "UI 스케일 (재시작 필요)",
-          "544p": "544p",
-          "720p": "720p",
-          "900p": "900p",
-          "1080p": "1080p"
-        },
-        "language": {
-          "header": "언어 (재시작 필요)",
-          "auto": "자동",
-          "chinese_s": "简体中文",
-          "chinese_t": "繁體中文",
-          "english": "English",
-          "japanese": "日本語",
-          "ryukyuan": "島言葉",
-          "italiano": "Italiano",
-          "korean": "한국어"
-        },
-        "opencc": "중국어 간체 자동 변환 (재시작 필요)",
-        "keymap": {
-          "header": "키맵 스타일",
-          "swap": "AB/XY 바꾸기",
-          "xbox": "Xbox",
-          "ps": "PlayStation",
-          "keyboard": "키보드"
-        }
-      }
-    },
-    "tools": {
-      "tab": "도구",
-      "tutorial": {
-        "header": "자습서",
-        "intro": "소프트웨어 소개 (온라인 동영상, 중국어)",
-        "intro_bvid": "BV18W4y1q72C",
-        "wiki": "더 많은 정보를 얻으려면 위키에 접속하세요",
-        "open": "데스크톱 아이콘 설치 방법",
-        "error": "버그를 겪어본 경우",
-        "hot_key": "단축키",
-        "font": "커스텀 글꼴 설정"
-      },
-      "test": {
-        "header": "진단",
-        "net": "네트워크 진단",
-        "vibration": "진동 테스트"
-      },
-      "others": {
-        "header": "기타",
-        "dlna": "DLNA 렌더러",
-        "dlna_waiting": "DLNA 캐스팅을 기다리는 중...",
-        "dlna_quit": "DLNA 캐스팅을 종료하겠습니까?",
-        "up2date": "앱이 최신 상태임",
-        "checking_update": "업데이트를 확인하는 중...",
-        "release": "업데이트 확인",
-        "config_dir": "구성 디렉터리",
-        "config": "구성 디렉터리 열기"
-      }
-    },
-    "about": {
-      "tab": "정보",
-      "brief_header": "소개",
-      "repository": "저장소",
-      "brief": "또 다른 타사 bilibili 클라이언트",
-      "repo_header": "저장소",
-      "author_header": "제작자의 말",
-      "author": "항상 예술가가 되고 싶었지만 안타깝게도 프로그래머를 위한 자리가 많지 않습니다.\n이 작품이 탄생하고 실현되기까지:「게임 콘솔에서 비디오 보기, 휴대폰에서 게임하기」\n일종의 공연 예술이라고 할 수 있을지도 모르겠지만, 나는 완성 될 것입니다."
-    },
-    "opensource": {
-      "tab": "오픈소스"
-    },
-    "tutorial": {
-      "error_q1": "네트워크에 액세스할 수 없음",
-      "error_a1": "1. 대기 및 시스템 펌웨어가 최신 상태인지 확인\n2. 시스템 시간이 올바른지 확인\n3. IP, DNS 등을 포함한 기본 네트워크 설정 복원\n4.중국에서 사용",
-      "error_q2": "무작위 오류로 종료",
-      "error_a2": "1. Fat32 형식 메모리 카드 사용\n2. 대기 및 시스템 펌웨어가 최신 상태인지 확인\n3. 개발자의 수리를 기다리는 중",
-      "font_q1": "커스텀 글꼴 또는 키맵 아이콘을 설정하는 방법",
-      "font_a1": "1. 원하는 글꼴이나 아이콘 글꼴을 다운로드\n2. 글꼴 이름을 다음으로 변경: font.ttf; 아이콘 이름 바꾸기: icon.ttf\n3. 글꼴 파일을 config 디렉터리에 넣기\n4. 응용 프로그램을 다시 시작",
-      "font_q2": "자주 묻는 질문들",
-      "font_a2": "1. wiliwili는 대체 글꼴로 내장 글꼴을 사용하여 맞춤 글꼴 표시를 우선\n2. \"설정 - 도구 - 기타\"는 구성 디렉터리를 빠르게 열 수 있는 메뉴 항목을 제공\n3. Linux에서 wiliwili는 xdg-open을 사용하여 디렉터리를 엽니다. 구성 디렉터리를 제대로 열 수 없는 경우 이 도구 설치를 고려할 수 있음"
-    },
-    "hot_keys": {
-      "common_header": "공통",
-      "common_content": " /  기본 페이지 전환\n /  보조 페이지 전환",
-      "player_header": "플레이어",
-      "player_content": " 속도를 높이고,  를 두번 클릭하여 잠금\n +  앞으로 탐색\n 플레이어 OSD 전환 \n 단막 전환"
-    },
-    "net": {
-      "test": {
-        "header": "네트워크 접속",
-        "feed": "추천 동영상을 보려면 테스트"
-      },
-      "time": {
-        "header": "시간",
-        "subtitle": "잘못된 시스템 시간으로 인해 네트워크 액세스 실패가 발생할 수 있음",
-        "sys": "현재 시스템 시간",
-        "net": "네트워크 시간 가져오기"
-      },
-      "profile": {
-        "header": "네트워크",
-        "subtitle": "네트워크 설정을 복원하면 일부 문제도 해결할 수 있음",
-        "ip": "IP 주소",
-        "dns": "DNS 주소"
-      }
-    }
-  },
-  "hints": {
-    "hint1": "홈 화면에서 게임 선택",
-    "hint2": " 키를 누른 상태에서  을 클릭하여 hbmenu로 진입",
-    "hint3": "hbmenu에서, wiliwili 선택",
-    "hint4": "선택 사항: 제공된 wiliwili NSP 포워더 사용 (wiliwili.nro를 /switch/wiliwili.nro에 배치)",
-    "hint_nsp": "NSP 포워더를 설치하려면  를 클릭",
-    "hint_confirm": "NSP 포워더를 설치하면 차단될 수 있음\n다시 확인 필요",
-    "hint_right": "사진은 인터넷에서 가져온 것이며 저작권은 Nintendo Co., Ltd에 있음"
-  },
-  "home": {
-    "common": {
-      "part": "채널: ",
-      "recommend": "추천",
-      "search": "동영상 검색",
-      "switch": "스위치",
-      "refresh": "새로 고침",
-      "last": "마지막",
-      "next": "다음",
-      "filter": "필터",
-      "save": "저장",
-      "min": "분",
-      "high": "높음",
-      "medium": "중간",
-      "low": "낮음",
-      "no_login": "아직 로그인하지 않았습니다."
-    },
-    "live": {
-      "tab": "라이브",
-      "dialog": "채널",
-      "default": "채널: 탐색"
-    },
-    "rcmd": {
-      "tab": "탐색"
-    },
-    "hots": {
-      "tab": "핫",
-      "t1": "핫",
-      "t2": "순위",
-      "t3": "주간",
-      "t4": "이력"
-    },
-    "bangumi": {
-      "tab": "프로그램"
-    },
-    "cinema": {
-      "tab": "영화"
-    }
-  },
-  "dynamic": {
-    "detail": "활성 세부정보",
-    "video": "비디오",
-    "article": "활성"
-  },
-  "search": {
-    "tv": {
-      "hint": "키워드 및 해당 이니셜 지원",
-      "clear": "지움",
-      "delete": "삭제",
-      "search": "검색",
-      "hots": "인기",
-      "history": "이력",
-      "history_clear": "모두 지움",
-      "history_delete": "삭제",
-      "suggest": "제안"
-    },
-    "history": {
-      "clear": "검색 기록 삭제",
-      "clear_hint": "검색 기록은 이 장치에서 영구적으로 삭제됨"
-    },
-    "order": {
-      "all": "모두",
-      "click": "클릭",
-      "pubdate": "출시날짜",
-      "dm": "탄막",
-      "stow": "즐겨찾기"
-    },
-    "tab": "검색",
-    "t0": "이력",
-    "t1": "핫",
-    "t2": "동영상",
-    "t3": "프로그램",
-    "t4": "영화"
-  },
-  "activity": {
-    "all": "전체 활성화",
-    "refresh": "목록 새로 고침"
-  },
-  "inbox": {
-    "chat": {
-      "tab": "채팅 목록",
-      "hint": "메시지를 보내서 채팅을 시작하세요 ~",
-      "unknown": "현재 해당 메시지 유형은 지원되지 않음"
-    },
-    "tab": {
-      "like": "좋아요",
-      "at": "@나",
-      "reply": "답변"
-    },
-    "type": {
-      "video": "동영상",
-      "reply": "덧글",
-      "article": "글",
-      "dynamic": "활성",
-      "danmu": "탄막",
-      "album": "활성"
-    },
-    "more": "그리고 {} 명이 내 {} 을 좋아함",
-    "like": "내 {} 을 좋아함",
-    "at": "@나 {} 에",
-    "reply": "내 {} 에 답변하였음"
-  },
-  "mine": {
-    "login": {
-      "check": "로그인 정보 확인 중...",
-      "success": "로그인 성공",
-      "refresh": "새로 고침",
-      "click": "로그인하려면 클릭",
-      "logout": "현재 계정에서 로그아웃 \n(응용 프로그램이 종료)",
-      "scan": "QR 코드를 스캔하여 로그인",
-      "loading": "QR 코드 로드 중...",
-      "hint": "BiliBili 클라이언트를 사용하여 QR 코드 스캔",
-      "network_error": "네트워크 오류, 다시 시도",
-      "qr_not_available": "QR 코드가 유효하지 않음, 대화 상자에 다시 진입",
-      "need_confirm": "확인 대기 중",
-      "need_scan": "QR 코드 스캔 대기 중"
-    },
-    "later": "나중에 시청",
-    "history": "이력",
-    "collection": "즐겨찾기",
-    "subscription": "구독",
-    "anime": "애니메이션",
-    "series": "시리즈",
-    "refresh_history": "이력 새로 고침",
-    "refresh_collection": "즐겨찾기 새로 고침",
-    "refresh_subscription": "구독 새로 고침",
-    "refresh_later": "나중에 시청 새로 고침",
-    "refresh_anime": "애니메이션 새로 고침",
-    "refresh_series": "시리즈 새로 고침",
-    "coin": "코인",
-    "following": "팔로잉",
-    "follower": "팔로어",
-    "activity": "활동",
-    "public": "공식",
-    "private": "사적",
-    "num": " 내용",
-    "pub": "생성 ",
-    "creator": "제작자",
-    "done": "완료",
-    "article": "탐색기로 열기:"
-  },
-  "player": {
-    "intro": "소개",
-    "p": "부분",
-    "ugc_season": "재생목록",
-    "related": "관련",
-    "series": "시리즈",
-    "recommend": "추천",
-    "uploaded": "기타",
-    "qr": "QR 코드를 스캔하여 시청/공유",
-    "clipboard": "클립보드에 복사됨",
-    "comment": "덧글",
-    "current": " 사람들이 보고 있습니다",
-    "share": "공유",
-    "rights": "복제 불허",
-    "fs": "전체화면",
-    "quality": "품질",
-    "speed": "속도",
-    "replay": "다시 보기",
-    "current_speed": "현재 속도 {}",
-    "not_follow": "팔로우를 취소하겠습니까?",
-    "coin": {
-      "title": "코인",
-      "hint": "코인 번호를 선택하세요.",
-      "like": "동시에 좋아요",
-      "own": "본인에게 코인을 줄 수 없습니다.",
-      "run_out": "이 영상의 코인 개수가 소진되었습니다.",
-      "exp": "경험치 + {} ( 오늘 {}/50 )",
-      "exp_full": "오늘 획득한 경험치가 최고점에 도달했습니다 (50/50)  !",
-      "pcs": "{} 개"
-    },
-    "season_part": {
-      "ascend": "오름차순",
-      "descend": "내림차순"
-    },
-    "comment_sort": {
-      "sort_top": "열별로 정렬",
-      "sort_new": "최신순으로 정렬",
-      "top": "인기 댓글",
-      "new": "최신 댓글"
-    },
-    "collection": {
-      "type": "즐겨찾기",
-      "title": "즐겨찾기 선택"
-    },
+    "title": "wiliwili",
+    "github": "https://github.com/xfangfang/wiliwili",
+    "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
     "setting": {
-      "subtitle": {
-        "header": "자막"
-      },
-      "equalizer": {
-        "header": "이퀄라이저",
-        "brightness": "밝기",
-        "contrast": "대비",
-        "saturation": "채도",
-        "gamma": "감마",
-        "hue": "색조",
-        "reset": "재설정"
-      },
-      "common": {
-        "header": "공통",
-        "mirror": "수평으로 뒤집기",
-        "highlight": "항상 핫스팟 표시",
-        "skip_opening_credits": "오프닝 크레딧 건너뛰기",
-        "skip_hint1": "다음 동영상의 오프닝 크레딧을 자동으로 건너뜀",
-        "skip_hint2": "다음 비디오에서 오프닝 크레딧 건너뛰기 끄기",
-        "skip_hint3": "다음 비디오의 커스텀 오프닝 크레딧을 사용",
-        "skip_hint4": "다음 비디오에서 커스텀 오프닝 크레딧을 비활성화",
-        "wiki": "셰이더 작동 방식을 알아보려면 위키에 접속하세요"
-      },
-      "season": {
-        "aspect": "커스텀 비디오 화면비",
-        "clip": "커스텀 오프닝 크레딧",
-        "clip_start": "인트로 길이",
-        "clip_end": "아우트로 길이",
-        "unit": "단위: 초"
-      },
-      "aspect": {
-        "header": "비디오 화면비",
-        "crop": "자르기",
-        "stretch": "늘이기",
-        "auto": "자동"
-      },
-      "shader": {
-        "header": "셰이더"
-      }
+        "quit_hint": "응용 프로그램을 종료하려고 합니다. 다음 시작 후에 설정이 적용됩니다.",
+        "app": {
+            "tab": "앱",
+            "playback": {
+                "header": "재생",
+                "player": "플레이어",
+                "report": "이력 재생 기록 업로드",
+                "player_bar": "진행 표시줄 항상 표시",
+                "low_quality": "낮은 품질의 디코딩(CPU 사용량이 적음)",
+                "in_memory_cache": "메모리 캐시",
+                "hwdec": "하드웨어 디코드",
+                "auto_play": "비디오 세부 정보 페이지에서 자동 재생",
+                "exit_fullscreen": "재생 종료 시 전체 화면 종료",
+                "play_strategy": "재생 방법",
+                "auto_play_next_part": "자동으로 다음 동영상 재생",
+                "auto_play_recommend": "추천 동영상 자동 재생",
+                "auto_loop": "현재 동영상 반복",
+                "auto_no": "재생 후 비디오 일시 정지",
+                "auto_hint": "'추천 영상 자동 재생'은 에피소드 재생 후 추천 영상을 자동으로 재생합니다.",
+                "sleep": "타이밍 끄기",
+                "format": "형식",
+                "video_codec": "비디오 코덱",
+                "audio_quality": "오디오 품질",
+                "video_format": "비디오 형식",
+                "window_fullscreen_on_app_fullscreen": "앱 내 전체 화면 시 창 전체 화면 자동 전환"
+            },
+            "image": {
+                "header": "이미지",
+                "texture": "그림 텍스처 캐시 수",
+                "threads": "이미지 로드 스레드 수"
+            },
+            "network": {
+                "header": "네트워크",
+                "tls": "TLS 검증",
+                "proxy": "프록시",
+                "proxy_hint": "예: http://127.0.0.1:7890"
+            },
+            "ui": {
+                "header": "사용자 인터페이스",
+                "window": "윈도우",
+                "bottom_bar": "하단바",
+                "ui_style": "UI 스타일",
+                "tv_osd": "TV 스타일 OSD 제어"
+            },
+            "others": {
+                "header": "기타",
+                "vibration": "게임패드 진동",
+                "hide_bottom": "아래 힌트 바 숨기기",
+                "hide_fps": "FPS 숨김",
+                "show_bottom": "하단바 표시",
+                "show_fps": "FPS 표시",
+                "limited_fps": "최대 프레임 제한",
+                "limited_fps_vsync": "수직 동기화",
+                "fullscreen": "전체화면",
+                "always_on_top": "항상 상단",
+                "always_on_top_hint": "자동: 창 크기가 작을 경우 창을 자동으로 맨 위로 설정",
+                "tv_search": "TV 스타일 검색 페이지",
+                "clear_history": "검색 기록 지우기",
+                "clear_season": "반구미 커스텀 설정 지우기",
+                "theme": {
+                    "header": "테마 (재시작 필요)",
+                    "1": "자동",
+                    "2": "밝음",
+                    "3": "어두움"
+                },
+                "custom_theme": {
+                    "header": "커스텀 레이아웃(재시작 필요)"
+                },
+                "scale": {
+                    "header": "UI 스케일 (재시작 필요)",
+                    "544p": "544p",
+                    "720p": "720p",
+                    "900p": "900p",
+                    "1080p": "1080p"
+                },
+                "language": {
+                    "header": "언어 (재시작 필요)",
+                    "auto": "자동",
+                    "chinese_s": "简体中文",
+                    "chinese_t": "繁體中文",
+                    "english": "English",
+                    "japanese": "日本語",
+                    "ryukyuan": "島言葉",
+                    "italiano": "Italiano",
+                    "korean": "한국어"
+                },
+                "opencc": "중국어 간체 자동 변환 (재시작 필요)",
+                "keymap": {
+                    "header": "키맵 스타일",
+                    "swap": "AB/XY 바꾸기",
+                    "xbox": "Xbox",
+                    "ps": "PlayStation",
+                    "keyboard": "키보드"
+                }
+            }
+        },
+        "tools": {
+            "tab": "도구",
+            "tutorial": {
+                "header": "자습서",
+                "intro": "소프트웨어 소개 (온라인 동영상, 중국어)",
+                "intro_bvid": "BV18W4y1q72C",
+                "wiki": "더 많은 정보를 얻으려면 위키에 접속하세요",
+                "open": "데스크톱 아이콘 설치 방법",
+                "error": "버그를 겪어본 경우",
+                "hot_key": "단축키",
+                "font": "커스텀 글꼴 설정"
+            },
+            "test": {
+                "header": "진단",
+                "net": "네트워크 진단",
+                "vibration": "진동 테스트"
+            },
+            "others": {
+                "header": "기타",
+                "dlna": "DLNA 렌더러",
+                "dlna_waiting": "DLNA 캐스팅을 기다리는 중...",
+                "dlna_quit": "DLNA 캐스팅을 종료하겠습니까?",
+                "up2date": "앱이 최신 상태임",
+                "checking_update": "업데이트를 확인하는 중...",
+                "release": "업데이트 확인",
+                "config_dir": "구성 디렉터리",
+                "config": "구성 디렉터리 열기"
+            }
+        },
+        "about": {
+            "tab": "정보",
+            "brief_header": "소개",
+            "repository": "저장소",
+            "brief": "또 다른 타사 bilibili 클라이언트",
+            "repo_header": "저장소",
+            "author_header": "제작자의 말",
+            "author": "항상 예술가가 되고 싶었지만 안타깝게도 프로그래머를 위한 자리가 많지 않습니다.\n이 작품이 탄생하고 실현되기까지:「게임 콘솔에서 비디오 보기, 휴대폰에서 게임하기」\n일종의 공연 예술이라고 할 수 있을지도 모르겠지만, 나는 완성 될 것입니다."
+        },
+        "opensource": {
+            "tab": "오픈소스"
+        },
+        "tutorial": {
+            "error_q1": "네트워크에 액세스할 수 없음",
+            "error_a1": "1. 대기 및 시스템 펌웨어가 최신 상태인지 확인\n2. 시스템 시간이 올바른지 확인\n3. IP, DNS 등을 포함한 기본 네트워크 설정 복원\n4.중국에서 사용",
+            "error_q2": "무작위 오류로 종료",
+            "error_a2": "1. Fat32 형식 메모리 카드 사용\n2. 대기 및 시스템 펌웨어가 최신 상태인지 확인\n3. 개발자의 수리를 기다리는 중",
+            "font_q1": "커스텀 글꼴 또는 키맵 아이콘을 설정하는 방법",
+            "font_a1": "1. 원하는 글꼴이나 아이콘 글꼴을 다운로드\n2. 글꼴 이름을 다음으로 변경: font.ttf; 아이콘 이름 바꾸기: icon.ttf\n3. 글꼴 파일을 config 디렉터리에 넣기\n4. 응용 프로그램을 다시 시작",
+            "font_q2": "자주 묻는 질문들",
+            "font_a2": "1. wiliwili는 대체 글꼴로 내장 글꼴을 사용하여 맞춤 글꼴 표시를 우선\n2. \"설정 - 도구 - 기타\"는 구성 디렉터리를 빠르게 열 수 있는 메뉴 항목을 제공\n3. Linux에서 wiliwili는 xdg-open을 사용하여 디렉터리를 엽니다. 구성 디렉터리를 제대로 열 수 없는 경우 이 도구 설치를 고려할 수 있음"
+        },
+        "hot_keys": {
+            "common_header": "공통",
+            "common_content": " /  기본 페이지 전환\n /  보조 페이지 전환",
+            "player_header": "플레이어",
+            "player_content": " 속도를 높이고,  를 두번 클릭하여 잠금\n +  앞으로 탐색\n 플레이어 OSD 전환 \n 단막 전환"
+        },
+        "net": {
+            "test": {
+                "header": "네트워크 접속",
+                "feed": "추천 동영상을 보려면 테스트"
+            },
+            "time": {
+                "header": "시간",
+                "subtitle": "잘못된 시스템 시간으로 인해 네트워크 액세스 실패가 발생할 수 있음",
+                "sys": "현재 시스템 시간",
+                "net": "네트워크 시간 가져오기"
+            },
+            "profile": {
+                "header": "네트워크",
+                "subtitle": "네트워크 설정을 복원하면 일부 문제도 해결할 수 있음",
+                "ip": "IP 주소",
+                "dns": "DNS 주소"
+            }
+        }
     },
-    "cast": {
-      "header": "DLNA",
-      "device": "장치",
-      "request_url": "비디오 링크 요청 중...",
-      "cast_to_renderer": "렌더러로 캐스팅...",
-      "casting": "캐스팅...",
-      "cancel": "비디오 캐스팅 취소",
-      "err_connect": "DLNA 렌더러에 연결 비활성화",
-      "err_url": "동영상 링크 얻기 실패",
-      "countdown": "카운트다운 검색"
+    "hints": {
+        "hint1": "홈 화면에서 게임 선택",
+        "hint2": " 키를 누른 상태에서  을 클릭하여 hbmenu로 진입",
+        "hint3": "hbmenu에서, wiliwili 선택",
+        "hint4": "선택 사항: 제공된 wiliwili NSP 포워더 사용 (wiliwili.nro를 /switch/wiliwili.nro에 배치)",
+        "hint_nsp": "NSP 포워더를 설치하려면  를 클릭",
+        "hint_confirm": "NSP 포워더를 설치하면 차단될 수 있음\n다시 확인 필요",
+        "hint_right": "사진은 인터넷에서 가져온 것이며 저작권은 Nintendo Co., Ltd에 있음"
     },
-    "danmaku": {
-      "header": "탄막 설정",
-      "send": {
-        "action": "전송",
-        "hint": "좋은 말 한마디"
-      },
-      "performance": {
-        "header": "성능",
-        "render": "렌더링 품질"
-      },
-      "filter": {
-        "header": "탄막 필터",
-        "mask": "스마트 마스크",
-        "top": "상단",
-        "scroll": "스크롤",
-        "bottom": "하단",
-        "color": "색상",
-        "advanced": "고급 설정",
-        "level": "필터 수준",
-        "level_n": "수준 {}"
-      },
-      "style": {
-        "header": "탄막 스타일",
-        "font": "선 스타일",
-        "font_stroke": "선",
-        "font_incline": "기울기",
-        "font_shadow": "그림자",
-        "font_pure": "있는 그대로",
-        "area": "디스플레이 영역",
-        "area_1_4": "1/4 화면",
-        "area_2_4": "1/2 화면",
-        "area_3_4": "3/4 화면",
-        "area_4_4": "전체화면",
-        "alpha": "알파",
-        "fontsize": "글꼴크기",
-        "line_height": "선 높이",
+    "home": {
+        "common": {
+            "part": "채널: ",
+            "recommend": "추천",
+            "search": "동영상 검색",
+            "switch": "스위치",
+            "refresh": "새로 고침",
+            "last": "마지막",
+            "next": "다음",
+            "filter": "필터",
+            "save": "저장",
+            "min": "분",
+            "high": "높음",
+            "medium": "중간",
+            "low": "낮음",
+            "no_login": "아직 로그인하지 않았습니다."
+        },
+        "live": {
+            "tab": "라이브",
+            "dialog": "채널",
+            "default": "채널: 탐색"
+        },
+        "rcmd": {
+            "tab": "탐색"
+        },
+        "hots": {
+            "tab": "핫",
+            "t1": "핫",
+            "t2": "순위",
+            "t3": "주간",
+            "t4": "이력"
+        },
+        "bangumi": {
+            "tab": "프로그램"
+        },
+        "cinema": {
+            "tab": "영화"
+        }
+    },
+    "dynamic": {
+        "detail": "활성 세부정보",
+        "video": "비디오",
+        "article": "활성"
+    },
+    "search": {
+        "tv": {
+            "hint": "키워드 및 해당 이니셜 지원",
+            "clear": "지움",
+            "delete": "삭제",
+            "search": "검색",
+            "hots": "인기",
+            "history": "이력",
+            "history_clear": "모두 지움",
+            "history_delete": "삭제",
+            "suggest": "제안"
+        },
+        "history": {
+            "clear": "검색 기록 삭제",
+            "clear_hint": "검색 기록은 이 장치에서 영구적으로 삭제됨"
+        },
+        "order": {
+            "all": "모두",
+            "click": "클릭",
+            "pubdate": "출시날짜",
+            "dm": "탄막",
+            "stow": "즐겨찾기"
+        },
+        "tab": "검색",
+        "t0": "이력",
+        "t1": "핫",
+        "t2": "동영상",
+        "t3": "프로그램",
+        "t4": "영화"
+    },
+    "activity": {
+        "all": "전체 활성화",
+        "refresh": "목록 새로 고침"
+    },
+    "inbox": {
+        "chat": {
+            "tab": "채팅 목록",
+            "hint": "메시지를 보내서 채팅을 시작하세요 ~",
+            "unknown": "현재 해당 메시지 유형은 지원되지 않음"
+        },
+        "tab": {
+            "like": "좋아요",
+            "at": "@나",
+            "reply": "답변"
+        },
+        "type": {
+            "video": "동영상",
+            "reply": "덧글",
+            "article": "글",
+            "dynamic": "활성",
+            "danmu": "탄막",
+            "album": "활성"
+        },
+        "more": "그리고 {} 명이 내 {} 을 좋아함",
+        "like": "내 {} 을 좋아함",
+        "at": "@나 {} 에",
+        "reply": "내 {} 에 답변하였음"
+    },
+    "mine": {
+        "login": {
+            "check": "로그인 정보 확인 중...",
+            "success": "로그인 성공",
+            "refresh": "새로 고침",
+            "click": "로그인하려면 클릭",
+            "logout": "현재 계정에서 로그아웃 \n(응용 프로그램이 종료)",
+            "scan": "QR 코드를 스캔하여 로그인",
+            "loading": "QR 코드 로드 중...",
+            "hint": "BiliBili 클라이언트를 사용하여 QR 코드 스캔",
+            "network_error": "네트워크 오류, 다시 시도",
+            "qr_not_available": "QR 코드가 유효하지 않음, 대화 상자에 다시 진입",
+            "need_confirm": "확인 대기 중",
+            "need_scan": "QR 코드 스캔 대기 중"
+        },
+        "later": "나중에 시청",
+        "history": "이력",
+        "collection": "즐겨찾기",
+        "subscription": "구독",
+        "anime": "애니메이션",
+        "series": "시리즈",
+        "refresh_history": "이력 새로 고침",
+        "refresh_collection": "즐겨찾기 새로 고침",
+        "refresh_subscription": "구독 새로 고침",
+        "refresh_later": "나중에 시청 새로 고침",
+        "refresh_anime": "애니메이션 새로 고침",
+        "refresh_series": "시리즈 새로 고침",
+        "coin": "코인",
+        "following": "팔로잉",
+        "follower": "팔로어",
+        "activity": "활동",
+        "public": "공식",
+        "private": "사적",
+        "num": " 내용",
+        "pub": "생성 ",
+        "creator": "제작자",
+        "done": "완료",
+        "article": "탐색기로 열기:"
+    },
+    "player": {
+        "intro": "소개",
+        "p": "부분",
+        "ugc_season": "재생목록",
+        "related": "관련",
+        "series": "시리즈",
+        "recommend": "추천",
+        "uploaded": "기타",
+        "qr": "QR 코드를 스캔하여 시청/공유",
+        "clipboard": "클립보드에 복사됨",
+        "comment": "덧글",
+        "current": " 사람들이 보고 있습니다",
+        "share": "공유",
+        "rights": "복제 불허",
+        "fs": "전체화면",
+        "quality": "품질",
         "speed": "속도",
-        "speed_slow_plus": "매우 느림",
-        "speed_slow": "느림",
-        "speed_fast_plus": "매우 빠름",
-        "speed_fast": "빠름",
-        "speed_moderate": "보통"
-      }
+        "replay": "다시 보기",
+        "current_speed": "현재 속도 {}",
+        "not_follow": "팔로우를 취소하겠습니까?",
+        "coin": {
+            "title": "코인",
+            "hint": "코인 번호를 선택하세요.",
+            "like": "동시에 좋아요",
+            "own": "본인에게 코인을 줄 수 없습니다.",
+            "run_out": "이 영상의 코인 개수가 소진되었습니다.",
+            "exp": "경험치 + {} ( 오늘 {}/50 )",
+            "exp_full": "오늘 획득한 경험치가 최고점에 도달했습니다 (50/50)  !",
+            "pcs": "{} 개"
+        },
+        "season_part": {
+            "ascend": "오름차순",
+            "descend": "내림차순"
+        },
+        "comment_sort": {
+            "sort_top": "열별로 정렬",
+            "sort_new": "최신순으로 정렬",
+            "top": "인기 댓글",
+            "new": "최신 댓글"
+        },
+        "collection": {
+            "type": "즐겨찾기",
+            "title": "즐겨찾기 선택"
+        },
+        "setting": {
+            "subtitle": {
+                "header": "자막"
+            },
+            "equalizer": {
+                "header": "이퀄라이저",
+                "brightness": "밝기",
+                "contrast": "대비",
+                "saturation": "채도",
+                "gamma": "감마",
+                "hue": "색조",
+                "reset": "재설정"
+            },
+            "common": {
+                "header": "공통",
+                "mirror": "수평으로 뒤집기",
+                "highlight": "항상 핫스팟 표시",
+                "skip_opening_credits": "오프닝 크레딧 건너뛰기",
+                "skip_hint1": "다음 동영상의 오프닝 크레딧을 자동으로 건너뜀",
+                "skip_hint2": "다음 비디오에서 오프닝 크레딧 건너뛰기 끄기",
+                "skip_hint3": "다음 비디오의 커스텀 오프닝 크레딧을 사용",
+                "skip_hint4": "다음 비디오에서 커스텀 오프닝 크레딧을 비활성화",
+                "wiki": "셰이더 작동 방식을 알아보려면 위키에 접속하세요"
+            },
+            "season": {
+                "aspect": "커스텀 비디오 화면비",
+                "clip": "커스텀 오프닝 크레딧",
+                "clip_start": "인트로 길이",
+                "clip_end": "아우트로 길이",
+                "unit": "단위: 초"
+            },
+            "aspect": {
+                "header": "비디오 화면비",
+                "crop": "자르기",
+                "stretch": "늘이기",
+                "auto": "자동"
+            },
+            "shader": {
+                "header": "셰이더"
+            }
+        },
+        "cast": {
+            "header": "DLNA",
+            "device": "장치",
+            "request_url": "비디오 링크 요청 중...",
+            "cast_to_renderer": "렌더러로 캐스팅...",
+            "casting": "캐스팅...",
+            "cancel": "비디오 캐스팅 취소",
+            "err_connect": "DLNA 렌더러에 연결 비활성화",
+            "err_url": "동영상 링크 얻기 실패",
+            "countdown": "카운트다운 검색"
+        },
+        "danmaku": {
+            "header": "탄막 설정",
+            "send": {
+                "action": "전송",
+                "hint": "좋은 말 한마디"
+            },
+            "performance": {
+                "header": "성능",
+                "render": "렌더링 품질"
+            },
+            "filter": {
+                "header": "탄막 필터",
+                "mask": "스마트 마스크",
+                "top": "상단",
+                "scroll": "스크롤",
+                "bottom": "하단",
+                "color": "색상",
+                "advanced": "고급 설정",
+                "level": "필터 수준",
+                "level_n": "수준 {}"
+            },
+            "style": {
+                "header": "탄막 스타일",
+                "font": "선 스타일",
+                "font_stroke": "선",
+                "font_incline": "기울기",
+                "font_shadow": "그림자",
+                "font_pure": "있는 그대로",
+                "area": "디스플레이 영역",
+                "area_1_4": "1/4 화면",
+                "area_2_4": "1/2 화면",
+                "area_3_4": "3/4 화면",
+                "area_4_4": "전체화면",
+                "alpha": "알파",
+                "fontsize": "글꼴크기",
+                "line_height": "선 높이",
+                "speed": "속도",
+                "speed_slow_plus": "매우 느림",
+                "speed_slow": "느림",
+                "speed_fast_plus": "매우 빠름",
+                "speed_fast": "빠름",
+                "speed_moderate": "보통"
+            }
+        },
+        "single_comment": {
+            "detail": "상세 정보",
+            "hint": "좋은 말씀을 해보세요",
+            "related": "총 {} 개의 답글",
+            "end": "댓글이 더 이상 없음",
+            "delete": "댓글을 삭제하면 해당 댓글 아래의 모든 답글이 삭제됩니다.\n\n계속하겠습니까?"
+        }
     },
-    "single_comment": {
-      "detail": "상세 정보",
-      "hint": "좋은 말씀을 해보세요",
-      "related": "총 {} 개의 답글",
-      "end": "댓글이 더 이상 없음",
-      "delete": "댓글을 삭제하면 해당 댓글 아래의 모든 답글이 삭제됩니다.\n\n계속하겠습니까?"
+    "dialog": {
+        "not_supported": "지원하지 않음",
+        "quit_hint": "앱 종료 중..."
     }
-  },
-  "dialog": {
-    "not_supported": "지원하지 않음",
-    "quit_hint": "앱 종료 중..."
-  }
 }

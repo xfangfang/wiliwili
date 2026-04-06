@@ -71,6 +71,7 @@ private:
 
     // common setting
     BRLS_BIND(brls::BooleanCell, btnFullscreen, "setting/fullscreen");
+    BRLS_BIND(brls::BooleanCell, btnWindowFullscreen, "setting/window/fullscreen");
     BRLS_BIND(BiliSelectorCell, btnOnTopMode, "setting/onTopMode");
     BRLS_BIND(brls::BooleanCell, btnProgress, "setting/video/progress");
     BRLS_BIND(brls::BooleanCell, btnHistory, "setting/history/log");

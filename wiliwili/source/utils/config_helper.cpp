@@ -199,6 +199,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
 #endif
     {SettingItem::PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom", {}, {}, 0}},
     {SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END, {"player_exit_fullscreen_on_end", {}, {}, 1}},
+    {SettingItem::PLAYER_WINDOW_FULLSCREEN_ON_APP_FULLSCREEN, {"player_window_fullscreen_on_app_fullscreen", {}, {}, 0}},
     {SettingItem::PLAYER_OSD_TV_MODE, {"player_osd_tv_mode", {}, {}, 0}},
     {SettingItem::OPENCC_ON, {"opencc", {}, {}, 1}},
     {SettingItem::DANMAKU_ON, {"danmaku", {}, {}, 1}},
@@ -649,6 +650,10 @@ void ProgramConfig::load() {
 
     // 播放结束时自动退出全屏
     VideoView::EXIT_FULLSCREEN_ON_END = getBoolOption(SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END);
+
+    // 应用内全屏时同步切换窗口全屏
+    VideoView::WINDOW_FULLSCREEN_ON_APP_FULLSCREEN =
+        getBoolOption(SettingItem::PLAYER_WINDOW_FULLSCREEN_ON_APP_FULLSCREEN);
 
     // 初始化播放器 OSD 自动隐藏时间
     VideoView::OSD_SHOW_TIME = getSettingItem(SettingItem::PLAYER_OSD_HIDE, 5000);
@@ -1279,4 +1284,10 @@ void ProgramConfig::toggleFullscreen() {
     VideoContext::FULLSCREEN = value;
     brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
     GA("player_setting", {{"fullscreen", value ? "true" : "false"}});
+}
+
+void ProgramConfig::setWindowFullscreen(bool value) {
+    setSettingItem(SettingItem::FULLSCREEN, value);
+    VideoContext::FULLSCREEN = value;
+    brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
 }
