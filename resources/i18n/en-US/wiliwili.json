@@ -480,6 +480,16 @@
       "delete": "After deleting the comment, all replies under the comment will be deleted\n\nDo you want to continue?"
     }
   },
+  "user_space": {
+    "following_label": "Following",
+    "follower_label": "Followers",
+    "follow": "Follow",
+    "following": "Following",
+    "no_sign": "No signature",
+    "uploads": "Uploads",
+    "dynamics": "Dynamics",
+    "coming_soon": "Coming Soon"
+  },
   "dialog": {
     "not_supported": "Not Supported",
     "quit_hint": "Exiting app..."
