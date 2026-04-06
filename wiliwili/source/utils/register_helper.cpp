@@ -29,8 +29,6 @@
 #include "fragment/search_history.hpp"
 #include "fragment/share_dialog.hpp"
 
-#include <cmath>
-
 #include "utils/config_helper.hpp"
 
 #include "view/auto_tab_frame.hpp"
@@ -144,7 +142,7 @@ void Register::initCustomTheme() {
     // 用户可以通过在配置文件中设置 custom_theme_color (RRGGBB 十六进制) 来自定义主题色
     NVGcolor biliColor = nvgRGB(255, 102, 153);
     std::string customColor =
-        ProgramConfig::instance().getSettingItem(SettingItem::CUSTOM_THEME_COLOR, std::string{""});
+        ProgramConfig::instance().getSettingItem(SettingItem::CUSTOM_THEME_COLOR, std::string{});
     if (customColor.size() == 6) {
         try {
             uint32_t hex = std::stoul(customColor, nullptr, 16);
@@ -171,10 +169,10 @@ void Register::initCustomTheme() {
     // 由主题色推导：亮色 = 与白色混合约12%，暗色 = 与黑色混合约14%
     {
         float rf = biliColor.r, gf = biliColor.g, bf = biliColor.b;
-        // light: lerp(white, primary, 0.12)
-        float lr = 1.0f - 0.12f + 0.12f * rf;
-        float lg = 1.0f - 0.12f + 0.12f * gf;
-        float lb = 1.0f - 0.12f + 0.12f * bf;
+        // light: lerp(white, primary, 0.12) = 0.88 + 0.12 * primary
+        float lr = 0.88f + 0.12f * rf;
+        float lg = 0.88f + 0.12f * gf;
+        float lb = 0.88f + 0.12f * bf;
         brls::Theme::getLightTheme().addColor("color/pink_1", nvgRGBf(lr, lg, lb));
         // dark: lerp(black, primary, 0.14)
         brls::Theme::getDarkTheme().addColor("color/pink_1", nvgRGBf(0.14f * rf, 0.14f * gf, 0.14f * bf));
