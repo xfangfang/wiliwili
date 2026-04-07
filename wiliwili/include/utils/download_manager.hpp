@@ -127,7 +127,7 @@ inline void from_json(const nlohmann::json& j, DownloadTask& t) {
 class DownloadManager : public brls::Singleton<DownloadManager> {
 public:
     DownloadManager();
-    ~DownloadManager() override;
+    ~DownloadManager();
 
     // Persist / restore state
     void loadState();

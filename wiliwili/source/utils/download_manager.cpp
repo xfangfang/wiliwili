@@ -308,7 +308,7 @@ bool DownloadManager::downloadFile(const std::string& url,
         return true;
     }));
 
-    session->SetProgressCallback(cpr::ProgressCallback([&cancelFlag, &pauseFlag, &downloadedBytes, &totalBytes](cpr::cpr_off_t dltotal, cpr::cpr_off_t dlnow, cpr::cpr_off_t, cpr::cpr_off_t) -> bool {
+    session->SetProgressCallback(cpr::ProgressCallback([&cancelFlag, &pauseFlag, &downloadedBytes, &totalBytes](cpr::cpr_off_t dltotal, cpr::cpr_off_t dlnow, ...) -> bool {
         if (dltotal > 0) totalBytes = dltotal;
         return !cancelFlag.load() && !pauseFlag.load();
     }));
