@@ -128,7 +128,9 @@
         "checking_update": "正在检查更新...",
         "release": "检查更新",
         "config_dir": "配置目录",
-        "config": "打开配置目录"
+        "config": "打开配置目录",
+        "download_dir": "视频缓存目录",
+        "download_manager": "下载管理"
       }
     },
     "about": {
@@ -155,9 +157,9 @@
     },
     "hot_keys": {
       "common_header": "通用快捷键",
-      "common_content": " /  切换一级页面 \n /  切换二级页面",
+      "common_content": " /  切换一级页面 \n /  切换二级页面",
       "player_header": "播放器快捷键",
-      "player_content": " 快进，双击  快进锁定 \n +  向前跳转视频（单个  即可完整操控播放） \n 显示/隐藏 播放器OSD\n 显示/隐藏 弹幕 \n 显示/隐藏 视频数据"
+      "player_content": " 快进，双击  快进锁定 \n +  向前跳转视频（单个  即可完整操控播放） \n 显示/隐藏 播放器OSD\n 显示/隐藏 弹幕 \n 显示/隐藏 视频数据"
     },
     "net": {
       "test": {
@@ -179,11 +181,11 @@
     }
   },
   "hints": {
-    "hint1": "请从桌面选择任意游戏并按住  键",
-    "hint2": "点击  打开, 在应用开启期间保持按住  键，直到进入 hbmenu",
+    "hint1": "请从桌面选择任意游戏并按住  键",
+    "hint2": "点击  打开, 在应用开启期间保持按住  键，直到进入 hbmenu",
     "hint3": "在 hbmenu 菜单中选择 wiliwili",
     "hint4": "可选：安装桌面图标 (请将 wiliwili.nro 放置在 /switch/wiliwili.nro )",
-    "hint_nsp": "点击  安装桌面图标",
+    "hint_nsp": "点击  安装桌面图标",
     "hint_confirm": "安装桌面图标可能导致ban机\n请再次确认",
     "hint_right": "掌机图片来源于网络，版权归任天堂 Nintendo Co., Ltd 所有"
   },
@@ -355,7 +357,7 @@
       "own": "UP主不能自己投币",
       "run_out": "对本稿件的投币枚数已用完",
       "exp": "经验值+{}（今日{}/50）",
-      "exp_full": "今日投币+50经验成就 get  赞！",
+      "exp_full": "今日投币+50经验成就 get  赞！",
       "pcs": "{}个"
     },
     "season_part": {
@@ -478,6 +480,39 @@
       "related": "相关回复共{}条",
       "end": "没有更多评论",
       "delete": "删除评论后，评论下所有回复都会被删除\n是否继续?"
+    },
+    "download": {
+      "btn": "缓存",
+      "label": "缓存",
+      "started": "已开始缓存视频",
+      "dir_hint": "设置缓存目录",
+      "dir_placeholder": "输入缓存目录路径",
+      "dir_first_title": "设置缓存位置",
+      "dir_first_hint": "首次缓存视频，请确认缓存目录：",
+      "use_default": "使用此路径",
+      "customize": "自定义",
+      "queued": "已加入下载队列",
+      "completed": "下载完成",
+      "failed": "下载失败",
+      "select_quality": "选择下载清晰度"
+    }
+  },
+  "download": {
+    "manager": {
+      "title": "下载管理",
+      "downloading": "下载中",
+      "downloaded": "已下载",
+      "pause": "暂停",
+      "resume": "继续",
+      "cancel": "取消",
+      "delete": "删除",
+      "play": "播放",
+      "incomplete_hint": "有未完成的下载任务，是否打开下载页？",
+      "empty": "暂无下载",
+      "speed": "{}",
+      "total": "{}/{}",
+      "confirm_cancel": "取消此下载任务？",
+      "confirm_delete": "删除此下载及其文件？"
     }
   },
   "dialog": {

@@ -168,6 +168,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::SHORTCUT_VIDEO_SPEEDUP, {"shortcut_video_speedup", {}, {}, 0}},
     {SettingItem::SHORTCUT_VIDEO_OSD, {"shortcut_video_osd", {}, {}, 0}},
     {SettingItem::SHORTCUT_VIDEO_PAUSE, {"shortcut_video_pause", {}, {}, 0}},
+    {SettingItem::VIDEO_DOWNLOAD_PATH, {"video_download_path", {}, {}, 0}},
 
     /// bool
     {SettingItem::APP_SWAP_ABXY, {"app_swap_abxy", {}, {}, 0}},
@@ -1118,6 +1119,30 @@ std::string ProgramConfig::getHomePath() {
     return std::string(getenv("HOMEPATH"));
 #else
     return std::string(getenv("HOME"));
+#endif
+}
+
+std::string ProgramConfig::getDownloadDir() {
+    std::string saved = getSettingItem(SettingItem::VIDEO_DOWNLOAD_PATH, std::string{""});
+    if (!saved.empty()) return saved;
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+    // PC: default to user's Downloads folder
+#ifdef _WIN32
+    char* userProfile = getenv("USERPROFILE");
+    if (userProfile) return std::string(userProfile) + "\\Downloads";
+    return getConfigDir() + "\\download";
+#else
+#ifdef __linux__
+    char* xdgDownload = getenv("XDG_DOWNLOAD_DIR");
+    if (xdgDownload && xdgDownload[0] != '\0') return std::string(xdgDownload);
+#endif
+    char* home = getenv("HOME");
+    if (home) return std::string(home) + "/Downloads";
+    return getConfigDir() + "/download";
+#endif
+#else
+    // Embedded / mobile: put next to config directory
+    return getConfigDir() + "/download";
 #endif
 }
 

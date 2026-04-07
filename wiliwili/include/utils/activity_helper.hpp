@@ -46,6 +46,12 @@ public:
 
     // 开启动态
     static void openActivity(const std::string& id);
+
+    // 打开下载管理器
+    static void openDownloadManager();
+
+    // 播放本地缓存视频
+    static void openLocalVideo(const std::string& taskId);
 };
 
 #if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)

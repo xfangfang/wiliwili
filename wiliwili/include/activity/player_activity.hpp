@@ -62,6 +62,9 @@ public:
     // 切换评论模式
     void setCommentMode();
 
+    // 开始缓存当前视频，首次调用时提示用户选择缓存目录
+    void startVideoCache();
+
     // 设定当前的播放进度，获取视频链接后会自动跳转到该进度
     // 目前有两个使用场景：
     // 1. 从历史记录进入视频时
@@ -122,6 +125,7 @@ protected:
     BRLS_BIND(SVGImage, btnCoin, "video/btn/coin");
     BRLS_BIND(SVGImage, btnFavorite, "video/btn/favorite");
     BRLS_BIND(SVGImage, btnQR, "video/btn/qr");
+    BRLS_BIND(SVGImage, btnDownload, "video/btn/download");
     BRLS_BIND(brls::Label, labelAgree, "video/label/agree");
     BRLS_BIND(brls::Label, labelCoin, "video/label/coin");
     BRLS_BIND(brls::Label, labelFavorite, "video/label/favorite");

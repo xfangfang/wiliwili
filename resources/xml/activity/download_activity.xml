@@ -1,0 +1,65 @@
+<brls:AppletFrame
+        iconInterpolation="linear"
+        headerHidden="true"
+        footerHidden="false">
+
+    <brls:Box backgroundColor="@theme/brls/background">
+        <AutoTabFrame
+                id="download/tabFrame"
+                grow="1"
+                tabBackgroundColor="@theme/color/grey_1"
+                tabItemActiveTextColor="@theme/color/bilibili"
+                defaultTab="0"
+                demandMode="false"
+                sidebarWidth="0"
+                sidebarPosition="top">
+
+            <Tab label="@i18n/download/manager/downloading"
+                 fontSize="20">
+                <brls:Box
+                        width="auto"
+                        height="auto"
+                        grow="1"
+                        marginTop="12">
+                    <RecyclingGrid
+                            id="download/active/list"
+                            paddingLeft="20"
+                            paddingRight="20"
+                            grow="1"
+                            spanCount="1"
+                            itemSpace="10"
+                            flowMode="true"
+                            itemHeight="120"
+                            wireframe="false"/>
+                </brls:Box>
+            </Tab>
+
+            <Tab label="@i18n/download/manager/downloaded"
+                 fontSize="20">
+                <brls:Box
+                        width="auto"
+                        height="auto"
+                        grow="1"
+                        marginTop="12">
+                    <RecyclingGrid
+                            id="download/completed/list"
+                            paddingLeft="20"
+                            paddingRight="20"
+                            grow="1"
+                            spanCount="1"
+                            itemSpace="10"
+                            flowMode="true"
+                            itemHeight="120"
+                            wireframe="false"/>
+                </brls:Box>
+            </Tab>
+
+        </AutoTabFrame>
+    </brls:Box>
+
+    <ButtonClose
+            positionType="absolute"
+            positionTop="2"
+            positionRight="2"/>
+
+</brls:AppletFrame>

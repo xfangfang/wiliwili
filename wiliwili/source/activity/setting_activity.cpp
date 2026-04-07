@@ -10,6 +10,7 @@
 #include <borealis/views/dialog.hpp>
 #include <borealis/views/cells/cell_bool.hpp>
 #include <borealis/views/cells/cell_input.hpp>
+#include <borealis/views/cells/cell_detail.hpp>
 
 #include "bilibili.h"
 #include "activity/setting_activity.hpp"
@@ -209,6 +210,31 @@ void SettingActivity::onContentAvailable() {
             p->openBrowser(configPath);
         }
 #endif
+        return true;
+    });
+
+    // 视频缓存目录设置
+    btnDownloadDir->setDetailText(ProgramConfig::instance().getDownloadDir());
+    btnDownloadDir->registerClickAction([this](...) -> bool {
+        auto& conf             = ProgramConfig::instance();
+        std::string currentDir = conf.getDownloadDir();
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+        brls::Application::getImeManager()->openForText(
+            [this](const std::string& text) {
+                if (text.empty()) return;
+                ProgramConfig::instance().setSettingItem(SettingItem::VIDEO_DOWNLOAD_PATH, text);
+                btnDownloadDir->setDetailText(text);
+            },
+            "wiliwili/player/download/dir_hint"_i18n, "wiliwili/player/download/dir_placeholder"_i18n, 512,
+            currentDir, 0);
+#else
+        brls::Application::notify("wiliwili/setting/tools/others/download_dir"_i18n + ": " + currentDir);
+#endif
+        return true;
+    });
+
+    btnDownloadManager->registerClickAction([](...) -> bool {
+        Intent::openDownloadManager();
         return true;
     });
 

@@ -128,7 +128,9 @@
         "checking_update": "Checking for updates...",
         "release": "Check for updates",
         "config_dir": "Config directory",
-        "config": "Open config directory"
+        "config": "Open config directory",
+        "download_dir": "Video cache directory",
+        "download_manager": "Download Manager"
       }
     },
     "about": {
@@ -155,9 +157,9 @@
     },
     "hot_keys": {
       "common_header": "Common",
-      "common_content": "\uE0A4 / \uE0A5 Switch the primary page\n\uE0A6 / \uE0A7 Switch the secondary page",
+      "common_content": " /  Switch the primary page\n /  Switch the secondary page",
       "player_header": "Player",
-      "player_content": "\uE0C5 Speed up，double click \uE0C5 to lock\n\uE0A3 + \uE0A5 Seek forward\n\uE0A3 Toggle player OSD \n\uE0A2 Toggle danmaku"
+      "player_content": " Speed up，double click  to lock\n +  Seek forward\n Toggle player OSD \n Toggle danmaku"
     },
     "net": {
       "test": {
@@ -180,10 +182,10 @@
   },
   "hints": {
     "hint1": "Select a game from home screen",
-    "hint2": "Hold the \uE0E5 key and click \uE0E0 to enter hbmenu",
+    "hint2": "Hold the  key and click  to enter hbmenu",
     "hint3": "In the hbmenu, select wiliwili",
     "hint4": "Optional: Using provided wiliwili NSP forwarder (Please place wiliwili.nro in /switch/wiliwili.nro)",
-    "hint_nsp": "Click \uE0E0 to install NSP forwarder",
+    "hint_nsp": "Click  to install NSP forwarder",
     "hint_confirm": "Installing NSP forwarder may result in a ban\nPlease confirm again",
     "hint_right": "The pictures are from the Internet, and the copyright belongs to Nintendo Co., Ltd"
   },
@@ -355,7 +357,7 @@
       "own": "You can't give yourself a coin",
       "run_out": "The number of coins for this video has been used up",
       "exp": "Experience + {}（Today {}/50）",
-      "exp_full": "The experience gained today is full (50/50) \uE87D ！",
+      "exp_full": "The experience gained today is full (50/50)  ！",
       "pcs": "{} pcs"
     },
     "season_part": {
@@ -478,6 +480,39 @@
       "related": "{} replies in total",
       "end": "No more comments",
       "delete": "After deleting the comment, all replies under the comment will be deleted\n\nDo you want to continue?"
+    },
+    "download": {
+      "btn": "Cache",
+      "label": "Cache",
+      "started": "Video caching started",
+      "dir_hint": "Set download directory",
+      "dir_placeholder": "Enter download directory path",
+      "dir_first_title": "Set Cache Location",
+      "dir_first_hint": "This is the first time caching a video. Please confirm the cache directory:",
+      "use_default": "Use this path",
+      "customize": "Customize",
+      "queued": "Download queued",
+      "completed": "Download completed",
+      "failed": "Download failed",
+      "select_quality": "Select download quality"
+    }
+  },
+  "download": {
+    "manager": {
+      "title": "Download Manager",
+      "downloading": "Downloading",
+      "downloaded": "Downloaded",
+      "pause": "Pause",
+      "resume": "Resume",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "play": "Play",
+      "incomplete_hint": "You have incomplete downloads. Open the download manager?",
+      "empty": "No downloads yet",
+      "speed": "{}",
+      "total": "{}/{}",
+      "confirm_cancel": "Cancel this download?",
+      "confirm_delete": "Delete this download and its files?"
     }
   },
   "dialog": {
