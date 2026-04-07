@@ -55,6 +55,15 @@
 #include "view/dynamic_video_card.hpp"
 #include "view/dynamic_article.hpp"
 
+// static member definition
+std::string Register::customThemeColorHex;
+
+const std::string& Register::getCustomThemeColorHex() { return customThemeColorHex; }
+
+bool Register::isBilibiliDefaultPink(const std::string& color) {
+    return color == "#FB7299" || color == "#fb7299";
+}
+
 void Register::initCustomView() {
     // Register extended views
     brls::Application::registerXMLView("AutoTabFrame", AutoTabFrame::create);
@@ -140,13 +149,17 @@ void Register::initCustomTheme() {
     brls::Theme::getDarkTheme().addColor("font/yellow_1", nvgRGB(217, 118, 7));
 
     // 粉色文字，bilibili主题色
-    // 用户可以通过在配置文件中设置 custom_theme_color (RRGGBB 十六进制) 来自定义主题色
+    // 用户可以通过在配置文件中设置 custom_theme_color (#RRGGBB 十六进制，例如 #FF6699) 来自定义主题色
     NVGcolor biliColor = nvgRGB(255, 102, 153);
     std::string customColor =
         ProgramConfig::instance().getSettingItem(SettingItem::CUSTOM_THEME_COLOR, std::string{});
     uint8_t r, g, b;
     if (wiliwili::parseHexColor(customColor, r, g, b)) {
         biliColor = nvgRGB(r, g, b);
+        // Store as "#RRGGBB" for use by SVG loading and username color substitution
+        char buf[8];
+        std::snprintf(buf, sizeof(buf), "#%02X%02X%02X", r, g, b);
+        customThemeColorHex = buf;
     } else if (!customColor.empty()) {
         brls::Logger::error("Register::initCustomTheme: invalid custom_theme_color \"{}\"", customColor);
     }

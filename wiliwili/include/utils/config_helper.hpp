@@ -123,7 +123,7 @@ enum class SettingItem {
     SHORTCUT_VIDEO_SPEEDUP, // 视频倍速快捷键
     SHORTCUT_VIDEO_OSD, // 切换OSD显示
     SHORTCUT_VIDEO_PAUSE, // 视频播放暂停快捷键
-    CUSTOM_THEME_COLOR,  // 自定义主题色 (十六进制 RRGGBB，例如 FF6699)
+    CUSTOM_THEME_COLOR,  // 自定义主题色 (十六进制 #RRGGBB，例如 #FF6699)
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {
@@ -330,4 +330,13 @@ public:
     static void initCustomView();
     static void initCustomTheme();
     static void initCustomStyle();
+
+    /// 返回用户自定义的主题色，格式为 "#RRGGBB"；未设置时返回空字符串。
+    static const std::string& getCustomThemeColorHex();
+
+    /// 判断颜色字符串是否为 Bilibili 官方默认大会员粉色 (#FB7299)。
+    static bool isBilibiliDefaultPink(const std::string& color);
+
+private:
+    static std::string customThemeColorHex;
 };
