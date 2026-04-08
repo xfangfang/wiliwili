@@ -72,7 +72,7 @@ void VideoSnapshotCore::loadTexture(size_t index) {
     auto session = bilibili::HTTP::createSession();
     session->SetUrl(cpr::Url{url});
     session->GetCallback([this, url, index](const cpr::Response& r) {
-        if (r.status_code != 200 || r.downloaded_bytes == 0) {
+        if (r.status_code != 200 || r.text.empty()) {
             brls::sync([this, index]() {
                 if (index < snapshotLoading.size()) snapshotLoading[index] = false;
             });
@@ -81,7 +81,7 @@ void VideoSnapshotCore::loadTexture(size_t index) {
 
         int imageW = 0, imageH = 0, n;
         uint8_t* imageData = stbi_load_from_memory(
-            (unsigned char*)r.text.data(), (int)r.downloaded_bytes, &imageW, &imageH, &n, 4);
+            (unsigned char*)r.text.data(), (int)r.text.size(), &imageW, &imageH, &n, 4);
 
         if (!imageData) {
             brls::sync([this, index]() {
@@ -104,7 +104,7 @@ void VideoSnapshotCore::loadTexture(size_t index) {
 }
 
 void VideoSnapshotCore::draw(NVGcontext* vg, float x, float y, float width, float height, float progress,
-                             float duration) {
+                             float duration, bool centerHintVisible) {
     if (!snapshotData.isValid()) return;
     if (snapshotTextures.empty()) return;
 
@@ -126,10 +126,23 @@ void VideoSnapshotCore::draw(NVGcontext* vg, float x, float y, float width, floa
     float displayW = 240.0f;
     float displayH = displayW * (float)snapshotData.img_y_size / (float)snapshotData.img_x_size;
 
-    // Center horizontally; place thumbnail so its bottom edge is above the
-    // center hint box (osdCenterBox2, 100x100 centered) with a small gap.
+    // Center horizontally.
     float dstX = x + (width - displayW) / 2.0f;
-    float dstY = y + height / 2.0f - 60.0f - displayH;
+
+    // Vertical position:
+    // - When the center hint (osdCenterBox2, 100×100 centered) is visible, place the thumbnail
+    //   above it with a 20 px gap so they don't overlap.
+    // - Otherwise, center the thumbnail inside the video area.
+    float dstY;
+    if (centerHintVisible) {
+        // osdCenterBox2 top-edge = y + height/2 - 50
+        // thumbnail bottom-edge  = osdCenterBox2 top - gap
+        constexpr float HINT_HALF_H = 50.0f;   // half of the 100 px hint box
+        constexpr float GAP         = 20.0f;
+        dstY = y + height / 2.0f - HINT_HALF_H - GAP - displayH;
+    } else {
+        dstY = y + (height - displayH) / 2.0f;
+    }
 
     float totalW = (float)(snapshotData.img_x_len * snapshotData.img_x_size);
     float totalH = (float)(snapshotData.img_y_len * snapshotData.img_y_size);

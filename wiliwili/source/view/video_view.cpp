@@ -747,7 +747,9 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
 
     // draw thumbnail preview (shown when dragging the progress slider)
     if (showThumbnailPreview) {
-        VideoSnapshotCore::instance().draw(vg, x, y, width, height, previewProgress, getRealDuration());
+        bool hintVisible = osdCenterBox2->getVisibility() == brls::Visibility::VISIBLE;
+        VideoSnapshotCore::instance().draw(vg, x, y, width, height, previewProgress, getRealDuration(),
+                                           hintVisible);
     }
 
     // draw video profile
