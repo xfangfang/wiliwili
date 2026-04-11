@@ -718,7 +718,7 @@ void VideoDetail::requestVideoSnapshot(const std::string& bvid, uint64_t cid) {
         [ASYNC_TOKEN](const bilibili::VideoSnapshotData& result) {
             brls::sync([ASYNC_TOKEN, result]() {
                 ASYNC_RELEASE
-                this->onVideoSnapshot(result);
+                VideoSnapshotCore::instance().setSnapshotData(result);
             });
         },
         [ASYNC_TOKEN](BILI_ERR) {

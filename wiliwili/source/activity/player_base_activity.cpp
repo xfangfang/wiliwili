@@ -776,12 +776,6 @@ void BasePlayerActivity::onHighlightProgress(const bilibili::VideoHighlightProgr
     APP_E->fire(VideoView::HIGHLIGHT_INFO, (void*)&data);
 }
 
-void BasePlayerActivity::onVideoSnapshot(const bilibili::VideoSnapshotData& result) {
-    brls::Logger::debug("snapshot: {} sheets, {}x{} per thumbnail", result.image.size(), result.img_x_size,
-                        result.img_y_size);
-    APP_E->fire(VideoView::SNAPSHOT_INFO, (void*)&result);
-}
-
 void BasePlayerActivity::setRelationButton(bool liked, bool coin, bool favorite) {
     if (liked) {
         btnAgree->setImageFromSVGRes("svg/bpx-svg-sprite-liked-active.svg");

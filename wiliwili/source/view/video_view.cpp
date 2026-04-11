@@ -520,11 +520,6 @@ VideoView::VideoView() {
             osdSlider->addClipPoint(*(float*)data);
         } else if (event == VideoView::HIGHLIGHT_INFO) {
             this->setHighlightProgress(*(VideoHighlightData*)data);
-        } else if (event == VideoView::SNAPSHOT_INFO) {
-            auto* snapshotPtr = (bilibili::VideoSnapshotData*)data;
-            if (snapshotPtr->isValid()) {
-                VideoSnapshotCore::instance().setSnapshotData(*snapshotPtr);
-            }
         } else if (event == VideoView::REPLAY) {
             // 显示重播按钮
             showReplay = true;

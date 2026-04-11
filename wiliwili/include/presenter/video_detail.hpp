@@ -32,7 +32,6 @@ public:
     virtual void onUploadedVideos(const bilibili::UserUploadedVideoResultWrapper& result) {}
     virtual void onDanmakuInfo() {}
     virtual void onHighlightProgress(const bilibili::VideoHighlightProgress& result) {}
-    virtual void onVideoSnapshot(const bilibili::VideoSnapshotData& result) {}
     virtual void onVideoRecommend() {}
     virtual void onError(const std::string& error) {}
     virtual void onVideoOnlineCount(const bilibili::VideoOnlineTotal& result) {}
