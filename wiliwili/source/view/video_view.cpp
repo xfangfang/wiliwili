@@ -164,7 +164,6 @@ VideoView::VideoView() {
     osdSlider->getProgressEvent()->subscribe([this](float progress) {
         this->showOSD(false);
         leftStatusLabel->setText(wiliwili::sec2Time(getRealDuration() * progress));
-        this->previewProgress      = progress;
         auto& snapshot             = VideoSnapshotCore::instance();
         this->showThumbnailPreview = snapshot.isValid();
         // 预加载当前位置需要的精灵图
@@ -588,7 +587,6 @@ void VideoView::requestSeeking(int seek, int delay) {
     leftStatusLabel->setText(wiliwili::sec2Time(getRealDuration() * progress));
 
     // 更新缩略图预览
-    this->previewProgress      = (float)progress;
     auto& snapshot             = VideoSnapshotCore::instance();
     this->showThumbnailPreview = snapshot.isValid();
     if (snapshot.isValid()) {
@@ -742,15 +740,21 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
     // cache info
     osdCenterBox->frame(ctx);
 
-    // center hint
-    osdCenterBox2->frame(ctx);
-
     // draw thumbnail preview (shown when dragging the progress slider)
     if (showThumbnailPreview) {
-        bool hintVisible = osdCenterBox2->getVisibility() == brls::Visibility::VISIBLE;
-        VideoSnapshotCore::instance().draw(vg, x, y, width, height, previewProgress, getRealDuration(),
-                                           hintVisible);
+        const float previewProgress = osdSlider->getProgress();
+        VideoSnapshotCore::instance().draw(
+            vg,
+            x, y, width, height,
+            previewProgress * getRealDuration(),
+            200.0f,
+            osdSlider->getX() + osdSlider->getWidth() * previewProgress,
+            osdSlider->getY()
+        );
     }
+
+    // center hint
+    osdCenterBox2->frame(ctx);
 
     // draw video profile
     videoProfile->frame(ctx);
@@ -1725,3 +1729,4 @@ void VideoView::registerCommonActions(brls::Activity* activity) {
         return true;
     });
 }
+

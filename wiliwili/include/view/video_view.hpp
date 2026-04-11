@@ -360,7 +360,6 @@ private:
 
     // 缩略图预览的显示状态
     bool showThumbnailPreview  = false;  // 是否显示缩略图预览
-    float previewProgress      = 0;      // 当前预览的进度（0~1）
 
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);

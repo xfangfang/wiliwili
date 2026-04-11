@@ -104,17 +104,16 @@ void VideoSnapshotCore::loadTexture(size_t index) {
 }
 
 void VideoSnapshotCore::draw(NVGcontext* vg, float x, float y, float width, float height, float progress,
-                             float duration, bool centerHintVisible) {
+                             float snapShotWidth, float positionX, float positionY) {
     if (!snapshotData.isValid()) return;
     if (snapshotTextures.empty()) return;
 
-    int imageIdx       = findIndex(duration * progress);
+    int imageIdx       = findIndex(progress);
     size_t sheetIdx    = (size_t)(imageIdx / tilesPerSheet());
     int posInSheet     = imageIdx % tilesPerSheet();
 
     // Start loading the needed sprite sheet if not yet loaded
     loadTexture(sheetIdx);
-
     if (sheetIdx >= snapshotTextures.size() || snapshotTextures[sheetIdx] <= 0) return;
 
     int col    = posInSheet % snapshotData.img_x_len;
@@ -122,40 +121,29 @@ void VideoSnapshotCore::draw(NVGcontext* vg, float x, float y, float width, floa
     float srcX = (float)(col * snapshotData.img_x_size);
     float srcY = (float)(row * snapshotData.img_y_size);
 
-    // Display at a fixed width of 240, preserving aspect ratio
-    float displayW = 240.0f;
+    // 计算缩略图宽高
+    float displayW = snapShotWidth;
     float displayH = displayW * (float)snapshotData.img_y_size / (float)snapshotData.img_x_size;
 
-    // Center horizontally.
-    float dstX = x + (width - displayW) / 2.0f;
+    // 计算缩略图中心点横坐标，钳制到 VideoView 区域
+    float minX = x + displayW / 2 + 8.0f;
+    float maxX = x + width - displayW / 2 - 8.0f;
+    float realCenterX = positionX + 22; // 保证相对拖动条按钮居中
+    if (realCenterX < minX) realCenterX = minX;
+    if (realCenterX > maxX) realCenterX = maxX;
 
-    // Vertical position:
-    // - When the center hint (osdCenterBox2, 100×100 centered) is visible, place the thumbnail
-    //   above it with a 20 px gap so they don't overlap.
-    // - Otherwise, center the thumbnail inside the video area.
-    float dstY;
-    if (centerHintVisible) {
-        // osdCenterBox2 top-edge = y + height/2 - 50
-        // thumbnail bottom-edge  = osdCenterBox2 top - gap
-        constexpr float HINT_HALF_H = 50.0f;   // half of the 100 px hint box
-        constexpr float GAP         = 20.0f;
-        dstY = y + height / 2.0f - HINT_HALF_H - GAP - displayH;
-    } else {
-        dstY = y + (height - displayH) / 2.0f;
-    }
+    // 纵坐标：缩略图底部在进度条上方 12px
+    float centerY = positionY - 12.0f;
+
+    float dstX = realCenterX - displayW / 2.0f;
+    float dstY = centerY - displayH;
 
     float totalW = (float)(snapshotData.img_x_len * snapshotData.img_x_size);
     float totalH = (float)(snapshotData.img_y_len * snapshotData.img_y_size);
     float scaleX = displayW / (float)snapshotData.img_x_size;
     float scaleY = displayH / (float)snapshotData.img_y_size;
 
-    // Background
-    nvgBeginPath(vg);
-    nvgRoundedRect(vg, dstX - 3, dstY - 3, displayW + 6, displayH + 6, 3);
-    nvgFillColor(vg, nvgRGBAf(0.0f, 0.0f, 0.0f, 0.8f));
-    nvgFill(vg);
-
-    // Thumbnail: use scissor to clip to the display rect, then paint the full sprite sheet
+    // 缩略图
     nvgSave(vg);
     nvgScissor(vg, dstX, dstY, displayW, displayH);
     NVGpaint paint = nvgImagePattern(vg,
@@ -165,7 +153,7 @@ void VideoSnapshotCore::draw(NVGcontext* vg, float x, float y, float width, floa
                                      totalH * scaleY,
                                      0, snapshotTextures[sheetIdx], 1.0f);
     nvgBeginPath(vg);
-    nvgRect(vg, dstX, dstY, displayW, displayH);
+    nvgRoundedRect(vg, dstX, dstY, displayW, displayH, 4.0f);
     nvgFillPaint(vg, paint);
     nvgFill(vg);
     nvgRestore(vg);

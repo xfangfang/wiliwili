@@ -58,12 +58,13 @@ public:
      * @param y 绘制区域的 y 坐标
      * @param width 绘制区域的宽度
      * @param height 绘制区域的高度
-     * @param progress 当前预览的进度（0~1）
-     * @param duration 视频总时长（秒）
-     * @param centerHintVisible 中央提示框（osdCenterBox2）是否可见，决定缩略图垂直位置
+     * @param progress 当前预览时间
+     * @param snapShotWidth 缩略图宽度
+     * @param positionX 预览框左上角 x 坐标
+     * @param positionY 预览框左上角 y 坐标
      */
-    void draw(NVGcontext* vg, float x, float y, float width, float height, float progress, float duration,
-              bool centerHintVisible);
+    void draw(NVGcontext* vg, float x, float y, float width, float height, float progress, float snapShotWidth,
+              float positionX, float positionY);
 
 private:
     bilibili::VideoSnapshotData snapshotData;
