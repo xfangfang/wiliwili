@@ -27,6 +27,7 @@
 #include "utils/shortcut_helper.hpp"
 #include "view/live_core.hpp"
 #include "view/subtitle_core.hpp"
+#include "view/video_snapshot_core.hpp"
 #include "view/video_progress_slider.hpp"
 #include "view/svg_image.hpp"
 #include "view/grid_dropdown.hpp"

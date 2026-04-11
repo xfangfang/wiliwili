@@ -4,14 +4,11 @@
 
 #pragma once
 
-#include <memory>
 #include <borealis/core/bind.hpp>
 #include <borealis/core/box.hpp>
 #include <borealis/core/application.hpp>
 
 #include "utils/event_helper.hpp"
-#include "bilibili/result/video_detail_result.h"
-#include "view/video_snapshot_core.hpp"
 
 namespace brls {
 class Label;
@@ -253,7 +250,6 @@ public:
     inline static const std::string REPLAY         = "REPLAY";
     inline static const std::string CLIP_INFO      = "CLIP_INFO";
     inline static const std::string HIGHLIGHT_INFO = "HIGHLIGHT_INFO";
-    inline static const std::string SNAPSHOT_INFO  = "SNAPSHOT_INFO";
     inline static const std::string REAL_DURATION  = "REAL_DURATION";
 
     // 用于指定 lastPlayedPosition 的值

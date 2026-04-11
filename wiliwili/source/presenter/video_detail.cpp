@@ -14,6 +14,7 @@
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
 #include "bilibili/result/mine_collection_result.h"
+#include "view/video_snapshot_core.hpp"
 
 /// 请求视频数据
 void VideoDetail::requestData(const bilibili::VideoDetailResult& video) { this->requestVideoInfo(video.bvid); }
