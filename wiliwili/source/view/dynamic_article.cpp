@@ -19,6 +19,7 @@
 #include "utils/dialog_helper.hpp"
 #include "utils/activity_helper.hpp"
 #include "utils/shortcut_helper.hpp"
+#include "utils/config_helper.hpp"
 
 using namespace brls::literals;
 
@@ -505,7 +506,13 @@ void DynamicArticleView::setCard(const bilibili::DynamicArticleResult& result) {
                 if (data->user.vip.nickname_color.empty()) {
                     this->author->setMainTextColor(brls::Application::getTheme().getColor("brls/text"));
                 } else {
-                    this->author->getLabelName()->applyXMLAttribute("textColor", data->user.vip.nickname_color);
+                    const std::string& nc = data->user.vip.nickname_color;
+                    const std::string& customColor = Register::getCustomThemeColorHex();
+                    if (!customColor.empty() && Register::isBilibiliDefaultPink(nc)) {
+                        this->author->getLabelName()->applyXMLAttribute("textColor", customColor);
+                    } else {
+                        this->author->getLabelName()->applyXMLAttribute("textColor", nc);
+                    }
                 }
                 break;
             }
@@ -654,7 +661,13 @@ void DynamicArticleView::setForwardCard(const bilibili::dynamic_forward::Dynamic
                 if (data->user.vip.nickname_color.empty()) {
                     this->authorForward->setTextColor(brls::Application::getTheme().getColor("color/link"));
                 } else {
-                    this->authorForward->applyXMLAttribute("textColor", data->user.vip.nickname_color);
+                    const std::string& nc = data->user.vip.nickname_color;
+                    const std::string& customColor = Register::getCustomThemeColorHex();
+                    if (!customColor.empty() && Register::isBilibiliDefaultPink(nc)) {
+                        this->authorForward->applyXMLAttribute("textColor", customColor);
+                    } else {
+                        this->authorForward->applyXMLAttribute("textColor", nc);
+                    }
                 }
                 break;
             }

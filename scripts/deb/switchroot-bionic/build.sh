@@ -6,8 +6,8 @@ export CMAKE_PREFIX_PATH=/opt/wiliwili
 export PKG_CONFIG_PATH=$CMAKE_PREFIX_PATH/lib/pkgconfig
 export LD_LIBRARY_PATH=$CMAKE_PREFIX_PATH/lib:/usr/lib/aarch64-linux-gnu/tegra
 
-git clone https://gitlab.com/switchroot/switch-l4t-multimedia/FFmpeg.git --depth=1 /tmp/ffmpeg
-git clone https://gitlab.com/switchroot/switch-l4t-multimedia/mpv.git --depth=1 /tmp/mpv
+git clone https://gitlab.com/switchroot/switch-l4t-multimedia/FFmpeg.git --depth=1 --branch=4.4-nvv4l2 /tmp/ffmpeg
+git clone https://gitlab.com/switchroot/switch-l4t-multimedia/mpv.git --depth=1 --branch=v0.33.0-l4t /tmp/mpv
 git clone https://github.com/curl/curl.git --depth=1 --branch=curl-8_5_0 /tmp/curl
 
 cd /tmp/curl

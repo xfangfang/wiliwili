@@ -98,6 +98,8 @@ const std::string VideoEpisodeRelation = _apiBase + "/pgc/season/episode/web/inf
 const std::string VideoDanmaku = _apiBase + "/x/v1/dm/list.so";
 /// 获取高能进度条
 const std::string VideoHighlight = _bvcBase + "/pbp/data";
+/// 获取视频快照（缩略图）
+const std::string VideoSnapshot = _apiBase + "/x/player/videoshot";
 /// 获取直播弹幕token
 const std::string LiveDanmakuInfo = _liveBase + "/xlive/web-room/v1/index/getDanmuInfo";
 /// 获取历史弹幕
