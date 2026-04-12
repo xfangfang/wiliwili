@@ -53,6 +53,20 @@ UserSpaceActivity::UserSpaceActivity(uint64_t mid) : user_mid(mid) {}
 void UserSpaceActivity::onContentAvailable() {
     brls::Logger::debug("UserSpaceActivity::onContentAvailable mid: {}", user_mid);
 
+    // Bind UI elements
+    this->appletFrame = (brls::AppletFrame*)this->getView("user_space/applet_frame");
+    this->headerBox = (brls::Box*)this->getView("user_space/header");
+    this->userAvatar = (brls::Image*)this->getView("user_space/avatar");
+    this->userName = (brls::Label*)this->getView("user_space/name");
+    this->userSign = (brls::Label*)this->getView("user_space/sign");
+    this->userFollowing = (brls::Label*)this->getView("user_space/following");
+    this->userFollower = (brls::Label*)this->getView("user_space/follower");
+    this->btnFollowBox = (brls::Box*)this->getView("user_space/follow_box");
+    this->btnFollowLabel = (brls::Label*)this->getView("user_space/follow_label");
+    this->btnFollowIcon = (SVGImage*)this->getView("user_space/follow_icon");
+    this->tabFrame = (AutoTabFrame*)this->getView("user_space/tab_frame");
+    this->recyclingGrid = (RecyclingGrid*)this->getView("user_space/recycling_grid");
+
     // Request user info
     this->requestUpInfo(user_mid);
 
@@ -152,8 +166,5 @@ void UserSpaceActivity::onError(const std::string& error) {
 }
 
 brls::View* UserSpaceActivity::createContentView() {
-    brls::Box* container = new brls::Box();
-    container->inflateFromXMLRes("xml/activity/user_space_activity.xml");
-    this->bind(container);
-    return container;
+    return brls::View::createFromXMLResource("xml/activity/user_space_activity.xml");
 }
