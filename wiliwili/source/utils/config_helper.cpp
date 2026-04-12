@@ -1289,7 +1289,7 @@ void ProgramConfig::toggleFullscreen() {
 }
 
 void ProgramConfig::setWindowFullscreen(bool value) {
-    setSettingItem(SettingItem::FULLSCREEN, value);
+    setSettingItem(SettingItem::FULLSCREEN, value, false);
     VideoContext::FULLSCREEN = value;
     brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
 }
