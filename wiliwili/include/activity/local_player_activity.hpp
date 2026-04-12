@@ -24,6 +24,4 @@ private:
     std::string taskId;
 
     BRLS_BIND(VideoView, video, "video");
-    BRLS_BIND(brls::Label, titleLabel, "local/title");
-    BRLS_BIND(brls::Label, qualityLabel, "local/quality");
 };

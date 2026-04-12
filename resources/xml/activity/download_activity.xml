@@ -14,7 +14,7 @@
                 sidebarWidth="0"
                 sidebarPosition="top">
 
-            <Tab label="@i18n/download/manager/downloading"
+            <Tab label="@i18n/wiliwili/download/manager/downloading"
                  fontSize="20">
                 <brls:Box
                         width="auto"
@@ -34,7 +34,7 @@
                 </brls:Box>
             </Tab>
 
-            <Tab label="@i18n/download/manager/downloaded"
+            <Tab label="@i18n/wiliwili/download/manager/downloaded"
                  fontSize="20">
                 <brls:Box
                         width="auto"
@@ -55,11 +55,11 @@
             </Tab>
 
         </AutoTabFrame>
-    </brls:Box>
 
-    <ButtonClose
-            positionType="absolute"
-            positionTop="2"
-            positionRight="2"/>
+        <ButtonClose
+                positionType="absolute"
+                positionTop="2"
+                positionRight="2"/>
+    </brls:Box>
 
 </brls:AppletFrame>

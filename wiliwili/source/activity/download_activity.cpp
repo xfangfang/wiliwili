@@ -69,46 +69,46 @@ void DownloadCardCell::setData(const DownloadTask& task,
     // Buttons
     std::string id = task.id;
     if (task.status == DownloadTaskStatus::COMPLETED) {
-        btn1->title->setText("wiliwili/download/manager/play"_i18n);
+        btn1->setText("wiliwili/download/manager/play"_i18n);
         btn1->registerClickAction([id, btn1Action](...) -> bool {
             if (btn1Action) btn1Action(id);
             return true;
         });
-        btn2->title->setText("wiliwili/download/manager/delete"_i18n);
+        btn2->setText("wiliwili/download/manager/delete"_i18n);
         btn2->registerClickAction([id, btn2Action](...) -> bool {
             if (btn2Action) btn2Action(id);
             return true;
         });
     } else if (task.status == DownloadTaskStatus::DOWNLOADING) {
-        btn1->title->setText("wiliwili/download/manager/pause"_i18n);
+        btn1->setText("wiliwili/download/manager/pause"_i18n);
         btn1->registerClickAction([id, btn1Action](...) -> bool {
             if (btn1Action) btn1Action(id);
             return true;
         });
-        btn2->title->setText("wiliwili/download/manager/cancel"_i18n);
+        btn2->setText("wiliwili/download/manager/cancel"_i18n);
         btn2->registerClickAction([id, btn2Action](...) -> bool {
             if (btn2Action) btn2Action(id);
             return true;
         });
     } else if (task.status == DownloadTaskStatus::PAUSED) {
-        btn1->title->setText("wiliwili/download/manager/resume"_i18n);
+        btn1->setText("wiliwili/download/manager/resume"_i18n);
         btn1->registerClickAction([id, btn1Action](...) -> bool {
             if (btn1Action) btn1Action(id);
             return true;
         });
-        btn2->title->setText("wiliwili/download/manager/cancel"_i18n);
+        btn2->setText("wiliwili/download/manager/cancel"_i18n);
         btn2->registerClickAction([id, btn2Action](...) -> bool {
             if (btn2Action) btn2Action(id);
             return true;
         });
     } else {
         // PENDING / FAILED / CANCELLED
-        btn1->title->setText("wiliwili/download/manager/cancel"_i18n);
+        btn1->setText("wiliwili/download/manager/cancel"_i18n);
         btn1->registerClickAction([id, btn1Action](...) -> bool {
             if (btn1Action) btn1Action(id);
             return true;
         });
-        btn2->title->setText("wiliwili/download/manager/delete"_i18n);
+        btn2->setText("wiliwili/download/manager/delete"_i18n);
         btn2->registerClickAction([id, btn2Action](...) -> bool {
             if (btn2Action) btn2Action(id);
             return true;

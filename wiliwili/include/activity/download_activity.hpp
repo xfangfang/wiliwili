@@ -6,10 +6,9 @@
 
 #include <borealis/core/activity.hpp>
 #include <borealis/core/bind.hpp>
-#include <borealis/core/box.hpp>
 #include <borealis/views/label.hpp>
 #include <borealis/views/image.hpp>
-#include <borealis/views/cells/cell_radio.hpp>
+#include <borealis/views/button.hpp>
 
 #include "view/auto_tab_frame.hpp"
 #include "view/recycling_grid.hpp"
@@ -29,8 +28,8 @@ public:
     BRLS_BIND(brls::Label, titleLabel, "download/cell/title");
     BRLS_BIND(brls::Label, qualityLabel, "download/cell/quality");
     BRLS_BIND(brls::Label, progressLabel, "download/cell/progress");
-    BRLS_BIND(brls::RadioCell, btn1, "download/cell/btn1");
-    BRLS_BIND(brls::RadioCell, btn2, "download/cell/btn2");
+    BRLS_BIND(brls::Button, btn1, "download/cell/btn1");
+    BRLS_BIND(brls::Button, btn2, "download/cell/btn2");
 
 private:
     std::string taskId;
@@ -41,6 +40,7 @@ public:
     CONTENT_FROM_XML_RES("activity/download_activity.xml");
 
     DownloadActivity();
+
     ~DownloadActivity() override;
 
     void onContentAvailable() override;

@@ -41,8 +41,17 @@ void LocalPlayerActivity::onContentAvailable() {
         return;
     }
 
-    titleLabel->setText(task->title.empty() ? task->bvid : task->title);
-    qualityLabel->setText(task->quality_desc);
+    video->setTitle(task->title.empty() ? task->bvid : task->title);
+    video->setOnlineCount(task->quality_desc);
+    video->hideVideoQualityButton();
+    video->hideDLNAButton();
+    video->hideVideoRelatedSetting();
+    video->hideHistorySetting();
+    video->hideHighlightLineSetting();
+    video->hideSkipOpeningCreditsSetting();
+    video->disableCloseOnEndOfFile();
+    video->setFullscreenIcon(true);
+    video->registerCommonActions(this);
 
     std::string videoPath = joinLocalPath(task->dir, task->video_file);
     if (!cpr::fs::exists(videoPath)) {

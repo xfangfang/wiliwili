@@ -1,7 +1,8 @@
 <brls:Box
         width="auto"
         height="120"
-        focusable="true"
+        focusable="false"
+        hideClickAnimation="true"
         paddingTop="8"
         paddingBottom="8"
         paddingLeft="12"
@@ -57,16 +58,16 @@
             alignItems="center"
             marginLeft="10">
 
-        <brls:RadioCell
-                id="download/cell/btn1"
-                width="100"
-                height="auto"/>
+	<brls:Button
+			id="download/cell/btn1"
+			width="100"
+			height="auto"/>
 
-        <brls:RadioCell
-                id="download/cell/btn2"
-                width="100"
-                height="auto"
-                marginLeft="8"/>
+	<brls:Button
+			id="download/cell/btn2"
+			width="100"
+			height="auto"
+			marginLeft="8"/>
 
     </brls:Box>
 

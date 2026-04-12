@@ -2,7 +2,7 @@
         id="video/detail/frame"
         iconInterpolation="linear"
         headerHidden="true"
-        footerHidden="false">
+        footerHidden="true">
 
     <brls:Box
             width="auto"
@@ -12,41 +12,11 @@
 
         <VideoView
                 id="video"
-                focusable="true"
+                focusable="false"
                 grow="1"
                 width="100%"
                 height="auto"/>
 
-        <!-- Basic info bar at the bottom -->
-        <brls:Box
-                id="local/info/bar"
-                width="100%"
-                height="60"
-                axis="row"
-                alignItems="center"
-                paddingLeft="20"
-                paddingRight="20">
-
-            <brls:Label
-                    id="local/title"
-                    grow="1"
-                    singleLine="true"
-                    fontSize="22"
-                    marginRight="20"/>
-
-            <brls:Label
-                    id="local/quality"
-                    singleLine="true"
-                    fontSize="18"
-                    textColor="@theme/font/grey"/>
-
-        </brls:Box>
-
     </brls:Box>
-
-    <ButtonClose
-            positionType="absolute"
-            positionTop="2"
-            positionRight="2"/>
 
 </brls:AppletFrame>
