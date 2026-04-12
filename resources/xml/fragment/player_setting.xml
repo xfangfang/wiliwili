@@ -77,9 +77,6 @@
                     <brls:BooleanCell
                             id="setting/fullscreen"/>
 
-                    <brls:BooleanCell
-                            id="setting/window/fullscreen"/>
-
                     <SelectorCell
                             id="setting/onTopMode"/>
 

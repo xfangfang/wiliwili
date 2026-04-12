@@ -248,13 +248,6 @@ void PlayerSetting::setupCommonSetting() {
                             GA("player_setting", {{"fullscreen", value ? "true" : "false"}});
                         });
 
-    btnWindowFullscreen->init(
-        "wiliwili/setting/app/playback/window_fullscreen_on_app_fullscreen"_i18n,
-        conf.getBoolOption(SettingItem::PLAYER_WINDOW_FULLSCREEN_ON_APP_FULLSCREEN), [](bool value) {
-            ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_WINDOW_FULLSCREEN_ON_APP_FULLSCREEN, value);
-            VideoView::WINDOW_FULLSCREEN_ON_APP_FULLSCREEN = value;
-        });
-
     auto setOnTopCell = [this](bool enabled) {
         if (enabled) {
             btnOnTopMode->setDetailTextColor(brls::Application::getTheme()["brls/list/listItem_value_color"]);
@@ -285,7 +278,6 @@ void PlayerSetting::setupCommonSetting() {
 
 #else
     btnFullscreen->setVisibility(brls::Visibility::GONE);
-    btnWindowFullscreen->setVisibility(brls::Visibility::GONE);
     btnOnTopMode->setVisibility(brls::Visibility::GONE);
 #endif
 

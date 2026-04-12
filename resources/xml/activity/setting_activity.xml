@@ -131,6 +131,9 @@
                             <brls:BooleanCell
                                     id="cell/fullscreen"/>
 
+                            <brls:BooleanCell
+                                    id="cell/windowFullscreen"/>
+
                             <SelectorCell
                                     id="cell/onTopMode"/>
 
