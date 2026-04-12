@@ -29,7 +29,8 @@
         "audio_quality": "影像音質",
         "video_format": "影像格式",
         "dolby": "杜比全景聲",
-        "hi_res": "Hi-Res 無損"
+        "hi_res": "Hi-Res 無損",
+        "window_fullscreen_on_app_fullscreen": "應用內全屏時自動切換視窗全屏"
       },
       "image": {
         "header": "圖片設定",

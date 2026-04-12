@@ -1282,6 +1282,13 @@ void VideoView::setFullScreen(bool fs) {
         const auto activity = new brls::Activity(container);
         brls::Application::pushActivity(activity, brls::TransitionAnimation::NONE);
         video->registerCommonActions(activity);
+#ifdef ALLOW_FULLSCREEN
+        // 应用内全屏时同步切换窗口全屏
+        if (WINDOW_FULLSCREEN_ON_APP_FULLSCREEN && !ProgramConfig::instance().getBoolOption(SettingItem::FULLSCREEN)) {
+            WINDOW_FULLSCREEN_TRIGGERED = true;
+            ProgramConfig::instance().setWindowFullscreen(true);
+        }
+#endif
     } else {
         ASYNC_RETAIN
         brls::sync([ASYNC_TOKEN]() {
@@ -1300,6 +1307,13 @@ void VideoView::setFullScreen(bool fs) {
             // 因此目前需要遍历全部的 activity 找到 BasePlayerActivity 或包含VideoView的Activity
             if (activityStack.size() <= 2) {
                 brls::Application::popActivity();
+#ifdef ALLOW_FULLSCREEN
+                // 应用内全屏退出时同步还原窗口全屏状态
+                if (WINDOW_FULLSCREEN_ON_APP_FULLSCREEN && WINDOW_FULLSCREEN_TRIGGERED) {
+                    WINDOW_FULLSCREEN_TRIGGERED = false;
+                    ProgramConfig::instance().setWindowFullscreen(false);
+                }
+#endif
                 return;
             }
 
@@ -1390,6 +1404,13 @@ void VideoView::setFullScreen(bool fs) {
 
             // Pop fullscreen videoView
             brls::Application::popActivity(brls::TransitionAnimation::NONE);
+#ifdef ALLOW_FULLSCREEN
+            // 应用内全屏退出时同步还原窗口全屏状态
+            if (WINDOW_FULLSCREEN_ON_APP_FULLSCREEN && WINDOW_FULLSCREEN_TRIGGERED) {
+                WINDOW_FULLSCREEN_TRIGGERED = false;
+                ProgramConfig::instance().setWindowFullscreen(false);
+            }
+#endif
         });
     }
 }

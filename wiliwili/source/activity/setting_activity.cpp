@@ -24,6 +24,7 @@
 #include "view/text_box.hpp"
 #include "view/selector_cell.hpp"
 #include "view/mpv_core.hpp"
+#include "view/video_view.hpp"
 
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
 #include "borealis/platforms/desktop/desktop_platform.hpp"
@@ -391,6 +392,13 @@ void SettingActivity::onContentAvailable() {
                              brls::Application::getPlatform()->getVideoContext()->fullScreen(value);
                          });
 
+    cellWindowFullscreen->init(
+        "wiliwili/setting/app/playback/window_fullscreen_on_app_fullscreen"_i18n,
+        conf.getBoolOption(SettingItem::PLAYER_WINDOW_FULLSCREEN_ON_APP_FULLSCREEN), [](bool value) {
+            ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_WINDOW_FULLSCREEN_ON_APP_FULLSCREEN, value);
+            VideoView::WINDOW_FULLSCREEN_ON_APP_FULLSCREEN = value;
+        });
+
     auto setOnTopCell = [this](bool enabled) {
         if (enabled) {
             cellOnTopMode->setDetailTextColor(brls::Application::getTheme()["brls/list/listItem_value_color"]);
@@ -420,6 +428,7 @@ void SettingActivity::onContentAvailable() {
 
 #else
     cellFullscreen->setVisibility(brls::Visibility::GONE);
+    cellWindowFullscreen->setVisibility(brls::Visibility::GONE);
     cellOnTopMode->setVisibility(brls::Visibility::GONE);
 #endif
 

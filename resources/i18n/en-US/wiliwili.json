@@ -29,7 +29,8 @@
         "audio_quality": "Audio Quality",
         "video_format": "Video format",
         "dolby": "Dolby Atmos",
-        "hi_res": "Hi-Res"
+        "hi_res": "Hi-Res",
+        "window_fullscreen_on_app_fullscreen": "Auto window fullscreen when entering in-app fullscreen"
       },
       "image": {
         "header": "Image",

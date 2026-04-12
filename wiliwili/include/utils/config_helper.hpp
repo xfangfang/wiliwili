@@ -49,6 +49,7 @@ enum class SettingItem {
     PLAYER_HWDEC,
     PLAYER_HWDEC_CUSTOM,
     PLAYER_EXIT_FULLSCREEN_ON_END,
+    PLAYER_WINDOW_FULLSCREEN_ON_APP_FULLSCREEN, // 应用内全屏时同步切换窗口全屏
     PLAYER_DEFAULT_SPEED,
     PLAYER_VOLUME,
     PLAYER_ASPECT,
@@ -284,6 +285,8 @@ public:
     void setSeasonCustomSetting(const SeasonCustomSetting& setting);
 
     void toggleFullscreen();
+
+    void setWindowFullscreen(bool value);
 
     /**
      * 检查是否需要置顶窗口

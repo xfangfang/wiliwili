@@ -28,6 +28,7 @@
         "video_codec": "비디오 코덱",
         "audio_quality": "오디오 품질",
         "video_format": "비디오 형식",
+        "window_fullscreen_on_app_fullscreen": "앱 내 전체 화면 시 창 전체 화면 자동 전환",
         "dolby": "Dolby Atmos",
         "hi_res": "Hi-Res"
       },
