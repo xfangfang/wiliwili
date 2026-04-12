@@ -71,5 +71,8 @@ private:
     std::vector<int> snapshotTextures;   // NVG 纹理 ID，每个精灵图对应一个
     std::vector<bool> snapshotLoading;   // 是否正在加载对应精灵图
 
+    /// 每次 reset() 自增，用于识别并丢弃过期的异步回调
+    int snapshotGeneration = 0;
+
     int tilesPerSheet() const { return snapshotData.img_x_len * snapshotData.img_y_len; }
 };

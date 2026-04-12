@@ -3,8 +3,8 @@
 //
 
 #include <borealis/core/application.hpp>
-#include <borealis/core/cache_helper.hpp>
 #include <borealis/core/thread.hpp>
+#include <borealis/core/logger.hpp>
 #include <stb_image.h>
 #include <cpr/cpr.h>
 
@@ -12,12 +12,22 @@
 #include "api/bilibili/util/http.hpp"
 
 void VideoSnapshotCore::reset() {
+    // 在主线程销毁所有已创建的 NVG 纹理
+    NVGcontext* vg = brls::Application::getNVGContext();
+    if (vg) {
+        for (int tex : snapshotTextures) {
+            if (tex > 0) nvgDeleteImage(vg, tex);
+        }
+    }
+    // 自增世代计数器，使所有正在飞行中的异步回调失效
+    snapshotGeneration++;
     snapshotData    = bilibili::VideoSnapshotData{};
     snapshotTextures.clear();
     snapshotLoading.clear();
 }
 
 void VideoSnapshotCore::setSnapshotData(const bilibili::VideoSnapshotData& data) {
+    reset();  // 先销毁旧纹理，再接受新数据
     snapshotData = data;
     snapshotTextures.assign(data.image.size(), 0);
     snapshotLoading.assign(data.image.size(), false);
@@ -50,54 +60,73 @@ int VideoSnapshotCore::findIndex(float seekTime) const {
 }
 
 void VideoSnapshotCore::loadTexture(size_t index) {
-    if (!snapshotData.isValid() || index >= snapshotData.image.size()) return;
-    if (index < snapshotTextures.size() && snapshotTextures[index] > 0) return;
-    if (index < snapshotLoading.size() && snapshotLoading[index]) return;
+    if (!snapshotData.isValid() || index >= snapshotData.image.size()) {
+        brls::Logger::error("[Snapshot] loadTexture early exit: invalid data or index {} out of range", index);
+        return;
+    }
+    if (index < snapshotTextures.size() && snapshotTextures[index] > 0) {
+        brls::Logger::error("[Snapshot] loadTexture: index {} already loaded (tex={})", index, snapshotTextures[index]);
+        return;
+    }
+    if (index < snapshotLoading.size() && snapshotLoading[index]) {
+        brls::Logger::error("[Snapshot] loadTexture: index {} is loading", index);
+        return;
+    }
 
     while (snapshotTextures.size() <= index) snapshotTextures.push_back(0);
     while (snapshotLoading.size() <= index) snapshotLoading.push_back(false);
     snapshotLoading[index] = true;
 
     std::string url = bilibili::HTTP::PROTOCOL + snapshotData.image[index];
-
-    // Check cache first
-    int tex = brls::TextureCache::instance().getCache(url);
-    if (tex > 0) {
-        snapshotTextures[index] = tex;
-        snapshotLoading[index]  = false;
-        return;
-    }
+    int gen         = snapshotGeneration;  // 捕获当前世代，用于检测过期回调
+    brls::Logger::info("[Snapshot] loadTexture start: index={} url={} gen={}", index, url, gen);
 
     // Use cpr async callback to avoid std::thread + detach
     auto session = bilibili::HTTP::createSession();
     session->SetUrl(cpr::Url{url});
-    session->GetCallback([this, url, index](const cpr::Response& r) {
+    session->GetCallback([this, gen, index, url](const cpr::Response& r) {
         if (r.status_code != 200 || r.text.empty()) {
-            brls::sync([this, index]() {
+            brls::Logger::error("[Snapshot] HTTP failed: index={} url={} status={} size={}", index, url, r.status_code, r.text.size());
+            brls::sync([this, gen, index]() {
+                if (gen != snapshotGeneration) return;  // 已 reset，忽略
                 if (index < snapshotLoading.size()) snapshotLoading[index] = false;
             });
             return;
         }
-
         int imageW = 0, imageH = 0, n;
         uint8_t* imageData = stbi_load_from_memory(
             (unsigned char*)r.text.data(), (int)r.text.size(), &imageW, &imageH, &n, 4);
-
         if (!imageData) {
-            brls::sync([this, index]() {
+            brls::Logger::error("[Snapshot] stb_image decode failed: index={} url={} gen={} stb_error={}", index, url, gen, stbi_failure_reason());
+            brls::sync([this, gen, index]() {
+                if (gen != snapshotGeneration) return;  // 已 reset，忽略
                 if (index < snapshotLoading.size()) snapshotLoading[index] = false;
             });
             return;
         }
-
-        brls::sync([this, url, imageData, imageW, imageH, index]() {
+        brls::sync([this, gen, imageData, imageW, imageH, index, url]() {
             NVGcontext* vg = brls::Application::getNVGContext();
             int tex        = nvgCreateImageRGBA(vg, imageW, imageH, 0, imageData);
             stbi_image_free(imageData);
-            if (tex > 0) brls::TextureCache::instance().addCache(url, tex);
+            if (gen != snapshotGeneration) {
+                brls::Logger::error("[Snapshot] gen mismatch: index={} url={} gen={} curGen={}, deleting tex={}", index, url, gen, snapshotGeneration, tex);
+                if (tex > 0) nvgDeleteImage(vg, tex);
+                return;
+            }
+            if (tex <= 0) {
+                brls::Logger::error("[Snapshot] nvgCreateImageRGBA failed: index={} url={} gen={} imageW={} imageH={}", index, url, gen, imageW, imageH);
+            }
             if (index < snapshotTextures.size()) {
-                snapshotTextures[index] = tex;
-                snapshotLoading[index]  = false;
+                if (snapshotTextures[index] > 0) {
+                    brls::Logger::error("[Snapshot] duplicate tex: index={} url={} oldTex={} newTex={}, deleting new", index, url, snapshotTextures[index], tex);
+                    if (tex > 0) nvgDeleteImage(vg, tex);
+                } else {
+                    snapshotTextures[index] = tex;
+                }
+                snapshotLoading[index] = false;
+            } else {
+                brls::Logger::error("[Snapshot] out-of-bounds tex: index={} url={} tex={}, deleting", index, url, tex);
+                if (tex > 0) nvgDeleteImage(vg, tex);
             }
         });
     });
