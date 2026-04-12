@@ -725,6 +725,12 @@ void BasePlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) 
     APP_E->fire(VideoView::REAL_DURATION, (void*)&time_sec);
 
     brls::Logger::debug("BasePlayerActivity::onVideoPlayUrl done");
+
+    // 根据配置决定是否自动全屏
+    if (ProgramConfig::instance().getBoolOption(SettingItem::PLAYER_AUTO_FULLSCREEN) &&
+        !this->video->isFullscreen()) {
+        this->video->setFullScreen(true);
+    }
 }
 
 void BasePlayerActivity::onCommentInfo(const bilibili::VideoCommentResultWrapper& result) {

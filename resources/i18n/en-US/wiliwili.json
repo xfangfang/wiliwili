@@ -15,6 +15,7 @@
         "in_memory_cache": "Inmemory cache",
         "hwdec": "Hardware decode",
         "auto_play": "Auto-play on video detail page",
+        "auto_fullscreen": "Auto fullscreen when entering player",
         "exit_fullscreen": "Exit full screen at the end of playback",
         "play_strategy": "Play strategy",
         "auto_play_next_part": "Automatically playing next part",

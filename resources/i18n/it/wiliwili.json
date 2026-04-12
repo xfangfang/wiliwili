@@ -14,6 +14,7 @@
         "low_quality": "Decodifica di bassa qualità (Minor utilizzo CPU)",
         "in_memory_cache": "Cache in memoria",
         "hwdec": "Decodifica Hardware",
+        "auto_fullscreen": "Schermo intero automatico all'apertura del player",
         "auto_play": "Riproduzione automatica nella pagina dei dettagli del video",
         "exit_fullscreen": "Esci dallo schermo intero alla fine della riproduzione",
         "play_strategy": "Strategia di riproduzione",
