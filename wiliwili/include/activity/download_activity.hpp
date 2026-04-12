@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <borealis/core/activity.hpp>
 #include <borealis/core/bind.hpp>
 #include <borealis/views/label.hpp>
@@ -26,6 +27,7 @@ public:
 
     BRLS_BIND(brls::Image, cover, "download/cell/cover");
     BRLS_BIND(brls::Label, titleLabel, "download/cell/title");
+    BRLS_BIND(brls::Label, ownerLabel, "download/cell/owner");
     BRLS_BIND(brls::Label, qualityLabel, "download/cell/quality");
     BRLS_BIND(brls::Label, progressLabel, "download/cell/progress");
     BRLS_BIND(brls::Button, btn1, "download/cell/btn1");
@@ -54,4 +56,7 @@ private:
 
     brls::Event<std::string>::Subscription progressSub;
     brls::Event<std::string>::Subscription statusSub;
+
+    // Throttle: timestamp of the last progress-driven refresh
+    std::chrono::steady_clock::time_point lastProgressRefresh{};
 };

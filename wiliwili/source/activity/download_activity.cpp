@@ -8,6 +8,7 @@
 #include <borealis/views/applet_frame.hpp>
 #include <borealis/views/dialog.hpp>
 #include <borealis/views/cells/cell_radio.hpp>
+#include <cpr/filesystem.h>
 
 #include "activity/download_activity.hpp"
 #include "utils/download_manager.hpp"
@@ -28,11 +29,15 @@ void DownloadCardCell::setData(const DownloadTask& task,
     taskId = task.id;
 
     titleLabel->setText(task.title.empty() ? task.bvid : task.title);
+    ownerLabel->setText(task.owner_name);
     qualityLabel->setText(task.quality_desc);
 
-    // Cover
+    // Cover: prefer cached local cover.jpg, fall back to remote URL
     ImageHelper::clear(cover);
-    if (!task.cover_url.empty()) {
+    std::string localCover = task.dir + "/cover.jpg";
+    if (!task.dir.empty() && cpr::fs::exists(localCover)) {
+        ImageHelper::with(cover)->load("file://" + localCover);
+    } else if (!task.cover_url.empty()) {
         ImageHelper::with(cover)->load(task.cover_url + ImageHelper::h_ext);
     }
 
@@ -215,7 +220,11 @@ void DownloadActivity::onContentAvailable() {
     refreshLists();
 
     progressSub = DownloadManager::instance().taskProgressEvent.subscribe([this](const std::string&) {
-        refreshLists();
+        auto now = std::chrono::steady_clock::now();
+        if (std::chrono::duration<double>(now - lastProgressRefresh).count() >= 0.5) {
+            lastProgressRefresh = now;
+            refreshLists();
+        }
     });
     statusSub = DownloadManager::instance().taskStatusChangedEvent.subscribe([this](const std::string&) {
         refreshLists();

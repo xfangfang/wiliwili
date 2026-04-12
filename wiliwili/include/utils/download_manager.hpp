@@ -42,6 +42,7 @@ struct DownloadTask {
     std::string bvid;
     uint64_t cid = 0;
     std::string title;
+    std::string owner_name;   // UP主昵称
     std::string cover_url;
     int quality        = 0;
     std::string quality_desc;
@@ -82,6 +83,7 @@ inline void to_json(nlohmann::json& j, const DownloadTask& t) {
         {"bvid", t.bvid},
         {"cid", t.cid},
         {"title", t.title},
+        {"owner_name", t.owner_name},
         {"cover_url", t.cover_url},
         {"quality", t.quality},
         {"quality_desc", t.quality_desc},
@@ -104,6 +106,7 @@ inline void from_json(const nlohmann::json& j, DownloadTask& t) {
     if (j.contains("bvid")) j.at("bvid").get_to(t.bvid);
     if (j.contains("cid")) j.at("cid").get_to(t.cid);
     if (j.contains("title")) j.at("title").get_to(t.title);
+    if (j.contains("owner_name")) j.at("owner_name").get_to(t.owner_name);
     if (j.contains("cover_url")) j.at("cover_url").get_to(t.cover_url);
     if (j.contains("quality")) j.at("quality").get_to(t.quality);
     if (j.contains("quality_desc")) j.at("quality_desc").get_to(t.quality_desc);
@@ -152,6 +155,9 @@ public:
 
     // Returns true if there are PENDING / DOWNLOADING / PAUSED tasks
     bool hasIncompleteDownloads() const;
+
+    // Returns true if a COMPLETED task with matching bvid+cid exists
+    bool hasCompletedTask(const std::string& bvid, uint64_t cid) const;
 
     // Events fired on the main thread
     // payload: task id

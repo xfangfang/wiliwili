@@ -169,6 +169,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::SHORTCUT_VIDEO_OSD, {"shortcut_video_osd", {}, {}, 0}},
     {SettingItem::SHORTCUT_VIDEO_PAUSE, {"shortcut_video_pause", {}, {}, 0}},
     {SettingItem::VIDEO_DOWNLOAD_PATH, {"video_download_path", {}, {}, 0}},
+    {SettingItem::DOWNLOAD_SPEED_LIMIT, {"download_speed_limit", {}, {}, 0}},  // stored as string "N" (MB/s)
 
     /// bool
     {SettingItem::APP_SWAP_ABXY, {"app_swap_abxy", {}, {}, 0}},

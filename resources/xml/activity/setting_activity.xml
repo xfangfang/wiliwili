@@ -345,6 +345,30 @@
                         <brls:Header
                                 width="auto"
                                 height="auto"
+                                title="@i18n/wiliwili/setting/tools/download/header"
+                                marginBottom="0px"/>
+                        <brls:Box
+                                width="100%"
+                                height="auto"
+                                axis="column"
+                                marginBottom="30px">
+
+                            <brls:RadioCell
+                                    id="tools/download_manager"
+                                    title="@i18n/wiliwili/setting/tools/download/manager"/>
+
+                            <brls:DetailCell
+                                    id="tools/download_dir"
+                                    title="@i18n/wiliwili/setting/tools/download/dir"/>
+
+                            <brls:DetailCell
+                                    id="tools/download_speed"
+                                    title="@i18n/wiliwili/setting/tools/download/speed"/>
+
+                        </brls:Box>
+                        <brls:Header
+                                width="auto"
+                                height="auto"
                                 title="@i18n/wiliwili/setting/tools/test/header"
                                 marginBottom="0px"/>
                         <brls:Box
@@ -375,14 +399,6 @@
                         <brls:RadioCell
                                 id="tools/config_dir"
                                 title="@i18n/wiliwili/setting/tools/others/config"/>
-
-                        <brls:DetailCell
-                                id="tools/download_dir"
-                                title="@i18n/wiliwili/setting/tools/others/download_dir"/>
-
-                        <brls:RadioCell
-                                id="tools/download_manager"
-                                title="@i18n/wiliwili/setting/tools/others/download_manager"/>
 
                         <brls:RadioCell
                                 id="tools/release_checker"/>

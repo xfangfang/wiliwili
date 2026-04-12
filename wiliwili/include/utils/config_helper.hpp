@@ -124,6 +124,7 @@ enum class SettingItem {
     SHORTCUT_VIDEO_OSD, // 切换OSD显示
     SHORTCUT_VIDEO_PAUSE, // 视频播放暂停快捷键
     VIDEO_DOWNLOAD_PATH, // 视频缓存目录
+    DOWNLOAD_SPEED_LIMIT, // 下载限速 (MB/s, 0=不限速)
 };
 
 class APPVersion : public brls::Singleton<APPVersion> {

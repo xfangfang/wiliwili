@@ -33,13 +33,30 @@
                 width="auto"
                 height="auto"/>
 
-        <brls:Label
-                id="download/cell/quality"
-                singleLine="true"
-                fontSize="16"
-                textColor="@theme/font/grey"
+        <brls:Box
+                axis="row"
+                alignItems="center"
                 width="auto"
-                height="auto"/>
+                height="auto">
+
+            <brls:Label
+                    id="download/cell/owner"
+                    singleLine="true"
+                    fontSize="16"
+                    textColor="@theme/font/grey"
+                    marginRight="8"
+                    width="auto"
+                    height="auto"/>
+
+            <brls:Label
+                    id="download/cell/quality"
+                    singleLine="true"
+                    fontSize="16"
+                    textColor="@theme/font/grey"
+                    width="auto"
+                    height="auto"/>
+
+        </brls:Box>
 
         <brls:Label
                 id="download/cell/progress"

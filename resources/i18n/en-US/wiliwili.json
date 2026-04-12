@@ -119,6 +119,14 @@
         "net": "Network Diagnostics",
         "vibration": "Vibration Test"
       },
+      "download": {
+        "header": "Download",
+        "manager": "Download Manager",
+        "dir": "Video cache directory",
+        "speed": "Download speed limit",
+        "speed_hint": "Set download speed limit (MB/s, 0 = unlimited)",
+        "speed_placeholder": "Enter limit, e.g. 1"
+      },
       "others": {
         "header": "Others",
         "dlna": "DLNA Renderer",
@@ -128,9 +136,7 @@
         "checking_update": "Checking for updates...",
         "release": "Check for updates",
         "config_dir": "Config directory",
-        "config": "Open config directory",
-        "download_dir": "Video cache directory",
-        "download_manager": "Download Manager"
+        "config": "Open config directory"
       }
     },
     "about": {
@@ -494,7 +500,8 @@
       "queued": "Download queued",
       "completed": "Download completed",
       "failed": "Download failed",
-      "select_quality": "Select download quality"
+      "select_quality": "Select download quality",
+      "recache_hint": "This video has already been cached. Cache it again?"
     }
   },
   "download": {

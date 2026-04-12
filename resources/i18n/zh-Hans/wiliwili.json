@@ -119,6 +119,14 @@
         "net": "网络诊断",
         "vibration": "振动测试"
       },
+      "download": {
+        "header": "下载",
+        "manager": "下载管理",
+        "dir": "视频缓存目录",
+        "speed": "下载限速",
+        "speed_hint": "设置下载限速 (MB/s，0 为不限速)",
+        "speed_placeholder": "输入限速值，例如 1"
+      },
       "others": {
         "header": "其他",
         "dlna": "DLNA 投屏",
@@ -128,9 +136,7 @@
         "checking_update": "正在检查更新...",
         "release": "检查更新",
         "config_dir": "配置目录",
-        "config": "打开配置目录",
-        "download_dir": "视频缓存目录",
-        "download_manager": "下载管理"
+        "config": "打开配置目录"
       }
     },
     "about": {
@@ -494,7 +500,8 @@
       "queued": "已加入下载队列",
       "completed": "下载完成",
       "failed": "下载失败",
-      "select_quality": "选择下载清晰度"
+      "select_quality": "选择下载清晰度",
+      "recache_hint": "此视频已经缓存过，是否继续缓存？"
     }
   },
   "download": {

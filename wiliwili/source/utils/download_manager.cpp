@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include <thread>
 #include <fmt/format.h>
 #include <cpr/cpr.h>
 #include <cpr/filesystem.h>
@@ -108,7 +109,16 @@ void DownloadManager::addTask(DownloadTask task) {
     }
     if (task.dir.empty()) {
         std::string base = ProgramConfig::instance().getDownloadDir();
-        task.dir = joinPath(base, task.bvid + "_" + std::to_string(task.cid));
+        std::string dirName = task.bvid + "_" + std::to_string(task.cid);
+        std::string candidate = joinPath(base, dirName);
+        // If directory already exists, append a timestamp to avoid collision
+        if (cpr::fs::exists(candidate)) {
+            auto ts = std::chrono::duration_cast<std::chrono::seconds>(
+                          std::chrono::system_clock::now().time_since_epoch())
+                          .count();
+            candidate = joinPath(base, dirName + "_" + std::to_string(ts));
+        }
+        task.dir = candidate;
     }
     if (task.video_file.empty()) {
         task.video_file = task.is_dash ? "video.m4s" : "video.flv";
@@ -234,6 +244,16 @@ bool DownloadManager::hasIncompleteDownloads() const {
     return false;
 }
 
+bool DownloadManager::hasCompletedTask(const std::string& bvid, uint64_t cid) const {
+    std::lock_guard<std::mutex> lock(tasksMutex);
+    for (const auto& t : tasks) {
+        if (t.bvid == bvid && t.cid == cid && t.status == DownloadTaskStatus::COMPLETED) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void DownloadManager::startNextTask() {
     std::string nextId;
     {
@@ -288,6 +308,23 @@ bool DownloadManager::downloadFile(const std::string& url,
         return false;
     }
 
+    // Read speed limit from config (MB/s; 0 = unlimited)
+    int64_t limitBytesPerSec = 0;
+    {
+        std::string limitStr = ProgramConfig::instance().getSettingItem(SettingItem::DOWNLOAD_SPEED_LIMIT, std::string{"1"});
+        try {
+            double mb = std::stod(limitStr);
+            if (mb > 0.0) limitBytesPerSec = static_cast<int64_t>(mb * 1024.0 * 1024.0);
+        } catch (...) {}
+    }
+
+    // Speed-limit state (token bucket, 1-second window)
+    auto windowStart  = std::chrono::steady_clock::now();
+    int64_t windowBytes = 0;
+
+    // Throttle progress-event firing (at most once per 250 ms)
+    auto lastProgressFire = std::chrono::steady_clock::now();
+
     auto session = bilibili::HTTP::createSession();
     session->SetUrl(cpr::Url{url});
     session->SetHeader(bilibili::HTTP::HEADERS);
@@ -298,13 +335,36 @@ bool DownloadManager::downloadFile(const std::string& url,
 
     bool succeeded = true;
 
-    session->SetWriteCallback(cpr::WriteCallback([&ofs, &cancelFlag, &pauseFlag, &downloadedBytes, &totalBytes, &taskId, this](const std::string_view& data, intptr_t) -> bool {
+    session->SetWriteCallback(cpr::WriteCallback([&](const std::string_view& data, intptr_t) -> bool {
         if (cancelFlag.load() || pauseFlag.load()) return false;
         ofs.write(data.data(), static_cast<std::streamsize>(data.size()));
         downloadedBytes += static_cast<int64_t>(data.size());
-        brls::sync([this, taskId]() {
-            taskProgressEvent.fire(taskId);
-        });
+
+        // Speed limiting
+        if (limitBytesPerSec > 0) {
+            windowBytes += static_cast<int64_t>(data.size());
+            auto now     = std::chrono::steady_clock::now();
+            double elapsed = std::chrono::duration<double>(now - windowStart).count();
+            if (elapsed < 1.0 && windowBytes >= limitBytesPerSec) {
+                // Sleep for the remainder of the current 1-second window
+                int64_t waitMs = static_cast<int64_t>((1.0 - elapsed) * 1000.0);
+                if (waitMs > 0) std::this_thread::sleep_for(std::chrono::milliseconds(waitMs));
+                windowStart  = std::chrono::steady_clock::now();
+                windowBytes  = 0;
+            } else if (elapsed >= 1.0) {
+                windowStart  = std::chrono::steady_clock::now();
+                windowBytes  = 0;
+            }
+        }
+
+        // Throttle progress event to at most 4 per second
+        auto now2 = std::chrono::steady_clock::now();
+        if (std::chrono::duration<double>(now2 - lastProgressFire).count() >= 0.25) {
+            lastProgressFire = now2;
+            brls::sync([this, taskId]() {
+                taskProgressEvent.fire(taskId);
+            });
+        }
         return true;
     }));
 
@@ -471,6 +531,27 @@ void DownloadManager::runTask(const std::string& id) {
         }
     }
 
+    // Create the task directory first
+    cpr::fs::create_directories(workCopy.dir);
+
+    // Download cover image first (best-effort; never block the video download)
+    if (!workCopy.cover_url.empty()) {
+        std::string coverPath = joinPath(workCopy.dir, "cover.jpg");
+        if (!cpr::fs::exists(coverPath)) {
+            try {
+                auto coverSession = bilibili::HTTP::createSession();
+                coverSession->SetUrl(cpr::Url{workCopy.cover_url});
+                coverSession->SetHeader(bilibili::HTTP::HEADERS);
+                coverSession->SetTimeout(cpr::Timeout{10000});
+                auto coverResp = coverSession->Get();
+                if (!coverResp.error && (coverResp.status_code == 200 || coverResp.status_code == 206)) {
+                    std::ofstream cf(coverPath, std::ios::binary | std::ios::trunc);
+                    if (cf.is_open()) cf.write(coverResp.text.data(), static_cast<std::streamsize>(coverResp.text.size()));
+                }
+            } catch (...) {}
+        }
+    }
+
     bool success = false;
     if (workCopy.is_dash) {
         success = downloadDash(workCopy);
@@ -480,6 +561,7 @@ void DownloadManager::runTask(const std::string& id) {
 
     // Write progress back
     bool taskCompleted = false;
+    std::string taskTitle;
     {
         std::lock_guard<std::mutex> lock(tasksMutex);
         for (auto& t : tasks) {
@@ -496,6 +578,7 @@ void DownloadManager::runTask(const std::string& id) {
                 } else if (success) {
                     t.status = DownloadTaskStatus::COMPLETED;
                     taskCompleted = true;
+                    taskTitle = t.title;
                 } else {
                     t.status = DownloadTaskStatus::FAILED;
                 }
@@ -512,9 +595,11 @@ void DownloadManager::runTask(const std::string& id) {
 
     saveState();
 
-    brls::sync([this, id, success]() {
+    brls::sync([this, id, success, taskTitle]() {
         taskStatusChangedEvent.fire(id);
-        if (success) {
+        if (success && !taskTitle.empty()) {
+            brls::Application::notify("wiliwili/player/download/completed"_i18n + ": " + taskTitle);
+        } else if (success) {
             brls::Application::notify("wiliwili/player/download/completed"_i18n);
         }
     });

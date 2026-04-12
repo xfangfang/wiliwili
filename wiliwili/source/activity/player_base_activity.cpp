@@ -565,6 +565,7 @@ void BasePlayerActivity::startVideoCache() {
             task.cid          = this->videoDetailPage.cid;
             task.title        = this->videoTitleLabel->getFullText();
             if (task.title.empty()) task.title = "video";
+            task.owner_name   = this->videoDetailResult.owner.name;
             task.cover_url    = this->videoDetailResult.pic;
             task.quality      = chosenQuality;
             task.quality_desc = qualDesc;
@@ -617,6 +618,21 @@ void BasePlayerActivity::startVideoCache() {
                 }
             } else {
                 brls::Application::notify("wiliwili/player/download/failed"_i18n);
+                return;
+            }
+
+            // Check if this video has already been cached; ask user to confirm
+            std::string bvid = task.bvid;
+            uint64_t cid     = task.cid;
+            if (DownloadManager::instance().hasCompletedTask(bvid, cid)) {
+                auto confirmTaskPtr = std::make_shared<DownloadTask>(std::move(task));
+                auto dialog = new brls::Dialog("wiliwili/player/download/recache_hint"_i18n);
+                dialog->addButton("hints/cancel"_i18n, []() {});
+                dialog->addButton("hints/ok"_i18n, [confirmTaskPtr]() {
+                    DownloadManager::instance().addTask(std::move(*confirmTaskPtr));
+                    brls::Application::notify("wiliwili/player/download/queued"_i18n);
+                });
+                dialog->open();
                 return;
             }
 

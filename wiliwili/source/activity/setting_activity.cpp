@@ -228,13 +228,32 @@ void SettingActivity::onContentAvailable() {
             "wiliwili/player/download/dir_hint"_i18n, "wiliwili/player/download/dir_placeholder"_i18n, 512,
             currentDir, 0);
 #else
-        brls::Application::notify("wiliwili/setting/tools/others/download_dir"_i18n + ": " + currentDir);
+        brls::Application::notify("wiliwili/setting/tools/download/dir"_i18n + ": " + currentDir);
 #endif
         return true;
     });
 
     btnDownloadManager->registerClickAction([](...) -> bool {
         Intent::openDownloadManager();
+        return true;
+    });
+
+    // 下载限速设置
+    {
+        std::string saved = ProgramConfig::instance().getSettingItem(SettingItem::DOWNLOAD_SPEED_LIMIT, std::string{"1"});
+        btnDownloadSpeed->setDetailText(saved + " MB/s");
+    }
+    btnDownloadSpeed->registerClickAction([this](...) -> bool {
+        std::string current = ProgramConfig::instance().getSettingItem(SettingItem::DOWNLOAD_SPEED_LIMIT, std::string{"1"});
+        brls::Application::getImeManager()->openForText(
+            [this](const std::string& text) {
+                if (text.empty()) return;
+                ProgramConfig::instance().setSettingItem(SettingItem::DOWNLOAD_SPEED_LIMIT, text);
+                btnDownloadSpeed->setDetailText(text + " MB/s");
+            },
+            "wiliwili/setting/tools/download/speed_hint"_i18n,
+            "wiliwili/setting/tools/download/speed_placeholder"_i18n, 16,
+            current, 0);
         return true;
     });
 
