@@ -30,6 +30,7 @@
 #include "fragment/share_dialog.hpp"
 
 #include "utils/config_helper.hpp"
+#include "utils/string_helper.hpp"
 
 #include "view/auto_tab_frame.hpp"
 #include "view/video_view.hpp"
@@ -53,6 +54,15 @@
 #include "view/mpv_core.hpp"
 #include "view/dynamic_video_card.hpp"
 #include "view/dynamic_article.hpp"
+
+// static member definition
+std::string Register::customThemeColorHex;
+
+const std::string& Register::getCustomThemeColorHex() { return customThemeColorHex; }
+
+bool Register::isBilibiliDefaultPink(const std::string& color) {
+    return color == "#FB7299" || color == "#fb7299";
+}
 
 void Register::initCustomView() {
     // Register extended views
@@ -139,8 +149,22 @@ void Register::initCustomTheme() {
     brls::Theme::getDarkTheme().addColor("font/yellow_1", nvgRGB(217, 118, 7));
 
     // 粉色文字，bilibili主题色
-    brls::Theme::getLightTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));
-    brls::Theme::getDarkTheme().addColor("color/bilibili", nvgRGB(255, 102, 153));
+    // 用户可以通过在配置文件中设置 custom_theme_color (#RRGGBB 十六进制，例如 #FF6699) 来自定义主题色
+    NVGcolor biliColor = nvgRGB(255, 102, 153);
+    std::string customColor =
+        ProgramConfig::instance().getSettingItem(SettingItem::CUSTOM_THEME_COLOR, std::string{});
+    uint8_t r, g, b;
+    if (wiliwili::parseHexColor(customColor, r, g, b)) {
+        biliColor = nvgRGB(r, g, b);
+        // Store as "#RRGGBB" for use by SVG loading and username color substitution
+        char buf[8];
+        std::snprintf(buf, sizeof(buf), "#%02X%02X%02X", r, g, b);
+        customThemeColorHex = buf;
+    } else if (!customColor.empty()) {
+        brls::Logger::error("Register::initCustomTheme: invalid custom_theme_color \"{}\"", customColor);
+    }
+    brls::Theme::getLightTheme().addColor("color/bilibili", biliColor);
+    brls::Theme::getDarkTheme().addColor("color/bilibili", biliColor);
 
     // 蓝色文字，用于链接文字颜色
     brls::Theme::getLightTheme().addColor("color/link", nvgRGB(102, 147, 182));
@@ -151,8 +175,17 @@ void Register::initCustomTheme() {
     brls::Theme::getDarkTheme().addColor("color/line", nvgRGB(100, 100, 100));
 
     // 粉色背景，用于扁平TabBar背景色
-    brls::Theme::getLightTheme().addColor("color/pink_1", nvgRGB(252, 237, 241));
-    brls::Theme::getDarkTheme().addColor("color/pink_1", nvgRGB(44, 27, 34));
+    // 由主题色推导：亮色 = 与白色混合约12%，暗色 = 与黑色混合约14%
+    {
+        float rf = biliColor.r, gf = biliColor.g, bf = biliColor.b;
+        // light: lerp(white, primary, 0.12) = 0.88 + 0.12 * primary
+        float lr = 0.88f + 0.12f * rf;
+        float lg = 0.88f + 0.12f * gf;
+        float lb = 0.88f + 0.12f * bf;
+        brls::Theme::getLightTheme().addColor("color/pink_1", nvgRGBf(lr, lg, lb));
+        // dark: lerp(black, primary, 0.14)
+        brls::Theme::getDarkTheme().addColor("color/pink_1", nvgRGBf(0.14f * rf, 0.14f * gf, 0.14f * bf));
+    }
 
     // 红色，用于提示小红点
     brls::Theme::getLightTheme().addColor("color/tip/red", nvgRGB(250, 88, 87));

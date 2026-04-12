@@ -10,6 +10,7 @@
 #include "view/svg_image.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/string_helper.hpp"
+#include "utils/config_helper.hpp"
 
 using namespace brls::literals;
 
@@ -274,7 +275,14 @@ void VideoComment::setData(bilibili::VideoCommentResult data) {
     if (data.member.vip.nickname_color.empty()) {
         this->userInfo->setMainTextColor(brls::Application::getTheme().getColor("brls/text"));
     } else {
-        this->userInfo->getLabelName()->applyXMLAttribute("textColor", data.member.vip.nickname_color);
+        // 如果是官方默认粉色 (#FB7299)，且用户设置了自定义主题色，则使用自定义色
+        const std::string& nc = data.member.vip.nickname_color;
+        const std::string& customColor = Register::getCustomThemeColorHex();
+        if (!customColor.empty() && Register::isBilibiliDefaultPink(nc)) {
+            this->userInfo->getLabelName()->applyXMLAttribute("textColor", customColor);
+        } else {
+            this->userInfo->getLabelName()->applyXMLAttribute("textColor", nc);
+        }
     }
 
     // 设置用户等级
