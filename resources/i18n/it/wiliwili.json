@@ -8,51 +8,64 @@
       "tab": "App",
       "playback": {
         "header": "Riproduzione",
-        "report": "Upload history playback record",
+        "player": "Lettore",
+        "report": "Carica cronologia riproduzione",
         "player_bar": "Mostra sempre la barra di avanzamento",
         "low_quality": "Decodifica di bassa qualità (Minor utilizzo CPU)",
-        "in_memory_cache": "Inmemory cache",
+        "in_memory_cache": "Cache in memoria",
         "hwdec": "Decodifica Hardware",
+        "auto_play": "Riproduzione automatica nella pagina dei dettagli del video",
         "exit_fullscreen": "Esci dallo schermo intero alla fine della riproduzione",
-        "play_strategy": "Play strategy",
+        "play_strategy": "Strategia di riproduzione",
         "auto_play_next_part": "Riprodurre automaticamente la parte successiva",
         "auto_play_recommend": "Riproduzione automatica dei video consigliati",
-        "auto_loop": "Loop current video",
-        "auto_no": "Pause video after playing",
-        "auto_hint": "\"Automatically playing recommend video\" will automatically play recommended videos after the episode is played.",
+        "auto_loop": "Ripeti il video corrente",
+        "auto_no": "Metti in pausa il video dopo la riproduzione",
+        "auto_hint": "\"Riproduzione automatica video consigliati\" riprodurrà automaticamente i video consigliati dopo la riproduzione dell'episodio.",
         "sleep": "Timing Spento",
+        "format": "Formato",
         "video_codec": "Codec Video",
         "audio_quality": "Qualità audio",
         "video_format": "Formato video",
         "window_fullscreen_on_app_fullscreen": "Schermo intero della finestra quando si entra in schermo intero in-app"
+        "dolby": "Dolby Atmos",
+        "hi_res": "Hi-Res"
       },
       "image": {
         "header": "Immagine",
-        "texture": "Number of picture texture caches",
-        "threads": "Number of image loading threads"
+        "texture": "Numero di cache texture immagine",
+        "threads": "Numero di thread caricamento immagini"
       },
       "network": {
-        "header": "Network",
-        "tls": "TLS verify",
+        "header": "Rete",
+        "tls": "Verifica TLS",
         "proxy": "Proxy",
-        "proxy_hint": "example: http://127.0.0.1:7890"
+        "proxy_hint": "esempio: http://127.0.0.1:7890"
       },
       "ui": {
         "header": "UI",
-        "tv_osd": "TV style OSD control"
+        "window": "Finestra",
+        "bottom_bar": "Barra inferiore",
+        "ui_style": "Stile UI",
+        "tv_osd": "Controllo OSD stile TV",
+        "live_sidebar_count": "Numero danmaku nella barra laterale live",
+        "live_sidebar_hide": "Nascondi barra laterale"
       },
       "others": {
         "header": "Altri",
         "vibration": "Vibrazione del Gamepad",
         "hide_bottom": "Nascondi la barra dei suggerimenti qui sotto",
         "hide_fps": "Nascondi FPS",
+        "show_bottom": "Mostra barra inferiore",
+        "show_fps": "Mostra FPS",
         "limited_fps": "Limite massimo frame",
         "limited_fps_vsync": "Sincronizzazione Verticale",
         "fullscreen": "Schermo intero",
-        "always_on_top": "Always on top",
+        "always_on_top": "Sempre in primo piano",
+        "always_on_top_hint": "Auto: Imposta automaticamente la finestra in primo piano quando la dimensione è piccola",
         "tv_search": "Pagina di ricerca stile TV",
-        "clear_history": "Clear search history",
-        "clear_season": "Clear bangumi custom settings",
+        "clear_history": "Cancella cronologia ricerche",
+        "clear_season": "Cancella impostazioni bangumi personalizzate",
         "theme": {
           "header": "Tema (riavvio richiesto)",
           "1": "Automatico",
@@ -60,10 +73,10 @@
           "3": "Scuro"
         },
         "custom_theme": {
-          "header": "Custom Layout (restart required)"
+          "header": "Layout personalizzato (riavvio richiesto)"
         },
         "scale": {
-          "header": "UI Scale (restart required)",
+          "header": "Scala UI (riavvio richiesto)",
           "544p": "544p",
           "720p": "720p",
           "900p": "900p",
@@ -71,7 +84,7 @@
         },
         "language": {
           "header": "Lingua (riavvio richiesto)",
-          "auto": "Auto",
+          "auto": "Automatico",
           "chinese_s": "Cinese semplificato",
           "chinese_t": "Cinese tradizionale",
           "english": "Inglese",
@@ -83,6 +96,7 @@
         "opencc": "Converte automaticamente il cinese semplificato (riavvio richiesto)",
         "keymap": {
           "header": "Stile mappatura tasti",
+          "swap": "Scambia AB/XY",
           "xbox": "Xbox",
           "ps": "PlayStation",
           "keyboard": "Tastiera"
@@ -95,7 +109,7 @@
         "header": "Guida",
         "intro": "Introduzione al software (video online; cinese)",
         "intro_bvid": "BV18W4y1q72C",
-        "wiki": "Access our wiki to get more information",
+        "wiki": "Accedi alla nostra wiki per maggiori informazioni",
         "open": "Come installare icona del desktop",
         "error": "Se riscontri un bug",
         "hot_key": "Tasti rapidi",
@@ -109,10 +123,12 @@
       "others": {
         "header": "Altri",
         "dlna": "Renderer DLNA",
-        "dlna_waiting": "Waiting for DLNA casting...",
-        "dlna_quit": "Exit the DLNA casting?",
+        "dlna_waiting": "In attesa della proiezione DLNA...",
+        "dlna_quit": "Uscire dalla proiezione DLNA?",
         "up2date": "L'applicazione è aggiornata",
+        "checking_update": "Verifica aggiornamenti...",
         "release": "Controlla aggiornamenti",
+        "config_dir": "Directory di configurazione",
         "config": "Apri cartella di configurazione"
       }
     },
@@ -126,38 +142,38 @@
       "author": "一直想做个艺术家, 可惜程序员都没什么发挥的空间\n直到这个作品诞生,实现了：「在游戏机上看视频;用手机来玩游戏」\n或许算得上是一种行为艺术,这样的话我也就圆满了"
     },
     "opensource": {
-      "tab": "Opensource"
+      "tab": "Open Source"
     },
     "tutorial": {
       "error_q1": "Impossibile accedere alla rete",
       "error_a1": "1. Assicurarsi che atmosphere e il firmware di sistema siano aggiornati\n2. Verificare che l'ora di sistema sia corretta\n3. Ripristina le impostazioni di rete predefinite, tra cui IP, DNS, ecc\n4.Usalo in Cina",
       "error_q2": "Esci con errore casuale",
       "error_a2": "1. Utilizzando una scheda di memoria di formato Fat32\n2. Assicurati che atmosphere e il firmware di sistema siano aggiornati\n3. In attesa che gli sviluppatori risolvano",
-      "font_q1": "How to set custom font or keymap icon",
-      "font_a1": "1. Download the font or icon font you want\n2. Rename font to: font.ttf; Rename icon to: icon.ttf\n3. Place font files in the config directory\n4. Restart the application",
+      "font_q1": "Come impostare un font personalizzato o un'icona della mappa dei tasti",
+      "font_a1": "1. Scarica il font o il font icona desiderato\n2. Rinomina il font in: font.ttf; Rinomina l'icona in: icon.ttf\n3. Posiziona i file font nella directory di configurazione\n4. Riavvia l'applicazione",
       "font_q2": "Domande frequenti",
-      "font_a2": "1. wiliwili prioritizes the display of custom fonts, with built-in fonts as a fallback\n2. \"Settings - Tools - Others\" provides a menu item to quickly open the config directory\n3. On Linux, wiliwili uses xdg-open to open the directory. If the configuration directory cannot be opened correctly, you can consider installing this tool"
+      "font_a2": "1. wiliwili dà priorità alla visualizzazione dei font personalizzati, con i font integrati come fallback\n2. \"Impostazioni - Strumenti - Altri\" fornisce una voce di menu per aprire rapidamente la directory di configurazione\n3. Su Linux, wiliwili utilizza xdg-open per aprire la directory. Se la directory di configurazione non può essere aperta correttamente, considera l'installazione di questo strumento"
     },
     "hot_keys": {
-      "common_header": "Common",
-      "common_content": " /  Switch the primary page\n /  Switch the secondary page",
-      "player_header": "Player",
-      "player_content": " Speed up，double click  to lock\n +  Seek forward\n Toggle player OSD \n Toggle danmaku"
+      "common_header": "Generale",
+      "common_content": " /  Cambia pagina principale\n /  Cambia pagina secondaria",
+      "player_header": "Lettore",
+      "player_content": " Accelera, doppio click  per bloccare\n +  Vai avanti\n Mostra/Nascondi OSD lettore \n Mostra/Nascondi danmaku"
     },
     "net": {
       "test": {
         "header": "Accesso Alla Rete",
-        "feed": "Test to get recommended videos"
+        "feed": "Test per ottenere video consigliati"
       },
       "time": {
         "header": "Ora",
-        "subtitle": "Incorrect system time may cause network access failure",
-        "sys": "Current system time",
-        "net": "Get network time"
+        "subtitle": "Un'ora di sistema errata potrebbe causare errori di accesso alla rete",
+        "sys": "Ora di sistema corrente",
+        "net": "Ottieni ora di rete"
       },
       "profile": {
         "header": "Rete",
-        "subtitle": "Restoring network settings can also solve some problems",
+        "subtitle": "Il ripristino delle impostazioni di rete può anche risolvere alcuni problemi",
         "ip": "Indirizzo IP",
         "dns": "Indirizzo DNS"
       }
@@ -165,19 +181,19 @@
   },
   "hints": {
     "hint1": "Seleziona un gioco dalla schermata home",
-    "hint2": "Hold the  key and click  to enter hbmenu",
-    "hint3": "In the hbmenu, select wiliwili",
-    "hint4": "Optional: Using provided wiliwili NSP forwarder (Please place wiliwili.nro in /switch/wiliwili.nro)",
-    "hint_nsp": "Click  to install NSP forwarder",
-    "hint_confirm": "Installing NSP forwarder may result in a ban\nPlease confirm again",
-    "hint_right": "The pictures are from the Internet, and the copyright belongs to Nintendo Co., Ltd"
+    "hint2": "Tieni premuto il tasto \uE0E5 e clicca \uE0E0 per entrare in hbmenu",
+    "hint3": "In hbmenu, seleziona wiliwili",
+    "hint4": "Opzionale: Usa il forwarder NSP di wiliwili (Posiziona wiliwili.nro in /switch/wiliwili.nro)",
+    "hint_nsp": "Clicca \uE0E0 per installare il forwarder NSP",
+    "hint_confirm": "L'installazione del forwarder NSP potrebbe risultare in un ban\nConferma nuovamente",
+    "hint_right": "Le immagini provengono da Internet, il copyright appartiene a Nintendo Co., Ltd"
   },
   "home": {
     "common": {
       "part": "Canale:",
       "recommend": "Raccomandato",
       "search": "Cerca video",
-      "switch": "Switch",
+      "switch": "Cambia",
       "refresh": "Aggiorna",
       "last": "Ultimo",
       "next": "Successivo",
@@ -192,17 +208,17 @@
     "live": {
       "tab": "Dal vivo",
       "dialog": "Canali",
-      "default": "Channel: Explore"
+      "default": "Canale: Esplora"
     },
     "rcmd": {
       "tab": "Esplora"
     },
     "hots": {
-      "tab": "Hots",
-      "t1": "Hots",
-      "t2": "Rank",
-      "t3": "Weekly",
-      "t4": "History"
+      "tab": "Popolari",
+      "t1": "Popolari",
+      "t2": "Classifica",
+      "t3": "Settimanale",
+      "t4": "Storico"
     },
     "bangumi": {
       "tab": "Bangumi"
@@ -212,159 +228,187 @@
     }
   },
   "dynamic": {
-    "detail": "Activity detail",
+    "detail": "Dettaglio attività",
     "video": "Video",
-    "article": "Activity"
+    "article": "Attività"
   },
   "search": {
     "tv": {
-      "hint": "Support keywords and their initial letters",
-      "clear": "Clear",
-      "delete": "Delete",
-      "search": "Search",
-      "hots": "Hots",
-      "history": "History",
-      "history_clear": "Clear all",
-      "history_delete": "Delete",
-      "suggest": "Suggest"
+      "hint": "Supporta parole chiave e le loro iniziali",
+      "clear": "Cancella",
+      "delete": "Elimina",
+      "search": "Cerca",
+      "hots": "Popolari",
+      "history": "Cronologia",
+      "history_clear": "Cancella tutto",
+      "history_delete": "Elimina",
+      "suggest": "Suggerimenti"
+    },
+    "history": {
+      "clear": "Elimina cronologia ricerche",
+      "clear_hint": "La cronologia delle ricerche sarà eliminata definitivamente da questo dispositivo"
     },
     "order": {
-      "all": "All",
-      "click": "Click",
-      "pubdate": "PublishDate",
+      "all": "Tutti",
+      "click": "Visualizzazioni",
+      "pubdate": "Data di pubblicazione",
       "dm": "Danmaku",
-      "stow": "Favorite"
+      "stow": "Preferiti"
     },
-    "tab": "Search",
-    "t0": "History",
-    "t1": "Hots",
+    "tab": "Cerca",
+    "t0": "Cronologia",
+    "t1": "Popolari",
     "t2": "Video",
     "t3": "Bangumi",
     "t4": "Cinema"
   },
   "activity": {
-    "all": "All activities",
-    "refresh": "Refresh list"
+    "all": "Tutte le attività",
+    "refresh": "Aggiorna lista"
+  },
+  "inbox": {
+    "chat": {
+      "tab": "Lista chat",
+      "hint": "Invia un messaggio per iniziare a chattare ~",
+      "unknown": "Questo tipo di messaggio non è attualmente supportato"
+    },
+    "tab": {
+      "like": "Mi piace",
+      "at": "@me",
+      "reply": "Risposte"
+    },
+    "type": {
+      "video": "video",
+      "reply": "commento",
+      "article": "articolo",
+      "dynamic": "attività",
+      "danmu": "danmaku",
+      "album": "attività"
+    },
+    "more": "e {} persone hanno messo mi piace al mio {}",
+    "like": "ha messo mi piace al mio {}",
+    "at": "@me in {}",
+    "reply": "ha risposto al mio {}"
   },
   "mine": {
     "login": {
-      "check": "Checking login info...",
-      "success": "Login success",
-      "refresh": "Refresh",
+      "check": "Verifica informazioni di accesso...",
+      "success": "Accesso riuscito",
+      "refresh": "Aggiorna",
       "click": "Clicca qui per accedere",
       "logout": "Esci dall'account corrente \n(l'applicazione verrà chiusa)",
       "scan": "Scansiona il codice QR per accedere",
-      "loading": "Loading QR code...",
+      "loading": "Caricamento codice QR...",
       "hint": "Si prega di utilizzare il client BiliBili per eseguire la scansione del codice QR",
       "network_error": "Errore di rete, si prega di riprovare",
-      "qr_not_available": "QR code invalid, please re-enter the dialog",
+      "qr_not_available": "Codice QR non valido, rientra nella finestra di dialogo",
       "need_confirm": "In attesa di conferma",
       "need_scan": "In attesa della scansione del codice QR"
     },
     "later": "Guarda più tardi",
     "history": "Cronologia",
     "collection": "Preferito",
-    "subscription": "Subscription",
+    "subscription": "Iscrizioni",
     "anime": "Anime",
     "series": "Serie",
     "refresh_history": "Aggiorna cronologia",
     "refresh_collection": "Aggiorna preferiti",
-    "refresh_subscription": "Refresh Subscription",
+    "refresh_subscription": "Aggiorna iscrizioni",
     "refresh_later": "Aggiorna Guarda Più Tardi",
     "refresh_anime": "Aggiorna anime",
     "refresh_series": "Aggiorna serie",
-    "coin": "Coin",
+    "coin": "Monete",
     "following": "Segui",
-    "follower": "Follower",
-    "activity": "Activity",
+    "follower": "Seguace",
+    "activity": "Attività",
     "public": "Pubblico",
     "private": "Privato",
-    "num": " contents",
+    "num": " contenuti",
     "pub": "Creato il",
     "creator": "Autore",
-    "done": "Finished",
+    "done": "Terminato",
     "article": "Apri con il browser:"
   },
   "player": {
-    "intro": "Introduction",
-    "p": "Parts",
+    "intro": "Introduzione",
+    "p": "Parti",
     "ugc_season": "Playlist",
-    "related": "Related",
-    "series": "Series",
-    "recommend": "Recommend",
-    "uploaded": "Others",
-    "qr": "Scan QR code to watch/share",
-    "clipboard": "Copied to clipboard",
-    "comment": "Comment",
-    "current": " people are watching",
-    "share": "Share",
-    "rights": "Reprint prohibited",
-    "fs": "Fullscreen",
+    "related": "Correlati",
+    "series": "Serie",
+    "recommend": "Consigliato",
+    "uploaded": "Altri",
+    "qr": "Scansiona il codice QR per guardare/condividere",
+    "clipboard": "Copiato negli appunti",
+    "comment": "Commento",
+    "current": " persone stanno guardando",
+    "share": "Condividi",
+    "rights": "Riproduzione vietata",
+    "fs": "Schermo intero",
     "quality": "Qualità",
     "speed": "Velocità",
     "replay": "Ripeti",
     "current_speed": "Velocità corrente: {0}",
-    "not_follow": "Cancel following?",
+    "not_follow": "Smettere di seguire?",
     "coin": {
-      "title": "Coin",
-      "hint": "Choose your coin num",
-      "like": "Like at the same time",
-      "own": "You can't give yourself a coin",
-      "run_out": "The number of coins for this video has been used up",
-      "exp": "Experience + {}（Today {}/50）",
-      "exp_full": "The experience gained today is full (50/50)  ！",
-      "pcs": "{} pcs"
+      "title": "Monete",
+      "hint": "Scegli il numero di monete",
+      "like": "Metti mi piace allo stesso tempo",
+      "own": "Non puoi donare monete a te stesso",
+      "run_out": "Il numero di monete per questo video è esaurito",
+      "exp": "Esperienza + {}（Oggi {}/50）",
+      "exp_full": "L'esperienza guadagnata oggi è al massimo (50/50) ！",
+      "pcs": "{} pz"
     },
     "season_part": {
-      "ascend": "Ascend",
-      "descend": "Descend"
+      "ascend": "Crescente",
+      "descend": "Decrescente"
     },
     "comment_sort": {
-      "sort_top": "Sort by heat",
-      "sort_new": "Sort by newest",
-      "top": "Top Comments",
-      "new": "Newest Comments"
+      "sort_top": "Ordina per popolarità",
+      "sort_new": "Ordina per più recente",
+      "top": "Commenti top",
+      "new": "Commenti più recenti"
     },
     "collection": {
-      "type": "Favorite",
-      "title": "Select Favorites"
+      "type": "Preferito",
+      "title": "Seleziona preferiti"
     },
     "setting": {
       "subtitle": {
-        "header": "Subtitle"
+        "header": "Sottotitoli"
       },
       "equalizer": {
-        "header": "Equalizer",
-        "brightness": "Brightness",
-        "contrast": "Contrast",
-        "saturation": "Saturation",
+        "header": "Equalizzatore",
+        "brightness": "Luminosità",
+        "contrast": "Contrasto",
+        "saturation": "Saturazione",
         "gamma": "Gamma",
-        "hue": "Hue",
-        "reset": "Reset"
+        "hue": "Tonalità",
+        "reset": "Ripristina"
       },
       "common": {
-        "header": "Common",
-        "mirror": "Horizontally flip",
-        "highlight": "Always show hotspots",
-        "skip_opening_credits": "Skip opening credits",
-        "skip_hint1": "Automatically skip the opening credits from next video",
-        "skip_hint2": "Turn off skip opening credits from next video",
-        "skip_hint3": "Use custom opening credits from next video",
-        "skip_hint4": "Disable custom opening credits from next video",
-        "wiki": "Access our wiki to learn how shader works"
+        "header": "Generale",
+        "mirror": "Rispecchia orizzontalmente",
+        "highlight": "Mostra sempre i punti salienti",
+        "skip_opening_credits": "Salta titoli di testa",
+        "skip_hint1": "Salta automaticamente i titoli di testa dal prossimo video",
+        "skip_hint2": "Disattiva il salto dei titoli di testa dal prossimo video",
+        "skip_hint3": "Usa titoli di testa personalizzati dal prossimo video",
+        "skip_hint4": "Disattiva i titoli di testa personalizzati dal prossimo video",
+        "wiki": "Accedi alla nostra wiki per imparare come funziona lo shader"
       },
       "season": {
-        "aspect": "Custom video aspect",
-        "clip": "Custom opening credits",
-        "clip_start": "Intro length",
-        "clip_end": "Outro length",
-        "unit": "Unit: seconds"
+        "aspect": "Proporzioni video personalizzate",
+        "clip": "Titoli di testa personalizzati",
+        "clip_start": "Durata intro",
+        "clip_end": "Durata outro",
+        "unit": "Unità: secondi"
       },
       "aspect": {
-        "header": "Video aspect",
-        "crop": "Crop",
-        "stretch": "Stretch",
-        "auto": "Auto"
+        "header": "Proporzioni video",
+        "crop": "Ritaglia",
+        "stretch": "Allunga",
+        "auto": "Automatico"
       },
       "shader": {
         "header": "Shader"
@@ -372,14 +416,14 @@
     },
     "cast": {
       "header": "DLNA",
-      "device": "Devices",
-      "request_url": "Requesting video link...",
-      "cast_to_renderer": "Casting to renderer...",
-      "casting": "Casting...",
-      "cancel": "Cancel video casting",
-      "err_connect": "Unable to connect to the DLNA renderer",
-      "err_url": "Failed to obtain the video link",
-      "countdown": "Search countdown"
+      "device": "Dispositivi",
+      "request_url": "Richiesta link video...",
+      "cast_to_renderer": "Proiezione al renderer...",
+      "casting": "Proiezione in corso...",
+      "cancel": "Annulla proiezione video",
+      "err_connect": "Impossibile connettersi al renderer DLNA",
+      "err_url": "Impossibile ottenere il link del video",
+      "countdown": "Conto alla rovescia ricerca"
     },
     "danmaku": {
       "header": "Impostazioni Danmaku",
@@ -388,41 +432,45 @@
         "hint": "Dì qualcosa di bello"
       },
       "performance": {
-        "header": "Performance",
-        "render": "Rendering quality"
+        "header": "Prestazioni",
+        "render": "Qualità di rendering"
       },
       "filter": {
         "header": "Filtro Danmaku",
-        "mask": "Smart mask",
-        "top": "Top",
+        "mask": "Maschera intelligente",
+        "top": "In alto",
         "scroll": "Scorrere",
-        "bottom": "Bottom",
+        "bottom": "In basso",
         "color": "Colore",
-        "advanced": "Advanced",
-        "level": "Filter level",
-        "level_n": "Level {}"
+        "advanced": "Avanzato",
+        "level": "Livello filtro",
+        "level_n": "Livello {}",
+        "level_live": "Livello filtro danmaku",
+        "level_live_none": "Nessun filtro (UL0+)",
+        "level_live_n": "UL{} e superiore",
+        "level_live_60": "Solo UL60"
       },
       "style": {
-        "header": "Danmaku style",
-        "font": "Stroke Style",
-        "font_stroke": "Stroke",
-        "font_incline": "Incline",
-        "font_shadow": "Shadow",
-        "font_pure": "Pure",
-        "area": "Display area",
+        "header": "Stile danmaku",
+        "font": "Stile tratto",
+        "font_stroke": "Tratto",
+        "font_incline": "Inclinato",
+        "font_shadow": "Ombra",
+        "font_pure": "Puro",
+        "area": "Area di visualizzazione",
         "area_1_4": "1/4 Schermo",
         "area_2_4": "1/2 Schermo",
         "area_3_4": "3/4 Schermo",
         "area_4_4": "Schermo intero",
-        "alpha": "Alpha",
-        "fontsize": "Fontsize",
-        "line_height": "Line Height",
+        "alpha": "Trasparenza",
+        "fontsize": "Dimensione carattere",
+        "line_height": "Altezza riga",
         "speed": "Velocità",
         "speed_slow_plus": "Estremamente lento",
         "speed_slow": "Lento",
         "speed_fast_plus": "Estremamente veloce",
         "speed_fast": "Veloce",
-        "speed_moderate": "Moderate"
+        "speed_moderate": "Moderato"
       }
     },
     "single_comment": {
@@ -434,7 +482,7 @@
     }
   },
   "dialog": {
-    "not_supported": "Not Supported",
-    "quit_hint": "Exiting app..."
+    "not_supported": "Non supportato",
+    "quit_hint": "Uscita dall'applicazione..."
   }
 }

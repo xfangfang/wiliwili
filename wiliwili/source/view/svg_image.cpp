@@ -4,8 +4,25 @@
 
 #include "view/svg_image.hpp"
 
+#include <fstream>
 #include <borealis/core/application.hpp>
 #include <borealis/core/cache_helper.hpp>
+#include "utils/config_helper.hpp"
+
+/// Replace occurrences of the bilibili default pink (#FF6699) in SVG text data
+/// with the user's custom theme color.  Both uppercase and lowercase hex forms
+/// are replaced so the substitution is reliable regardless of SVG source.
+static void replaceColorInSvg(std::string& data, const std::string& newColor) {
+    // Guard: newColor must be exactly "#RRGGBB" (7 chars) to match the SVG color length
+    if (newColor.size() != 7) return;
+    for (const char* from : {"#FF6699", "#ff6699"}) {
+        std::size_t pos = 0;
+        while ((pos = data.find(from, pos)) != std::string::npos) {
+            data.replace(pos, 7, newColor);
+            pos += 7;
+        }
+    }
+}
 
 SVGImage::SVGImage() {
     this->registerFilePathXMLAttribute("SVG", [this](const std::string& value) { this->setImageFromSVGFile(value); });
@@ -37,8 +54,15 @@ void SVGImage::setImageFromSVGRes(const std::string& value) {
 #ifdef USE_LIBROMFS
     filePath = "@res/" + value;
     if (checkCache(filePath) > 0) return;
-    auto image     = romfs::get(value);
-    this->document = lunasvg::Document::loadFromData((const char*)image.string().data(), image.size());
+    auto image = romfs::get(value);
+    const std::string& customColor = Register::getCustomThemeColorHex();
+    if (!customColor.empty()) {
+        std::string svgData((const char*)image.string().data(), image.size());
+        replaceColorInSvg(svgData, customColor);
+        this->document = lunasvg::Document::loadFromData(svgData);
+    } else {
+        this->document = lunasvg::Document::loadFromData((const char*)image.string().data(), image.size());
+    }
     if (this->document) {
         this->updateBitmap();
     } else {
@@ -65,7 +89,19 @@ void SVGImage::setImageFromSVGFile(const std::string& value) {
 #endif
     if (checkCache(value) > 0) return;
 
-    this->document = lunasvg::Document::loadFromFile(value);
+    const std::string& customColor = Register::getCustomThemeColorHex();
+    if (!customColor.empty()) {
+        std::ifstream file(value);
+        if (!file.is_open()) {
+            brls::Logger::error("setImageFromSVGFile: cannot open file: {}", value);
+            return;
+        }
+        std::string svgData((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        replaceColorInSvg(svgData, customColor);
+        this->document = lunasvg::Document::loadFromData(svgData);
+    } else {
+        this->document = lunasvg::Document::loadFromFile(value);
+    }
     if (this->document) {
         this->updateBitmap();
     } else {

@@ -94,4 +94,19 @@ std::string toUpper( const std::string & str, std::string::size_type length )
     return s;
 }
 
+bool parseHexColor(const std::string& hex, uint8_t& r, uint8_t& g, uint8_t& b) {
+    // Accept both "RRGGBB" (6 chars) and "#RRGGBB" (7 chars with leading #)
+    const std::string& digits = (hex.size() == 7 && hex[0] == '#') ? hex.substr(1) : hex;
+    if (digits.size() != 6) return false;
+    try {
+        uint32_t value = std::stoul(digits, nullptr, 16);
+        r = (value >> 16) & 0xFF;
+        g = (value >> 8) & 0xFF;
+        b = value & 0xFF;
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
 };  // namespace wiliwili

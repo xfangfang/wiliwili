@@ -360,6 +360,9 @@ private:
     int64_t lastPlayedPosition = POSITION_UNDEFINED;
     VideoHighlightData highlightData;  // 在播放器进度条上显示的标记点（用来展示片头片尾标记）
 
+    // 缩略图预览的显示状态
+    bool showThumbnailPreview  = false;  // 是否显示缩略图预览
+
     MPVCore* mpvCore;
     brls::Rect oldRect = brls::Rect(-1, -1, -1, -1);
 

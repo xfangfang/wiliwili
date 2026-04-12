@@ -331,6 +331,35 @@ void BilibiliClient::get_highlight_progress(uint64_t cid,
         });
 }
 
+void BilibiliClient::get_video_snapshot(const std::string& bvid, uint64_t cid,
+                                        const std::function<void(VideoSnapshotData)>& callback,
+                                        const ErrorCallback& error) {
+    auto session = HTTP::createSession();
+    session->SetUrl(cpr::Url{HTTP::PROTOCOL + Api::VideoSnapshot});
+    session->SetParameters(cpr::Parameters({
+        {"bvid", bvid},
+        {"cid", std::to_string(cid)},
+        {"index", "1"},
+    }));
+    session->GetCallback<>(
+        [callback, error](const cpr::Response& r) {
+            if (r.status_code != 200) {
+                ERROR_MSG(r.error.message, r.status_code);
+                return;
+            }
+            try {
+                nlohmann::json res = nlohmann::json::parse(r.text);
+                if (res["code"] != 0) {
+                    ERROR_MSG(res["message"].get<std::string>(), res["code"].get<int>());
+                    return;
+                }
+                HTTP_CALLBACK(res["data"].get<VideoSnapshotData>());
+            } catch (const std::exception& e) {
+                ERROR_MSG(e.what(), -1);
+            }
+        });
+}
+
 void BilibiliClient::get_subtitle(const std::string& link, const std::function<void(SubtitleData)>& callback,
                                   const ErrorCallback& error) {
     auto session = HTTP::createSession();

@@ -46,7 +46,6 @@ void BilibiliClient::setProxy(const std::string& httpProxy, const std::string& h
 
 void BilibiliClient::setTlsVerify(bool value) {
     HTTP::VERIFY = cpr::VerifySsl{value};
-    HTTP::PROTOCOL = value ? "https:" : "http:";
 }
 
 void BilibiliClient::setHttpTimeout(int ms) {
