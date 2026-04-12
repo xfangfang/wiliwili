@@ -8,11 +8,13 @@
       "tab": "アプリ",
       "playback": {
         "header": "再生",
+        "player": "プレーヤー",
         "report": "アップロード履歴とぅ再生記録",
         "player_bar": "プログレスバー常に表示すん",
         "low_quality": "低品質ぬデコード (CPU使用率がふぃくくなやびーん)",
         "in_memory_cache": "インメモリキャッシュ",
         "hwdec": "ハードウェアデコード",
+        "auto_play": "動画詳細ページで自動再生",
         "exit_fullscreen": "再生終了時んかい全画面表示終了",
         "play_strategy": "プレイ方法",
         "auto_play_next_part": "次ぬパート自動再生",
@@ -21,9 +23,12 @@
         "auto_no": "再生後に動画を一時停止",
         "auto_hint": "「おすすめ動画を自動再生」はエピソード再生後におすすめ動画を自動再生します。",
         "sleep": "タイミングオフ",
+        "format": "フォーマット",
         "video_codec": "ビデオコーデック",
         "audio_quality": "オーディオ品質",
-        "video_format": "動画ぬ形式"
+        "video_format": "動画ぬ形式",
+        "dolby": "Dolby Atmos",
+        "hi_res": "Hi-Res"
       },
       "image": {
         "header": "画像",
@@ -38,17 +43,25 @@
       },
       "ui": {
         "header": "UI",
-        "tv_osd": "TV style OSD control"
+        "window": "ウィンドウ",
+        "bottom_bar": "ボトムバー",
+        "ui_style": "UIスタイル",
+        "tv_osd": "テレビスタイルOSD制御",
+        "live_sidebar_count": "ライブサイドバーの弾幕数",
+        "live_sidebar_hide": "サイドバーを隠す"
       },
       "others": {
         "header": "すぬ他",
         "vibration": "ゲームパッドぬ振動",
         "hide_bottom": "しちゃぬヒントバーくゎっくゎすん",
         "hide_fps": "FPS非表示",
+        "show_bottom": "ヒントバーを表示",
+        "show_fps": "FPSを表示",
         "limited_fps": "さいだいフレームすーいるゆいぎん",
         "limited_fps_vsync": "しーさるちょくちゃーき",
         "fullscreen": "フルスクリーン",
-        "always_on_top": "Always on top",
+        "always_on_top": "常に最前面に表示",
+        "always_on_top_hint": "自動: ウィンドウサイズが小さい場合に自動的に最前面に設定",
         "tv_search": "テレビスタイルぬ検索ページ",
         "clear_history": "検索履歴を削除",
         "clear_season": "番組のカスタム設定を消去",
@@ -82,6 +95,7 @@
         "opencc": "簡体字中国語自動的に変換（再起動ぬいりゆーやいびーん）",
         "keymap": {
           "header": "キーマップぬスタイル",
+          "swap": "AB/XYを入れ替え",
           "xbox": "Xbox",
           "ps": "PlayStation",
           "keyboard": "キーボード"
@@ -111,7 +125,9 @@
         "dlna_waiting": "DLNAキャストたいきちゅう...",
         "dlna_quit": "DLNAキャストしーゅうりょうさびーが？",
         "up2date": "アプリー最新やいびーん",
+        "checking_update": "更新を確認中...",
         "release": "更新確認",
+        "config_dir": "設定ディレクトリ",
         "config": "設定ディレクトリふぃらちゅん"
       }
     },
@@ -211,9 +227,9 @@
     }
   },
   "dynamic": {
-    "detail": "Activity detail",
-    "video": "Video",
-    "article": "Activity"
+    "detail": "アクティビティの詳細",
+    "video": "動画",
+    "article": "アクティビティ"
   },
   "search": {
     "tv": {
@@ -227,12 +243,16 @@
       "history_delete": "削除",
       "suggest": "提案"
     },
+    "history": {
+      "clear": "検索履歴を削除",
+      "clear_hint": "検索履歴はこのデバイスから完全に削除されます"
+    },
     "order": {
-      "all": "All",
-      "click": "Click",
-      "pubdate": "PublishDate",
-      "dm": "Danmaku",
-      "stow": "Favorite"
+      "all": "全て",
+      "click": "再生回数",
+      "pubdate": "公開日",
+      "dm": "弾幕数",
+      "stow": "お気に入り数"
     },
     "tab": "検索",
     "t0": "履歴",
@@ -244,6 +264,30 @@
   "activity": {
     "all": "まじりぬ活動",
     "refresh": "リスト更新"
+  },
+  "inbox": {
+    "chat": {
+      "tab": "チャットリスト",
+      "hint": "メッセージを送ってチャットを始めましょう ~",
+      "unknown": "このメッセージタイプは現在サポートされていません"
+    },
+    "tab": {
+      "like": "いいね",
+      "at": "@私",
+      "reply": "返信"
+    },
+    "type": {
+      "video": "動画",
+      "reply": "コメント",
+      "article": "記事",
+      "dynamic": "アクティビティ",
+      "danmu": "弾幕",
+      "album": "アクティビティ"
+    },
+    "more": "と{}人が私の{}にいいねしました",
+    "like": "私の{}にいいねしました",
+    "at": "{}で@されました",
+    "reply": "私の{}に返信しました"
   },
   "mine": {
     "login": {
@@ -293,7 +337,7 @@
     "recommend": "うすすみ",
     "uploaded": "すぬ他",
     "qr": "QRコード読み取てぃ視聴/共有",
-    "clipboard": "Copied to clipboard",
+    "clipboard": "クリップボードにコピーしました",
     "comment": "コメント",
     "current": " むるがんーちょーん",
     "share": "シェア",
@@ -361,8 +405,8 @@
       },
       "aspect": {
         "header": "ビデオアスペクト比",
-        "crop": "Crop",
-        "stretch": "Stretch",
+        "crop": "クロップ",
+        "stretch": "ストレッチ",
         "auto": "自動"
       },
       "shader": {
@@ -399,7 +443,11 @@
         "color": "カラー",
         "advanced": "高度",
         "level": "フィルターレベル",
-        "level_n": "レベル {}"
+        "level_n": "レベル {}",
+        "level_live": "弾幕フィルタレベル",
+        "level_live_none": "フィルターなし (UL0+)",
+        "level_live_n": "UL{}以上",
+        "level_live_60": "UL60のみ"
       },
       "style": {
         "header": "弾幕ぬスタイル",
@@ -407,7 +455,7 @@
         "font_stroke": "ストローク",
         "font_incline": "インクライン",
         "font_shadow": "シャドウ",
-        "font_pure": "Pure",
+        "font_pure": "ピュア",
         "area": "表示範囲",
         "area_1_4": "1/4 スクリーン",
         "area_2_4": "1/2 スクリーン",
