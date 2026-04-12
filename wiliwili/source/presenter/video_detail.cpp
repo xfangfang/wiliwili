@@ -712,6 +712,10 @@ void VideoDetail::requestHighlightProgress(uint64_t cid) {
 }
 
 void VideoDetail::requestVideoSnapshot(const std::string& bvid, uint64_t cid) {
+#if defined(__PSV__) || defined(PS4)
+    // 这些平台无法创建大尺寸纹理（或许可以考虑手动将大图分割成小图来适配）
+    return;
+#endif
     brls::Logger::debug("请求视频快照：bvid: {} cid: {}", bvid, cid);
     ASYNC_RETAIN
     BILI::get_video_snapshot(
