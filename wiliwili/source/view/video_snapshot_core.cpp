@@ -65,11 +65,9 @@ void VideoSnapshotCore::loadTexture(size_t index) {
         return;
     }
     if (index < snapshotTextures.size() && snapshotTextures[index] > 0) {
-        brls::Logger::error("[Snapshot] loadTexture: index {} already loaded (tex={})", index, snapshotTextures[index]);
         return;
     }
     if (index < snapshotLoading.size() && snapshotLoading[index]) {
-        brls::Logger::error("[Snapshot] loadTexture: index {} is loading", index);
         return;
     }
 
