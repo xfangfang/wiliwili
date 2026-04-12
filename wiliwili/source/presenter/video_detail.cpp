@@ -14,6 +14,7 @@
 #include "view/video_view.hpp"
 #include "view/mpv_core.hpp"
 #include "bilibili/result/mine_collection_result.h"
+#include "view/video_snapshot_core.hpp"
 
 /// 请求视频数据
 void VideoDetail::requestData(const bilibili::VideoDetailResult& video) { this->requestVideoInfo(video.bvid); }
@@ -292,6 +293,8 @@ void VideoDetail::requestVideoUrl(const std::string& bvid, uint64_t cid, bool re
     this->requestVideoPageDetail(bvid, cid, requestHistoryInfo);
     // 请求高能进度条
     this->requestHighlightProgress(cid);
+    // 请求视频快照（缩略图）
+    this->requestVideoSnapshot(bvid, cid);
 }
 
 /// 获取番剧地址
@@ -327,6 +330,8 @@ void VideoDetail::requestSeasonVideoUrl(const std::string& bvid, uint64_t cid, b
     this->requestVideoPageDetail(bvid, cid, requestHistoryInfo);
     // 请求高能进度条
     this->requestHighlightProgress(cid);
+    // 请求视频快照（缩略图）
+    this->requestVideoSnapshot(bvid, cid);
 }
 
 /// 获取投屏地址
@@ -703,6 +708,27 @@ void VideoDetail::requestHighlightProgress(uint64_t cid) {
             ASYNC_RELEASE
             brls::Logger::error("HighlightProgress: {}", error);
             this->onHighlightProgress(bilibili::VideoHighlightProgress{});
+        });
+}
+
+void VideoDetail::requestVideoSnapshot(const std::string& bvid, uint64_t cid) {
+#if defined(__PSV__) || defined(PS4)
+    // 这些平台无法创建大尺寸纹理（或许可以考虑手动将大图分割成小图来适配）
+    return;
+#endif
+    brls::Logger::debug("请求视频快照：bvid: {} cid: {}", bvid, cid);
+    ASYNC_RETAIN
+    BILI::get_video_snapshot(
+        bvid, cid,
+        [ASYNC_TOKEN](const bilibili::VideoSnapshotData& result) {
+            brls::sync([ASYNC_TOKEN, result]() {
+                ASYNC_RELEASE
+                VideoSnapshotCore::instance().setSnapshotData(result);
+            });
+        },
+        [ASYNC_TOKEN](BILI_ERR) {
+            ASYNC_RELEASE
+            brls::Logger::error("VideoSnapshot: {}", error);
         });
 }
 

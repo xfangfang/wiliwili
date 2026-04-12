@@ -696,6 +696,25 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, VideoHighlightProgr
     }
 }
 
+/// 视频快照（进度条缩略图）
+class VideoSnapshotData {
+public:
+    int img_x_len  = 0;
+    int img_y_len  = 0;
+    int img_x_size = 0;
+    int img_y_size = 0;
+    std::vector<std::string> image;
+    std::vector<int> index;
+
+    bool isValid() const { return !image.empty() && img_x_len > 0 && img_y_len > 0 && img_x_size > 0 && img_y_size > 0; }
+};
+inline void from_json(const nlohmann::json& nlohmann_json_j, VideoSnapshotData& nlohmann_json_t) {
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, img_x_len, img_y_len, img_x_size, img_y_size, image));
+    if (nlohmann_json_j.contains("index") && nlohmann_json_j.at("index").is_array()) {
+        nlohmann_json_j.at("index").get_to(nlohmann_json_t.index);
+    }
+}
+
 class VideoOnlineTotal {
 public:
     std::string total;
