@@ -27,7 +27,9 @@
         "format": "형식",
         "video_codec": "비디오 코덱",
         "audio_quality": "오디오 품질",
-        "video_format": "비디오 형식"
+        "video_format": "비디오 형식",
+        "dolby": "Dolby Atmos",
+        "hi_res": "Hi-Res"
       },
       "image": {
         "header": "이미지",
@@ -45,7 +47,9 @@
         "window": "윈도우",
         "bottom_bar": "하단바",
         "ui_style": "UI 스타일",
-        "tv_osd": "TV 스타일 OSD 제어"
+        "tv_osd": "TV 스타일 OSD 제어",
+        "live_sidebar_count": "라이브 사이드바 탄막 수",
+        "live_sidebar_hide": "사이드바 숨기기"
       },
       "others": {
         "header": "기타",
@@ -440,7 +444,11 @@
         "color": "색상",
         "advanced": "고급 설정",
         "level": "필터 수준",
-        "level_n": "수준 {}"
+        "level_n": "수준 {}",
+        "level_live": "탄막 필터 수준",
+        "level_live_none": "필터 없음 (UL0+)",
+        "level_live_n": "UL{} 이상",
+        "level_live_60": "UL60만"
       },
       "style": {
         "header": "탄막 스타일",
