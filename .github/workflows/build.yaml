@@ -463,7 +463,7 @@ jobs:
           echo "FLATPAK_NAME=${FLATPAK_NAME}"  >> $GITHUB_OUTPUT
           echo ${FLATPAK_NAME}
 
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.5
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6.7
         with:
           bundle: ${{ steps.dep.outputs.FLATPAK_NAME }}
           manifest-path: .flatpak-manifest.yml
