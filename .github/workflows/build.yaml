@@ -49,7 +49,7 @@ jobs:
       DIST_FLATPAK_AARCH64_GLES2: ${{ steps.info.outputs.DIST_FLATPAK_AARCH64_GLES2 }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Debug version
         run: |
@@ -148,7 +148,7 @@ jobs:
             mingw-w64-${{ matrix.env }}-pkgconf
             mingw-w64-${{ matrix.env }}-cc
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
           fetch-depth: 0
@@ -225,7 +225,7 @@ jobs:
           cv2pdb64 build/wiliwili.exe
           cp -a README.md build
       - name: Upload dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ needs.version.outputs.DIST_EXE }}-${{ matrix.driver }}-${{ matrix.arch }}
           path: |
@@ -241,7 +241,7 @@ jobs:
 #        shell: powershell
 #        run: |
 #          Invoke-Expression (Invoke-Webrequest 'https://xmake.io/psget.text' -UseBasicParsing).Content
-#      - uses: actions/checkout@v4
+#      - uses: actions/checkout@v6
 #        with:
 #          submodules: recursive
 #          fetch-depth: 0
@@ -262,7 +262,7 @@ jobs:
 #          xmake b -y -v wiliwili
 #          cp winrt/key.pfx build/
 #          cp winrt/docs/key.pdf build/key.pdf
-#      - uses: actions/upload-artifact@v4
+#      - uses: actions/upload-artifact@v6
 #        with:
 #          name: ${{ needs.version.outputs.DIST_UWP }}
 #          path: |
@@ -282,7 +282,7 @@ jobs:
         driver: [opengl, deko3d]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
           fetch-depth: 0
@@ -297,7 +297,7 @@ jobs:
           docker run --rm -v $(pwd):/data devkitpro/devkita64:20251117 bash -c "/data/scripts/build_switch${{ matrix.shuffix }}.sh"
 
       - name: Upload dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ needs.version.outputs.DIST_NRO }}-${{ matrix.driver }}
           path: "cmake-build-switch/wiliwili.nro"
@@ -307,7 +307,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
           fetch-depth: 0
@@ -324,13 +324,13 @@ jobs:
                 make -C cmake-build-ps4 -j$(nproc)"
 
       - name: Upload dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ needs.version.outputs.DIST_PS4 }}
           path: "cmake-build-ps4/*.pkg"
 
       - name: Upload oelf
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ps4_dev_oelf
           path: "cmake-build-ps4/*.oelf"
@@ -349,7 +349,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
           fetch-depth: 0
@@ -409,7 +409,7 @@ jobs:
 
       - name: Upload dist
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.name.outputs.DMG }}
           path: "${{ steps.name.outputs.DMG }}.dmg"
@@ -435,7 +435,7 @@ jobs:
       FLATPAK_NAME: wiliwili-Linux-${{ needs.version.outputs.version }}.flatpak
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
           fetch-depth: 0
@@ -472,7 +472,7 @@ jobs:
           arch: ${{ matrix.arch }}
           upload-artifact: false
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: wiliwili-Linux-${{ needs.version.outputs.version }}-${{ matrix.arch }}-${{ matrix.driver }}
           path: ${{ steps.dep.outputs.FLATPAK_NAME }}
@@ -491,7 +491,7 @@ jobs:
         driver: [ gxm, gles2 ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
           fetch-depth: 0
@@ -506,19 +506,19 @@ jobs:
              mv build/wiliwili.self build/eboot.bin"
 
       - name: Upload vpk
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wiliwili-PSVita-${{ needs.version.outputs.VERSION }}-${{ matrix.driver }}
           path: build/wiliwili.vpk
 
       - name: Upload eboot
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: psv_dev_eboot_${{ matrix.driver }}.bin
           path: build/eboot.bin
 
       - name: Upload elf
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: psv_dev_elf_${{ matrix.driver }}
           path: build/wiliwili
