@@ -88,7 +88,7 @@ jobs:
     needs: [ build-win, build-switch, build-macos, build-flatpak, version ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
 
       - name: Package exe
         if: github.event.inputs.release == 'true' && !cancelled()
