@@ -144,7 +144,10 @@ void PlayerSeasonActivity::onContentAvailable() {
 
     this->videoUserInfo->registerClickAction([this](...) {
         if (!DialogHelper::checkLogin()) return true;
-        this->followSeason(this->seasonInfo.season_id, !this->seasonStatus.follow);
+        // Navigate to UP主 profile page
+        if (this->seasonInfo.up_info.mid > 0) {
+            Intent::openUserSpace(this->seasonInfo.up_info.mid);
+        }
         return true;
     });
 

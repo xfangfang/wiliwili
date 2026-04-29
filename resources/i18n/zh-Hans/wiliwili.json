@@ -482,6 +482,16 @@
       "delete": "删除评论后，评论下所有回复都会被删除\n是否继续?"
     }
   },
+  "user_space": {
+    "following_label": "关注",
+    "follower_label": "粉丝",
+    "follow": "关注",
+    "following": "已关注",
+    "no_sign": "这个人很懒，什么都没有写",
+    "uploads": "投稿",
+    "dynamics": "动态",
+    "coming_soon": "即将上线"
+  },
   "dialog": {
     "not_supported": "不支持此功能",
     "quit_hint": "正在退出应用..."

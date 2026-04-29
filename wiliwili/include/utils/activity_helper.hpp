@@ -46,6 +46,9 @@ public:
 
     // 开启动态
     static void openActivity(const std::string& id);
+
+    // 开启UP主主页
+    static void openUserSpace(uint64_t mid);
 };
 
 #if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)

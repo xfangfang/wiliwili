@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<brls:AppletFrame
+        id="user_space/applet_frame"
+        axis="column"
+        width="auto"
+        height="auto">
+
+    <brls:Box
+            id="user_space/header"
+            axis="row"
+            height="80"
+            width="auto"
+            marginTop="20"
+            marginBottom="20"
+            paddingLeft="40"
+            paddingRight="40"
+            alignItems="center">
+
+        <!-- Avatar -->
+        <brls:Image
+                id="user_space/avatar"
+                width="60"
+                height="60"
+                marginRight="20"
+                scalingType="fit"/>
+
+        <!-- User Info Column -->
+        <brls:Box
+                axis="column"
+                width="auto"
+                height="auto"
+                grow="1">
+
+            <!-- Top row: name and signature -->
+            <brls:Box
+                    axis="row"
+                    width="auto"
+                    height="auto"
+                    alignItems="center"
+                    marginBottom="6">
+                <brls:Label
+                        id="user_space/name"
+                        fontSize="20"
+                        marginRight="20"
+                        text="Loading..."/>
+                <brls:Label
+                        id="user_space/sign"
+                        fontSize="14"
+                        textColor="@theme/brls/text_disabled"
+                        text=""/>
+            </brls:Box>
+
+            <!-- Bottom row: stats -->
+            <brls:Box
+                    axis="row"
+                    width="auto"
+                    height="auto"
+                    alignItems="center">
+                <brls:Label
+                        text="@i18n/wiliwili/user_space/following_label"
+                        fontSize="14"
+                        marginRight="6"
+                        textColor="@theme/brls/text_disabled"/>
+                <brls:Label
+                        id="user_space/following"
+                        fontSize="14"
+                        marginRight="20"
+                        text="0"/>
+                <brls:Label
+                        text="@i18n/wiliwili/user_space/follower_label"
+                        fontSize="14"
+                        marginRight="6"
+                        textColor="@theme/brls/text_disabled"/>
+                <brls:Label
+                        id="user_space/follower"
+                        fontSize="14"
+                        text="0"/>
+            </brls:Box>
+        </brls:Box>
+
+        <!-- Follow Button -->
+        <brls:Box
+                id="user_space/follow_box"
+                axis="row"
+                height="36"
+                paddingLeft="16"
+                paddingRight="16"
+                cornerRadius="18"
+                alignItems="center"
+                justifyContent="center"
+                focusable="true">
+            <SVGImage
+                    id="user_space/follow_icon"
+                    width="20"
+                    height="20"
+                    marginRight="6"/>
+            <brls:Label
+                    id="user_space/follow_label"
+                    fontSize="14"
+                    text="@i18n/wiliwili/user_space/follow"/>
+        </brls:Box>
+    </brls:Box>
+
+    <!-- Tabs for uploads and dynamics -->
+    <AutoTabFrame
+            id="user_space/tab_frame"
+            width="auto"
+            height="auto"
+            grow="1">
+
+        <!-- Uploads Tab -->
+        <brls:Box
+                title="@i18n/wiliwili/user_space/uploads"
+                axis="column"
+                width="auto"
+                height="auto"
+                grow="1">
+            <RecyclingGrid
+                    id="user_space/recycling_grid"
+                    width="auto"
+                    height="auto"
+                    grow="1"
+                    spanCount="4"
+                    paddingLeft="40"
+                    paddingRight="40"/>
+        </brls:Box>
+
+        <!-- Dynamics Tab (placeholder for now) -->
+        <brls:Box
+                title="@i18n/wiliwili/user_space/dynamics"
+                axis="column"
+                width="auto"
+                height="auto"
+                grow="1"
+                alignItems="center"
+                justifyContent="center">
+            <brls:Label
+                    text="@i18n/wiliwili/user_space/coming_soon"
+                    fontSize="20"
+                    textColor="@theme/brls/text_disabled"/>
+        </brls:Box>
+    </AutoTabFrame>
+
+</brls:AppletFrame>
