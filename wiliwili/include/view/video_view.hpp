@@ -302,6 +302,9 @@ private:
     unsigned int bangumiSeasonId = 0;
     MPVEvent::Subscription eventSubscribeID;
     CustomEvent::Subscription customEventSubscribeID;
+    // 监听鼠标移动事件：用于在全屏且OSD隐藏时，移动鼠标自动唤醒OSD
+    brls::Event<brls::Point>::Subscription mouseCursorOffsetSubscribeID;
+    bool mouseCursorOffsetSubscribed = false;
     std::function<void()> customToggleAction = nullptr;
     brls::ActionListener seasonAction = nullptr;
     brls::InputManager* input;
