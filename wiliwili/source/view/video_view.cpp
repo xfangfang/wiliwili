@@ -1460,7 +1460,7 @@ void VideoView::buttonProcessing() {
     // 获取按键数据
     auto state           = brls::Application::getControllerState();
     auto speedUpShortcut = ShortcutHelper::getVideoSpeedUp();
-    bool shortcutPressed = input->getKeyboardKeyState(speedUpShortcut.code);
+    bool shortcutPressed = input && input->getKeyboardKeyState(speedUpShortcut.code);
     if (shortcutPressed) {
         const bool ctrlPressed = input->getKeyboardKeyState(brls::BRLS_KBD_KEY_LEFT_CONTROL) ||
                                  input->getKeyboardKeyState(brls::BRLS_KBD_KEY_RIGHT_CONTROL);
@@ -1771,4 +1771,3 @@ void VideoView::registerCommonActions(brls::Activity* activity) {
         return true;
     });
 }
-

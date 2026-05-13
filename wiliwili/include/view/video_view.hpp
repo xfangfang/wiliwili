@@ -307,7 +307,7 @@ private:
     bool mouseCursorOffsetSubscribed = false;
     std::function<void()> customToggleAction = nullptr;
     brls::ActionListener seasonAction = nullptr;
-    brls::InputManager* input;
+    brls::InputManager* input = nullptr;
     NVGcolor bottomBarColor = brls::Application::getTheme().getColor("color/bilibili");
 
     ///OSD
