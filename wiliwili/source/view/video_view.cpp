@@ -66,6 +66,16 @@ VideoView::VideoView() {
     setTvControlMode(ProgramConfig::instance().getBoolOption(SettingItem::PLAYER_OSD_TV_MODE));
 
     input = brls::Application::getPlatform()->getInputManager();
+    if (input) {
+        mouseCursorOffsetSubscribeID = input->getMouseCusorOffsetChanged()->subscribe([this](brls::Point offset) {
+            if (!this->isFullscreen()) return;
+            if (this->isOSDShown()) return;
+            if (offset.x == 0 && offset.y == 0) return;
+            // 鼠标隐藏时产生位移，自动唤醒 OSD 与鼠标
+            this->showOSD(true);
+        });
+        mouseCursorOffsetSubscribed = true;
+    }
 
     this->registerBoolXMLAttribute("allowFullscreen", [this](bool value) {
         this->allowFullscreen = value;
@@ -620,6 +630,10 @@ VideoView::~VideoView() {
     brls::Logger::debug("trying delete VideoView...");
     this->unRegisterMpvEvent();
     APP_E->unsubscribe(customEventSubscribeID);
+    if (input && mouseCursorOffsetSubscribed) {
+        input->getMouseCusorOffsetChanged()->unsubscribe(mouseCursorOffsetSubscribeID);
+        mouseCursorOffsetSubscribed = false;
+    }
     brls::Logger::debug("Delete VideoView done");
 }
 
@@ -916,6 +930,17 @@ bool VideoView::isOSDShown() const { return this->is_osd_shown; }
 bool VideoView::isOSDLock() const { return this->is_osd_lock; }
 
 void VideoView::onOSDStateChanged(bool state) {
+    auto* inputManager = brls::Application::getPlatform()->getInputManager();
+    if (inputManager) {
+        if (this->isFullscreen()) {
+            // 全屏下: OSD(进度条)显示时显示鼠标, OSD隐藏时隐藏鼠标
+            inputManager->setPointerLock(!state);
+        } else {
+            // 退出全屏后恢复默认输入策略
+            inputManager->setPointerLock(brls::Application::getInputType() == brls::InputType::GAMEPAD);
+        }
+    }
+
     // 当焦点位于video组件内部重新赋予焦点，用来隐藏屏幕上的高亮框
     if (!state && isChildFocused()) {
         brls::Application::giveFocus(this);
@@ -1435,7 +1460,7 @@ void VideoView::buttonProcessing() {
     // 获取按键数据
     auto state           = brls::Application::getControllerState();
     auto speedUpShortcut = ShortcutHelper::getVideoSpeedUp();
-    bool shortcutPressed = input->getKeyboardKeyState(speedUpShortcut.code);
+    bool shortcutPressed = input && input->getKeyboardKeyState(speedUpShortcut.code);
     if (shortcutPressed) {
         const bool ctrlPressed = input->getKeyboardKeyState(brls::BRLS_KBD_KEY_LEFT_CONTROL) ||
                                  input->getKeyboardKeyState(brls::BRLS_KBD_KEY_RIGHT_CONTROL);
@@ -1746,4 +1771,3 @@ void VideoView::registerCommonActions(brls::Activity* activity) {
         return true;
     });
 }
-
