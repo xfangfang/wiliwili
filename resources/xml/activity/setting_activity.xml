@@ -280,6 +280,9 @@
                             <brls:InputCell
                                     id="setting/network/input"/>
 
+                            <SelectorCell
+                                    id="setting/network/cdn"/>
+
                         </brls:Box>
                     </brls:Box>
                 </brls:ScrollingFrame>

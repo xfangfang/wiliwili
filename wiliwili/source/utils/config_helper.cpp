@@ -299,6 +299,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::HTTP_TIMEOUT, {"http_timeout", {}, {}, 0}},
     {SettingItem::HTTP_CONNECTION_TIMEOUT, {"http_connection_timeout", {}, {}, 0}},
     {SettingItem::HTTP_DNS_CACHE_TIMEOUT, {"http_dns_cache_timeout", {}, {}, 0}},
+    {SettingItem::CDN_OPTIMIZE, {"cdn_optimize", {"off", "mirror_only", "full"}, {0, 1, 2}, 0}},
     {SettingItem::LIVE_SIDEBAR_DANMAKU_COUNT,
      {"live_sidebar_danmaku_count", {"0", "10", "25", "50", "100"}, {0, 10, 25, 50, 100}, 0}},
 

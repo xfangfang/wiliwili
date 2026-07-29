@@ -15,6 +15,7 @@
 
 #include "utils/shader_helper.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/cdn_helper.hpp"
 #include "utils/dialog_helper.hpp"
 
 #include "view/video_view.hpp"
@@ -370,13 +371,20 @@ void LiveActivity::onLiveData(const bilibili::LiveRoomPlayInfo &result)
             });
     }
 
-    // todo: 允许使用备用链接
+    std::vector<std::string> liveUrls;
+    liveUrls.reserve(liveUrl.url_info.size());
     for (const auto& i : liveUrl.url_info) {
-        auto url = i.host + liveUrl.base_url + i.extra;
+        liveUrls.emplace_back(i.host + liveUrl.base_url + i.extra);
+    }
+    liveUrls = CDNHelper::rankLive(liveUrls);
 
-        // 设置视频链接
-        brls::Logger::debug("Live stream url: {}", url);
-        this->video->setUrl(url);
+    if (!liveUrls.empty()) {
+        brls::Logger::debug("Live stream url: {}", liveUrls[0]);
+        this->video->setUrl(liveUrls[0]);
+        for (size_t i = 1; i < liveUrls.size(); i++) {
+            brls::Logger::debug("Live stream backup url: {}", liveUrls[i]);
+            this->video->setBackupUrl(liveUrls[i]);
+        }
         return;
     }
 
