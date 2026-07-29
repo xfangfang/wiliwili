@@ -102,6 +102,7 @@ enum class SettingItem {
     HTTP_TIMEOUT,
     HTTP_CONNECTION_TIMEOUT,
     HTTP_DNS_CACHE_TIMEOUT,
+    CDN_OPTIMIZE, // CDN 优化: 0 关闭, 1 仅官方CDN, 2 完整策略
     UP_FILTER,
     LIVE_DANMAKU_FILTER_LEVEL,
     LIVE_SIDEBAR_DANMAKU_COUNT, // 直播间侧边栏弹幕数量上限

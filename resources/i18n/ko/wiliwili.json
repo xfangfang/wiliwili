@@ -41,7 +41,10 @@
         "header": "네트워크",
         "tls": "TLS 검증",
         "proxy": "프록시",
-        "proxy_hint": "예: http://127.0.0.1:7890"
+        "proxy_hint": "예: http://127.0.0.1:7890",
+        "cdn": "CDN 최적화",
+        "cdn_mirror": "공식 CDN만 사용",
+        "cdn_full": "전체 (P2P 링크 재작성)"
       },
       "ui": {
         "header": "사용자 인터페이스",

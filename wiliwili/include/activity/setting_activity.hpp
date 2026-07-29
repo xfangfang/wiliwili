@@ -44,6 +44,7 @@ private:
     BRLS_BIND(brls::BooleanCell, btnTls, "setting/network/tls");
     BRLS_BIND(brls::BooleanCell, btnProxy, "setting/network/proxy");
     BRLS_BIND(brls::InputCell, btnProxyInput, "setting/network/input");
+    BRLS_BIND(BiliSelectorCell, selectorCDN, "setting/network/cdn");
     BRLS_BIND(BiliSelectorCell, selectorLang, "setting/language");
     BRLS_BIND(BiliSelectorCell, selectorTheme, "setting/ui/theme");
     BRLS_BIND(BiliSelectorCell, selectorCustomTheme, "setting/custom/theme");
