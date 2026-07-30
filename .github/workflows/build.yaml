@@ -357,9 +357,9 @@ jobs:
       - name: install deps
         if: matrix.arch != 'Universal' || ( matrix.arch == 'Universal' && github.event.inputs.universal_macos == 'true')
         run: |
-          brew install create-dmg dylibbundler
+          brew trust xfangfang/wiliwili
           brew tap xfangfang/wiliwili
-          brew install -v mpv-wiliwili
+          brew install -v mpv-wiliwili create-dmg dylibbundler
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
