@@ -81,9 +81,6 @@ LiveActivity::LiveActivity(int roomid, const std::string& name, const std::strin
 }
 
 void LiveActivity::setCommonData() {
-    // 重置播放器
-    MPVCore::instance().reset();
-
     // 清空自定义着色器
     ShaderHelper::instance().clearShader(false);
 
@@ -152,14 +149,9 @@ void LiveActivity::setVideoQuality() {
 
 void LiveActivity::onContentAvailable()
 {   
-    // 设置全屏按钮图标
-    // 首先查找并绑定video组件，这在两种布局中都存在
-    this->video = (VideoView*)this->getView("video");
-    if (!this->video) {
-        brls::Logger::error("LiveActivity: 找不到video视图");
-        return;
-    }
-    
+    // 重置播放器
+    MPVCore::instance().reset();
+
     this->video->setFullscreenIcon(this->video->isFullscreen());
 
     this->video->registerCommonActions(this);
