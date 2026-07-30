@@ -99,10 +99,11 @@ public:
     ~LiveActivity() override;
 
 private:
+    BRLS_BIND(VideoView, video, "video");
+
     // 关注/取关主播
     void follow_anchor(bool follow);
 
-    VideoView* video = nullptr;
     UserInfoView* liveAuthor = nullptr;
     brls::Box* liveDanmakuContainer = nullptr;
     brls::ScrollingFrame* liveDanmakuList = nullptr;
@@ -130,7 +131,7 @@ private:
     std::map<std::string, LiveDanmakuItemView*> pinnedSuperChatViews;
     
     // 侧边栏弹幕最大数量
-    int maxSidebarDanmakuCount = 100;
+    size_t maxSidebarDanmakuCount = 100;
 
     // 主播关注状态
     bool anchor_following = false;
