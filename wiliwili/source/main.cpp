@@ -45,6 +45,10 @@ int main(int argc, char* argv[]) {
     // Return directly to the desktop when closing the application (only for NX)
     brls::Application::getPlatform()->exitToHomeMode(true);
 
+    // Set the application ID so desktop environments can match the window to its
+    // .desktop entry (fixes missing taskbar icon on Wayland/X11)
+    brls::Application::setAppId("cn.xfangfang.wiliwili");
+
     brls::Application::createWindow("wiliwili");
     brls::Logger::info("createWindow done");
 
