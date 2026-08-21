@@ -185,6 +185,12 @@ endif ()
 
 # source cpp
 file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
+if (APPLE AND PLATFORM_DESKTOP)
+    enable_language(OBJC OBJCXX)
+    list(APPEND MAIN_SRC wiliwili/source/utils/macos_helper.mm)
+    find_library(APPKIT_FRAMEWORK AppKit)
+    list(APPEND APP_PLATFORM_LIB ${APPKIT_FRAMEWORK})
+endif ()
 if (WIN32)
     configure_file("${CMAKE_SOURCE_DIR}/wiliwili/app_win32.rc.in" "${CMAKE_BINARY_DIR}/app_win32.rc")
     list(APPEND MAIN_SRC ${CMAKE_BINARY_DIR}/app_win32.rc)
