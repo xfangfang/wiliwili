@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include <borealis/core/bind.hpp>
 #include <borealis/core/box.hpp>
 #include <borealis/core/application.hpp>
@@ -277,6 +279,11 @@ public:
 private:
     bool allowFullscreen  = true;
     bool registerMPVEvent = false;
+    /// 生命周期令牌，析构时置为 false。
+    /// 订阅以 std::list 迭代器管理，一旦重复订阅就会覆盖 eventSubscribeID，
+    /// 旧订阅将永久残留在事件链表中并持有悬空的 this。回调开头检查此令牌，
+    /// 可让任何残留订阅自动变为空操作，避免 UAF。
+    std::shared_ptr<bool> aliveToken = std::make_shared<bool>(true);
     bool enableDanmaku    = true;
     // 和前面的 EXIT_FULLSCREEN_ON_END 共同控制，closeOnEndOfFile用来控制单个VideoView行为
     bool closeOnEndOfFile = true;

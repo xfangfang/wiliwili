@@ -618,6 +618,8 @@ void VideoView::requestSeeking(int seek, int delay) {
 
 VideoView::~VideoView() {
     brls::Logger::debug("trying delete VideoView...");
+    // 先置死令牌，再摘订阅：即使有订阅残留，回调也不会再碰已释放的对象
+    *this->aliveToken = false;
     this->unRegisterMpvEvent();
     APP_E->unsubscribe(customEventSubscribeID);
     brls::Logger::debug("Delete VideoView done");
@@ -1542,9 +1544,16 @@ void VideoView::buttonProcessing() {
 
 void VideoView::registerMpvEvent() {
     if (registerMPVEvent) {
+        // 必须直接返回：若继续 subscribe，新的迭代器会覆盖 eventSubscribeID，
+        // 旧订阅将永久残留在 MPVCore 的事件链表中（unRegisterMpvEvent 只能摘掉最后一个）。
+        // VideoView 析构后残留的 lambda 仍会被事件 fire，其捕获的 this 已悬空 -> UAF 崩溃。
         brls::Logger::error("VideoView already register MPV Event");
+        return;
     }
-    eventSubscribeID = mpvCore->getEvent()->subscribe([this](MpvEventEnum event) {
+    // 按值捕获生命周期令牌，回调执行前检查对象是否仍然存活
+    auto alive = this->aliveToken;
+    eventSubscribeID = mpvCore->getEvent()->subscribe([this, alive](MpvEventEnum event) {
+        if (!*alive) return;
         // brls::Logger::info("mpv event => : {}", event);
         switch (event) {
             case MpvEventEnum::MPV_IDLE:
