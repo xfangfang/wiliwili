@@ -39,6 +39,7 @@ jobs:
       DIST_UWP: ${{ steps.info.outputs.DIST_UWP }}
       DIST_NRO: ${{ steps.info.outputs.DIST_NRO }}
       DIST_PS4: ${{ steps.info.outputs.DIST_PS4 }}
+      DIST_PS5: ${{ steps.info.outputs.DIST_PS5 }}
       DIST_DMG_PREFIX: ${{ steps.info.outputs.DIST_DMG_PREFIX }}
       DIST_INTEL_DMG: ${{ steps.info.outputs.DIST_INTEL_DMG }}
       DIST_INTEL_OLD_DMG: ${{ steps.info.outputs.DIST_INTEL_OLD_DMG }}
@@ -72,6 +73,7 @@ jobs:
           echo "DIST_UWP=wiliwili-windows-x64-uwp-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_NRO=wiliwili-NintendoSwitch-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_PS4=wiliwili-PS4-${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_PS5=wiliwili-PS5-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_DMG_PREFIX=wiliwili-macOS" >> $GITHUB_OUTPUT
           echo "DIST_INTEL_DMG=wiliwili-macOS-IntelChip-${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_INTEL_OLD_DMG=wiliwili-macOS-IntelChip_10.11-${VERSION}" >> $GITHUB_OUTPUT
@@ -334,6 +336,41 @@ jobs:
         with:
           name: ps4_dev_oelf
           path: "cmake-build-ps4/*.oelf"
+
+  build-ps5:
+    needs: [ version ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 lld-18 llvm-18 meson ninja-build pkg-config
+          echo "LLVM_CONFIG=/usr/lib/llvm-18/bin/llvm-config" >> $GITHUB_ENV
+
+      # ps5-payload-dev ships a cross compilation sysroot with SDL2, ffmpeg,
+      # mesa, libass, curl and the prospero LLVM toolchain wrappers
+      - name: Install SDK
+        run: |
+          scripts/ps5/install_sdk.sh "$HOME/ps5-payload-sdk"
+          echo "PS5_PAYLOAD_SDK=$HOME/ps5-payload-sdk" >> $GITHUB_ENV
+
+      - name: Build
+        env:
+          BRLS_UNITY_BUILD: ${{ github.event.inputs.disable_unity_build == 'true' && 'OFF' || 'ON' }}
+        run: |
+          scripts/build_ps5.sh
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ needs.version.outputs.DIST_PS5 }}
+          path: "cmake-build-ps5/ps5"
 
   build-macos:
     needs: [ version ]

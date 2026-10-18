@@ -122,7 +122,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::APP_LANG,
      {"app_lang",
       {
-#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4) || defined(PS5)
           brls::LOCALE_AUTO,
 #endif
           brls::LOCALE_EN_US,
@@ -134,7 +134,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
           brls::LOCALE_IT,
       },
       {},
-#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4) || defined(PS5)
       0}},
 #else
       4}},
@@ -216,7 +216,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
      {"tls_verify",
       {},
       {},
-#if defined(__PSV__) || defined(__SWITCH__) || defined(PS4)
+#if defined(__PSV__) || defined(__SWITCH__) || defined(PS4) || defined(PS5)
       0}},
 #else
       1}},
@@ -687,7 +687,7 @@ void ProgramConfig::load() {
     if (langData != brls::LOCALE_AUTO && i18nData.count(langData)) {
         brls::Platform::APP_LOCALE_DEFAULT = langData;
     } else {
-#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4)
+#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4) && !defined(PS5)
         brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_ZH_HANS;
 #endif
     }
@@ -1075,7 +1075,7 @@ void ProgramConfig::init() {
 
     if (access(brls::FontLoader::USER_ICON_PATH.c_str(), F_OK) == -1) {
         // 自定义字体不存在，使用内置字体
-#if defined(__PSV__) || defined(PS4)
+#if defined(__PSV__) || defined(PS4) || defined(PS5)
         brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
 #else
         std::string icon = getSettingItem(SettingItem::KEYMAP, std::string{"xbox"});
@@ -1131,7 +1131,7 @@ std::string ProgramConfig::getHomePath() {
 std::string ProgramConfig::getConfigDir() {
 #ifdef __SWITCH__
     return "/config/wiliwili";
-#elif defined(PS4)
+#elif (defined(PS4) || defined(PS5))
     return "/data/wiliwili";
 #elif defined(__PSV__)
     return "ux0:/data/wiliwili";

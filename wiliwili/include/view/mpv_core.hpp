@@ -370,6 +370,10 @@ public:
     inline static std::string PLAYER_HWDEC_METHOD = "vita-copy";
 #elif defined(PS4)
     inline static std::string PLAYER_HWDEC_METHOD = "no";
+#elif defined(PS5)
+    // The PS5 uses mesa (OpenGL on top of Vulkan), hardware decoding is
+    // not available, so videos are always decoded by the CPU.
+    inline static std::string PLAYER_HWDEC_METHOD = "no";
 #else
     inline static std::string PLAYER_HWDEC_METHOD = "auto-safe";
 #endif

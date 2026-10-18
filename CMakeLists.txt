@@ -183,6 +183,12 @@ else ()
     set(BRLS_RESOURCES_DIR ".")
 endif ()
 
+# PS5 (Prospero) is running the app from a homebrew directory instead of a package,
+# so its resources are loaded from the directory it is deployed to.
+if (PLATFORM_PS5)
+    set(BRLS_PLATFORM_RESOURCES_PATH "\"/data/homebrew/wiliwili/resources/\"")
+endif ()
+
 # source cpp
 file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
 if (WIN32)
@@ -300,6 +306,21 @@ elseif (PLATFORM_PS4)
             COMMAND "${CMAKE_COMMAND}" -E rename ${CMAKE_BINARY_DIR}/ps4/resources/i18n/ja-RYU ${CMAKE_BINARY_DIR}/ps4/resources/i18n/RYU
     )
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
+elseif (PLATFORM_PS5)
+    # PS5 homebrew payload: a directory holding the executable and its resources
+    # which can be uploaded to the console with scripts/ps5/deploy.sh
+    set(PS5_APP_DIR ${CMAKE_BINARY_DIR}/ps5)
+    add_custom_target(${PROJECT_NAME}.data
+            COMMAND "${CMAKE_COMMAND}" -E make_directory ${PS5_APP_DIR}
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${PS5_APP_DIR}/resources
+            COMMAND "${CMAKE_COMMAND}" -E copy ${CMAKE_SOURCE_DIR}/scripts/ps5/homebrew.js ${PS5_APP_DIR}/homebrew.js
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_SOURCE_DIR}/scripts/ps5/sce_sys ${PS5_APP_DIR}/sce_sys
+    )
+    add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
+    # payloads are started by their file name, so add a copy with the .elf suffix
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_FILE:${PROJECT_NAME}> ${PS5_APP_DIR}/wiliwili.elf
+            COMMENT "Copying wiliwili.elf to ${PS5_APP_DIR}")
 elseif (PLATFORM_SWITCH)
     set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)
     if (GIT_TAG_VERSION)

@@ -144,6 +144,20 @@ const std::string_view OPENSOURCE =
     "Copyright OpenOrbis Authors.\n\n"
     "Licensed under GPL-3.0\n"
 #endif
+#ifdef PS5
+    "--------------------------------\n"
+    "pacbrew\n"
+    "--------------------------------\n"
+    "https://github.com/PacBrew/pacbrew-packages\n\n"
+    "Copyright PacBrew Authors.\n\n"
+    "Public domain\n\n\n"
+    "--------------------------------\n"
+    "ps5-payload-sdk\n"
+    "--------------------------------\n"
+    "https://github.com/ps5-payload-dev/sdk\n\n"
+    "Copyright ps5-payload-dev Authors.\n\n"
+    "Licensed under GPL-3.0\n"
+#endif
     "\n";
 
 SettingActivity::SettingActivity() {
@@ -190,7 +204,7 @@ void SettingActivity::onContentAvailable() {
         return true;
     });
 
-#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4) || defined(PS5)
     btnOpenConfig->title->setText("wiliwili/setting/tools/others/config_dir"_i18n);
 #endif
 #ifdef __linux__
@@ -201,7 +215,7 @@ void SettingActivity::onContentAvailable() {
     btnOpenConfig->registerClickAction([](...) -> bool {
         auto configPath = ProgramConfig::instance().getConfigDir();
         brls::Application::notify("wiliwili/setting/tools/others/config_dir"_i18n + ": " + configPath);
-#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4)
+#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4) && !defined(PS5)
 #ifdef __linux__
         if (!brls::isSteamDeck())
 #endif
@@ -497,7 +511,7 @@ void SettingActivity::onContentAvailable() {
                           });
 
     /// App Keymap
-#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4)
+#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4) && !defined(PS5)
     static int keyIndex = conf.getStringOptionIndex(SettingItem::KEYMAP);
     selectorKeymap->init("wiliwili/setting/app/others/keymap/header"_i18n,
                          {
@@ -528,7 +542,7 @@ void SettingActivity::onContentAvailable() {
     static int langIndex = conf.getStringOptionIndex(SettingItem::APP_LANG);
     selectorLang->init("wiliwili/setting/app/others/language/header"_i18n,
                        {
-#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4) || defined(PS5)
                            "wiliwili/setting/app/others/language/auto"_i18n,
 #endif
                            "wiliwili/setting/app/others/language/english"_i18n,
@@ -679,7 +693,7 @@ void SettingActivity::onContentAvailable() {
         "wiliwili/setting/app/network/proxy_hint"_i18n, "wiliwili/setting/app/network/proxy_hint"_i18n, 64);
 
 /// Hardware decode
-#if defined(PS4) || defined(__PSV__) && defined(BOREALIS_USE_OPENGL)
+#if defined(PS4) || defined(PS5) || defined(__PSV__) && defined(BOREALIS_USE_OPENGL)
     btnHWDEC->setVisibility(brls::Visibility::GONE);
 #else
     btnHWDEC->init("wiliwili/setting/app/playback/hwdec"_i18n, conf.getBoolOption(SettingItem::PLAYER_HWDEC),

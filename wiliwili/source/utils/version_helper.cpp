@@ -39,6 +39,8 @@ std::string APPVersion::getPlatform() {
     return "macOS";
 #elif defined(PS4)
     return "PS4";
+#elif defined(PS5)
+    return "PS5";
 #elif defined(__linux__)
     if (brls::isSteamDeck()) return "SteamDeck";
     return "Linux";

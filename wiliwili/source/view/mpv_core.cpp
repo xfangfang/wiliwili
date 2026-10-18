@@ -369,6 +369,8 @@ void MPVCore::init() {
     mpvSetOptionString(mpv, "opengl-glfinish", "yes");
 #elif defined(PS4)
     mpvSetOptionString(mpv, "vd-lavc-threads", "6");
+#elif defined(PS5)
+    mpvSetOptionString(mpv, "vd-lavc-threads", "6");
 #elif defined(__PSV__)
     mpvSetOptionString(mpv, "vd-lavc-threads", "4");
     mpvSetOptionString(mpv, "fbo-format", "rgba8");

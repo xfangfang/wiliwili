@@ -1,0 +1,81 @@
+diff --git a/audio/decode/ad_spdif.c b/audio/decode/ad_spdif.c
+index decd972..e578434 100644
+--- a/audio/decode/ad_spdif.c
++++ b/audio/decode/ad_spdif.c
+@@ -53,7 +53,11 @@ struct spdifContext {
+     struct mp_decoder public;
+ };
+ 
++#if LIBAVCODEC_VERSION_MAJOR < 61
+ static int write_packet(void *p, uint8_t *buf, int buf_size)
++#else
++static int write_packet(void *p, const uint8_t *buf, int buf_size)
++#endif
+ {
+     struct spdifContext *ctx = p;
+ 
+diff --git a/filters/f_lavfi.c b/filters/f_lavfi.c
+index 597cf91..8bd9648 100644
+--- a/filters/f_lavfi.c
++++ b/filters/f_lavfi.c
+@@ -1024,7 +1024,11 @@ static const char *get_avopt_type_name(enum AVOptionType type)
+     case AV_OPT_TYPE_VIDEO_RATE:        return "fps";
+     case AV_OPT_TYPE_DURATION:          return "duration";
+     case AV_OPT_TYPE_COLOR:             return "color";
++#if LIBAVUTIL_VERSION_MAJOR < 59
+     case AV_OPT_TYPE_CHANNEL_LAYOUT:    return "channellayout";
++#else
++    case AV_OPT_TYPE_CHLAYOUT:          return "ch_layout";
++#endif
+     case AV_OPT_TYPE_BOOL:              return "bool";
+     case AV_OPT_TYPE_CONST: // fallthrough
+     default:
+diff --git a/filters/f_swresample.c b/filters/f_swresample.c
+index fb1ef05..4dfefdc 100644
+--- a/filters/f_swresample.c
++++ b/filters/f_swresample.c
+@@ -23,6 +23,7 @@
+ #include <libswresample/swresample.h>
+ 
+ #include "audio/aframe.h"
++#include "audio/chmap_avchannel.h"
+ #include "audio/fmt-conversion.h"
+ #include "audio/format.h"
+ #include "common/common.h"
+@@ -270,14 +271,28 @@ static bool configure_lavrr(struct priv *p, bool verbose)
+     out_ch_layout = fudge_layout_conversion(p, in_ch_layout, out_ch_layout);
+ 
+     // Real conversion; output is input to avrctx_out.
++#if HAVE_AV_CHANNEL_LAYOUT
++    AVChannelLayout in_layout, out_layout;
++    mp_chmap_to_av_layout(&in_layout, &in_lavc);
++    mp_chmap_to_av_layout(&out_layout, &out_lavc);
++    av_opt_set_chlayout(p->avrctx, "in_chlayout",  &in_layout, 0);
++    av_opt_set_chlayout(p->avrctx, "out_chlayout", &out_layout, 0);
++#else
+     av_opt_set_int(p->avrctx, "in_channel_layout",  in_ch_layout, 0);
+     av_opt_set_int(p->avrctx, "out_channel_layout", out_ch_layout, 0);
++#endif
+     av_opt_set_int(p->avrctx, "in_sample_rate",     p->in_rate, 0);
+     av_opt_set_int(p->avrctx, "out_sample_rate",    p->out_rate, 0);
+     av_opt_set_int(p->avrctx, "in_sample_fmt",      in_samplefmt, 0);
+     av_opt_set_int(p->avrctx, "out_sample_fmt",     out_samplefmtp, 0);
+ 
+     // Just needs the correct number of channels for deplanarization.
++#if HAVE_AV_CHANNEL_LAYOUT
++    AVChannelLayout fake_layout;
++    av_channel_layout_default(&fake_layout, map_out.num);
++    av_opt_set_chlayout(p->avrctx_out, "in_chlayout",  &fake_layout, 0);
++    av_opt_set_chlayout(p->avrctx_out, "out_chlayout", &fake_layout, 0);
++#else
+     struct mp_chmap fake_chmap;
+     mp_chmap_set_unknown(&fake_chmap, map_out.num);
+     uint64_t fake_out_ch_layout = mp_chmap_to_lavc_unchecked(&fake_chmap);
+@@ -285,6 +300,7 @@ static bool configure_lavrr(struct priv *p, bool verbose)
+         goto error;
+     av_opt_set_int(p->avrctx_out, "in_channel_layout",  fake_out_ch_layout, 0);
+     av_opt_set_int(p->avrctx_out, "out_channel_layout", fake_out_ch_layout, 0);
++#endif
+ 
+     av_opt_set_int(p->avrctx_out, "in_sample_fmt",      out_samplefmtp, 0);
+     av_opt_set_int(p->avrctx_out, "out_sample_fmt",     out_samplefmt, 0);
