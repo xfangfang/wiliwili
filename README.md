@@ -24,6 +24,7 @@
 ![NS](https://img.shields.io/badge/-Nintendo%20Switch-e4000f?style=flat&logo=Nintendo%20Switch)
 ![PSV](https://img.shields.io/badge/-PSVita-003791?style=flat&logo=PlayStation)
 ![PS4](https://img.shields.io/badge/-PS4-003791?style=flat&logo=PlayStation)
+![PS5](https://img.shields.io/badge/-PS5-003791?style=flat&logo=PlayStation)
 ![MS](https://img.shields.io/badge/-Windows%207+-357ec7?style=flat&logo=Windows)
 ![mac](https://img.shields.io/badge/-macOS%2010.11+-black?style=flat&logo=Apple)
 ![Linux](https://img.shields.io/badge/-Linux-lightgrey?style=flat&logo=Linux&logoColor=white)
@@ -85,6 +86,15 @@ hbmenu 自行选择路径。
 下载 `wiliwili-PS4.pkg` 安装即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 
 只支持软解，如果想播放 4k@60 需要在设置中开启低画质解码。
+
+### PS5
+
+在已破解的 PS5 上以 homebrew payload 的形式运行，启动前需要先加载 [websrv](https://github.com/ps5-payload-dev/websrv)（内含 ftpsrv 与 hbldr）。
+
+1. 将编译产物 `cmake-build-ps5/ps5` 目录中的全部内容上传到 `/data/homebrew/wiliwili/`
+2. 通过 Homebrew Launcher 或 websrv 的网页界面启动 `wiliwili.elf`
+
+只支持软解。
 
 ### PC
 
@@ -344,6 +354,29 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
 
 </details>
 
+### 交叉编译 PS5 可执行文件
+
+wiliwili 使用 [ps5-payload-dev](https://github.com/ps5-payload-dev/sdk) 提供的交叉编译环境（内含 SDL2、FFmpeg、Mesa 等依赖），
+只需要再编译一份 libmpv 即可，全部步骤都可以通过脚本自动完成：
+
+<details>
+
+```shell
+# 需要本机已安装 LLVM 18 (prospero-clang 会调用它)
+# macOS: brew install llvm@18
+export LLVM_CONFIG=$(brew --prefix llvm@18)/bin/llvm-config
+
+# 下载 ps5-payload-dev 交叉编译环境 (约 220MB) 到 ~/.local/opt/ps5-payload-sdk
+scripts/ps5/install_sdk.sh
+
+# 编译 libmpv + wiliwili，产物位于 cmake-build-ps5/ps5
+scripts/build_ps5.sh
+```
+
+</details>
+
+也可以手动指定 `PS5_PAYLOAD_SDK` 使用已有的环境，编译完成后通过 `scripts/ps5/deploy.sh` 上传到 PS5 并启动。
+
 ### GLFW or SDL
 
 wiliwili 使用 nanovg 绘制图形和文字，对于创建窗口、按键触摸、输入法等支持是通过 GLFW(默认) 或 SDL 完成的。
@@ -369,12 +402,13 @@ cmake --build build
 
 The development of wiliwili cannot do without the support of the following organization and open source projects.
 
-- Toolchain: devkitpro, switchbrew, vitasdk OpenOrbis and PacBrew
+- Toolchain: devkitpro, switchbrew, vitasdk OpenOrbis, PacBrew and ps5-payload-dev
     - https://github.com/devkitPro
     - https://github.com/switchbrew/libnx
     - https://github.com/vitasdk
     - https://github.com/OpenOrbis
     - https://github.com/PacBrew
+    - https://github.com/ps5-payload-dev/pacbrew-repo
 - UI Library: natinusala and XITRIX
     - https://github.com/natinusala/borealis
     - https://github.com/XITRIX/borealis

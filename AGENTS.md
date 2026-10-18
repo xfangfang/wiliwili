@@ -1,6 +1,6 @@
 # AGENTS.md — wiliwili Codebase Guide
 
-wiliwili is a cross-platform Bilibili client (Nintendo Switch, PSVita, PS4, PC) built in C++17. The UI is rendered via **nanovg**, windowing via **GLFW** or **SDL2**, and video playback via **mpv + FFmpeg**.
+wiliwili is a cross-platform Bilibili client (Nintendo Switch, PSVita, PS4, PS5, PC) built in C++17. The UI is rendered via **nanovg**, windowing via **GLFW** or **SDL2**, and video playback via **mpv + FFmpeg**.
 
 ---
 
@@ -161,14 +161,14 @@ Built-in keymap fonts in `resources/font/`: `keymap_xbox.ttf`, `keymap_ps.ttf`, 
 
 | Mode | Trigger | Notes                                                  |
 |---|---|--------------------------------------------------------|
-| Framebuffer (default) | `MPV_USE_FB` (auto) | GL 3.2+ / GLES 2.0+; best performance                  |
+| Framebuffer (default) | `MPV_USE_FB` (auto) | GL 3.2+ / GLES 2.0+; best performance; PS5            |
 | No framebuffer | `-DMPV_NO_FB=ON` | MPV draws fullscreen, UI is overlaid; PS4, PSV-GL, GL2 |
 | Software render | `-DMPV_SW_RENDER=ON` | CPU only; for UWP/D3D12 porting                        |
 | deko3d | `BOREALIS_USE_DEKO3D` | Switch native; 4K@60 with hardware decode              |
 | GXM | `BOREALIS_USE_GXM` | PSVita native                                          |
 | D3D11 | `BOREALIS_USE_D3D11` | Windows Native/UWP                                     |
 
-Default hardware decode: Switch/GXM → `"auto"`, PSV-GL → `"vita-copy"`, PS4 → `"no"`, Desktop → `"auto-safe"`.
+Default hardware decode: Switch/GXM → `"auto"`, PSV-GL → `"vita-copy"`, PS4 → `"no"`, PS5 → `"no"` (payloads have no hardware decode), Desktop → `"auto-safe"`.
 
 ### Video Quality Codes
 
@@ -190,6 +190,7 @@ Default hardware decode: Switch/GXM → `"auto"`, PSV-GL → `"vita-copy"`, PS4 
 |---|---|
 | Nintendo Switch | `/config/wiliwili/` |
 | PS4 | `/data/wiliwili/` |
+| PS5 | `/data/wiliwili/` |
 | PSVita | `ux0:/data/wiliwili/` |
 | macOS (release) | `~/Library/Application Support/wiliwili/` |
 | Linux (release) | `$XDG_CONFIG_HOME/wiliwili/` or `~/.config/wiliwili/` |
@@ -249,6 +250,19 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
      -DUSE_SYSTEM_CPR=ON && make -C cmake-build-ps4 -j$(nproc)"
 ```
 
+### PS5 (ps5-payload-dev, no Docker)
+```sh
+# requires LLVM 18: brew install llvm@18 (macOS) / apt install llvm-18 clang-18 lld-18
+export LLVM_CONFIG=$(brew --prefix llvm@18)/bin/llvm-config
+
+scripts/ps5/install_sdk.sh          # downloads the ~220MB ps5-payload-dev sysroot
+scripts/build_ps5.sh                # builds libmpv (once) + wiliwili
+# result: cmake-build-ps5/ps5/{wiliwili.elf,resources,homebrew.js,sce_sys}
+scripts/ps5/deploy.sh -h <ps5-ip>   # upload to /data/homebrew/wiliwili + launch via websrv
+```
+`PS5_PAYLOAD_SDK` points at an existing SDK to skip the download. wiliwili is a payload ELF
+(no `.pkg`), so it runs on a jailbroken console through ps5-payload-dev's `websrv`/`elfldr`.
+
 ### Useful CMake flags
 | Flag | Purpose |
 |---|---|
@@ -283,6 +297,7 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
 | `__SWITCH__` | Nintendo Switch |
 | `__PSV__` | PlayStation Vita |
 | `PS4` | PlayStation 4 |
+| `PS5` / `__PS5__` | PlayStation 5 (set by the prospero toolchain) |
 | `BOREALIS_USE_OPENGL` / `BOREALIS_USE_DEKO3D` / `BOREALIS_USE_D3D11` / `BOREALIS_USE_GXM` | Rendering backend |
 | `MPV_USE_FB` / `MPV_NO_FB` | Framebuffer mode (auto-derived from above) |
 | `USE_WEBP` | WebP image decoding enabled |
