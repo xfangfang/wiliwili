@@ -18,7 +18,7 @@
 #elif defined(BOREALIS_USE_DEKO3D)
 #include <mpv/render_dk3d.h>
 #elif defined(BOREALIS_USE_D3D11)
-#include <mpv/render_dxgi.h>
+#include <mpv/render_d3d11.h>
 #elif defined(BOREALIS_USE_GXM)
 #include <mpv/render_gxm.h>
 #include <nanovg_gxm_utils.h>
@@ -430,7 +430,9 @@ private:
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(BOREALIS_USE_D3D11)
-    mpv_render_param mpv_params[1] = {
+    mpv_d3d11_fbo mpv_fbo;
+    mpv_render_param mpv_params[2] = {
+        {MPV_RENDER_PARAM_D3D11_FBO, &mpv_fbo},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(BOREALIS_USE_GXM)

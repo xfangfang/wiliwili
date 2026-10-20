@@ -154,7 +154,9 @@ jobs:
           fetch-depth: 0
       - name: Install dependency
         run: |
-          curl -LO https://github.com/xfangfang/wiliwili/releases/download/v0.1.0/${MINGW_PACKAGE_PREFIX}-mpv-0.40.0-2-any.pkg.tar.zst
+          for pkg in curl-8.22.0-2 mpv-0.41.0-4 libwebp-1.6.0-1; do
+            curl -sLO https://github.com/dragonflylee/mpv-build/releases/download/mingw-package/${MINGW_PACKAGE_PREFIX}-${pkg}-any.pkg.tar.zst
+          done
           pacman -U --noconfirm *.pkg.tar.zst
 
           curl -sLO https://github.com/rainers/cv2pdb/releases/download/v0.54/cv2pdb-0.54.zip
