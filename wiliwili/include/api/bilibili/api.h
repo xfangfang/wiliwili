@@ -74,7 +74,7 @@ const std::string UGCSeasonSubscribe = _apiBase + "/x/v3/season/fav";
 const std::string UGCSeasonUnsubscribe = _apiBase + "/x/v3/season/unfav";
 /// 一键三连.
 const std::string Triple    = _appBase + "/x/v2/view/like/triple";
-const std::string TripleWeb = _apiBase + "x/web-interface/archive/like/triple";
+const std::string TripleWeb = _apiBase + "/x/web-interface/archive/like/triple";
 /// 关注 取关
 const std::string Follow = _apiBase + "/x/relation/modify";
 /// 查询单个用户关系（是否关注等）

@@ -45,6 +45,7 @@ typedef std::map<std::string, PGCIndexFilterWrapper> PGCIndexFilters;
 class SearchHotsResultWrapper;  // 搜索页 获取热搜榜
 class VideoOnlineTotal;         // 某个视频在线人数，30s刷新一次
 class VideoRelation;            // 某个视频点赞收藏情况
+class VideoTriple;             // 一键三连结果
 class VideoEpisodeRelation;     // 番剧的某一集的点赞收藏情况
 class VideoUrlResult;           // 视频播放地址
 class SeasonUrlResult;          // 番剧播放地址
@@ -576,8 +577,9 @@ public:
         const ErrorCallback& error                                             = nullptr);
 
     /// 三连
-    static void triple_like(const std::string& access_key, uint64_t aid, const std::function<void()>& callback = nullptr,
-                            const ErrorCallback& error = nullptr);
+    static void triple_like(const std::string& access_key, uint64_t aid,
+                            const std::function<void(const VideoTriple&)>& callback = nullptr,
+                            const ErrorCallback& error                              = nullptr);
 
     /// 搜索页 获取搜索视频内容
     static void search_video(const std::string& key, const std::string& search_type, unsigned int index = 1,

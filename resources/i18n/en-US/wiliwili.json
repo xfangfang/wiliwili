@@ -331,6 +331,10 @@
     "article": "Open with browser:"
   },
   "player": {
+    "triple": {
+      "hint": "Like / hold 3s for Like, Coin & Favorite",
+      "partial": "Some actions did not complete. Please try again later."
+    },
     "intro": "Introduction",
     "p": "Parts",
     "ugc_season": "Playlist",

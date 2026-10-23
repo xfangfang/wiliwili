@@ -2,6 +2,7 @@
 // Created by fang on 2022/8/9.
 //
 #include <cstdlib>
+#include <algorithm>
 #include <tinyxml2.h>
 #include <pystring.h>
 #include <borealis/core/thread.hpp>
@@ -623,6 +624,45 @@ void VideoDetail::beAgree(uint64_t aid) {
                 brls::Application::notify(error);
                 ASYNC_RELEASE
                 this->onVideoRelationInfo(videoRelation);
+            });
+        });
+}
+
+void VideoDetail::tripleLike(uint64_t aid) {
+    const auto csrf = ProgramConfig::instance().getCSRF();
+    if (tripleRequestPending || csrf.empty() || !aid) {
+        onTripleLikeResult(aid, false);
+        return;
+    }
+    tripleRequestPending = true;
+    ASYNC_RETAIN
+    BILI::triple_like(csrf, aid,
+        [ASYNC_TOKEN, aid](const bilibili::VideoTriple& result) {
+            brls::sync([ASYNC_TOKEN, aid, result]() {
+                ASYNC_RELEASE
+                tripleRequestPending = false;
+                if (videoDetailResult.aid != aid) return;
+                videoRelation.like |= result.like;
+                videoRelation.favorite |= result.fav;
+                if (result.coin) {
+                    const int limit = videoDetailResult.copyright == 1 ? 2 : 1;
+                    // multiply is the number of newly spent coins. A completed
+                    // coin action can also report zero when already coined.
+                    videoRelation.coin = std::clamp(videoRelation.coin + std::clamp(result.multiply, 0, limit), 1, limit);
+                }
+                onVideoRelationInfo(videoRelation);
+                const bool success = videoRelation.like && videoRelation.coin > 0 && videoRelation.favorite;
+                onTripleLikeResult(aid, success);
+                if (!success) brls::Application::notify(brls::getStr("wiliwili/player/triple/partial"));
+            });
+        },
+        [ASYNC_TOKEN, aid](BILI_ERR) {
+            brls::sync([ASYNC_TOKEN, aid, error]() {
+                ASYNC_RELEASE
+                tripleRequestPending = false;
+                if (videoDetailResult.aid != aid) return;
+                onTripleLikeResult(aid, false);
+                brls::Application::notify(error);
             });
         });
 }
