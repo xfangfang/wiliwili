@@ -15,6 +15,7 @@
 class VideoView;
 class UserInfoView;
 class SVGImage;
+class TripleActionBar;
 
 typedef brls::Event<size_t> ChangeIndexEvent;
 typedef brls::Event<bilibili::Video> ChangeVideoEvent;
@@ -105,6 +106,7 @@ public:
     inline static bool PLAYER_SKIP_OPENING_CREDITS = true;
 
 protected:
+    TripleActionBar* tripleActions = nullptr;
     BRLS_BIND(VideoView, video, "video");
     BRLS_BIND(brls::AppletFrame, appletFrame, "video/detail/frame");
     BRLS_BIND(UserInfoView, videoUserInfo, "video_author");
@@ -136,6 +138,7 @@ protected:
 
 private:
     bool activityShown = false;
+    void updateRelationImages(bool liked, bool coin, bool favorite);
     std::chrono::system_clock::time_point videoDeadline{};
 
     // 重新选择当前清晰度的播放链接播放
@@ -154,6 +157,7 @@ public:
     void requestCastUrl() override;
 
     void onVideoInfo(const bilibili::VideoDetailResult& result) override;
+    void onTripleLikeResult(uint64_t aid, bool success) override;
     void onUpInfo(const bilibili::UserDetailResultWrapper& result) override;
     void onVideoPageListInfo(const bilibili::VideoDetailPageListResult& result) override;
     void onUGCSeasonInfo(const bilibili::UGCSeason& result) override;

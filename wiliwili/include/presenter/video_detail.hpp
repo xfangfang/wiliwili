@@ -36,6 +36,7 @@ public:
     virtual void onError(const std::string& error) {}
     virtual void onVideoOnlineCount(const bilibili::VideoOnlineTotal& result) {}
     virtual void onVideoRelationInfo(const bilibili::VideoRelation& result) {}
+    virtual void onTripleLikeResult(uint64_t aid, bool success) {}
     virtual void onRelatedVideoList(const bilibili::VideoDetailListResult& result) {}
     virtual void onUpInfo(const bilibili::UserDetailResultWrapper& result) {}
     virtual void onRedirectToEp(const std::string& url) {}
@@ -117,6 +118,8 @@ public:
     /// 点赞
     void beAgree(uint64_t aid);
 
+    void tripleLike(uint64_t aid);
+
     /**
      * 收藏视频
      * @param rid 视频id，aid或epid
@@ -147,6 +150,7 @@ protected:
     bilibili::SeasonResultWrapper seasonInfo;     // 番剧/综艺/影视 数据
     bilibili::SeasonEpisodeResult episodeResult;  // 番剧/综艺/影视 单集数据
     bilibili::VideoRelation videoRelation;        // 视频点赞投币收藏情况
+    bool tripleRequestPending = false;
 
     // 番剧/综艺/影视 剧集列表（包括非正片）
     bilibili::SeasonEpisodeListResult episodeList;
