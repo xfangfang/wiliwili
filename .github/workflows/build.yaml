@@ -359,6 +359,7 @@ jobs:
         run: |
           brew install create-dmg dylibbundler
           brew tap xfangfang/wiliwili
+          brew trust xfangfang/wiliwili
           brew install -v mpv-wiliwili
 
       - name: SSH connection to Actions
