@@ -1595,7 +1595,7 @@ void VideoView::registerMpvEvent() {
                 if (fabs(mpvCore->video_speed - 1) < 1e-5) {
                     this->videoSpeed->setText("wiliwili/player/speed"_i18n);
                 } else {
-                    this->videoSpeed->setText(fmt::format("{}x", mpvCore->video_speed));
+                    this->videoSpeed->setText(fmt::format("{:.6g}x", mpvCore->video_speed));
                 }
                 break;
             case MpvEventEnum::END_OF_FILE:
