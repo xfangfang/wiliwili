@@ -98,7 +98,7 @@ public:
             item->setSelected(true);
         } else {
             // 选择具体的某个up主
-            userSelectedEvent.fire(list[index - 1].mid);
+            userSelectedEvent.fire(std::stoull(list[index - 1].mid));
             // 移除小红点
             auto* item = dynamic_cast<DynamicUserInfoView*>(recycler->getGridItemByIndex(index));
             if (!item) return;

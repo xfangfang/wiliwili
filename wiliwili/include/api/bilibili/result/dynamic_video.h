@@ -66,7 +66,7 @@ public:
     bool has_update;
     std::string face;
     std::string uname;
-    uint64_t mid;
+    std::string mid;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DynamicUpResult, has_update, face, uname, mid);
 
