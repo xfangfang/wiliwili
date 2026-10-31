@@ -431,10 +431,10 @@ void MPVCore::init() {
                               {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
                               {MPV_RENDER_PARAM_INVALID, nullptr}};
 #elif defined(BOREALIS_USE_D3D11)
-    mpv_dxgi_init_params init_params{D3D11_CONTEXT->getDevice(), D3D11_CONTEXT->getSwapChain()};
+    mpv_d3d11_init_params init_params{.device = D3D11_CONTEXT->getDevice()};
     mpv_render_param params[]{
-        {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_DXGI)},
-        {MPV_RENDER_PARAM_DXGI_INIT_PARAMS, &init_params},
+        {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_D3D11)},
+        {MPV_RENDER_PARAM_D3D11_INIT_PARAMS, &init_params},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(BOREALIS_USE_GXM)
@@ -823,7 +823,12 @@ void MPVCore::draw(brls::Rect area, float alpha) {
 #elif defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D) || defined(BOREALIS_USE_D3D11)
     // 只在非透明时绘制视频，可以避免退出页面时视频画面残留
     if (alpha >= 1) {
-#ifdef BOREALIS_USE_DEKO3D
+#ifdef BOREALIS_USE_D3D11
+        ID3D11Texture2D *tex = nullptr;
+        auto swapChain = D3D11_CONTEXT->getSwapChain();
+        swapChain->GetBuffer(0, IID_PPV_ARGS(&tex));
+        mpv_fbo.tex = tex;
+#elif defined(BOREALIS_USE_DEKO3D)
         static auto videoContext = (brls::SwitchVideoContext *)brls::Application::getPlatform()->getVideoContext();
         mpv_fbo.tex              = videoContext->getFramebuffer();
         videoContext->queueSignalFence(&readyFence);
@@ -833,6 +838,7 @@ void MPVCore::draw(brls::Rect area, float alpha) {
 #ifdef BOREALIS_USE_DEKO3D
         videoContext->queueWaitFence(&doneFence);
 #elif defined(BOREALIS_USE_D3D11)
+        tex->Release();
         D3D11_CONTEXT->beginFrame();
 #else
         glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
