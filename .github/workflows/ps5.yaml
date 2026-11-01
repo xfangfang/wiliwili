@@ -204,6 +204,5 @@ jobs:
           files: |
             package/${{ needs.version.outputs.DIST_PS5 }}.zip
             package/${{ needs.version.outputs.DIST_PS5 }}.ffpfsc
-            package/PPSA99099.ffpfsc
           fail_on_unmatched_files: false
           generate_release_notes: true
