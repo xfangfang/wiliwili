@@ -1082,6 +1082,9 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     } else if (isHdr) {
         videoPaint.radius = 1.0f; // 触发 GPU 片段着色器 HDR PQ BT.2020 -> SDR BT.709 电影级色调映射
     }
+    if (!isDoviProfile5) {
+        nvgSetDoviMetadata(vg, nullptr);
+    }
     if (isDoviProfile5 || isHlg) {
         static int dovi_draw_log = 0;
         if (dovi_draw_log++ < 5 || (dovi_draw_log % 600 == 0)) {
@@ -1255,6 +1258,13 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_START_FILE:
                 // event 6: 开始加载文件
                 brls::Logger::info("========> MPV_EVENT_START_FILE");
+                {
+                    std::lock_guard<std::mutex> lock(videoInfoMutex);
+                    videoInfo = {};
+                }
+#ifdef MPV_SW_RENDER
+                memset(&dovi_meta, 0, sizeof(dovi_meta));
+#endif
 
                 // show osd for a really long time
                 mpvCoreEvent.fire(MpvEventEnum::START_FILE);
@@ -1265,6 +1275,9 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_VIDEO_RECONFIG:
                 // event 17: 视频链重新配置（分辨率、像素格式变化）
                 brls::Logger::info("========> MPV_EVENT_VIDEO_RECONFIG");
+#ifdef MPV_SW_RENDER
+                memset(&dovi_meta, 0, sizeof(dovi_meta));
+#endif
                 break;
             case MPV_EVENT_AUDIO_RECONFIG:
                 // event 18: 音频链重新配置
@@ -1578,7 +1591,6 @@ void MPVCore::reset() {
         this->redraw = true;
     }
     memset(&dovi_meta, 0, sizeof(dovi_meta));
-    this->is_dovi_mode = false;
 #endif
 
     // 软硬解切换后应该手动设置一次渲染尺寸
@@ -1593,6 +1605,7 @@ void MPVCore::setUrl(const std::string &url, const std::string &extra, const std
         memset(pixels, 0, (size_t)sw_size[0] * sw_size[1] * PIXCEL_SIZE);
         this->redraw = true;
     }
+    memset(&dovi_meta, 0, sizeof(dovi_meta));
 #endif
     if (extra.empty()) {
         command_async("loadfile", url, method);

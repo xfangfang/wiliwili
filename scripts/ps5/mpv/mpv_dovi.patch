@@ -62,7 +62,7 @@
  
  /**
 --- a/video/out/libmpv_sw.c	2023-07-24 01:10:36
-+++ b/video/out/libmpv_sw.c	2026-11-01 01:54:15
++++ b/video/out/libmpv_sw.c	2026-11-01 12:45:00
 @@ -1,8 +1,12 @@
  #include "libmpv/render_gl.h"
  #include "libmpv.h"
@@ -88,7 +88,15 @@
  static int init(struct render_backend *ctx, mpv_render_param *params)
  {
      ctx->priv = talloc_zero(NULL, struct priv);
-@@ -60,7 +69,7 @@
+@@ -56,11 +65,15 @@
+ 
+     p->src_params = *params;
+     p->anything_changed = true;
++    has_valid_rpu = false;
++    has_valid_color = false;
++    memset(&last_valid_rpu, 0, sizeof(last_valid_rpu));
++    memset(&last_valid_color_meta, 0, sizeof(last_valid_color_meta));
+ }
  
  static void reset(struct render_backend *ctx)
  {
@@ -97,12 +105,10 @@
  }
  
  static void update_external(struct render_backend *ctx, struct vo *vo)
-@@ -91,6 +100,232 @@
-     *out_w = sz[0];
-     *out_h = sz[1];
+@@ -93,6 +106,235 @@
      return 0;
-+}
-+
+ }
+ 
 +// --- Dolby Vision -----------------------------------------------------------
 +
 +/* The reshaping curves of one frame, packed for a std140 uniform block.
@@ -221,15 +227,18 @@
 +    static int log_counter = 0;
 +    bool should_log = (log_counter++ < 10) || (log_counter % 120 == 0);
 +
++    if (!img || img->params.imgfmt != IMGFMT_P010) {
++        has_valid_rpu = false;
++        has_valid_color = false;
++        memset(p, 0, sizeof(*p));
++        return;
++    }
++
 +    if (has_valid_rpu) {
 +        memcpy(p, &last_valid_rpu, sizeof(*p));
 +    } else {
 +        memset(p, 0, sizeof(*p));
 +        dovi_set_identity_curves(p);
-+    }
-+    if (!img) {
-+        if (should_log) fprintf(stderr, "[dovi_sw] img is NULL (cached=%d)\n", has_valid_rpu);
-+        return;
 +    }
 +    if (!img->dovi) {
 +        if (should_log) fprintf(stderr, "[dovi_sw] img->dovi is NULL (fmt=%s cached=%d)\n", mp_imgfmt_to_name(img->params.imgfmt), has_valid_rpu);
@@ -327,10 +336,12 @@
 +                p->off[0], p->off[1], p->off[2],
 +                p->lms[0][0], p->lms[0][1], p->lms[0][2]);
 +    }
- }
- 
++}
++
  static int render(struct render_backend *ctx, mpv_render_param *params,
-@@ -120,21 +355,32 @@
+                   struct vo_frame *frame)
+ {
+@@ -120,21 +362,32 @@
              .h = sz[1],
          };
  
@@ -368,7 +379,7 @@
              p->sws->src = p->src_params;
              p->sws->src.w = mp_rect_w(p->src_rc);
              p->sws->src.h = mp_rect_h(p->src_rc);
-@@ -152,6 +398,7 @@
+@@ -152,6 +405,7 @@
  
      struct mp_image wrap_img = {0};
      mp_image_set_params(&wrap_img, &p->dst_params);
@@ -376,7 +387,7 @@
  
      size_t bpp = wrap_img.fmt.bpp[0] / 8;
      if (!bpp || bpp * wrap_img.w > *stride || *stride % bpp)
-@@ -159,6 +406,11 @@
+@@ -159,6 +413,11 @@
  
      wrap_img.planes[0] = ptr;
      wrap_img.stride[0] = *stride;
@@ -388,7 +399,7 @@
  
      struct mp_image *img = frame->current;
      if (img) {
-@@ -173,7 +425,10 @@
+@@ -173,7 +432,10 @@
          mp_image_crop_rc(&src, src_rc);
  
          struct mp_image dst = wrap_img;
@@ -400,7 +411,7 @@
  
          if (mp_sws_scale(p->sws, &dst, &src) < 0) {
              mp_image_clear(&wrap_img, 0, 0, wrap_img.w, wrap_img.h);
-@@ -183,9 +438,16 @@
+@@ -183,9 +445,16 @@
          mp_image_clear(&wrap_img, 0, 0, wrap_img.w, wrap_img.h);
      }
  
