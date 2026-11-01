@@ -388,6 +388,16 @@ elseif (PLATFORM_PS5)
                 COMMENT "Assembling the PS5 native title folder"
                 VERBATIM
         )
+        add_custom_target(${PROJECT_NAME}.ffpfsc
+                COMMAND "${CMAKE_COMMAND}" -E env "PS5_TITLE_BUILD_DIR=${CMAKE_BINARY_DIR}"
+                        bash ${CMAKE_SOURCE_DIR}/scripts/ps5/package_ffpfs.sh
+                DEPENDS ${PROJECT_NAME}.title
+                COMMENT "Packaging the PS5 native title as ffpfsc image using ps5-dump-forge"
+                VERBATIM
+        )
+        add_custom_target(${PROJECT_NAME}.ffpfs
+                DEPENDS ${PROJECT_NAME}.ffpfsc
+        )
     else ()
         # PS5 homebrew payload: a directory holding the executable, its resources
         # and the libraries it links against, which can be uploaded to the console

@@ -122,6 +122,17 @@ package support in kstuff. The URL defaults to `http://127.0.0.1:8080`, pass ano
 websrv listens elsewhere: `scripts/ps5/install_tile.sh -h ps5 -- http://127.0.0.1:8081`. The
 installer expects the application in `/data/homebrew/wiliwili/`, deploy it first.
 
+### Packing into a compressed PFS image (.ffpfsc)
+
+`scripts/ps5/package_ffpfs.sh` packages the native title folder into a compressed `.ffpfsc` container (PFS v2 image with zlib level 9 compression) using [ps5-dump-forge](https://github.com/quer3q/ps5-dump-forge):
+
+```shell
+scripts/ps5/package_ffpfs.sh               # packages dist/PPSA99099 into dist/wiliwili-PS5-<version>.ffpfsc and dist/PPSA99099.ffpfsc
+scripts/ps5/package_ffpfs.sh -i <folder>   # packages a custom title folder
+```
+
+The script automatically downloads `ps5-dump-forge` if it is not present in `$PATH` or `$PS5_DUMP_FORGE`. The resulting `.ffpfsc` file can be copied directly to `/data/homebrew/` or a USB drive for [ShadowMountPlus](https://github.com/drakmor/ShadowMountPlus) to mount automatically, saving over 55% storage space (~62MB) and eliminating the need to transfer hundreds of individual files.
+
 ### Packing into a package (experimental)
 
 `scripts/ps5/package_fpkg.sh` stages the build output as an application folder and packs it into

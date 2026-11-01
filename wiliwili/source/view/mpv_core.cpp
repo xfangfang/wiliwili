@@ -500,8 +500,8 @@ void MPVCore::init() {
     // mpvSetOptionString(mpv, "msg-level", "ffmpeg=trace");
     // mpvSetOptionString(mpv, "msg-level", "all=no");
 #if defined(PS5)
-    mpvSetOptionString(mpv, "terminal", "no");
-    mpvSetOptionString(mpv, "msg-level", "ffmpeg=info");
+    mpvSetOptionString(mpv, "terminal", "yes");
+    mpvSetOptionString(mpv, "msg-level", "all=v,ffmpeg=debug");
 #endif
     if (MPVCore::TERMINAL) {
         mpvSetOptionString(mpv, "terminal", "yes");
@@ -705,6 +705,7 @@ void MPVCore::clean() {
     }
     sw_size[0] = 0;
     sw_size[1] = 0;
+    this->is_dovi_mode = false;
 #endif
 }
 
@@ -856,14 +857,24 @@ void MPVCore::setFrameSize(brls::Rect r) {
     drawWidth  = (drawWidth + 15) & ~15;
     drawHeight = (drawHeight + 1) & ~1;
 
-    // Skip recreation if dimensions haven't changed
-    if (sw_size[0] == drawWidth && sw_size[1] == drawHeight && nvg_image != 0) {
+    bool isHlg  = (this->videoInfo.gamma == "arib-std-b67" || this->videoInfo.gamma == "hlg" ||
+                   (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] > 0.5f));
+    bool isDovi = !isHlg && (
+        (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] < 0.5f) ||
+        this->videoInfo.colormatrix.find("ipt") != std::string::npos ||
+        this->videoInfo.codec.find("dv") != std::string::npos ||
+        this->videoInfo.pixelFormat.find("dovi") != std::string::npos
+    );
+
+    // Skip recreation if dimensions and format haven't changed
+    if (sw_size[0] == drawWidth && sw_size[1] == drawHeight && nvg_image != 0 && this->is_dovi_mode == isDovi) {
         return;
     }
+    this->is_dovi_mode = isDovi;
 
-    int frameSize = drawWidth * drawHeight;
+    int requiredSize = isDovi ? (drawWidth * 2 * (drawHeight * 3 / 2)) : (drawWidth * drawHeight * PIXCEL_SIZE);
 
-    if (pixels != nullptr && (size_t)frameSize * PIXCEL_SIZE > allocated_size) {
+    if (pixels != nullptr && (size_t)requiredSize > allocated_size) {
         brls::Logger::debug("Enlarge video surface buffer to {}x{}", drawWidth, drawHeight);
         free(pixels);
         pixels = nullptr;
@@ -871,7 +882,7 @@ void MPVCore::setFrameSize(brls::Rect r) {
     }
 
     if (pixels == nullptr) {
-        allocated_size     = (size_t)frameSize * PIXCEL_SIZE;
+        allocated_size = (size_t)maxW * maxH * PIXCEL_SIZE;
         if (posix_memalign(&pixels, 64, allocated_size + 64) != 0) {
             pixels = nullptr;
             brls::Logger::error("Failed to allocate {} bytes for video surface buffer", allocated_size);
@@ -886,12 +897,27 @@ void MPVCore::setFrameSize(brls::Rect r) {
         nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
         nvg_image = 0;
     }
-    nvg_image = nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth, drawHeight, mpvImageFlags,
-                                   (const unsigned char *)pixels);
+    if (isDovi) {
+        sw_format = "p010";
+        pitch     = drawWidth * 2;
+        nvg_image = nvgCreateImageR16(brls::Application::getNVGContext(), drawWidth, drawHeight * 3 / 2, mpvImageFlags,
+                                      (const unsigned char *)pixels);
+    } else {
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        sw_format = "abgr";
+#else
+        sw_format = "rgba";
+#endif
+        pitch     = PIXCEL_SIZE * drawWidth;
+        nvg_image = nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth, drawHeight, mpvImageFlags,
+                                       (const unsigned char *)pixels);
+    }
 
     sw_size[0] = drawWidth;
     sw_size[1] = drawHeight;
-    pitch      = PIXCEL_SIZE * drawWidth;
+    mpv_params[1].data = (void *)sw_format;
+    mpv_params[2].data = &pitch;
+    mpv_params[3].data = pixels;
 
     // 只有在视频暂停时调整纹理尺寸才需要强制渲染一次（视频画面会被清空为黑色）
     // 播放中绝对不能主动调用 mpvRenderContextRender，否则在视频切换/切分辨率时会导致滤镜链崩溃
@@ -966,7 +992,16 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     // The picture is put on the screen in two steps: the frame is resized to
     // the place the picture takes, and then the texture is drawn.
     stage::Marker marker("video draw");
-    if (!(this->rect == area)) {
+    bool isHlg          = (this->videoInfo.gamma == "arib-std-b67" || this->videoInfo.gamma == "hlg" ||
+                           (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] > 0.5f));
+    bool isDoviProfile5 = !isHlg && (
+        (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] < 0.5f) ||
+        this->videoInfo.colormatrix.find("ipt") != std::string::npos ||
+        this->videoInfo.codec.find("dv") != std::string::npos ||
+        this->videoInfo.pixelFormat.find("dovi") != std::string::npos
+    );
+
+    if (!(this->rect == area) || this->is_dovi_mode != isDoviProfile5) {
         setFrameSize(area);
     }
 
@@ -1033,11 +1068,6 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     nvgBeginPath(vg);
     nvgRect(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight());
     NVGpaint videoPaint = nvgImagePattern(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight(), 0, nvg_image, alpha);
-    bool isHlg = (this->videoInfo.gamma == "arib-std-b67" || this->videoInfo.gamma == "hlg");
-    bool isDoviProfile5 = !isHlg && (this->videoInfo.colormatrix.find("ipt") != std::string::npos ||
-                           this->videoInfo.codec.find("dv") != std::string::npos ||
-                           this->videoInfo.pixelFormat.find("dovi") != std::string::npos ||
-                           (this->currentQuality == 126));
     bool isHdr = (this->videoInfo.pixelFormat == "p010" ||
                   this->videoInfo.pixelFormat.find("10") != std::string::npos ||
                   this->videoInfo.gamma == "pq" ||
@@ -1047,9 +1077,19 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     if (isHlg) {
         videoPaint.radius = 3.0f; // 触发 GPU 片段着色器 HLG BT.2100 -> PQ / SDR 电影级转换
     } else if (isDoviProfile5) {
-        videoPaint.radius = 2.0f; // 触发 GPU 片段着色器 Dolby Vision Profile 5 ICtCp 逆重塑与色调映射
+        nvgSetDoviMetadata(vg, &dovi_meta);
+        videoPaint.radius = 2.0f; // 触发 GPU 片段着色器 Dolby Vision Profile 5 RPU 重塑与色调映射
     } else if (isHdr) {
         videoPaint.radius = 1.0f; // 触发 GPU 片段着色器 HDR PQ BT.2020 -> SDR BT.709 电影级色调映射
+    }
+    static int dovi_draw_log = 0;
+    if (dovi_draw_log++ < 10 || (dovi_draw_log % 120 == 0)) {
+        brls::Logger::info("[DV_DRAW] isDovi={} isHlg={} isHdr={} curQ={} radius={:.1f} meta=({:.1f},{:.1f},{:.1f}) ycc0=({:.2f},{:.2f},{:.2f}) off=({:.2f},{:.2f},{:.2f}) gamma='{}' matrix='{}' pixfmt='{}'",
+            isDoviProfile5, isHlg, isHdr, this->currentQuality, videoPaint.radius,
+            dovi_meta.meta[0], dovi_meta.meta[1], dovi_meta.meta[2],
+            dovi_meta.ycc[0][0], dovi_meta.ycc[0][1], dovi_meta.ycc[0][2],
+            dovi_meta.off[0], dovi_meta.off[1], dovi_meta.off[2],
+            this->videoInfo.gamma, this->videoInfo.colormatrix, this->videoInfo.pixelFormat);
     }
     nvgFillPaint(vg, videoPaint);
     nvgFill(vg);
@@ -1532,9 +1572,11 @@ void MPVCore::reset() {
 
 #ifdef MPV_SW_RENDER
     if (pixels && sw_size[0] > 0 && sw_size[1] > 0) {
-        memset(pixels, 0, (size_t)sw_size[0] * sw_size[1] * PIXCEL_SIZE);
+        memset(pixels, 0, allocated_size);
         this->redraw = true;
     }
+    memset(&dovi_meta, 0, sizeof(dovi_meta));
+    this->is_dovi_mode = false;
 #endif
 
     // 软硬解切换后应该手动设置一次渲染尺寸

@@ -473,10 +473,13 @@ private:
     size_t allocated_size          = 0;
     bool redraw                    = false;
     int sw_block_target_time       = 0;
-    mpv_render_param mpv_params[6] = {
+    bool is_dovi_mode              = false;
+    mpv_dovi_metadata dovi_meta{};
+    mpv_render_param mpv_params[7] = {
         {MPV_RENDER_PARAM_SW_SIZE, &sw_size[0]}, {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
         {MPV_RENDER_PARAM_SW_STRIDE, &pitch},    {MPV_RENDER_PARAM_SW_POINTER, pixels},
         {MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &sw_block_target_time},
+        {(mpv_render_param_type)MPV_RENDER_PARAM_DOVI_METADATA, &dovi_meta},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(BOREALIS_USE_DEKO3D)

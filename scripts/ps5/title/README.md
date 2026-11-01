@@ -75,7 +75,10 @@ cmake -B cmake-build-ps5-title -DCMAKE_BUILD_TYPE=Release -DPLATFORM_PS5=ON \
       -DPS5_NATIVE_TITLE=ON -DBRLS_UNITY_BUILD=ON -DCMAKE_UNITY_BUILD_BATCH_SIZE=16
 cmake --build cmake-build-ps5-title --target wiliwili.title -j"$(sysctl -n hw.ncpu)"
 
-# 4. the folder is in dist/PPSA99099, publish it and reload ShadowMountPlus
+# 4. (optional) package into a compressed PFS (.ffpfsc) image using ps5-dump-forge
+cmake --build cmake-build-ps5-title --target wiliwili.ffpfsc
+
+# 5. the folder is in dist/PPSA99099, publish it and reload ShadowMountPlus
 scripts/ps5/title/deploy.sh -h <console>
 ```
 

@@ -881191,8 +881191,8 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/prosumer.c ffmpeg-7.1.1/libavcodec/prosum
 +};
 diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 --- ffmpeg-7.1.1-orig/libavcodec/ps5.c	1970-01-01 08:00:00
-+++ ffmpeg-7.1.1/libavcodec/ps5.c	2026-10-27 09:59:00
-@@ -0,0 +1,1685 @@
++++ ffmpeg-7.1.1/libavcodec/ps5.c	2026-11-01 00:00:00
+@@ -0,0 +1,1914 @@
 +/*
 + * This file is part of FFmpeg.
 + *
@@ -881248,6 +881248,7 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +#include "libavcodec/decode.h"
 +#include "libavcodec/internal.h"
 +#include "libavcodec/ps5.h"
++#include "libavcodec/dovi_rpu.h"
 +
 +#include <pthread.h>
 +#include <unistd.h>
@@ -881612,6 +881613,11 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +
 +#define MAX_PENDING 64
 +
++typedef struct PendingPicture {
++    int64_t      pts;
++    AVBufferRef* dovi_buf;
++} PendingPicture;
++
 +/**
 + * The decoder of one stream: the chip's decoder and the memory it works in.
 + */
@@ -881658,8 +881664,8 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +    // The times of the pictures that were sent but have not come out yet.
 +    // The chip shows the pictures in the order they are to be seen, so the
 +    // smallest time waiting is the picture that comes out.
-+    int64_t  pending[MAX_PENDING];
-+    int      pendingCount;
++    PendingPicture pending[MAX_PENDING];
++    int            pendingCount;
 +
 +    // The parameter sets, in Annex B, in front of every picture.
 +    uint8_t* headers;
@@ -881670,6 +881676,11 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +    int        hasPicture;
 +
 +    AVPacket* pkt;
++
++    DOVIContext dovi_ctx;
++    int         has_dovi;
++    int         dovi_profile;
++    int         dovi_compat_id;
 +} Ps5Context;
 +
 +/**
@@ -881889,6 +881900,8 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +    memFree(&ps5->cpuGpu);
 +    memFree(&ps5->gpu);
 +    memFree(&ps5->cpu);
++    ff_dovi_ctx_flush(&ps5->dovi_ctx);
++    ps5->has_dovi = 0;
 +}
 +
 +/**
@@ -881946,6 +881959,97 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +        i = start + 1;
 +    }
 +    return NULL;
++}
++
++static void parseDoviRpu(AVCodecContext* avctx, Ps5Context* ps5, const uint8_t* data, int size)
++{
++    if (!data || size <= 4)
++        return;
++
++    int i = 0;
++    while (i + 3 <= size) {
++        int start = -1;
++        if (i + 4 <= size && data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 0 && data[i + 3] == 1)
++            start = i + 4;
++        else if (data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 1)
++            start = i + 3;
++
++        if (start < 0) {
++            i++;
++            continue;
++        }
++        if (start + 2 >= size)
++            break;
++
++        int nalType = (data[start] >> 1) & 0x3f;
++        if (nalType == 62) { // HEVC_NAL_UNSPEC62
++            int end = size;
++            for (int j = start + 2; j + 3 <= size; j++) {
++                if ((data[j] == 0 && data[j + 1] == 0 && data[j + 2] == 1) ||
++                    (j + 4 <= size && data[j] == 0 && data[j + 1] == 0 && data[j + 2] == 0 && data[j + 3] == 1)) {
++                    end = j;
++                    break;
++                }
++            }
++            int rpu_raw_size = end - (start + 2);
++            if (rpu_raw_size > 2) {
++                const uint8_t* src = data + start + 2;
++                uint8_t* unescaped = (uint8_t*)av_malloc(rpu_raw_size);
++                if (unescaped) {
++                    int dst_idx = 0;
++                    int zero_count = 0;
++                    for (int s = 0; s < rpu_raw_size; s++) {
++                        if (zero_count >= 2 && src[s] == 0x03) {
++                            zero_count = 0;
++                            continue;
++                        }
++                        unescaped[dst_idx++] = src[s];
++                        if (src[s] == 0)
++                            zero_count++;
++                        else
++                            zero_count = 0;
++                    }
++                    int ret = ff_dovi_rpu_parse(&ps5->dovi_ctx, unescaped, (size_t)dst_idx, 0);
++                    if (ret == 0) {
++                        ps5->has_dovi = 1;
++                        int prof = ff_dovi_guess_profile_hevc(&ps5->dovi_ctx.header);
++                        if (prof == 5) {
++                            ps5->dovi_profile = 5;
++                            ps5->dovi_compat_id = 0;
++                            if (avctx) {
++                                avctx->color_trc = AVCOL_TRC_SMPTEST2084;
++                                avctx->color_primaries = AVCOL_PRI_BT2020;
++                                avctx->colorspace = AVCOL_SPC_UNSPECIFIED;
++                            }
++                        } else if (prof == 8 || ps5->dovi_ctx.header.vdr_rpu_profile == 1) {
++                            ps5->dovi_profile = 8;
++                            ps5->dovi_compat_id = 4;
++                            if (avctx) {
++                                avctx->color_trc = AVCOL_TRC_ARIB_STD_B67;
++                                avctx->color_primaries = AVCOL_PRI_BT2020;
++                                avctx->colorspace = AVCOL_SPC_BT2020_NCL;
++                            }
++                        }
++                        static int log_once = 0;
++                        if (log_once < 10) {
++                            log_once++;
++                            fprintf(stderr, "[wiliwili] parsed Dolby Vision RPU NAL62 (%d raw -> %d unescaped bytes, vdr_prof=%d, prof=%d compat=%d)\n",
++                                    rpu_raw_size, dst_idx, ps5->dovi_ctx.header.vdr_rpu_profile, ps5->dovi_profile, ps5->dovi_compat_id);
++                        }
++                    } else {
++                        static int err_once = 0;
++                        if (err_once < 5) {
++                            err_once++;
++                            fprintf(stderr, "[wiliwili] ff_dovi_rpu_parse error: %d\n", ret);
++                        }
++                    }
++                    av_free(unescaped);
++                }
++            }
++            break;
++        }
++        i = start + 1;
++    }
 +}
 +
 +/**
@@ -882347,33 +882451,53 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +/**
 + * The time of the picture that comes out: the smallest one that is waiting.
 + */
-+static int64_t takePending(Ps5Context* ps5)
++static PendingPicture takePending(Ps5Context* ps5)
 +{
++    PendingPicture empty = { AV_NOPTS_VALUE, NULL };
 +    if (!ps5->pendingCount)
-+        return AV_NOPTS_VALUE;
-+    int best = 0;
-+    for (int i = 1; i < ps5->pendingCount; i++)
-+        if (ps5->pending[i] < ps5->pending[best])
-+            best = i;
-+    int64_t pts = ps5->pending[best];
++        return empty;
++    int best = -1;
++    for (int i = 0; i < ps5->pendingCount; i++) {
++        if (ps5->pending[i].pts != AV_NOPTS_VALUE) {
++            if (best < 0 || ps5->pending[i].pts < ps5->pending[best].pts)
++                best = i;
++        }
++    }
++    if (best < 0) {
++        best = 0;
++    }
++    PendingPicture pic = ps5->pending[best];
 +    ps5->pending[best] = ps5->pending[--ps5->pendingCount];
-+    return pts;
++    return pic;
 +}
 +
-+static void addPending(Ps5Context* ps5, int64_t pts)
++static void addPending(Ps5Context* ps5, int64_t pts, AVBufferRef* dovi_buf)
 +{
 +    if (ps5->pendingCount >= MAX_PENDING) {
++        if (ps5->pending[0].dovi_buf)
++            av_buffer_unref(&ps5->pending[0].dovi_buf);
 +        memmove(ps5->pending, ps5->pending + 1, (MAX_PENDING - 1) * sizeof(ps5->pending[0]));
 +        ps5->pendingCount--;
 +    }
-+    ps5->pending[ps5->pendingCount++] = pts;
++    ps5->pending[ps5->pendingCount].pts = pts;
++    ps5->pending[ps5->pendingCount].dovi_buf = dovi_buf;
++    ps5->pendingCount++;
++}
++
++static void clearPending(Ps5Context* ps5)
++{
++    for (int i = 0; i < ps5->pendingCount; i++) {
++        if (ps5->pending[i].dovi_buf)
++            av_buffer_unref(&ps5->pending[i].dovi_buf);
++    }
++    ps5->pendingCount = 0;
 +}
 +
 +/**
 + * Hands the picture the chip produced to the caller.
 + */
 +
-+static int outputPicture(AVCodecContext* avctx, AVFrame* frame, const VdecOutput* out, int64_t pts)
++static int outputPicture(AVCodecContext* avctx, AVFrame* frame, const VdecOutput* out, int64_t pts, AVBufferRef* dovi_buf)
 +{
 +    Ps5Context* ps5 = avctx->priv_data;
 +    size_t pitch;
@@ -882420,9 +882544,19 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +    frame->height      = out->frame_height;
 +    frame->pts         = pts;
 +    frame->color_range = AVCOL_RANGE_MPEG;
-+    frame->color_primaries = avctx->color_primaries;
-+    frame->color_trc       = avctx->color_trc;
-+    frame->colorspace      = avctx->colorspace;
++    if (ps5->dovi_profile == 8 && ps5->dovi_compat_id == 4) {
++        frame->color_trc       = AVCOL_TRC_ARIB_STD_B67;
++        frame->color_primaries = AVCOL_PRI_BT2020;
++        frame->colorspace      = AVCOL_SPC_BT2020_NCL;
++    } else if (ps5->dovi_profile == 5) {
++        frame->color_trc       = AVCOL_TRC_SMPTEST2084;
++        frame->color_primaries = AVCOL_PRI_BT2020;
++        frame->colorspace      = AVCOL_SPC_UNSPECIFIED;
++    } else {
++        frame->color_primaries = avctx->color_primaries ? avctx->color_primaries : (ps5->tenBit ? AVCOL_PRI_BT2020 : AVCOL_PRI_BT709);
++        frame->color_trc       = avctx->color_trc ? avctx->color_trc : (ps5->tenBit ? AVCOL_TRC_ARIB_STD_B67 : AVCOL_TRC_BT709);
++        frame->colorspace      = avctx->colorspace ? avctx->colorspace : (ps5->tenBit ? AVCOL_SPC_BT2020_NCL : AVCOL_SPC_BT709);
++    }
 +
 +    if (avctx->pix_fmt != frame->format || avctx->width != frame->width || avctx->height != frame->height) {
 +        avctx->pix_fmt = frame->format;
@@ -882451,9 +882585,25 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +    frame->height      = out->frame_height;
 +    frame->pts         = pts;
 +    frame->color_range = AVCOL_RANGE_MPEG;
-+    frame->color_primaries = avctx->color_primaries;
-+    frame->color_trc       = avctx->color_trc;
-+    frame->colorspace      = avctx->colorspace;
++    if (ps5->dovi_profile == 8 && ps5->dovi_compat_id == 4) {
++        frame->color_trc       = AVCOL_TRC_ARIB_STD_B67;
++        frame->color_primaries = AVCOL_PRI_BT2020;
++        frame->colorspace      = AVCOL_SPC_BT2020_NCL;
++    } else if (ps5->dovi_profile == 5) {
++        frame->color_trc       = AVCOL_TRC_SMPTEST2084;
++        frame->color_primaries = AVCOL_PRI_BT2020;
++        frame->colorspace      = AVCOL_SPC_UNSPECIFIED;
++    } else {
++        frame->color_primaries = avctx->color_primaries ? avctx->color_primaries : (ps5->tenBit ? AVCOL_PRI_BT2020 : AVCOL_PRI_BT709);
++        frame->color_trc       = avctx->color_trc ? avctx->color_trc : (ps5->tenBit ? AVCOL_TRC_ARIB_STD_B67 : AVCOL_TRC_BT709);
++        frame->colorspace      = avctx->colorspace ? avctx->colorspace : (ps5->tenBit ? AVCOL_SPC_BT2020_NCL : AVCOL_SPC_BT709);
++    }
++
++    if (avctx->color_trc != frame->color_trc || avctx->color_primaries != frame->color_primaries || avctx->colorspace != frame->colorspace) {
++        avctx->color_trc       = frame->color_trc;
++        avctx->color_primaries = frame->color_primaries;
++        avctx->colorspace      = frame->colorspace;
++    }
 +
 +    // The picture comes out of the graphics memory: the copy back to the
 +    // processor is worth knowing about on a 4K video.
@@ -882518,6 +882668,16 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +            copyAt = now;
 +        }
 +    }
++    if (dovi_buf) {
++        AVBufferRef* ref = av_buffer_ref(dovi_buf);
++        if (ref) {
++            AVFrameSideData* sd = av_frame_new_side_data_from_buf(frame, AV_FRAME_DATA_DOVI_METADATA, ref);
++            if (!sd)
++                av_buffer_unref(&ref);
++        }
++    } else if (ps5->has_dovi) {
++        ff_dovi_attach_side_data(&ps5->dovi_ctx, frame);
++    }
 +    return 0;
 +}
 +
@@ -882567,7 +882727,17 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +    if (fb.is_accepted && ps5->lastSlot < ps5->frameCount)
 +        ps5->held[ps5->lastSlot] = true;
 +    // The time of the picture waits until the picture comes out.
-+    addPending(ps5, pts);
++    AVBufferRef* dovi_buf = NULL;
++    if (ps5->has_dovi) {
++        AVDOVIMetadata* dovi = NULL;
++        int dovi_sz = ff_dovi_get_metadata(&ps5->dovi_ctx, &dovi);
++        if (dovi_sz > 0 && dovi) {
++            dovi_buf = av_buffer_create((uint8_t*)dovi, dovi_sz, NULL, NULL, 0);
++            if (!dovi_buf)
++                av_free(dovi);
++        }
++    }
++    addPending(ps5, pts, dovi_buf);
 +    return 0;
 +}
 +
@@ -882588,14 +882758,14 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +    }
 +    if (fb.is_accepted && ps5->lastSlot < ps5->frameCount)
 +        ps5->held[ps5->lastSlot] = true;
-+    // The pictures that were in the chip are gone: the times that waited for
-+    // them are of no use, and the slots they held are free again. The player
-+    // seeks, and the pictures after the seek may be of the kind that cannot
-+    // be decoded on their own.
-+    ps5->pendingCount = 0;
-+    ps5->dropLeading  = 1;
-+    memset(ps5->held, 0, sizeof(ps5->held));
-+    return out->is_valid ? 0 : AVERROR_EOF;
++
++    if (!out->is_valid) {
++        clearPending(ps5);
++        ps5->dropLeading = 1;
++        memset(ps5->held, 0, sizeof(ps5->held));
++        return AVERROR_EOF;
++    }
++    return 0;
 +}
 +
 +/**
@@ -882618,9 +882788,11 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +        // A picture that came out with the last access unit.
 +        if (ps5->hasPicture) {
 +            ps5->hasPicture = 0;
-+            int64_t pts = takePending(ps5);
++            PendingPicture p = takePending(ps5);
 +            int    slot = frameSlotOf(ps5, ps5->picture.frame_buffer);
-+            int    ret  = outputPicture(avctx, frame, &ps5->picture, pts);
++            int    ret  = outputPicture(avctx, frame, &ps5->picture, p.pts, p.dovi_buf);
++            if (p.dovi_buf)
++                av_buffer_unref(&p.dovi_buf);
 +            if (slot >= 0)
 +                ps5->held[slot] = false;
 +            if (ret < 0)
@@ -882641,6 +882813,9 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +            if (!pkt->size) {
 +                av_packet_unref(pkt);
 +                continue;
++            }
++            if (ps5->codec == VDEC_CODEC_HEVC) {
++                parseDoviRpu(avctx, ps5, pkt->data, pkt->size);
 +            }
 +            // A picture comes again: the chip works again after the flush.
 +            // The player seeks when the video starts, and the flush must not
@@ -882745,6 +882920,35 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +    Ps5Context* ps5 = avctx->priv_data;
 +
 +    ps5->pkt = avctx->internal->in_pkt;
++    ps5->dovi_ctx.logctx = avctx;
++    ps5->dovi_ctx.cfg.dv_profile = 0;
++    ps5->dovi_profile = 0;
++    ps5->dovi_compat_id = 0;
++
++    if (avctx->coded_side_data) {
++        const AVPacketSideData *sd = av_packet_side_data_get(avctx->coded_side_data,
++                                                             avctx->nb_coded_side_data,
++                                                             AV_PKT_DATA_DOVI_CONF);
++        if (sd && sd->size >= sizeof(AVDOVIDecoderConfigurationRecord)) {
++            const AVDOVIDecoderConfigurationRecord *dovi = (const AVDOVIDecoderConfigurationRecord *)sd->data;
++            ps5->dovi_profile = dovi->dv_profile;
++            ps5->dovi_compat_id = dovi->dv_bl_signal_compatibility_id;
++            fprintf(stderr, "[wiliwili] DOVI_CONF: profile=%d compat_id=%d rpu=%d\n",
++                    dovi->dv_profile, dovi->dv_bl_signal_compatibility_id, dovi->rpu_present_flag);
++            if (dovi->dv_profile == 8 && dovi->dv_bl_signal_compatibility_id == 4) {
++                avctx->color_trc = AVCOL_TRC_ARIB_STD_B67;
++                avctx->color_primaries = AVCOL_PRI_BT2020;
++                avctx->colorspace = AVCOL_SPC_BT2020_NCL;
++            } else if (dovi->dv_profile == 5) {
++                avctx->color_trc = AVCOL_TRC_SMPTEST2084;
++                avctx->color_primaries = AVCOL_PRI_BT2020;
++            } else if (dovi->dv_profile == 8 && dovi->dv_bl_signal_compatibility_id == 1) {
++                avctx->color_trc = AVCOL_TRC_SMPTEST2084;
++                avctx->color_primaries = AVCOL_PRI_BT2020;
++                avctx->colorspace = AVCOL_SPC_BT2020_NCL;
++            }
++        }
++    }
 +
 +    int codec = avctx->codec_id == AV_CODEC_ID_HEVC ? VDEC_CODEC_HEVC : VDEC_CODEC_AVC;
 +    // The chip counts the profiles the way the codecs do: 66 is Baseline, 77
@@ -882836,9 +883040,33 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +static av_cold int ps5_decode_close(AVCodecContext* avctx)
 +{
 +    Ps5Context* ps5 = avctx->priv_data;
-+    stopDecoder(ps5);
-+    av_freep(&ps5->headers);
++    if (ps5) {
++        clearPending(ps5);
++        stopDecoder(ps5);
++        ff_dovi_ctx_unref(&ps5->dovi_ctx);
++        ps5->has_dovi = 0;
++        av_freep(&ps5->headers);
++    }
 +    return 0;
++}
++
++static void ps5_decode_flush(AVCodecContext* avctx)
++{
++    Ps5Context* ps5 = avctx->priv_data;
++    if (ps5) {
++        if (ps5->decoder) {
++            int rc = 0;
++            PS5_RUN_GUARDED(rc = sceVideodec2Reset(ps5->decoder), rc);
++        }
++        for (unsigned i = 0; i < ps5->frameCount; i++)
++            ps5->held[i] = false;
++        clearPending(ps5);
++        ps5->hasPicture   = 0;
++        ps5->dropLeading  = 1;
++        ps5->silent       = 0;
++        ps5->draining     = 0;
++        fprintf(stderr, "[wiliwili] hevc_ps5 flushed on seek!\n");
++    }
 +}
 +
 +/**
@@ -882868,6 +883096,7 @@ diff -ruN ffmpeg-7.1.1-orig/libavcodec/ps5.c ffmpeg-7.1.1/libavcodec/ps5.c
 +        .p.priv_class   = &dec_name##_class,                                             \
 +        .init           = ps5_decode_init,                                               \
 +        .close          = ps5_decode_close,                                              \
++        .flush          = ps5_decode_flush,                                              \
 +        FF_CODEC_RECEIVE_FRAME_CB(ps5_receive_frame),                                    \
 +        .bsfs           = dec_bsf,                                                       \
 +        .p.capabilities = AV_CODEC_CAP_DELAY | AV_CODEC_CAP_AVOID_PROBING,               \
@@ -2145552,11 +2145781,11 @@ diff -ruN ffmpeg-7.1.1-orig/tools/clean-diff ffmpeg-7.1.1/tools/clean-diff
 + sed 's/TaBBaT/	/g' |\
 + sed '/^+[^+]/s/ * $//' |\
 + tr -d '\015' |\
-+ tr '\n' '°' |\
-+ sed 's/\(@@[^@]*@@°[^@]*\)/\n\1/g' |\
-+ egrep -v '@@[^@]*@@°(( [^°]*°)|([+-][[:space:]]*°)|(-[[:space:]]*([^°]*)°\+[[:space:]]*\5°))*$' |\
++ tr '\n' '' |\
++ sed 's/\(@@[^@]*@@[^@]*\)/\n\1/g' |\
++ egrep -v '@@[^@]*@@(( [^]*)|([+-][[:space:]]*)|(-[[:space:]]*([^]*)\+[[:space:]]*\5))*$' |\
 + tr -d '\n' |\
-+ tr '°' '\n'
++ tr '' '\n'
 diff -ruN ffmpeg-7.1.1-orig/tools/coverity.c ffmpeg-7.1.1/tools/coverity.c
 --- ffmpeg-7.1.1-orig/tools/coverity.c	1970-01-01 08:00:00
 +++ ffmpeg-7.1.1/tools/coverity.c	2024-08-06 06:28:59

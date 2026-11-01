@@ -40,3 +40,8 @@ AGENT.md
 # Python
 __pycache__/
 *.pyc
+
+# Local debug / test files
+ps5_wiliwili_*
+*.log
+

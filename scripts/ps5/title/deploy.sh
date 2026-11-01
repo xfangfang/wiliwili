@@ -285,5 +285,15 @@ if [[ ${action} == "deploy" && -d "${HOME}/Downloads" ]]; then
         if [[ -n "${build_tag}" ]]; then
             printf '==> [title] Created %s/Downloads/wiliwili-PS5-%s.zip\n' "${HOME}" "${build_tag}"
         fi
+
+        # Package into ffpfsc format using ps5-dump-forge
+        package_script="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/package_ffpfs.sh"
+        if [[ -f "${package_script}" ]]; then
+            pkg_name=""
+            if [[ -n "${build_tag}" ]]; then
+                pkg_name="wiliwili-PS5-${build_tag}"
+            fi
+            bash "${package_script}" -i "${artifact}" -o "${HOME}/Downloads" ${pkg_name:+-n "${pkg_name}"}
+        fi
     fi
 fi

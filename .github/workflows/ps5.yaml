@@ -7,7 +7,9 @@ name: Build PS5
 on:
   push:
     # the branch this fork works on; other branches are released deliberately
-    branches: [ yoga ]
+    branches: [ yoga, PS5-Vulkan ]
+    tags:
+      - 'v*'
   pull_request:
   workflow_dispatch:
     inputs:
@@ -15,10 +17,17 @@ on:
         description: 'Disable unity build'
         required: false
         default: 'false'
+      release:
+        description: 'Publish as GitHub release'
+        required: false
+        default: 'false'
 
 concurrency:
   group: ps5-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: write
 
 jobs:
   version:
@@ -33,7 +42,11 @@ jobs:
       - name: Version
         id: info
         run: |
-          VERSION=$(git rev-parse --short HEAD)
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            VERSION=$(git rev-parse --short HEAD)
+          fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "DIST_PS5=wiliwili-PS5-${VERSION}" >> $GITHUB_OUTPUT
 
@@ -156,9 +169,40 @@ jobs:
         run: |
           mkdir -p package
           cp -a dist/PPSA99099 package/
+          (cd package && zip -r -9 "${{ needs.version.outputs.DIST_PS5 }}.zip" PPSA99099)
 
-      - name: Upload title
+      # Package native title into compressed PFS (.ffpfsc) image using ps5-dump-forge
+      - name: Package ffpfsc
+        run: |
+          scripts/ps5/package_ffpfs.sh -i dist/PPSA99099 -o package -n "${{ needs.version.outputs.DIST_PS5 }}" -l 9
+
+      - name: Upload title folder
         uses: actions/upload-artifact@v6
         with:
           name: ${{ needs.version.outputs.DIST_PS5 }}-title
-          path: package
+          path: package/PPSA99099
+
+      - name: Upload ffpfsc image
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ needs.version.outputs.DIST_PS5 }}-ffpfsc
+          path: package/*.ffpfsc
+
+      - name: Upload zip package
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ needs.version.outputs.DIST_PS5 }}-zip
+          path: package/*.zip
+
+      - name: Publish Release Assets
+        if: (startsWith(github.ref, 'refs/tags/v') || github.event.inputs.release == 'true') && !cancelled()
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ needs.version.outputs.version }}
+          tag_name: ${{ needs.version.outputs.version }}
+          files: |
+            package/${{ needs.version.outputs.DIST_PS5 }}.zip
+            package/${{ needs.version.outputs.DIST_PS5 }}.ffpfsc
+            package/PPSA99099.ffpfsc
+          fail_on_unmatched_files: false
+          generate_release_notes: true
