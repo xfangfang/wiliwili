@@ -857,13 +857,14 @@ void MPVCore::setFrameSize(brls::Rect r) {
     drawWidth  = (drawWidth + 15) & ~15;
     drawHeight = (drawHeight + 1) & ~1;
 
-    bool isHlg  = (this->videoInfo.gamma == "arib-std-b67" || this->videoInfo.gamma == "hlg" ||
+    VideoInfo vi = this->getVideoInfo();
+    bool isHlg  = (vi.gamma == "arib-std-b67" || vi.gamma == "hlg" ||
                    (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] > 0.5f));
     bool isDovi = !isHlg && (
         (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] < 0.5f) ||
-        this->videoInfo.colormatrix.find("ipt") != std::string::npos ||
-        this->videoInfo.codec.find("dv") != std::string::npos ||
-        this->videoInfo.pixelFormat.find("dovi") != std::string::npos
+        vi.colormatrix.find("ipt") != std::string::npos ||
+        vi.codec.find("dv") != std::string::npos ||
+        vi.pixelFormat.find("dovi") != std::string::npos
     );
 
     // Skip recreation if dimensions and format haven't changed
@@ -992,13 +993,14 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     // The picture is put on the screen in two steps: the frame is resized to
     // the place the picture takes, and then the texture is drawn.
     stage::Marker marker("video draw");
-    bool isHlg          = (this->videoInfo.gamma == "arib-std-b67" || this->videoInfo.gamma == "hlg" ||
+    VideoInfo vi        = this->getVideoInfo();
+    bool isHlg          = (vi.gamma == "arib-std-b67" || vi.gamma == "hlg" ||
                            (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] > 0.5f));
     bool isDoviProfile5 = !isHlg && (
         (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] < 0.5f) ||
-        this->videoInfo.colormatrix.find("ipt") != std::string::npos ||
-        this->videoInfo.codec.find("dv") != std::string::npos ||
-        this->videoInfo.pixelFormat.find("dovi") != std::string::npos
+        vi.colormatrix.find("ipt") != std::string::npos ||
+        vi.codec.find("dv") != std::string::npos ||
+        vi.pixelFormat.find("dovi") != std::string::npos
     );
 
     if (!(this->rect == area) || this->is_dovi_mode != isDoviProfile5) {
@@ -1068,12 +1070,12 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     nvgBeginPath(vg);
     nvgRect(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight());
     NVGpaint videoPaint = nvgImagePattern(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight(), 0, nvg_image, alpha);
-    bool isHdr = (this->videoInfo.pixelFormat == "p010" ||
-                  this->videoInfo.pixelFormat.find("10") != std::string::npos ||
-                  this->videoInfo.gamma == "pq" ||
-                  this->videoInfo.gamma == "smpte2084" ||
+    bool isHdr = (vi.pixelFormat == "p010" ||
+                  vi.pixelFormat.find("10") != std::string::npos ||
+                  vi.gamma == "pq" ||
+                  vi.gamma == "smpte2084" ||
                   isHlg ||
-                  this->videoInfo.primaries == "bt.2020");
+                  vi.primaries == "bt.2020");
     if (isHlg) {
         videoPaint.radius = 3.0f; // 触发 GPU 片段着色器 HLG BT.2100 -> PQ / SDR 电影级转换
     } else if (isDoviProfile5) {
@@ -1093,7 +1095,7 @@ void MPVCore::draw(brls::Rect area, float alpha) {
                 dovi_meta.meta[0], dovi_meta.meta[1], dovi_meta.meta[2],
                 dovi_meta.ycc[0][0], dovi_meta.ycc[0][1], dovi_meta.ycc[0][2],
                 dovi_meta.off[0], dovi_meta.off[1], dovi_meta.off[2],
-                this->videoInfo.gamma, this->videoInfo.colormatrix, this->videoInfo.pixelFormat);
+                vi.gamma, vi.colormatrix, vi.pixelFormat);
         }
     }
     nvgFillPaint(vg, videoPaint);

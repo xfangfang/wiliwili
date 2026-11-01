@@ -105,7 +105,7 @@
  }
  
  static void update_external(struct render_backend *ctx, struct vo *vo)
-@@ -93,6 +106,235 @@
+@@ -93,6 +106,239 @@
      return 0;
  }
  
@@ -227,7 +227,7 @@
 +    static int log_counter = 0;
 +    bool should_log = (log_counter++ < 10) || (log_counter % 120 == 0);
 +
-+    if (!img || img->params.imgfmt != IMGFMT_P010) {
++    if (img && img->params.imgfmt != IMGFMT_P010) {
 +        has_valid_rpu = false;
 +        has_valid_color = false;
 +        memset(p, 0, sizeof(*p));
@@ -239,6 +239,10 @@
 +    } else {
 +        memset(p, 0, sizeof(*p));
 +        dovi_set_identity_curves(p);
++    }
++    if (!img) {
++        if (should_log) fprintf(stderr, "[dovi_sw] img is NULL (cached=%d)\n", has_valid_rpu);
++        return;
 +    }
 +    if (!img->dovi) {
 +        if (should_log) fprintf(stderr, "[dovi_sw] img->dovi is NULL (fmt=%s cached=%d)\n", mp_imgfmt_to_name(img->params.imgfmt), has_valid_rpu);

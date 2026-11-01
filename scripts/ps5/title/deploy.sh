@@ -181,7 +181,7 @@ def remove_tree(ftp, path):
         text = str(error).lower()
         if reply_code(error) == "550" and ("no such" in text or "not found" in text):
             return False
-        if reply_code(error) != "550" or "directory not empty" not in text:
+        if reply_code(error) != "550" or ("directory not empty" not in text and "not a regular file" not in text and "is a directory" not in text):
             raise
     for name in list_names(ftp, path):
         if not name or "/" in name or "\r" in name or "\n" in name:
