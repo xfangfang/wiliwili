@@ -474,6 +474,11 @@ link_image() {
         done
     fi
 
+    local dynamic_vulkan=()
+    if (( ! vulkan_enabled )) && [[ -f "$PS5_PAYLOAD_SDK/target/user/homebrew/lib/libvulkan.so" ]]; then
+        dynamic_vulkan=("$PS5_PAYLOAD_SDK/target/user/homebrew/lib/libvulkan.so")
+    fi
+
     "$PS5_PAYLOAD_SDK/bin/prospero-lld" -T "$title_dir/ps5-pie.ld" "${radv_script[@]}" --eh-frame-hdr \
         --wrap=malloc --wrap=calloc --wrap=realloc --wrap=free --wrap=posix_memalign \
         --wrap=malloc_usable_size --wrap=fopen \
@@ -495,6 +500,7 @@ link_image() {
         --as-needed "$agc_prefix/libSceAgc.so" \
         "$agc_prefix/libSceAgcDriver.so" \
         "$work_dir/stubs/libSceVideodec2.so" \
+        "${dynamic_vulkan[@]}" \
         "$PS5_PAYLOAD_SDK"/target/lib/*.so
 }
 
