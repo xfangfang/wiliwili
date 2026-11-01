@@ -187,7 +187,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: ${{ needs.version.outputs.DIST_PS5 }}-ffpfsc
-          path: package/*.ffpfsc
+          path: package/${{ needs.version.outputs.DIST_PS5 }}.ffpfsc
 
       - name: Upload zip package
         uses: actions/upload-artifact@v6
