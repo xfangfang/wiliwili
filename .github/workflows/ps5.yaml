@@ -103,7 +103,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.PS5_DEPS_PREFIX }}
-          key: ps5-title-deps-${{ hashFiles('scripts/ps5/title/fetch_deps.sh', 'scripts/ps5/install_sdk.sh') }}
+          key: ps5-title-deps-${{ hashFiles('scripts/ps5/title/fetch_deps.sh', 'scripts/ps5/install_sdk.sh', 'scripts/ps5/build_libmpv.sh', 'scripts/ps5/mpv/*') }}-v2
 
       - name: Fetch dependency
         run: scripts/ps5/title/fetch_deps.sh "${PS5_DEPS_PREFIX}"
@@ -112,7 +112,8 @@ jobs:
       # the archive the title links against.
       - name: Build libmpv
         run: |
-          if ! "${PS5_PAYLOAD_SDK}/bin/prospero-pkg-config" --exists mpv; then
+          if ! "${PS5_PAYLOAD_SDK}/bin/prospero-pkg-config" --exists mpv || \
+             ! grep -q "mpv_dovi_metadata" "${PS5_PAYLOAD_SDK}/target/user/homebrew/include/mpv/render.h" 2>/dev/null; then
             scripts/ps5/build_libmpv.sh
           fi
 

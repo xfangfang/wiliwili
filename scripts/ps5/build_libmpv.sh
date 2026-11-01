@@ -24,7 +24,8 @@ WORK_DIR="${WORK_DIR:-${HOME}/.cache/wiliwili-ps5}"
 mkdir -p "${WORK_DIR}"
 cd "${WORK_DIR}"
 
-if [[ ! -d "mpv-${MPV_VERSION}" ]]; then
+if [[ ! -d "mpv-${MPV_VERSION}" ]] || ! grep -q "mpv_dovi_metadata" "mpv-${MPV_VERSION}/libmpv/render.h" 2>/dev/null; then
+    rm -rf "mpv-${MPV_VERSION}"
     echo "Downloading mpv ${MPV_VERSION}" >&2
     curl --location --fail --retry 3 --retry-delay 2 --output "mpv-${MPV_VERSION}.tar.gz" \
         "https://github.com/mpv-player/mpv/archive/refs/tags/v${MPV_VERSION}.tar.gz"
@@ -37,6 +38,7 @@ if [[ ! -d "mpv-${MPV_VERSION}" ]]; then
 fi
 
 cd "mpv-${MPV_VERSION}"
+rm -rf build
 
 if [[ -x "${PS5_PAYLOAD_SDK}/bin/prospero-meson" ]]; then
     MESON="${PS5_PAYLOAD_SDK}/bin/prospero-meson setup"
