@@ -273,15 +273,15 @@ if [[ ${action} == "deploy" && -d "${HOME}/Downloads" ]]; then
         fi
         (
             cd "${dist_dir}"
-            rm -f "${HOME}/Downloads/${title_id}.zip" "${HOME}/Downloads/wiliwili-PS5-v1.6.0.zip" "${HOME}/Downloads/wiliwili-PS5-v1.6.0.1.zip"
+            rm -f "${HOME}/Downloads/${title_id}.zip" "${HOME}/Downloads/wiliwili-PS5-v1.6.0.zip" "${HOME}/Downloads/wiliwili-PS5-v1.6.0.1.zip" "${HOME}/Downloads/wiliwili-PS5-v1.6.0.5.zip"
             zip -rq -X "${HOME}/Downloads/${title_id}.zip" "${title_id}"
-            cp -f "${HOME}/Downloads/${title_id}.zip" "${HOME}/Downloads/wiliwili-PS5-v1.6.0.1.zip"
+            cp -f "${HOME}/Downloads/${title_id}.zip" "${HOME}/Downloads/wiliwili-PS5-v1.6.0.5.zip"
             if [[ -n "${build_tag}" ]]; then
                 cp -f "${HOME}/Downloads/${title_id}.zip" "${HOME}/Downloads/wiliwili-PS5-${build_tag}.zip"
             fi
         )
         printf '==> [title] Created %s/Downloads/%s.zip\n' "${HOME}" "${title_id}"
-        printf '==> [title] Created %s/Downloads/wiliwili-PS5-v1.6.0.1.zip\n' "${HOME}"
+        printf '==> [title] Created %s/Downloads/wiliwili-PS5-v1.6.0.5.zip\n' "${HOME}"
         if [[ -n "${build_tag}" ]]; then
             printf '==> [title] Created %s/Downloads/wiliwili-PS5-%s.zip\n' "${HOME}" "${build_tag}"
         fi

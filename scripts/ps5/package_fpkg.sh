@@ -34,7 +34,7 @@ OUT_DIR="cmake-build-ps5/fpkg"
 TITLE_ID="PPSA99099"
 CONTENT_ID=""
 TITLE="wiliwili"
-VERSION="01.600.001"
+VERSION="01.600.005"
 JOBS="0"
 STAGE_ONLY=""
 
