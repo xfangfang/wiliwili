@@ -189,27 +189,16 @@ static void wiliwili_check_imports(void)
     char name[128];
     unsigned long offset;
     int checked = 0, missing = 0;
-    char missing_list[256] = "";
 
     while (fscanf(f, "%lx %127s", &offset, name) == 2) {
         checked++;
         if (*(const uint64_t *)(EBOOT_BASE + offset) == 0) {
             fprintf(stderr, "[wiliwili] unresolved import: %s (offset 0x%lx)\n", name, offset);
-            if (missing < 5) {
-                if (missing > 0)
-                    strncat(missing_list, " ", sizeof(missing_list) - strlen(missing_list) - 1);
-                strncat(missing_list, name, sizeof(missing_list) - strlen(missing_list) - 1);
-            }
             missing++;
         }
     }
     fclose(f);
     fprintf(stderr, "[wiliwili] imports check: %d of %d unresolved\n", missing, checked);
-    if (missing > 0) {
-        char toast[300];
-        snprintf(toast, sizeof(toast), "wiliwili: %d unresolved imports: %s", missing, missing_list);
-        wiliwili_ps5_notify(toast);
-    }
 }
 
 __attribute__((constructor)) static void wiliwili_open_log(void)

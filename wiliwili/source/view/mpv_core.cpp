@@ -500,8 +500,8 @@ void MPVCore::init() {
     // mpvSetOptionString(mpv, "msg-level", "ffmpeg=trace");
     // mpvSetOptionString(mpv, "msg-level", "all=no");
 #if defined(PS5)
-    mpvSetOptionString(mpv, "terminal", "yes");
-    mpvSetOptionString(mpv, "msg-level", "all=v,ffmpeg=debug");
+    mpvSetOptionString(mpv, "terminal", "no");
+    mpvSetOptionString(mpv, "msg-level", "ffmpeg=info");
 #endif
     if (MPVCore::TERMINAL) {
         mpvSetOptionString(mpv, "terminal", "yes");
@@ -1029,10 +1029,10 @@ void MPVCore::draw(brls::Rect area, float alpha) {
         drawCalls += 1;
         if (this->redraw) drawRedraws += 1;
         double drawNow = brls::getCPUTimeUsec() / 1000.0;
-        if (drawNow - drawAt > 1000.0) {
+        if (drawNow - drawAt > 10000.0) {
             drawAt = drawNow;
             double avgRenderMs = renderCount > 0 ? (renderTotalMs / renderCount) : 0;
-            brls::Logger::info("video draw: calls={} redraw={} avgRender={:.1f}ms totalRender={:.1f}ms", 
+            brls::Logger::debug("video draw (10s): calls={} redraw={} avgRender={:.1f}ms totalRender={:.1f}ms", 
                                drawCalls, drawRedraws, avgRenderMs, renderTotalMs);
             renderTotalMs = 0;
             renderCount = 0;
@@ -1049,8 +1049,8 @@ void MPVCore::draw(brls::Rect area, float alpha) {
         nvgUpdateImage(vg, nvg_image, (const unsigned char *)pixels);
         nvgUpdateMs += brls::getCPUTimeUsec() / 1000.0 - start;
         double now = brls::getCPUTimeUsec() / 1000.0;
-        if (now - nvgUpdateAt > 1000.0) {
-            brls::Logger::info("nvgUpdateImage: {:.1f} ms a second", nvgUpdateMs);
+        if (now - nvgUpdateAt > 10000.0) {
+            brls::Logger::debug("nvgUpdateImage (10s): {:.1f} ms", nvgUpdateMs);
             nvgUpdateMs = 0;
             nvgUpdateAt = now;
         }
@@ -1082,14 +1082,16 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     } else if (isHdr) {
         videoPaint.radius = 1.0f; // 触发 GPU 片段着色器 HDR PQ BT.2020 -> SDR BT.709 电影级色调映射
     }
-    static int dovi_draw_log = 0;
-    if (dovi_draw_log++ < 10 || (dovi_draw_log % 120 == 0)) {
-        brls::Logger::info("[DV_DRAW] isDovi={} isHlg={} isHdr={} curQ={} radius={:.1f} meta=({:.1f},{:.1f},{:.1f}) ycc0=({:.2f},{:.2f},{:.2f}) off=({:.2f},{:.2f},{:.2f}) gamma='{}' matrix='{}' pixfmt='{}'",
-            isDoviProfile5, isHlg, isHdr, this->currentQuality, videoPaint.radius,
-            dovi_meta.meta[0], dovi_meta.meta[1], dovi_meta.meta[2],
-            dovi_meta.ycc[0][0], dovi_meta.ycc[0][1], dovi_meta.ycc[0][2],
-            dovi_meta.off[0], dovi_meta.off[1], dovi_meta.off[2],
-            this->videoInfo.gamma, this->videoInfo.colormatrix, this->videoInfo.pixelFormat);
+    if (isDoviProfile5 || isHlg) {
+        static int dovi_draw_log = 0;
+        if (dovi_draw_log++ < 5 || (dovi_draw_log % 600 == 0)) {
+            brls::Logger::debug("[DV_DRAW] isDovi={} isHlg={} isHdr={} curQ={} radius={:.1f} meta=({:.1f},{:.1f},{:.1f}) ycc0=({:.2f},{:.2f},{:.2f}) off=({:.2f},{:.2f},{:.2f}) gamma='{}' matrix='{}' pixfmt='{}'",
+                isDoviProfile5, isHlg, isHdr, this->currentQuality, videoPaint.radius,
+                dovi_meta.meta[0], dovi_meta.meta[1], dovi_meta.meta[2],
+                dovi_meta.ycc[0][0], dovi_meta.ycc[0][1], dovi_meta.ycc[0][2],
+                dovi_meta.off[0], dovi_meta.off[1], dovi_meta.off[2],
+                this->videoInfo.gamma, this->videoInfo.colormatrix, this->videoInfo.pixelFormat);
+        }
     }
     nvgFillPaint(vg, videoPaint);
     nvgFill(vg);

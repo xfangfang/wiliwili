@@ -668,7 +668,12 @@ void VideoView::updateVideoInfo() {
     videoInfoLabel->setText(fmt::format("{} · {}x{}@{} · {} · {} kbps\n{} · avsync {:.3f} · dropped {}",
         codec, width, height, fps, pixel, bitrate, hwdec.empty() ? "none" : hwdec, avsync, dropped));
     videoInfoLabel->setVisibility(brls::Visibility::VISIBLE);
-    brls::Logger::debug("video info: {} {}x{}@{} {}", decoderName, width, height, fps, pixel);
+    static std::string last_logged_info = "";
+    std::string current_info = fmt::format("{} {}x{}@{} {}", decoderName, width, height, fps, pixel);
+    if (last_logged_info != current_info) {
+        last_logged_info = current_info;
+        brls::Logger::debug("video info: {}", current_info);
+    }
 }
 
 void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
