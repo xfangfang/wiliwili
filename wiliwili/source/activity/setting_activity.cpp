@@ -678,6 +678,17 @@ void SettingActivity::onContentAvailable() {
         },
         "wiliwili/setting/app/network/proxy_hint"_i18n, "wiliwili/setting/app/network/proxy_hint"_i18n, 64);
 
+    /// CDN optimize
+    auto cdnOption = conf.getOptionData(SettingItem::CDN_OPTIMIZE);
+    selectorCDN->init("wiliwili/setting/app/network/cdn"_i18n,
+                      {"hints/off"_i18n, "wiliwili/setting/app/network/cdn_mirror"_i18n,
+                       "wiliwili/setting/app/network/cdn_full"_i18n},
+                      conf.getIntOptionIndex(SettingItem::CDN_OPTIMIZE), [cdnOption](int data) {
+                          ProgramConfig::instance().setSettingItem(SettingItem::CDN_OPTIMIZE,
+                                                                   cdnOption.rawOptionList[data]);
+                          return true;
+                      });
+
 /// Hardware decode
 #if defined(PS4) || defined(__PSV__) && defined(BOREALIS_USE_OPENGL)
     btnHWDEC->setVisibility(brls::Visibility::GONE);

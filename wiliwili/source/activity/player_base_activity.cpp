@@ -13,6 +13,7 @@
 #include "fragment/player_coin.hpp"
 #include "fragment/player_single_comment.hpp"
 #include "utils/config_helper.hpp"
+#include "utils/cdn_helper.hpp"
 #include "utils/dialog_helper.hpp"
 #include "utils/number_helper.hpp"
 #include "presenter/comment_related.hpp"
@@ -593,6 +594,23 @@ void BasePlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) 
         }
     }
 
+    // 收集所有可用 CDN 节点，用于优化视频链接
+    CDNHelper::HostPool cdnPool;
+    {
+        auto collectMedia = [&cdnPool](const bilibili::DashMedia& m) {
+            cdnPool.collect(m.base_url);
+            for (const auto& u : m.backup_url) cdnPool.collect(u);
+        };
+        for (const auto& m : result.dash.video) collectMedia(m);
+        for (const auto& m : result.dash.audio) collectMedia(m);
+        for (const auto& m : result.dash.dolby_audio) collectMedia(m);
+        if (result.dash.has_flac) collectMedia(result.dash.flac_audio);
+        for (const auto& d : result.durl) {
+            cdnPool.collect(d.url);
+            for (const auto& u : d.backup_url) cdnPool.collect(u);
+        }
+    }
+
     if (!result.dash.video.empty()) {
         // dash
         brls::Logger::debug("Video type: dash");
@@ -679,17 +697,17 @@ void BasePlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) 
                 }
             }
             // 生成音频列表
-            audios.emplace_back(a.base_url);
-            audios.insert(audios.end(), a.backup_url.begin(), a.backup_url.end());
+            audios = CDNHelper::optimize(a.base_url, a.backup_url, cdnPool);
             brls::Logger::debug("Dash quality: {}; video: {}; audio: {}", videoUrlResult.quality, v.codecid, a.id);
         }
 
         // 给播放器设置链接
-        this->video->setUrl(v.base_url, start, end, audios);
+        std::vector<std::string> videoUrls = CDNHelper::optimize(v.base_url, v.backup_url, cdnPool);
+        this->video->setUrl(videoUrls[0], start, end, audios);
 
         // 设置备份视频链接
-        for (const auto& backup_url : v.backup_url) {
-            this->video->setBackupUrl(backup_url, start, end, audios);
+        for (size_t i = 1; i < videoUrls.size(); i++) {
+            this->video->setBackupUrl(videoUrls[i], start, end, audios);
         }
     } else {
         // flv
@@ -697,12 +715,17 @@ void BasePlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) 
         if (result.durl.empty()) {
             brls::Logger::error("No media");
         } else if (result.durl.size() == 1) {
-            this->video->setUrl(result.durl[0].url, start, end);
+            std::vector<std::string> urls = CDNHelper::optimize(result.durl[0].url, result.durl[0].backup_url, cdnPool);
+            this->video->setUrl(urls[0], start, end);
+            for (size_t i = 1; i < urls.size(); i++) {
+                this->video->setBackupUrl(urls[i], start, end);
+            }
         } else {
             std::vector<EDLUrl> urls;
             urls.reserve(result.durl.size());
             for (auto& i : result.durl) {
-                urls.emplace_back(i.url, i.length / 1000.0f);
+                auto optimized = CDNHelper::optimize(i.url, i.backup_url, cdnPool);
+                urls.emplace_back(optimized[0], i.length / 1000.0f);
             }
             this->video->setUrl(urls, start, end);
         }

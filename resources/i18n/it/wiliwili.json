@@ -41,7 +41,10 @@
         "header": "Rete",
         "tls": "Verifica TLS",
         "proxy": "Proxy",
-        "proxy_hint": "esempio: http://127.0.0.1:7890"
+        "proxy_hint": "esempio: http://127.0.0.1:7890",
+        "cdn": "Ottimizzazione CDN",
+        "cdn_mirror": "Solo CDN ufficiali",
+        "cdn_full": "Completa (riscrivi link P2P)"
       },
       "ui": {
         "header": "UI",

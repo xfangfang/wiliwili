@@ -41,7 +41,10 @@
         "header": "ネットワーク",
         "tls": "TLS検証",
         "proxy": "プロキシ",
-        "proxy_hint": "例：http://127.0.0.1:7890"
+        "proxy_hint": "例：http://127.0.0.1:7890",
+        "cdn": "CDN 最適化",
+        "cdn_mirror": "公式 CDN のみ",
+        "cdn_full": "フル（P2P リンクを書き換え）"
       },
       "ui": {
         "header": "UI",

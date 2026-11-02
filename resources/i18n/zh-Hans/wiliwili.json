@@ -41,7 +41,10 @@
         "header": "网络设置",
         "tls": "TLS 验证",
         "proxy": "网络代理",
-        "proxy_hint": "示例: http://127.0.0.1:7890"
+        "proxy_hint": "示例: http://127.0.0.1:7890",
+        "cdn": "CDN 优化",
+        "cdn_mirror": "仅使用官方 CDN",
+        "cdn_full": "完整策略（重写 P2P 链接）"
       },
       "ui": {
         "header": "界面设置",
