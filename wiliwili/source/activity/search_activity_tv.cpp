@@ -3,10 +3,8 @@
 //
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-#include <codecvt>
 #include <cstring>
 #include <iostream>
-#include <locale>
 #include <borealis/core/thread.hpp>
 #include <borealis/core/touch/tap_gesture.hpp>
 
@@ -22,6 +20,16 @@
 #include "analytics.h"
 
 using namespace brls::literals;
+
+// The cursor is removed one character at a time, and the text is UTF-8: the
+// bytes that continue a character (10xxxxxx) are stepped over, so that a
+// Chinese title loses one character rather than one byte of it.
+static void eraseLastCharacter(std::string& text) {
+    if (text.empty()) return;
+    size_t index = text.size() - 1;
+    while (index > 0 && (static_cast<unsigned char>(text[index]) & 0xC0) == 0x80) index--;
+    text.erase(index);
+}
 
 typedef brls::Event<char> KeyboardEvent;
 typedef std::vector<char> KeyboardData;
@@ -193,7 +201,7 @@ void TVSearchActivity::onContentAvailable() {
         if (currentSearch.empty()) {
             return true;
         }
-        currentSearch.erase(currentSearch.size() - 1, 1);
+        eraseLastCharacter(currentSearch);
         this->updateInputLabel();
         inputLabel->getParent()->setCustomNavigationRoute(brls::FocusDirection::DOWN, deleteLabel);
         return true;
@@ -226,13 +234,13 @@ void TVSearchActivity::onContentAvailable() {
 
 TVSearchActivity::~TVSearchActivity() { brls::Logger::debug("TVSearchActivity: delete"); }
 
-std::string TVSearchActivity::getCurrentSearch() {
-    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(currentSearch);
-}
+// The text is kept as UTF-8, the way the rest of the application holds it. It
+// used to be converted to and from a wide string here, and on the console the
+// wide character is two bytes wide: the converter refuses the values a
+// two-byte character cannot hold and throws, which left the page unusable.
+std::string TVSearchActivity::getCurrentSearch() { return currentSearch; }
 
-void TVSearchActivity::setCurrentSearch(const std::string& value) {
-    currentSearch = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(value);
-}
+void TVSearchActivity::setCurrentSearch(const std::string& value) { currentSearch = value; }
 
 void TVSearchActivity::search(const std::string& key) {
     if (key.empty()) return;

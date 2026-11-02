@@ -32,6 +32,15 @@ bool DialogHelper::checkLogin() {
 
 /// 退出应用提示
 void DialogHelper::quitApp(bool restart) {
+#if defined(PS5)
+    // A title on the console cannot start itself again: the console starts
+    // it from the homebrew menu. The settings are saved and take effect the
+    // next time the application starts, so it stays up.
+    auto dialog = new brls::Dialog("wiliwili/setting/restart_hint"_i18n);
+    dialog->addButton("hints/ok"_i18n, []() {});
+    dialog->setCancelable(false);
+    dialog->open();
+#else
     auto dialog = new brls::Dialog("wiliwili/setting/quit_hint"_i18n);
     dialog->addButton("hints/ok"_i18n, [restart]() {
 #ifndef IOS
@@ -52,4 +61,5 @@ void DialogHelper::quitApp(bool restart) {
     });
     dialog->setCancelable(false);
     dialog->open();
+#endif /* PS5 */
 }

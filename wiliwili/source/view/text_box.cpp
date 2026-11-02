@@ -5,8 +5,6 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #include <utility>
-#include <codecvt>
-#include <locale>
 #include <cmath>
 #include <yoga/YGNode.h>
 #include <borealis/core/application.hpp>
@@ -18,6 +16,16 @@ const char* TEXTBOX_MORE = "更多";
 // Modified from https://github.com/memononen/nanovg
 // Do not directly modify nanovg for easy upgrade in the future
 // Great thanks to nanovg!
+
+// The number of characters in a UTF-8 string: every byte that is not a
+// continuation (10xxxxxx) starts one. This only asks how many there are, so no
+// conversion is needed, and none can fail on text the layout cut in the middle.
+inline static size_t utf8Length(const std::string& text) {
+    size_t length = 0;
+    for (unsigned char c : text)
+        if ((c & 0xC0) != 0x80) length++;
+    return length;
+}
 
 inline float minf(float a, float b) { return a < b ? a : b; }
 inline float maxf(float a, float b) { return a > b ? a : b; }
@@ -53,8 +61,7 @@ RichTextData richTextBreakLines(NVGcontext* ctx, float x, float y, float breakRo
     if (nrows > 0) {
         row                     = &rows[0];
         std::string currentText = text.substr(row->start - stringStart, row->end - row->start);
-        auto firstLine          = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(currentText);
-        if (firstLine.length() == 1 && row->width / 2 + sx > breakRowWidth) {
+        if (utf8Length(currentText) == 1 && row->width / 2 + sx > breakRowWidth) {
             // 只有一个字符且宽度超出了范围
             // 这里使用 row->width / 2 来判断是因为 nanovg在这种情况下会错误的返回前两个字符的宽度
             // 添加空白的一行

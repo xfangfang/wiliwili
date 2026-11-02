@@ -65,13 +65,21 @@ void MineQrLogin::getLoginUrl() {
     ASYNC_RETAIN
     BILI::get_login_url_v2(
         [ASYNC_TOKEN](const std::string& url, const std::string& key) {
-            ASYNC_RELEASE
-            this->oauthKey  = key;
-            this->login_url = url;
-            this->onLoginUrlChange(url);
-            this->checkLogin();
+            brls::sync([ASYNC_TOKEN, url, key]() {
+                ASYNC_RELEASE
+                this->oauthKey  = key;
+                this->login_url = url;
+                this->onLoginUrlChange(url);
+                this->checkLogin();
+            });
         },
-        [this](BILI_ERR) { this->onError(); });
+        [ASYNC_TOKEN](BILI_ERR) {
+            brls::sync([ASYNC_TOKEN, error]() {
+                ASYNC_RELEASE
+                brls::Logger::error("getLoginUrl: {}", error);
+                this->onError();
+            });
+        });
 }
 
 void MineQrLogin::checkLogin() {
@@ -84,10 +92,15 @@ void MineQrLogin::checkLogin() {
     bilibili::BilibiliClient::get_login_info_v2(
         this->oauthKey, "wiliwili - " + APPVersion::instance().getPlatform(), ProgramConfig::instance().getDeviceID(),
         [ASYNC_TOKEN](bilibili::LoginInfo info) {
-            this->loginCb.fire(info);
-            brls::Logger::debug("return code:{}", (int)info);
-            ASYNC_RELEASE
-            switch (info) {
+            // 这一句是从网络线程回来的：fire() 会调用订阅者（刷新列表、关闭登录框），
+            // 全是界面操作，而且要把存活检查放在它前面。以前 fire() 在 ASYNC_RELEASE
+            // 之前、又在网络线程上跑，登录框被关掉之后那个请求仍会 fire 已经释放的
+            // 事件对象，PS5 上表现为退出登录后扫码时的 SIGBUS。
+            brls::sync([ASYNC_TOKEN, info]() {
+                ASYNC_RELEASE
+                this->loginCb.fire(info);
+                brls::Logger::debug("return code:{}", (int)info);
+                switch (info) {
                 case bilibili::LoginInfo::OAUTH_KEY_TIMEOUT:
                 case bilibili::LoginInfo::OAUTH_KEY_ERROR:
                     this->onLoginError();
@@ -119,6 +132,7 @@ void MineQrLogin::checkLogin() {
                 default:
                     brls::Logger::error("return unknown code:{}", (int)info);
                     break;
-            }
+                }
+            });
         });
 }

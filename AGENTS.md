@@ -1,6 +1,6 @@
 # AGENTS.md — wiliwili Codebase Guide
 
-wiliwili is a cross-platform Bilibili client (Nintendo Switch, PSVita, PS4, PC) built in C++17. The UI is rendered via **nanovg**, windowing via **GLFW** or **SDL2**, and video playback via **mpv + FFmpeg**.
+wiliwili is a cross-platform Bilibili client (Nintendo Switch, PSVita, PS4, PS5, PC) built in C++17. The UI is rendered via **nanovg**, windowing via **GLFW** or **SDL2**, and video playback via **mpv + FFmpeg**.
 
 ---
 
@@ -161,14 +161,14 @@ Built-in keymap fonts in `resources/font/`: `keymap_xbox.ttf`, `keymap_ps.ttf`, 
 
 | Mode | Trigger | Notes                                                  |
 |---|---|--------------------------------------------------------|
-| Framebuffer (default) | `MPV_USE_FB` (auto) | GL 3.2+ / GLES 2.0+; best performance                  |
+| Framebuffer (default) | `MPV_USE_FB` (auto) | GL 3.2+ / GLES 2.0+; best performance; PS5            |
 | No framebuffer | `-DMPV_NO_FB=ON` | MPV draws fullscreen, UI is overlaid; PS4, PSV-GL, GL2 |
 | Software render | `-DMPV_SW_RENDER=ON` | CPU only; for UWP/D3D12 porting                        |
 | deko3d | `BOREALIS_USE_DEKO3D` | Switch native; 4K@60 with hardware decode              |
 | GXM | `BOREALIS_USE_GXM` | PSVita native                                          |
 | D3D11 | `BOREALIS_USE_D3D11` | Windows Native/UWP                                     |
 
-Default hardware decode: Switch/GXM → `"auto"`, PSV-GL → `"vita-copy"`, PS4 → `"no"`, Desktop → `"auto-safe"`.
+Default hardware decode: Switch/GXM → `"auto"`, PSV-GL → `"vita-copy"`, PS4 → `"no"`, PS5 → `"no"` (payloads have no hardware decode), Desktop → `"auto-safe"`.
 
 ### Video Quality Codes
 
@@ -190,6 +190,7 @@ Default hardware decode: Switch/GXM → `"auto"`, PSV-GL → `"vita-copy"`, PS4 
 |---|---|
 | Nintendo Switch | `/config/wiliwili/` |
 | PS4 | `/data/wiliwili/` |
+| PS5 | `/data/wiliwili/` |
 | PSVita | `ux0:/data/wiliwili/` |
 | macOS (release) | `~/Library/Application Support/wiliwili/` |
 | Linux (release) | `$XDG_CONFIG_HOME/wiliwili/` or `~/.config/wiliwili/` |
@@ -249,6 +250,64 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
      -DUSE_SYSTEM_CPR=ON && make -C cmake-build-ps4 -j$(nproc)"
 ```
 
+### PS5 (ps5-payload-dev, no Docker)
+```sh
+# requires LLVM 18: brew install llvm@18 (macOS) / apt install llvm-18 clang-18 lld-18
+export LLVM_CONFIG=$(brew --prefix llvm@18)/bin/llvm-config
+
+scripts/ps5/install_sdk.sh          # downloads the ~220MB ps5-payload-dev sysroot
+scripts/build_ps5.sh                # builds libmpv (once) + wiliwili
+# native title build (PPSA99099):
+# see scripts/ps5/title/README.md for full native title pipeline
+scripts/ps5/title/deploy.sh -h <ps5-ip>   # upload PPSA99099 to /data/homebrew/PPSA99099
+```
+`PS5_PAYLOAD_SDK` points at an existing SDK to skip the download. wiliwili runs as a native
+homebrew title under `/data/homebrew/PPSA99099/` on a jailbroken console.
+
+#### PS5 Hardware Decoder & Vulkan Pipeline Notes
+- **Direct Memory Permissions**: Hardware decoder frame buffers (`ps5->frames`) MUST be mapped with `PROT_CPU_RW | PROT_GPU_RW` (`0x33`). Using `PROT_CHIP_POOL` (`0x32`, write-only for CPU) causes CPU reads (`memcpy`) to trigger kernel exception `0xa0020328 (SYSTEM_XO_VIOLATION)` on Prospero.
+- **Surface Stride & Height**: `sceVideodec2` hardware decoder surfaces align height to 64 pixels (`(height + 63) & ~63`). Semi-planar NV12 Chroma (UV) begins at offset `pitch * surface_height`, NOT display height.
+- **MPV Software Rendering (`MPV_SW_RENDER`)**: Under `BOREALIS_USE_VULKAN`, MPV renders to a CPU buffer (`pixels`) aligned to 64 bytes via `posix_memalign(..., 64, size + 64)`. Rendering surface is capped at 1080p to prevent 4K memory bandwidth bottlenecks; GPU shaders scale it to 4K output without CPU cost.
+- **Frame Boundaries**: `nvgUpdateImage` must only be invoked within the rendering loop (`draw()`), never out-of-band in `reset()` or `setUrl()`.
+
+#### PS5 Physical HDR10 & Dolby Vision / HLG Pipeline Notes
+- **Physical HDR10 Output**:
+  - The swapchain decides, not a runtime switch. `MPVCore::HDR_OUTPUT` (config key `ps5_hdr_output`, default off) is copied into `brls::VulkanContext::HDR_SWAPCHAIN` in `main.cpp` before `brls::Application::init()`; the driver then asks for `brls::VulkanContext::HDR_SWAPCHAIN_FORMAT` = `VK_FORMAT_A2R10G10B10_UNORM_PACK32` and falls back to `B8G8R8A8_UNORM` when the surface or the console refuses it.
+  - **Channel order**: VideoOut's `Bgr10A2` scans **blue in the low ten bits**. In Vulkan that is `A2R10G10B10_UNORM_PACK32` (Mesa: `PIPE_FORMAT_B10G10R10A2`); `A2B10G10R10_UNORM_PACK32` puts red there and shows the whole screen with red and blue swapped (the theme's cyan focus ring turns gold, video turns purple). The `0x22000000` bits of the pixel format are the same RGB-vs-BGR choice: `0x8000000022000000` is Rgba8Srgb, `0x8000000000000000` is Bgra8Srgb. (Checked against sainsaji/EVO-PLAYER-PS5, `projects/evoplayer/media/src/evo_agc_runtime.c`.)
+  - Mesa's `videoout_register_locked()` (`wsi_common_videoout.c`) registers those framebuffers with `PS5_VIDEO_OUT_PIXEL_FORMAT_BGR10A2_BT2100_PQ` (`0x8100070400000000`), 8bit sets with `BGR8A8_SDR` (`0x8000000000000000`). A set is keyed by size **and** format. VideoOut only honors the format given **at registration**.
+  - `sceVideoOutSubmitChangeBufferAttribute2` retypes a registered set in place and is applied at the next flip (that is how EVO-PLAYER toggles HDR), but it cannot fix a set whose *pixels* are still 8bit, and `sceVideoOutGetOutputStatus` reports `dynamic_range=2` on a console set to always-HDR whether the retype happened or not — it is not a way to confirm a switch.
+  - **Never pack PQ into the 8bit frame buffer.** nanovg paints with premultiplied alpha blending (`ONE, ONE_MINUS_SRC_ALPHA`): any partially transparent draw (text anti-aliasing, rounded corners, danmaku, menu overlays) mixes packed bits with packed bits and the whole screen fills with garbage — that is the yellow UI and purple video this port used to show.
+  - In `fill_base.frag` (`hdrOutput == 1`) the shader writes PQ floats straight into the 10bit target (`outColor = vec4(finalPq, alpha)`); UI and text are mapped to 203 Nits (Graphics White) BT.2020 PQ per **ITU-R BT.2408**.
+  - Flag plumbing: `brls_nanovg_hdr_output` is a single global (declared in `nanovg.h`, defined in `nanovg.c`) because `nanovg_vk.h` is compiled into more than one translation unit — a `static` in that header gave every one of them its own copy, so the setter and the uniform filler disagreed. `VulkanContext::createSwapchainWithFormat()` sets it with `nvgSetHdrOutput(nullptr, 0|1)`, and `frag->hdrOutput` reads it back through `vknvg_get_hdr_output()`.
+- **Video texture types (`nvgImagePattern` → `texType`)**: the value is carried in `NVGpaint.radius` and decoded in `nanovg_vk.h`:
+  - `radius = 3.0f` → `texType = 6`: HLG (BT.2100 ARIB-STD-B67) → PQ / SDR.
+  - `radius = 2.0f` → `texType = 5`: Dolby Vision Profile 5 (ICtCp reshaping).
+  - `radius = 1.0f` → `texType = 4`: generic HDR10 PQ (BT.2020 → BT.709 tone mapping).
+  - `NVG_IMAGE_DOVI_PROFILE5` / `NVG_IMAGE_HDR_TONEMAP` image flags select the same paths when the radius is left at 0.
+- **Dolby Vision Profile 8.4 vs Profile 5 Distinction**:
+  - **Profile 8.4 (iPhone & mobile user uploads)**:
+    - Base layer is standard **HLG (ARIB-STD-B67) BT.2020 YUV** (stream `dv_profile=8`, `compatibility id: 4`).
+    - Flagged in `mpv_core.cpp` via `isHlg` (`gamma == "arib-std-b67"` / `gamma == "hlg"`), mapping to `videoPaint.radius = 3.0f` and `texType == 6`.
+    - Shader applies **ITU-R BT.2100 HLG EOTF** (`hlg_to_nits` -> 1000 Nits nominal peak -> `nits_to_pq_vec3`). Must **never** feed raw HLG directly into PQ (causes severe oversaturation / blowout) or ICtCp reshaping (causes green tint).
+  - **Profile 5 (Official streaming & cinema)**:
+    - Base layer is proprietary **IPT-PQ / ICtCp** (`dv_profile=5`, Full Range 0~255).
+    - Flagged via `isDoviProfile5`, mapping to `videoPaint.radius = 2.0f` and `texType == 5`. Note: `dv_profile` itself is **not** read — the check is heuristic (see below) because the container metadata is not exposed by every Bilibili stream.
+    - **swscale color conversion** (the critical detail): mpv has no libplacebo; it software-decodes DV P5 as `yuv420p10le` and lets swscale convert to 8-bit RGBA. swscale sees **bt2020nc limited-range** YUV and applies: (a) limited→full luma expansion `(Y − 16/255) × 255/219`, (b) limited→full chroma expansion `(C − 128/255) × 255/224`, (c) the **BT.2020-nc forward matrix**. The shader must exactly invert this chain.
+    - **Shader inverse** (`dolby_vision_profile5_to_nits()` in `fill_base.frag`):
+      1. Apply `M_rgb_to_yuv_2020nc` (BT.2020-nc matrix) to recover YCbCr from RGBA.
+      2. Re-compress luma: `I_true = yuv.x × (219/255) + (16/255)` — undoes the limited→full expansion.
+      3. Re-compress chroma: `Ct = yuv.y × (224/255)`, `Cp = yuv.z × (224/255)`.
+      4. ICtCp → LMS′ (PQ-encoded) via the standard 3×3 inverse.
+      5. LMS′ → linear LMS via PQ EOTF.
+      6. Linear LMS → BT.2020 via libplacebo `dovi_lms2rgb`.
+      7. `max(lin2020, vec3(0.0))` to clip out-of-gamut negatives (lifting would make pure black grey).
+    - **Do NOT** use `smoothstep` shadow chroma damping — that was compensating for the old wrong BT.709 matrix and has been removed.
+    - **Do NOT** apply `vf=@wiliwili-dv:format=colorlevels=full:colormatrix=bt.709` filter — it was tested on the real console and made the picture worse (commit `817b5013` added, `6ad969c4` reverted). The shader's limited→full inversion handles this correctly.
+    - After any edit to `fill_base.frag`, regenerate **both** SPIR-V `.inc` files (see glsl_to_inc.py note in Key Files).
+    - Reconstructed linear BT.2020 is tone-mapped to PQ (HDR output) or SDR via BT.2390 EETF. Out-of-gamut negatives are clipped. Known limitation: 8-bit RGBA loses bottom ~6% of `I` (< 0.1 nit, invisible) and clamps above 940/1023 (> ~4775 nits, rare in practice).
+  - **Heuristic detection (do not replace with `dv_profile` alone)**: `isDoviProfile5` = `colormatrix` contains `ipt`, or `codec` contains `dv`, or `pixelFormat` contains `dovi`, or `currentQuality == 126`; `isHlg` wins over it (Profile 8.4 shares the Profile 5 codec path but is plain HLG). `isHdr` additionally accepts `p010`, any 10-bit pixel format, `gamma == pq/smpte2084` and `primaries == bt.2020`.
+
+
 ### Useful CMake flags
 | Flag | Purpose |
 |---|---|
@@ -283,6 +342,7 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
 | `__SWITCH__` | Nintendo Switch |
 | `__PSV__` | PlayStation Vita |
 | `PS4` | PlayStation 4 |
+| `PS5` / `__PS5__` | PlayStation 5 (set by the prospero toolchain) |
 | `BOREALIS_USE_OPENGL` / `BOREALIS_USE_DEKO3D` / `BOREALIS_USE_D3D11` / `BOREALIS_USE_GXM` | Rendering backend |
 | `MPV_USE_FB` / `MPV_NO_FB` | Framebuffer mode (auto-derived from above) |
 | `USE_WEBP` | WebP image decoding enabled |

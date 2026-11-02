@@ -1,0 +1,15 @@
+/*
+ * wiliwili - PS5 native title symbol visibility policy.
+ * Based on ps5-opengl's app-symbols.map:
+ * Copyright (C) 2026 BlackBearReloaded
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * The title is linked statically, so nothing has to stay visible for a
+ * dynamically loaded object. Hiding every application symbol keeps the
+ * executable's dynamic table to the imports the loader resolves.
+ */
+
+{
+    local:
+        *;
+};

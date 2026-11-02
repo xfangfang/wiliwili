@@ -1,0 +1,208 @@
+name: Build PS5
+
+# This fork only ships the PlayStation 5 port, so the build that matters is
+# the one below. The upstream workflows for the other platforms are kept in
+# the tree untouched and are disabled in the fork's Actions settings.
+
+on:
+  push:
+    # the branch this fork works on; other branches are released deliberately
+    branches: [ yoga, PS5-Vulkan ]
+    tags:
+      - 'v*'
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      disable_unity_build:
+        description: 'Disable unity build'
+        required: false
+        default: 'false'
+      release:
+        description: 'Publish as GitHub release'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: ps5-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.info.outputs.version }}
+      DIST_PS5: ${{ steps.info.outputs.DIST_PS5 }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Version
+        id: info
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            VERSION=$(git rev-parse --short HEAD)
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "DIST_PS5=wiliwili-PS5-${VERSION}" >> $GITHUB_OUTPUT
+
+  # What a console runs from below /data/homebrew/PPSA99099 is a native title:
+  # one static image signed into an eboot.bin, not the eboot.elf a browser
+  # launcher starts. scripts/ps5/title assembles that folder - the same script
+  # the local deploy uses - and needs the pinned third party sources (about
+  # 700 MB, cached between runs) plus a second link of the application.
+  build-ps5-title:
+    needs: [ version ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      # The paths scripts/ps5/title/env.sh derives from the deps directory;
+      # they are spelled out here because env.sh also picks the compiler by
+      # platform, and the runner's clang-18 is not where Homebrew keeps it.
+      PS5_DEPS_PREFIX: ${{ github.workspace }}/ps5-deps
+      PS5_PAYLOAD_SDK: ${{ github.workspace }}/ps5-deps/ps5-payload-sdk
+      PS5_OPENGL_CHECKOUT: ${{ github.workspace }}/ps5-deps/ps5-opengl
+      PS5_OPENGL_PREFIX: ${{ github.workspace }}/ps5-deps/ps5-opengl-sdk-1.0.2/sdk
+      PS5_BOILERPLATE: ${{ github.workspace }}/ps5-deps/ps5-native-app-boilerplate
+      PS5_SDL_SOURCE: ${{ github.workspace }}/ps5-deps/SDL2
+      PS5_SDL2_PREFIX: ${{ github.workspace }}/ps5-deps/ps5-opengl/build/sdl2-native/sdk
+      PS5_NATIVE_TOOL: ${{ github.workspace }}/ps5-deps/ps5-native-app-boilerplate/build-host/ps5-native-tool
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 lld-18 llvm-18 meson ninja-build \
+            pkg-config cmake python3 curl wget unzip zlib1g-dev
+
+      # The distribution keeps the suffixed names in /usr/bin and the whole
+      # toolchain, the utilities beside the compiler included, in the LLVM
+      # prefix llvm-config reports.
+      - name: Locate LLVM 18
+        run: |
+          bindir=$(llvm-config-18 --bindir)
+          for tool in clang clang++ llvm-config llvm-ar llvm-nm llvm-objcopy llvm-readelf; do
+            test -x "$bindir/$tool" || { echo "$bindir/$tool is missing" >&2; exit 1; }
+          done
+          {
+            echo "PS5_CLANG=$bindir/clang"
+            echo "LLVM_CONFIG=$bindir/llvm-config"
+            echo "CXX=$bindir/clang++"
+          } >> $GITHUB_ENV
+
+      - name: Cache the pinned sources
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PS5_DEPS_PREFIX }}
+          key: ps5-title-deps-${{ hashFiles('scripts/ps5/title/fetch_deps.sh', 'scripts/ps5/install_sdk.sh', 'scripts/ps5/build_libmpv.sh', 'scripts/ps5/mpv/*') }}-v2
+
+      - name: Fetch dependency
+        run: scripts/ps5/title/fetch_deps.sh "${PS5_DEPS_PREFIX}"
+
+      # The SDK ships the ffmpeg it was built with but not mpv: this installs
+      # the archive the title links against.
+      - name: Build libmpv
+        run: |
+          if ! "${PS5_PAYLOAD_SDK}/bin/prospero-pkg-config" --exists mpv || \
+             ! grep -q "mpv_dovi_metadata" "${PS5_PAYLOAD_SDK}/target/user/homebrew/include/mpv/render.h" 2>/dev/null; then
+            scripts/ps5/build_libmpv.sh
+          fi
+
+      - name: Build the module converter
+        run: scripts/ps5/title/build_native_tool.sh
+
+      - name: Build the static SDL2
+        run: scripts/ps5/title/build_sdl2.sh
+
+      # The resources are embedded in the image, and the generator that turns
+      # them into C++ runs on the host: borealis compiles it with the console
+      # toolchain unless a prebuilt one sits in its directory, so it is built
+      # here first.
+      - name: Build the resource generator
+        run: bash library/borealis/build_libromfs_generator.sh
+
+      # The clean-room runtime module the title loads beside its image is
+      # generated from the boilerplate's own sources, not shipped with it.
+      # The boilerplate fetches zlib from zlib.net and refuses anything that
+      # does not match the pinned checksum; that URL answers the runner with a
+      # different archive, so the pinned one is taken from the mirror of the
+      # release instead and put where the boilerplate expects to find it.
+      - name: Fetch the pinned zlib
+        run: |
+          zlib="$PS5_BOILERPLATE/.deps/native/zlib"
+          mkdir -p "$zlib"
+          curl --location --fail --retry 5 --retry-delay 3 \
+            --output "$zlib/zlib-1.3.2.tar.gz" \
+            https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz
+          printf '%s  %s\n' \
+            bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16 \
+            "$zlib/zlib-1.3.2.tar.gz" | sha256sum --check --strict
+
+      - name: Build the runtime module
+        run: |
+          bindir=$(llvm-config-18 --bindir)
+          make -C "$PS5_BOILERPLATE" libc USE_CCACHE=0 \
+            HOST_CC="$bindir/clang" HOST_CXX="$bindir/clang++"
+
+      - name: Configure
+        env:
+          BRLS_UNITY_BUILD: ${{ github.event.inputs.disable_unity_build == 'true' && 'OFF' || 'ON' }}
+        run: |
+          cmake -B cmake-build-ps5-title -DCMAKE_BUILD_TYPE=Release -DPLATFORM_PS5=ON \
+            -DPS5_NATIVE_TITLE=ON -DUSE_LIBROMFS=ON -DBRLS_UNITY_BUILD=${BRLS_UNITY_BUILD} \
+            -DCMAKE_UNITY_BUILD_BATCH_SIZE=16
+
+      - name: Build
+        run: cmake --build cmake-build-ps5-title --target wiliwili.title -j$(nproc)
+
+      # The archive holds the title folder as it has to sit below
+      # /data/homebrew: unzip it there and the folder is in place.
+      - name: Stage the title folder
+        run: |
+          mkdir -p package
+          cp -a dist/PPSA99099 package/
+          (cd package && zip -r -9 "${{ needs.version.outputs.DIST_PS5 }}.zip" PPSA99099)
+
+      # Package native title into compressed PFS (.ffpfsc) image using ps5-dump-forge
+      - name: Package ffpfsc
+        run: |
+          scripts/ps5/package_ffpfs.sh -i dist/PPSA99099 -o package -n "${{ needs.version.outputs.DIST_PS5 }}" -l 9
+
+      - name: Upload title folder
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ needs.version.outputs.DIST_PS5 }}-title
+          path: package/PPSA99099
+
+      - name: Upload ffpfsc image
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ needs.version.outputs.DIST_PS5 }}-ffpfsc
+          path: package/${{ needs.version.outputs.DIST_PS5 }}.ffpfsc
+
+      - name: Upload zip package
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ needs.version.outputs.DIST_PS5 }}-zip
+          path: package/*.zip
+
+      - name: Publish Release Assets
+        if: (startsWith(github.ref, 'refs/tags/v') || github.event.inputs.release == 'true') && !cancelled()
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ needs.version.outputs.version }}
+          tag_name: ${{ needs.version.outputs.version }}
+          files: |
+            package/${{ needs.version.outputs.DIST_PS5 }}.zip
+            package/${{ needs.version.outputs.DIST_PS5 }}.ffpfsc
+          fail_on_unmatched_files: false
+          generate_release_notes: true

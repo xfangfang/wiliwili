@@ -1,0 +1,10 @@
+{
+    "titleId": "BREW99099",
+    "deeplinkUri": "http://127.0.0.1:8080/fs/data/homebrew/wiliwili/index.html",
+    "localizedParameters": {
+        "defaultLanguage": "en-US",
+        "en-US": {
+            "titleName": "wiliwili"
+        }
+    }
+}

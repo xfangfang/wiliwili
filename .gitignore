@@ -24,6 +24,8 @@ build-*
 android-project
 *.deb
 *.dmp
+/dist/
+/dist-citest/
 # Github Copilot
 .github/copilot-instructions.md
 .github/instructions/
@@ -34,3 +36,16 @@ android-project
 CLAUDE.md
 # Other AI
 AGENT.md
+
+# Python
+__pycache__/
+*.pyc
+
+# Local debug / test files
+ps5_wiliwili_*
+*.log
+
+# AI skills / agent artifacts
+.agents/
+skills-lock.json
+

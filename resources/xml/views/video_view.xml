@@ -5,6 +5,15 @@
         justifyContent="spaceBetween"
         alignItems="center">
 
+    <brls:Label
+            id="video/info/label"
+            positionType="absolute"
+            positionLeft="20"
+            positionTop="92"
+            textColor="#FFFFFF"
+            fontSize="13"
+            visibility="gone"/>
+
     <brls:Box
             id="video/osd/top/box"
             width="100%"

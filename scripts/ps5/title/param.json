@@ -1,0 +1,38 @@
+{
+  "ageLevel": {
+    "default": 0
+  },
+  "applicationCategoryType": 65536,
+  "applicationDrmType": "free",
+  "attribute": 1644167168,
+  "attribute2": 0,
+  "attribute3": 1048576,
+  "conceptId": "99099",
+  "contentBadgeType": 2,
+  "contentId": "UP9000-PPSA99099_00-WILIWILI00000001",
+  "contentVersion": "01.600.005",
+  "downloadDataSize": 256,
+  "gameIntent": {
+    "permittedIntents": [
+      {
+        "intentType": "launchActivity"
+      }
+    ]
+  },
+  "localizedParameters": {
+    "defaultLanguage": "en-US",
+    "en-US": {
+      "titleName": "wiliwili"
+    }
+  },
+  "masterVersion": "01.60",
+  "pubtools": {
+    "creationDate": "2026-01-01 00:00:00",
+    "loudnessSnd0": "-28.00",
+    "toolVersion": "2.00"
+  },
+  "requiredSystemSoftwareVersion": "0x0000000000000000",
+  "sdkVersion": "0x0000000000000000",
+  "titleId": "PPSA99099",
+  "versionFileUri": ""
+}

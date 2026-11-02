@@ -1,0 +1,46 @@
+diff --git a/integration/SDL2/CMakeLists.txt b/integration/SDL2/CMakeLists.txt
+index d12228b..9655c8a 100644
+--- a/integration/SDL2/CMakeLists.txt
++++ b/integration/SDL2/CMakeLists.txt
+@@ -3,6 +3,10 @@
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ 
+ cmake_minimum_required(VERSION 3.16)
++# SDL's own CMakeLists still declares 3.0 compatibility, which CMake 4 rejects.
++if(CMAKE_VERSION VERSION_GREATER_EQUAL 4.0 AND NOT DEFINED CMAKE_POLICY_VERSION_MINIMUM)
++    set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
++endif()
+ project(SDL2G19 C)
+ option(G19_HOST_TEST "Run real SDL2 with a host EGL contract double" OFF)
+ option(G42_INPUT_VALIDATION "Select the bounded physical input consumer" OFF)
+@@ -18,7 +22,9 @@ set(SDL_HIDAPI_JOYSTICK OFF CACHE BOOL "" FORCE)
+ set(SDL_PTHREADS ON CACHE BOOL "" FORCE)
+ set(SDL_SOURCE_VERSION "2.30.12-g8c56053f13ca-g26")
+ set(SDL2_DISABLE_SDL2MAIN ON CACHE BOOL "" FORCE)
+-foreach(feature AUDIO RENDER HAPTIC SENSOR OPENGL OPENGLES VULKAN X11
++# AUDIO stays on: the media player reaches the console's audio output through
++# SDL's own PS5 backend, which the upstream PS5 branch selects under SDL_AUDIO.
++foreach(feature RENDER HAPTIC SENSOR OPENGL OPENGLES VULKAN X11
+                 WAYLAND KMSDRM OFFSCREEN JACK PULSEAUDIO DBUS IBUS FCITX LIBUDEV)
+     set(SDL_${feature} OFF CACHE BOOL "" FORCE)
+ endforeach()
+@@ -28,6 +34,19 @@ if(G19_HOST_TEST)
+ endif()
+ if(NOT G19_HOST_TEST)
+     set(PS5 ON CACHE BOOL "" FORCE)
++    # Apple's ar silently discards members that are not Mach-O objects and would
++    # leave an archive with no target code in it, so the archiver is taken from
++    # the LLVM installation that PS5_CLANG selects.
++    set(PS5_LLVM_TOOL_DIR "")
++    if(DEFINED ENV{PS5_CLANG})
++        get_filename_component(PS5_LLVM_TOOL_DIR "$ENV{PS5_CLANG}" DIRECTORY)
++    endif()
++    find_program(PS5_LLVM_AR NAMES llvm-ar llvm-ar-18 HINTS "${PS5_LLVM_TOOL_DIR}" REQUIRED)
++    find_program(PS5_LLVM_RANLIB NAMES llvm-ranlib llvm-ranlib-18 HINTS "${PS5_LLVM_TOOL_DIR}" REQUIRED)
++    set(CMAKE_AR "${PS5_LLVM_AR}" CACHE FILEPATH "Static archive writer" FORCE)
++    set(CMAKE_RANLIB "${PS5_LLVM_RANLIB}" CACHE FILEPATH "Static archive indexer" FORCE)
++    set(CMAKE_C_COMPILER_AR "${PS5_LLVM_AR}")
++    set(CMAKE_C_COMPILER_RANLIB "${PS5_LLVM_RANLIB}")
+     # The native folder's libc does not export these header-declared symbols.
+     # Use SDL's existing implementations; compile-only probes cannot check imports.
+     foreach(symbol WCSLCPY WCSLCAT WCSCASECMP WCSNCASECMP)

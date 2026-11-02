@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>wiliwili</title>
+<style>
+    body {
+        margin: 0;
+        padding: 2rem;
+        background: #1a1c22;
+        color: #e8eaf0;
+        font-family: sans-serif;
+    }
+    header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    header img {
+        width: 6rem;
+        height: 6rem;
+        border-radius: .75rem;
+        background: #2a2d36;
+    }
+    h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 600;
+    }
+    #status {
+        color: #9aa3b5;
+        margin: 0 0 1rem 0;
+    }
+    pre {
+        height: 55vh;
+        overflow: auto;
+        margin: 0 0 1rem 0;
+        padding: 1rem;
+        background: #101216;
+        border: 1px solid #2a2d36;
+        border-radius: .5rem;
+        font-size: .875rem;
+        line-height: 1.4;
+        white-space: pre-wrap;
+    }
+    button {
+        padding: .75rem 1.5rem;
+        font-size: 1rem;
+        color: #e8eaf0;
+        background: #fb7299;
+        border: 0;
+        border-radius: .5rem;
+    }
+</style>
+</head>
+<body>
+<header>
+    <img src="sce_sys/icon0.png" alt="">
+    <div>
+        <h1>wiliwili</h1>
+        <p id="status">starting&hellip;</p>
+    </div>
+</header>
+<pre id="log"></pre>
+<button id="again" onclick="launch()">Launch again</button>
+<script>
+    // This page is served by the websrv payload from the wiliwili directory
+    // (http://127.0.0.1:8080/fs/data/homebrew/wiliwili/index.html, a home screen
+    // tile installed by scripts/ps5/install_tile.sh points here) and starts the
+    // payload in the same directory, showing what it writes to stdout.
+    const APP_DIR = decodeURIComponent(
+        window.location.pathname.replace(/^\/fs/, "").replace(/\/[^/]*$/, ""));
+    const ARGS = new URLSearchParams(window.location.search).get("args") || "";
+
+    async function launch() {
+        const status = document.getElementById("status");
+        const log = document.getElementById("log");
+        log.textContent = "";
+        status.textContent = "starting " + APP_DIR + "/eboot.elf \u2026";
+
+        const params = new URLSearchParams({
+            pipe: "1",
+            daemon: "0",
+            path: APP_DIR + "/eboot.elf",
+            cwd: APP_DIR,
+            env: "LD_LIBRARY_PATH=" + APP_DIR + "/lib:/data/homebrew/lib:/user/homebrew/lib",
+            args: ARGS
+        });
+
+        try {
+            const response = await fetch("/hbldr?" + params.toString());
+            if (!response.ok) {
+                status.textContent = "the console refused to start the payload (HTTP "
+                    + response.status + ")";
+                return;
+            }
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            for (;;) {
+                const {done, value} = await reader.read();
+                if (done) {
+                    break;
+                }
+                log.textContent += decoder.decode(value, {stream: true});
+                log.scrollTop = log.scrollHeight;
+            }
+            status.textContent = "wiliwili exited";
+        } catch (e) {
+            status.textContent = "connection to the console failed: " + e;
+        }
+    }
+
+    launch();
+</script>
+</body>
+</html>

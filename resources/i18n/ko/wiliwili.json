@@ -4,6 +4,7 @@
   "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
   "setting": {
     "quit_hint": "응용 프로그램을 종료하려고 합니다. 다음 시작 후에 설정이 적용됩니다.",
+    "restart_hint": "설정은 다음 시작 후에 적용됩니다. 앱을 닫고 다시 시작해 주세요.",
     "app": {
       "tab": "앱",
       "playback": {
@@ -139,6 +140,8 @@
       "repository": "저장소",
       "brief": "또 다른 타사 bilibili 클라이언트",
       "repo_header": "저장소",
+      "port_header": "PS5 이식",
+      "port": "PS5 네이티브 버전은 carlchina가 이식 및 유지보수합니다\nhttps://github.com/carlchina",
       "author_header": "제작자의 말",
       "author": "항상 예술가가 되고 싶었지만 안타깝게도 프로그래머를 위한 자리가 많지 않습니다.\n이 작품이 탄생하고 실현되기까지:「게임 콘솔에서 비디오 보기, 휴대폰에서 게임하기」\n일종의 공연 예술이라고 할 수 있을지도 모르겠지만, 나는 완성 될 것입니다."
     },
@@ -396,7 +399,8 @@
         "skip_hint2": "다음 비디오에서 오프닝 크레딧 건너뛰기 끄기",
         "skip_hint3": "다음 비디오의 커스텀 오프닝 크레딧을 사용",
         "skip_hint4": "다음 비디오에서 커스텀 오프닝 크레딧을 비활성화",
-        "wiki": "셰이더 작동 방식을 알아보려면 위키에 접속하세요"
+        "wiki": "셰이더 작동 방식을 알아보려면 위키에 접속하세요",
+        "video_info": "비디오 파라미터 표시"
       },
       "season": {
         "aspect": "커스텀 비디오 화면비",

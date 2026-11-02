@@ -1,0 +1,435 @@
+--- a/libmpv/render.h	2023-07-24 01:10:36
++++ b/libmpv/render.h	2026-10-31 12:51:23
+@@ -163,6 +163,42 @@
+ typedef struct mpv_render_context mpv_render_context;
+ 
+ /**
++ * MPV_RENDER_PARAM_DOVI_METADATA: the Dolby Vision metadata of the frame that
++ * mpv_render_context_render() just drew, prepacked for a std140 fragment
++ * uniform block. It follows libplacebo's Dolby Vision decoding maths:
++ *
++ *   sig = clamp(frame code / 2^bl_bit_depth, 0, 1)              (3 planes)
++ *   t   = reshape(sig) - off                                     (per comp.)
++ *   lms = PQ^-1(ycc * t)
++ *   rgb = lms * lms_matrix                                       (BT.2020)
++ *
++ * The arrays are rows of vec4 so that the struct can be uploaded to the GPU
++ * as-is. All fields are zeroed when the frame carries no RPU.
++ *
++ *   ycc[3]   YCC -> L'M'S' rows, xyz of each vec4
++ *   off      signal offset subtracted before ycc ("ycc_to_rgb_offset")
++ *   lms[3]   linear LMS -> linear BT.2020 RGB rows (lms2rgb * rgb_to_lms)
++ *   lohi[c]  { lowest pivot, highest pivot, has curve, - }
++ *   piv      the inner pivots of each component, two vec4 per component,
++ *            padded with a 1e9 sentinel
++ *   coef[i]  piece i of component i / 8: polynomial {c0, c1, c2, 0}, or MMR
++ *            { constant, index into mmr, -, order }
++ *   mmr      the MMR weights, 48 vec4 per component
++ *   meta     x: 1 when the frame carries an RPU, y/z: source width/height
++ *            (caller writable, zeroed on every render)
++ */
++typedef struct mpv_dovi_metadata {
++    float ycc[3][4];
++    float off[4];
++    float lms[3][4];
++    float lohi[3][4];
++    float piv[6][4];
++    float coef[24][4];
++    float mmr[144][4];
++    float meta[4];
++} mpv_dovi_metadata;
++
++/**
+  * Parameters for mpv_render_param (which is used in a few places such as
+  * mpv_render_context_create().
+  *
+@@ -421,6 +457,17 @@
+      * See MPV_RENDER_PARAM_SW_STRIDE for alignment requirements.
+      */
+     MPV_RENDER_PARAM_SW_POINTER = 20,
++    /**
++     * MPV_RENDER_API_TYPE_SW only: Dolby Vision metadata of the frame that was
++     * just rendered, optional.
++     * Valid for MPV_RENDER_API_TYPE_SW & mpv_render_context_render().
++     * Type: mpv_dovi_metadata*
++     *
++     * The struct is zeroed and filled on every mpv_render_context_render()
++     * call; valid is 0 when the frame carries no Dolby Vision RPU, in which
++     * case every other field is left zeroed as well.
++     */
++    MPV_RENDER_PARAM_DOVI_METADATA = 21,
+ } mpv_render_param_type;
+ 
+ /**
+--- a/video/out/libmpv_sw.c	2023-07-24 01:10:36
++++ b/video/out/libmpv_sw.c	2026-11-01 12:45:00
+@@ -1,8 +1,12 @@
+ #include "libmpv/render_gl.h"
+ #include "libmpv.h"
+ #include "sub/osd.h"
++#include "video/mp_image.h"
+ #include "video/sws_utils.h"
+ 
++#include <libavutil/buffer.h>
++#include <libavutil/dovi_meta.h>
++
+ struct priv {
+     struct libmpv_gpu_context *context;
+ 
+@@ -15,6 +19,11 @@
+     bool anything_changed;
+ };
+ 
++static mpv_dovi_metadata last_valid_color_meta;
++static bool has_valid_color = false;
++static mpv_dovi_metadata last_valid_rpu;
++static bool has_valid_rpu = false;
++
+ static int init(struct render_backend *ctx, mpv_render_param *params)
+ {
+     ctx->priv = talloc_zero(NULL, struct priv);
+@@ -56,11 +65,15 @@
+ 
+     p->src_params = *params;
+     p->anything_changed = true;
++    has_valid_rpu = false;
++    has_valid_color = false;
++    memset(&last_valid_rpu, 0, sizeof(last_valid_rpu));
++    memset(&last_valid_color_meta, 0, sizeof(last_valid_color_meta));
+ }
+ 
+ static void reset(struct render_backend *ctx)
+ {
+-    // stateless
++    // stateless; keep cached dovi metadata across seeks within the same video
+ }
+ 
+ static void update_external(struct render_backend *ctx, struct vo *vo)
+@@ -93,6 +106,239 @@
+     return 0;
+ }
+ 
++// --- Dolby Vision -----------------------------------------------------------
++
++/* The reshaping curves of one frame, packed for a std140 uniform block.
++ * Packing mirrors libplacebo: pivots are normalized by 1/2^bl_bit_depth and
++ * the fixed-point coefficients by 1/2^coef_log2_denom, MMR rows are laid out
++ * six per piece (two per order step) so the shader can copy libplacebo's
++ * dot-product structure verbatim. Dolby Vision always ends in BT.2020-referred
++ * HPE LMS; k_lms2rgb takes it to linear BT.2020 RGB (libplacebo's
++ * dovi_lms2rgb). */
++static void dovi_set_identity_curves(mpv_dovi_metadata *p)
++{
++    for (int c = 0; c < 3; c++) {
++        p->lohi[c][0] = 0.0f;
++        p->lohi[c][1] = 1.0f;
++        p->lohi[c][2] = 0.0f;   /* no curve: the shader passes the signal through */
++        p->lohi[c][3] = 0.0f;
++    }
++    for (int i = 0; i < 6; i++) {
++        for (int k = 0; k < 4; k++)
++            p->piv[i][k] = 1e9f;
++    }
++}
++
++static void dovi_set_color(mpv_dovi_metadata *p, const AVDOVIColorMetadata *c, bool is_hlg)
++{
++    static const double k_lms2rgb[3][3] = {
++        { 3.06441879, -2.16597676,  0.10155818},
++        {-0.65612108,  1.78554118, -0.12943749},
++        { 0.01736321, -0.04725154,  1.03004253},
++    };
++    /* Standard Dolby Vision Profile 5 IPT -> LMS' matrix */
++    static const float k_dovi_ipt_ycc[3][3] = {
++        { 1.00000000f,  0.09997559f,  0.21166992f },
++        { 1.00000000f, -0.10827637f, -0.07995605f },
++        { 1.00000000f,  0.55993652f, -0.32055664f },
++    };
++    static const float k_dovi_ipt_off[3] = { 0.0f, 0.5f, 0.5f };
++
++    /* Standard BT.2020 Limited-Range YCbCr -> RGB matrix (Profile 8.4 fallback) */
++    static const float k_bt2020_ycc[3][3] = {
++        { 1.16870117f,  0.00000000f,  1.68481445f },
++        { 1.16870117f, -0.18798828f, -0.65283203f },
++        { 1.16870117f,  2.14965820f,  0.00000000f },
++    };
++    static const float k_bt2020_off[3] = { 0.0625f, 0.5f, 0.5f };
++
++    bool is_valid_color = (c != NULL && c->ycc_to_rgb_matrix[0].num != 0);
++
++    if (is_valid_color) {
++        double rgb2lms[3][3];
++        for (int i = 0; i < 3; i++) {
++            for (int j = 0; j < 3; j++) {
++                p->ycc[i][j] = (float)av_q2d(c->ycc_to_rgb_matrix[i * 3 + j]);
++                rgb2lms[i][j] = av_q2d(c->rgb_to_lms_matrix[i * 3 + j]);
++            }
++            p->ycc[i][3] = 0.0f;
++            p->off[i] = (float)av_q2d(c->ycc_to_rgb_offset[i]);
++        }
++        p->off[3] = 0.0f;
++        /* lms = k_lms2rgb * rgb_to_lms, as libplacebo composes them */
++        for (int i = 0; i < 3; i++) {
++            for (int j = 0; j < 3; j++) {
++                double s = 0.0;
++                for (int k = 0; k < 3; k++)
++                    s += k_lms2rgb[i][k] * rgb2lms[k][j];
++                p->lms[i][j] = (float)s;
++            }
++            p->lms[i][3] = 0.0f;
++        }
++
++        // Cache valid color matrices for non-key frames
++        memcpy(last_valid_color_meta.ycc, p->ycc, sizeof(p->ycc));
++        memcpy(last_valid_color_meta.off, p->off, sizeof(p->off));
++        memcpy(last_valid_color_meta.lms, p->lms, sizeof(p->lms));
++        has_valid_color = true;
++    } else if (has_valid_color) {
++        memcpy(p->ycc, last_valid_color_meta.ycc, sizeof(p->ycc));
++        memcpy(p->off, last_valid_color_meta.off, sizeof(p->off));
++        memcpy(p->lms, last_valid_color_meta.lms, sizeof(p->lms));
++    } else if (is_hlg) {
++        for (int i = 0; i < 3; i++) {
++            for (int j = 0; j < 3; j++) {
++                p->ycc[i][j] = k_bt2020_ycc[i][j];
++                p->lms[i][j] = (i == j) ? 1.0f : 0.0f;
++            }
++            p->ycc[i][3] = 0.0f;
++            p->lms[i][3] = 0.0f;
++            p->off[i] = k_bt2020_off[i];
++        }
++        p->off[3] = 0.0f;
++    } else {
++        // Fallback default Profile 5 IPT matrices before first keyframe DM
++        for (int i = 0; i < 3; i++) {
++            for (int j = 0; j < 3; j++) {
++                p->ycc[i][j] = k_dovi_ipt_ycc[i][j];
++                p->lms[i][j] = (float)k_lms2rgb[i][j];
++            }
++            p->ycc[i][3] = 0.0f;
++            p->lms[i][3] = 0.0f;
++            p->off[i] = k_dovi_ipt_off[i];
++        }
++        p->off[3] = 0.0f;
++    }
++}
++
++/* AVDOVIMetadata of the frame being drawn -> shader constants. Everything the
++ * shader needs is copied out; anything it cannot map is reported as "no RPU"
++ * with the struct zeroed. Only the Profile-5 shape (10-bit base layer, no
++ * residual) is supported: that is what Bilibili streams. */
++static void dovi_fill_metadata(mpv_dovi_metadata *p, struct mp_image *img)
++{
++    const AVDOVIMetadata *md;
++    const AVDOVIRpuDataHeader *hdr;
++    const AVDOVIDataMapping *map;
++    const AVDOVIColorMetadata *col;
++    static int log_counter = 0;
++    bool should_log = (log_counter++ < 10) || (log_counter % 120 == 0);
++
++    if (img && img->params.imgfmt != IMGFMT_P010) {
++        has_valid_rpu = false;
++        has_valid_color = false;
++        memset(p, 0, sizeof(*p));
++        return;
++    }
++
++    if (has_valid_rpu) {
++        memcpy(p, &last_valid_rpu, sizeof(*p));
++    } else {
++        memset(p, 0, sizeof(*p));
++        dovi_set_identity_curves(p);
++    }
++    if (!img) {
++        if (should_log) fprintf(stderr, "[dovi_sw] img is NULL (cached=%d)\n", has_valid_rpu);
++        return;
++    }
++    if (!img->dovi) {
++        if (should_log) fprintf(stderr, "[dovi_sw] img->dovi is NULL (fmt=%s cached=%d)\n", mp_imgfmt_to_name(img->params.imgfmt), has_valid_rpu);
++        return;
++    }
++
++    md = (AVDOVIMetadata *)img->dovi->data;
++    hdr = av_dovi_get_header((AVDOVIMetadata *)md);
++    map = av_dovi_get_mapping((AVDOVIMetadata *)md);
++    col = av_dovi_get_color((AVDOVIMetadata *)md);
++
++    if (should_log) {
++        fprintf(stderr, "[dovi_sw] hdr: bl_bit_depth=%d, residual=%d, rpu_format=0x%x\n",
++                hdr->bl_bit_depth, hdr->disable_residual_flag, hdr->rpu_format);
++    }
++
++    if (hdr->bl_bit_depth != 10) {
++        if (has_valid_rpu)
++            memcpy(p, &last_valid_rpu, sizeof(*p));
++        if (should_log) fprintf(stderr, "[dovi_sw] bl_bit_depth != 10 (%d)\n", hdr->bl_bit_depth);
++        return;
++    }
++
++    bool is_hlg = (hdr->vdr_rpu_profile == 1) &&
++                  (map->mapping_color_space == 0 || img->params.color.gamma == MP_CSP_TRC_HLG);
++
++    dovi_set_color(p, col, is_hlg);
++
++    const float piv_scale  = 1.0f / (float)(1 << hdr->bl_bit_depth);
++    const float coef_scale = 1.0f / (float)(1ULL << hdr->coef_log2_denom);
++
++    for (int c = 0; c < 3; c++) {
++        const AVDOVIReshapingCurve *cv = &map->curves[c];
++        const int np = cv->num_pivots;
++        if (np < 2 || np > 9)
++            continue;                       /* leave this component unshaped */
++
++        p->lohi[c][0] = piv_scale * cv->pivots[0];
++        p->lohi[c][1] = piv_scale * cv->pivots[np - 1];
++        p->lohi[c][2] = 1.0f;
++
++        /* the inner pivots pick the piece, the ends only clamp */
++        for (int i = 1; i < np - 1; i++)
++            p->piv[c * 2 + (i - 1) / 4][(i - 1) % 4] = piv_scale * cv->pivots[i];
++
++        for (int i = 0; i < np - 1; i++) {
++            float *co = p->coef[c * 8 + i];
++            if (cv->mapping_idc[i] == AV_DOVI_MAPPING_POLYNOMIAL) {
++                const int order = cv->poly_order[i];
++                if (order < 1 || order > 2) {
++                    if (should_log) fprintf(stderr, "[dovi_sw] poly order unexpected: %d\n", order);
++                    continue;
++                }
++                for (int k = 0; k < 3; k++)
++                    co[k] = (k <= order)
++                                ? coef_scale * (float)cv->poly_coef[i][k] : 0.0f;
++                co[3] = 0.0f;
++            } else if (cv->mapping_idc[i] == AV_DOVI_MAPPING_MMR) {
++                const int order = cv->mmr_order[i];
++                if (order < 1 || order > 3) {
++                    if (should_log) fprintf(stderr, "[dovi_sw] mmr order unexpected: %d\n", order);
++                    continue;
++                }
++                /* two rows per order step, six rows reserved per piece, which
++                 * is exactly how libplacebo addresses its mmr array */
++                co[0] = coef_scale * (float)cv->mmr_constant[i];
++                co[1] = (float)(i * 6);
++                co[2] = 0.0f;
++                co[3] = (float)order;
++                for (int j = 0; j < order; j++) {
++                    const int64_t *src = cv->mmr_coef[i][j];
++                    float *a = p->mmr[c * 48 + i * 6 + j * 2];
++                    float *b = p->mmr[c * 48 + i * 6 + j * 2 + 1];
++                    a[0] = coef_scale * (float)src[0];
++                    a[1] = coef_scale * (float)src[1];
++                    a[2] = coef_scale * (float)src[2];
++                    a[3] = 0.0f;
++                    b[0] = coef_scale * (float)src[3];
++                    b[1] = coef_scale * (float)src[4];
++                    b[2] = coef_scale * (float)src[5];
++                    b[3] = coef_scale * (float)src[6];
++                }
++            }
++        }
++    }
++    p->meta[0] = 1.0f;
++    p->meta[1] = is_hlg ? 1.0f : 0.0f;
++    p->meta[2] = (float)map->mapping_color_space;
++    memcpy(&last_valid_rpu, p, sizeof(last_valid_rpu));
++    has_valid_rpu = true;
++    if (should_log) {
++        fprintf(stderr, "[dovi_sw] SUCCESS: meta=(%.1f,%.1f,%.1f) vdr_prof=%d map_csp=%d ycc0=(%.2f,%.2f,%.2f) off=(%.2f,%.2f,%.2f) lms0=(%.2f,%.2f,%.2f)\n",
++                p->meta[0], p->meta[1], p->meta[2], hdr->vdr_rpu_profile, map->mapping_color_space,
++                p->ycc[0][0], p->ycc[0][1], p->ycc[0][2],
++                p->off[0], p->off[1], p->off[2],
++                p->lms[0][0], p->lms[0][1], p->lms[0][2]);
++    }
++}
++
+ static int render(struct render_backend *ctx, mpv_render_param *params,
+                   struct vo_frame *frame)
+ {
+@@ -120,21 +362,32 @@
+             .h = sz[1],
+         };
+ 
++        // P010 is the raw-plane passthrough for Dolby Vision: the signal is
++        // IPT, not YCbCr, and any RGB conversion clamps away ~half of it, so
++        // the caller gets the planes untouched and decodes on the GPU.
++        bool raw_p010 = p->dst_params.imgfmt == IMGFMT_P010;
++
+         // Exclude "problematic" formats. In particular, reject multi-plane and
+         // hw formats. Exclude non-byte-aligned formats for easier stride
+         // checking.
+         struct mp_imgfmt_desc desc = mp_imgfmt_get_desc(p->dst_params.imgfmt);
+-        if (!(desc.flags & MP_IMGFLAG_COLOR_RGB) ||
+-            !(desc.flags & (MP_IMGFLAG_TYPE_UINT | MP_IMGFLAG_TYPE_FLOAT)) ||
+-            (desc.flags & MP_IMGFLAG_TYPE_PAL8) ||
+-            !(desc.flags & MP_IMGFLAG_BYTE_ALIGNED) ||
+-            desc.num_planes != 1)
++        if (!raw_p010 &&
++            (!(desc.flags & MP_IMGFLAG_COLOR_RGB) ||
++             !(desc.flags & (MP_IMGFLAG_TYPE_UINT | MP_IMGFLAG_TYPE_FLOAT)) ||
++             (desc.flags & MP_IMGFLAG_TYPE_PAL8) ||
++             !(desc.flags & MP_IMGFLAG_BYTE_ALIGNED) ||
++             desc.num_planes != 1))
+             return MPV_ERROR_UNSUPPORTED;
+ 
+         mp_image_params_guess_csp(&p->dst_params);
+ 
+         // Can be unset if rendering before any video was loaded.
+         if (p->src_params.imgfmt) {
++            if (raw_p010) {
++                /* passthrough: swscale must repack only, never convert */
++                p->dst_params.color = p->src_params.color;
++            }
++
+             p->sws->src = p->src_params;
+             p->sws->src.w = mp_rect_w(p->src_rc);
+             p->sws->src.h = mp_rect_h(p->src_rc);
+@@ -152,6 +405,7 @@
+ 
+     struct mp_image wrap_img = {0};
+     mp_image_set_params(&wrap_img, &p->dst_params);
++    bool raw_p010 = p->dst_params.imgfmt == IMGFMT_P010;
+ 
+     size_t bpp = wrap_img.fmt.bpp[0] / 8;
+     if (!bpp || bpp * wrap_img.w > *stride || *stride % bpp)
+@@ -159,6 +413,11 @@
+ 
+     wrap_img.planes[0] = ptr;
+     wrap_img.stride[0] = *stride;
++    if (wrap_img.fmt.num_planes > 1) {
++        /* the second plane of our packed layouts is as wide as the first */
++        wrap_img.planes[1] = (char *)ptr + (size_t)*stride * wrap_img.h;
++        wrap_img.stride[1] = *stride;
++    }
+ 
+     struct mp_image *img = frame->current;
+     if (img) {
+@@ -173,7 +432,10 @@
+         mp_image_crop_rc(&src, src_rc);
+ 
+         struct mp_image dst = wrap_img;
+-        mp_image_crop_rc(&dst, p->dst_rc);
++        struct mp_rect dst_rc = p->dst_rc;
++        dst_rc.x0 = MP_ALIGN_DOWN(dst_rc.x0, dst.fmt.align_x);
++        dst_rc.y0 = MP_ALIGN_DOWN(dst_rc.y0, dst.fmt.align_y);
++        mp_image_crop_rc(&dst, dst_rc);
+ 
+         if (mp_sws_scale(p->sws, &dst, &src) < 0) {
+             mp_image_clear(&wrap_img, 0, 0, wrap_img.w, wrap_img.h);
+@@ -183,9 +445,16 @@
+         mp_image_clear(&wrap_img, 0, 0, wrap_img.w, wrap_img.h);
+     }
+ 
+-    if (p->osd)
++    /* OSD has no defined colorspace for Profile 5's IPT planes; wiliwili
++     * draws its overlays itself anyway. */
++    if (p->osd && !raw_p010)
+         osd_draw_on_image(p->osd, p->osd_rc, img ? img->pts : 0, 0, &wrap_img);
+ 
++    mpv_dovi_metadata *dovi =
++        get_mpv_render_param(params, MPV_RENDER_PARAM_DOVI_METADATA, NULL);
++    if (dovi)
++        dovi_fill_metadata(dovi, img);
++
+     return 0;
+ }
+ 

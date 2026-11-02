@@ -52,6 +52,16 @@
 
         <brls:Header
                 width="@style/wiliwili/about/speech/header"
+                title="@i18n/wiliwili/setting/about/port_header"
+                marginBottom="@style/wiliwili/margin/20"/>
+
+        <brls:Label
+                marginLeft="20"
+                marginBottom="@style/wiliwili/margin/20"
+                text="@i18n/wiliwili/setting/about/port"/>
+
+        <brls:Header
+                width="@style/wiliwili/about/speech/header"
                 title="@i18n/wiliwili/setting/about/author_header"
                 marginBottom="@style/wiliwili/margin/20"/>
 

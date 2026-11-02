@@ -10,7 +10,7 @@
 #elif defined(__PSV__)
 #define THREAD_POOL_MIN_THREAD_NUM 1
 #define THREAD_POOL_MAX_THREAD_NUM 4
-#elif defined(PS4)
+#elif defined(PS4) || defined(PS5)
 #define THREAD_POOL_MIN_THREAD_NUM 1
 #define THREAD_POOL_MAX_THREAD_NUM 4
 #else

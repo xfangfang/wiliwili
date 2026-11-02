@@ -24,6 +24,7 @@
 ![NS](https://img.shields.io/badge/-Nintendo%20Switch-e4000f?style=flat&logo=Nintendo%20Switch)
 ![PSV](https://img.shields.io/badge/-PSVita-003791?style=flat&logo=PlayStation)
 ![PS4](https://img.shields.io/badge/-PS4-003791?style=flat&logo=PlayStation)
+![PS5](https://img.shields.io/badge/-PS5-003791?style=flat&logo=PlayStation)
 ![MS](https://img.shields.io/badge/-Windows%207+-357ec7?style=flat&logo=Windows)
 ![mac](https://img.shields.io/badge/-macOS%2010.11+-black?style=flat&logo=Apple)
 ![Linux](https://img.shields.io/badge/-Linux-lightgrey?style=flat&logo=Linux&logoColor=white)
@@ -85,6 +86,26 @@ hbmenu 自行选择路径。
 下载 `wiliwili-PS4.pkg` 安装即可：[wiliwili releases](https://github.com/xfangfang/wiliwili/releases)
 
 只支持软解，如果想播放 4k@60 需要在设置中开启低画质解码。
+
+### PS5
+
+发布版本提供 **ZIP 压缩包** 与 **PFS 压缩镜像（`.ffpfsc`）** 两种格式：[wiliwili releases](https://github.com/carlchina/wiliwili/releases)
+
+- **方式一（.ffpfsc 压缩镜像，推荐）**：下载 `wiliwili-PS5-*.ffpfsc`（或 `PPSA99099.ffpfsc`），复制到 PS5 的 `/data/homebrew/` 目录或 USB 移动存储设备中，ShadowMountPlus 会自动识别并挂载。基于 zlib level 9 极限压缩，体积从约 143MB 压缩至仅约 62MB（节省 >55% 空间），且无需在主机上解包和传输大量散文件。
+- **方式二（ZIP 压缩包）**：下载 `wiliwili-PS5-*.zip`，解压至 PS5 主机的 `/data/homebrew/` 目录下（完整路径为 `/data/homebrew/PPSA99099/`）。
+
+重新加载 ShadowMountPlus（或重启主机），即可直接在 PS5 主屏幕启动 wiliwili 原生应用（也可以运行 `scripts/ps5/title/deploy.sh -h <PS5 的 IP>` 自动上传并刷新）。
+
+> [!IMPORTANT]
+> **运行环境要求**：
+> 1. 请使用 [ShadowMountPlus 1.7beta6 或更高版本](https://github.com/drakmor/ShadowMountPlus/releases)
+> 2. 请配合最新版本的 **kstuff** 使用
+
+#### PS5 版本特性
+- **🎮 DualSense 手柄深度适配**：完整支持 PlayStation 原生键位规范（✕ 确认、○ 返回、△ 快捷搜索、□ 弹幕开关），支持手柄摇杆与 D-Pad 平滑导航以及手柄震动。
+- **⌨️ 电视大屏搜索与键盘输入**：内置专为大屏手柄设计的拼音/英文虚拟键盘，同时支持直连 PS5 USB 外接实体键盘输入。
+- **📺 影音与弹幕体验**：基于 mpv + FFmpeg 充沛性能软解，流畅播放 1080P60 与 4K 高画质；内置 NanoVG 硬件加速高帧率弹幕系统。
+- **🛡️ 原生系统级集成**：Native Title 原生桌面应用（Title ID: `PPSA99099`），支持屏幕 Toast 异常诊断系统。
 
 ### PC
 
@@ -160,10 +181,18 @@ PC客户端支持切换硬件解码、秒开流畅适合老电脑、支持鼠标
 1. 网络相关的问题附加 `网络诊断截图`，入口：应用内设置/实用工具/网络诊断
 2. [Switch用户] 要确保 `大气层`和`系统固件` 更新到 **最新** ，`内存卡`为 **FAT32**
 3. [Switch用户] 如果打开应用黑屏时间过长，可以尝试删除内存卡目录 `config/wiliwili` 重新进入
-4. 确保 `系统时间`正确、系统`网络设置`正确（主要是DNS）、如果使用了`网络代理`请在反馈前关闭并重新测试
-5. 查找有没有其他人出现过类似的问题：[Issues](https://github.com/xfangfang/wiliwili/issues?q=is%3Aissue)
-6. **完整且详细地** 描述你的问题，最好附加演示视频、截图。
-7. 尝试复现问题，尽力找到BUG出现的规律
+4. [PS5用户] 运行原生 Title 需要使用 [ShadowMountPlus 1.7beta6 以上版本](https://github.com/drakmor/ShadowMountPlus/releases) 以及最新版本 kstuff
+5. **[PS5用户提交 Bug 须知]** 为快速定位和修复问题，请务必提供以下信息：
+   - **固件与破解环境**：PS5 固件版本（如 FW 4.50 / 8.20 / 11.60）、ShadowMountPlus 版本、kstuff 版本/Payload 类型。
+   - **错误现象与屏幕提示**：闪退/卡死时的具体表现，特别是**屏幕弹出的 Toast 报错截图或拍照**（包含 `stage` 阶段、`caller` 地址、信号类型如 `SIGSEGV`/`SIGABRT` 等关键崩溃诊断信息）。
+   - **日志文件**：ShadowMount 的运行日志（如 U盘或系统目录下的 `debug.log`），以及 `/data/wiliwili/` 目录下的相关文件。
+   - **复现步骤**：启动闪退还是特定操作触发？如播放闪退请附上具体视频的 **BV号** 或番剧集数、画质（1080P/4K）与是否开启弹幕。
+   - **外设配置**：使用的控制器型号（DualSense / 第三方）及是否外接 USB 实体键盘。
+6. 确保 `系统时间`正确、系统`网络设置`正确（主要是DNS）、如果使用了`网络代理`请在反馈前关闭并重新测试
+7. 查找有没有其他人出现过类似的问题：[Issues](https://github.com/xfangfang/wiliwili/issues?q=is%3Aissue)
+8. **完整且详细地** 描述你的问题，最好附加演示视频、截图。
+9. 尝试复现问题，尽力找到BUG出现的规律
+
 
 <br>
 
@@ -344,6 +373,38 @@ docker run --rm -v $(pwd):/src/ xfangfang/wiliwili_ps4_builder:latest \
 
 </details>
 
+### 交叉编译 PS5 可执行文件
+
+wiliwili 使用 [ps5-payload-dev](https://github.com/ps5-payload-dev/sdk) 提供的交叉编译环境（内含 SDL2、FFmpeg、Mesa 等依赖），
+只需要再编译一份 libmpv 即可，全部步骤都可以通过脚本自动完成：
+
+<details>
+
+```shell
+# 需要本机已安装 LLVM 18 (prospero-clang 会调用它)
+# macOS: brew install llvm@18
+export LLVM_CONFIG=$(brew --prefix llvm@18)/bin/llvm-config
+
+# 下载 ps5-payload-dev 交叉编译环境 (约 220MB) 到 ~/.local/opt/ps5-payload-sdk
+scripts/ps5/install_sdk.sh
+
+# 编译 libmpv + wiliwili，产物位于 cmake-build-ps5/ps5
+scripts/build_ps5.sh
+```
+
+</details>
+
+也可以手动指定 `PS5_PAYLOAD_SDK` 使用已有的环境，编译完成后通过 `scripts/ps5/deploy.sh` 上传到 PS5 并启动；
+`scripts/ps5/install_tile.sh` 可以为 wiliwili 添加一个主屏幕入口。
+
+若要让 PS5 把它当作普通的 App 启动（而不是通过网页启动器加载 payload），可以构建原生 title：
+与 payload 共用同一套源码，但会再链接一次成单个静态镜像、签名成 `eboot.bin`，并组装成
+`/data/homebrew/PPSA99099/` 目录。步骤见 [scripts/ps5/title/README.md](scripts/ps5/title/README.md)，
+本仓库的 CI 也只发布这一个产物。
+
+> **运行环境要求**：PS5 原生 Title 需配合 [ShadowMountPlus 1.7beta6 以上版本](https://github.com/drakmor/ShadowMountPlus/releases) 以及最新版本的 kstuff 使用。
+
+
 ### GLFW or SDL
 
 wiliwili 使用 nanovg 绘制图形和文字，对于创建窗口、按键触摸、输入法等支持是通过 GLFW(默认) 或 SDL 完成的。
@@ -369,12 +430,13 @@ cmake --build build
 
 The development of wiliwili cannot do without the support of the following organization and open source projects.
 
-- Toolchain: devkitpro, switchbrew, vitasdk OpenOrbis and PacBrew
+- Toolchain: devkitpro, switchbrew, vitasdk OpenOrbis, PacBrew and ps5-payload-dev
     - https://github.com/devkitPro
     - https://github.com/switchbrew/libnx
     - https://github.com/vitasdk
     - https://github.com/OpenOrbis
     - https://github.com/PacBrew
+    - https://github.com/ps5-payload-dev/pacbrew-repo
 - UI Library: natinusala and XITRIX
     - https://github.com/natinusala/borealis
     - https://github.com/XITRIX/borealis
@@ -385,7 +447,11 @@ The development of wiliwili cannot do without the support of the following organ
     - https://github.com/fish47/mpv-vita
     - http://github.com/averne/FFmpeg
     - http://github.com/averne/mpv
+- PS5 native title: BlackBearReloaded's clean-room OpenGL implementation and app boilerplate
+    - https://github.com/blackbearreloaded/ps5-opengl
+    - https://github.com/blackbearreloaded/ps5-native-app-boilerplate
 - Misc
+    - https://github.com/libsdl-org/SDL
     - https://github.com/libcpr/cpr
     - https://github.com/nlohmann/json
     - https://github.com/nayuki/QR-Code-generator

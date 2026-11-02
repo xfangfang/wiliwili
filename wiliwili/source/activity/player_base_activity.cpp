@@ -685,6 +685,7 @@ void BasePlayerActivity::onVideoPlayUrl(const bilibili::VideoUrlResult& result) 
         }
 
         // 给播放器设置链接
+        MPVCore::instance().setCurrentQuality(videoUrlResult.quality);
         this->video->setUrl(v.base_url, start, end, audios);
 
         // 设置备份视频链接

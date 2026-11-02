@@ -225,6 +225,9 @@ public:
     void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
               brls::FrameContext* ctx) override;
 
+    /// Writes the parameters of the playing video into the overlay
+    void updateVideoInfo();
+
     View* getDefaultFocus() override;
 
     void onChildFocusGained(View* directChild, View* focusedView) override;
@@ -272,6 +275,9 @@ public:
     // Highlight progress bar
     inline static bool HIGHLIGHT_PROGRESS_BAR = false;
 
+    /// Show the parameters of the video that is playing on the video itself
+    inline static bool SHOW_VIDEO_INFO = false;
+
     inline static int OSD_SHOW_TIME = 5000;
 
 private:
@@ -309,6 +315,7 @@ private:
 
     ///OSD
     BRLS_BIND(brls::Label, videoTitleLabel, "video/osd/title");
+    BRLS_BIND(brls::Label, videoInfoLabel, "video/info/label");
     BRLS_BIND(brls::Label, videoOnlineCountLabel, "video/view/label/people");
     BRLS_BIND(brls::Box, osdTopBox, "video/osd/top/box");
     BRLS_BIND(brls::Box, osdBottomBox, "video/osd/bottom/box");

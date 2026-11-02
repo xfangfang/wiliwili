@@ -99,6 +99,9 @@
                             id="setting/video/highlight"/>
 
                     <brls:BooleanCell
+                            id="setting/video/info"/>
+
+                    <brls:BooleanCell
                             id="setting/history/log"/>
 
                 </brls:Box>

@@ -8,8 +8,10 @@
 #include <pystring.h>
 #include <borealis/core/thread.hpp>
 #include <borealis/core/application.hpp>
+#include <borealis/core/time.hpp>
 
 #include "utils/config_helper.hpp"
+#include "utils/stage.hpp"
 #include "utils/number_helper.hpp"
 #include "utils/crash_helper.hpp"
 #include "view/mpv_core.hpp"
@@ -91,11 +93,12 @@ const char *fragmentShaderSource = SHADER_VERSION SHADER_PRECISION
 
 #define CONCATENATE3(s1, s2, s3) s1##s2##s3
 #define CONCATENATE2(s1, s2) s1##s2
-#define checkGLError(type, id)                                                 \
+// The status a shader and a program are asked about is not the same one.
+#define checkGLError(type, id, status)                                         \
     {                                                                          \
         char *info = nullptr;                                                  \
         int length = 0;                                                        \
-        CONCATENATE3(glGet, type, iv)(id, GL_COMPILE_STATUS, &length);         \
+        CONCATENATE3(glGet, type, iv)(id, status, &length);                    \
         if (length > 0) {                                                      \
             info = (char *)malloc(length);                                     \
             if (info) {                                                        \
@@ -123,7 +126,7 @@ static GLuint createShader(GLint type, const char *source) {
     // check for shader compile errors
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success) {
-        checkGLError(Shader, shader);
+        checkGLError(Shader, shader, GL_COMPILE_STATUS);
         return 0;
     }
 #endif
@@ -140,7 +143,7 @@ static GLuint linkProgram(GLuint s1, GLuint s2) {
     // check for linking errors
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (!success) {
-        checkGLError(Program, program);
+        checkGLError(Program, program, GL_LINK_STATUS);
         return 0;
     }
     return program;
@@ -203,26 +206,105 @@ static inline float aspectConverter(const std::string &value) {
 }
 
 void MPVCore::on_update(void *self) {
+    static std::atomic<bool> update_in_flight{false};
+#ifdef PS5
+    // 画面不来时只有两种可能：播放器没有帧可以给，或者没有人向它要帧。
+    // 把两边都数下来，日志才能指出是哪一种。
+    static std::atomic<long> updateCalls{0};
+    static std::atomic<long> updateBusy{0};
+    static std::atomic<long> updateFrame{0};
+    static std::atomic<long> updateIdle{0};
+    updateCalls += 1;
+#endif
+    if (update_in_flight.exchange(true)) {
+#ifdef PS5
+        updateBusy += 1;
+#endif
+        return;
+    }
     brls::sync([]() {
+        update_in_flight = false;
         uint64_t flags = mpvRenderContextUpdate(MPVCore::instance().getContext());
-#if defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D) || defined(BOREALIS_USE_D3D11)
+#ifdef PS5
+        if (flags & MPV_RENDER_UPDATE_FRAME) {
+            updateFrame += 1;
+        } else {
+            updateIdle += 1;
+        }
+        {
+            static double updateAt = 0;
+            double updateNow = brls::getCPUTimeUsec() / 1000.0;
+            if (updateNow - updateAt > 1000.0) {
+                updateAt = updateNow;
+                brls::Logger::info("mpv update: calls={} busy={} frame={} idle={}", (long)updateCalls, (long)updateBusy,
+                                   (long)updateFrame, (long)updateIdle);
+            }
+        }
+#endif
+#if defined(PS5) || defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D) || defined(BOREALIS_USE_D3D11)
         // 直接绘制到屏幕上，需要屏幕每刷新一次绘制一次，在 MPVCore 的绘制函数内部处理
         (void)flags;
 #else
         // 绘制到 FBO、纹理、buffer...上，在主循环结尾进行绘制，MPVCore 的绘制函数内直接绘制对应的 FBO、纹理、buffer...
-        MPVCore::instance().redraw = flags & MPV_RENDER_UPDATE_FRAME;
-        if (MPVCore::instance().redraw) {
+        if (flags & MPV_RENDER_UPDATE_FRAME) {
+            MPVCore::instance().redraw = true;
 #ifdef MPV_SW_RENDER
             if (!MPVCore::instance().pixels) return;
+            static double swRenderMs = 0;
+            static double swRenderAt = 0;
+            double start = brls::getCPUTimeUsec() / 1000.0;
             mpvRenderContextRender(MPVCore::instance().mpv_context, MPVCore::instance().mpv_params);
             mpvRenderContextReportSwap(MPVCore::instance().mpv_context);
+            swRenderMs += brls::getCPUTimeUsec() / 1000.0 - start;
+            double now = brls::getCPUTimeUsec() / 1000.0;
+            if (now - swRenderAt > 1000.0) {
+                brls::Logger::info("mpv sw render: {:.1f} ms a second", swRenderMs);
+                swRenderMs = 0;
+                swRenderAt = now;
+            }
 #else
+#ifdef PS5
+            // The cost of putting the picture on the screen: the picture goes
+            // through a software OpenGL, and this is where the time goes.
+            static double mpvRenderMs = 0;
+            static double mpvRenderAt = 0;
+            double start = brls::getCPUTimeUsec() / 1000.0;
+#endif
+            stage::Marker marker("mpv render");
             mpvRenderContextRender(MPVCore::instance().mpv_context, MPVCore::instance().mpv_params);
+#ifdef PS5
+            mpvRenderMs += brls::getCPUTimeUsec() / 1000.0 - start;
+            double now = brls::getCPUTimeUsec() / 1000.0;
+            if (now - mpvRenderAt > 1000.0) {
+                brls::Logger::info("mpv render: {:.1f} ms a second", mpvRenderMs);
+                mpvRenderMs = 0;
+                mpvRenderAt = now;
+            }
+#endif
 #ifdef BOREALIS_USE_OPENGL
             glBindFramebuffer(GL_FRAMEBUFFER, MPVCore::instance().default_framebuffer);
             glViewport(0, 0, (GLsizei)brls::Application::windowWidth, (GLsizei)brls::Application::windowHeight);
 #endif
             mpvRenderContextReportSwap(MPVCore::instance().mpv_context);
+#ifdef PS5
+            // The console's player keeps the picture in a texture of its own
+            // and shows it later. A look at that texture tells whether the
+            // frames arrive at all.
+            static int probe = 0;
+            if (++probe >= 30) {
+                probe = 0;
+                GLint width = 0, height = 0;
+                glBindTexture(GL_TEXTURE_2D, MPVCore::instance().media_texture);
+                glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+                glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+                unsigned char pixel[4] = {0, 0, 0, 0};
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, MPVCore::instance().media_framebuffer);
+                glReadPixels(width / 2, height / 2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+                brls::Logger::info("ps5 video: texture {}x{}, framebuffer {}, pixel {},{},{},{}", width, height,
+                                    MPVCore::instance().media_framebuffer, pixel[0], pixel[1], pixel[2], pixel[3]);
+            }
+#endif
 #endif
         }
 #endif
@@ -354,12 +436,25 @@ void MPVCore::init() {
     }
 
     // hardware decoding
+#if defined(PS5)
+    // The console has a video chip of its own: the decoder that runs on it
+    // is part of the player, and mpv asks for it by name. The pictures come
+    // out of it as they are decoded.
+    if (HARDWARE_DEC) {
+        mpvSetOptionString(mpv, "vd", PLAYER_HWDEC_METHOD.c_str());
+        brls::Logger::info("MPV video decoder: {}", PLAYER_HWDEC_METHOD);
+    } else {
+        mpvSetOptionString(mpv, "vd", "!h264_ps5,!hevc_ps5,auto");
+        brls::Logger::info("MPV video decoder: auto (sw)");
+    }
+#else
     if (HARDWARE_DEC) {
         mpvSetOptionString(mpv, "hwdec", PLAYER_HWDEC_METHOD.c_str());
         brls::Logger::info("MPV hardware decode: {}", PLAYER_HWDEC_METHOD);
     } else {
         mpvSetOptionString(mpv, "hwdec", "no");
     }
+#endif
 
     // Making the loading process faster
 #if defined(__SWITCH__)
@@ -369,6 +464,27 @@ void MPVCore::init() {
     mpvSetOptionString(mpv, "opengl-glfinish", "yes");
 #elif defined(PS4)
     mpvSetOptionString(mpv, "vd-lavc-threads", "6");
+#elif defined(PS5)
+    // The picture goes through a software OpenGL on this console, and the
+    // scaling there reads every pixel of the video on the processor: for a
+    // 4K video that costs more than the scaling on the processor itself.
+    // The processor scales the picture down first and the graphics part only
+    // sees the smaller picture.
+    // The title gets a limited memory pool on the console, and the kernel
+    // starts refusing allocations once it is used up. mpv's default network
+    // cache alone is 150 MiB, which does not fit next to the decoder and the
+    // renderer.
+    mpvSetOptionString(mpv, "vd-lavc-threads", "4");
+    mpvSetOptionString(mpv, "vd-lavc-fast", "yes");
+    mpvSetOptionString(mpv, "demuxer-max-bytes", "32M");
+    mpvSetOptionString(mpv, "demuxer-readahead-secs", "10");
+    mpvSetOptionString(mpv, "cache-secs", "30");
+    mpvSetOptionString(mpv, "vd-queue-enable", "no");
+    mpvSetOptionString(mpv, "audio-threads", "1");
+    mpvSetOptionString(mpv, "demuxer-threads", "0");
+    mpvSetOptionString(mpv, "vd-spawn", "no");
+    mpvSetOptionString(mpv, "sws-scaler", "fast-bilinear");
+    mpvSetOptionString(mpv, "sws-fast", "yes");
 #elif defined(__PSV__)
     mpvSetOptionString(mpv, "vd-lavc-threads", "4");
     mpvSetOptionString(mpv, "fbo-format", "rgba8");
@@ -383,6 +499,10 @@ void MPVCore::init() {
     // log
     // mpvSetOptionString(mpv, "msg-level", "ffmpeg=trace");
     // mpvSetOptionString(mpv, "msg-level", "all=no");
+#if defined(PS5)
+    mpvSetOptionString(mpv, "terminal", "no");
+    mpvSetOptionString(mpv, "msg-level", "ffmpeg=info");
+#endif
     if (MPVCore::TERMINAL) {
         mpvSetOptionString(mpv, "terminal", "yes");
         if (brls::Logger::getLogLevel() >= brls::LogLevel::LOG_DEBUG) {
@@ -417,6 +537,18 @@ void MPVCore::init() {
     check_error(mpvObserveProperty(mpv, 19, "saturation", MPV_FORMAT_DOUBLE));
     check_error(mpvObserveProperty(mpv, 20, "gamma", MPV_FORMAT_DOUBLE));
     check_error(mpvObserveProperty(mpv, 21, "hue", MPV_FORMAT_DOUBLE));
+    // 播放中视频的参数：只靠通知维护，界面不再直接向 mpv 询问（会等播放线程）
+    check_error(mpvObserveProperty(mpv, 22, "video-codec", MPV_FORMAT_STRING));
+    check_error(mpvObserveProperty(mpv, 23, "video-params/pixelformat", MPV_FORMAT_STRING));
+    check_error(mpvObserveProperty(mpv, 24, "video-params/w", MPV_FORMAT_INT64));
+    check_error(mpvObserveProperty(mpv, 25, "video-params/h", MPV_FORMAT_INT64));
+    check_error(mpvObserveProperty(mpv, 26, "container-fps", MPV_FORMAT_DOUBLE));
+    check_error(mpvObserveProperty(mpv, 27, "video-bitrate", MPV_FORMAT_INT64));
+    check_error(mpvObserveProperty(mpv, 28, "frame-drop-count", MPV_FORMAT_INT64));
+    check_error(mpvObserveProperty(mpv, 29, "avsync", MPV_FORMAT_DOUBLE));
+    check_error(mpvObserveProperty(mpv, 30, "video-params/gamma", MPV_FORMAT_STRING));
+    check_error(mpvObserveProperty(mpv, 31, "video-params/primaries", MPV_FORMAT_STRING));
+    check_error(mpvObserveProperty(mpv, 32, "video-params/colormatrix", MPV_FORMAT_STRING));
 
     // init renderer params
 #ifdef MPV_SW_RENDER
@@ -559,6 +691,22 @@ void MPVCore::clean() {
         mpvTerminateDestroy(this->mpv);
         this->mpv = nullptr;
     }
+
+#ifdef MPV_SW_RENDER
+    if (pixels) {
+        free(pixels);
+        pixels = nullptr;
+        allocated_size = 0;
+        mpv_params[3].data = nullptr;
+    }
+    if (nvg_image) {
+        nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
+        nvg_image = 0;
+    }
+    sw_size[0] = 0;
+    sw_size[1] = 0;
+    this->is_dovi_mode = false;
+#endif
 }
 
 void MPVCore::restart() {
@@ -695,30 +843,90 @@ void MPVCore::setFrameSize(brls::Rect r) {
     int drawWidth  = rect.getWidth() * brls::Application::windowScale;
     int drawHeight = rect.getHeight() * brls::Application::windowScale;
     if (drawWidth == 0 || drawHeight == 0) return;
-    int frameSize = drawWidth * drawHeight;
 
-    if (pixels != nullptr && frameSize > sw_size[0] * sw_size[1]) {
-        brls::Logger::debug("Enlarge video surface buffer");
+    // 限制最大渲染缓冲为 1080p，避免 4k 渲染及 CPU 内存带宽卡顿 (3840x2160 每帧需要 33MB memcpy)
+    // 1080p 仅需 8.3MB，PS5 AMD GPU 在着色器中无损拉伸到 4K 屏幕 (0ms CPU 开销，流畅 60fps)
+    // 且固定 1080p 后在切换分辨率时尺寸不变，不销毁/重建纹理，杜绝纹理重建导致的闪退
+    const int maxW = 1920;
+    const int maxH = 1080;
+    if (drawWidth > maxW || drawHeight > maxH) {
+        float scale = std::min((float)maxW / drawWidth, (float)maxH / drawHeight);
+        drawWidth = (int)(drawWidth * scale);
+        drawHeight = (int)(drawHeight * scale);
+    }
+    drawWidth  = (drawWidth + 15) & ~15;
+    drawHeight = (drawHeight + 1) & ~1;
+
+    VideoInfo vi = this->getVideoInfo();
+    bool isHlg  = (vi.gamma == "arib-std-b67" || vi.gamma == "hlg" ||
+                   (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] > 0.5f));
+    bool isDovi = !isHlg && (
+        (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] < 0.5f) ||
+        vi.colormatrix.find("ipt") != std::string::npos ||
+        vi.codec.find("dv") != std::string::npos ||
+        vi.pixelFormat.find("dovi") != std::string::npos
+    );
+
+    // Skip recreation if dimensions and format haven't changed
+    if (sw_size[0] == drawWidth && sw_size[1] == drawHeight && nvg_image != 0 && this->is_dovi_mode == isDovi) {
+        return;
+    }
+    this->is_dovi_mode = isDovi;
+
+    int requiredSize = isDovi ? (drawWidth * 2 * (drawHeight * 3 / 2)) : (drawWidth * drawHeight * PIXCEL_SIZE);
+
+    if (pixels != nullptr && (size_t)requiredSize > allocated_size) {
+        brls::Logger::debug("Enlarge video surface buffer to {}x{}", drawWidth, drawHeight);
         free(pixels);
         pixels = nullptr;
+        allocated_size = 0;
     }
 
     if (pixels == nullptr) {
-        pixels             = malloc(frameSize * PIXCEL_SIZE);
+        allocated_size = (size_t)maxW * maxH * PIXCEL_SIZE;
+        if (posix_memalign(&pixels, 64, allocated_size + 64) != 0) {
+            pixels = nullptr;
+            brls::Logger::error("Failed to allocate {} bytes for video surface buffer", allocated_size);
+            allocated_size = 0;
+            return;
+        }
+        memset(pixels, 0, allocated_size + 64);
         mpv_params[3].data = pixels;
     }
 
-    if (nvg_image) nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
-    nvg_image = nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth, drawHeight, mpvImageFlags,
-                                   (const unsigned char *)pixels);
+    if (nvg_image) {
+        nvgDeleteImage(brls::Application::getNVGContext(), nvg_image);
+        nvg_image = 0;
+    }
+    if (isDovi) {
+        sw_format = "p010";
+        pitch     = drawWidth * 2;
+        nvg_image = nvgCreateImageR16(brls::Application::getNVGContext(), drawWidth, drawHeight * 3 / 2, mpvImageFlags,
+                                      (const unsigned char *)pixels);
+    } else {
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        sw_format = "abgr";
+#else
+        sw_format = "rgba";
+#endif
+        pitch     = PIXCEL_SIZE * drawWidth;
+        nvg_image = nvgCreateImageRGBA(brls::Application::getNVGContext(), drawWidth, drawHeight, mpvImageFlags,
+                                       (const unsigned char *)pixels);
+    }
 
     sw_size[0] = drawWidth;
     sw_size[1] = drawHeight;
-    pitch      = PIXCEL_SIZE * drawWidth;
+    mpv_params[1].data = (void *)sw_format;
+    mpv_params[2].data = &pitch;
+    mpv_params[3].data = pixels;
 
-    // 在视频暂停时调整纹理尺寸，视频画面会被清空为黑色，强制重新绘制一次，避免这个问题
-    mpvRenderContextRender(mpv_context, mpv_params);
-    mpvRenderContextReportSwap(mpv_context);
+    // 只有在视频暂停时调整纹理尺寸才需要强制渲染一次（视频画面会被清空为黑色）
+    // 播放中绝对不能主动调用 mpvRenderContextRender，否则在视频切换/切分辨率时会导致滤镜链崩溃
+    if (this->video_paused && !this->video_stopped) {
+        mpvRenderContextRender(mpv_context, mpv_params);
+        mpvRenderContextReportSwap(mpv_context);
+        this->redraw = true;
+    }
 #elif !defined(MPV_USE_FB)
         // Using default framebuffer
 #if defined(BOREALIS_USE_GXM)
@@ -782,13 +990,73 @@ bool MPVCore::isValid() { return mpv_context != nullptr; }
 
 void MPVCore::draw(brls::Rect area, float alpha) {
     if (mpv_context == nullptr) return;
-    if (!(this->rect == area)) setFrameSize(area);
+    // The picture is put on the screen in two steps: the frame is resized to
+    // the place the picture takes, and then the texture is drawn.
+    stage::Marker marker("video draw");
+    VideoInfo vi        = this->getVideoInfo();
+    bool isHlg          = (vi.gamma == "arib-std-b67" || vi.gamma == "hlg" ||
+                           (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] > 0.5f));
+    bool isDoviProfile5 = !isHlg && (
+        (dovi_meta.meta[0] > 0.5f && dovi_meta.meta[1] < 0.5f) ||
+        vi.colormatrix.find("ipt") != std::string::npos ||
+        vi.codec.find("dv") != std::string::npos ||
+        vi.pixelFormat.find("dovi") != std::string::npos
+    );
+
+    if (!(this->rect == area) || this->is_dovi_mode != isDoviProfile5) {
+        setFrameSize(area);
+    }
 
 #ifdef MPV_SW_RENDER
-    if (!pixels) return;
+    if (!pixels) {
+        return;
+    }
+
+#ifdef PS5
+    uint64_t updateFlags = mpvRenderContextUpdate(mpv_context);
+    static double renderTotalMs = 0;
+    static int renderCount = 0;
+    if (updateFlags & MPV_RENDER_UPDATE_FRAME) {
+        double rStart = brls::getCPUTimeUsec() / 1000.0;
+        mpvRenderContextRender(mpv_context, mpv_params);
+        double rCost = (brls::getCPUTimeUsec() / 1000.0) - rStart;
+        renderTotalMs += rCost;
+        renderCount++;
+        mpvRenderContextReportSwap(mpv_context);
+        this->redraw = true;
+    }
+    {
+        static long drawCalls = 0, drawRedraws = 0;
+        static double drawAt = 0;
+        drawCalls += 1;
+        if (this->redraw) drawRedraws += 1;
+        double drawNow = brls::getCPUTimeUsec() / 1000.0;
+        if (drawNow - drawAt > 10000.0) {
+            drawAt = drawNow;
+            double avgRenderMs = renderCount > 0 ? (renderTotalMs / renderCount) : 0;
+            brls::Logger::debug("video draw (10s): calls={} redraw={} avgRender={:.1f}ms totalRender={:.1f}ms", 
+                               drawCalls, drawRedraws, avgRenderMs, renderTotalMs);
+            renderTotalMs = 0;
+            renderCount = 0;
+        }
+    }
+#endif
 
     auto *vg = brls::Application::getNVGContext();
-    nvgUpdateImage(vg, nvg_image, (const unsigned char *)pixels);
+    if (this->redraw) {
+        this->redraw = false;
+        static double nvgUpdateMs = 0;
+        static double nvgUpdateAt = 0;
+        double start = brls::getCPUTimeUsec() / 1000.0;
+        nvgUpdateImage(vg, nvg_image, (const unsigned char *)pixels);
+        nvgUpdateMs += brls::getCPUTimeUsec() / 1000.0 - start;
+        double now = brls::getCPUTimeUsec() / 1000.0;
+        if (now - nvgUpdateAt > 10000.0) {
+            brls::Logger::debug("nvgUpdateImage (10s): {:.1f} ms", nvgUpdateMs);
+            nvgUpdateMs = 0;
+            nvgUpdateAt = now;
+        }
+    }
 
     // draw black background
     nvgBeginPath(vg);
@@ -801,7 +1069,40 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     // draw video
     nvgBeginPath(vg);
     nvgRect(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight());
-    nvgFillPaint(vg, nvgImagePattern(vg, 0, 0, rect.getWidth(), rect.getHeight(), 0, nvg_image, alpha));
+    NVGpaint videoPaint = nvgImagePattern(vg, rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight(), 0, nvg_image, alpha);
+    bool isHdr = (vi.pixelFormat == "p010" ||
+                  vi.pixelFormat.find("10") != std::string::npos ||
+                  vi.gamma == "pq" ||
+                  vi.gamma == "smpte2084" ||
+                  isHlg ||
+                  vi.primaries == "bt.2020");
+    if (isHlg) {
+        videoPaint.radius = 3.0f; // 触发 GPU 片段着色器 HLG BT.2100 -> PQ / SDR 电影级转换
+    } else if (isDoviProfile5) {
+#if defined(PS5) && defined(BOREALIS_USE_VULKAN)
+        nvgSetDoviMetadata(vg, &dovi_meta);
+#endif
+        videoPaint.radius = 2.0f; // 触发 GPU 片段着色器 Dolby Vision Profile 5 RPU 重塑与色调映射
+    } else if (isHdr) {
+        videoPaint.radius = 1.0f; // 触发 GPU 片段着色器 HDR PQ BT.2020 -> SDR BT.709 电影级色调映射
+    }
+#if defined(PS5) && defined(BOREALIS_USE_VULKAN)
+    if (!isDoviProfile5) {
+        nvgSetDoviMetadata(vg, nullptr);
+    }
+#endif
+    if (isDoviProfile5 || isHlg) {
+        static int dovi_draw_log = 0;
+        if (dovi_draw_log++ < 5 || (dovi_draw_log % 600 == 0)) {
+            brls::Logger::debug("[DV_DRAW] isDovi={} isHlg={} isHdr={} curQ={} radius={:.1f} meta=({:.1f},{:.1f},{:.1f}) ycc0=({:.2f},{:.2f},{:.2f}) off=({:.2f},{:.2f},{:.2f}) gamma='{}' matrix='{}' pixfmt='{}'",
+                isDoviProfile5, isHlg, isHdr, this->currentQuality, videoPaint.radius,
+                dovi_meta.meta[0], dovi_meta.meta[1], dovi_meta.meta[2],
+                dovi_meta.ycc[0][0], dovi_meta.ycc[0][1], dovi_meta.ycc[0][2],
+                dovi_meta.off[0], dovi_meta.off[1], dovi_meta.off[2],
+                vi.gamma, vi.colormatrix, vi.pixelFormat);
+        }
+    }
+    nvgFillPaint(vg, videoPaint);
     nvgFill(vg);
 #elif defined(BOREALIS_USE_GXM)
     auto *vg = brls::Application::getNVGContext();
@@ -863,7 +1164,24 @@ void MPVCore::draw(brls::Rect area, float alpha) {
 #else
     // OpenGL 将 FBO 绘制到屏幕上
     glUseProgram(shader.prog);
+    // The sampler of the shader reads the first unit, so the picture is put
+    // there: the unit that is active belongs to whoever drew before.
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, this->media_texture);
+    static GLint textureID = glGetUniformLocation(shader.prog, "ourTexture");
+    if (textureID >= 0) glUniform1i(textureID, 0);
+    // The picture fills the area of the video: the scissors and the viewport
+    // of the interface must not cut it.
+    GLboolean scissorTest = glIsEnabled(GL_SCISSOR_TEST);
+    glDisable(GL_SCISSOR_TEST);
+    glViewport(0, 0, (GLsizei)brls::Application::windowWidth, (GLsizei)brls::Application::windowHeight);
+    // The state of whoever drew before: the video is a flat picture in the
+    // foreground, and the depth test and the culling of the faces would
+    // throw it away.
+    GLboolean depthTest = glIsEnabled(GL_DEPTH_TEST);
+    GLboolean cullFace  = glIsEnabled(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
 #ifdef MPV_USE_VAO
     glBindVertexArray(shader.vao);
 #else
@@ -889,6 +1207,9 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     glUniform1f(alphaID, alpha);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    if (scissorTest) glEnable(GL_SCISSOR_TEST);
+    if (depthTest) glEnable(GL_DEPTH_TEST);
+    if (cullFace) glEnable(GL_CULL_FACE);
 #endif
 }
 
@@ -949,12 +1270,36 @@ void MPVCore::eventMainLoop() {
             case MPV_EVENT_START_FILE:
                 // event 6: 开始加载文件
                 brls::Logger::info("========> MPV_EVENT_START_FILE");
+                {
+                    std::lock_guard<std::mutex> lock(videoInfoMutex);
+                    videoInfo = {};
+                }
+#ifdef MPV_SW_RENDER
+                memset(&dovi_meta, 0, sizeof(dovi_meta));
+#endif
 
                 // show osd for a really long time
                 mpvCoreEvent.fire(MpvEventEnum::START_FILE);
 
                 mpvCoreEvent.fire(MpvEventEnum::LOADING_START);
                 break;
+#ifdef PS5
+            case MPV_EVENT_VIDEO_RECONFIG:
+                // event 17: 视频链重新配置（分辨率、像素格式变化）
+                brls::Logger::info("========> MPV_EVENT_VIDEO_RECONFIG");
+#ifdef MPV_SW_RENDER
+                memset(&dovi_meta, 0, sizeof(dovi_meta));
+#endif
+                break;
+            case MPV_EVENT_AUDIO_RECONFIG:
+                // event 18: 音频链重新配置
+                brls::Logger::info("========> MPV_EVENT_AUDIO_RECONFIG");
+                break;
+            case MPV_EVENT_SEEK:
+                // event 20: 开始跳转
+                brls::Logger::info("========> MPV_EVENT_SEEK");
+                break;
+#endif
             case MPV_EVENT_PLAYBACK_RESTART:
                 // event 21: 开始播放文件（一般是播放或调整进度结束之后触发）
                 brls::Logger::info("========> MPV_EVENT_PLAYBACK_RESTART");
@@ -1126,6 +1471,10 @@ void MPVCore::eventMainLoop() {
                     case 15:
                         if (data) {
                             hwCurrent = *(char **)data;
+                            {
+                                std::lock_guard<std::mutex> lock(videoInfoMutex);
+                                videoInfo.hwdec = hwCurrent;
+                            }
                             brls::Logger::info("========> HW: {}", hwCurrent);
                             GA("hwdec", {{"hwdec", hwCurrent}})
                         }
@@ -1147,6 +1496,78 @@ void MPVCore::eventMainLoop() {
                         break;
                     case 21:
                         if (data) video_hue = *(double *)data;
+                        break;
+                    case 22:
+                        {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            // 没有视频时 mpv 发来空值，界面据此隐藏这些参数
+                            videoInfo.codec = data ? *(char **)data : "";
+#if defined(PS5)
+                            if (videoInfo.codec.find("ps5") != std::string::npos) {
+                                videoInfo.hwdec = "ps5";
+                            }
+#endif
+                        }
+                        break;
+                    case 23:
+                        {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            videoInfo.pixelFormat = data ? *(char **)data : "";
+                        }
+                        break;
+                    case 24:
+                        if (data) {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            videoInfo.width = *(int64_t *)data;
+                        }
+                        break;
+                    case 25:
+                        if (data) {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            videoInfo.height = *(int64_t *)data;
+                        }
+                        break;
+                    case 26:
+                        if (data) {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            videoInfo.fps = *(double *)data;
+                        }
+                        break;
+                    case 27:
+                        if (data) {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            videoInfo.bitrate = *(int64_t *)data;
+                        }
+                        break;
+                    case 28:
+                        if (data) {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            videoInfo.droppedFrames = *(int64_t *)data;
+                        }
+                        break;
+                    case 29:
+                        if (data) {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            videoInfo.avsync = *(double *)data;
+                        }
+                        break;
+                    case 30:
+                        if (data) {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            videoInfo.gamma = *(char **)data ? *(char **)data : "";
+                        }
+                        break;
+                    case 31:
+                        if (data) {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            videoInfo.primaries = *(char **)data ? *(char **)data : "";
+                        }
+                        break;
+                    case 32:
+                        if (data) {
+                            std::lock_guard<std::mutex> lock(videoInfoMutex);
+                            videoInfo.colormatrix = *(char **)data ? *(char **)data : "";
+                        }
                         break;
                     default:
                         break;
@@ -1170,6 +1591,20 @@ void MPVCore::reset() {
     this->mpv_error_code = 0;
     this->video_aspect   = aspectConverter(MPVCore::VIDEO_ASPECT);
 
+    {
+        std::lock_guard<std::mutex> lock(videoInfoMutex);
+        videoInfo = {};
+    }
+    this->currentQuality = 0;
+
+#ifdef MPV_SW_RENDER
+    if (pixels && sw_size[0] > 0 && sw_size[1] > 0) {
+        memset(pixels, 0, allocated_size);
+        this->redraw = true;
+    }
+    memset(&dovi_meta, 0, sizeof(dovi_meta));
+#endif
+
     // 软硬解切换后应该手动设置一次渲染尺寸
     // 切换视频前设置渲染尺寸可以顺便将上一条视频的最后一帧画面清空
     setFrameSize(rect);
@@ -1177,6 +1612,13 @@ void MPVCore::reset() {
 
 void MPVCore::setUrl(const std::string &url, const std::string &extra, const std::string &method) {
     brls::Logger::debug("{} Url: {}, extra: {}", method, url, extra);
+#ifdef MPV_SW_RENDER
+    if (method == "replace" && pixels && sw_size[0] > 0 && sw_size[1] > 0) {
+        memset(pixels, 0, (size_t)sw_size[0] * sw_size[1] * PIXCEL_SIZE);
+        this->redraw = true;
+    }
+    memset(&dovi_meta, 0, sizeof(dovi_meta));
+#endif
     if (extra.empty()) {
         command_async("loadfile", url, method);
     } else {
@@ -1206,7 +1648,9 @@ void MPVCore::resume() { command_async("set", "pause", "no"); }
 
 void MPVCore::pause() { command_async("set", "pause", "yes"); }
 
-void MPVCore::stop() { command_async("stop"); }
+void MPVCore::stop() {
+    command_async("stop");
+}
 
 void MPVCore::seek(int64_t p) { command_async("seek", p, "absolute"); }
 
@@ -1257,13 +1701,29 @@ void MPVCore::setMirror(bool value) {
 #endif
 }
 
+void MPVCore::setHardwareDecode(bool value) {
+    ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_HWDEC, value);
+    MPVCore::HARDWARE_DEC = value;
+#if defined(PS5)
+    std::string vd = value ? PLAYER_HWDEC_METHOD : "!h264_ps5,!hevc_ps5,auto";
+    command_async("set", "vd", vd);
+    brls::Logger::info("MPV video decoder: {}", vd);
+#else
+    std::string hwdec = value ? PLAYER_HWDEC_METHOD : "no";
+    command_async("set", "hwdec", hwdec);
+    brls::Logger::info("MPV hardware decode: {}", hwdec);
+#endif
+}
+
 void MPVCore::setHwdecCopyMode(bool value) {
+#if !defined(PS5)
     // 如果正在使用硬解，那么将硬解更新为 auto-copy，避免直接硬解因为不经过 cpu 处理导致镜像翻转、滤镜无效
     if (MPVCore::HARDWARE_DEC) {
         std::string hwdec = value ? "auto-copy" : MPVCore::PLAYER_HWDEC_METHOD;
         command_async("set", "hwdec", hwdec);
         brls::Logger::info("MPV hardware decode: {}", hwdec);
     }
+#endif
 }
 
 void MPVCore::setBrightness(int value) {
@@ -1331,6 +1791,11 @@ int64_t MPVCore::getInt(const std::string &key) {
     int64_t value = 0;
     mpvGetProperty(mpv, key.c_str(), MPV_FORMAT_INT64, &value);
     return value;
+}
+
+MPVCore::VideoInfo MPVCore::getVideoInfo() {
+    std::lock_guard<std::mutex> lock(videoInfoMutex);
+    return videoInfo;
 }
 
 std::unordered_map<std::string, mpv_node> MPVCore::getNodeMap(const std::string &key) {

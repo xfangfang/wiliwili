@@ -1,0 +1,2084 @@
+--- a/libavcodec/Makefile
++++ b/libavcodec/Makefile
+@@ -181,6 +181,7 @@
+ 
+ # decoders/encoders
+ OBJS-$(CONFIG_ZERO12V_DECODER)         += 012v.o
++OBJS-$(CONFIG_H264_PS5_DECODER)     += ps5.o
+ OBJS-$(CONFIG_A64MULTI_ENCODER)        += a64multienc.o elbg.o
+ OBJS-$(CONFIG_A64MULTI5_ENCODER)       += a64multienc.o elbg.o
+ OBJS-$(CONFIG_AAC_DECODER)             += aactab.o \
+--- a/libavcodec/allcodecs.c
++++ b/libavcodec/allcodecs.c
+@@ -831,6 +831,8 @@
+ extern const FFCodec ff_libaom_av1_decoder;
+ /* hwaccel hooks only, so prefer external decoders */
+ extern const FFCodec ff_av1_decoder;
++extern const FFCodec ff_h264_ps5_decoder;
++extern const FFCodec ff_hevc_ps5_decoder;
+ extern const FFCodec ff_av1_cuvid_decoder;
+ extern const FFCodec ff_av1_mediacodec_decoder;
+ extern const FFCodec ff_av1_mediacodec_encoder;
+--- a/libavcodec/ps5.c
++++ b/libavcodec/ps5.c
+@@ -0,0 +1,1914 @@
++/*
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++/**
++ * @file
++ * The console's hardware video decoder: H.264 on the console's own video chip.
++ *
++ * The chip is reached through a system module the application loads at
++ * startup. It wants its access units in the graphics memory, its memory
++ * mapped in a particular way, and it aborts the process when it refuses
++ * work.
++ *
++ * The pictures come out as NV12 (or P010 for ten bit), which the caller
++ * hands on like any other frame.
++ *
++ * The layout of the chip's structures and the way it wants its memory come
++ * from the VLC for PS5 port (ZiZc3/VLC, GPL-2.0-or-later).
++ */
++
++#include "config.h"
++
++#include <stddef.h>
++#include <stdint.h>
++#include <stdbool.h>
++#include <string.h>
++
++#include "libavutil/avutil.h"
++#include "libavutil/buffer.h"
++#include "libavutil/mem.h"
++#include "libavutil/pixfmt.h"
++#include "libavutil/log.h"
++#include "libavutil/time.h"
++
++#include "libavcodec/avcodec.h"
++#include "libavcodec/bsf.h"
++#include "libavcodec/codec.h"
++#include "libavcodec/codec_internal.h"
++#include "libavcodec/decode.h"
++#include "libavcodec/internal.h"
++#include "libavcodec/ps5.h"
++#include "libavcodec/dovi_rpu.h"
++
++#include <pthread.h>
++#include <unistd.h>
++#include <signal.h>
++#include <setjmp.h>
++
++/* The console's kernel and its video chip. */
++extern int sceKernelAllocateDirectMemory(int64_t searchStart, int64_t searchEnd, size_t len,
++                                          size_t alignment, int type, int64_t* start);
++extern int sceKernelMapDirectMemory(void** addr, size_t len, int prot, int flags, int64_t start,
++                                     size_t alignment);
++extern int sceKernelReleaseDirectMemory(int64_t start, size_t len);
++extern int64_t sceKernelGetDirectMemorySize(void);
++extern int sceKernelMapFlexibleMemory(void** addr, size_t len, int prot, int flags);
++extern int sceKernelMapNamedFlexibleMemory(void** addr, size_t len, int prot, int flags,
++                                           const char* name);
++extern int sceKernelMunmap(void* addr, size_t len);
++
++extern int sceVideodec2QueryComputeMemoryInfo(void* info);
++extern int sceVideodec2AllocateComputeQueue(const void* config, const void* memory, void** queue);
++extern int sceVideodec2QueryDecoderMemoryInfo(const void* config, void* memory);
++extern int sceVideodec2CreateDecoder(const void* config, const void* memory, void** decoder);
++extern int sceVideodec2DeleteDecoder(void* decoder);
++extern int sceVideodec2Decode(void* decoder, const void* input, void* frame, void* output);
++extern int sceVideodec2Flush(void* decoder, void* frame, void* output);
++extern int sceVideodec2Reset(void* decoder);
++
++/* The chip's structures. Their sizes are fixed by the console. */
++enum
++{
++    VDEC_CODEC_AVC  = 1,
++    VDEC_CODEC_HEVC = 974921,
++};
++
++typedef struct VdecConfig
++{
++    uint64_t this_size;
++    uint32_t resource_type;  // 1: decoding on a compute queue
++    uint32_t codec_type;
++    uint32_t profile;
++    uint32_t max_level;
++    int32_t max_frame_width;
++    int32_t max_frame_height;
++    int32_t max_dpb_frame_count;
++    uint32_t decode_pipeline_depth;
++    void* compute_queue;
++    uint64_t cpu_affinity_mask;
++    int32_t cpu_thread_priority;
++    bool optimize_progressive_video;
++    bool check_memory_type;
++    uint8_t reserved0;
++    uint8_t reserved1;
++    void* extra_config_info;
++} VdecConfig;
++
++typedef struct VdecMemory
++{
++    uint64_t this_size;
++    uint64_t cpu_memory_size;
++    void* cpu_memory;
++    uint64_t gpu_memory_size;
++    void* gpu_memory;
++    uint64_t cpu_gpu_memory_size;
++    void* cpu_gpu_memory;
++    uint64_t max_frame_buffer_size;
++    uint32_t frame_buffer_alignment;
++    uint32_t reserved0;
++} VdecMemory;
++
++typedef struct VdecInput
++{
++    uint64_t this_size;
++    void* au_data;
++    uint64_t au_size;
++    uint64_t pts_data;
++    uint64_t dts_data;
++    uint64_t attached_data;
++} VdecInput;
++
++typedef struct VdecOutput
++{
++    uint64_t this_size;
++    bool is_valid;
++    bool is_error_frame;
++    uint8_t picture_count;
++    uint8_t padding;
++    uint32_t codec_type;
++    uint32_t frame_width;
++    uint32_t frame_pitch;  // in samples
++    uint32_t frame_height;
++    uint32_t reserved;
++    void* frame_buffer;
++    uint64_t frame_buffer_size;
++    uint32_t frame_format;
++    uint32_t frame_pitch_in_bytes;
++} VdecOutput;
++
++typedef struct VdecFrameBuffer
++{
++    uint64_t this_size;
++    void* frame_buffer;
++    uint64_t frame_buffer_size;
++    bool is_accepted;
++} VdecFrameBuffer;
++
++typedef struct VdecComputeMemory
++{
++    uint64_t this_size;
++    uint64_t cpu_gpu_memory_size;
++    void* cpu_gpu_memory;
++} VdecComputeMemory;
++
++typedef struct VdecComputeConfig
++{
++    uint64_t this_size;
++    uint16_t compute_pipe_id;
++    uint16_t compute_queue_id;
++    bool check_memory_type;
++    uint8_t reserved0;
++    uint16_t reserved1;
++} VdecComputeConfig;
++
++#if defined(__GNUC__) || defined(__clang__)
++#define PS5_STATIC_ASSERT(cond, name) _Static_assert(cond, name)
++#else
++#define PS5_STATIC_ASSERT(cond, name)
++#endif
++
++PS5_STATIC_ASSERT(sizeof(VdecConfig) == 0x48, "decoder config");
++PS5_STATIC_ASSERT(sizeof(VdecMemory) == 0x48, "decoder memory");
++PS5_STATIC_ASSERT(sizeof(VdecInput) == 0x30, "input");
++PS5_STATIC_ASSERT(sizeof(VdecOutput) == 0x38, "output");
++PS5_STATIC_ASSERT(offsetof(VdecOutput, frame_buffer) == 0x20, "output frame buffer");
++PS5_STATIC_ASSERT(offsetof(VdecOutput, frame_pitch_in_bytes) == 0x34, "output pitch");
++PS5_STATIC_ASSERT(sizeof(VdecFrameBuffer) == 0x20, "frame buffer");
++PS5_STATIC_ASSERT(sizeof(VdecComputeMemory) == 0x18, "compute memory");
++PS5_STATIC_ASSERT(sizeof(VdecComputeConfig) == 0x10, "compute config");
++
++enum
++{
++    PROT_CPU_RW  = 0x03,
++    PROT_CPU_W   = 0x02,
++    PROT_GPU_RW  = 0x30,
++    // The chip checks the protection of the memory it is given: its own
++    // workspaces and the pools the access units and the pictures live in are
++    // written by the console and read by the chip.
++    PROT_CHIP_POOL = PROT_CPU_W | PROT_GPU_RW,
++    DIRECT_TYPE   = 12,
++};
++
++static const size_t PAGE_16K     = 0x4000;
++static const int    AU_SLOTS     = 8;
++static const size_t AU_SLOT_SIZE = (size_t)4 << 20;
++
++/**
++ * The chip aborts the process when it refuses work. The decoder has to
++ * survive that: the signal is caught and the work is given up.
++ */
++// The jump belongs to the thread that armed it: the chip may give up on
++// another thread, and a jump there would land in the wrong place.
++static __thread sigjmp_buf g_abortJump;
++static __thread volatile sig_atomic_t g_abortArmed = 0;
++static struct sigaction g_oldAbort;
++static struct sigaction g_oldSegv;
++
++static void abortHandler(int number, siginfo_t* info, void* context)
++{
++    // A note that survives the crash: the write is the one thing a signal
++    // handler may do.
++    {
++        static const char mine[]   = "[wiliwili] a signal while the chip was working\n";
++        static const char other[] = "[wiliwili] a signal from another thread\n";
++        const char* text = g_abortArmed ? mine : other;
++        ssize_t ignored  = write(1, text, strlen(text));
++        (void)ignored;
++    }
++    if (g_abortArmed) {
++        g_abortArmed = 0;
++        siglongjmp(g_abortJump, number);
++    }
++    struct sigaction* previous = number == SIGABRT ? &g_oldAbort : &g_oldSegv;
++    if (previous->sa_flags & SA_SIGINFO)
++        previous->sa_sigaction(number, info, context);
++    else if (previous->sa_handler != SIG_DFL && previous->sa_handler != SIG_IGN)
++        previous->sa_handler(number);
++    else {
++        signal(number, SIG_DFL);
++        raise(number);
++    }
++}
++
++/**
++ * Runs the work with the chip's abort caught. Returns 0 when the work was
++ * given up.
++ */
++#define PS5_RUN_GUARDED(work, result)                                                  \
++    do {                                                                                \
++        struct sigaction action;                                                        \
++        memset(&action, 0, sizeof(action));                                             \
++        action.sa_sigaction = abortHandler;                                             \
++        action.sa_flags     = SA_SIGINFO;                                               \
++        sigaction(SIGABRT, &action, &g_oldAbort);                                        \
++        sigaction(SIGSEGV, &action, &g_oldSegv);                                        \
++        g_abortArmed = 1;                                                               \
++        if (sigsetjmp(g_abortJump, 1) == 0) {                                           \
++            work;                                                                       \
++        } else {                                                                        \
++            result = AVERROR_EXTERNAL;                                                  \
++            fprintf(stderr, "[wiliwili] the chip gave up\n");                            \
++        }                                                                               \
++        g_abortArmed = 0;                                                               \
++        sigaction(SIGABRT, &g_oldAbort, NULL);                                          \
++        sigaction(SIGSEGV, &g_oldSegv, NULL);                                           \
++    } while (0)
++
++static size_t round16k(size_t value)
++{
++    return (value + PAGE_16K - 1) & ~(PAGE_16K - 1);
++}
++
++/**
++ * A block of memory the chip can read. The chip's picture store and its
++ * access units live in the graphics memory; its working memory can be plain
++ * system memory.
++ */
++typedef struct Mem
++{
++    void* addr;
++    size_t len;
++    int64_t start;  // direct memory; -1: flexible; -2: the shared cpu block
++} Mem;
++
++static int memDirect(Mem* mem, size_t len, size_t alignment, int prot)
++{
++    mem->len   = round16k(len);
++    mem->start = -1;
++    mem->addr  = NULL;
++    if (alignment < PAGE_16K)
++        alignment = PAGE_16K;
++    if (sceKernelAllocateDirectMemory(0, sceKernelGetDirectMemorySize(), mem->len, alignment,
++                                      DIRECT_TYPE, &mem->start) != 0)
++        return AVERROR(ENOMEM);
++    if (sceKernelMapDirectMemory(&mem->addr, mem->len, prot, 0, mem->start, alignment) != 0) {
++        sceKernelReleaseDirectMemory(mem->start, mem->len);
++        mem->start = -1;
++        mem->addr  = NULL;
++        return AVERROR(ENOMEM);
++    }
++    return 0;
++}
++
++static int memFlexible(Mem* mem, size_t len)
++{
++    mem->len   = round16k(len);
++    mem->start = -1;
++    mem->addr  = NULL;
++    if (sceKernelMapFlexibleMemory(&mem->addr, mem->len, PROT_CPU_RW, 0) != 0)
++        return AVERROR(ENOMEM);
++    return 0;
++}
++
++/**
++ * The decoder's working memory. Flexible memory that is given back does not
++ * come back to the pool on this console, so one block is kept and reused.
++ */
++static pthread_mutex_t g_cpuBlockLock = PTHREAD_MUTEX_INITIALIZER;
++static void*           g_cpuBlock     = NULL;
++static size_t          g_cpuBlockLen  = 0;
++static int             g_cpuBlockBusy  = 0;
++
++static int memCpu(Mem* mem, size_t len)
++{
++    len = round16k(len);
++    pthread_mutex_lock(&g_cpuBlockLock);
++    if (!g_cpuBlockBusy) {
++        if (len > g_cpuBlockLen) {
++            // Room for 4K HEVC's 76 MiB, so the block rarely has to grow.
++            size_t want = len > ((size_t)96 << 20) ? len : ((size_t)96 << 20);
++            void* addr   = NULL;
++            // The decoder finds its workspace by name, so it has to be a
++            // named piece of memory.
++            if (sceKernelMapNamedFlexibleMemory(&addr, want, PROT_CPU_RW, 0, "ffmpeg-vdec") == 0) {
++                g_cpuBlock     = addr;
++                g_cpuBlockLen  = want;
++            }
++        }
++        if (g_cpuBlock && len <= g_cpuBlockLen) {
++            g_cpuBlockBusy = 1;
++            mem->addr      = g_cpuBlock;
++            mem->len       = len;
++            mem->start     = -2;
++            pthread_mutex_unlock(&g_cpuBlockLock);
++            return 0;
++        }
++    }
++    pthread_mutex_unlock(&g_cpuBlockLock);
++    return memFlexible(mem, len);
++}
++
++static void memFree(Mem* mem)
++{
++    if (!mem->addr)
++        return;
++    if (mem->start == -2) {
++        pthread_mutex_lock(&g_cpuBlockLock);
++        g_cpuBlockBusy = 0;
++        pthread_mutex_unlock(&g_cpuBlockLock);
++    } else if (mem->start >= 0) {
++        sceKernelMunmap(mem->addr, mem->len);
++        sceKernelReleaseDirectMemory(mem->start, mem->len);
++    } else {
++        sceKernelMunmap(mem->addr, mem->len);
++    }
++    mem->addr  = NULL;
++    mem->len   = 0;
++    mem->start = -1;
++}
++
++/**
++ * The queue the application made. The console gives one only: it has to be
++ * made before the application asks for full access, the ones made later are
++ * refused. The application that plays the video makes it on startup and
++ * gives it to the decoder.
++ */
++extern void* wiliwili_ps5_compute_queue(void) __attribute__((weak));
++
++/**
++ * The compute queue the decoders run on. One for the life of the process: it
++ * has to be made before the application asks for full access, the decoders
++ * made later are refused.
++ */
++static pthread_mutex_t g_queueLock = PTHREAD_MUTEX_INITIALIZER;
++static void*           g_queue     = NULL;
++static Mem             g_queueMem;
++
++static void* computeQueue(void)
++{
++    if (wiliwili_ps5_compute_queue)
++        return wiliwili_ps5_compute_queue();
++
++    pthread_mutex_lock(&g_queueLock);
++    if (!g_queue) {
++        VdecComputeMemory info = {.this_size = sizeof(info)};
++        int rc                = 0;
++        PS5_RUN_GUARDED(rc = sceVideodec2QueryComputeMemoryInfo(&info), rc);
++        if (rc == 0 && memDirect(&g_queueMem, info.cpu_gpu_memory_size, PAGE_16K,
++                                 PROT_CPU_RW | PROT_GPU_RW) == 0) {
++            info.cpu_gpu_memory      = g_queueMem.addr;
++            info.cpu_gpu_memory_size = g_queueMem.len;
++            VdecComputeConfig config = {.this_size = sizeof(config)};
++            PS5_RUN_GUARDED(rc = sceVideodec2AllocateComputeQueue(&config, &info, &g_queue), rc);
++            if (rc != 0) {
++                g_queue = NULL;
++                memFree(&g_queueMem);
++            }
++        }
++    }
++    void* queue = g_queue;
++    pthread_mutex_unlock(&g_queueLock);
++    return queue;
++}
++
++#define MAX_PENDING 64
++
++typedef struct PendingPicture {
++    int64_t      pts;
++    AVBufferRef* dovi_buf;
++} PendingPicture;
++
++/**
++ * The decoder of one stream: the chip's decoder and the memory it works in.
++ */
++typedef struct Ps5Context
++{
++    AVClass* class;
++
++    void* decoder;
++    int    codec;
++    int    profile;
++    int    level;
++    int    tenBit;
++    int    draining;
++    int    failed;
++    // The room the chip was given for the picture.
++    int    roomWidth;
++    int    roomHeight;
++    int    roomLevel;
++    // Whether the first picture has been looked at.
++    int    measured;
++    // The pictures that follow a random access point and are not
++    // decodable on their own are left out.
++    int    dropLeading;
++    // How far the room and the level have grown: the chip refuses a
++    // picture that does not fit them.
++    int    grown;
++    // How many access units went in without a picture coming out.
++    int    silent;
++
++    unsigned frameCount;
++    size_t   frameSize;
++    unsigned nextSlot;
++    unsigned nextAu;
++    unsigned lastSlot;
++    // The slots the chip still holds a picture in: handing one of those out
++    // again is refused.
++    bool     held[32];
++    Mem      frames;
++    Mem      cpu;
++    Mem      gpu;
++    Mem      cpuGpu;
++    Mem      au[AU_SLOTS];
++
++    // The times of the pictures that were sent but have not come out yet.
++    // The chip shows the pictures in the order they are to be seen, so the
++    // smallest time waiting is the picture that comes out.
++    PendingPicture pending[MAX_PENDING];
++    int            pendingCount;
++
++    // The parameter sets, in Annex B, in front of every picture.
++    uint8_t* headers;
++    size_t   headersSize;
++
++    // The picture that came out of the chip and is waiting to be handed on.
++    VdecOutput picture;
++    int        hasPicture;
++
++    AVPacket* pkt;
++
++    DOVIContext dovi_ctx;
++    int         has_dovi;
++    int         dovi_profile;
++    int         dovi_compat_id;
++} Ps5Context;
++
++/**
++ * A picture buffer from the decoder's own store that the chip does not hold
++ * a picture in yet. The chip writes the decoded picture there; without one it
++ * has nowhere to put it, and it refuses the work.
++ */
++static VdecFrameBuffer nextFrameBuffer(Ps5Context* ps5)
++{
++    VdecFrameBuffer fb = {.this_size = sizeof(fb)};
++    if (!ps5->frames.addr || ps5->frameSize == 0)
++        return fb;
++    unsigned slot = ps5->frameCount;
++    for (unsigned i = 0; i < ps5->frameCount; i++) {
++        unsigned index = (ps5->nextSlot + i) % ps5->frameCount;
++        if (!ps5->held[index]) {
++            slot         = index;
++            ps5->nextSlot = index + 1;
++            break;
++        }
++    }
++    if (slot == ps5->frameCount)
++        return fb;
++    ps5->lastSlot            = slot;
++    fb.frame_buffer          = (uint8_t*)ps5->frames.addr + slot * ps5->frameSize;
++    fb.frame_buffer_size     = ps5->frameSize;
++    return fb;
++}
++
++/// The slot the chip took a picture in is free again once it was copied out.
++static void releaseFrameBuffer(Ps5Context* ps5, bool accepted)
++{
++    if (accepted && ps5->lastSlot < ps5->frameCount)
++        ps5->held[ps5->lastSlot] = false;
++}
++
++/// The slot a picture came out of, when it is one of ours.
++static int frameSlotOf(Ps5Context* ps5, const void* buffer)
++{
++    if (!ps5->frames.addr || !buffer)
++        return -1;
++    const uint8_t* base = (const uint8_t*)ps5->frames.addr;
++    if ((const uint8_t*)buffer < base)
++        return -1;
++    size_t offset = (size_t)((const uint8_t*)buffer - base);
++    if (offset % ps5->frameSize)
++        return -1;
++    size_t slot = offset / ps5->frameSize;
++    if (slot >= ps5->frameCount)
++        return -1;
++    return (int)slot;
++}
++
++/**
++ * Starts the chip's decoder for one stream.
++ */
++static int startDecoder(Ps5Context* ps5, int codec, int profile, int level, int width, int height)
++{
++    void* queue = computeQueue();
++    if (!queue)
++        return AVERROR(ENOSYS);
++
++    VdecConfig config = {
++        .this_size                 = sizeof(config),
++        .resource_type             = 1,
++        .codec_type                = codec == VDEC_CODEC_AVC ? VDEC_CODEC_AVC : VDEC_CODEC_HEVC,
++        .profile                   = (uint32_t)profile,
++        .max_level                 = (uint32_t)level,
++        // The size of the picture, rounded to the block the encoder codes
++        // with: it may be up to 64, and a room that is a little too small
++        // makes the chip refuse every picture.
++        .max_frame_width           = width ? (int32_t)((width + 63) & ~63) : 3840,
++        .max_frame_height          = height ? (int32_t)((height + 63) & ~63) : 2176,
++        // The decoder's picture store: the decoder sizes it itself.
++        .max_dpb_frame_count       = -1,
++        // Four pictures in flight: the pipeline of one costs throughput, and
++        // the console refuses the decoder when the memory does not fit.
++        .decode_pipeline_depth     = 4,
++        .compute_queue             = queue,
++        .cpu_affinity_mask         = 0x3f,
++        .cpu_thread_priority       = 700,
++        .optimize_progressive_video = true,
++    };
++    ps5->frameCount = 10;
++
++    int bringUp = -1;
++    for (int attempt = 0; attempt < 3; attempt++) {
++        VdecMemory mem = {.this_size = sizeof(mem)};
++        int queryRc = 0;
++        PS5_RUN_GUARDED(queryRc = sceVideodec2QueryDecoderMemoryInfo(&config, &mem), queryRc);
++        if (queryRc != 0) {
++            av_log(ps5, AV_LOG_ERROR, "The console's video decoder: memory query failed\n");
++            fprintf(stderr,
++                    "[wiliwili] the console's decoder: no memory for %s profile %d, level %d, %dx%d: "
++                    "0x%08x\n",
++                    codec == VDEC_CODEC_AVC ? "H.264" : "HEVC", profile, level, config.max_frame_width,
++                    config.max_frame_height, (unsigned)queryRc);
++            return AVERROR_EXTERNAL;
++        }
++        size_t alignment = mem.frame_buffer_alignment > PAGE_16K ? mem.frame_buffer_alignment : PAGE_16K;
++        ps5->frameSize  = (mem.max_frame_buffer_size + alignment - 1) & ~(alignment - 1);
++
++        int ok = (!mem.cpu_memory_size || memCpu(&ps5->cpu, mem.cpu_memory_size) == 0) &&
++                 (!mem.gpu_memory_size ||
++                  memDirect(&ps5->gpu, mem.gpu_memory_size, PAGE_16K, PROT_CHIP_POOL) == 0) &&
++                 (!mem.cpu_gpu_memory_size ||
++                  memDirect(&ps5->cpuGpu, mem.cpu_gpu_memory_size, PAGE_16K, PROT_CPU_RW | PROT_GPU_RW) ==
++                      0) &&
++                 memDirect(&ps5->frames, ps5->frameSize * ps5->frameCount, alignment,
++                           PROT_CPU_RW | PROT_GPU_RW) == 0;
++        for (int i = 0; ok && i < AU_SLOTS; i++)
++            ok = memDirect(&ps5->au[i], AU_SLOT_SIZE, PAGE_16K, PROT_CHIP_POOL) == 0;
++        if (ok) {
++            // The memory is new to the chip: a picture it did not decode fully
++            // would show what was there before.
++            if (ps5->cpu.addr)
++                memset(ps5->cpu.addr, 0, ps5->cpu.len);
++            if (ps5->gpu.addr)
++                memset(ps5->gpu.addr, 0, ps5->gpu.len);
++            if (ps5->cpuGpu.addr)
++                memset(ps5->cpuGpu.addr, 0, ps5->cpuGpu.len);
++            if (ps5->tenBit) {
++                uint64_t* words = (uint64_t*)ps5->frames.addr;
++                for (size_t i = 0, n = ps5->frames.len / 8; i < n; i++)
++                    words[i] = 0x0200020002000200ull;
++            } else {
++                memset(ps5->frames.addr, 0x80, ps5->frames.len);
++            }
++            mem.cpu_memory             = ps5->cpu.addr;
++            mem.gpu_memory             = ps5->gpu.addr;
++            mem.cpu_gpu_memory         = ps5->cpuGpu.addr;
++            // The sizes the chip asked for, rounded up as it wants them.
++            mem.gpu_memory_size        = ps5->gpu.len;
++            mem.cpu_gpu_memory_size    = ps5->cpuGpu.len;
++            mem.max_frame_buffer_size  = ps5->frameSize;
++            mem.frame_buffer_alignment = (uint32_t)alignment;
++            void* decoder               = NULL;
++            int createRc = 0;
++            PS5_RUN_GUARDED(createRc = sceVideodec2CreateDecoder(&config, &mem, &decoder), createRc);
++            if (createRc == 0) {
++                // The decoder only starts to work after it has been reset.
++                int resetRc = 0;
++                PS5_RUN_GUARDED(resetRc = sceVideodec2Reset(decoder), resetRc);
++                if (resetRc == 0) {
++                    ps5->decoder = decoder;
++                    bringUp     = 0;
++                } else {
++                    fprintf(stderr, "[wiliwili] the console's decoder: the reset failed: 0x%08x\n",
++                            (unsigned)resetRc);
++                    sceVideodec2DeleteDecoder(decoder);
++                }
++            } else {
++                fprintf(stderr,
++                        "[wiliwili] the console's decoder: %s profile %d, level %d, %dx%d was refused: "
++                        "0x%08x\n",
++                        codec == VDEC_CODEC_AVC ? "H.264" : "HEVC", profile, level, config.max_frame_width,
++                        config.max_frame_height, (unsigned)createRc);
++            }
++        }
++        if (bringUp == 0)
++            break;
++
++        // The memory that was asked for is given back.
++        for (int i = 0; i < AU_SLOTS; i++)
++            memFree(&ps5->au[i]);
++        memFree(&ps5->frames);
++        memFree(&ps5->cpuGpu);
++        memFree(&ps5->gpu);
++        memFree(&ps5->cpu);
++
++        // The chip refuses a decoder that does not fit the stream: a
++        // picture that is bigger than 1080p gets room for 4K instead, and
++        // the level goes with the room.
++        if (attempt == 0) {
++            config.max_frame_width  = 3840;
++            config.max_frame_height = 2176;
++            config.max_level        = codec == VDEC_CODEC_AVC ? 52 : 153;
++            continue;
++        }
++        if (attempt == 1) {
++            // Four pictures in the store and one at a time: the values that
++            // need the least memory.
++            config.max_dpb_frame_count   = 4;
++            config.decode_pipeline_depth = 1;
++            continue;
++        }
++        av_log(ps5, AV_LOG_ERROR, "The console's video decoder: no memory for the decoder\n");
++        return AVERROR(ENOMEM);
++    }
++
++    ps5->codec        = codec;
++    ps5->profile      = profile;
++    ps5->level        = level;
++    ps5->dropLeading  = 1;
++    ps5->roomWidth    = config.max_frame_width;
++    ps5->roomHeight   = config.max_frame_height;
++    ps5->roomLevel    = (int)config.max_level;
++    av_log(ps5, AV_LOG_INFO, "The console's video decoder is ready (%s %dx%d, %u pictures of %zu KiB)\n",
++           codec == VDEC_CODEC_AVC ? "H.264" : "HEVC", config.max_frame_width, config.max_frame_height,
++           ps5->frameCount, ps5->frameSize >> 10);
++    fprintf(stderr, "[wiliwili] the console's decoder is ready: %s %dx%d, %u pictures of %zu KiB\n",
++            codec == VDEC_CODEC_AVC ? "H.264" : "HEVC", config.max_frame_width, config.max_frame_height,
++            ps5->frameCount, ps5->frameSize >> 10);
++    return 0;
++}
++
++static void stopDecoder(Ps5Context* ps5)
++{
++    if (ps5->decoder) {
++        int rc = 0;
++        PS5_RUN_GUARDED(rc = sceVideodec2DeleteDecoder(ps5->decoder), rc);
++        ps5->decoder = NULL;
++    }
++    for (int i = 0; i < AU_SLOTS; i++)
++        memFree(&ps5->au[i]);
++    memFree(&ps5->frames);
++    memFree(&ps5->cpuGpu);
++    memFree(&ps5->gpu);
++    memFree(&ps5->cpu);
++    ff_dovi_ctx_flush(&ps5->dovi_ctx);
++    ps5->has_dovi = 0;
++}
++
++/**
++ * The parameter sets of the stream, in Annex B. The chip wants them in
++ * front of every picture.
++ */
++static int readHeaders(Ps5Context* ps5, const uint8_t* data, int size)
++{
++    if (size <= 0)
++        return 0;
++
++    // The bitstream filter leaves the data in Annex B already.
++    av_freep(&ps5->headers);
++    ps5->headers = av_malloc(size);
++    if (!ps5->headers)
++        return AVERROR(ENOMEM);
++    memcpy(ps5->headers, data, size);
++    ps5->headersSize = size;
++    return 0;
++}
++
++/**
++ * The parameter set of the given kind in a stream that is in Annex B.
++ *
++ * The chip counts the pictures the way the codecs do, and it wants to know
++ * what the stream is before it decodes it: the profile and the level of the
++ * parameter set are what it asks for.
++ */
++static const uint8_t* findParameterSet(const uint8_t* data, int size, int type, int hevc)
++{
++    if (!data || size <= 0)
++        return NULL;
++
++    int i = 0;
++    while (i + 3 <= size) {
++        int start = -1;
++        if (i + 4 <= size && data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 0 && data[i + 3] == 1)
++            start = i + 4;
++        else if (data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 1)
++            start = i + 3;
++        if (start < 0) {
++            // No marker here: the search goes on. The parameter sets of a
++            // stream start with the video parameter set, so giving up at the
++            // first one would never find the sequence parameter set.
++            i++;
++            continue;
++        }
++        if (start >= size)
++            break;
++
++        int nalType = hevc ? ((data[start] >> 1) & 0x3f) : (data[start] & 0x1f);
++        if (nalType == type)
++            return data + start;
++
++        i = start + 1;
++    }
++    return NULL;
++}
++
++static void parseDoviRpu(AVCodecContext* avctx, Ps5Context* ps5, const uint8_t* data, int size)
++{
++    if (!data || size <= 4)
++        return;
++
++    int i = 0;
++    while (i + 3 <= size) {
++        int start = -1;
++        if (i + 4 <= size && data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 0 && data[i + 3] == 1)
++            start = i + 4;
++        else if (data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 1)
++            start = i + 3;
++
++        if (start < 0) {
++            i++;
++            continue;
++        }
++        if (start + 2 >= size)
++            break;
++
++        int nalType = (data[start] >> 1) & 0x3f;
++        if (nalType == 62) { // HEVC_NAL_UNSPEC62
++            int end = size;
++            for (int j = start + 2; j + 3 <= size; j++) {
++                if ((data[j] == 0 && data[j + 1] == 0 && data[j + 2] == 1) ||
++                    (j + 4 <= size && data[j] == 0 && data[j + 1] == 0 && data[j + 2] == 0 && data[j + 3] == 1)) {
++                    end = j;
++                    break;
++                }
++            }
++            int rpu_raw_size = end - (start + 2);
++            if (rpu_raw_size > 2) {
++                const uint8_t* src = data + start + 2;
++                uint8_t* unescaped = (uint8_t*)av_malloc(rpu_raw_size);
++                if (unescaped) {
++                    int dst_idx = 0;
++                    int zero_count = 0;
++                    for (int s = 0; s < rpu_raw_size; s++) {
++                        if (zero_count >= 2 && src[s] == 0x03) {
++                            zero_count = 0;
++                            continue;
++                        }
++                        unescaped[dst_idx++] = src[s];
++                        if (src[s] == 0)
++                            zero_count++;
++                        else
++                            zero_count = 0;
++                    }
++                    int ret = ff_dovi_rpu_parse(&ps5->dovi_ctx, unescaped, (size_t)dst_idx, 0);
++                    if (ret == 0) {
++                        ps5->has_dovi = 1;
++                        int prof = ff_dovi_guess_profile_hevc(&ps5->dovi_ctx.header);
++                        if (prof == 5) {
++                            ps5->dovi_profile = 5;
++                            ps5->dovi_compat_id = 0;
++                            if (avctx) {
++                                avctx->color_trc = AVCOL_TRC_SMPTEST2084;
++                                avctx->color_primaries = AVCOL_PRI_BT2020;
++                                avctx->colorspace = AVCOL_SPC_UNSPECIFIED;
++                            }
++                        } else if (prof == 8 || ps5->dovi_ctx.header.vdr_rpu_profile == 1) {
++                            ps5->dovi_profile = 8;
++                            ps5->dovi_compat_id = 4;
++                            if (avctx) {
++                                avctx->color_trc = AVCOL_TRC_ARIB_STD_B67;
++                                avctx->color_primaries = AVCOL_PRI_BT2020;
++                                avctx->colorspace = AVCOL_SPC_BT2020_NCL;
++                            }
++                        }
++                        static int log_once = 0;
++                        if (log_once < 10) {
++                            log_once++;
++                            fprintf(stderr, "[wiliwili] parsed Dolby Vision RPU NAL62 (%d raw -> %d unescaped bytes, vdr_prof=%d, prof=%d compat=%d)\n",
++                                    rpu_raw_size, dst_idx, ps5->dovi_ctx.header.vdr_rpu_profile, ps5->dovi_profile, ps5->dovi_compat_id);
++                        }
++                    } else {
++                        static int err_once = 0;
++                        if (err_once < 5) {
++                            err_once++;
++                            fprintf(stderr, "[wiliwili] ff_dovi_rpu_parse error: %d\n", ret);
++                        }
++                    }
++                    av_free(unescaped);
++                }
++            }
++            break;
++        }
++        i = start + 1;
++    }
++}
++
++/**
++ * A bit reader for the parameter sets.
++ */
++typedef struct VdecBits
++{
++    const uint8_t* data;
++    int size;  // in bits
++    int pos;
++} VdecBits;
++
++static uint32_t bitsGet(VdecBits* bits, int n)
++{
++    uint32_t value = 0;
++    for (int i = 0; i < n; i++) {
++        int byte = bits->pos >> 3;
++        int bit  = 0;
++        if (byte < (bits->size >> 3))
++            bit = (bits->data[byte] >> (7 - (bits->pos & 7))) & 1;
++        value = (value << 1) | (uint32_t)bit;
++        bits->pos++;
++    }
++    return value;
++}
++
++/**
++ * The number of the bits before a zero (the Exp-Golomb code of the
++ * parameter sets).
++ */
++static uint32_t bitsUe(VdecBits* bits)
++{
++    int zeros = 0;
++    while (bitsGet(bits, 1) == 0 && zeros < 32)
++        zeros++;
++    if (!zeros)
++        return 0;
++    uint32_t rest = bitsGet(bits, zeros);
++    return ((1u << zeros) - 1) + rest;
++}
++
++/**
++ * The number of the bits before a zero, with its sign (the Exp-Golomb code
++ * of the parameter sets).
++ */
++static int32_t bitsSe(VdecBits* bits)
++{
++    uint32_t value = bitsUe(bits);
++    if (value & 1)
++        return (int32_t)((value + 1) / 2);
++    return -(int32_t)(value / 2);
++}
++
++/**
++ * The parameters of the stream that the chip wants: the profile, the level
++ * and the size of the picture.
++ *
++ * They come from the sequence parameter set: the decoder is asked for them
++ * before a single picture is decoded, and the fields of the context are still
++ * empty at that time. The chip counts the level the way the codec does, so
++ * the level of the parameter set is the one it wants - a stream that says 5.0
++ * is refused by a decoder that was told 4.1.
++ *
++ * Returns 1 when the parameter set was read.
++ */
++static int streamParameters(int codec, const uint8_t* annexb, int size, int* profile, int* level, int* width,
++                            int* height)
++{
++    int hevc = codec == VDEC_CODEC_HEVC;
++
++    const uint8_t* sps = findParameterSet(annexb, size, hevc ? 33 : 7, hevc);
++    if (!sps)
++        return 0;
++
++    const uint8_t* payload = sps + (hevc ? 2 : 1);
++    int           length   = (int)(annexb + size - payload);
++    if (length <= 0)
++        return 0;
++
++    if (!hevc) {
++        // H.264: the profile is the first byte of the parameter set and the
++        // level the third. The size of the picture comes further down.
++        if (length < 4)
++            return 0;
++        int profileIdc = payload[0];
++        int levelIdc   = payload[2];
++
++        VdecBits bits = { payload + 3, (length - 3) * 8, 0 };
++        bitsUe(&bits);  // the number of the parameter set
++        if (profileIdc == 100 || profileIdc == 110 || profileIdc == 122 || profileIdc == 244 ||
++            profileIdc == 44 || profileIdc == 83 || profileIdc == 86 || profileIdc == 118 ||
++            profileIdc == 128 || profileIdc == 138 || profileIdc == 139 || profileIdc == 134 ||
++            profileIdc == 135) {
++            int chroma = (int)bitsUe(&bits);
++            if (chroma == 3)
++                bitsGet(&bits, 1);
++            bitsUe(&bits);  // the depth of the luma
++            bitsUe(&bits);  // the depth of the chroma
++            bitsGet(&bits, 1);
++            if (bitsGet(&bits, 1)) {
++                int lists = chroma != 3 ? 8 : 12;
++                for (int i = 0; i < lists; i++) {
++                    if (!bitsGet(&bits, 1))
++                        continue;
++                    int size = i < 6 ? 16 : 64;
++                    for (int j = 0; j < size; j++)
++                        bitsSe(&bits);
++                }
++            }
++        }
++        bitsUe(&bits);  // the number of the frame numbers
++        int pocType = (int)bitsUe(&bits);
++        if (pocType == 0) {
++            bitsUe(&bits);
++        } else if (pocType == 1) {
++            bitsGet(&bits, 1);
++            bitsSe(&bits);
++            bitsSe(&bits);
++            int cycle = (int)bitsUe(&bits);
++            for (int i = 0; i < cycle; i++)
++                bitsSe(&bits);
++        }
++        bitsUe(&bits);   // the number of the reference frames
++        bitsGet(&bits, 1);
++        int codedWidth  = ((int)bitsUe(&bits) + 1) * 16;
++        int codedHeight = ((int)bitsUe(&bits) + 1) * 16;
++        int onlyFrames  = (int)bitsGet(&bits, 1);
++        if (!onlyFrames)
++            codedHeight *= 2;
++
++        *profile = profileIdc;
++        *level   = levelIdc;
++        if (codedWidth > 0 && codedHeight > 0) {
++            *width  = codedWidth;
++            *height = codedHeight;
++        }
++        return 1;
++    }
++
++    // The bytes that keep a zero from starting a marker are not part of the
++    // parameter set.
++    uint8_t* rbsp = av_malloc((size_t)length);
++    if (!rbsp)
++        return 0;
++    int   out   = 0;
++    int   zeros = 0;
++    for (int i = 0; i < length; i++) {
++        if (zeros >= 2 && payload[i] == 3) {
++            zeros = 0;
++            continue;
++        }
++        rbsp[out++] = payload[i];
++        zeros       = payload[i] == 0 ? zeros + 1 : 0;
++    }
++
++    VdecBits bits = { rbsp, out * 8, 0 };
++    int      ok   = 0;
++
++    bitsGet(&bits, 4);  // the video parameter set it belongs to
++    int subs = (int)bitsGet(&bits, 3);
++    bitsGet(&bits, 1);  // the nesting of the layers
++
++    int profileSpace = (int)bitsGet(&bits, 2);
++    bitsGet(&bits, 1);  // the tier
++    int profileIdc = (int)bitsGet(&bits, 5);
++    int compat[32];
++    for (int i = 0; i < 32; i++)
++        compat[i] = (int)bitsGet(&bits, 1);
++
++    bitsGet(&bits, 4);  // the source flags
++
++    // The extra rules of the profile: each profile has its own.
++    int hasRule = 0;
++    for (int i = 4; i <= 10; i++)
++        hasRule |= (profileIdc == i || compat[i]);
++    if (hasRule) {
++        for (int i = 0; i < 9; i++)
++            bitsGet(&bits, 1);
++        int longRule = (profileIdc == 5 || compat[5] || compat[9] || compat[10]);
++        bitsGet(&bits, longRule ? 33 : 34);
++    } else if (profileIdc == 2 || compat[2]) {
++        bitsGet(&bits, 7);
++        bitsGet(&bits, 1);
++        bitsGet(&bits, 35);
++    } else {
++        bitsGet(&bits, 43);
++    }
++    bitsGet(&bits, 1);  // the building flag
++
++    int levelIdc = (int)bitsGet(&bits, 8);
++
++    if (subs > 1) {
++        int subProfile[8], subLevel[8];
++        for (int i = 0; i < subs - 1; i++) {
++            subProfile[i] = (int)bitsGet(&bits, 1);
++            subLevel[i]   = (int)bitsGet(&bits, 1);
++        }
++        for (int i = subs - 1; i < 8; i++)
++            bitsGet(&bits, 2);
++        for (int i = 0; i < subs - 1; i++) {
++            if (subProfile[i])
++                bitsGet(&bits, 88);
++            if (subLevel[i])
++                bitsGet(&bits, 8);
++        }
++    }
++
++    // The size of the picture: the samples of the luma.
++    bitsUe(&bits);  // the number of the parameter set
++    int chroma = (int)bitsUe(&bits);
++    if (chroma == 3)
++        bitsGet(&bits, 1);
++    int picWidth  = (int)bitsUe(&bits);
++    int picHeight = (int)bitsUe(&bits);
++
++    if (picWidth > 0 && picHeight > 0 && levelIdc > 0) {
++        *profile = profileIdc;
++        *level   = levelIdc;
++        *width   = picWidth;
++        *height  = picHeight;
++        ok = 1;
++    }
++    (void)profileSpace;
++    av_free(rbsp);
++    return ok;
++}
++
++
++/**
++ * The units of an access unit, and the ones the chip is given.
++ *
++ * The chip refuses a key picture whose unit holds the same parameter set
++ * twice: the bitstream filter puts the container's sets in front of every key
++ * picture, and the stream carries its own in band, so the same set is in the
++ * unit twice - and the key picture is refused, and with it every picture that
++ * comes after it. The copy that is nearest the picture is the one the stream
++ * means, so the earlier one is left out.
++ *
++ * The units of type 48 and up are left out as well: they are the extension
++ * layers (Dolby Vision among them), and the console reads the base layer only.
++ *
++ * Returns the number of bytes written, or -1 when the unit is not in Annex B
++ * (the caller then hands it over as it is).
++ */
++#define VDEC_MAX_UNITS 512
++
++static int cleanAccessUnit(uint8_t* dst, const uint8_t* au, int size, int hevc)
++{
++    int startAt[VDEC_MAX_UNITS];
++    int unitAt[VDEC_MAX_UNITS];
++    int endAt[VDEC_MAX_UNITS];
++    int count = 0;
++
++    // The units of the parameter sets, by type: HEVC 32/33/34, H.264 7/8.
++    int first = -1;
++    for (int i = 0; i + 3 <= size; i++) {
++        if (au[i] == 0 && au[i + 1] == 0 && au[i + 2] == 1) {
++            first = (i > 0 && au[i - 1] == 0) ? i - 1 : i;
++            break;
++        }
++    }
++    if (first < 0)
++        return -1;
++
++    int sc = first;
++    int unit = first + 3;
++    while (unit < size && count < VDEC_MAX_UNITS) {
++        int nextSc = size;
++        int nextUnit = -1;
++        for (int j = unit; j + 3 <= size; j++) {
++            if (au[j] == 0 && au[j + 1] == 0 && au[j + 2] == 1) {
++                nextSc   = (j > unit && au[j - 1] == 0) ? j - 1 : j;
++                nextUnit = j + 3;
++                break;
++            }
++        }
++        startAt[count] = sc;
++        unitAt[count]  = unit;
++        endAt[count]   = nextSc;
++        count++;
++        if (nextUnit < 0)
++            break;
++        sc   = nextSc;
++        unit = nextUnit;
++    }
++    if (count == VDEC_MAX_UNITS && unit < size) {
++        // Too many units to look at: the unit goes over as it is.
++        return -1;
++    }
++
++    int out = 0;
++    for (int k = 0; k < count; k++) {
++        const uint8_t* header = au + unitAt[k];
++        int type = hevc ? ((header[0] >> 1) & 0x3f) : (header[0] & 0x1f);
++        if (hevc && type >= 48)
++            continue;
++        if (!hevc && (type == 7 || type == 8)) {
++            // The same set again further down the unit: the copy nearest the
++            // picture is the one that counts.
++            int later = 0;
++            for (int m = k + 1; m < count && !later; m++) {
++                const uint8_t* other = au + unitAt[m];
++                int otherType = other[0] & 0x1f;
++                later = otherType == type && (int)(endAt[m] - unitAt[m]) == (int)(endAt[k] - unitAt[k]) &&
++                        !memcmp(au + unitAt[k], au + unitAt[m], (size_t)(endAt[k] - unitAt[k]));
++            }
++            if (later)
++                continue;
++        } else if (hevc && (type == 32 || type == 33 || type == 34)) {
++            int later = 0;
++            for (int m = k + 1; m < count && !later; m++) {
++                const uint8_t* other = au + unitAt[m];
++                int otherType = (other[0] >> 1) & 0x3f;
++                later = otherType == type && (int)(endAt[m] - unitAt[m]) == (int)(endAt[k] - unitAt[k]) &&
++                        !memcmp(au + unitAt[k], au + unitAt[m], (size_t)(endAt[k] - unitAt[k]));
++            }
++            if (later)
++                continue;
++        }
++        memcpy(dst + out, au + startAt[k], (size_t)(endAt[k] - startAt[k]));
++        out += endAt[k] - startAt[k];
++    }
++    return out;
++}
++
++/**
++ * The kind of the first picture of an access unit: the type of its first
++ * slice unit, or -1 when it has none.
++ *
++ * HEVC numbers its units: 0 to 31 are the pictures, 8 and 9 are the ones
++ * that follow a random access point and whose references come before it,
++ * 16 to 23 are the random access points themselves. H.264 uses 1 and 5 for
++ * the slices.
++ */
++static int accessUnitType(const uint8_t* au, int size, int hevc)
++{
++    for (int i = 0; i + 4 < size; i++) {
++        if (au[i] != 0 || au[i + 1] != 0)
++            continue;
++        int payload;
++        if (au[i + 2] == 1)
++            payload = i + 3;
++        else if (au[i + 2] == 0 && au[i + 3] == 1)
++            payload = i + 4;
++        else
++            continue;
++        if (payload >= size)
++            break;
++        int type = hevc ? ((au[payload] >> 1) & 0x3f) : (au[payload] & 0x1f);
++        if (hevc) {
++            if (type <= 31)
++                return type;
++        } else if (type == 1 || type == 5) {
++            return type;
++        }
++        i = payload;
++    }
++    return -1;
++}
++
++/**
++ * The access unit the chip reads: the parameter sets and the packet.
++ */
++static int buildAccessUnit(Ps5Context* ps5, const AVPacket* pkt, uint8_t** out, size_t* outSize){
++    size_t headers = ps5->headersSize;
++    size_t total   = headers + (size_t)pkt->size;
++    if (total > AU_SLOT_SIZE)
++        return AVERROR_INVALIDDATA;
++
++    uint8_t* au = av_malloc(total ? total : 1);
++    if (!au)
++        return AVERROR(ENOMEM);
++    if (headers)
++        memcpy(au, ps5->headers, headers);
++    if (pkt->size)
++        memcpy(au + headers, pkt->data, pkt->size);
++
++    // The chip wants one copy of every parameter set: the unit that the
++    // bitstream filter and the packet together made can hold the same set
++    // twice, and the chip refuses such a key picture.
++    size_t size = total;
++    if (total > 0) {
++        uint8_t* clean = av_malloc(total);
++        if (clean) {
++            int written = cleanAccessUnit(clean, au, (int)total, 1);
++            if (written > 0) {
++                memcpy(au, clean, (size_t)written);
++                size = (size_t)written;
++            }
++            av_free(clean);
++        }
++    }
++
++    *out     = au;
++    *outSize = size;
++    return 0;
++}
++
++/**
++ * The time of the picture that comes out: the smallest one that is waiting.
++ */
++static PendingPicture takePending(Ps5Context* ps5)
++{
++    PendingPicture empty = { AV_NOPTS_VALUE, NULL };
++    if (!ps5->pendingCount)
++        return empty;
++    int best = -1;
++    for (int i = 0; i < ps5->pendingCount; i++) {
++        if (ps5->pending[i].pts != AV_NOPTS_VALUE) {
++            if (best < 0 || ps5->pending[i].pts < ps5->pending[best].pts)
++                best = i;
++        }
++    }
++    if (best < 0) {
++        best = 0;
++    }
++    PendingPicture pic = ps5->pending[best];
++    ps5->pending[best] = ps5->pending[--ps5->pendingCount];
++    return pic;
++}
++
++static void addPending(Ps5Context* ps5, int64_t pts, AVBufferRef* dovi_buf)
++{
++    if (ps5->pendingCount >= MAX_PENDING) {
++        if (ps5->pending[0].dovi_buf)
++            av_buffer_unref(&ps5->pending[0].dovi_buf);
++        memmove(ps5->pending, ps5->pending + 1, (MAX_PENDING - 1) * sizeof(ps5->pending[0]));
++        ps5->pendingCount--;
++    }
++    ps5->pending[ps5->pendingCount].pts = pts;
++    ps5->pending[ps5->pendingCount].dovi_buf = dovi_buf;
++    ps5->pendingCount++;
++}
++
++static void clearPending(Ps5Context* ps5)
++{
++    for (int i = 0; i < ps5->pendingCount; i++) {
++        if (ps5->pending[i].dovi_buf)
++            av_buffer_unref(&ps5->pending[i].dovi_buf);
++    }
++    ps5->pendingCount = 0;
++}
++
++/**
++ * Hands the picture the chip produced to the caller.
++ */
++
++static int outputPicture(AVCodecContext* avctx, AVFrame* frame, const VdecOutput* out, int64_t pts, AVBufferRef* dovi_buf)
++{
++    Ps5Context* ps5 = avctx->priv_data;
++    size_t pitch;
++    size_t surface_height;
++    size_t surface_luma;
++    size_t luma;
++    size_t chroma;
++    size_t needed;
++    int ret;
++    int64_t start;
++    uint32_t bpp;
++    uint32_t row_bytes;
++    const uint8_t* src_chroma;
++    uint32_t chroma_height;
++    uint32_t y;
++
++    if (out->is_error_frame || !out->frame_buffer || !out->frame_width || !out->frame_height) {
++        av_log(avctx, AV_LOG_WARNING, "The console's video decoder: the picture is not there\n");
++        return AVERROR_INVALIDDATA;
++    }
++
++    bpp = ps5->tenBit ? 2 : 1;
++    row_bytes = out->frame_width * bpp;
++    size_t samples = out->frame_pitch ? out->frame_pitch : out->frame_width;
++    pitch = out->frame_pitch_in_bytes;
++    if (pitch < (size_t)row_bytes) {
++        pitch = samples * bpp;
++    }
++    surface_height = (size_t)out->frame_height;
++    static int log_surf_once = 0;
++    if (log_surf_once < 10) {
++        log_surf_once++;
++        fprintf(stderr, "[ps5_surf] 10bit=%d frame=%dx%d pitch_s=%u pitch_b=%u pitch=%zu row_b=%u surfH=%zu fmt=0x%x\n",
++                ps5->tenBit, out->frame_width, out->frame_height, out->frame_pitch,
++                out->frame_pitch_in_bytes, pitch, row_bytes, surface_height, out->frame_format);
++    }
++    surface_luma   = pitch * surface_height;
++    luma           = pitch * out->frame_height;
++    chroma         = pitch * (out->frame_height / 2);
++    needed         = luma + chroma;
++
++    frame->format      = ps5->tenBit ? AV_PIX_FMT_P010 : AV_PIX_FMT_NV12;
++    frame->width       = out->frame_width;
++    frame->height      = out->frame_height;
++    frame->pts         = pts;
++    frame->color_range = AVCOL_RANGE_MPEG;
++    if (ps5->dovi_profile == 8 && ps5->dovi_compat_id == 4) {
++        frame->color_trc       = AVCOL_TRC_ARIB_STD_B67;
++        frame->color_primaries = AVCOL_PRI_BT2020;
++        frame->colorspace      = AVCOL_SPC_BT2020_NCL;
++    } else if (ps5->dovi_profile == 5) {
++        frame->color_trc       = AVCOL_TRC_SMPTEST2084;
++        frame->color_primaries = AVCOL_PRI_BT2020;
++        frame->colorspace      = AVCOL_SPC_UNSPECIFIED;
++    } else {
++        frame->color_primaries = avctx->color_primaries ? avctx->color_primaries : (ps5->tenBit ? AVCOL_PRI_BT2020 : AVCOL_PRI_BT709);
++        frame->color_trc       = avctx->color_trc ? avctx->color_trc : (ps5->tenBit ? AVCOL_TRC_ARIB_STD_B67 : AVCOL_TRC_BT709);
++        frame->colorspace      = avctx->colorspace ? avctx->colorspace : (ps5->tenBit ? AVCOL_SPC_BT2020_NCL : AVCOL_SPC_BT709);
++    }
++
++    if (avctx->pix_fmt != frame->format || avctx->width != frame->width || avctx->height != frame->height) {
++        avctx->pix_fmt = frame->format;
++        ff_set_dimensions(avctx, frame->width, frame->height);
++    }
++
++    ret = ff_get_buffer(avctx, frame, 0);
++    if (ret < 0) {
++        AVBufferRef* buf = av_buffer_alloc(needed + AV_INPUT_BUFFER_PADDING_SIZE);
++        if (!buf)
++            return AVERROR(ENOMEM);
++        memset(buf->data + needed, 0, AV_INPUT_BUFFER_PADDING_SIZE);
++        frame->buf[0] = buf;
++        frame->data[0] = buf->data;
++        frame->linesize[0] = (int)pitch;
++        frame->data[1]     = buf->data + luma;
++        frame->linesize[1] = (int)pitch;
++    }
++
++    // The picture the chip filled is described here, after ff_get_buffer has
++    // had its say: a failed call empties the frame (av_frame_unref), which
++    // also drops the format and the size, and the player then throws the
++    // picture away as invalid and shows nothing while the chip decodes.
++    frame->format      = ps5->tenBit ? AV_PIX_FMT_P010 : AV_PIX_FMT_NV12;
++    frame->width       = out->frame_width;
++    frame->height      = out->frame_height;
++    frame->pts         = pts;
++    frame->color_range = AVCOL_RANGE_MPEG;
++    if (ps5->dovi_profile == 8 && ps5->dovi_compat_id == 4) {
++        frame->color_trc       = AVCOL_TRC_ARIB_STD_B67;
++        frame->color_primaries = AVCOL_PRI_BT2020;
++        frame->colorspace      = AVCOL_SPC_BT2020_NCL;
++    } else if (ps5->dovi_profile == 5) {
++        frame->color_trc       = AVCOL_TRC_SMPTEST2084;
++        frame->color_primaries = AVCOL_PRI_BT2020;
++        frame->colorspace      = AVCOL_SPC_UNSPECIFIED;
++    } else {
++        frame->color_primaries = avctx->color_primaries ? avctx->color_primaries : (ps5->tenBit ? AVCOL_PRI_BT2020 : AVCOL_PRI_BT709);
++        frame->color_trc       = avctx->color_trc ? avctx->color_trc : (ps5->tenBit ? AVCOL_TRC_ARIB_STD_B67 : AVCOL_TRC_BT709);
++        frame->colorspace      = avctx->colorspace ? avctx->colorspace : (ps5->tenBit ? AVCOL_SPC_BT2020_NCL : AVCOL_SPC_BT709);
++    }
++
++    if (avctx->color_trc != frame->color_trc || avctx->color_primaries != frame->color_primaries || avctx->colorspace != frame->colorspace) {
++        avctx->color_trc       = frame->color_trc;
++        avctx->color_primaries = frame->color_primaries;
++        avctx->colorspace      = frame->colorspace;
++    }
++
++    // The picture comes out of the graphics memory: the copy back to the
++    // processor is worth knowing about on a 4K video.
++    start = av_gettime_relative();
++    bpp = ps5->tenBit ? 2 : 1;
++    row_bytes = out->frame_width * bpp;
++    src_chroma = (const uint8_t*)out->frame_buffer + surface_luma;
++    chroma_height = out->frame_height / 2;
++
++    if (ps5->tenBit) {
++        // Sony PS5 sceVideodec2 outputs 10-bit pixels in LSB alignment (bits 9-0).
++        // Standard AV_PIX_FMT_P010 requires MSB alignment (bits 15-6, shifted by 6).
++        // Convert LSB to P010 by shifting left by 6.
++        // Sony PS5 sceVideodec2 outputs 10-bit pixels in LSB alignment (bits 9-0).
++        // Since the presentation surface and swscale run in standard SDR (BT.709 8-bit),
++        // we apply high-quality HDR PQ -> SDR tone mapping via precomputed LUTs.
++        // This expands the compressed dynamic range, preserves highlights,
++        // and enhances color saturation from BT.2020 to vibrant BT.709.
++        for (y = 0; y < out->frame_height; y++) {
++            uint16_t* dst16 = (uint16_t*)(frame->data[0] + (size_t)y * frame->linesize[0]);
++            const uint16_t* src16 = (const uint16_t*)((const uint8_t*)out->frame_buffer + (size_t)y * pitch);
++            for (size_t x = 0; x < out->frame_width; x++) {
++                dst16[x] = (uint16_t)(src16[x] << 6);
++            }
++        }
++        for (y = 0; y < chroma_height; y++) {
++            uint16_t* dst16 = (uint16_t*)(frame->data[1] + (size_t)y * frame->linesize[1]);
++            const uint16_t* src16 = (const uint16_t*)(src_chroma + (size_t)y * pitch);
++            for (size_t x = 0; x < out->frame_width; x++) {
++                dst16[x] = (uint16_t)(src16[x] << 6);
++            }
++        }
++    } else {
++        if (frame->linesize[0] == (int)pitch && pitch == row_bytes) {
++            memcpy(frame->data[0], out->frame_buffer, luma);
++        } else {
++            for (y = 0; y < out->frame_height; y++) {
++                memcpy(frame->data[0] + (size_t)y * frame->linesize[0],
++                       (const uint8_t*)out->frame_buffer + (size_t)y * pitch,
++                       row_bytes);
++            }
++        }
++        if (frame->linesize[1] == (int)pitch && pitch == row_bytes) {
++            memcpy(frame->data[1], src_chroma, chroma);
++        } else {
++            for (y = 0; y < chroma_height; y++) {
++                memcpy(frame->data[1] + (size_t)y * frame->linesize[1],
++                       src_chroma + (size_t)y * pitch,
++                       row_bytes);
++            }
++        }
++    }
++    {
++        static double copyMs = 0;
++        static double copyAt = 0;
++        copyMs += (av_gettime_relative() - start) / 1000.0;
++        double now = av_gettime_relative() / 1000.0;
++        if (now - copyAt > 1000.0) {
++            fprintf(stderr, "[wiliwili] the console's decoder: %.1f ms a second copying the pictures back\n",
++                    copyMs);
++            copyMs = 0;
++            copyAt = now;
++        }
++    }
++    if (dovi_buf) {
++        AVBufferRef* ref = av_buffer_ref(dovi_buf);
++        if (ref) {
++            AVFrameSideData* sd = av_frame_new_side_data_from_buf(frame, AV_FRAME_DATA_DOVI_METADATA, ref);
++            if (!sd)
++                av_buffer_unref(&ref);
++        }
++    } else if (ps5->has_dovi) {
++        ff_dovi_attach_side_data(&ps5->dovi_ctx, frame);
++    }
++    return 0;
++}
++
++/**
++ * Gives one access unit to the chip. The picture it produced, if any, comes
++ * back in out.
++ */
++static int decodeAccessUnit(Ps5Context* ps5, const uint8_t* au, size_t size, int64_t pts,
++                             VdecOutput* out, int* chipRc)
++{
++    // The chip reads the access unit from the graphics memory. The slots are
++    // used in turn: the chip reads them before the next call.
++    Mem* slot = &ps5->au[ps5->nextAu % AU_SLOTS];
++    ps5->nextAu++;
++    memcpy(slot->addr, au, size);
++
++    VdecInput in = {
++        .this_size = sizeof(in),
++        .au_data   = slot->addr,
++        .au_size   = size,
++        .pts_data  = (uint64_t)pts,
++        .dts_data  = UINT64_MAX,
++    };
++    VdecFrameBuffer fb = nextFrameBuffer(ps5);
++    memset(out, 0, sizeof(*out));
++    out->this_size = sizeof(*out);
++
++    int rc = 0;
++    PS5_RUN_GUARDED(rc = sceVideodec2Decode(ps5->decoder, &in, &fb, out), rc);
++    {
++        // The console's decoder says what it did with the access unit: the
++        // first ones and every picture that comes out.
++        static long calls = 0;
++        if (rc != 0 || out->is_error_frame) {
++            fprintf(stderr,
++                    "[wiliwili] the console's decoder: decode #%ld rc=0x%08x accepted=%d valid=%d error=%d "
++                    "pictures=%d %dx%d\n",
++                    calls, (unsigned)rc, (int)fb.is_accepted, (int)out->is_valid, (int)out->is_error_frame,
++                    (int)out->picture_count, (int)out->frame_width, (int)out->frame_height);
++        }
++    }
++    if (rc != 0) {
++        releaseFrameBuffer(ps5, fb.is_accepted);
++        *chipRc = rc;
++        return AVERROR_EXTERNAL;
++    }
++    if (fb.is_accepted && ps5->lastSlot < ps5->frameCount)
++        ps5->held[ps5->lastSlot] = true;
++    // The time of the picture waits until the picture comes out.
++    AVBufferRef* dovi_buf = NULL;
++    if (ps5->has_dovi) {
++        AVDOVIMetadata* dovi = NULL;
++        int dovi_sz = ff_dovi_get_metadata(&ps5->dovi_ctx, &dovi);
++        if (dovi_sz > 0 && dovi) {
++            dovi_buf = av_buffer_create((uint8_t*)dovi, dovi_sz, NULL, NULL, 0);
++            if (!dovi_buf)
++                av_free(dovi);
++        }
++    }
++    addPending(ps5, pts, dovi_buf);
++    return 0;
++}
++
++/**
++ * Takes the pictures that are still inside the chip.
++ */
++static int drainDecoder(Ps5Context* ps5, VdecOutput* out)
++{
++    VdecFrameBuffer fb = nextFrameBuffer(ps5);
++    memset(out, 0, sizeof(*out));
++    out->this_size = sizeof(*out);
++
++    int rc = 0;
++    PS5_RUN_GUARDED(rc = sceVideodec2Flush(ps5->decoder, &fb, out), rc);
++    if (rc != 0) {
++        releaseFrameBuffer(ps5, fb.is_accepted);
++        return AVERROR_EXTERNAL;
++    }
++    if (fb.is_accepted && ps5->lastSlot < ps5->frameCount)
++        ps5->held[ps5->lastSlot] = true;
++
++    if (!out->is_valid) {
++        clearPending(ps5);
++        ps5->dropLeading = 1;
++        memset(ps5->held, 0, sizeof(ps5->held));
++        return AVERROR_EOF;
++    }
++    return 0;
++}
++
++/**
++ * The pictures the chip has ready are handed on one at a time.
++ *
++ * The chip shows the pictures in the order they are to be seen, one access
++ * unit after the other: the picture of an access unit comes out when the
++ * next one is given to the chip. The times of the pictures that were sent
++ * but have not come out yet are kept, and the picture that comes out is given
++ * the smallest of them.
++ */
++static int ps5_receive_frame(AVCodecContext* avctx, AVFrame* frame)
++{
++    Ps5Context* ps5 = avctx->priv_data;
++
++    if (ps5->failed)
++        return AVERROR_EXTERNAL;
++
++    for (;;) {
++        // A picture that came out with the last access unit.
++        if (ps5->hasPicture) {
++            ps5->hasPicture = 0;
++            PendingPicture p = takePending(ps5);
++            int    slot = frameSlotOf(ps5, ps5->picture.frame_buffer);
++            int    ret  = outputPicture(avctx, frame, &ps5->picture, p.pts, p.dovi_buf);
++            if (p.dovi_buf)
++                av_buffer_unref(&p.dovi_buf);
++            if (slot >= 0)
++                ps5->held[slot] = false;
++            if (ret < 0)
++                return ret;
++            return 0;
++        }
++
++        if (!ps5->draining) {
++            // Another access unit for the chip.
++            AVPacket* pkt = ps5->pkt;
++            int       ret = ff_decode_get_packet(avctx, pkt);
++            if (ret == AVERROR_EOF) {
++                ps5->draining = 1;
++                continue;
++            }
++            if (ret < 0)
++                return ret;
++            if (!pkt->size) {
++                av_packet_unref(pkt);
++                continue;
++            }
++            if (ps5->codec == VDEC_CODEC_HEVC) {
++                parseDoviRpu(avctx, ps5, pkt->data, pkt->size);
++            }
++            // A picture comes again: the chip works again after the flush.
++            // The player seeks when the video starts, and the flush must not
++            // end the decoding for good.
++            ps5->draining = 0;
++
++            uint8_t* au     = NULL;
++            size_t   auSize = 0;
++            ret             = buildAccessUnit(ps5, pkt, &au, &auSize);
++            if (ret == 0) {
++                // A unit that holds no picture - the parameter sets on their
++                // own, as the first packet of a live stream has - is not
++                // something the chip can decode, and it does not like it.
++                int type = accessUnitType(au, (int)auSize, ps5->codec == VDEC_CODEC_HEVC);
++                if (type < 0) {
++                    av_freep(&au);
++                    av_packet_unref(pkt);
++                    continue;
++                }
++            }
++            if (ret == 0 && ps5->codec == VDEC_CODEC_HEVC && ps5->dropLeading) {
++                // The pictures that follow a random access point and whose
++                // references come before it cannot be decoded: the chip is
++                // given the ones that can.
++                int type = accessUnitType(au, (int)auSize, 1);
++                if (type == 8 || type == 9) {
++                    av_freep(&au);
++                    av_packet_unref(pkt);
++                    continue;
++                }
++                if (type >= 0 && type <= 5)
++                    ps5->dropLeading = 0;
++            }
++            if (ret < 0) {
++                av_packet_unref(pkt);
++                return ret;
++            }
++            VdecOutput out;
++            int    chipRc = 0;
++            ret = decodeAccessUnit(ps5, au, auSize, pkt->pts, &out, &chipRc);
++            if (ret < 0 && ps5->grown < 2) {
++                // The chip refuses a picture that does not fit the room it
++                // was given: the room and the level grow, and the picture is
++                // tried again.
++                static const int widths[3]  = { 1920, 2560, 3840 };
++                static const int heights[3] = { 1088, 1440, 2176 };
++                static const int levels_hevc[3] = { 123, 150, 153 };
++                static const int levels_avc[3]  = { 41, 51, 52 };
++                int next = ++ps5->grown;
++                int base_lvl = (ps5->codec == VDEC_CODEC_HEVC) ? levels_hevc[next] : levels_avc[next];
++                int want = base_lvl > ps5->level ? base_lvl : ps5->level;
++                fprintf(stderr,
++                        "[wiliwili] the console's decoder: the picture was refused (0x%08x), the room grows "
++                        "to %dx%d, level %d\n",
++                        (unsigned)chipRc, widths[next], heights[next], want);
++                stopDecoder(ps5);
++                if (startDecoder(ps5, ps5->codec, ps5->profile, want, widths[next], heights[next]) < 0) {
++                    ps5->failed = 1;
++                    av_freep(&au);
++                    av_packet_unref(pkt);
++                    return AVERROR_EXTERNAL;
++                }
++                out.is_valid = 0;
++                ret = decodeAccessUnit(ps5, au, auSize, pkt->pts, &out, &chipRc);
++            }
++            av_freep(&au);
++            av_packet_unref(pkt);
++            if (ret < 0) {
++                ps5->failed = 1;
++                return ret;
++            }
++            if (out.is_valid) {
++                ps5->picture    = out;
++                ps5->hasPicture = 1;
++                ps5->silent     = 0;
++            } else if (++ps5->silent > 32) {
++                // The chip takes the work and gives nothing back: it does
++                // not want this stream. The player has to hear about it.
++                av_log(avctx, AV_LOG_ERROR,
++                       "The console's video decoder gives no pictures\n");
++                ps5->failed = 1;
++                return AVERROR_EXTERNAL;
++            }
++            continue;
++        }
++
++        // The stream is over: the pictures that are still inside the chip are
++        // taken out.
++        VdecOutput out;
++        int        ret = drainDecoder(ps5, &out);
++        if (ret == AVERROR_EOF)
++            return AVERROR_EOF;
++        if (ret < 0)
++            return ret;
++        ps5->picture    = out;
++        ps5->hasPicture = 1;
++    }
++}
++
++static av_cold int ps5_decode_init(AVCodecContext* avctx)
++{
++    Ps5Context* ps5 = avctx->priv_data;
++
++    ps5->pkt = avctx->internal->in_pkt;
++    ps5->dovi_ctx.logctx = avctx;
++    ps5->dovi_ctx.cfg.dv_profile = 0;
++    ps5->dovi_profile = 0;
++    ps5->dovi_compat_id = 0;
++
++    if (avctx->coded_side_data) {
++        const AVPacketSideData *sd = av_packet_side_data_get(avctx->coded_side_data,
++                                                             avctx->nb_coded_side_data,
++                                                             AV_PKT_DATA_DOVI_CONF);
++        if (sd && sd->size >= sizeof(AVDOVIDecoderConfigurationRecord)) {
++            const AVDOVIDecoderConfigurationRecord *dovi = (const AVDOVIDecoderConfigurationRecord *)sd->data;
++            ps5->dovi_profile = dovi->dv_profile;
++            ps5->dovi_compat_id = dovi->dv_bl_signal_compatibility_id;
++            fprintf(stderr, "[wiliwili] DOVI_CONF: profile=%d compat_id=%d rpu=%d\n",
++                    dovi->dv_profile, dovi->dv_bl_signal_compatibility_id, dovi->rpu_present_flag);
++            if (dovi->dv_profile == 8 && dovi->dv_bl_signal_compatibility_id == 4) {
++                avctx->color_trc = AVCOL_TRC_ARIB_STD_B67;
++                avctx->color_primaries = AVCOL_PRI_BT2020;
++                avctx->colorspace = AVCOL_SPC_BT2020_NCL;
++            } else if (dovi->dv_profile == 5) {
++                avctx->color_trc = AVCOL_TRC_SMPTEST2084;
++                avctx->color_primaries = AVCOL_PRI_BT2020;
++            } else if (dovi->dv_profile == 8 && dovi->dv_bl_signal_compatibility_id == 1) {
++                avctx->color_trc = AVCOL_TRC_SMPTEST2084;
++                avctx->color_primaries = AVCOL_PRI_BT2020;
++                avctx->colorspace = AVCOL_SPC_BT2020_NCL;
++            }
++        }
++    }
++
++    int codec = avctx->codec_id == AV_CODEC_ID_HEVC ? VDEC_CODEC_HEVC : VDEC_CODEC_AVC;
++    // The chip counts the profiles the way the codecs do: 66 is Baseline, 77
++    // is Main and 100 is High for H.264, 1 is Main and 2 is Main 10 for
++    // HEVC. The stream's own profile is the one the chip wants.
++    int profile = codec == VDEC_CODEC_HEVC ? 1 : 100;
++    // The level and the size of the picture, the way the stream says them.
++    int level = codec == VDEC_CODEC_HEVC ? 123 : 51;
++    int width = 1920, height = 1088;
++    // The bit depth is the stream's own: the chip's profile says nothing
++    // about it.
++    ps5->tenBit = codec == VDEC_CODEC_HEVC && avctx->profile == FF_PROFILE_HEVC_MAIN_10;
++
++    // The bitstream filter turns the parameter sets of the container into
++    // Annex B; the decoder's own extradata is still the one of the
++    // container, and the chip would make nothing of it.
++    const uint8_t* extra   = avctx->extradata;
++    int            extraSize = avctx->extradata_size;
++    if (avctx->internal && avctx->internal->bsf && avctx->internal->bsf->par_out->extradata) {
++        extra     = avctx->internal->bsf->par_out->extradata;
++        extraSize = avctx->internal->bsf->par_out->extradata_size;
++    }
++    if (extraSize > 0)
++        readHeaders(ps5, extra, extraSize);
++
++    // The profile, the level and the size of the picture are in the parameter
++    // sets of the stream: the fields of the context are still empty, because
++    // no picture was decoded yet. The chip refuses a picture that does not
++    // fit the level it was told about.
++    int streamProfileValue = 0;
++    int streamLevel        = 0;
++    int streamWidth        = 0;
++    int streamHeight       = 0;
++    if (streamParameters(codec, extra, extraSize, &streamProfileValue, &streamLevel, &streamWidth,
++                         &streamHeight)) {
++        profile = streamProfileValue;
++        level   = streamLevel;
++        // The room the chip gets holds the picture as it is coded: the
++        // encoder rounds the height up to its block, which is up to 64.
++        if (streamWidth > 0 && streamHeight > 0) {
++            width  = (streamWidth + 63) & ~63;
++            height = (streamHeight + 63) & ~63;
++        }
++    }
++    if (codec == VDEC_CODEC_HEVC && profile == FF_PROFILE_HEVC_MAIN_10)
++        ps5->tenBit = 1;
++
++    avctx->pix_fmt = ps5->tenBit ? AV_PIX_FMT_P010 : AV_PIX_FMT_NV12;
++    if (streamWidth > 0 && streamHeight > 0)
++        ff_set_dimensions(avctx, streamWidth, streamHeight);
++
++    // Vertical video check: PS5 hardware decoder does not support portrait/vertical
++    // frames where height > width or height > 1088 for H.264.
++    // Fallback immediately to software decoder so vertical live streams play smoothly.
++    int checkW = streamWidth > 0 ? streamWidth : avctx->width;
++    int checkH = streamHeight > 0 ? streamHeight : avctx->height;
++    if (checkW > 0 && checkH > 0 && (checkH > checkW || (codec == VDEC_CODEC_AVC && checkH > 1088))) {
++        av_log(avctx, AV_LOG_INFO, "The console video decoder: vertical video (%dx%d) not supported by hardware, fallback to software\n",
++               checkW, checkH);
++        fprintf(stderr, "[wiliwili] the console decoder: vertical video (%dx%d) not supported by hardware, falling back to software\n",
++                checkW, checkH);
++        return AVERROR(ENOSYS);
++    }
++
++    // The chip's decoder is not made for threads: one thread does the work.
++    avctx->thread_count = 1;
++
++    fprintf(stderr, "[wiliwili] the console's decoder: %s profile %d, level %d, %dx%d, %s\n",
++            codec == VDEC_CODEC_HEVC ? "HEVC" : "H.264", profile, level, width, height,
++            ps5->tenBit ? "10 bit" : "8 bit");
++    {
++        // The parameter sets that go in front of every picture: their size
++        // and their first bytes say whether the stream gave any.
++        fprintf(stderr, "[wiliwili] the console's decoder: %d bytes of parameter sets:", (int)ps5->headersSize);
++        for (int i = 0; i < (int)ps5->headersSize; i++)
++            fprintf(stderr, "%02x", ps5->headers[i]);
++        fprintf(stderr, "\n");
++    }
++
++    int ret = startDecoder(ps5, codec, profile, level, width, height);
++    if (ret < 0) {
++        av_log(avctx, AV_LOG_ERROR, "The console's video decoder did not start\n");
++        fprintf(stderr, "[wiliwili] the console's decoder did not start\n");
++        return ret;
++    }
++    return 0;
++}
++
++static av_cold int ps5_decode_close(AVCodecContext* avctx)
++{
++    Ps5Context* ps5 = avctx->priv_data;
++    if (ps5) {
++        clearPending(ps5);
++        stopDecoder(ps5);
++        ff_dovi_ctx_unref(&ps5->dovi_ctx);
++        ps5->has_dovi = 0;
++        av_freep(&ps5->headers);
++    }
++    return 0;
++}
++
++static void ps5_decode_flush(AVCodecContext* avctx)
++{
++    Ps5Context* ps5 = avctx->priv_data;
++    if (ps5) {
++        if (ps5->decoder) {
++            int rc = 0;
++            PS5_RUN_GUARDED(rc = sceVideodec2Reset(ps5->decoder), rc);
++        }
++        for (unsigned i = 0; i < ps5->frameCount; i++)
++            ps5->held[i] = false;
++        clearPending(ps5);
++        ps5->hasPicture   = 0;
++        ps5->dropLeading  = 1;
++        ps5->silent       = 0;
++        ps5->draining     = 0;
++        fprintf(stderr, "[wiliwili] hevc_ps5 flushed on seek!\n");
++    }
++}
++
++/**
++ * The pictures come out as NV12, or as P010 for ten bit.
++ *
++ * The field that says this is the one the framework reads when a decoder
++ * does not answer for itself. The framework writes to it when it does have
++ * an answer, and the field lies in the read only part of the image, so the
++ * decoder must not have one.
++ */
++static const enum AVPixelFormat ps5_pix_fmts[] = { AV_PIX_FMT_NV12, AV_PIX_FMT_P010, AV_PIX_FMT_NONE };
++
++#define PS5_DECODER(dec_id, dec_name, dec_long_name, dec_bsf)                              \
++    static const AVClass dec_name##_class = {                                           \
++        .class_name = #dec_name,                                                         \
++        .item_name  = av_default_item_name,                                              \
++        .version    = LIBAVUTIL_VERSION_INT,                                             \
++    };                                                                                   \
++    const FFCodec ff_##dec_name##_decoder = {                                            \
++        .p.name         = #dec_name,                                                     \
++        FF_DISABLE_DEPRECATION_WARNINGS                                                  \
++        .p.long_name    = dec_long_name,                                                 \
++        .p.type         = AVMEDIA_TYPE_VIDEO,                                            \
++        .p.id           = dec_id,                                                        \
++        .p.pix_fmts     = ps5_pix_fmts,                                                  \
++        .priv_data_size = sizeof(Ps5Context),                                            \
++        .p.priv_class   = &dec_name##_class,                                             \
++        .init           = ps5_decode_init,                                               \
++        .close          = ps5_decode_close,                                              \
++        .flush          = ps5_decode_flush,                                              \
++        FF_CODEC_RECEIVE_FRAME_CB(ps5_receive_frame),                                    \
++        .bsfs           = dec_bsf,                                                       \
++        .p.capabilities = AV_CODEC_CAP_DELAY | AV_CODEC_CAP_AVOID_PROBING,               \
++        .caps_internal  = FF_CODEC_CAP_NOT_INIT_THREADSAFE | FF_CODEC_CAP_SETS_FRAME_PROPS, \
++        .p.wrapper_name = "ps5",                                                         \
++        FF_ENABLE_DEPRECATION_WARNINGS                                                   \
++    }
++
++PS5_DECODER(AV_CODEC_ID_H264, h264_ps5, "PS5 H.264 decoder", "h264_mp4toannexb");
++PS5_DECODER(AV_CODEC_ID_HEVC, hevc_ps5, "PS5 HEVC decoder", "hevc_mp4toannexb");
+--- a/libswscale/swscale.c
++++ b/libswscale/swscale.c
+@@ -1211,6 +1211,30 @@
+                                   int srcSliceH, uint8_t *const dst[],
+                                   const int dstStride[])
+ {
++    if (c->slicethread && c->nb_slice_ctx > 1 && srcSliceY == 0 && srcSliceH == c->srcH) {
++        int nb_jobs = c->slice_ctx[0]->dither == SWS_DITHER_ED ? 1 : c->nb_slice_ctx;
++        for (int i = 0; i < 4; i++) {
++            c->frame_src->data[i] = (uint8_t*)srcSlice[i];
++            c->frame_src->linesize[i] = srcStride[i];
++            c->frame_dst->data[i] = dst[i];
++            c->frame_dst->linesize[i] = dstStride[i];
++        }
++        c->dst_slice_start  = 0;
++        c->dst_slice_height = c->dstH;
++
++        avpriv_slicethread_execute(c->slicethread, nb_jobs, 0);
++
++        for (int i = 0; i < 4; i++) {
++            c->frame_src->data[i] = NULL;
++            c->frame_src->linesize[i] = 0;
++            c->frame_dst->data[i] = NULL;
++            c->frame_dst->linesize[i] = 0;
++        }
++
++        memset(c->slice_err, 0, c->nb_slice_ctx * sizeof(*c->slice_err));
++        return c->dstH;
++    }
++
+     if (c->nb_slice_ctx)
+         c = c->slice_ctx[0];
+ 
+--- a/libswscale/utils.c
++++ b/libswscale/utils.c
+@@ -1311,6 +1311,7 @@
+ static av_cold int sws_init_single_context(SwsContext *c, SwsFilter *srcFilter,
+                                            SwsFilter *dstFilter)
+ {
++    fprintf(stderr, "[sws_init_single] 0 enter\n");
+     int i;
+     int usesVFilter, usesHFilter;
+     int unscaled;
+@@ -1332,6 +1333,7 @@
+     flags     = c->flags;
+     emms_c();
+ 
++    fprintf(stderr, "[sws_single] A start\n");
+     unscaled = (srcW == dstW && srcH == dstH);
+ 
+     if (!c->contrast && !c->saturation && !c->dstFormatBpp)
+@@ -1566,7 +1568,8 @@
+     if (c->dstBpc == 16)
+         dst_stride <<= 1;
+ 
+-    if (INLINE_MMXEXT(cpu_flags) && c->srcBpc == 8 && c->dstBpc <= 14) {
++    c->canMMXEXTBeUsed = 0;
++    if (0 && INLINE_MMXEXT(cpu_flags) && c->srcBpc == 8 && c->dstBpc <= 14) {
+         c->canMMXEXTBeUsed = dstW >= srcW && (dstW & 31) == 0 &&
+                              c->chrDstW >= c->chrSrcW &&
+                              (srcW & 15) == 0;
+@@ -1762,12 +1765,15 @@
+         return 0;
+     }
+ 
++    fprintf(stderr, "[sws_single] B unscaled check unscaled=%d usesH=%d usesV=%d\n", unscaled, usesHFilter, usesVFilter);
+     /* unscaled special cases */
+     if (unscaled && !usesHFilter && !usesVFilter &&
+         (c->srcRange == c->dstRange || isAnyRGB(dstFormat) ||
+          isFloat(srcFormat) || isFloat(dstFormat) || isBayer(srcFormat))){
+ 
++        fprintf(stderr, "[sws_single] B1 calling ff_get_unscaled_swscale\n");
+         ff_get_unscaled_swscale(c);
++        fprintf(stderr, "[sws_single] B2 ff_get_unscaled_swscale done convert_unscaled=%p\n", c->convert_unscaled);
+ 
+         if (c->convert_unscaled) {
+             if (flags & SWS_PRINT_INFO)
+@@ -1786,6 +1792,7 @@
+ 
+     /* precalculate horizontal scaler filter coefficients */
+     {
++fprintf(stderr, "[sws_single] B3 checking MMXEXT canMMX=%d fast_bilinear=%d\n", c->canMMXEXTBeUsed, (flags & SWS_FAST_BILINEAR));
+ #if HAVE_MMXEXT_INLINE
+ // can't downscale !!!
+         if (c->canMMXEXTBeUsed && (flags & SWS_FAST_BILINEAR)) {
+@@ -1855,6 +1862,7 @@
+                                     have_lsx(cpu_flags)    ? 8 :
+                                     have_lasx(cpu_flags)   ? 8 : 1;
+ 
++            fprintf(stderr, "[sws_single] C before hLum initFilter\n");
+             if ((ret = initFilter(&c->hLumFilter, &c->hLumFilterPos,
+                            &c->hLumFilterSize, c->lumXInc,
+                            srcW, dstW, filterAlign, 1 << 14,
+@@ -1886,6 +1894,7 @@
+                                 PPC_ALTIVEC(cpu_flags) ? 8 :
+                                 have_neon(cpu_flags)   ? 2 : 1;
+ 
++        fprintf(stderr, "[sws_single] D before vLum initFilter\n");
+         if ((ret = initFilter(&c->vLumFilter, &c->vLumFilterPos, &c->vLumFilterSize,
+                        c->lumYInc, srcH, dstH, filterAlign, (1 << 12),
+                        (flags & SWS_BICUBLIN) ? (flags | SWS_BICUBIC) : flags,
+@@ -1979,9 +1988,12 @@
+                c->chrXInc, c->chrYInc);
+     }
+ 
++    fprintf(stderr, "[sws_init_single] 4 calling ff_sws_init_scale\n");
+     ff_sws_init_scale(c);
+-
+-    return ff_init_filters(c);
++    fprintf(stderr, "[sws_init_single] 5 calling ff_init_filters\n");
++    int f_ret = ff_init_filters(c);
++    fprintf(stderr, "[sws_init_single] 6 ff_init_filters done ret=%d\n", f_ret);
++    return f_ret;
+ nomem:
+     ret = AVERROR(ENOMEM);
+ fail: // FIXME replace things by appropriate error codes
+@@ -2068,6 +2080,7 @@
+ av_cold int sws_init_context(SwsContext *c, SwsFilter *srcFilter,
+                              SwsFilter *dstFilter)
+ {
++    fprintf(stderr, "[sws_init] 0 enter c=%p\n", c);
+     static AVOnce rgb2rgb_once = AV_ONCE_INIT;
+     enum AVPixelFormat src_format, dst_format;
+     int ret;
+@@ -2077,8 +2090,10 @@
+     if (!c->frame_src || !c->frame_dst)
+         return AVERROR(ENOMEM);
+ 
++    fprintf(stderr, "[sws_init] 1 before ff_thread_once\n");
+     if (ff_thread_once(&rgb2rgb_once, ff_sws_rgb2rgb_init) != 0)
+         return AVERROR_UNKNOWN;
++    fprintf(stderr, "[sws_init] 2 after ff_thread_once nb_threads=%d\n", c->nb_threads);
+ 
+     src_format = c->srcFormat;
+     dst_format = c->dstFormat;
+@@ -2088,6 +2103,10 @@
+     if (src_format != c->srcFormat || dst_format != c->dstFormat)
+         av_log(c, AV_LOG_WARNING, "deprecated pixel format used, make sure you did set range correctly\n");
+ 
++    if (c->nb_threads <= 1 && (c->srcW >= 1280 || c->srcH >= 720)) {
++        c->nb_threads = 4;
++        fprintf(stderr, "[sws_init] auto-enabled %d threads for 4K (%dx%d)\n", c->nb_threads, c->srcW, c->srcH);
++    }
+     if (c->nb_threads != 1) {
+         ret = context_init_threaded(c, srcFilter, dstFilter);
+         if (ret < 0 || c->nb_threads > 1)

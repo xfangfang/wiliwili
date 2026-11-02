@@ -12,6 +12,7 @@
 #include <lunasvg.h>
 
 #include "view/danmaku_core.hpp"
+#include "utils/stage.hpp"
 #include "utils/config_helper.hpp"
 #include "utils/string_helper.hpp"
 #include "utils/number_helper.hpp"
@@ -34,6 +35,11 @@
 static inline uint64_t ntohll(uint64_t netlonglong) { return __builtin_bswap64(netlonglong); }
 #elif defined(__WINRT__)
 #elif defined(_WIN32_WINNT) && _WIN32_WINNT >= _WIN32_WINNT_WIN8
+#if defined(_M_ARM64)
+// Winsock declares the 64-bit swap for the desktop targets only: the arm64
+// build has the 32-bit ones, so the pair is spelled out here.
+static inline uint64_t ntohll(uint64_t value) { return __builtin_bswap64(value); }
+#endif
 #elif defined(betoh64)
 #define ntohll betoh64
 #elif defined(be64toh)
@@ -544,6 +550,7 @@ void DanmakuCore::clearMask(NVGcontext *vg, float x, float y, float width, float
 }
 
 void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float height, float alpha) {
+    stage::Marker marker("danmaku draw");
     if (!DanmakuCore::DANMAKU_ON) return;
     if (!this->danmakuLoaded) return;
     if (danmakuData.empty()) return;

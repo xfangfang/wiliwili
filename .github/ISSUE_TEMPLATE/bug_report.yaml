@@ -10,6 +10,7 @@ body:
       description: 点击下拉选择对应的平台，若均不符合请选择其他，并于下一节补充
       options:
         - 此 BUG 与具体平台无关
+        - PlayStation 5
         - Nintendo Switch
         - PSVita
         - PS4
@@ -22,12 +23,12 @@ body:
       default: 0
   - type: input
     attributes:
-      label: 设备的系统版本
-      description: "如: Windows10 22H2、Switch 13.0.0..."
+      label: 设备的系统版本与破解环境
+      description: "如: PS5 FW 11.60 + ShadowMountPlus 1.7beta6 + kstuff / Switch 13.0.0 / Win11..."
   - type: input
     attributes:
-      label: CPU 型号
-      description: "部分问题可能与CPU型号有关，游戏主机请填写主机型号"
+      label: CPU / 主机型号
+      description: "部分问题可能与型号有关，游戏主机请填写主机型号"
   - type: input
     attributes:
       label: GPU 型号
@@ -37,12 +38,12 @@ body:
       required: true
     attributes:
       label: 描述你遇到的问题
-      description: 简洁地描述问题，提供问题复现步骤，如有必要可以附加截图或录屏
+      description: 简洁地描述问题并提供复现步骤。PS5 用户若遇闪退/报错，请附上电视屏幕弹出的 Toast 报错截图或拍照（包含 stage 阶段和 caller 等信息）。
   - type: textarea
     attributes:
       label: 应用日志
-      description: "如有必要，请使用命令行运行: `wiliwili -d -t -o log.txt`，记录问题出现时的应用日志"
-      placeholder: 游戏主机出现问题，请尝试使用电脑端复现，并记录log
+      description: "PS5 请附上 ShadowMount 的 debug.log；PC 可使用命令行运行 `wiliwili -d -t -o log.txt`"
+      placeholder: 请在此粘贴日志内容或拖入日志文件
   - type: checkboxes
     attributes:
       label: 问题确认

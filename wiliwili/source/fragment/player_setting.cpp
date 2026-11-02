@@ -207,6 +207,14 @@ void PlayerSetting::setupCommonSetting() {
                            GA("player_setting", {{"highlight", value ? "true" : "false"}});
                        });
 
+    /// The parameters of the playing video, on the video itself
+    btnVideoInfo->init("wiliwili/player/setting/common/video_info"_i18n, VideoView::SHOW_VIDEO_INFO,
+                       [](bool value) {
+                           ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_SHOW_VIDEO_INFO, value);
+                           VideoView::SHOW_VIDEO_INFO = value;
+                           GA("player_setting", {{"video_info", value ? "true" : "false"}});
+                       });
+
     /// Auto Sleep
     btnSleep->setText("wiliwili/setting/app/playback/sleep"_i18n);
     updateCountdown(wiliwili::getUnixTime());

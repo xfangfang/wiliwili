@@ -4,6 +4,7 @@
 
 #include "utils/number_helper.hpp"
 #include <pystring.h>
+#include <atomic>
 #include <chrono>
 #include <random>
 
@@ -64,8 +65,18 @@ const char seed[64] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B
                        'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '\0', '\0'};
 
 std::string getRandom(int length, int rangeStart, int rangeEnd) {
+#ifdef PS5
+    // std::random_device 会打开 /dev/urandom，其内部 libc 导入在 PS5 上没有绑
+    // 定（NULL 指针），改用时钟 + 递增计数器做种子。
+    static std::atomic<unsigned> seedCounter{0};
+    const auto now = std::chrono::steady_clock::now().time_since_epoch().count();
+    const auto addr = reinterpret_cast<uintptr_t>(&seedCounter);
+    std::mt19937 gen(static_cast<unsigned>(now) ^ static_cast<unsigned>(now >> 32) ^
+                     static_cast<unsigned>(addr >> 12) ^ seedCounter.fetch_add(1));
+#else
     std::random_device rd;
     std::mt19937 gen(rd());
+#endif
     std::uniform_int_distribution<> dis(rangeStart, rangeEnd);
     std::string text;
     for (int n = 0; n < length; ++n) {

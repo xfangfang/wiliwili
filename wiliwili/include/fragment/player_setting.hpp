@@ -79,6 +79,7 @@ private:
     BRLS_BIND(brls::BooleanCell, btnMirror, "setting/video/mirror");
     BRLS_BIND(BiliSelectorCell, btnAspect, "setting/video/aspect");
     BRLS_BIND(brls::BooleanCell, btnHighlight, "setting/video/highlight");
+    BRLS_BIND(brls::BooleanCell, btnVideoInfo, "setting/video/info");
     BRLS_BIND(brls::DetailCell, btnSleep, "setting/sleep");
     BRLS_BIND(brls::BooleanCell, btnSkip, "setting/auto/skip");
 

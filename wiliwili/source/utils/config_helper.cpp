@@ -52,6 +52,10 @@ extern in_addr_t secondary_dns;
 }
 #endif
 
+#ifdef PS5
+extern "C" int sceSystemServiceHideSplashScreen(void);
+#endif
+
 #ifdef __PSV__
 #include <mbedtls/platform.h>
 #include <psp2/kernel/cpu.h>
@@ -114,6 +118,11 @@ unsigned int sceLibcHeapSize             = 24 * 1024 * 1024;
 #define WILI_DNS_CACHE_TIMEOUT 60000
 #endif
 
+#if defined(PS5)
+// The console's language: the parameter 1 is the system language.
+extern "C" int sceSystemServiceParamGetInt(int param, int* value);
+#endif
+
 using namespace brls::literals;
 
 std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
@@ -122,7 +131,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::APP_LANG,
      {"app_lang",
       {
-#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4) || defined(PS5)
           brls::LOCALE_AUTO,
 #endif
           brls::LOCALE_EN_US,
@@ -134,7 +143,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
           brls::LOCALE_IT,
       },
       {},
-#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4) || defined(PS5)
       0}},
 #else
       4}},
@@ -190,9 +199,12 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::PLAYER_AUTO_PLAY, {"player_auto_play", {}, {}, 1}},
     {SettingItem::PLAYER_BOTTOM_BAR, {"player_bottom_bar", {}, {}, 1}},
     {SettingItem::PLAYER_HIGHLIGHT_BAR, {"player_highlight_bar", {}, {}, 0}},
+    {SettingItem::PLAYER_SHOW_VIDEO_INFO, {"player_show_video_info", {}, {}, 0}},
+    {SettingItem::PS5_HWDEC_TEST, {"ps5_hwdec_test", {}, {}, 0}},
+    {SettingItem::PS5_HDR_OUTPUT, {"ps5_hdr_output", {}, {}, 0}},
     {SettingItem::PLAYER_SKIP_OPENING_CREDITS, {"player_skip_opening_credits", {}, {}, 1}},
     {SettingItem::PLAYER_LOW_QUALITY, {"player_low_quality", {}, {}, 1}},
-#if defined(IOS) || defined(__PSV__) || defined(__SWITCH__)
+#if defined(IOS) || defined(__PSV__) || defined(__SWITCH__) || defined(PS5)
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 1}},
 #else
     {SettingItem::PLAYER_HWDEC, {"player_hwdec", {}, {}, 0}},
@@ -216,7 +228,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
      {"tls_verify",
       {},
       {},
-#if defined(__PSV__) || defined(__SWITCH__) || defined(PS4)
+#if defined(__PSV__) || defined(__SWITCH__) || defined(PS4) || defined(PS5)
       0}},
 #else
       1}},
@@ -639,6 +651,7 @@ void ProgramConfig::load() {
 
     // 初始化是否固定显示底部高能进度条
     VideoView::HIGHLIGHT_PROGRESS_BAR = getBoolOption(SettingItem::PLAYER_HIGHLIGHT_BAR);
+    VideoView::SHOW_VIDEO_INFO = getBoolOption(SettingItem::PLAYER_SHOW_VIDEO_INFO);
 
     // 初始化是否使用硬件加速
 #if defined(__PSV__) && defined(BOREALIS_USE_OPENGL)
@@ -649,6 +662,12 @@ void ProgramConfig::load() {
 
     // 初始化自定义的硬件加速方案
     MPVCore::PLAYER_HWDEC_METHOD = getSettingItem(SettingItem::PLAYER_HWDEC_CUSTOM, MPVCore::PLAYER_HWDEC_METHOD);
+
+#if defined(PS5)
+    // 物理 HDR10 输出（实验，默认关）：详见 MPVCore::HDR_OUTPUT 的说明
+    MPVCore::HDR_OUTPUT = getBoolOption(SettingItem::PS5_HDR_OUTPUT);
+    brls::Logger::info("ps5: physical HDR10 output {}", MPVCore::HDR_OUTPUT ? "enabled" : "disabled");
+#endif
 
     // 播放结束时自动退出全屏
     VideoView::EXIT_FULLSCREEN_ON_END = getBoolOption(SettingItem::PLAYER_EXIT_FULLSCREEN_ON_END);
@@ -687,7 +706,37 @@ void ProgramConfig::load() {
     if (langData != brls::LOCALE_AUTO && i18nData.count(langData)) {
         brls::Platform::APP_LOCALE_DEFAULT = langData;
     } else {
-#if !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4)
+#if defined(PS5)
+        // The console knows its own language; SDL does not.
+        int consoleLanguage = -1;
+        if (sceSystemServiceParamGetInt(1, &consoleLanguage) == 0) {
+            switch (consoleLanguage) {
+                case 0:
+                    brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_JA;
+                    break;
+                case 1:
+                case 18:
+                    brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_EN_US;
+                    break;
+                case 5:
+                    brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_IT;
+                    break;
+                case 9:
+                    brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_Ko;
+                    break;
+                case 10:
+                    brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_ZH_HANT;
+                    break;
+                case 11:
+                    brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_ZH_HANS;
+                    break;
+                default:
+                    brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_EN_US;
+                    break;
+            }
+            brls::Logger::info("console language: {}", consoleLanguage);
+        }
+#elif !defined(__SWITCH__) && !defined(__PSV__) && !defined(PS4)
         brls::Platform::APP_LOCALE_DEFAULT = brls::LOCALE_ZH_HANS;
 #endif
     }
@@ -782,6 +831,11 @@ void ProgramConfig::load() {
         // 初始化纹理缓存数量
 #if defined(__PSV__) || defined(PS4)
         brls::TextureCache::instance().cache.setCapacity(1);
+#elif defined(PS5)
+        // A picture of the lists is a megabyte on this console, and the heap
+        // that holds them is the same one the frames of the video need: the
+        // cache keeps a few of them, not hundreds.
+        brls::TextureCache::instance().cache.setCapacityLimit(48);
 #else
         brls::TextureCache::instance().cache.setCapacity(getSettingItem(SettingItem::TEXTURE_CACHE_NUM, 200));
 #endif
@@ -1056,6 +1110,11 @@ void ProgramConfig::init() {
     ps4_mpv_dump_shaders            = 0;
     // 在加载第一帧之后隐藏启动画面
     brls::sync([]() { sceSystemServiceHideSplashScreen(); });
+#elif defined(PS5)
+    // 在加载第一帧之后隐藏启动画面
+    brls::sync([]() { sceSystemServiceHideSplashScreen(); });
+    // getcwd() 不再调用：PS5 加载环境下系统 libc 的 getcwd 内部会跳到未解析
+    // 地址导致 SIGSEGV，而这行日志并非必需。
 #else
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) != nullptr) {
@@ -1075,7 +1134,11 @@ void ProgramConfig::init() {
 
     if (access(brls::FontLoader::USER_ICON_PATH.c_str(), F_OK) == -1) {
         // 自定义字体不存在，使用内置字体
-#if defined(__PSV__) || defined(PS4)
+#if defined(PS5)
+        // The DualSense has no Share button and its Options button is drawn
+        // with three lines, so the PS4 icon set is not the right one.
+        brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps5.ttf");
+#elif defined(__PSV__) || defined(PS4)
         brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
 #else
         std::string icon = getSettingItem(SettingItem::KEYMAP, std::string{"xbox"});
@@ -1131,7 +1194,7 @@ std::string ProgramConfig::getHomePath() {
 std::string ProgramConfig::getConfigDir() {
 #ifdef __SWITCH__
     return "/config/wiliwili";
-#elif defined(PS4)
+#elif (defined(PS4) || defined(PS5))
     return "/data/wiliwili";
 #elif defined(__PSV__)
     return "ux0:/data/wiliwili";

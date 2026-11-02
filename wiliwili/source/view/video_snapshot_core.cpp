@@ -9,6 +9,7 @@
 #include <cpr/cpr.h>
 
 #include "view/video_snapshot_core.hpp"
+#include "utils/stage.hpp"
 #include "api/bilibili/util/http.hpp"
 
 void VideoSnapshotCore::reset() {
@@ -103,6 +104,7 @@ void VideoSnapshotCore::loadTexture(size_t index) {
             return;
         }
         brls::sync([this, gen, imageData, imageW, imageH, index, url]() {
+            stage::Marker marker("snapshot texture");
             NVGcontext* vg = brls::Application::getNVGContext();
             int tex        = nvgCreateImageRGBA(vg, imageW, imageH, 0, imageData);
             stbi_image_free(imageData);

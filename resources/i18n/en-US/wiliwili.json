@@ -4,6 +4,7 @@
   "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
   "setting": {
     "quit_hint": "You are about to exit the application. The settings will take effect after the next startup",
+    "restart_hint": "The settings will take effect the next time the application starts. Close it and start it again.",
     "app": {
       "tab": "App",
       "playback": {
@@ -139,6 +140,8 @@
       "repository": "Repository",
       "brief": "Yet another third-party bilibili client",
       "repo_header": "Repository",
+      "port_header": "PS5 port",
+      "port": "The native PS5 build is ported and maintained by carlchina\nhttps://github.com/carlchina",
       "author_header": "Author's speech",
       "author": "一直想做个艺术家, 可惜程序员都没什么发挥的空间\n直到这个作品诞生，实现了：「在游戏机上看视频；用手机来玩游戏」\n或许算得上是一种行为艺术，这样的话我也就圆满了"
     },
@@ -396,7 +399,8 @@
         "skip_hint2": "Turn off skip opening credits from next video",
         "skip_hint3": "Use custom opening credits from next video",
         "skip_hint4": "Disable custom opening credits from next video",
-        "wiki": "Access our wiki to learn how shader works"
+        "wiki": "Access our wiki to learn how shader works",
+        "video_info": "Show video parameters"
       },
       "season": {
         "aspect": "Custom video aspect",

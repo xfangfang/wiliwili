@@ -2,6 +2,16 @@
 // Created by fang on 2023/7/18.
 //
 
+// The console's sandbox refuses to bind the ports the other platforms use, so
+// the port probe below only exists there.
+#if defined(PS5) || defined(__PS5__)
+#include <cerrno>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
+
 #include <borealis/views/dialog.hpp>
 #include <borealis/core/thread.hpp>
 #include <borealis/core/logger.hpp>
@@ -17,6 +27,93 @@ using namespace brls::literals;
 
 #define GET_SETTING ProgramConfig::instance().getSettingItem
 
+#if defined(PS5) || defined(__PS5__)
+extern "C" {
+    int sceNetSocket(const char *name, int domain, int type, int protocol);
+    int sceNetBind(int s, const struct sockaddr *addr, unsigned int addrlen);
+    int sceNetListen(int s, int backlog);
+    int sceNetSocketClose(int s);
+    int *sceNetErrnoLoc(void);
+}
+
+// The port the console lets the application bind is not the one the other
+// platforms use: it refuses the lower range and answers EACCES, so the port is
+// asked for rather than assumed.
+static int getAvailablePort(int defaultPort) {
+    // 1. Try defaultPort (TCP) with SO_REUSEADDR
+    {
+        int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (fd >= 0) {
+            int on = 1;
+            setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+            struct sockaddr_in sin {};
+            sin.sin_len    = sizeof(sin);
+            sin.sin_family = AF_INET;
+            sin.sin_port   = htons(defaultPort);
+            sin.sin_addr.s_addr = INADDR_ANY;
+            int rc = bind(fd, (struct sockaddr*)&sin, sizeof(sin));
+            brls::Logger::info("DLNA portProbe: TCP bind port {}: rc={}, errno={}", defaultPort, rc, errno);
+            close(fd);
+            if (rc == 0) {
+                brls::Logger::info("DLNA: port {} is available", defaultPort);
+                return defaultPort;
+            }
+        }
+    }
+
+    // 2. Try port 0 (TCP) — let the kernel assign an ephemeral port
+    {
+        int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (fd >= 0) {
+            struct sockaddr_in sin {};
+            sin.sin_len    = sizeof(sin);
+            sin.sin_family = AF_INET;
+            sin.sin_port   = 0;
+            sin.sin_addr.s_addr = INADDR_ANY;
+            int rc = bind(fd, (struct sockaddr*)&sin, sizeof(sin));
+            brls::Logger::info("DLNA portProbe: TCP bind port 0: rc={}, errno={}", rc, errno);
+            if (rc == 0) {
+                socklen_t len = sizeof(sin);
+                if (getsockname(fd, (struct sockaddr*)&sin, &len) == 0) {
+                    int allocated = ntohs(sin.sin_port);
+                    close(fd);
+                    brls::Logger::info("DLNA: kernel allocated TCP ephemeral port {}", allocated);
+                    return allocated;
+                }
+            }
+            close(fd);
+        }
+    }
+
+    // 3. Try port 0 (UDP) — PS5 allows UDP ephemeral even when TCP is blocked
+    {
+        int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        if (fd >= 0) {
+            struct sockaddr_in sin {};
+            sin.sin_len    = sizeof(sin);
+            sin.sin_family = AF_INET;
+            sin.sin_port   = 0;
+            sin.sin_addr.s_addr = INADDR_ANY;
+            int rc = bind(fd, (struct sockaddr*)&sin, sizeof(sin));
+            brls::Logger::info("DLNA portProbe: UDP bind port 0: rc={}, errno={}", rc, errno);
+            if (rc == 0) {
+                socklen_t len = sizeof(sin);
+                if (getsockname(fd, (struct sockaddr*)&sin, &len) == 0) {
+                    int allocated = ntohs(sin.sin_port);
+                    close(fd);
+                    brls::Logger::info("DLNA: kernel allocated UDP ephemeral port {}", allocated);
+                    return allocated;
+                }
+            }
+            close(fd);
+        }
+    }
+
+    brls::Logger::warning("DLNA: all port probes failed, falling back to default port {}", defaultPort);
+    return defaultPort;
+}
+#endif
+
 DLNAActivity::DLNAActivity() {
     GA("open_dlna")
 
@@ -26,10 +123,22 @@ DLNAActivity::DLNAActivity() {
 
     ip = brls::Application::getPlatform()->getIpAddress();
     ip = GET_SETTING(SettingItem::DLNA_IP, ip);
+
     brls::Logger::info("DLNA IP: {}", ip);
 
+
+
+#if defined(PS5) || defined(__PS5__)
+    // PS5 sandbox blocks binding ports < 10000 (errno 13 / EACCES).
+    // Use 19958 as the default so we stay well above the restricted range.
+    port = 19958;
+#else
     port = 9958;
+#endif
     port = GET_SETTING(SettingItem::DLNA_PORT, port);
+#if defined(PS5) || defined(__PS5__)
+    port = getAvailablePort(port);
+#endif
     brls::Logger::info("DLNA Port: {}", port);
 
     uuid = "uuid:" + bilibili::genUUID(ProgramConfig::instance().getClientID());

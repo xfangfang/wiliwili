@@ -16,6 +16,100 @@
 #include "bilibili/result/mine_collection_result.h"
 #include "view/video_snapshot_core.hpp"
 
+#if defined(PS5)
+namespace
+{
+
+/**
+ * The comments of a video, read from the document the server sends.
+ *
+ * The document is read as a stream and not as a tree: a video with many
+ * comments has a document of tens of megabytes, and a tree of it does not
+ * fit in the console's memory.
+ */
+void parseDanmakuXml(const std::string& xml, std::vector<DanmakuItem>& items) {
+    size_t pos = 0;
+    while ((pos = xml.find("<d ", pos)) != std::string::npos) {
+        // <d p="time,type,size,color,time,mode,...">the comment</d>
+        size_t attributesAt = xml.find("p=\"", pos);
+        if (attributesAt == std::string::npos) break;
+        size_t attributesEnd = xml.find('"', attributesAt + 3);
+        if (attributesEnd == std::string::npos) break;
+        size_t textAt = xml.find('>', attributesEnd);
+        if (textAt == std::string::npos) break;
+        size_t textEnd = xml.find("</d>", textAt);
+        if (textEnd == std::string::npos) break;
+
+        std::string attributes = xml.substr(attributesAt + 3, attributesEnd - attributesAt - 3);
+        std::string text       = xml.substr(textAt + 1, textEnd - textAt - 1);
+        // The entities the comments may carry.
+        for (size_t at = text.find('&'); at != std::string::npos; at = text.find('&', at)) {
+            size_t end = text.find(';', at);
+            if (end == std::string::npos || end - at > 10) break;
+            std::string entity = text.substr(at + 1, end - at - 1);
+            std::string decoded;
+            if (entity == "amp") {
+                decoded = "&";
+            } else if (entity == "lt") {
+                decoded = "<";
+            } else if (entity == "gt") {
+                decoded = ">";
+            } else if (entity == "quot") {
+                decoded = "\"";
+            } else if (entity == "apos") {
+                decoded = "'";
+            } else if (entity.size() > 1 && entity[0] == '#') {
+                // A number: the character it names.
+                int number = 0;
+                try {
+                    number = entity[1] == 'x' || entity[1] == 'X'
+                                 ? std::stoi(entity.substr(2), nullptr, 16)
+                                 : std::stoi(entity.substr(1));
+                } catch (...) {
+                    at = end;
+                    continue;
+                }
+                if (number <= 0 || number > 0x10FFFF) {
+                    at = end;
+                    continue;
+                }
+                // A character outside of the basic plane takes three bytes.
+                if (number < 0x80) {
+                    decoded = std::string(1, (char)number);
+                } else if (number < 0x800) {
+                    decoded = std::string(1, (char)(0xC0 | (number >> 6)));
+                    decoded += (char)(0x80 | (number & 0x3F));
+                } else if (number < 0x10000) {
+                    decoded = std::string(1, (char)(0xE0 | (number >> 12)));
+                    decoded += (char)(0x80 | ((number >> 6) & 0x3F));
+                    decoded += (char)(0x80 | (number & 0x3F));
+                } else {
+                    decoded = std::string(1, (char)(0xF0 | (number >> 18)));
+                    decoded += (char)(0x80 | ((number >> 12) & 0x3F));
+                    decoded += (char)(0x80 | ((number >> 6) & 0x3F));
+                    decoded += (char)(0x80 | (number & 0x3F));
+                }
+            } else {
+                at = end;
+                continue;
+            }
+            text.replace(at, end - at + 1, decoded);
+            at += decoded.size();
+        }
+
+        if (text.empty()) continue;  // a comment without a text is not one
+        try {
+            items.emplace_back(text, attributes.c_str());
+        } catch (...) {
+            brls::Logger::error("DANMAKU: error decode: {}", text);
+        }
+        pos = textEnd + 4;
+    }
+}
+
+}  // namespace
+#endif /* PS5 */
+
 /// 请求视频数据
 void VideoDetail::requestData(const bilibili::VideoDetailResult& video) { this->requestVideoInfo(video.bvid); }
 
@@ -483,6 +577,13 @@ void VideoDetail::requestVideoDanmaku(uint64_t cid) {
             ASYNC_RELEASE
             brls::Logger::debug("DANMAKU: start decode");
 
+            std::vector<DanmakuItem> items;
+#if defined(PS5)
+            // The comments are read as a stream: the document of a video with
+            // many comments is tens of megabytes, and a tree of it does not
+            // fit in the console's memory.
+            parseDanmakuXml(result, items);
+#else
             // Load XML
             tinyxml2::XMLDocument document = tinyxml2::XMLDocument();
             tinyxml2::XMLError error       = document.Parse(result.c_str());
@@ -497,7 +598,6 @@ void VideoDetail::requestVideoDanmaku(uint64_t cid) {
                 return;
             }
 
-            std::vector<DanmakuItem> items;
             for (auto child = element->FirstChildElement(); child != nullptr; child = child->NextSiblingElement()) {
                 if (child->Name()[0] != 'd') continue;  // 简易判断是不是弹幕
                 const char* content = child->GetText();
@@ -508,6 +608,7 @@ void VideoDetail::requestVideoDanmaku(uint64_t cid) {
                     brls::Logger::error("DANMAKU: error decode: {}", child->GetText());
                 }
             }
+#endif /* PS5 */
 
             brls::sync([items]() { DanmakuCore::instance().loadDanmakuData(items); });
 

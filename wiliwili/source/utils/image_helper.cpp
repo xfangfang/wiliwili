@@ -9,6 +9,7 @@
 #include <stb_image.h>
 
 #include "utils/image_helper.hpp"
+#include "utils/stage.hpp"
 #include "utils/string_helper.hpp"
 #include "api/bilibili/util/http.hpp"
 
@@ -150,7 +151,13 @@ std::shared_ptr<ImageHelper> ImageHelper::with(brls::Image* view) {
 }
 
 void ImageHelper::load(const std::string &url) {
+#if defined(PS5)
+    // TLS works in-process (the API traffic uses it with verification off);
+    // rewriting to http would lose a working path, so keep the https URL.
+    this->imageUrl = url;
+#else
     this->imageUrl = bilibili::HTTP::VERIFY.verify ? url :pystring::replace(url, "https", "http", 1);
+#endif
 
 #ifdef BOREALIS_USE_GXM
     std::vector<std::string> urls = pystring::rsplit(this->imageUrl, "@", 1);
@@ -199,10 +206,50 @@ static inline void freeImageData(uint8_t* imageData, bool isWebp) {
         stbi_image_free(imageData);
 }
 
+#ifdef PS5
+/**
+ * The session of the thread that downloads the pictures.
+ *
+ * It keeps its connection to the server: a new connection costs a handshake,
+ * and closing one waits for the server to say goodbye, which it never does.
+ * That wait is longer than the download itself, and it holds the thread that
+ * does it: the pictures came two or three at a time because of it.
+ */
+static cpr::Session& imageWorkerSession() {
+    // The session is kept for the life of the thread and is never given
+    // back: closing its connection waits for the server to say goodbye,
+    // which it never does, and that wait would hold the thread.
+    static thread_local cpr::Session* session = new cpr::Session();
+    static thread_local bool ready = false;
+    if (!ready) {
+        cpr::Session& s       = *session;
+        CURL* curl = s.GetCurlHolder()->handle;
+        curl_easy_setopt(curl, CURLOPT_SHARE, ImageThreadPool::instance().getShare());
+        curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, bilibili::HTTP::DNS_CACHE_TIMEOUT);
+        bilibili::HTTP::applySocketOptions(curl);
+        s.SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
+        s.SetConnectTimeout(cpr::ConnectTimeout{bilibili::HTTP::CONNECTION_TIMEOUT});
+        s.SetVerifySsl(bilibili::HTTP::VERIFY);
+        s.SetProxies(bilibili::HTTP::PROXIES);
+        ready = true;
+    }
+    return *session;
+}
+#endif
+
 void ImageHelper::requestImage() {
     brls::Logger::verbose("request Image 2: {} {}", this->imageUrl, this->isCancel);
 
     // 请求图片
+    cpr::Response r;
+#ifdef PS5
+    {
+        cpr::Session& session = imageWorkerSession();
+        session.SetUrl(cpr::Url{this->imageUrl});
+        session.SetProgressCallback(cpr::ProgressCallback([this](...) -> bool { return !this->isCancel; }));
+        r = session.Get();
+    }
+#else
     cpr::Session session;
     CURL* curl = session.GetCurlHolder()->handle;
     curl_easy_setopt(curl, CURLOPT_SHARE, ImageThreadPool::instance().getShare());
@@ -213,7 +260,8 @@ void ImageHelper::requestImage() {
     session.SetProxies(bilibili::HTTP::PROXIES);
     session.SetUrl(cpr::Url{this->imageUrl});
     session.SetProgressCallback(cpr::ProgressCallback([this](...) -> bool { return !this->isCancel; }));
-    cpr::Response r = session.Get();
+    r = session.Get();
+#endif
 
     // 图片请求失败或取消请求
     if (r.status_code != 200 || r.downloaded_bytes == 0 || this->isCancel) {
@@ -257,7 +305,12 @@ void ImageHelper::requestImage() {
     }
 #endif
 
-    brls::sync([this, r, imageData, imageW, imageH, isWebp]() {
+    // The response owns the curl handle, and releasing that handle makes
+    // libcurl wait for the peer to close the TLS connection. It must not
+    // happen on the thread that runs the sync closures: the response is
+    // therefore kept out of the closure and released by this worker instead.
+    brls::sync([this, imageData, imageW, imageH, isWebp]() {
+        stage::Marker marker("picture texture");
         // 再检查一遍缓存
         int tex = brls::TextureCache::instance().getCache(this->imageUrl);
         if (tex > 0) {
@@ -293,6 +346,7 @@ void ImageHelper::requestImage() {
         }
         this->clean();
     });
+
 }
 
 void ImageHelper::clean() {

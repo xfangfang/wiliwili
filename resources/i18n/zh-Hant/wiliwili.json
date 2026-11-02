@@ -4,6 +4,7 @@
   "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
   "setting": {
     "quit_hint": "設定的內容將在下次啟動後生效",
+    "restart_hint": "設定的內容將在下次啟動後生效。請關閉應用並重新啟動。",
     "app": {
       "tab": "應用設定",
       "playback": {
@@ -139,6 +140,8 @@
       "repository": "專案首頁",
       "brief": "專為搖桿控制設計的第三方跨平臺B站客戶端\n完美復刻官方PC端B站，滿足日常使用, 目前可以執行在PC全平臺、PSV、PS4 和 Nintendo Switch 上",
       "repo_header": "開源位址",
+      "port_header": "PS5 移植",
+      "port": "PS5 原生版本由 carlchina 移植與維護\nhttps://github.com/carlchina",
       "author_header": "作者發言",
       "author": "一直想做個藝術家, 可惜程式師都沒什麽發揮的空間\n直到這個作品誕生，實現了：「在遊戲機上看影片；用手機來玩遊戲」\n或許算得上是一種行為藝術，這樣的話我也就圓滿了"
     },
@@ -396,7 +399,8 @@
         "skip_hint2": "從下一個影片開始，關閉跳過片頭片尾",
         "skip_hint3": "從下一個影片開始，使用自定義的片頭片尾",
         "skip_hint4": "從下一個影片開始，停用自定義的片頭片尾",
-        "wiki": "查看項目 WIKI 獲得詳細說明"
+        "wiki": "查看項目 WIKI 獲得詳細說明",
+        "video_info": "顯示視頻參數"
       },
       "season": {
         "aspect": "自定義影片比例",

@@ -7,6 +7,11 @@
 #include <nlohmann/json.hpp>
 #include <cpr/cpr.h>
 
+#ifdef PS5
+#include <sys/socket.h>
+#include <sys/time.h>
+#endif
+
 #include "bilibili/util/md5.hpp"
 #include "bilibili/util/json.hpp"
 #include "bilibili/util/wbi.hpp"
@@ -80,24 +85,118 @@ public:
 
     static std::string getEncodedCookie(const cpr::Cookies& cookies);
 
-    static std::shared_ptr<cpr::Session> createSession() {
-        auto session = std::make_shared<cpr::Session>();
-        CURL* curl = session->GetCurlHolder()->handle;
+#ifdef PS5
+    /**
+     * On this console libcurl blocks for minutes when a handle is torn down:
+     * closing the TLS connection waits for the peer's close_notify, which the
+     * servers never send, so the socket read only returns once the kernel
+     * gives up on the connection - about two minutes later. A receive timeout
+     * on the socket bounds that wait to a few seconds.
+     */
+    static int curlSocketOption(void* /*clientp*/, curl_socket_t fd, curlsocktype /*purpose*/) {
+        struct timeval timeout;
+        timeout.tv_sec  = 3;
+        timeout.tv_usec = 0;
+        setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+        return 0;
+    }
+
+    static void applySocketOptions(CURL* curl) {
+        curl_easy_setopt(curl, CURLOPT_SOCKOPTFUNCTION, &HTTP::curlSocketOption);
+    }
+#endif
+
+    static void configureSession(cpr::Session& session) {
+        CURL* curl = session.GetCurlHolder()->handle;
         curl_easy_setopt(curl, CURLOPT_SHARE, HTTP::CURL_SHARE.getShare());
         curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, HTTP::DNS_CACHE_TIMEOUT);
-        session->SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
-        session->SetConnectTimeout(cpr::ConnectTimeout{bilibili::HTTP::CONNECTION_TIMEOUT});
-        session->SetHeader(bilibili::HTTP::HEADERS);
-        session->SetProxies(bilibili::HTTP::PROXIES);
-        session->SetVerifySsl(bilibili::HTTP::VERIFY);
+#ifdef PS5
+        HTTP::applySocketOptions(curl);
+#endif
+        session.SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
+        session.SetConnectTimeout(cpr::ConnectTimeout{bilibili::HTTP::CONNECTION_TIMEOUT});
+        session.SetHeader(bilibili::HTTP::HEADERS);
+        session.SetProxies(bilibili::HTTP::PROXIES);
+        session.SetVerifySsl(bilibili::HTTP::VERIFY);
+    }
+
+    static std::shared_ptr<cpr::Session> createSession() {
+        auto session = std::make_shared<cpr::Session>();
+        configureSession(*session);
         return session;
+    }
+
+#ifdef PS5
+    /**
+     * The session of the thread that makes the request.
+     *
+     * A session keeps its connection to the server. A new connection costs a
+     * handshake, and closing one waits for the server to say goodbye, which
+     * it never does: that wait is longer than the request itself. The
+     * session belongs to the thread that makes the request, so that no two
+     * threads use it at once.
+     */
+    static cpr::Session& workerSession() {
+        // The session is kept for the life of the thread and is never given
+        // back: closing its connection waits for the server to say goodbye,
+        // which it never does, and that wait would hold the thread.
+        static thread_local cpr::Session* session = new cpr::Session();
+        static thread_local bool           ready   = false;
+        if (!ready) {
+            configureSession(*session);
+            ready = true;
+        }
+        return *session;
     }
 
     static void _cpr_post(const std::string& url, const cpr::Parameters& parameters = {},
                            const cpr::Payload& payload                               = {},
                            const std::function<void(const cpr::Response&)>& callback = nullptr,
                            const ErrorCallback& error                                = nullptr) {
-        auto session = createSession();;
+        cpr::async([url, parameters, payload, callback, error]() {
+            cpr::Session& session = workerSession();
+            session.SetUrl(cpr::Url{parseLink(url)});
+            session.SetParameters(parameters);
+            session.SetPayload(payload);
+
+            const cpr::Response& r = session.Post();
+            if (r.error) {
+                ERROR_MSG(r.error.message, -1);
+                return;
+            } else if (r.status_code != 200) {
+                ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
+                return;
+            }
+            callback(r);
+        });
+    }
+
+    static void _cpr_get(const std::string& url, const cpr::Parameters& parameters = {},
+                          const std::function<void(const cpr::Response&)>& callback = nullptr,
+                          const ErrorCallback& error                                = nullptr) {
+        cpr::async([url, parameters, callback, error]() {
+            cpr::Session& session = workerSession();
+            session.SetUrl(cpr::Url{parseLink(url)});
+            session.SetParameters(parameters);
+
+            const cpr::Response& r = session.Get();
+            if (r.error) {
+                ERROR_MSG(r.error.message, -1);
+                return;
+            }
+            if (r.status_code != 200) {
+                ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
+                return;
+            }
+            callback(r);
+        });
+    }
+#else
+    static void _cpr_post(const std::string& url, const cpr::Parameters& parameters = {},
+                           const cpr::Payload& payload                               = {},
+                           const std::function<void(const cpr::Response&)>& callback = nullptr,
+                           const ErrorCallback& error                                = nullptr) {
+        auto session = createSession();
         session->SetUrl(cpr::Url{parseLink(url)});
         session->SetParameters(parameters);
         session->SetPayload(payload);
@@ -118,7 +217,7 @@ public:
     static void _cpr_get(const std::string& url, const cpr::Parameters& parameters = {},
                           const std::function<void(const cpr::Response&)>& callback = nullptr,
                           const ErrorCallback& error                                = nullptr) {
-        auto session = createSession();;
+        auto session = createSession();
         session->SetUrl(cpr::Url{parseLink(url)});
         session->SetParameters(parameters);
 
@@ -135,6 +234,7 @@ public:
                 callback(r);
             });
     }
+#endif
 
     template <typename ReturnType>
     static int parseJson(const cpr::Response& r, const std::function<void(ReturnType)>& callback = nullptr,

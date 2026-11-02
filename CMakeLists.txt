@@ -47,6 +47,15 @@ option(USE_SYSTEM_GLFW "Not recommended because we used a modified GLFW" OFF)
 option(DISABLE_OPENCC "Disable Chinese Simplified and Chinese Traditional Conversion" OFF)
 option(DISABLE_WEBP "Disable webp" OFF)
 
+# Link the PS5 build as a native title (a homebrew folder the system registers on
+# the home screen) instead of a payload started from the websrv launcher. See
+# scripts/ps5/title/README.md.
+cmake_dependent_option(PS5_NATIVE_TITLE "Build the PS5 target as a native title folder" OFF "PLATFORM_PS5" OFF)
+cmake_dependent_option(USE_VULKAN "Use Vulkan backend on PS5" ON "PLATFORM_PS5" OFF)
+if (USE_VULKAN)
+    list(APPEND APP_PLATFORM_OPTION -DBOREALIS_USE_VULKAN)
+endif ()
+
 # mpv related
 # If your system does not support OpenGL(ES), you can use software rendering, but it will affect performance.
 option(MPV_SW_RENDER "Using CPU to draw videos" OFF)
@@ -73,13 +82,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/extra.cmake)
 # toolchain
 include(${BOREALIS_LIBRARY}/cmake/toolchain.cmake)
 
-# Git Info
-git_info(GIT_TAG_VERSION GIT_TAG_SHORT)
-list(APPEND APP_PLATFORM_OPTION -DBUILD_TAG_VERSION=${GIT_TAG_VERSION} -DBUILD_TAG_SHORT=${GIT_TAG_SHORT})
-
-# nanovg
-add_definitions(-DFONS_HASH_LUT_SIZE=4096)
-
 # Project Info
 project(wiliwili)
 set(VERSION_MAJOR "1")
@@ -95,8 +97,22 @@ set(PSN_TITLE_ID "WILI00000")
 set(VITA_VERSION "01.60")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icon/icon.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
-set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}")
+if (VERSION_BUILD STREQUAL "0")
+    set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}")
+else ()
+    set(APP_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}.${VERSION_BUILD}")
+endif ()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+
+# Git Info
+git_info(GIT_TAG_VERSION GIT_TAG_SHORT)
+if (NOT GIT_TAG_VERSION MATCHES "^v[0-9]")
+    set(GIT_TAG_VERSION "v${APP_VERSION}")
+endif ()
+list(APPEND APP_PLATFORM_OPTION -DBUILD_TAG_VERSION=${GIT_TAG_VERSION} -DBUILD_TAG_SHORT=${GIT_TAG_SHORT})
+
+# nanovg
+add_definitions(-DFONS_HASH_LUT_SIZE=4096)
 
 find_package(Threads REQUIRED)
 list(APPEND APP_PLATFORM_LIB ${CMAKE_THREAD_LIBS_INIT})
@@ -183,8 +199,34 @@ else ()
     set(BRLS_RESOURCES_DIR ".")
 endif ()
 
+# PS5 (Prospero) is running the app from a homebrew directory instead of a package,
+# so its resources are loaded from the directory it is deployed to. A native title
+# reads them from /app0, the mount point of the folder it was installed from.
+if (PLATFORM_PS5)
+    if (PS5_NATIVE_TITLE)
+        set(BRLS_PLATFORM_RESOURCES_PATH "\"/app0/resources/\"")
+    else ()
+        set(BRLS_PLATFORM_RESOURCES_PATH "\"/data/homebrew/wiliwili/resources/\"")
+    endif ()
+    # The console's video decoder is a system module: the title imports its
+    # functions and the console's loader fills the imports in when the module
+    # is loaded. The intermediate link may leave them undefined; the title's
+    # own link resolves them against the module.
+    list(APPEND APP_PLATFORM_LINK_OPTION "-Wl,--unresolved-symbols=ignore-all")
+    # The console's hardware video decoder lives in a system module that is
+    # not loaded by default; the application loads it on startup.
+    list(APPEND APP_PLATFORM_LIB SceSysmodule)
+    if (USE_VULKAN)
+        list(APPEND APP_PLATFORM_LIB vulkan SceAgc SceAgcDriver)
+    endif ()
+endif ()
+
 # source cpp
 file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
+if (NOT PLATFORM_PS5)
+    # The console's hardware video decoder and its test streams are only for PS5.
+    list(FILTER MAIN_SRC EXCLUDE REGEX "ps5_decoder.*\\.cpp$")
+endif ()
 if (WIN32)
     configure_file("${CMAKE_SOURCE_DIR}/wiliwili/app_win32.rc.in" "${CMAKE_BINARY_DIR}/app_win32.rc")
     list(APPEND MAIN_SRC ${CMAKE_BINARY_DIR}/app_win32.rc)
@@ -212,7 +254,38 @@ set_source_files_properties(
         wiliwili/source/view/mpv_core.cpp
         wiliwili/source/activity/setting_activity.cpp
         wiliwili/source/activity/dlna_activity.cpp
+        wiliwili/source/utils/version_helper.cpp
         PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+
+# Every build is stamped with a number, so two builds of the same commit can be
+# told apart in a bug report. The number lives in the build directory and never
+# goes backwards: it is one more than the last build here, and at least the
+# number of commits, which is what a fresh clone (the CI) starts from. cmake
+# writes the header itself, so no interpreter beyond cmake is needed and the
+# source tree is left untouched.
+execute_process(
+        COMMAND git rev-list --count HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE BUILD_NUMBER_SEED
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+if (NOT BUILD_NUMBER_SEED MATCHES "^[0-9]+$")
+    set(BUILD_NUMBER_SEED 0)
+endif ()
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/include)
+
+add_custom_target(update_build_version
+        COMMAND ${CMAKE_COMMAND}
+                -DSEED=${BUILD_NUMBER_SEED}
+                -DBASE_VERSION=${APP_VERSION}
+                -DSTATE=${CMAKE_BINARY_DIR}/build_number.txt
+                -DHEADER=${CMAKE_BINARY_DIR}/include/build_version.h
+                -P ${CMAKE_SOURCE_DIR}/scripts/update_build_number.cmake
+        BYPRODUCTS ${CMAKE_BINARY_DIR}/include/build_version.h
+        COMMENT "Stamping the build number"
+)
+add_dependencies(${PROJECT_NAME} update_build_version)
 
 # building release file
 if (PLATFORM_DESKTOP)
@@ -300,6 +373,86 @@ elseif (PLATFORM_PS4)
             COMMAND "${CMAKE_COMMAND}" -E rename ${CMAKE_BINARY_DIR}/ps4/resources/i18n/ja-RYU ${CMAKE_BINARY_DIR}/ps4/resources/i18n/RYU
     )
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
+elseif (PLATFORM_PS5)
+    if (PS5_NATIVE_TITLE)
+        # PS5 native title: the folder the system registers on the home screen.
+        # The payload executable is still linked, as a check that the objects are
+        # complete; the title itself is linked from the same objects against the
+        # static OpenGL SDK by scripts/ps5/title/build_title.sh, because a title
+        # cannot load a plain .so at run time.
+        add_custom_target(${PROJECT_NAME}.title
+                COMMAND "${CMAKE_COMMAND}" -E env "PS5_TITLE_BUILD_DIR=${CMAKE_BINARY_DIR}"
+                        bash ${CMAKE_SOURCE_DIR}/scripts/ps5/title/build_title.sh
+                DEPENDS ${PROJECT_NAME}
+                COMMENT "Assembling the PS5 native title folder"
+                VERBATIM
+        )
+        add_custom_target(${PROJECT_NAME}.ffpfsc
+                COMMAND "${CMAKE_COMMAND}" -E env "PS5_TITLE_BUILD_DIR=${CMAKE_BINARY_DIR}"
+                        bash ${CMAKE_SOURCE_DIR}/scripts/ps5/package_ffpfs.sh
+                DEPENDS ${PROJECT_NAME}.title
+                COMMENT "Packaging the PS5 native title as ffpfsc image using ps5-dump-forge"
+                VERBATIM
+        )
+        add_custom_target(${PROJECT_NAME}.ffpfs
+                DEPENDS ${PROJECT_NAME}.ffpfsc
+        )
+    else ()
+        # PS5 homebrew payload: a directory holding the executable, its resources
+        # and the libraries it links against, which can be uploaded to the console
+        # with scripts/ps5/deploy.sh and shows up in the launcher served by the
+        # websrv payload (http://<ps5>:8080/) under the name of the directory.
+        set(PS5_APP_DIR ${CMAKE_BINARY_DIR}/ps5)
+
+        # The console has no libGL.so.1 of its own, the executable takes it from
+        # the pacbrew mesa packages. Ship the three files so that the deployed
+        # directory works on a console which never had those packages installed,
+        # the launcher entry and deploy.sh put the application's lib directory on
+        # LD_LIBRARY_PATH.
+        set(PS5_LIB_DIR "$ENV{PS5_PAYLOAD_SDK}/target/user/homebrew/lib")
+        set(PS5_LIB_FILES
+                "${PS5_LIB_DIR}/libGL.so.1"
+                "${PS5_LIB_DIR}/libvulkan.so.1")
+        file(GLOB PS5_LIB_GALLIUM "${PS5_LIB_DIR}/libgallium-*.so")
+        list(APPEND PS5_LIB_FILES ${PS5_LIB_GALLIUM})
+        set(PS5_LIB_COMMANDS "")
+        foreach (PS5_LIB ${PS5_LIB_FILES})
+            if (NOT EXISTS "${PS5_LIB}")
+                continue()
+            endif ()
+            # the SDK ships some of them as symlinks, the console needs the file itself
+            get_filename_component(PS5_LIB_REAL "${PS5_LIB}" REALPATH)
+            get_filename_component(PS5_LIB_NAME "${PS5_LIB}" NAME)
+            list(APPEND PS5_LIB_COMMANDS
+                    COMMAND "${CMAKE_COMMAND}" -E make_directory ${PS5_APP_DIR}/lib
+                    COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${PS5_LIB_REAL} ${PS5_APP_DIR}/lib/${PS5_LIB_NAME})
+        endforeach ()
+        if (NOT PS5_LIB_COMMANDS)
+            message(WARNING "No mesa libraries in '${PS5_LIB_DIR}', the executable will only start on a "
+                    "console which already has libGL.so.1, libgallium and libvulkan.so.1 installed")
+        endif ()
+
+        add_custom_target(${PROJECT_NAME}.data
+                COMMAND "${CMAKE_COMMAND}" -E make_directory ${PS5_APP_DIR}
+                COMMAND "${CMAKE_COMMAND}" -E copy_directory ${PROJECT_RESOURCES} ${PS5_APP_DIR}/resources
+                COMMAND "${CMAKE_COMMAND}" -E copy ${CMAKE_SOURCE_DIR}/scripts/ps5/homebrew.js ${PS5_APP_DIR}/homebrew.js
+                COMMAND "${CMAKE_COMMAND}" -E copy ${CMAKE_SOURCE_DIR}/scripts/ps5/tile/index.html ${PS5_APP_DIR}/index.html
+                COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_SOURCE_DIR}/scripts/ps5/sce_sys ${PS5_APP_DIR}/sce_sys
+                ${PS5_LIB_COMMANDS}
+                VERBATIM
+        )
+        add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}.data)
+        # homebrew payloads are started by their file name, the name eboot.elf is
+        # the convention shared by the homebrew launcher and websrv
+        # (ps5-payload-dev/websrv)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_FILE:${PROJECT_NAME}> ${PS5_APP_DIR}/eboot.elf
+                COMMENT "Copying eboot.elf to ${PS5_APP_DIR}")
+
+        # the launcher sets LD_LIBRARY_PATH, this is a fallback for the case the
+        # dynamic loader of the console ignores the environment
+        target_link_options(${PROJECT_NAME} PRIVATE "-Wl,-rpath,/data/homebrew/wiliwili/lib")
+    endif ()
 elseif (PLATFORM_SWITCH)
     set(BUILD_FONT_DIR ${CMAKE_BINARY_DIR}/resources/font)
     if (GIT_TAG_VERSION)

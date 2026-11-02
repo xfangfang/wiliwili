@@ -8,12 +8,19 @@
 #include <vector>
 #include <string>
 #include <cstdlib>
+#include <mutex>
 #include <fmt/format.h>
 #include <borealis/core/geometry.hpp>
 #include <borealis/core/singleton.hpp>
 #include <borealis/core/logger.hpp>
 #include <mpv/client.h>
 #include <mpv/render.h>
+#if defined(BOREALIS_USE_VULKAN)
+#ifndef MPV_SW_RENDER
+#define MPV_SW_RENDER
+#endif
+#endif
+
 #if defined(MPV_SW_RENDER)
 #elif defined(BOREALIS_USE_DEKO3D)
 #include <mpv/render_dk3d.h>
@@ -160,6 +167,29 @@ public:
     std::string getString(const std::string &key);
     double getDouble(const std::string &key);
     int64_t getInt(const std::string &key);
+
+    /**
+     * 正在播放的视频的参数，由 mpv 自己的通知维护。
+     *
+     * 直接向 mpv 询问这些参数要等播放线程，解码忙的时候会把界面卡住，
+     * 所以这里读的是 mpv 最近一次通知过来的值。
+     */
+    struct VideoInfo {
+        std::string codec;
+        std::string pixelFormat;
+        std::string hwdec;
+        std::string gamma;
+        std::string primaries;
+        std::string colormatrix;
+        int64_t width        = 0;
+        int64_t height       = 0;
+        double fps           = 0;
+        int64_t bitrate      = 0;
+        int64_t droppedFrames = 0;
+        double avsync        = 0;
+    };
+
+    VideoInfo getVideoInfo();
     std::unordered_map<std::string, mpv_node> getNodeMap(const std::string &key);
 
     /// Set MPV States
@@ -254,6 +284,11 @@ public:
     int getHue() const;
 
     /**
+     * 设置硬解码开关
+     */
+    void setHardwareDecode(bool value);
+
+    /**
      * 设置硬解码模式
      * @param value 为真时将硬解码设置为 auto-copy, 为假时将硬解码设置为 各个平台默认值
      */
@@ -341,6 +376,13 @@ public:
     int mpv_error_code     = 0;
     std::string hwCurrent;
     std::string filepath;
+
+    // 视频参数（由 mpv 的属性通知更新，见 getVideoInfo）
+    VideoInfo videoInfo;
+    std::mutex videoInfoMutex;
+    int currentQuality = 0;
+    void setCurrentQuality(int q) { currentQuality = q; }
+    int getCurrentQuality() const { return currentQuality; }
     std::string currentShaderProfile;                      // 当前着色器脚本名
     std::string currentShader;                             // 当前着色器脚本
     std::vector<std::vector<std::string>> currentSetting;  // 当前着色器脚本附加的mpv配置
@@ -363,6 +405,15 @@ public:
     // 硬件解码
     inline static bool HARDWARE_DEC = false;
 
+#if defined(PS5)
+    // 物理 HDR10 输出（实验）。关掉时 HDR 视频在着色器里做 SDR 色调映射。
+    //
+    // 打开它需要把整帧按 PQ 打包进 8bit 帧缓冲，而 nanovg 的绘制是预乘 alpha
+    // 混合的：只要有一层半透明的像素（文字抗锯齿、圆角、弹幕、菜单遮罩），
+    // 混合出来的就不是 PQ 值，整屏立刻花掉。默认关闭，等 10bit swapchain 做好再开。
+    inline static bool HDR_OUTPUT = false;
+#endif
+
     // 硬解方式
 #if defined(__SWITCH__) || defined(BOREALIS_USE_GXM)
     inline static std::string PLAYER_HWDEC_METHOD = "auto";
@@ -370,6 +421,12 @@ public:
     inline static std::string PLAYER_HWDEC_METHOD = "vita-copy";
 #elif defined(PS4)
     inline static std::string PLAYER_HWDEC_METHOD = "no";
+#elif defined(PS5)
+    // The console has a video chip of its own: the decoders that run on it
+    // are part of the player. They are asked for by name, and the player
+    // takes the one that fits the video. Trailing comma allows fallback to
+    // default decoders for unsupported codecs (AV1, VP9) or unsupported profiles.
+    inline static std::string PLAYER_HWDEC_METHOD = "h264_ps5,hevc_ps5,";
 #else
     inline static std::string PLAYER_HWDEC_METHOD = "auto-safe";
 #endif
@@ -413,10 +470,16 @@ private:
     int sw_size[2]                 = {1920, 1080};
     size_t pitch                   = PIXCEL_SIZE * sw_size[0];
     void *pixels                   = nullptr;
+    size_t allocated_size          = 0;
     bool redraw                    = false;
-    mpv_render_param mpv_params[5] = {
+    int sw_block_target_time       = 0;
+    bool is_dovi_mode              = false;
+    mpv_dovi_metadata dovi_meta{};
+    mpv_render_param mpv_params[7] = {
         {MPV_RENDER_PARAM_SW_SIZE, &sw_size[0]}, {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
         {MPV_RENDER_PARAM_SW_STRIDE, &pitch},    {MPV_RENDER_PARAM_SW_POINTER, pixels},
+        {MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &sw_block_target_time},
+        {(mpv_render_param_type)MPV_RENDER_PARAM_DOVI_METADATA, &dovi_meta},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(BOREALIS_USE_DEKO3D)

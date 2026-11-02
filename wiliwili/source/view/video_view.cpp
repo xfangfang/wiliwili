@@ -23,6 +23,7 @@
 #include "fragment/player_setting.hpp"
 #include "fragment/player_dlna_search.hpp"
 #include "view/video_view.hpp"
+#include "utils/stage.hpp"
 
 #include "utils/shortcut_helper.hpp"
 #include "view/live_core.hpp"
@@ -422,6 +423,11 @@ VideoView::VideoView() {
     }
 
     /// 投屏按钮
+#ifdef PS5
+    // The console has no way to hand the picture to another device the way
+    // the desktop does, so the button is left out.
+    this->btnCastIcon->getParent()->setVisibility(brls::Visibility::GONE);
+#endif
     this->btnCastIcon->getParent()->registerClickAction([this](...) {
         this->pause();
 
@@ -623,9 +629,70 @@ VideoView::~VideoView() {
     brls::Logger::debug("Delete VideoView done");
 }
 
+void VideoView::updateVideoInfo() {
+    if (!mpvCore->isValid()) return;
+
+    // The parameters of the video that is playing: the codec, the picture, the
+    // bitrate and what the decoder and the renderer did with it. They come
+    // from mpv's own notifications: asking mpv for them here would wait for
+    // the player's thread and stop the interface while a picture is decoded.
+    auto info   = mpvCore->getVideoInfo();
+    std::string codec = info.codec;
+    std::string decoderName = codec;
+    std::string pixel = info.pixelFormat;
+    std::string hwdec = info.hwdec;
+    int width         = (int)info.width;
+    int height        = (int)info.height;
+    int fps           = (int)info.fps;
+    int bitrate       = (int)(info.bitrate / 1024);
+    int dropped       = (int)info.droppedFrames;
+    double avsync     = info.avsync;
+
+    if (codec.empty()) {
+        videoInfoLabel->setText("");
+        videoInfoLabel->setVisibility(brls::Visibility::GONE);
+        return;
+    }
+
+#ifdef PS5
+    // The console has a video chip of its own, and the decoders that run on
+    // it are not mpv's hardware decoding: they are the decoder of the
+    // stream, and their name says that they are the chip's.
+    size_t chip = codec.find("_ps5");
+    if (chip != std::string::npos) {
+        codec = codec.substr(0, chip) + " (chip)";
+        hwdec = "console chip";
+    }
+#endif
+
+    videoInfoLabel->setText(fmt::format("{} · {}x{}@{} · {} · {} kbps\n{} · avsync {:.3f} · dropped {}",
+        codec, width, height, fps, pixel, bitrate, hwdec.empty() ? "none" : hwdec, avsync, dropped));
+    videoInfoLabel->setVisibility(brls::Visibility::VISIBLE);
+    static std::string last_logged_info = "";
+    std::string current_info = fmt::format("{} {}x{}@{} {}", decoderName, width, height, fps, pixel);
+    if (last_logged_info != current_info) {
+        last_logged_info = current_info;
+        brls::Logger::debug("video info: {}", current_info);
+    }
+}
+
 void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
                      brls::FrameContext* ctx) {
     if (!mpvCore->isValid()) return;
+    stage::Marker marker("player draw");
+
+    // The parameters on the video itself, refreshed once a second.
+    if (SHOW_VIDEO_INFO) {
+        static brls::Time time = 0;
+        brls::Time now         = brls::getCPUTimeUsec();
+        if ((now - time) > 1000000) {
+            stage::Marker markerInfo("player info");
+            this->updateVideoInfo();
+            time = now;
+        }
+    } else if (videoInfoLabel->getVisibility() != brls::Visibility::GONE) {
+        videoInfoLabel->setVisibility(brls::Visibility::GONE);
+    }
     float alpha        = this->getAlpha();
     brls::Time current = brls::getCPUTimeUsec();
     bool drawOSD       = this->osd_state == OSDState::ALWAYS_ON || current < this->osdLastShowTime;
@@ -636,6 +703,7 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
     // draw highlight progress
     // OSD绘制时，进度条也包含了高能进度条，避免太杂乱仅在不显示 OSD 时绘制
     if (HIGHLIGHT_PROGRESS_BAR && (!drawOSD || is_osd_lock)) {
+        stage::Marker markerHighlight("player highlight");
         drawHighlightProgress(vg, x, y + height, width, alpha);
     }
 
@@ -659,6 +727,7 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
 
     // draw osd
     if (drawOSD) {
+        stage::Marker markerOSD("player osd");
         if (!is_osd_shown) {
             is_osd_shown = true;
             this->onOSDStateChanged(true);
@@ -694,19 +763,25 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
 
     // draw subtitle
     // 在正常显示 osd 时，将字幕向上偏移，避免被 OSD 挡住
-    if (showSubtitleSetting)
+    if (showSubtitleSetting) {
+        stage::Marker markerSubtitle("player subtitle");
         SubtitleCore::instance().drawSubtitle(vg, x, y, width, height - ((drawOSD && !is_osd_lock) ? 120.0f : 0.0f),
                                               alpha);
+    }
 
     if (current > this->hintLastShowTime && this->hintBox->getVisibility() == brls::Visibility::VISIBLE) {
         this->clearHint();
     }
 
     // hot key
-    this->buttonProcessing();
+    {
+        stage::Marker markerButtons("player buttons");
+        this->buttonProcessing();
+    }
 
     // draw speed hint
     if (speedHintBox->getVisibility() == brls::Visibility::VISIBLE) {
+        stage::Marker markerSpeedHint("player speed hint");
         speedHintBox->frame(ctx);
         brls::Rect frame = speedHintLabel->getFrame();
 
@@ -754,6 +829,15 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float width, float height
 
     // draw video profile
     videoProfile->frame(ctx);
+
+    // draw the parameters of the playing video: this view draws its children
+    // itself, so the label has to be drawn here.
+    if (SHOW_VIDEO_INFO) {
+        stage::Marker markerInfoLabel("player info label");
+        videoInfoLabel->frame(ctx);
+    }
+
+    stage::Marker markerDone("player draw done");
 }
 
 void VideoView::drawHighlightProgress(NVGcontext* vg, float x, float y, float width, float alpha) {

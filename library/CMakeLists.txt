@@ -25,8 +25,25 @@ else ()
     elseif (PLATFORM_SWITCH OR PLATFORM_PS4 OR PLATFORM_PSV)
         set(CPR_USE_SYSTEM_CURL ON)
         set(CPR_FORCE_MBEDTLS_BACKEND ON)
+    elseif (PLATFORM_PS5)
+        # the prospero toolchain provides a curl built with OpenSSL
+        set(CPR_USE_SYSTEM_CURL ON)
+        set(CPR_FORCE_OPENSSL_BACKEND ON)
     endif ()
     add_subdirectory(cpr EXCLUDE_FROM_ALL)
+    if (PLATFORM_PS5)
+        # cpr links stdc++fs with clang on every platform except Android and PS4,
+        # but that library does not exist on the PS5 (libc++ is complete there).
+        # The static curl of the prospero sysroot is built with PSL and zstd support,
+        # which are part of CURL::libcurl only when cmake finds curl through
+        # pkg-config, link them explicitly to support both ways.
+        get_target_property(CPR_INTERFACE_LINK_LIBRARIES cpr INTERFACE_LINK_LIBRARIES)
+        if (CPR_INTERFACE_LINK_LIBRARIES)
+            list(REMOVE_ITEM CPR_INTERFACE_LINK_LIBRARIES stdc++fs)
+            list(APPEND CPR_INTERFACE_LINK_LIBRARIES psl zstd)
+            set_target_properties(cpr PROPERTIES INTERFACE_LINK_LIBRARIES "${CPR_INTERFACE_LINK_LIBRARIES}")
+        endif ()
+    endif ()
 endif ()
 if (PLATFORM_PS4)
     list(APPEND APP_PLATFORM_LIB SceNet mbedcrypto mbedtls mbedx509)

@@ -4,6 +4,7 @@
   "github_release": "https://github.com/xfangfang/wiliwili/releases/latest",
   "setting": {
     "quit_hint": "Stai per uscire dall'applicazione. Le impostazioni avranno effetto dopo il prossimo avvio",
+    "restart_hint": "Le impostazioni avranno effetto al prossimo avvio. Chiudi l'applicazione e riavviala.",
     "app": {
       "tab": "App",
       "playback": {
@@ -139,6 +140,8 @@
       "repository": "Repository",
       "brief": "Ancora un altro cliente bilibili di terze parti",
       "repo_header": "Repository",
+      "port_header": "Port per PS5",
+      "port": "La versione nativa per PS5 è curata da carlchina\nhttps://github.com/carlchina",
       "author_header": "Intervento dell'autore",
       "author": "一直想做个艺术家, 可惜程序员都没什么发挥的空间\n直到这个作品诞生,实现了：「在游戏机上看视频;用手机来玩游戏」\n或许算得上是一种行为艺术,这样的话我也就圆满了"
     },
@@ -396,7 +399,8 @@
         "skip_hint2": "Disattiva il salto dei titoli di testa dal prossimo video",
         "skip_hint3": "Usa titoli di testa personalizzati dal prossimo video",
         "skip_hint4": "Disattiva i titoli di testa personalizzati dal prossimo video",
-        "wiki": "Accedi alla nostra wiki per imparare come funziona lo shader"
+        "wiki": "Accedi alla nostra wiki per imparare come funziona lo shader",
+        "video_info": "Mostra i parametri del video"
       },
       "season": {
         "aspect": "Proporzioni video personalizzate",
