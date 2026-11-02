@@ -45,3 +45,7 @@ __pycache__/
 ps5_wiliwili_*
 *.log
 
+# AI skills / agent artifacts
+.agents/
+skills-lock.json
+

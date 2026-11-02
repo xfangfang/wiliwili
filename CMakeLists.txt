@@ -88,7 +88,7 @@ set(VERSION_MAJOR "1")
 set(VERSION_MINOR "6")
 set(VERSION_REVISION "0")
 if (NOT VERSION_BUILD)
-    set(VERSION_BUILD "5")
+    set(VERSION_BUILD "0")
 endif ()
 set(PROJECT_AUTHOR "xfangfang")
 set(PACKAGE_NAME cn.xfangfang.wiliwili)
@@ -224,9 +224,8 @@ endif ()
 # source cpp
 file(GLOB_RECURSE MAIN_SRC wiliwili/source/*.cpp)
 if (NOT PLATFORM_PS5)
-    # The test streams of the console's hardware video decoder are of no use
-    # on the other platforms and only make the binary bigger.
-    list(FILTER MAIN_SRC EXCLUDE REGEX "ps5_decoder_test_data\\.cpp$")
+    # The console's hardware video decoder and its test streams are only for PS5.
+    list(FILTER MAIN_SRC EXCLUDE REGEX "ps5_decoder.*\\.cpp$")
 endif ()
 if (WIN32)
     configure_file("${CMAKE_SOURCE_DIR}/wiliwili/app_win32.rc.in" "${CMAKE_BINARY_DIR}/app_win32.rc")

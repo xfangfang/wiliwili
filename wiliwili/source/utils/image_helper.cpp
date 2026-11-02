@@ -206,6 +206,7 @@ static inline void freeImageData(uint8_t* imageData, bool isWebp) {
         stbi_image_free(imageData);
 }
 
+#ifdef PS5
 /**
  * The session of the thread that downloads the pictures.
  *
@@ -225,9 +226,7 @@ static cpr::Session& imageWorkerSession() {
         CURL* curl = s.GetCurlHolder()->handle;
         curl_easy_setopt(curl, CURLOPT_SHARE, ImageThreadPool::instance().getShare());
         curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, bilibili::HTTP::DNS_CACHE_TIMEOUT);
-#ifdef PS5
         bilibili::HTTP::applySocketOptions(curl);
-#endif
         s.SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
         s.SetConnectTimeout(cpr::ConnectTimeout{bilibili::HTTP::CONNECTION_TIMEOUT});
         s.SetVerifySsl(bilibili::HTTP::VERIFY);
@@ -236,18 +235,33 @@ static cpr::Session& imageWorkerSession() {
     }
     return *session;
 }
+#endif
 
 void ImageHelper::requestImage() {
     brls::Logger::verbose("request Image 2: {} {}", this->imageUrl, this->isCancel);
 
     // 请求图片
     cpr::Response r;
+#ifdef PS5
     {
         cpr::Session& session = imageWorkerSession();
         session.SetUrl(cpr::Url{this->imageUrl});
         session.SetProgressCallback(cpr::ProgressCallback([this](...) -> bool { return !this->isCancel; }));
         r = session.Get();
     }
+#else
+    cpr::Session session;
+    CURL* curl = session.GetCurlHolder()->handle;
+    curl_easy_setopt(curl, CURLOPT_SHARE, ImageThreadPool::instance().getShare());
+    curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, bilibili::HTTP::DNS_CACHE_TIMEOUT);
+    session.SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
+    session.SetConnectTimeout(cpr::ConnectTimeout{bilibili::HTTP::CONNECTION_TIMEOUT});
+    session.SetVerifySsl(bilibili::HTTP::VERIFY);
+    session.SetProxies(bilibili::HTTP::PROXIES);
+    session.SetUrl(cpr::Url{this->imageUrl});
+    session.SetProgressCallback(cpr::ProgressCallback([this](...) -> bool { return !this->isCancel; }));
+    r = session.Get();
+#endif
 
     // 图片请求失败或取消请求
     if (r.status_code != 200 || r.downloaded_bytes == 0 || this->isCancel) {

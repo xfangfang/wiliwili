@@ -126,6 +126,7 @@ public:
         return session;
     }
 
+#ifdef PS5
     /**
      * The session of the thread that makes the request.
      *
@@ -190,6 +191,50 @@ public:
             callback(r);
         });
     }
+#else
+    static void _cpr_post(const std::string& url, const cpr::Parameters& parameters = {},
+                           const cpr::Payload& payload                               = {},
+                           const std::function<void(const cpr::Response&)>& callback = nullptr,
+                           const ErrorCallback& error                                = nullptr) {
+        auto session = createSession();
+        session->SetUrl(cpr::Url{parseLink(url)});
+        session->SetParameters(parameters);
+        session->SetPayload(payload);
+
+        session->PostCallback(
+            [callback, error](const cpr::Response& r) {
+                if (r.error) {
+                    ERROR_MSG(r.error.message, -1);
+                    return;
+                } else if (r.status_code != 200) {
+                    ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
+                    return;
+                }
+                callback(r);
+            });
+    }
+
+    static void _cpr_get(const std::string& url, const cpr::Parameters& parameters = {},
+                          const std::function<void(const cpr::Response&)>& callback = nullptr,
+                          const ErrorCallback& error                                = nullptr) {
+        auto session = createSession();
+        session->SetUrl(cpr::Url{parseLink(url)});
+        session->SetParameters(parameters);
+
+        session->GetCallback(
+            [callback, error](const cpr::Response& r) {
+                if (r.error) {
+                    ERROR_MSG(r.error.message, -1);
+                    return;
+                }
+                if (r.status_code != 200) {
+                    ERROR_MSG("Network error. [Status code: " + std::to_string(r.status_code) + " ]", r.status_code);
+                    return;
+                }
+                callback(r);
+            });
+    }
+#endif
 
     template <typename ReturnType>
     static int parseJson(const cpr::Response& r, const std::function<void(ReturnType)>& callback = nullptr,

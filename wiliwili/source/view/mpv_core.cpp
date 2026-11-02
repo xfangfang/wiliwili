@@ -1079,14 +1079,18 @@ void MPVCore::draw(brls::Rect area, float alpha) {
     if (isHlg) {
         videoPaint.radius = 3.0f; // 触发 GPU 片段着色器 HLG BT.2100 -> PQ / SDR 电影级转换
     } else if (isDoviProfile5) {
+#if defined(PS5) && defined(BOREALIS_USE_VULKAN)
         nvgSetDoviMetadata(vg, &dovi_meta);
+#endif
         videoPaint.radius = 2.0f; // 触发 GPU 片段着色器 Dolby Vision Profile 5 RPU 重塑与色调映射
     } else if (isHdr) {
         videoPaint.radius = 1.0f; // 触发 GPU 片段着色器 HDR PQ BT.2020 -> SDR BT.709 电影级色调映射
     }
+#if defined(PS5) && defined(BOREALIS_USE_VULKAN)
     if (!isDoviProfile5) {
         nvgSetDoviMetadata(vg, nullptr);
     }
+#endif
     if (isDoviProfile5 || isHlg) {
         static int dovi_draw_log = 0;
         if (dovi_draw_log++ < 5 || (dovi_draw_log % 600 == 0)) {

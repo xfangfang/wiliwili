@@ -19,6 +19,7 @@ std::atomic<uint64_t> beat {0};
 
 void startWatch()
 {
+#ifdef PS5
     std::thread([]() {
         uint64_t last    = 0;
         int64_t  lastLog = 0;
@@ -41,6 +42,7 @@ void startWatch()
             }
         }
     }).detach();
+#endif
 }
 
 }  // namespace stage
