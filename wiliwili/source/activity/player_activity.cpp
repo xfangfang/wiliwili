@@ -24,6 +24,7 @@
 #include "view/video_card.hpp"
 #include "view/user_info.hpp"
 #include "view/mpv_core.hpp"
+#include "view/triple_action.hpp"
 
 using namespace brls::literals;
 
@@ -163,11 +164,17 @@ void PlayerActivity::onContentAvailable() {
     this->requestData(this->videoDetailResult);
 
     // 点赞按钮
-    this->btnAgree->getParent()->registerClickAction([this](...) {
-        if (!DialogHelper::checkLogin()) return true;
-        this->beAgree(this->videoDetailResult.aid);
-        return true;
-    });
+    if (auto* button = dynamic_cast<TripleLikeButton*>(btnAgree->getParent())) {
+        button->setActions(
+            [this] { return videoDetailResult.aid && !tripleRequestPending && DialogHelper::checkLogin(); },
+            [this] { beAgree(videoDetailResult.aid); },
+            [this] { tripleLike(videoDetailResult.aid); });
+    } else {
+        btnAgree->getParent()->registerClickAction([this](...) {
+            if (DialogHelper::checkLogin()) beAgree(videoDetailResult.aid);
+            return true;
+        });
+    }
 
     // 投币按钮
     this->btnCoin->getParent()->registerClickAction([this](...) {
@@ -213,7 +220,12 @@ void PlayerActivity::onContentAvailable() {
     this->video->hideSkipOpeningCreditsSetting();
 }
 
+void PlayerActivity::onTripleLikeResult(uint64_t aid, bool success) {
+    if (aid == videoDetailResult.aid && tripleActions) tripleActions->complete(success);
+}
+
 void PlayerActivity::onVideoInfo(const bilibili::VideoDetailResult& result) {
+    if (tripleActions) tripleActions->resetInteraction();
     brls::Logger::debug("[onVideoInfo] title:{} author:{}", result.title, result.owner.name);
     // 只在分P数大于1时显示分P标题
     std::string subtitle = result.pages.size() > 1 ? " - " + videoDetailPage.part : "";

@@ -54,6 +54,7 @@
 #include "view/mpv_core.hpp"
 #include "view/dynamic_video_card.hpp"
 #include "view/dynamic_article.hpp"
+#include "view/triple_action.hpp"
 
 // static member definition
 std::string Register::customThemeColorHex;
@@ -77,6 +78,8 @@ void Register::initCustomView() {
     brls::Application::registerXMLView("GalleryView", GalleryView::create);
     brls::Application::registerXMLView("CustomButton", CustomButton::create);
     brls::Application::registerXMLView("HintLabel", HintLabel::create);
+    brls::Application::registerXMLView("TripleActionBar", TripleActionBar::create);
+    brls::Application::registerXMLView("TripleLikeButton", TripleLikeButton::create);
 
     //     Register custom views
     brls::Application::registerXMLView("UserInfoView", UserInfoView::create);

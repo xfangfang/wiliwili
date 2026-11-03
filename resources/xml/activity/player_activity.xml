@@ -73,14 +73,14 @@
                                 height="80%"/>
                     </brls:Box>
 
-                    <brls:Box
+                    <TripleActionBar
                             wireframe="false"
                             width="40%"
                             marginLeft="@style/brls/highlight/shadow_offset"
                             justifyContent="spaceEvenly"
                             marginBottom="20"
                             alignItems="center">
-                        <brls:Box
+                        <TripleLikeButton
                                 highlightCornerRadius="50"
                                 cornerRadius="50"
                                 padding="4"
@@ -103,7 +103,7 @@
                                     fontSize="16"
                                     wireframe="false"
                                     text="0"/>
-                        </brls:Box>
+                        </TripleLikeButton>
 
                         <brls:Box
                                 highlightCornerRadius="50"
@@ -186,7 +186,7 @@
                                     wireframe="false"
                                     text="0"/>
                         </brls:Box>
-                    </brls:Box>
+                    </TripleActionBar>
                 </brls:Box>
 
                 <brls:Box

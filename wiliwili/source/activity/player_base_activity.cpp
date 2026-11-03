@@ -22,6 +22,7 @@
 #include "view/grid_dropdown.hpp"
 #include "view/subtitle_core.hpp"
 #include "view/mpv_core.hpp"
+#include "view/triple_action.hpp"
 
 class DataSourceCommentList : public RecyclingGridDataSource, public CommentAction {
 public:
@@ -275,7 +276,16 @@ void BasePlayerActivity::setCommonData() {
 
     this->btnQR->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnQR->getParent()));
 
-    this->btnAgree->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnAgree->getParent()));
+    auto* tripleButton = dynamic_cast<TripleLikeButton*>(btnAgree->getParent());
+    tripleActions = tripleButton ? dynamic_cast<TripleActionBar*>(tripleButton->getParent()) : nullptr;
+    if (tripleActions) {
+        tripleActions->attach(tripleButton, btnCoin->getParent(), btnFavorite->getParent());
+        tripleActions->setRelationRenderer([this](bool liked, bool coined, bool favorited) {
+            updateRelationImages(liked, coined, favorited);
+        });
+    }
+    if (!tripleButton || !dynamic_cast<PlayerActivity*>(this))
+        btnAgree->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(btnAgree->getParent()));
 
     this->btnCoin->getParent()->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnCoin->getParent()));
 
@@ -783,6 +793,11 @@ void BasePlayerActivity::onHighlightProgress(const bilibili::VideoHighlightProgr
 }
 
 void BasePlayerActivity::setRelationButton(bool liked, bool coin, bool favorite) {
+    if (tripleActions) tripleActions->setRelationState(liked, coin, favorite);
+    else updateRelationImages(liked, coin, favorite);
+}
+
+void BasePlayerActivity::updateRelationImages(bool liked, bool coin, bool favorite) {
     if (liked) {
         btnAgree->setImageFromSVGRes("svg/bpx-svg-sprite-liked-active.svg");
     } else {

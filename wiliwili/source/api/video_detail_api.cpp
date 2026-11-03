@@ -521,13 +521,13 @@ void BilibiliClient::add_resource(const std::string& access_key, uint64_t rid, i
     HTTP::postResultAsync(Api::CollectionVideoListSave, {}, payload, callback, error);
 }
 
-void BilibiliClient::triple_like(const std::string& access_key, uint64_t aid, const std::function<void()>& callback,
-                                 const ErrorCallback& error) {
+void BilibiliClient::triple_like(const std::string& access_key, uint64_t aid,
+                                const std::function<void(const VideoTriple&)>& callback, const ErrorCallback& error) {
     cpr::Payload payload = {
         {"aid", std::to_string(aid)},
         {"csrf", access_key},
     };
-    HTTP::postResultAsync(Api::TripleWeb, {}, payload, callback, error);
+    HTTP::postResultAsync<VideoTriple>(Api::TripleWeb, {}, payload, callback, error);
 }
 
 void BilibiliClient::follow_up(const std::string& access_key, const std::string& mid, bool follow,
