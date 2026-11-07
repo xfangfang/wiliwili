@@ -15,6 +15,10 @@
 #include "utils/activity_helper.hpp"
 #include "view/mpv_core.hpp"
 
+#if defined(__APPLE__) && !defined(IOS)
+#include "utils/macos_helper.hpp"
+#endif
+
 #ifdef IOS
 #include <SDL2/SDL_main.h>
 #endif
@@ -46,6 +50,9 @@ int main(int argc, char* argv[]) {
     brls::Application::getPlatform()->exitToHomeMode(true);
 
     brls::Application::createWindow("wiliwili");
+#if defined(__APPLE__) && !defined(IOS)
+    MacOSHelper::disableWindowShadow();
+#endif
     brls::Logger::info("createWindow done");
 
     // Register custom view\theme\style
