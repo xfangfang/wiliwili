@@ -154,7 +154,7 @@ jobs:
           fetch-depth: 0
       - name: Install dependency
         run: |
-          for pkg in curl-8.22.0-2 mpv-0.41.0-4 libwebp-1.6.0-1; do
+          for pkg in curl-8.23.0-1 mpv-0.42.0-2 libwebp-1.6.0-1; do
             curl -sLO https://github.com/dragonflylee/mpv-build/releases/download/mingw-package/${MINGW_PACKAGE_PREFIX}-${pkg}-any.pkg.tar.zst
           done
           pacman -U --noconfirm *.pkg.tar.zst
@@ -172,44 +172,6 @@ jobs:
         run: |
           BRLS_GLFW=library/borealis/library/lib/extern/glfw
           cmake -P ${BRLS_GLFW}/CMake/GenerateMappings.cmake ${BRLS_GLFW}/src/mappings.h.in ${BRLS_GLFW}/src/mappings.h
-      - name: Build dependency
-        run: |
-          curl -sL https://github.com/webmproject/libwebp/archive/v1.6.0.tar.gz | tar zxf - -C /tmp
-          cmake -B build-libwebp -S /tmp/libwebp-1.6.0 -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DWEBP_BUILD_ANIM_UTILS=OFF \
-            -DWEBP_BUILD_CWEBP=OFF \
-            -DWEBP_BUILD_DWEBP=OFF \
-            -DWEBP_BUILD_GIF2WEBP=OFF \
-            -DWEBP_BUILD_IMG2WEBP=OFF \
-            -DWEBP_BUILD_VWEBP=OFF \
-            -DWEBP_BUILD_WEBPINFO=OFF \
-            -DWEBP_BUILD_WEBPMUX=OFF \
-            -DWEBP_BUILD_LIBWEBPMUX=OFF \
-            -DWEBP_BUILD_EXTRAS=OFF
-          cmake --build build-libwebp
-          cmake --install build-libwebp
-
-          curl -sL https://curl.se/download/curl-8.7.1.tar.xz | tar Jxf - -C /tmp
-          cmake -B build-curl -S /tmp/curl-8.7.1 -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DHTTP_ONLY=ON \
-            -DCURL_USE_SCHANNEL=ON \
-            -DCURL_DISABLE_PROGRESS_METER=ON \
-            -DBUILD_CURL_EXE=OFF \
-            -DBUILD_TESTING=OFF \
-            -DBUILD_LIBCURL_DOCS=OFF \
-            -DUSE_LIBIDN2=OFF \
-            -DUSE_WIN32_IDN=ON \
-            -DCURL_USE_LIBSSH2=OFF \
-            -DCURL_USE_LIBPSL=OFF \
-            -DZLIB_USE_STATIC_LIBS=ON
-          cmake --build build-curl
-          cmake --install build-curl
       - name: Build
         run: |
           cmake -B build -G Ninja ${{ matrix.cmake }} \
