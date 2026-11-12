@@ -8,6 +8,9 @@
 #include <borealis/core/thread.hpp>
 #include <stb_image.h>
 
+#include <chrono>
+#include <thread>
+
 #include "utils/image_helper.hpp"
 #include "utils/string_helper.hpp"
 #include "api/bilibili/util/http.hpp"
@@ -203,22 +206,37 @@ void ImageHelper::requestImage() {
     brls::Logger::verbose("request Image 2: {} {}", this->imageUrl, this->isCancel);
 
     // 请求图片
-    cpr::Session session;
-    CURL* curl = session.GetCurlHolder()->handle;
-    curl_easy_setopt(curl, CURLOPT_SHARE, ImageThreadPool::instance().getShare());
-    curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, bilibili::HTTP::DNS_CACHE_TIMEOUT);
-    session.SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
-    session.SetConnectTimeout(cpr::ConnectTimeout{bilibili::HTTP::CONNECTION_TIMEOUT});
-    session.SetVerifySsl(bilibili::HTTP::VERIFY);
-    session.SetProxies(bilibili::HTTP::PROXIES);
-    session.SetUrl(cpr::Url{this->imageUrl});
-    session.SetProgressCallback(cpr::ProgressCallback([this](...) -> bool { return !this->isCancel; }));
-    cpr::Response r = session.Get();
+    // 图片请求必须带上 UA 等请求头：不设置时 libcurl 会用自己的默认 UA，
+    // 而 B 站图床的 ACL 会在缓存未命中时直接拒绝这类 UA（403，X-Error-Info: acls.access），
+    // 表现为个别封面永久空白。这里与其它接口保持一致，使用 bilibili::HTTP::HEADERS。
+    // 同时加入有限次重试，避免偶发失败让封面永久停在占位图。
+    constexpr int MAX_ATTEMPT = 3;
+    cpr::Response r;
+    for (int attempt = 1; attempt <= MAX_ATTEMPT && !this->isCancel; ++attempt) {
+        cpr::Session session;
+        CURL* curl = session.GetCurlHolder()->handle;
+        curl_easy_setopt(curl, CURLOPT_SHARE, ImageThreadPool::instance().getShare());
+        curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, bilibili::HTTP::DNS_CACHE_TIMEOUT);
+        session.SetTimeout(cpr::Timeout{bilibili::HTTP::TIMEOUT});
+        session.SetConnectTimeout(cpr::ConnectTimeout{bilibili::HTTP::CONNECTION_TIMEOUT});
+        session.SetVerifySsl(bilibili::HTTP::VERIFY);
+        session.SetProxies(bilibili::HTTP::PROXIES);
+        session.SetHeader(bilibili::HTTP::HEADERS);
+        session.SetUrl(cpr::Url{this->imageUrl});
+        session.SetProgressCallback(cpr::ProgressCallback([this](...) -> bool { return !this->isCancel; }));
+        r = session.Get();
+        if (r.status_code == 200 && r.downloaded_bytes > 0) break;
+        if (attempt < MAX_ATTEMPT)
+            std::this_thread::sleep_for(std::chrono::milliseconds(attempt * 500));
+    }
 
     // 图片请求失败或取消请求
     if (r.status_code != 200 || r.downloaded_bytes == 0 || this->isCancel) {
-        brls::Logger::verbose("request undone: {} {} {} {}", r.status_code, r.downloaded_bytes, this->isCancel,
-                              r.url.str());
+        if (this->isCancel)
+            brls::Logger::verbose("request undone: {} {} {} {}", r.status_code, r.downloaded_bytes, this->isCancel,
+                                  r.url.str());
+        else
+            brls::Logger::warning("request image failed: {} {} {}", r.status_code, r.downloaded_bytes, this->imageUrl);
 
         this->clean();
         return;
