@@ -1542,7 +1542,11 @@ void VideoView::buttonProcessing() {
 
 void VideoView::registerMpvEvent() {
     if (registerMPVEvent) {
+        // Return early: a duplicated subscribe overwrites eventSubscribeID, leaving the
+        // previous subscription (whose lambda captures `this`) unsubscribable in the
+        // destructor. A later mpv event would then touch a destroyed VideoView and crash.
         brls::Logger::error("VideoView already register MPV Event");
+        return;
     }
     eventSubscribeID = mpvCore->getEvent()->subscribe([this](MpvEventEnum event) {
         // brls::Logger::info("mpv event => : {}", event);
