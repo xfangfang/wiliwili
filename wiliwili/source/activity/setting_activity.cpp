@@ -698,6 +698,13 @@ void SettingActivity::onContentAvailable() {
                           MPVCore::AUTO_PLAY = value;
                       });
 
+    /// Keep playback speed when playing the next video
+    btnKeepSpeed->init("wiliwili/setting/app/playback/keep_speed"_i18n, conf.getBoolOption(SettingItem::PLAYER_KEEP_SPEED),
+                       [](bool value) {
+                           ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_KEEP_SPEED, value);
+                           MPVCore::instance().setKeepSpeed(value);
+                       });
+
     /// Auto fullscreen when entering player page
     btnAutoFullscreen->init("wiliwili/setting/app/playback/auto_fullscreen"_i18n,
                             conf.getBoolOption(SettingItem::PLAYER_AUTO_FULLSCREEN), [](bool value) {

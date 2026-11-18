@@ -383,6 +383,12 @@ public:
     // 触发倍速时的默认值，单位为 %
     inline static int VIDEO_SPEED = 200;
 
+    // Whether to keep the playback speed for the next video (false resets to 1x)
+    inline static bool KEEP_SPEED = false;
+
+    // Update the "keep speed" option and apply it to mpv immediately
+    void setKeepSpeed(bool value);
+
     // 默认的音量
     inline static int VIDEO_VOLUME = 100;
 

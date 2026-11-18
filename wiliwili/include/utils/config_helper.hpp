@@ -51,6 +51,7 @@ enum class SettingItem {
     PLAYER_EXIT_FULLSCREEN_ON_END,
     PLAYER_WINDOW_FULLSCREEN_ON_APP_FULLSCREEN, // 应用内全屏时同步切换窗口全屏
     PLAYER_DEFAULT_SPEED,
+    PLAYER_KEEP_SPEED, // Keep playback speed across videos
     PLAYER_VOLUME,
     PLAYER_ASPECT,
     PLAYER_BRIGHTNESS,

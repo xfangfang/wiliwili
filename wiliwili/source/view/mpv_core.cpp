@@ -315,7 +315,8 @@ void MPVCore::init() {
     mpvSetOptionString(mpv, "video-timing-offset", "0");  // 60fps
     mpvSetOptionString(mpv, "keep-open", "yes");
     mpvSetOptionString(mpv, "hr-seek", "yes");
-    mpvSetOptionString(mpv, "reset-on-next-file", "speed,pause");
+    // Keep playback speed for the next video only when enabled; otherwise reset it to 1x.
+    mpvSetOptionString(mpv, "reset-on-next-file", KEEP_SPEED ? "pause" : "speed,pause");
     mpvSetOptionString(mpv, "vo", "libmpv");
     mpvSetOptionString(mpv, "pulse-latency-hacks", "no");
 
@@ -1226,6 +1227,12 @@ double MPVCore::getSpeed() const { return video_speed; }
 
 void MPVCore::setSpeed(double value) {
     if (video_speed != value) command_async("set", "speed", value);
+}
+
+void MPVCore::setKeepSpeed(bool value) {
+    KEEP_SPEED = value;
+    // reset-on-next-file can be changed at runtime, no need to recreate the mpv instance.
+    if (mpv) mpvSetOptionString(mpv, "reset-on-next-file", value ? "pause" : "speed,pause");
 }
 
 void MPVCore::setAspect(const std::string &value) {
