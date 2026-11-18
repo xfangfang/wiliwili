@@ -144,6 +144,19 @@ VideoView::VideoView() {
                 this->requestVolume((int)MPVCore::instance().volume - 5, 400);
                 return true;
             }
+            if (state.buttons[brls::BUTTON_NAV_LEFT]) {
+                // Reset to original speed
+                this->setSpeed(1.0f);
+                brls::Logger::info("RT + LEFT: reset speed to 1.0x");
+                return true;
+            }
+            if (state.buttons[brls::BUTTON_NAV_RIGHT]) {
+                // Restore the last saved non-1x speed (fall back to 2x if never set)
+                float speed = MPVCore::VIDEO_SPEED == 100 ? 2.0f : MPVCore::VIDEO_SPEED * 0.01f;
+                this->setSpeed(speed);
+                brls::Logger::info("RT + RIGHT: restore speed to {:.2f}x", speed);
+                return true;
+            }
             return false;
         },
         true, true);
