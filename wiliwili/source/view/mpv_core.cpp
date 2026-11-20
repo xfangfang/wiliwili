@@ -559,6 +559,19 @@ void MPVCore::clean() {
         mpvTerminateDestroy(this->mpv);
         this->mpv = nullptr;
     }
+#ifdef BOREALIS_USE_D3D11
+    // mpv 销毁时会对共享的 device context 调用 ClearState()，清空 render target 与 viewport。
+    // 重新绑定 render target，并恢复 viewport（否则要等窗口 resize 才恢复）。
+    D3D11_CONTEXT->beginFrame();
+    ID3D11DeviceContext *ctx = nullptr;
+    D3D11_CONTEXT->getDevice()->GetImmediateContext(&ctx);
+    if (ctx) {
+        D3D11_VIEWPORT vp = {0, 0, (float)brls::Application::windowWidth,
+            (float)brls::Application::windowHeight, 0, 1};
+        ctx->RSSetViewports(1, &vp);
+        ctx->Release();
+    }
+#endif
 }
 
 void MPVCore::restart() {
