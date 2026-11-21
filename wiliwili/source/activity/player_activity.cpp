@@ -196,16 +196,8 @@ void PlayerActivity::onContentAvailable() {
     // 用户头像框
     this->videoUserInfo->registerClickAction([this](...) {
         if (!DialogHelper::checkLogin()) return true;
-        if (this->userDetailResult.following) {
-            auto dialog = new brls::Dialog("wiliwili/player/not_follow"_i18n);
-            dialog->addButton("hints/cancel"_i18n, []() {});
-            dialog->addButton("hints/ok"_i18n, [this]() {
-                this->followUp(this->userDetailResult.card.mid, !this->userDetailResult.following);
-            });
-            dialog->open();
-        } else {
-            this->followUp(this->userDetailResult.card.mid, !this->userDetailResult.following);
-        }
+        // Navigate to UP主 profile page
+        Intent::openUserSpace(this->userDetailResult.card.mid);
         return true;
     });
 
