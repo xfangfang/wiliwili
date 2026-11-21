@@ -389,6 +389,7 @@
       },
       "common": {
         "header": "通用",
+        "rotation": "畫面旋轉",
         "mirror": "鏡像畫面",
         "highlight": "下方固定顯示高能進度條",
         "skip_opening_credits": "跳過片頭片尾",

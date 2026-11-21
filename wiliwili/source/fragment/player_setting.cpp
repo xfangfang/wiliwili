@@ -183,6 +183,12 @@ void PlayerSetting::setupCommonSetting() {
         GA("player_setting", {{"mirror", value ? "true" : "false"}});
     });
 
+    const auto rotation = MPVCore::instance().getInt("video-rotate");
+    btnRotation->init("wiliwili/player/setting/common/rotation"_i18n,
+                      {"0°", "90°", "180°", "270°"},
+                      rotation >= 0 && rotation < 360 ? rotation / 90 : 0,
+                      [](int index) { MPVCore::instance().command_async("set", "video-rotate", index * 90); });
+
     /// Player aspect
     btnAspect->init("wiliwili/player/setting/aspect/header"_i18n,
                     {"wiliwili/player/setting/aspect/auto"_i18n, "wiliwili/player/setting/aspect/stretch"_i18n,

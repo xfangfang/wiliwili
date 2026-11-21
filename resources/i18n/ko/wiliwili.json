@@ -389,6 +389,7 @@
       },
       "common": {
         "header": "공통",
+        "rotation": "화면 회전",
         "mirror": "수평으로 뒤집기",
         "highlight": "항상 핫스팟 표시",
         "skip_opening_credits": "오프닝 크레딧 건너뛰기",

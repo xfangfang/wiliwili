@@ -389,6 +389,7 @@
       },
       "common": {
         "header": "Common",
+        "rotation": "Video rotation",
         "mirror": "Horizontally flip",
         "highlight": "Always show hotspots",
         "skip_opening_credits": "Skip opening credits",
