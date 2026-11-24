@@ -389,6 +389,7 @@
       },
       "common": {
         "header": "Generale",
+        "rotation": "Rotazione video",
         "mirror": "Rispecchia orizzontalmente",
         "highlight": "Mostra sempre i punti salienti",
         "skip_opening_credits": "Salta titoli di testa",
