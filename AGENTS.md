@@ -44,7 +44,7 @@ Use `CHECK_AND_SET_REQUEST` / `UNSET_REQUEST` to prevent duplicate in-flight req
 - Valid custom XML element names (all registered in `Register::initCustomView()`):
   - **UI widgets:** `AutoTabFrame`, `RecyclingGrid`, `VideoView`, `VideoProfile`, `QRImage`, `SVGImage`, `TextBox`, `VideoProgressSlider`, `GalleryView`, `CustomButton`, `HintLabel`
   - **App views:** `UserInfoView`, `UpUserSmall`, `VideoComment`, `ButtonClose`, `CheckBox`, `SelectorCell`, `AnimationImage`, `ShareBox`, `DynamicVideoCardView`, `DynamicArticleView`
-  - **Fragments:** `HomeTab`, `DynamicTab`, `MineTab`, `HomeRecommends`, `HomeHotsAll`, `HomeHotsHistory`, `HomeHotsWeekly`, `HomeHotsRank`, `HomeHots`, `HomeLive`, `HomeBangumi`, `HomeCinema`, `MineHistory`, `MineLater`, `MineCollection`, `MineBangumi`, `SearchTab`, `SearchOrder`, `SearchVideo`, `SearchCinema`, `SearchBangumi`, `SearchHots`, `SearchHistory`
+  - **Fragments:** `HomeTab`, `DynamicTab`, `MineTab`, `HomeRecommends`, `HomeHotsAll`, `HomeHotsHistory`, `HomeHotsWeekly`, `HomeHotsRank`, `HomeHots`, `HomeLive`, `HomeBangumi`, `HomeCinema`, `MineHistory`, `MineLater`, `MineCollection`, `MineCollectionVideoList`, `MineBangumi`, `InboxFeed`, `SearchTab`, `SearchOrder`, `SearchVideo`, `SearchCinema`, `SearchBangumi`, `SearchHots`, `SearchHistory`
 - i18n key syntax in XML: `@i18n/wiliwili/some/key`; translation files are in `resources/i18n/{en-US,zh-Hans,zh-Hant,ja,ko,it,ja-RYU}/wiliwili.json`.
 
 ### Navigation — use `Intent`, never push directly
@@ -77,7 +77,7 @@ HTTP::postResultAsync<MyResult>(url, params, payload, callback, error);
 - API URL constants: `wiliwili/include/api/bilibili/api.h`; JSON result structs: `wiliwili/include/api/bilibili/result/`
 - `parseJson` looks for `data` (object/array) first, then `result` (object) as fallback when `code==0`
 - **WBI signing** (`getResultWithWbiAsync`): fetches `img_key`+`sub_key` from `Api::Nav`, computes `mixin_key`, appends `wts` + `w_rid`. Keys cached for 1 hour. Required for most `/x/web-interface/` endpoints since 2023.
-- HTTP defaults: `User-Agent: wiliwili`, `Referer: https://www.bilibili.com/client`, timeout 10000ms. Proxy and TLS verify are configurable via `SettingItem::HTTP_PROXY*` / `SettingItem::TLS_VERIFY`.
+- HTTP defaults: `User-Agent: wiliwili`, `Referer: https://www.bilibili.com/client`, `Origin: https://www.bilibili.com`. The header default timeout is 10000ms, but `ProgramConfig::init()` overwrites it via `BILI::setHttpTimeout(getSettingItem(SettingItem::HTTP_TIMEOUT, 5000))`, so the effective default is 5000ms. Proxy and TLS verify are configurable via `SettingItem::HTTP_PROXY*` / `SettingItem::TLS_VERIFY`.
 
 ### RecyclingGrid (custom recycler view)
 Implement `RecyclingGridDataSource` and call `recyclingGrid->setDataSource(...)`. Example from `player_activity.cpp`:
@@ -98,11 +98,11 @@ class DataSourceFoo : public RecyclingGridDataSource {
 ### Image loading
 Always append a platform-aware suffix:
 ```cpp
-ImageHelper::with(imageView)->load(url + ImageHelper::h_ext);    // horizontal thumbnail (@672w_378h on PC)
-ImageHelper::with(imageView)->load(url + ImageHelper::v_ext);    // vertical thumbnail (@312w_420h on PC)
-ImageHelper::with(imageView)->load(url + ImageHelper::face_ext); // avatar (@96w_96h on PC)
+ImageHelper::with(imageView)->load(url + ImageHelper::h_ext);    // horizontal thumbnail (@672w_378h_1c on PC)
+ImageHelper::with(imageView)->load(url + ImageHelper::v_ext);    // vertical thumbnail (@312w_420h_1c on PC)
+ImageHelper::with(imageView)->load(url + ImageHelper::face_ext); // avatar (@96w_96h_1c_1s on PC)
 ```
-`IMAGE_EXT` resolves to `.webp` when `USE_WEBP` is defined, else `.jpg`. PSV uses smaller sizes (e.g. `@256w_144h` for horizontal).
+`IMAGE_EXT` resolves to `.webp` when `USE_WEBP` is defined, else `.jpg`. The `_1c` / `_1s` flags are crop / square-crop directives. PSV uses smaller sizes (e.g. `@256w_144h_1c` for horizontal on GXM).
 
 ### Global event bus
 Defined in `wiliwili/include/utils/event_helper.hpp`:
@@ -138,10 +138,10 @@ Drop these files into the config directory to override built-in assets:
 | `danmaku.ttf` | Danmaku overlay font |
 | `gamecontrollerdb.txt` | SDL gamepad database (desktop only) |
 
-Built-in keymap fonts in `resources/font/`: `keymap_xbox.ttf`, `keymap_ps.ttf`, `keymap_keyboard.ttf`.
+Built-in keymap fonts in `resources/font/`: `keymap_xbox.ttf`, `keymap_ps.ttf`, `keymap_keyboard.ttf`, `keymap_keyboard_swap.ttf` (used when `APP_SWAP_ABXY` is on). Built-in emoji font: `font/emoji.ttf`.
 
 ### Anime4K / Shader System
-`ShaderHelper` (singleton, `wiliwili/include/utils/shader_helper.hpp`) manages profiles loaded from `{configDir}/shader.json`:
+`ShaderHelper` (singleton, `wiliwili/include/utils/shader_helper.hpp`) manages profiles loaded from `{configDir}/pack.json`:
 ```json
 {
   "profiles": [
@@ -168,12 +168,13 @@ Built-in keymap fonts in `resources/font/`: `keymap_xbox.ttf`, `keymap_ps.ttf`, 
 | GXM | `BOREALIS_USE_GXM` | PSVita native                                          |
 | D3D11 | `BOREALIS_USE_D3D11` | Windows Native/UWP                                     |
 
-Default hardware decode: Switch/GXM → `"auto"`, PSV-GL → `"vita-copy"`, PS4 → `"no"`, Desktop → `"auto-safe"`.
+Default hardware decode: Switch and PSV-GXM (`BOREALIS_USE_GXM`) → `"auto"`, PSV-GL (non-GXM) → `"vita-copy"`, PS4 → `"no"`, Desktop → `"auto-safe"`.
 
 ### Video Quality Codes
 
 | Code | Quality | Notes |
 |---|---|---|
+| 128 | Unlimited | Default max quality (landscape & portrait) |
 | 127 | 8K | |
 | 120 | 4K | |
 | 116 | 1080P60 | Default on non-PSV |
@@ -194,7 +195,7 @@ Default hardware decode: Switch/GXM → `"auto"`, PSV-GL → `"vita-copy"`, PS4 
 | macOS (release) | `~/Library/Application Support/wiliwili/` |
 | Linux (release) | `$XDG_CONFIG_HOME/wiliwili/` or `~/.config/wiliwili/` |
 | Windows (release) | `%LOCALAPPDATA%\xfangfang\wiliwili\` |
-| Any platform (debug build) | `./config/wiliwili/` (next to binary) |
+| Desktop (debug build) | `./config/wiliwili/` (next to binary). This applies only to non-console builds; Switch/PS4/PSV/iOS use the fixed paths in `getConfigDir()` even in debug builds. |
 
 Main config file: `{configDir}/wiliwili_config.json` (cookie, refreshToken, all SettingItem values, GA client ID, search history).
 
