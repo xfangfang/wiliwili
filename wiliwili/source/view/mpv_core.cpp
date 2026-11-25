@@ -204,25 +204,27 @@ static inline float aspectConverter(const std::string &value) {
 
 void MPVCore::on_update(void *self) {
     brls::sync([]() {
-        uint64_t flags = mpvRenderContextUpdate(MPVCore::instance().getContext());
+        auto &core = MPVCore::instance();
+        if (!core.mpv_context) return;
+        uint64_t flags = mpvRenderContextUpdate(core.getContext());
 #if defined(MPV_NO_FB) || defined(BOREALIS_USE_DEKO3D) || defined(BOREALIS_USE_D3D11)
         // 直接绘制到屏幕上，需要屏幕每刷新一次绘制一次，在 MPVCore 的绘制函数内部处理
         (void)flags;
 #else
         // 绘制到 FBO、纹理、buffer...上，在主循环结尾进行绘制，MPVCore 的绘制函数内直接绘制对应的 FBO、纹理、buffer...
-        MPVCore::instance().redraw = flags & MPV_RENDER_UPDATE_FRAME;
-        if (MPVCore::instance().redraw) {
+        core.redraw = flags & MPV_RENDER_UPDATE_FRAME;
+        if (core.redraw) {
 #ifdef MPV_SW_RENDER
-            if (!MPVCore::instance().pixels) return;
-            mpvRenderContextRender(MPVCore::instance().mpv_context, MPVCore::instance().mpv_params);
-            mpvRenderContextReportSwap(MPVCore::instance().mpv_context);
+            if (!core.pixels) return;
+            mpvRenderContextRender(core.mpv_context, core.mpv_params);
+            mpvRenderContextReportSwap(core.mpv_context);
 #else
-            mpvRenderContextRender(MPVCore::instance().mpv_context, MPVCore::instance().mpv_params);
+            mpvRenderContextRender(core.mpv_context, core.mpv_params);
 #ifdef BOREALIS_USE_OPENGL
-            glBindFramebuffer(GL_FRAMEBUFFER, MPVCore::instance().default_framebuffer);
+            glBindFramebuffer(GL_FRAMEBUFFER, core.default_framebuffer);
             glViewport(0, 0, (GLsizei)brls::Application::windowWidth, (GLsizei)brls::Application::windowHeight);
 #endif
-            mpvRenderContextReportSwap(MPVCore::instance().mpv_context);
+            mpvRenderContextReportSwap(core.mpv_context);
 #endif
         }
 #endif

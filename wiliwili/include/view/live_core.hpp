@@ -36,6 +36,8 @@ namespace message {
 #include <nanovg.h>
 #include <borealis/core/singleton.hpp>
 
+#include "view/danmaku_motion.hpp"
+
 using time_p = std::chrono::time_point<std::chrono::system_clock>;
 class LiveDanmakuItem {
 public:
@@ -119,4 +121,7 @@ public:
     
     // 确定弹幕内容类型
     LiveDanmakuItem::ContentType determineContentType(const LiveDanmakuItem& danmaku);
+
+private:
+    wiliwili::DanmakuMotionClock motionClock;
 };

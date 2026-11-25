@@ -402,6 +402,7 @@ private:
     mpv_handle *mpv                 = nullptr;
     mpv_render_context *mpv_context = nullptr;
     brls::Rect rect                 = {0, 0, 1920, 1080};
+    int block_for_target_time{0};
 #ifdef MPV_SW_RENDER
     const int PIXCEL_SIZE          = 4;
     int nvg_image                  = 0;
@@ -414,9 +415,12 @@ private:
     size_t pitch                   = PIXCEL_SIZE * sw_size[0];
     void *pixels                   = nullptr;
     bool redraw                    = false;
-    mpv_render_param mpv_params[5] = {
-        {MPV_RENDER_PARAM_SW_SIZE, &sw_size[0]}, {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
-        {MPV_RENDER_PARAM_SW_STRIDE, &pitch},    {MPV_RENDER_PARAM_SW_POINTER, pixels},
+    mpv_render_param mpv_params[6] = {
+        {MPV_RENDER_PARAM_SW_SIZE, &sw_size[0]},
+        {MPV_RENDER_PARAM_SW_FORMAT, (void *)sw_format},
+        {MPV_RENDER_PARAM_SW_STRIDE, &pitch},
+        {MPV_RENDER_PARAM_SW_POINTER, pixels},
+        {MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &block_for_target_time},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(BOREALIS_USE_DEKO3D)
@@ -427,12 +431,14 @@ private:
     };
     mpv_render_param mpv_params[3] = {
         {MPV_RENDER_PARAM_DEKO3D_FBO, &mpv_fbo},
+        {MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &block_for_target_time},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(BOREALIS_USE_D3D11)
     mpv_d3d11_fbo mpv_fbo;
-    mpv_render_param mpv_params[2] = {
+    mpv_render_param mpv_params[3] = {
         {MPV_RENDER_PARAM_D3D11_FBO, &mpv_fbo},
+        {MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &block_for_target_time},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(BOREALIS_USE_GXM)
@@ -447,18 +453,20 @@ private:
         .format = SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_RGBA,
     };
     int flip_y{1};
-    mpv_render_param mpv_params[3] = {
+    mpv_render_param mpv_params[4] = {
         {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
         {MPV_RENDER_PARAM_GXM_FBO, &mpv_fbo},
+        {MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &block_for_target_time},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #elif defined(MPV_NO_FB)
     GLint default_framebuffer = 0;
     mpv_opengl_fbo mpv_fbo{0, 1920, 1080};
     int flip_y{1};
-    mpv_render_param mpv_params[3] = {
+    mpv_render_param mpv_params[4] = {
         {MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
         {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
+        {MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &block_for_target_time},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #else
@@ -469,9 +477,10 @@ private:
     mpv_opengl_fbo mpv_fbo{0, 1920, 1080};
     int flip_y{1};
     bool redraw                    = false;
-    mpv_render_param mpv_params[3] = {
+    mpv_render_param mpv_params[4] = {
         {MPV_RENDER_PARAM_OPENGL_FBO, &mpv_fbo},
         {MPV_RENDER_PARAM_FLIP_Y, &flip_y},
+        {MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &block_for_target_time},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
     float vertices[20] = {1.0f,  1.0f,  0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,

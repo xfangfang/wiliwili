@@ -147,6 +147,7 @@ LiveDanmakuItem::LiveDanmakuItem(LiveDanmakuItem &&item) noexcept {
 }
 
 void LiveDanmakuCore::reset() {
+    this->motionClock.reset();
     this->scroll_lines.clear();
     this->center_lines.clear();
     this->now.clear();
@@ -366,7 +367,8 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float 
         nvgFontQuality(vg, 0.01f * DanmakuCore::DANMAKU_RENDER_QUALITY);
     }
 
-    auto _now = std::chrono::system_clock::now();
+    const float pxScale = brls::Application::windowScale;
+    auto _now           = time_p(std::chrono::microseconds(this->motionClock.step(brls::getCPUTimeUsec(), true)));
 
     // 预先计算常量
     const float emoticon_size = DanmakuCore::DANMAKU_STYLE_FONTSIZE * 1.8f;
@@ -425,11 +427,12 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float 
                 // 根据弹幕类型绘制描边
                 if (j.danmaku->dan_type == 4 || j.danmaku->dan_type == 5) {
                     // 顶部或底部弹幕
-                    nvgText(vg, x + width / 2 - j.length / 2 + dx, y + j.line * line_height + 5 + dy, j.danmaku->dan.c_str(),
-                            nullptr);
+                    wiliwili::drawSubpixelText(vg, x + width / 2 - j.length / 2 + dx,
+                                               y + j.line * line_height + 5 + dy, pxScale, j.danmaku->dan.c_str());
                 } else if (position > 0) {
                     // 滚动弹幕
-                    nvgText(vg, x + width - position + dx, y + j.line * line_height + 5 + dy, j.danmaku->dan.c_str(), nullptr);
+                    wiliwili::drawSubpixelText(vg, x + width - position + dx,
+                                               y + j.line * line_height + 5 + dy, pxScale, j.danmaku->dan.c_str());
                 }
             }
             nvgFontBlur(vg, 0.0f);
@@ -481,7 +484,8 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float 
                             
                             // 设置文本颜色
                             nvgFillColor(vg, color);
-                            nvgText(vg, baseX + cursorX, y + j.line * line_height + 5, textPart.c_str(), nullptr);
+                            wiliwili::drawSubpixelText(vg, baseX + cursorX, y + j.line * line_height + 5, pxScale,
+                                                       textPart.c_str());
                             cursorX += textWidth;
                         }
                         
@@ -501,14 +505,16 @@ void LiveDanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float 
                     if (lastEnd < fullText.length()) {
                         std::string textPart = fullText.substr(lastEnd);
                         nvgFillColor(vg, color);
-                        nvgText(vg, baseX + cursorX, y + j.line * line_height + 5, textPart.c_str(), nullptr);
+                        wiliwili::drawSubpixelText(vg, baseX + cursorX, y + j.line * line_height + 5, pxScale,
+                                                   textPart.c_str());
                     }
                     break;
                 }
                 case LiveDanmakuItem::ContentType::TEXT:
                 default: {
                     // 纯文本弹幕
-                    nvgText(vg, baseX, y + j.line * line_height + 5, j.danmaku->dan.c_str(), nullptr);
+                    wiliwili::drawSubpixelText(vg, baseX, y + j.line * line_height + 5, pxScale,
+                                               j.danmaku->dan.c_str());
                     break;
                 }
             }
