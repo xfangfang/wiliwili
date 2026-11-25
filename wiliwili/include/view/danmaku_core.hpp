@@ -14,6 +14,7 @@
 #include <borealis/core/font.hpp>
 
 #include "utils/event_helper.hpp"
+#include "view/danmaku_motion.hpp"
 
 #if defined(BOREALIS_USE_D3D11) || defined(BOREALIS_USE_OPENGL) && !defined(__PSV__) || defined(BOREALIS_USE_GXM)
 #define DRAW_DANMAKU_MASK
@@ -264,6 +265,8 @@ private:
 
     // 行高
     float lineHeight;
+
+    wiliwili::DanmakuMotionClock motionClock;
 
     MPVEvent::Subscription event_id;
 

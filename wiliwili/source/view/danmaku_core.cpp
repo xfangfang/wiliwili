@@ -197,25 +197,36 @@ void DanmakuItem::draw(NVGcontext *vg, float x, float y, float alpha, bool multi
     float dx, dy;
     dx = dy = DanmakuCore::DANMAKU_STYLE_FONT == DanmakuFontStyle::DANMAKU_FONT_INCLINE;
 
-    // background
+    if (multiLine) {
+        if (DanmakuCore::DANMAKU_STYLE_FONT != DanmakuFontStyle::DANMAKU_FONT_PURE) {
+            nvgFontDilate(vg, dilate);
+            nvgFontBlur(vg, blur);
+            nvgFillColor(vg, a(borderColor, alpha));
+            nvgTextBox(vg, x + dx, y + dy, MAX_DANMAKU_LENGTH, msg.c_str(), nullptr);
+        }
+        nvgFontDilate(vg, 0.0f);
+        nvgFontBlur(vg, 0.0f);
+        nvgFillColor(vg, a(color, alpha));
+        nvgTextBox(vg, x + dx, y + dy, MAX_DANMAKU_LENGTH, msg.c_str(), nullptr);
+        return;
+    }
+
+    // Translate in float via state->xform and submit glyphs at local (0, 0) so
+    // Fontstash's floorf(*x + xoff) does not quantize horizontal motion or
+    // relative kerning to integer pixels.
+    nvgSave(vg);
+    nvgTranslate(vg, x, wiliwili::snapVerticalPixel(y, brls::Application::windowScale));
     if (DanmakuCore::DANMAKU_STYLE_FONT != DanmakuFontStyle::DANMAKU_FONT_PURE) {
         nvgFontDilate(vg, dilate);
         nvgFontBlur(vg, blur);
         nvgFillColor(vg, a(borderColor, alpha));
-        if (multiLine)
-            nvgTextBox(vg, x + dx, y + dy, MAX_DANMAKU_LENGTH, msg.c_str(), nullptr);
-        else
-            nvgText(vg, x + dx, y + dy, msg.c_str(), nullptr);
+        nvgText(vg, dx, dy, msg.c_str(), nullptr);
     }
-
-    // content
     nvgFontDilate(vg, 0.0f);
     nvgFontBlur(vg, 0.0f);
     nvgFillColor(vg, a(color, alpha));
-    if (multiLine)
-        nvgTextBox(vg, x + dx, y + dy, MAX_DANMAKU_LENGTH, msg.c_str(), nullptr);
-    else
-        nvgText(vg, x, y, msg.c_str(), nullptr);
+    nvgText(vg, 0.0f, 0.0f, msg.c_str(), nullptr);
+    nvgRestore(vg);
 }
 
 NVGcolor DanmakuItem::a(NVGcolor color, float alpha) {
@@ -280,6 +291,7 @@ void DanmakuCore::reset() {
     maskSliceIndex      = 0;
     videoSpeed          = MPVCore::instance().getSpeed();
     lineHeight          = DANMAKU_STYLE_FONTSIZE * DANMAKU_STYLE_LINE_HEIGHT * 0.01f;
+    motionClock.reset();
     maskData.clear();
     if (maskTex != 0) {
         nvgDeleteImage(brls::Application::getNVGContext(), maskTex);
@@ -346,6 +358,7 @@ void DanmakuCore::refresh() {
 
     // 获取视频播放速度
     videoSpeed = MPVCore::instance().getSpeed();
+    motionClock.reset();
 
     // 将当前屏幕第一条弹幕序号设为0
     danmakuIndex = 0;
@@ -391,7 +404,7 @@ void DanmakuCore::refresh() {
 void DanmakuCore::setSpeed(double speed) {
     double oldSpeed     = videoSpeed;
     videoSpeed          = speed;
-    int64_t currentTime = brls::getCPUTimeUsec();
+    int64_t currentTime = this->motionClock.currentUsec(brls::getCPUTimeUsec());
     double factor       = oldSpeed / speed;
     // 修改滚动弹幕的起始播放时间，满足修改后的时间在新速度下生成的位置不变。
     for (size_t j = this->danmakuIndex; j < this->danmakuData.size(); j++) {
@@ -548,8 +561,9 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float heig
     if (!this->danmakuLoaded) return;
     if (danmakuData.empty()) return;
 
-    int64_t currentTime = brls::getCPUTimeUsec();
-    double playbackTime = MPVCore::instance().playback_time;
+    const bool isPlaying = MPVCore::instance().isPlaying();
+    int64_t currentTime  = this->motionClock.step(brls::getCPUTimeUsec(), isPlaying);
+    double playbackTime  = MPVCore::instance().playback_time;
     float SECOND        = 0.12f * DANMAKU_STYLE_SPEED;
     float CENTER_SECOND = 0.04f * DANMAKU_STYLE_SPEED;
 
@@ -617,24 +631,19 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float heig
                 nvgRestore(vg);
                 continue;
             }
-            //滑动弹幕
-            float position = 0;
-            if (!MPVCore::instance().isPlaying()) {
-                // 暂停状态弹幕也要暂停
-                position    = i.speed * (playbackTime - i.time);
-                i.startTime = currentTime - (playbackTime - i.time) / videoSpeed * 1e6;
-            } else {
-                // position = i.speed * (playbackTime - i.time) 是最精确的弹幕位置
-                // 但是因为 playbackTime 是根据视频帧率设定的，直接使用此值会导致弹幕看起来卡顿
-                // 这里以弹幕绘制的起始时间点为准，通过与当前时间值的差值计算来得到更精确的弹幕位置
-                // 但是当 AV 不同步时，mpv会自动修正播放的进度，导致 playbackTime 和现实的时间脱离，不同弹幕间因此可能产生重叠
-                position = i.speed * (currentTime - i.startTime) * videoSpeed / 1e6;
-            }
+            // 滑动弹幕：motionClock 在暂停时冻结 pacedUsec，在播放时按显示刷新周期平滑步进，
+            // 消除多缓冲交换链突发与 24/30fps 视频回调造成的帧间位移锯齿，同时避免暂停瞬间跳变。
+            const float position = static_cast<float>(
+                static_cast<double>(currentTime - i.startTime) * videoSpeed * 1e-6 * static_cast<double>(i.speed));
 
             // 根据位置判断是否显示弹幕
             if (position > width + i.length) {
-                i.showing    = false;
-                danmakuIndex = j + 1;
+                i.showing = false;
+                i.canShow = false;
+                while (this->danmakuIndex < this->danmakuData.size() &&
+                       !this->danmakuData[this->danmakuIndex].canShow) {
+                    this->danmakuIndex++;
+                }
                 continue;
             }
 
@@ -650,11 +659,16 @@ void DanmakuCore::draw(NVGcontext *vg, float x, float y, float width, float heig
             if (i.type == 4 || i.type == 5) {
                 // 底部或顶部弹幕
                 if (i.time + CENTER_SECOND < playbackTime) {
+                    i.canShow = false;
                     continue;
                 }
             } else if (i.time + SECOND < playbackTime) {
                 // 滚动弹幕
-                danmakuIndex = j + 1;
+                i.canShow = false;
+                while (this->danmakuIndex < this->danmakuData.size() &&
+                       !this->danmakuData[this->danmakuIndex].canShow) {
+                    this->danmakuIndex++;
+                }
                 continue;
             }
 
