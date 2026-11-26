@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <future>
+#include <functional>
 
 namespace bilibili {
 
