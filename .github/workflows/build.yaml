@@ -301,7 +301,7 @@ jobs:
 
   build-macos:
     needs: [ version ]
-    runs-on: macos-14
+    runs-on: macos-latest
     strategy:
       matrix:
         include:
@@ -384,6 +384,8 @@ jobs:
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
       options: --privileged
+      volumes:
+        - /var/lib/flatpak
     strategy:
       matrix:
         include:
