@@ -84,6 +84,9 @@
                             id="setting/video/mirror"/>
 
                     <SelectorCell
+                            id="setting/video/rotate"/>
+
+                    <SelectorCell
                             id="setting/video/aspect"/>
 
                     <brls:BooleanCell

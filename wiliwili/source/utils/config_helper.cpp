@@ -284,6 +284,7 @@ std::unordered_map<SettingItem, ProgramOption> ProgramConfig::SETTING_MAP = {
     {SettingItem::DEACTIVATED_FPS, {"deactivated_fps", {}, {}, 0}},
     {SettingItem::DLNA_PORT, {"dlna_port", {}, {}, 0}},
     {SettingItem::PLAYER_STRATEGY, {"player_strategy", {"rcmd", "next", "loop", "single"}, {0, 1, 2, 3}, 0}},
+    {SettingItem::PLAYER_ROTATE, {"player_rotate", {"0", "90", "180", "270"}, {0, 90, 180, 270}, 0}},
     {SettingItem::PLAYER_BRIGHTNESS, {"player_brightness", {}, {}, 0}},
     {SettingItem::PLAYER_CONTRAST, {"player_contrast", {}, {}, 0}},
     {SettingItem::PLAYER_SATURATION, {"player_saturation", {}, {}, 0}},
@@ -575,6 +576,10 @@ void ProgramConfig::load() {
 
     // 初始化视频比例
     MPVCore::VIDEO_ASPECT = getSettingItem(SettingItem::PLAYER_ASPECT, std::string{"-1"});
+
+    // 初始化视频旋转角度
+    MPVCore::VIDEO_ROTATE =
+        getOptionData(SettingItem::PLAYER_ROTATE).rawOptionList[getIntOptionIndex(SettingItem::PLAYER_ROTATE)];
 
     // 初始化均衡器
     MPVCore::VIDEO_BRIGHTNESS = getSettingItem(SettingItem::PLAYER_BRIGHTNESS, 0);

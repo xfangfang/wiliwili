@@ -183,6 +183,16 @@ void PlayerSetting::setupCommonSetting() {
         GA("player_setting", {{"mirror", value ? "true" : "false"}});
     });
 
+    /// Player rotate
+    btnRotate->init("wiliwili/player/setting/common/rotate"_i18n, {"0°", "90°", "180°", "270°"},
+                    conf.getIntOptionIndex(SettingItem::PLAYER_ROTATE), [](int value) {
+                        auto option = ProgramConfig::instance().getOptionData(SettingItem::PLAYER_ROTATE);
+                        int rotate  = option.rawOptionList[value];
+                        MPVCore::instance().setRotate(rotate);
+                        ProgramConfig::instance().setSettingItem(SettingItem::PLAYER_ROTATE, rotate);
+                        GA("player_setting", {{"rotate", rotate}});
+                    });
+
     /// Player aspect
     btnAspect->init("wiliwili/player/setting/aspect/header"_i18n,
                     {"wiliwili/player/setting/aspect/auto"_i18n, "wiliwili/player/setting/aspect/stretch"_i18n,

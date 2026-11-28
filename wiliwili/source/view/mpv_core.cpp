@@ -324,6 +324,7 @@ void MPVCore::init() {
     mpvSetOption(mpv, "saturation", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_SATURATION);
     mpvSetOption(mpv, "hue", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_HUE);
     mpvSetOption(mpv, "gamma", MPV_FORMAT_DOUBLE, &MPVCore::VIDEO_GAMMA);
+    mpvSetOptionString(mpv, "video-rotate", std::to_string(MPVCore::VIDEO_ROTATE).c_str());
 
     if (MPVCore::LOW_QUALITY) {
         // Less cpu cost
@@ -1250,6 +1251,17 @@ void MPVCore::setMirror(bool value) {
     setHwdecCopyMode(value);
 #endif
 }
+
+void MPVCore::setRotate(int value) {
+    // 只支持 90 度的整数倍，mpv 的 video-rotate 在硬解非 copy 模式下也只支持 90 度步进
+    value %= 360;
+    if (value < 0) value += 360;
+    value                 = (value / 90) * 90;
+    MPVCore::VIDEO_ROTATE = value;
+    command_async("set", "video-rotate", value);
+}
+
+int MPVCore::getRotate() const { return MPVCore::VIDEO_ROTATE; }
 
 void MPVCore::setHwdecCopyMode(bool value) {
     // 如果正在使用硬解，那么将硬解更新为 auto-copy，避免直接硬解因为不经过 cpu 处理导致镜像翻转、滤镜无效

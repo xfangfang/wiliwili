@@ -390,6 +390,7 @@
       "common": {
         "header": "Generale",
         "mirror": "Rispecchia orizzontalmente",
+        "rotate": "Ruota video",
         "highlight": "Mostra sempre i punti salienti",
         "skip_opening_credits": "Salta titoli di testa",
         "skip_hint1": "Salta automaticamente i titoli di testa dal prossimo video",

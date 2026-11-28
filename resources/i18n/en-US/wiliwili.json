@@ -390,6 +390,7 @@
       "common": {
         "header": "Common",
         "mirror": "Horizontally flip",
+        "rotate": "Rotate video",
         "highlight": "Always show hotspots",
         "skip_opening_credits": "Skip opening credits",
         "skip_hint1": "Automatically skip the opening credits from next video",

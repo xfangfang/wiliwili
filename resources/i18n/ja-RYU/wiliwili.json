@@ -390,6 +390,7 @@
       "common": {
         "header": "一般",
         "mirror": "水平方向に反転",
+        "rotate": "画面を回転",
         "highlight": "ホットスポットを常に表示",
         "skip_opening_credits": "オープニングクレジットをスキップ",
         "skip_hint1": "次の動画からオープニング クレジットを自動的にスキップします",
