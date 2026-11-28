@@ -390,6 +390,7 @@
       "common": {
         "header": "공통",
         "mirror": "수평으로 뒤집기",
+        "rotate": "화면 회전",
         "highlight": "항상 핫스팟 표시",
         "skip_opening_credits": "오프닝 크레딧 건너뛰기",
         "skip_hint1": "다음 동영상의 오프닝 크레딧을 자동으로 건너뜀",

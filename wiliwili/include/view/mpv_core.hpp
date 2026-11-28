@@ -230,6 +230,17 @@ public:
     void setMirror(bool value);
 
     /**
+     * 顺时针旋转视频画面
+     * @param value 旋转角度，仅支持 0 / 90 / 180 / 270
+     */
+    void setRotate(int value);
+
+    /**
+     * 获取当前视频旋转角度
+     */
+    int getRotate() const;
+
+    /**
      * 设置视频亮度
      * @param value [-100, 100]
      */
@@ -388,6 +399,9 @@ public:
 
     // 是否镜像视频
     inline static bool VIDEO_MIRROR = false;
+
+    // 视频顺时针旋转角度 (0 / 90 / 180 / 270)
+    inline static int VIDEO_ROTATE = 0;
 
     // 强制的视频比例 (-1 为自动)
     inline static std::string VIDEO_ASPECT = "-1";

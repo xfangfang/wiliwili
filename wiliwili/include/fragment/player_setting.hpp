@@ -77,6 +77,7 @@ private:
     BRLS_BIND(brls::DetailCell, btnPlayStrategy, "setting/play/strategy");
     BRLS_BIND(brls::BooleanCell, btnExitFullscreen, "setting/auto/exit");
     BRLS_BIND(brls::BooleanCell, btnMirror, "setting/video/mirror");
+    BRLS_BIND(BiliSelectorCell, btnRotate, "setting/video/rotate");
     BRLS_BIND(BiliSelectorCell, btnAspect, "setting/video/aspect");
     BRLS_BIND(brls::BooleanCell, btnHighlight, "setting/video/highlight");
     BRLS_BIND(brls::DetailCell, btnSleep, "setting/sleep");
