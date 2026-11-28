@@ -541,18 +541,21 @@ MPVCore::~MPVCore() = default;
 #endif
 
 void MPVCore::clean() {
-    check_error(mpvCommandString(this->mpv, "quit"));
-
     brls::Application::getWindowFocusChangedEvent()->unsubscribe(focusSubscription);
 
-    brls::Logger::info("uninitialize Video");
-    this->uninitializeVideo();
+    if (this->mpv) {
+        mpvSetWakeupCallback(this->mpv, nullptr, nullptr);
+    }
 
     brls::Logger::info("trying free mpv context");
     if (this->mpv_context) {
+        mpvRenderContextSetUpdateCallback(this->mpv_context, nullptr, nullptr);
         mpvRenderContextFree(this->mpv_context);
         this->mpv_context = nullptr;
     }
+
+    brls::Logger::info("uninitialize Video");
+    this->uninitializeVideo();
 
     brls::Logger::info("trying terminate mpv");
     if (this->mpv) {
